@@ -30,15 +30,24 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
 
     window._swipeNav = { vol: volId, prev: prevFile, next: nextFile };
 
-    // Title resolution
-    let indexTitles = {};
-    try { indexTitles = window.GLOBAL_INDEX_TITLES || {}; } catch (e) { }
-    const indexTitlesForVol = indexTitles[volId] || {};
-    let indexTitle = indexTitlesForVol[filename];
-    if (!indexTitle && filename) {
-        const baseFile = filename.split('/').pop().toLowerCase();
-        const matchingKey = Object.keys(indexTitlesForVol).find(k => k.toLowerCase() === baseFile || k.toLowerCase() === filename.toLowerCase());
-        if (matchingKey) indexTitle = indexTitlesForVol[matchingKey];
+    // Title resolution — prioritize SECTION_MAP (correct section names)
+    // over GLOBAL_INDEX_TITLES (which may store per-file topic titles)
+    let indexTitle = '';
+    try {
+        const sectionMap = window.SECTION_MAP || {};
+        const sectObj = (sectionMap[volId] || {})[filename];
+        if (sectObj) indexTitle = isPt ? sectObj.pt : (sectObj.ja || sectObj.pt);
+    } catch (e) { }
+    if (!indexTitle) {
+        let indexTitles = {};
+        try { indexTitles = window.GLOBAL_INDEX_TITLES || {}; } catch (e) { }
+        const indexTitlesForVol = indexTitles[volId] || {};
+        indexTitle = indexTitlesForVol[filename];
+        if (!indexTitle && filename) {
+            const baseFile = filename.split('/').pop().toLowerCase();
+            const matchingKey = Object.keys(indexTitlesForVol).find(k => k.toLowerCase() === baseFile || k.toLowerCase() === filename.toLowerCase());
+            if (matchingKey) indexTitle = indexTitlesForVol[matchingKey];
+        }
     }
     const jaSpecificTitle = topicsFound[0].title_ja || topicsFound[0].title;
     const ptSpecificTitle = topicsFound[0].title_ptbr || topicsFound[0].title_pt || topicsFound[0].title;
@@ -192,11 +201,22 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         document.body.classList.add('reader-search-mode');
     }
 
+    const specificTitle = isPt ? ptSpecificTitle : jaSpecificTitle;
+    let breadcrumbTitleHtml = '';
+    const cleanIndexTitle = indexTitle ? indexTitle.replace(/<br\s*\/?>/gi, ' ') : '';
+    const cleanSpecificTitle = specificTitle ? specificTitle.replace(/<br\s*\/?>/gi, ' ') : '';
+
+    if (cleanIndexTitle && cleanSpecificTitle && cleanIndexTitle !== cleanSpecificTitle) {
+        breadcrumbTitleHtml = `<span>${cleanIndexTitle}</span> <span>/</span> <span style="color:var(--text-main)">${cleanSpecificTitle}</span>`;
+    } else {
+        breadcrumbTitleHtml = `<span style="color:var(--text-main)">${cleanTitle}</span>`;
+    }
+
     container.innerHTML = `
         <nav class="breadcrumbs">
             <a href="index.html">${bl.home}</a> <span>/</span>
             <a href="${volId}/index.html">${bl.volume} ${volId.slice(-1)}</a> <span>/</span>
-            <span style="color:var(--text-main)">${cleanTitle}</span>
+            ${breadcrumbTitleHtml}
         </nav>
         ${openPubHtml}
         <div class="reader-container">

@@ -28,7 +28,12 @@ export async function storageFetch(path) {
   const session = await getSession();
 
   if (!session) {
-    throw new Error('Authentication required');
+    const baseUrl = window.DATA_OUTPUT_DIR || 'site_data';
+    const res = await fetch(`${baseUrl}/${path}`);
+    if (!res.ok) {
+      throw new Error('Authentication required or file not found');
+    }
+    return res.json();
   }
 
   const { data, error } = await supabase.storage

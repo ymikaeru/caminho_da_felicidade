@@ -223,28 +223,29 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     }
 
     const specificTitle = isPt ? ptSpecificTitle : jaSpecificTitle;
-    let breadcrumbTitleHtml = '';
+
     const cleanIndexTitle = indexTitle ? indexTitle.replace(/<br\s*\/?>/gi, ' ') : '';
     const cleanSpecificTitle = specificTitle ? specificTitle.replace(/<br\s*\/?>/gi, ' ') : '';
     const cleanSectionName = sectionName ? sectionName.replace(/<br\s*\/?>/gi, ' ') : '';
     const cleanThemeSection = themeSectionName ? themeSectionName.replace(/<br\s*\/?>/gi, ' ') : '';
     const effectiveSection = cleanSectionName || cleanThemeSection;
 
-    if (cleanIndexTitle && cleanSpecificTitle && cleanIndexTitle !== cleanSpecificTitle) {
-        if (effectiveSection) {
-            breadcrumbTitleHtml = `<a href="${volId}/index.html">${effectiveSection}</a> <span>/</span> <span style="color:var(--text-main)">${cleanSpecificTitle}</span>`;
-        } else {
-            breadcrumbTitleHtml = `<span>${cleanIndexTitle}</span> <span>/</span> <span style="color:var(--text-main)">${cleanSpecificTitle}</span>`;
-        }
-    } else {
-        breadcrumbTitleHtml = `<span style="color:var(--text-main)">${cleanTitle}</span>`;
+    let bcParts = [];
+    bcParts.push(`<a href="index.html">${bl.home}</a>`);
+    bcParts.push(`<a href="${volId}/index.html">${bl.volume} ${volId.slice(-1)}</a>`);
+    if (effectiveSection) {
+        bcParts.push(`<a href="${volId}/index.html">${effectiveSection}</a>`);
     }
+
+    if (cleanIndexTitle) {
+        bcParts.push(`<span style="color:var(--text-main)">${cleanIndexTitle}</span>`);
+    }
+
+    const breadcrumbsHtml = bcParts.join(' <span>/</span> ');
 
     container.innerHTML = `
         <nav class="breadcrumbs">
-            <a href="index.html">${bl.home}</a> <span>/</span>
-            <a href="${volId}/index.html">${bl.volume} ${volId.slice(-1)}</a> <span>/</span>
-            ${breadcrumbTitleHtml}
+            ${breadcrumbsHtml}
         </nav>
         ${openPubHtml}
         <div class="reader-container">

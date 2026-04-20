@@ -838,13 +838,42 @@
     };
 
     window.changeRole = async function(userId, role) {
-      await supabase.from('user_profiles').update({ role }).eq('id', userId);
+      console.log('changeRole chamado:', userId, role);
+      const { data: existing, error: fetchError } = await supabase.from('user_profiles').select('role').eq('id', userId).single();
+      if (fetchError) {
+        console.error('Erro ao buscar usuário:', fetchError.message);
+        alert('Erro ao buscar usuário: ' + fetchError.message);
+        return;
+      }
+      console.log('Role atual:', existing?.role);
+      if (existing && existing.role === role) return;
+      if (role === 'admin' && !confirm('Dar permissão de ADMIN para este usuário?')) return;
+
+      const { data: updated, error } = await supabase.from('user_profiles').update({ role }).eq('id', userId).select();
+      console.log('Resultado do update:', updated, error);
+
+      if (error) {
+        console.error('Erro ao alterar função:', error.message, error.details, error.hint);
+        alert('Erro ao alterar função: ' + error.message + (error.details ? '\n' + error.details : ''));
+        loadUsers();
+        return;
+      }
       loadUsers();
     };
 
     window.deleteUser = async function(userId) {
-      if (!confirm('Tem certeza que deseja remover este usuário?')) return;
-      await supabase.from('user_profiles').delete().eq('id', userId);
+      if (!confirm('Tem certeza que deseja remover este usuário? Esta ação não pode ser desfeita.')) return;
+      const tables = ['user_permissions', 'access_logs', 'reading_positions', 'synced_favorites', 'user_highlights', 'search_logs'];
+      for (const table of tables) {
+        const { error } = await supabase.from(table).delete().eq('user_id', userId);
+        if (error) console.error('Erro ao limpar ' + table + ':', error.message);
+      }
+      const { error: profileError } = await supabase.from('user_profiles').delete().eq('id', userId);
+      if (profileError) {
+        alert('Erro ao remover usuário: ' + profileError.message);
+        loadUsers();
+        return;
+      }
       if (selectedUserId === userId) closePermEditor();
       loadUsers();
     };
@@ -887,7 +916,7 @@
       msg.style.display = 'none';
 
       try {
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -895,7 +924,30 @@
           }
         });
 
-        if (error) throw error;
+        if (signUpError) throw signUpError;
+
+        const userId = signUpData.user?.id;
+        console.log('signUp userId:', userId);
+        if (userId) {
+          const { data: profileData, error: profileError } = await supabase
+            .from('user_profiles')
+            .upsert({
+              id: userId,
+              display_name: name || email.split('@')[0],
+              role: 'user'
+            }, { onConflict: 'id' })
+            .select();
+
+          console.log('Profile upsert result:', profileData, profileError);
+          if (profileError) {
+            console.error('Erro ao criar perfil:', profileError.message, profileError.details, profileError.hint);
+            msg.textContent = 'Usuário criado no auth, mas falha ao criar perfil: ' + profileError.message;
+            msg.className = 'msg err';
+            loadUsers();
+            btn.disabled = false;
+            return;
+          }
+        }
 
         msg.textContent = 'Usuário criado com sucesso!';
         msg.className = 'msg ok';

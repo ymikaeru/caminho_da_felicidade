@@ -325,6 +325,19 @@ mark.temp-selection {
   justify-content: center;
 }
 
+.highlight-mobile-comment {
+  min-height: 44px;
+  height: 44px;
+  padding: 10px;
+  transition: min-height 0.2s ease, height 0.2s ease;
+  resize: none;
+}
+
+.highlight-mobile-comment:focus {
+  min-height: 80px;
+  height: 80px;
+}
+
 .highlight-mobile-bar-actions {
   display: flex;
   gap: 8px;

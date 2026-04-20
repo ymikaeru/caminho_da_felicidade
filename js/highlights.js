@@ -384,9 +384,14 @@
       `<button class="highlight-color-btn color-${c}" data-color="${c}"></button>`
     ).join('');
 
+    const commentPlaceholder = lang === 'ja' ? 'コメントを追加...' : 'Adicionar comentário...';
+    
     _mobileBarEl.innerHTML =
       `<div class="highlight-mobile-bar-content">` +
         `<div class="highlight-colors">${colorBtnsHTML}</div>` +
+        `<div class="highlight-comment-section">` +
+          `<textarea class="highlight-comment-input highlight-mobile-comment" id="highlightMobileCommentInput" placeholder="${commentPlaceholder}"></textarea>` +
+        `</div>` +
         `<div class="highlight-mobile-bar-actions">` +
           `<button class="highlight-cancel-btn" id="highlightMobileCancelBtn">${cancelLabel}</button>` +
           `<button class="highlight-save-btn" id="highlightMobileSaveBtn">${highlightLabel}</button>` +
@@ -558,7 +563,9 @@
     if (!_currentSelection) return;
 
     const { volId, filename } = _getParams();
-    const comment = document.getElementById('highlightCommentInput')?.value.trim() || '';
+    const commentInputDesktop = document.getElementById('highlightCommentInput');
+    const commentInputMobile = document.getElementById('highlightMobileCommentInput');
+    const comment = (commentInputDesktop?.value || commentInputMobile?.value || '').trim();
 
     const highlight = {
       id: 'hl_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),

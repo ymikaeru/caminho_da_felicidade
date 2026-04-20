@@ -590,6 +590,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+let _supabaseLogTimer = null;
+
 function logSearch(query, count) {
   try {
     const key = 'mioshie_search_log';
@@ -599,21 +601,26 @@ function logSearch(query, count) {
     localStorage.setItem(key, JSON.stringify(log));
   } catch (e) { }
 
-  // Log to Supabase for cross-user analytics (fire-and-forget)
-  try {
-    const supabase = window.supabaseAuth?.supabase;
-    if (supabase) {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-          supabase.from('search_logs').insert({
-            user_id: session.user.id,
-            query: query.trim().toLowerCase().substring(0, 200),
-            results_count: count
-          }).then(() => {}).catch(() => {});
-        }
-      });
-    }
-  } catch (e) { }
+  // Log to Supabase with debounce — only logs the final settled query
+  clearTimeout(_supabaseLogTimer);
+  const trimmed = query.trim().toLowerCase();
+  if (trimmed.length < 3) return; // ignore very short partial queries
+  _supabaseLogTimer = setTimeout(() => {
+    try {
+      const supabase = window.supabaseAuth?.supabase;
+      if (supabase) {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) {
+            supabase.from('search_logs').insert({
+              user_id: session.user.id,
+              query: trimmed.substring(0, 200),
+              results_count: count
+            }).then(() => {}).catch(() => {});
+          }
+        });
+      }
+    } catch (e) { }
+  }, 2000);
 }
 
 function _updateFocusedItem(items) {

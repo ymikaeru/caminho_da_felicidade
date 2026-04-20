@@ -1,0 +1,3 @@
+* text=auto eol=crlf
+
+*.{js,css,html,json,md,sql,xml} text eol=crlf

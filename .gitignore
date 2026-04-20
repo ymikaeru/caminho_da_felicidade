@@ -1,0 +1,7 @@
+node_modules/
+.env
+.env.local
+.env.*
+auth-config.json
+*.pyc
+__pycache__/

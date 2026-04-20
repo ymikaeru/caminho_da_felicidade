@@ -1,0 +1,29 @@
+{
+  "name": "mioshie-college",
+  "version": "1.0.0",
+  "description": "Mioshie College — Ensinamentos de Meishu-Sama",
+  "main": "sw.js",
+  "scripts": {
+    "build:css": "postcss css/styles.css --config postcss.config.cjs -o css/styles.min.css",
+    "watch:css": "postcss css/styles.css --config postcss.config.cjs -o css/styles.min.css --watch",
+    "build": "npm run build:css",
+    "split:index": "node scripts/split_search_index.js"
+  },
+  "keywords": [
+    "meishu-sama",
+    "ensinamentos",
+    "mioshie"
+  ],
+  "author": "Ymika",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "cssnano": "^7.1.4",
+    "postcss": "^8.5.8",
+    "postcss-cli": "^11.0.1",
+    "postcss-import": "^16.1.1"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.3"
+  }
+}

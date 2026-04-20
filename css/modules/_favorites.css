@@ -1,0 +1,112 @@
+#favoriteBtn,
+#mobileFavoriteBtn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 6px 10px;
+  border-radius: 20px;
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+#favoriteBtn:hover,
+#mobileFavoriteBtn:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: none;
+}
+
+#favoriteBtn.active,
+#mobileFavoriteBtn.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: none;
+}
+
+#favoriteBtn.active svg,
+#mobileFavoriteBtn.active svg {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+
+.fav-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: var(--font-ui);
+  line-height: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.fav-badge.visible {
+  opacity: 1;
+}
+
+.saved-topic-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-left: 8px;
+  vertical-align: middle;
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.saved-topic-dot.visible {
+  opacity: 0.8;
+  transform: scale(1);
+}
+
+.save-tooltip {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: #1a1a1a;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  max-width: 260px;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.save-tooltip.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.save-tooltip .save-tooltip-title {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.save-tooltip .save-tooltip-status {
+  font-size: 11px;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

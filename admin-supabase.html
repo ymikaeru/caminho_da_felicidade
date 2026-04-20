@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin — Gerenciar Usuários — Mioshie College</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/styles.min.css?v=17">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    .admin-wrap { max-width: 960px; margin: 0 auto; padding: 40px 24px 120px; }
+    .admin-section { margin-bottom: 40px; }
+    .admin-section h2 { font-size: 1rem; font-weight: 600; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
+
+    /* Tabs */
+    .admin-tabs { display: flex; gap: 4px; margin-bottom: 32px; border-bottom: 1px solid var(--border); }
+    .admin-tab {
+      padding: 10px 20px; cursor: pointer; font-size: 0.9rem; font-weight: 500;
+      color: var(--text-muted); border-bottom: 2px solid transparent; transition: all 0.15s;
+    }
+    .admin-tab:hover { color: var(--text); }
+    .admin-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Stats cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .stat-card {
+      padding: 20px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--surface); text-align: center;
+    }
+    .stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Tables */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--border); color: var(--text-muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .data-table tr:hover td { background: var(--hover, rgba(255,255,255,0.04)); }
+
+    /* User list */
+    .user-list { display: flex; flex-direction: column; gap: 8px; }
+    .user-row {
+      display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+      border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+      cursor: pointer; transition: background 0.15s;
+    }
+    .user-row:hover { background: var(--hover, rgba(255,255,255,0.04)); }
+    .user-row.active { border-color: var(--accent); background: rgba(184,134,11,0.05); }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--accent);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-weight: 600; font-size: 0.95rem; }
+    .user-email { font-size: 0.8rem; color: var(--text-muted); }
+    .user-badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: 600; text-transform: uppercase; }
+    .user-badge.admin { background: rgba(184,134,11,0.15); color: var(--accent); }
+    .user-badge.user { background: rgba(0,0,0,0.06); color: var(--text-muted); }
+
+    /* Permission editor */
+    .perm-editor {
+      display: none; margin-top: 16px; padding: 24px;
+      border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+    }
+    .perm-editor.open { display: block; }
+    .perm-editor h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; }
+
+    .vol-block { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+    .vol-header {
+      display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+      cursor: pointer; background: var(--bg); user-select: none;
+    }
+    .vol-header:hover { background: var(--hover, rgba(255,255,255,0.04)); }
+    .vol-header input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); flex-shrink: 0; }
+    .vol-title { font-weight: 600; font-size: 0.9rem; flex: 1; }
+    .vol-body { display: none; padding: 12px 16px; border-top: 1px solid var(--border); }
+    .vol-body.open { display: block; }
+
+    .file-list { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+    .file-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+    .file-item label { font-size: 0.82rem; color: var(--text); cursor: pointer; flex: 1; }
+    .file-item input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); }
+
+    .save-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; z-index: 100;
+    }
+    .save-bar .status { font-size: 0.9rem; color: var(--text-muted); }
+    .save-bar .status.saved { color: #34c759; }
+
+    .add-user-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin-bottom: 20px; }
+    .add-user-form .form-group { flex: 1; min-width: 180px; }
+    .add-user-form label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; }
+    .add-user-form input {
+      width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--bg); color: var(--text); font-size: 0.9rem; box-sizing: border-box;
+    }
+    .add-user-form button {
+      padding: 9px 20px; border: none; border-radius: 8px; background: var(--accent);
+      color: #fff; font-weight: 600; font-size: 0.9rem; cursor: pointer; white-space: nowrap;
+    }
+    .add-user-form button:hover { opacity: 0.85; }
+    .add-user-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .msg { font-size: 0.85rem; padding: 8px 12px; border-radius: 8px; margin-top: 8px; display: none; }
+    .msg.ok { display: block; color: #34c759; background: rgba(52,199,89,0.1); }
+    .msg.err { display: block; color: #ff3b30; background: rgba(255,59,48,0.1); }
+
+    .loading { color: var(--text-muted); font-size: 0.9rem; padding: 20px 0; }
+
+    .delete-btn {
+      background: none; border: none; color: #ff3b30; cursor: pointer; font-size: 0.8rem;
+      padding: 4px 8px; border-radius: 4px;
+    }
+    .delete-btn:hover { background: rgba(255,59,48,0.1); }
+
+    .role-select {
+      padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--bg); color: var(--text); font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="index.html" class="header__logo">
+      <div class="logo-circle"><div class="logo-dot"></div></div>
+      Mioshie College
+    </a>
+    <div class="header__nav">
+      <a href="index.html"><span>⌂ Início</span></a>
+    </div>
+    <div class="controls">
+      <button class="btn-zen" onclick="toggleTheme()">☯</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="content-wrapper">
+      <div class="glass-pane">
+        <div class="admin-wrap">
+
+          <div class="index-header" style="margin-bottom:24px;">
+            <span class="section-label" style="color:var(--accent); font-weight:600; letter-spacing:2px;">ADMIN</span>
+            <h1 class="index-title" style="margin-top:12px;">Painel Administrativo</h1>
+          </div>
+
+          <!-- Tabs -->
+          <div class="admin-tabs">
+            <div class="admin-tab active" onclick="switchTab('users')">Usuários</div>
+            <div class="admin-tab" onclick="switchTab('analytics')">Analytics</div>
+          </div>
+
+          <!-- Users Tab -->
+          <div class="tab-content active" id="tab-users">
+
+          <!-- Add User -->
+          <div class="admin-section">
+            <h2>Adicionar Usuário</h2>
+            <div class="add-user-form">
+              <div class="form-group">
+                <label for="new-name">Nome</label>
+                <input type="text" id="new-name" placeholder="Nome do usuário">
+              </div>
+              <div class="form-group">
+                <label for="new-email">Email</label>
+                <input type="email" id="new-email" placeholder="email@exemplo.com">
+              </div>
+              <div class="form-group">
+                <label for="new-password">Senha temporária</label>
+                <input type="password" id="new-password" placeholder="Minimo 6 caracteres">
+              </div>
+              <button id="add-user-btn" onclick="addUser()">Adicionar</button>
+            </div>
+            <div id="add-user-msg" class="msg"></div>
+          </div>
+
+          <!-- User List -->
+          <div class="admin-section">
+            <h2>Usuários</h2>
+            <div id="user-list-container">
+              <div class="loading">Carregando usuários...</div>
+            </div>
+          </div>
+
+          <!-- Permission Editor -->
+          <div class="perm-editor" id="perm-editor">
+            <h3 id="perm-editor-title">Permissões</h3>
+            <div id="perm-volumes"></div>
+            <div style="margin-top:16px; display:flex; gap:10px;">
+              <button class="login-submit-btn" style="width:auto; padding:10px 24px;" onclick="savePermissions()">Salvar Permissões</button>
+              <button style="padding:10px 24px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); cursor:pointer;" onclick="closePermEditor()">Cancelar</button>
+            </div>
+            <div id="save-perm-msg" class="msg" style="margin-top:12px;"></div>
+          </div>
+
+          </div><!-- /tab-users -->
+
+
+          <!-- Analytics Tab -->
+          <div class="tab-content" id="tab-analytics">
+            <div class="admin-section">
+              <h2>Visão Geral</h2>
+              <div class="stats-grid" id="stats-cards">
+                <div class="stat-card"><div class="stat-value" id="stat-total-users">—</div><div class="stat-label">Usuários</div></div>
+                <div class="stat-card"><div class="stat-value" id="stat-active-users">—</div><div class="stat-label">Ativos (7 dias)</div></div>
+                <div class="stat-card"><div class="stat-value" id="stat-total-views">—</div><div class="stat-label">Visualizações (30 dias)</div></div>
+                <div class="stat-card"><div class="stat-value" id="stat-teachings-read">—</div><div class="stat-label">Ensinamentos Lidos</div></div>
+              </div>
+            </div>
+
+            <div class="admin-section">
+              <h2>Ensinamentos Mais Lidos (30 dias)</h2>
+              <div id="top-teachings"><div class="loading">Carregando...</div></div>
+            </div>
+
+            <div class="admin-section">
+              <h2>Atividade Recente</h2>
+              <div id="recent-activity"><div class="loading">Carregando...</div></div>
+            </div>
+
+            <div class="admin-section">
+              <h2>Posições de Leitura Salvas</h2>
+              <div id="reading-stats"><div class="loading">Carregando...</div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="save-bar">
+    <span class="status" id="save-status"></span>
+    <button class="btn-zen" onclick="loadUsers()" style="font-size:0.85rem;">↻ Atualizar</button>
+  </div>
+
+  <script src="js/theme.js?v=1"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+    }
+  }
+  </script>
+  <script type="module">
+    import { supabase } from './js/supabase-config.js';
+
+    const VOLUMES = [
+      { key: 'mioshiec1', name: 'Volume 1 — Mundo Espiritual' },
+      { key: 'mioshiec2', name: 'Volume 2 — Método Divino de Saúde' },
+      { key: 'mioshiec3', name: 'Volume 3 — A Verdadeira Fé' },
+      { key: 'mioshiec4', name: 'Volume 4 — Ensinamentos Complementares' }
+    ];
+
+    let allUsers = [];
+    let selectedUserId = null;
+    let volumeFiles = {};
+
+    window.switchTab = function(tab) {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      const tabIndex = { 'users': 1, 'analytics': 2 }[tab] || 1;
+      document.querySelector(`.admin-tab:nth-child(${tabIndex})`).classList.add('active');
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      if (tab === 'analytics') loadAnalytics();
+    };
+
+    // Check admin
+    async function checkAdmin() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profile?.role !== 'admin') {
+        alert('Acesso restrito a administradores.');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      loadUsers();
+      loadVolumeFiles();
+    }
+
+    let volumeCategories = {}; // { volKey: { sectionName: [ {file, title} ] } }
+
+    async function loadVolumeFiles() {
+      // Load section_map from storage
+      try {
+        const { data: mapData } = await supabase.storage.from('teachings').download('section_map.js');
+        if (mapData) {
+          const text = await mapData.text();
+          // Extract the JSON from window.SECTION_MAP = {...};
+          const jsonStr = text.match(/window\.SECTION_MAP\s*=\s*(\{.*?\})\s*;?\s*$/s)?.[1];
+          if (jsonStr) {
+            const sectionMap = JSON.parse(jsonStr);
+            for (const vol of VOLUMES) {
+              const volMap = sectionMap[vol.key] || {};
+              const categories = {};
+              for (const [file, info] of Object.entries(volMap)) {
+                const sectionName = info.pt || 'Outros';
+                if (!categories[sectionName]) categories[sectionName] = [];
+                categories[sectionName].push({ file, title: info.pt });
+              }
+              volumeCategories[vol.key] = categories;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to load section_map:', e);
+      }
+
+      // Fallback: if section_map failed, use raw file list
+      for (const vol of VOLUMES) {
+        if (!volumeCategories[vol.key]) {
+          try {
+            const { data } = await supabase.storage.from('teachings').list(`${vol.key}/`);
+            volumeCategories[vol.key] = {
+              'Todos os arquivos': (data || []).map(f => ({ file: f.name, title: f.name.replace('.html.json', '') }))
+            };
+          } catch {
+            volumeCategories[vol.key] = {};
+          }
+        }
+      }
+    }
+
+    window.loadUsers = async function() {
+      const container = document.getElementById('user-list-container');
+      container.innerHTML = '<div class="loading">Carregando usuários...</div>';
+
+      const { data: users, error } = await supabase
+        .from('user_profiles')
+        .select('id, display_name, role, created_at')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        container.innerHTML = `<div class="msg err">Erro: ${error.message}</div>`;
+        return;
+      }
+
+      allUsers = users || [];
+      renderUserList();
+    };
+
+    function renderUserList() {
+      const container = document.getElementById('user-list-container');
+      if (allUsers.length === 0) {
+        container.innerHTML = '<div class="loading">Nenhum usuário encontrado.</div>';
+        return;
+      }
+
+      container.innerHTML = '<div class="user-list">' + allUsers.map(u => `
+        <div class="user-row ${u.id === selectedUserId ? 'active' : ''}" onclick="selectUser('${u.id}')">
+          <div class="user-avatar">${(u.display_name || 'U')[0].toUpperCase()}</div>
+          <div class="user-info">
+            <div class="user-name">${u.display_name || 'Sem nome'}</div>
+            <div class="user-email">${u.email || ''}</div>
+          </div>
+          <span class="user-badge ${u.role}">${u.role}</span>
+          <select class="role-select" onclick="event.stopPropagation()" onchange="changeRole('${u.id}', this.value)">
+            <option value="user" ${u.role === 'user' ? 'selected' : ''}>User</option>
+            <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+          </select>
+          <button class="delete-btn" onclick="event.stopPropagation(); deleteUser('${u.id}')">✕</button>
+        </div>
+      `).join('') + '</div>';
+    }
+
+    window.selectUser = async function(userId) {
+      selectedUserId = userId;
+      renderUserList();
+
+      const editor = document.getElementById('perm-editor');
+      const title = document.getElementById('perm-editor-title');
+      const user = allUsers.find(u => u.id === userId);
+      title.textContent = `Permissões — ${user?.display_name || 'Usuário'}`;
+
+      const { data: perms } = await supabase
+        .from('user_permissions')
+        .select('volume, files')
+        .eq('user_id', userId);
+
+      const permMap = {};
+      for (const p of (perms || [])) {
+        permMap[p.volume] = p.files === null ? 'all' : p.files;
+      }
+
+      const volumesDiv = document.getElementById('perm-volumes');
+      volumesDiv.innerHTML = VOLUMES.map(vol => {
+        const hasAccess = permMap[vol.key] !== undefined;
+        const isAll = permMap[vol.key] === 'all';
+        const selectedFiles = permMap[vol.key] === 'all' ? [] : new Set(permMap[vol.key] || []);
+        const categories = volumeCategories[vol.key] || {};
+
+        const totalFiles = Object.values(categories).reduce((sum, files) => sum + files.length, 0);
+        const selectedCount = isAll ? totalFiles : Object.values(categories).reduce((sum, files) => sum + files.filter(f => selectedFiles.has(f.file)).length, 0);
+
+        return `
+          <div class="vol-block">
+            <div class="vol-header" onclick="this.nextElementSibling.classList.toggle('open')">
+              <input type="checkbox" ${hasAccess ? 'checked' : ''} onchange="toggleVolume('${vol.key}', this.checked)">
+              <span class="vol-title">${vol.name}</span>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${isAll ? 'Todos' : selectedCount + '/' + totalFiles}</span>
+            </div>
+            <div class="vol-body">
+              <div style="margin-bottom:12px;">
+                <label style="font-size:0.82rem; cursor:pointer;">
+                  <input type="checkbox" ${isAll ? 'checked' : ''} onchange="toggleAllFiles('${vol.key}', this.checked)">
+                  Acesso a todas as categorias
+                </label>
+              </div>
+              ${Object.entries(categories).map(([sectionName, files]) => {
+                const sectionAll = isAll || files.every(f => selectedFiles.has(f.file));
+                const sectionSome = !sectionAll && files.some(f => selectedFiles.has(f.file));
+                return `
+                  <div class="vol-block" style="margin-bottom:8px;">
+                    <div class="vol-header" onclick="this.nextElementSibling.classList.toggle('open')" style="padding:8px 12px;">
+                      <input type="checkbox" ${sectionAll ? 'checked' : ''} ${sectionSome && !sectionAll ? 'style="opacity:0.5"' : ''} onchange="toggleSection('${vol.key}', '${sectionName.replace(/'/g, "\\'")}', this.checked)">
+                      <span class="vol-title" style="font-size:0.85rem;">${sectionName}</span>
+                      <span style="font-size:0.7rem; color:var(--text-muted);">${files.length} itens</span>
+                    </div>
+                    <div class="vol-body" style="padding:8px 12px;">
+                      <div class="file-list">
+                        ${files.map(f => `
+                          <div class="file-item">
+                            <input type="checkbox" id="file-${vol.key}-${f.file}" value="${f.file}" data-vol="${vol.key}" ${selectedFiles.has(f.file) ? 'checked' : ''}>
+                            <label for="file-${vol.key}-${f.file}">${f.title}</label>
+                          </div>
+                        `).join('')}
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      editor.classList.add('open');
+    };
+
+    window.toggleSection = function(vol, section, checked) {
+      const sectionBlock = Array.from(document.querySelectorAll('.vol-block')).find(block => {
+        const header = block.querySelector('.vol-header');
+        return header && header.textContent.includes(section);
+      });
+      if (!sectionBlock) return;
+      sectionBlock.querySelectorAll('.file-item input[type=checkbox]').forEach(cb => {
+        cb.checked = checked;
+      });
+    };
+
+    window.toggleVolume = function(vol, enabled) {
+      const body = document.querySelector(`#files-${vol}`)?.closest('.vol-body');
+      if (!body) return;
+      body.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.disabled = !enabled;
+      });
+    };
+
+    window.toggleAllFiles = function(vol, all) {
+      const container = document.getElementById(`files-${vol}`);
+      if (!container) return;
+      container.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.checked = all;
+        cb.disabled = all;
+      });
+    };
+
+    window.savePermissions = async function() {
+      if (!selectedUserId) return;
+
+      const msg = document.getElementById('save-perm-msg');
+      msg.className = 'msg';
+      msg.style.display = 'none';
+
+      await supabase.from('user_permissions').delete().eq('user_id', selectedUserId);
+
+      const perms = [];
+      VOLUMES.forEach(vol => {
+        const volBlock = document.getElementById('perm-volumes')?.querySelector('.vol-block');
+        if (!volBlock) return;
+
+        const volCheckbox = volBlock.querySelector('.vol-header input[type=checkbox]');
+        if (!volCheckbox?.checked) return;
+
+        const allCheckbox = volBlock.querySelector('.vol-body > div:first-child input[type=checkbox]');
+        if (allCheckbox?.checked) {
+          perms.push({ user_id: selectedUserId, volume: vol.key, files: null });
+        } else {
+          const fileCheckboxes = volBlock.querySelectorAll('.file-item input[type=checkbox]:checked');
+          const files = Array.from(fileCheckboxes).map(cb => cb.value);
+          if (files.length > 0) {
+            perms.push({ user_id: selectedUserId, volume: vol.key, files });
+          }
+        }
+      });
+
+      if (perms.length > 0) {
+        const { error } = await supabase.from('user_permissions').insert(perms);
+        if (error) {
+          msg.textContent = 'Erro: ' + error.message;
+          msg.classList.add('err');
+          return;
+        }
+      }
+
+      msg.textContent = 'Permissões salvas!';
+      msg.classList.add('ok');
+      document.getElementById('save-status').textContent = 'Permissões salvas!';
+      document.getElementById('save-status').classList.add('saved');
+      setTimeout(() => {
+        document.getElementById('save-status').textContent = '';
+        document.getElementById('save-status').classList.remove('saved');
+      }, 3000);
+    };
+
+    window.closePermEditor = function() {
+      document.getElementById('perm-editor').classList.remove('open');
+      selectedUserId = null;
+      renderUserList();
+    };
+
+    window.changeRole = async function(userId, role) {
+      await supabase.from('user_profiles').update({ role }).eq('id', userId);
+      loadUsers();
+    };
+
+    window.deleteUser = async function(userId) {
+      if (!confirm('Tem certeza que deseja remover este usuário?')) return;
+      await supabase.from('user_profiles').delete().eq('id', userId);
+      if (selectedUserId === userId) closePermEditor();
+      loadUsers();
+    };
+
+    window.addUser = async function() {
+      const name = document.getElementById('new-name').value.trim();
+      const email = document.getElementById('new-email').value.trim().toLowerCase();
+      const password = document.getElementById('new-password').value;
+      const msg = document.getElementById('add-user-msg');
+      const btn = document.getElementById('add-user-btn');
+
+      if (!email || !password) {
+        msg.textContent = 'Email e senha são obrigatórios.';
+        msg.className = 'msg err';
+        return;
+      }
+
+      if (password.length < 6) {
+        msg.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+        msg.className = 'msg err';
+        return;
+      }
+
+      btn.disabled = true;
+      msg.className = 'msg';
+      msg.style.display = 'none';
+
+      try {
+        const { error, data } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { display_name: name || email.split('@')[0], role: 'user' }
+          }
+        });
+
+        if (error) {
+            console.error("SignUp error:", error);
+            throw error;
+        }
+
+        msg.textContent = 'Usuário criado com sucesso!';
+        msg.className = 'msg ok';
+        document.getElementById('new-name').value = '';
+        document.getElementById('new-email').value = '';
+        document.getElementById('new-password').value = '';
+        loadUsers();
+      } catch (err) {
+        msg.textContent = err.message;
+        msg.className = 'msg err';
+      }
+
+      btn.disabled = false;
+    };
+
+
+
+    // ============================================================
+    // Analytics
+    // ============================================================
+
+    async function loadAnalytics() {
+      loadOverviewStats();
+      loadTopTeachings();
+      loadRecentActivity();
+      loadReadingStats();
+    }
+
+    async function loadOverviewStats() {
+      // Total users
+      document.getElementById('stat-total-users').textContent = allUsers.length;
+
+      // Active users (7 days)
+      const { data: activeUsers } = await supabase
+        .from('access_logs')
+        .select('user_id')
+        .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString());
+      const uniqueActive = new Set((activeUsers || []).map(u => u.user_id));
+      document.getElementById('stat-active-users').textContent = uniqueActive.size;
+
+      // Total views (30 days)
+      const { count: totalViews } = await supabase
+        .from('access_logs')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString());
+      document.getElementById('stat-total-views').textContent = totalViews || 0;
+
+      // Unique teachings read (30 days)
+      const { data: views30 } = await supabase
+        .from('access_logs')
+        .select('volume, file')
+        .gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString());
+      const uniqueTeachings = new Set((views30 || []).map(v => `${v.volume}/${v.file}`));
+      document.getElementById('stat-teachings-read').textContent = uniqueTeachings.size;
+    }
+
+    async function loadTopTeachings() {
+      const { data } = await supabase
+        .from('access_logs')
+        .select('volume, file')
+        .gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString());
+
+      if (!data || data.length === 0) {
+        document.getElementById('top-teachings').innerHTML = '<div class="loading">Sem dados ainda.</div>';
+        return;
+      }
+
+      const counts = {};
+      data.forEach(v => {
+        const key = `${v.volume}/${v.file}`;
+        counts[key] = (counts[key] || 0) + 1;
+      });
+
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 20);
+      const volNums = { mioshiec1: 'V1', mioshiec2: 'V2', mioshiec3: 'V3', mioshiec4: 'V4' };
+
+      document.getElementById('top-teachings').innerHTML = `
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Arquivo</th><th>Volume</th><th>Visualizações</th></tr></thead>
+          <tbody>${sorted.map((item, i) => {
+            const [vol, file] = item[0].split('/');
+            return `<tr><td>${i + 1}</td><td style="font-family:monospace; font-size:0.8rem;">${file.replace('.html.json', '')}</td><td>${volNums[vol] || vol}</td><td><strong>${item[1]}</strong></td></tr>`;
+          }).join('')}</tbody>
+        </table>`;
+    }
+
+    async function loadRecentActivity() {
+      const { data } = await supabase
+        .from('access_logs')
+        .select('user_id, volume, file, action, created_at')
+        .order('created_at', { ascending: false })
+        .limit(30);
+
+      if (!data || data.length === 0) {
+        document.getElementById('recent-activity').innerHTML = '<div class="loading">Sem atividade registrada.</div>';
+        return;
+      }
+
+      // Fetch user names
+      const userIds = [...new Set(data.map(d => d.user_id))];
+      const { data: profiles } = await supabase
+        .from('user_profiles')
+        .select('id, display_name')
+        .in('id', userIds);
+      const nameMap = {};
+      (profiles || []).forEach(p => nameMap[p.id] = p.display_name);
+
+      const volNums = { mioshiec1: 'V1', mioshiec2: 'V2', mioshiec3: 'V3', mioshiec4: 'V4' };
+
+      document.getElementById('recent-activity').innerHTML = `
+        <table class="data-table">
+          <thead><tr><th>Usuário</th><th>Ação</th><th>Volume</th><th>Arquivo</th><th>Data</th></tr></thead>
+          <tbody>${data.map(d => {
+            const date = new Date(d.created_at);
+            const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            return `<tr><td>${nameMap[d.user_id] || 'Desconhecido'}</td><td>${d.action}</td><td>${volNums[d.volume] || d.volume}</td><td style="font-family:monospace; font-size:0.8rem;">${d.file.replace('.html.json', '')}</td><td style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</td></tr>`;
+          }).join('')}</tbody>
+        </table>`;
+    }
+
+    async function loadReadingStats() {
+      const { count: totalPositions } = await supabase
+        .from('reading_positions')
+        .select('*', { count: 'exact', head: true });
+
+      const { count: totalFavorites } = await supabase
+        .from('synced_favorites')
+        .select('*', { count: 'exact', head: true });
+
+      document.getElementById('reading-stats').innerHTML = `
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-value">${totalPositions || 0}</div><div class="stat-label">Posições Salvas</div></div>
+          <div class="stat-card"><div class="stat-value">${totalFavorites || 0}</div><div class="stat-label">Favoritos Sync</div></div>
+        </div>`;
+    }
+
+    checkAdmin();
+  </script>
+</body>
+</html>

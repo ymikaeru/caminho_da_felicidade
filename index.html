@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <script>(function(){var m=localStorage.getItem('site_mode')||'light';var t=localStorage.getItem('theme')||'light';var d=document.documentElement;d.setAttribute('data-mode',m);d.setAttribute('data-theme',t);var c={'dark:light':'#1A1A1A','dark:quiet':'#2D2D2F','dark:paper':'#2A2824','dark:bold':'#000','dark:calm':'#3B3326','dark:focus':'#000','light:light':'#F8F9F5','light:quiet':'#404043','light:paper':'#EFE8D6','light:bold':'#FFF','light:calm':'#DFCDAE','light:focus':'#FFF'};var bg=c[m+':'+t]||(m==='dark'?'#121212':'#F8F9F5');d.style.backgroundColor=bg})();</script>
+    <meta charset="UTF-8">
+    <title>Ensinamentos - Mioshie College</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&display=swap">
+    <link rel="stylesheet" href="css/styles.min.css?v=17">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <!-- SEO -->
+    <meta name="description"
+        content="Coleção completa dos ensinamentos de Meishu-Sama (Mokichi Okada) em português e japonês. Explore os 4 volumes do Mioshie College.">
+    <meta property="og:title" content="Ensinamentos de Meishu-Sama | Mioshie College">
+    <meta property="og:description"
+        content="Coleção completa dos ensinamentos de Meishu-Sama (Mokichi Okada) em português e japonês. Explore os 4 volumes do Mioshie College.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="icon-512.png">
+    <meta name="twitter:card" content="summary">
+    <script src="js/toggle.js?v=24" defer></script>
+    <script src="js/nav.js?v=1" defer></script>
+    <script src="js/theme.js?v=1" defer></script>
+    <script src="js/language.js?v=1" defer></script>
+    <script src="js/typography.js?v=1" defer></script>
+    <script src="js/search.js?v=6" defer></script>
+    <script>
+        // Reader handles its own initialization that differs from Home/Index
+        if (!window.location.href.includes('reader.html')) {
+            document.addEventListener('DOMContentLoaded', () => {
+                const savedLang = localStorage.getItem('site_lang') || 'pt';
+                if (typeof setLanguage === 'function') setLanguage(savedLang);
+            });
+        }
+    </script>
+
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Ir para o conteúdo</a>
+    <div id="page-gate"
+        style="position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;z-index:4999;background:#f5f3ee;background:var(--bg-color,#f5f3ee)">
+    </div>
+    <header class="header">
+        <a href="index.html" class="header__logo">
+            <div class="logo-circle">
+                <div class="logo-dot"></div>
+            </div>
+            Mioshie College
+        </a>
+        <div class="header__nav">
+            <a href="index.html" style="font-weight:600; opacity:0.7;"><span>⌂ Início</span></a>
+            <a href="mioshiec1/index.html"
+                data-tooltip="Mundo Espiritual・Espírito Precede a Matéria・Transição da Noite para o Dia・Culto aos Antepassados"><span>Vol
+                    1</span></a>
+            <a href="mioshiec2/index.html" data-tooltip="Método Divino de Saúde・Agricultura Natural"><span>Vol
+                    2</span></a>
+            <a href="mioshiec3/index.html" data-tooltip="A Verdadeira Fé"><span>Vol 3</span></a>
+            <a href="mioshiec4/index.html" data-tooltip="Ensinamentos Complementares"><span>Vol 4</span></a>
+
+        </div>
+        <div class="controls">
+            <button class="btn-zen" onclick="openRandomTeaching()" title="Ensinamento aleatório">🎲</button>
+            <button class="btn-zen" onclick="window.location.href='destaques.html'" title="Caderno de Estudos (Destaques)">📓</button>
+            <button class="btn-zen" onclick="openHistory()" title="Histórico de Navegação">🕒</button>
+            <button class="btn-zen" onclick="openFavorites()" title="Salvos">⭐</button>
+            <button class="btn-zen" id="searchBtnHeader" onclick="openSearch()" title="Buscar (Ctrl+K)">🔍</button>
+            <script>if (localStorage.getItem('mioshie_auth') === 'limited') { var btn = document.getElementById('searchBtnHeader'); if (btn) btn.style.display = 'none'; }</script>
+            <button class="btn-zen" id="lang-toggle" onclick="toggleLanguage()" title="Mudar idioma">日本語</button>
+            <button class="btn-zen" onclick="toggleTheme()" title="Themes & Settings">☯</button>
+        </div>
+    </header>
+    <main class="main" id="main-content">
+        <div class="content-wrapper">
+            <div class="glass-pane">
+
+                <div class="home-hero">
+                    <h1 class="index-title" style="margin-bottom:16px">
+                        <span class="lang-pt">Ensinamentos <br class="mobile-br"> de Meishu-Sama</span>
+                        <span class="lang-ja" style="display:none">明主様御教え</span>
+                    </h1>
+                    <p
+                        style="text-align:center; color:var(--text-muted); margin-bottom:32px; max-width:600px; margin-inline:auto;">
+                        <span class="lang-pt">Tradução em português das obras de Meishu-Sama, organizadas em volumes
+                            temáticos para estudo e reflexão.</span>
+                        <span class="lang-ja" style="display:none">明主様の御教えをテーマ別にまとめた日本語とポルトガル語の御教えカレッジです。</span>
+                    </p>
+                    <div style="text-align:center; margin-bottom:48px;">
+                        <button class="btn-random-hero" onclick="openRandomTeaching()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+                            <span class="lang-pt">Ensino Aleatório</span>
+                            <span class="lang-ja" style="display:none">ランダム御教え</span>
+                        </button>
+                    </div>
+                    <div class="topic-list" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+                        <a href="mioshiec1/index.html" class="topic-card"
+                            style="flex-direction:column; align-items:flex-start; height:100%; padding: 32px;">
+                            <span class="section-label" style="text-align:left; margin-bottom:12px;">Volume 1</span>
+                            <div class="topic-card__title" style="font-size:22px; margin-bottom:8px">
+                                <span class="lang-pt">Mundo Espiritual</span>
+                                <span class="lang-ja" style="display:none">霊界編</span>
+                            </div>
+                            <div style="font-size:14px; color:var(--text-muted); line-height:1.5">
+                                <span class="lang-pt">Ensinamentos sobre o mundo espiritual e princípios
+                                    fundamentais.</span>
+                                <span class="lang-ja" style="display:none">霊界と根本義に関する御教え集。</span>
+                            </div>
+                            <button class="vol-random-btn" onclick="event.preventDefault(); event.stopPropagation(); openRandomFromVolume('mioshiec1')" title="Ensino aleatório do Volume 1">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                                </svg>
+                            </button>
+                        </a>
+                        <a href="mioshiec2/index.html" class="topic-card"
+                            style="flex-direction:column; align-items:flex-start; height:100%; padding: 32px;">
+                            <span class="section-label" style="text-align:left; margin-bottom:12px;">Volume 2</span>
+                            <div class="topic-card__title" style="font-size:22px; margin-bottom:8px">
+                                <span class="lang-pt">Método Divino de Saúde</span>
+                                <span class="lang-ja" style="display:none">浄霊・自然農法</span>
+                            </div>
+                            <div style="font-size:14px; color:var(--text-muted); line-height:1.5">
+                                <span class="lang-pt">Método Divino de Saúde e Agricultura Natural em harmonia com a
+                                    natureza.</span>
+                                <span class="lang-ja" style="display:none">浄霊、健康法、自然農法の御教え。</span>
+                            </div>
+                            <button class="vol-random-btn" onclick="event.preventDefault(); event.stopPropagation(); openRandomFromVolume('mioshiec2')" title="Ensino aleatório do Volume 2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                                </svg>
+                            </button>
+                        </a>
+                        <a href="mioshiec3/index.html" class="topic-card"
+                            style="flex-direction:column; align-items:flex-start; height:100%; padding: 32px;">
+                            <span class="section-label" style="text-align:left; margin-bottom:12px;">Volume 3</span>
+                            <div class="topic-card__title" style="font-size:22px; margin-bottom:8px">
+                                <span class="lang-pt">A Verdadeira Fé</span>
+                                <span class="lang-ja" style="display:none">信仰編</span>
+                            </div>
+                            <div style="font-size:14px; color:var(--text-muted); line-height:1.5">
+                                <span class="lang-pt">Volume 3 - Ensinamentos sobre a prática e o aprimoramento da
+                                    fé.</span>
+                                <span class="lang-ja" style="display:none">第三巻：信仰の実践 e 向上に関する御教え集。</span>
+                            </div>
+                            <button class="vol-random-btn" onclick="event.preventDefault(); event.stopPropagation(); openRandomFromVolume('mioshiec3')" title="Ensino aleatório do Volume 3">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                                </svg>
+                            </button>
+                        </a>
+                        <a href="mioshiec4/index.html" class="topic-card"
+                            style="flex-direction:column; align-items:flex-start; height:100%; padding: 32px;">
+                            <span class="section-label" style="text-align:left; margin-bottom:12px;">Volume 4</span>
+                            <div class="topic-card__title" style="font-size:22px; margin-bottom:8px">
+                                <span class="lang-pt">Ensinamentos Complementares</span>
+                                <span class="lang-ja" style="display:none">補足編</span>
+                            </div>
+                            <div style="font-size:14px; color:var(--text-muted); line-height:1.5">
+                                <span class="lang-pt">Ensinamentos complementares e temas diversos da obra
+                                    divina.</span>
+                                <span class="lang-ja" style="display:none">第四巻：補足の御教えと様々なテーマ。</span>
+                            </div>
+                            <button class="vol-random-btn" onclick="event.preventDefault(); event.stopPropagation(); openRandomFromVolume('mioshiec4')" title="Ensino aleatório do Volume 4">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                                </svg>
+                            </button>
+                        </a>
+                    </div>
+
+                    <!-- Global Statistics -->
+                    <div class="volume-stats-footer" style="margin-top: 48px;">
+                        <div class="stats-header">
+                            <span class="stats-title">
+                                <span class="lang-pt">Acervo Total</span>
+                                <span class="lang-ja" style="display:none">全蔵書</span>
+                            </span>
+                            <div class="stats-totals">
+                                <div class="stats-total-item">
+                                    <span class="stats-total-number">4</span>
+                                    <span class="stats-total-label">
+                                        <span class="lang-pt">Volumes</span>
+                                        <span class="lang-ja" style="display:none">巻</span>
+                                    </span>
+                                </div>
+                                <div class="stats-total-item">
+                                    <span class="stats-total-number">34</span>
+                                    <span class="stats-total-label">
+                                        <span class="lang-pt">Categorias</span>
+                                        <span class="lang-ja" style="display:none">カテゴリ</span>
+                                    </span>
+                                </div>
+                                <div class="stats-total-item">
+                                    <span class="stats-total-number">1.508</span>
+                                    <span class="stats-total-label">
+                                        <span class="lang-pt">Temas</span>
+                                        <span class="lang-ja" style="display:none">テーマ</span>
+                                    </span>
+                                </div>
+                                <div class="stats-total-item">
+                                    <span class="stats-total-number">17.452</span>
+                                    <span class="stats-total-label">
+                                        <span class="lang-pt">Ensinamentos</span>
+                                        <span class="lang-ja" style="display:none">刊行物</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-row">
+                                <span class="stat-section-name">
+                                    <span class="lang-pt">Volume 1 · Mundo Espiritual</span>
+                                    <span class="lang-ja" style="display:none">第一巻 · 霊界編</span>
+                                </span>
+                                <span class="stat-section-count"><span class="lang-pt">401 Temas · 4.690
+                                        Ensinamentos</span><span class="lang-ja" style="display:none">401テーマ ·
+                                        4,690刊行物</span></span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-section-name">
+                                    <span class="lang-pt">Volume 2 · Método Divino de Saúde</span>
+                                    <span class="lang-ja" style="display:none">第二巻 · 浄霊・自然農法</span>
+                                </span>
+                                <span class="stat-section-count"><span class="lang-pt">484 Temas · 6.032
+                                        Ensinamentos</span><span class="lang-ja" style="display:none">484テーマ ·
+                                        6,032刊行物</span></span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-section-name">
+                                    <span class="lang-pt">Volume 3 · A Verdadeira Fé</span>
+                                    <span class="lang-ja" style="display:none">第三巻 · 信仰編</span>
+                                </span>
+                                <span class="stat-section-count"><span class="lang-pt">390 Temas · 4.148
+                                        Ensinamentos</span><span class="lang-ja" style="display:none">390テーマ ·
+                                        4,148刊行物</span></span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-section-name">
+                                    <span class="lang-pt">Volume 4 · Ensinamentos Complementares</span>
+                                    <span class="lang-ja" style="display:none">第四巻 · 補足編</span>
+                                </span>
+                                <span class="stat-section-count"><span class="lang-pt">233 Temas · 2.582
+                                        Ensinamentos</span><span class="lang-ja" style="display:none">233テーマ ·
+                                        2,582刊行物</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </main>
+
+    </div>
+    </div>
+
+    <script type="importmap">
+    {"imports":{"@supabase/supabase-js":"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"}}</script>
+    <script type="module">
+      import { storageFetch, storageList } from './js/storage.js';
+      window.supabaseStorageFetch = storageFetch;
+      window.supabaseStorageList = storageList;
+    </script>
+    <script type="module">
+      import * as cloudSync from './js/sync.js';
+      window._cloudSync = cloudSync;
+    </script>
+    <script type="module" src="js/login.js?v=5"></script>
+    <script src="js/access.js?v=5"></script>
+    <script src="js/modals.js?v=1"></script>
+    <script src="js/highlights.js?v=1" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => { buildSearchModal(); buildHistoryModal(); buildFavoritesModal(); buildHighlightsModal(); initSmartHome(); if (typeof revealPage === 'function') revealPage(); });
+    </script>
+</body>
+
+</html>

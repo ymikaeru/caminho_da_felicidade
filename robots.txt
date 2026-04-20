@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ymikaeru.github.io/mioshie_college/sitemap.xml

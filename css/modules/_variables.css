@@ -1,0 +1,178 @@
+:root {
+  --font-ui: 'Outfit', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Crimson Pro', 'Noto Serif JP', 'Georgia', 'Times New Roman', serif;
+  --font-sans: 'Outfit', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --bg-color: #F8F9F5;
+  --surface: #FFFFFF;
+  --surface-rgb: 255, 255, 255;
+  --text-main: #1C1C1E;
+  --text-muted: #6E6E73;
+  --accent: #B8860B;
+  --accent-soft: rgba(184, 134, 11, 0.1);
+  --border: #E5E5E0;
+  --shadow-premium: 0 20px 50px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.02);
+
+  --max-width-content: 1024px;
+  --container-width: 1040px;
+  --nav-height: 60px;
+  --radius: 16px;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --reader-font-size: 21px;
+  --reader-line-height: 1.75;
+  --reader-letter-spacing: normal;
+  --reader-word-spacing: normal;
+  --reader-margins: 0px;
+  --reader-text-align: left;
+  --reader-font-weight-override: inherit;
+}
+
+[data-theme="dark"] {
+  --bg-color: #000000;
+  --surface: #111111;
+  --surface-rgb: 17, 17, 17;
+  --text-main: #F0F0F0;
+  --text-muted: #888888;
+  --accent: #D4AF37;
+  --border: #222222;
+}
+
+[data-theme="quiet"] {
+  --bg-color: #404043;
+  --surface: #525255;
+  --surface-rgb: 82, 82, 85;
+  --text-main: #F8F8F8;
+  --text-muted: #D0D0D0;
+  --accent: #D4AF37;
+  --border: #636366;
+}
+
+[data-theme="paper"] {
+  --bg-color: #EFE8D6;
+  --surface: #F4EEDF;
+  --surface-rgb: 244, 238, 223;
+  --text-main: #1E1D1A;
+  --text-muted: #504E47;
+  --accent: #B8860B;
+  --border: #DBCDBA;
+}
+
+[data-theme="bold"] {
+  --bg-color: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-rgb: 255, 255, 255;
+  --text-main: #000000;
+  --text-muted: #444444;
+  --accent: #000000;
+  --border: #CCCCCC;
+}
+
+[data-theme="bold"] .topic-content,
+[data-theme="bold"] .plain-text,
+[data-theme="bold"] body {
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+}
+
+[data-theme="bold"] h1,
+[data-theme="bold"] h2,
+[data-theme="bold"] h3,
+[data-theme="bold"] .topic-title-large,
+[data-theme="bold"] b {
+  font-weight: 900 !important;
+}
+
+[data-theme="calm"] {
+  --bg-color: #DFCDAE;
+  --surface: #EADDC8;
+  --surface-rgb: 234, 221, 200;
+  --text-main: #4A3A2A;
+  --text-muted: #5A4A38;
+  --accent: #8B5A2B;
+  --border: #C8B098;
+}
+
+[data-theme="focus"] {
+  --bg-color: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-rgb: 255, 255, 255;
+  --text-main: #000000;
+  --text-muted: #666666;
+  --accent: #000000;
+  --border: #E5E5E0;
+  --font-serif: var(--font-sans);
+}
+
+[data-mode="dark"] {
+  --bg-color: #121212;
+  --surface: #1E1E1E;
+  --surface-rgb: 30, 30, 30;
+  --text-main: #E0E0E0;
+  --text-muted: #888888;
+  --accent: #B8860B;
+  --border: #333333;
+}
+
+[data-mode="dark"][data-theme="light"],
+[data-mode="dark"][data-theme="original"] {
+  --bg-color: #1A1A1A;
+  --surface: #242424;
+  --surface-rgb: 36, 36, 36;
+  --text-main: #D4D4D4;
+  --text-muted: #8E8E93;
+  --accent: #D4AF37;
+  --border: #3A3A3C;
+}
+
+[data-mode="dark"][data-theme="quiet"] {
+  --bg-color: #2D2D2F;
+  --surface: #38383A;
+  --surface-rgb: 56, 56, 58;
+  --text-main: #C8C8C8;
+  --text-muted: #999999;
+  --accent: #D4AF37;
+  --border: #4A4A4C;
+}
+
+[data-mode="dark"][data-theme="paper"] {
+  --bg-color: #2A2824;
+  --surface: #36332E;
+  --surface-rgb: 54, 51, 46;
+  --text-main: #C0B9A8;
+  --text-muted: #8F8877;
+  --accent: #D4AF37;
+  --border: #4A463F;
+}
+
+[data-mode="dark"][data-theme="bold"] {
+  --bg-color: #000000;
+  --surface: #151515;
+  --surface-rgb: 21, 21, 21;
+  --text-main: #FFFFFF;
+  --text-muted: #AAAAAA;
+  --accent: #FFFFFF;
+  --border: #333333;
+}
+
+[data-mode="dark"][data-theme="calm"] {
+  --bg-color: #3B3326;
+  --surface: #4A4032;
+  --surface-rgb: 74, 64, 50;
+  --text-main: #D4C4B0;
+  --text-muted: #9A8A7A;
+  --accent: #D4AF37;
+  --border: #5A4E3E;
+}
+
+[data-mode="dark"][data-theme="focus"] {
+  --bg-color: #000000;
+  --surface: #0A0A0A;
+  --surface-rgb: 10, 10, 10;
+  --text-main: #BEBEBE;
+  --text-muted: #888888;
+  --accent: #8A8A8C;
+  --border: #1A1A1A;
+  --font-serif: var(--font-sans);
+}

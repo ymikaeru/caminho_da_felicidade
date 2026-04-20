@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <script>(function(){var m=localStorage.getItem('site_mode')||'light';var t=localStorage.getItem('theme')||'light';var d=document.documentElement;d.setAttribute('data-mode',m);d.setAttribute('data-theme',t);var c={'dark:light':'#1A1A1A','dark:quiet':'#2D2D2F','dark:paper':'#2A2824','dark:bold':'#000','dark:calm':'#3B3326','dark:focus':'#000','light:light':'#F8F9F5','light:quiet':'#404043','light:paper':'#EFE8D6','light:bold':'#FFF','light:calm':'#DFCDAE','light:focus':'#FFF'};var bg=c[m+':'+t]||(m==='dark'?'#121212':'#F8F9F5');d.style.backgroundColor=bg})();</script>
+  <meta charset="UTF-8">
+  <title>Ensinamentos de Meishu-Sama - Leitura</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@300;400;500&display=swap">
+  <link href="css/styles.min.css?v=17" rel="stylesheet" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+  <!-- SEO -->
+  <meta name="description" content="Leitura dos ensinamentos de Meishu-Sama em português e japonês — Mioshie College.">
+  <meta name="robots" content="noindex, follow">
+  <meta property="og:title" content="Ensinamentos de Meishu-Sama | Mioshie College">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="icon-512.png">
+  <meta name="twitter:card" content="summary">
+
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Ir para o conteúdo</a>
+  <div id="page-gate"
+    style="position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;z-index:4999;background:#f5f3ee;background:var(--bg-color,#f5f3ee)">
+  </div>
+  <!-- Reading progress bar -->
+  <div id="reading-progress"></div>
+
+  <!-- Save tooltip -->
+  <div class="save-tooltip" id="saveTooltip">
+    <div class="save-tooltip-title" id="saveTooltipTitle"></div>
+    <div class="save-tooltip-status" id="saveTooltipStatus"></div>
+  </div>
+
+  <header class="header">
+    <a href="index.html" class="header__logo">
+      <div class="logo-circle">
+        <div class="logo-dot"></div>
+      </div>
+      Mioshie College
+    </a>
+    <a id="backToIndexBtn" class="btn-zen"
+      style="display:none; text-decoration:none; margin-right: auto; margin-left:16px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      <span class="lang-pt">Voltar ao Índice</span>
+      <span class="lang-ja" style="display:none">目次に戻る</span>
+    </a>
+    <div class="header__nav">
+      <a href="index.html" style="font-weight:600; opacity:0.7;"><span>⌂ Início</span></a>
+      <a href="mioshiec1/index.html"
+        data-tooltip="Mundo Espiritual・Espírito Precede a Matéria・Transição da Noite para o Dia・Culto aos Antepassados"><span>Vol
+          1</span></a>
+      <a href="mioshiec2/index.html" data-tooltip="Método Divino de Saúde・Agricultura Natural"><span>Vol 2</span></a>
+      <a href="mioshiec3/index.html" data-tooltip="A Verdadeira Fé"><span>Vol 3</span></a>
+      <a href="mioshiec4/index.html" data-tooltip="Ensinamentos Complementares"><span>Vol 4</span></a>
+      <select id="readerTopicSelect" class="btn-zen" onchange="location.hash=this.value"
+        style="max-width:200px; display:none;">
+        <option value="">Tópicos</option>
+      </select>
+    </div>
+    <div class="controls">
+      <button class="btn-zen" onclick="openRandomTeaching()" title="Ensinamento aleatório">🎲</button>
+      <button class="btn-zen" onclick="openHistory()" title="Histórico de Navegação">🕒</button>
+      <button class="btn-zen" onclick="openFavorites()" title="Salvos">⭐</button>
+      <button class="btn-zen" onclick="openNotes()" title="Anotações">📝</button>
+      <button class="btn-zen" id="searchBtnHeader" onclick="openSearch()" title="Buscar">🔍</button>
+      <script>if (localStorage.getItem('mioshie_auth') === 'limited') { var btn = document.getElementById('searchBtnHeader'); if (btn) btn.style.display = 'none'; }</script>
+      <button class="btn-zen" onclick="openHighlights()" title="Destaques">🖍️</button>
+      <button class="btn-zen" id="favoriteBtn" onclick="toggleFavorite()" title="Salvar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </button>
+      <button class="btn-zen" id="shareBtn" onclick="shareArticle()" title="Compartilhar" style="display:none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+      </button>
+      <button class="btn-zen font-ctrl" id="fontDecrease" onclick="changeFontSize(-1)"
+        title="Diminuir fonte">A−</button>
+      <button class="btn-zen font-ctrl" id="fontIncrease" onclick="changeFontSize(1)" title="Aumentar fonte">A+</button>
+      <button class="btn-zen" id="lang-toggle" onclick="toggleLanguage()" title="Mudar idioma">日本語</button>
+      <button class="btn-zen" onclick="toggleTheme()" title="Themes & Settings">☯</button>
+    </div>
+  </header>
+  <script>if (window.self !== window.top) document.documentElement.classList.add('in-iframe');</script>
+  <main class="main" id="main-content">
+    <div class="glass-pane" id="readerContainer">
+      <div style="text-align:center; color:var(--text-muted)">
+        Preparando leitura...
+        <div class="loading-progress" id="loadingProgress" style="display: block;">
+          <div class="loading-progress-bar" id="loadingProgressBar"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="js/access.js?v=5"></script>
+  <script type="importmap">
+  {"imports":{"@supabase/supabase-js":"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"}}</script>
+  <script type="module">
+    import { storageFetch, storageList } from './js/storage.js';
+    window.supabaseStorageFetch = storageFetch;
+    window.supabaseStorageList = storageList;
+  </script>
+  <script type="module">
+    import * as cloudSync from './js/sync.js';
+    window._cloudSync = cloudSync;
+  </script>
+  <script type="module" src="js/login.js?v=5"></script>
+  <script src="js/modals.js?v=1"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (isLimitedUser()) {
+        const config = getAccessConfig();
+        if (config) _applyNavFilter(getEnabledVolumes(config));
+      }
+      buildSearchModal();
+      buildHistoryModal();
+      buildFavoritesModal();
+      buildHighlightsModal();
+      if (typeof revealPage === 'function') revealPage();
+    });
+  </script>
+
+  <script src="js/toggle.js?v=24" defer></script>
+  <script src="js/nav.js?v=1" defer></script>
+  <script src="js/theme.js?v=1" defer></script>
+  <script src="js/language.js?v=1" defer></script>
+  <script src="js/typography.js?v=1" defer></script>
+  <script src="js/search.js?v=6" defer></script>
+  <script src="js/marked.min.js" defer></script>
+  <script src="js/reader-content.js?v=2" defer></script>
+  <script src="js/reader-render.js?v=4" defer></script>
+  <script src="js/highlights.js?v=1" defer></script>
+  <script src="js/reader.js?v=10" defer></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { if (typeof initFontSize === 'function') initFontSize(); if (typeof initHighlights === 'function') initHighlights(); });</script>
+
+  <script>
+    (function () {
+      const bar = document.getElementById('reading-progress');
+      const SHOW_AFTER = 300;   // px from top before bar can appear
+      const HIDE_AFTER = 3000;  // ms of inactivity before auto-hiding
+
+      let hideTimer = null;
+      let aboveThreshold = false;
+
+      function showUI() {
+        if (aboveThreshold) {
+          if (bar) bar.style.opacity = '1';
+        }
+      }
+
+      window.addEventListener('scroll', function () {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+        // Progress bar width
+        if (bar && docHeight > 0) {
+          bar.style.width = Math.min(100, (scrollTop / docHeight) * 100) + '%';
+        }
+
+        // Update threshold flag
+        aboveThreshold = scrollTop > SHOW_AFTER;
+
+        if (aboveThreshold) {
+          showUI();
+        } else {
+          clearTimeout(hideTimer);
+          if (bar) bar.style.opacity = '0';
+        }
+      }, { passive: true });
+
+      // Also wake both on touch or mouse move
+      ['touchstart', 'mousemove'].forEach(function (evt) {
+        window.addEventListener(evt, showUI, { passive: true });
+      });
+    })();
+  </script>
+</body>
+
+</html>

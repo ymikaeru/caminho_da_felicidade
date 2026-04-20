@@ -1,0 +1,82 @@
+.controls {
+  display: none;
+}
+
+.btn-zen {
+  position: relative;
+  padding: 8px 16px;
+  border-radius: 24px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-zen:hover {
+  border-color: var(--accent);
+  background: rgba(184, 134, 11, 0.05);
+}
+
+.btn-zen:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent);
+  background: rgba(184, 134, 11, 0.05);
+}
+
+.btn-zen option {
+  background: var(--surface);
+  color: var(--text-main);
+}
+
+.btn-zen.active {
+  background: var(--text-main);
+  color: var(--surface);
+  border-color: var(--text-main);
+}
+
+.btn-random-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 32px;
+  border: 1.5px solid var(--accent);
+  border-radius: 40px;
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.25s var(--ease), box-shadow 0.25s var(--ease), transform 0.2s var(--ease);
+}
+
+.btn-random-hero:hover {
+  background: var(--accent-soft);
+  box-shadow: 0 6px 24px rgba(184, 134, 11, 0.18);
+  transform: translateY(-2px);
+}
+
+.btn-random-hero:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn-random-hero:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.btn-random-hero svg {
+  flex-shrink: 0;
+  opacity: 0.85;
+}

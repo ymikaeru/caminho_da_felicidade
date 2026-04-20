@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Login — Mioshie College</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&display=swap">
+  <link href="css/styles.min.css?v=17" rel="stylesheet">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-color);
+      padding: 24px;
+    }
+    .login-form-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 32px;
+      box-shadow: var(--shadow-premium);
+    }
+    .login-form-card h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .login-form-card p.subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 32px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-color);
+      color: var(--text-main);
+      font-size: 1rem;
+      font-family: var(--font-ui);
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .login-submit-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin-top: 8px;
+    }
+    .login-submit-btn:hover { opacity: 0.85; }
+    .login-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .login-error {
+      color: #ff3b30;
+      font-size: 0.85rem;
+      text-align: center;
+      margin-top: 16px;
+      display: none;
+    }
+    .login-links {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.85rem;
+    }
+    .login-links a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .login-links a:hover { text-decoration: underline; }
+    .login-links .sep { color: var(--text-muted); margin: 0 8px; }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 32px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+    .back-link:hover { color: var(--text-main); }
+    .loading-spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-form-card">
+      <h1>Mioshie College</h1>
+      <p class="subtitle">Insira suas credenciais para acessar</p>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" autocomplete="email" required placeholder="seu@email.com">
+        </div>
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input type="password" id="password" autocomplete="current-password" required placeholder="Sua senha">
+        </div>
+        <button type="submit" class="login-submit-btn" id="submit-btn">Entrar</button>
+        <p class="login-error" id="error-msg"></p>
+      </form>
+
+      <a href="index.html" class="back-link">← Voltar ao início</a>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+    }
+  }
+  </script>
+  <script type="module">
+    import SUPABASE_CONFIG from './js/supabase-config.js';
+    import { createClient } from '@supabase/supabase-js';
+
+    const supabase = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+
+    // Check if already logged in
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      window.location.href = 'index.html';
+    }
+
+    // Login form
+    const loginForm = document.getElementById('login-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const errorMsg = document.getElementById('error-msg');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="loading-spinner"></span>Entrando...';
+
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
+        // Load permissions
+        const { data: perms } = await supabase
+          .from('user_permissions')
+          .select('volume, files')
+          .eq('user_id', data.user.id);
+
+        if (perms && perms.length > 0) {
+          const config = {};
+          for (const p of perms) {
+            config[p.volume] = p.files === null ? 'all' : p.files;
+          }
+          localStorage.setItem('mioshie_auth', 'limited');
+          localStorage.setItem('mioshie_access_config', JSON.stringify(config));
+        } else {
+          localStorage.setItem('mioshie_auth', 'full');
+        }
+
+        window.location.href = 'index.html';
+      } catch (err) {
+        errorMsg.textContent = err.message === 'Invalid login credentials'
+          ? 'Email ou senha incorretos'
+          : 'Erro ao fazer login. Tente novamente.';
+        errorMsg.style.display = 'block';
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Entrar';
+    });
+
+    // Reset password
+    document.getElementById('forgot-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('reset-modal').style.display = 'flex';
+      document.getElementById('reset-email').value = document.getElementById('email').value;
+    });
+
+    document.getElementById('reset-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const resetError = document.getElementById('reset-error');
+      const resetSuccess = document.getElementById('reset-success');
+      resetError.style.display = 'none';
+      resetSuccess.style.display = 'none';
+      document.getElementById('reset-btn').disabled = true;
+
+      const email = document.getElementById('reset-email').value.trim().toLowerCase();
+
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + '/reader.html'
+        });
+        if (error) throw error;
+
+        resetSuccess.textContent = 'Link enviado! Verifique seu email.';
+        resetSuccess.style.display = 'block';
+      } catch (err) {
+        resetError.textContent = err.message;
+        resetError.style.display = 'block';
+      }
+
+      document.getElementById('reset-btn').disabled = false;
+    });
+  </script>
+</body>
+</html>

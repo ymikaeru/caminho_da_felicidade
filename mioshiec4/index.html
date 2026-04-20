@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <script src="../js/init-theme.js"></script>
+    <meta charset="UTF-8">
+    <title>Ensinamentos - Mioshie College</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap">
+    <link rel="stylesheet" href="../css/styles.min.css?v=17">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+
+    <!-- SEO -->
+    <meta name="description"
+        content="Volume 4: Ensinamentos Complementares de Meishu-Sama.">
+    <meta property="og:title" content="Volume 4 | Mioshie College">
+    <meta property="og:description"
+        content="Ensinamentos complementares de Meishu-Sama — Mioshie College Volume 4.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="../icon-512.png">
+    <meta name="twitter:card" content="summary">
+    <script src="../js/toggle.js?v=24" defer></script>
+    <script src="../js/nav.js?v=1" defer></script>
+    <script src="../js/theme.js?v=1" defer></script>
+    <script src="../js/language.js?v=1" defer></script>
+    <script src="../js/typography.js?v=1" defer></script>
+    <script src="../js/search.js?v=6" defer></script>
+    <script src="../js/collapsible-sections.js?v=1" defer></script>
+    <script>
+        // Reader handles its own initialization that differs from Home/Index
+        if (!window.location.href.includes('reader.html')) {
+            document.addEventListener('DOMContentLoaded', () => {
+                const savedLang = localStorage.getItem('site_lang') || 'pt';
+                if (typeof setLanguage === 'function') setLanguage(savedLang);
+            });
+        }
+    </script>
+
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Pular para o conteúdo</a>
+    <div id="page-gate"
+        style="position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;z-index:4999;background:#f5f3ee;background:var(--bg-color,#f5f3ee)">
+    </div>
+    <header class="header">
+        <a href="../index.html" class="header__logo">
+            <div class="logo-circle">
+                <div class="logo-dot"></div>
+            </div>
+            Mioshie College
+        </a>
+        <div class="header__nav">
+            <a href="../index.html" style="font-weight:600; opacity:0.7;"><span>⌂ Início</span></a>
+            <a href="../mioshiec1/index.html" data-tooltip="Mundo Espiritual・Espírito Precede a Matéria・Transição da Noite para o Dia・Culto aos Antepassados"><span>Vol 1</span></a>
+            <a href="../mioshiec2/index.html" data-tooltip="Método Divino de Saúde・Agricultura Natural"><span>Vol 2</span></a>
+            <a href="../mioshiec3/index.html" data-tooltip="A Verdadeira Fé"><span>Vol 3</span></a>
+            <a href="index.html" style="font-weight:600; opacity:0.7;" data-tooltip="Ensinamentos Complementares"><span>Vol 4</span></a>
+            <select class="btn-zen" onchange="location.hash=this.value" style="max-width:140px">
+                <option value="" data-pt="Categorias" data-ja="カテゴリー">Categorias</option>
+                <option value="#section-0" data-pt="Prefácio" data-ja="序 文">Prefácio</option>
+                <option value="#section-1" data-pt="Espírito e Matéria" data-ja="霊と物質">Espírito e Matéria</option>
+                <option value="#section-2" data-pt="Arte e Beleza" data-ja="芸術と美">Arte e Beleza</option>
+                <option value="#section-3" data-pt="A Família" data-ja="家庭">A Família</option>
+                <option value="#section-4" data-pt="A Sociedade" data-ja="社会">A Sociedade</option>
+                <option value="#section-5" data-pt="O Caminho da Humanidade" data-ja="人類の道">O Caminho da Humanidade</option>
+                <option value="#section-6" data-pt="Ensinamentos Diversos" data-ja="その他の教え">Ensinamentos Diversos</option>
+            </select>
+        </div>
+        <div class="controls">
+            <button class="btn-zen" onclick="openHistory()" title="Histórico de Navegação">🕒</button>
+            <button class="btn-zen" onclick="openFavorites()" title="Salvos">⭐</button>
+            <button class="btn-zen" id="searchBtnHeader" onclick="openSearch()" title="Buscar (Ctrl+K)">🔍</button>
+            <script>if (localStorage.getItem('mioshie_auth') === 'limited') { var btn = document.getElementById('searchBtnHeader'); if (btn) btn.style.display = 'none'; }</script>
+            <button class="btn-zen" id="lang-toggle" onclick="toggleLanguage()" title="Mudar idioma">日本語</button>
+            <button class="btn-zen" onclick="toggleTheme()" title="Themes & Settings">☯</button>
+        </div>
+    </header>
+    <main class="main" id="main-content">
+        <div class="content-wrapper">
+            <div class="glass-pane">
+
+                <div class="index-header" style="text-align:center; margin-bottom: 64px;">
+                    <span class="section-label"
+                        style="color: var(--accent); font-weight: 600; letter-spacing: 2px;">VOLUME 4</span>
+                    <h1 class="index-title" style="margin-top: 16px; line-height: 1.4;">
+                        <span class="lang-pt">Ensinamentos Complementares</span>
+                        <span class="lang-ja" style="display:none">補遺編</span>
+                    </h1>
+                </div>
+                <div class="topic-list">
+                    <div style="height: 12px;"></div>
+                    <h2 id="section-0" class="section-header">
+                        <span class="lang-pt">Prefácio</span>
+                        <span class="lang-ja" style="display:none">序 文</span>
+                    </h2>
+                    <div style="height: 12px;"></div>
+                    <a href="../reader.html?vol=mioshiec4&file=sinti.html" class="topic-card">
+                        <div class="topic-card__icon">1</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Sabedoria Divina de Meishu-Sama</span>
+                            <span class="lang-ja" style="display:none">明主様の神智</span>
+                        </div>
+                    </a>
+                    <div style="height: 12px;"></div>
+                    <hr style="border:none; border-top:1px solid var(--border); margin: 32px 0; opacity: 0.5;">
+                    <h2 id="section-1" class="section-header">
+                        <span class="lang-pt">Espírito e Matéria</span>
+                        <span class="lang-ja" style="display:none">霊と物質</span>
+                    </h2>
+                    <div style="height: 12px;"></div>
+                    <a href="../reader.html?vol=mioshiec4&file=sokuseki1.html" class="topic-card">
+                        <div class="topic-card__icon">2</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Os Passos da Obra Divina de Meishu-Sama １</span>
+                            <span class="lang-ja" style="display:none">明主様御神業の御足跡 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sokuseki2.html" class="topic-card">
+                        <div class="topic-card__icon">3</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Os Passos da Obra Divina de Meishu-Sama ２</span>
+                            <span class="lang-ja" style="display:none">明主様御神業の御足跡 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sokuseki3.html" class="topic-card">
+                        <div class="topic-card__icon">4</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Os Passos da Obra Divina de Meishu-Sama ３</span>
+                            <span class="lang-ja" style="display:none">明主様御神業の御足跡 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sokuseki4.html" class="topic-card">
+                        <div class="topic-card__icon">5</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Os Passos da Obra Divina de Meishu-Sama ４</span>
+                            <span class="lang-ja" style="display:none">明主様御神業の御足跡 4</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sokuseki5.html" class="topic-card">
+                        <div class="topic-card__icon">6</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Os Passos da Obra Divina de Meishu-Sama ５</span>
+                            <span class="lang-ja" style="display:none">明主様御神業の御足跡 5</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sokuseki6.html" class="topic-card">
+                        <div class="topic-card__icon">7</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Os Passos da Obra Divina de Meishu-Sama ６</span>
+                            <span class="lang-ja" style="display:none">明主様御神業の御足跡 6</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sokuseki7.html" class="topic-card">
+                        <div class="topic-card__icon">8</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Os Passos da Obra Divina de Meishu-Sama ７</span>
+                            <span class="lang-ja" style="display:none">明主様御神業の御足跡 7</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sokuseki8.html" class="topic-card">
+                        <div class="topic-card__icon">9</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Os Passos da Obra Divina de Meishu-Sama ８</span>
+                            <span class="lang-ja" style="display:none">明主様御神業の御足跡 8</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=omoide1.html" class="topic-card">
+                        <div class="topic-card__icon">10</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Memórias de Meishu-Sama １</span>
+                            <span class="lang-ja" style="display:none">明主様の思い出 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=omoide2.html" class="topic-card">
+                        <div class="topic-card__icon">11</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Memórias de Meishu-Sama ２</span>
+                            <span class="lang-ja" style="display:none">明主様の思い出 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=omoide3.html" class="topic-card">
+                        <div class="topic-card__icon">12</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Memórias de Meishu-Sama ３</span>
+                            <span class="lang-ja" style="display:none">明主様の思い出 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=omoide4.html" class="topic-card">
+                        <div class="topic-card__icon">13</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Memórias de Meishu-Sama ４</span>
+                            <span class="lang-ja" style="display:none">明主様の思い出 4</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=omoide5.html" class="topic-card">
+                        <div class="topic-card__icon">14</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Memórias de Meishu-Sama ５</span>
+                            <span class="lang-ja" style="display:none">明主様の思い出 5</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=omoide6.html" class="topic-card">
+                        <div class="topic-card__icon">15</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Memórias de Meishu-Sama ６</span>
+                            <span class="lang-ja" style="display:none">明主様の思い出 6</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=nitizyou1.html" class="topic-card">
+                        <div class="topic-card__icon">16</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O Cotidiano de Meishu-Sama １</span>
+                            <span class="lang-ja" style="display:none">明主様の御日常 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=nitizyou2.html" class="topic-card">
+                        <div class="topic-card__icon">17</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O Cotidiano de Meishu-Sama ２</span>
+                            <span class="lang-ja" style="display:none">明主様の御日常 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=onkoto.html" class="topic-card">
+                        <div class="topic-card__icon">18</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Relatos sobre Meishu-Sama</span>
+                            <span class="lang-ja" style="display:none">明主様の御事</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sixtupitu.html" class="topic-card">
+                        <div class="topic-card__icon">19</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Os Escritos de Meishu-Sama</span>
+                            <span class="lang-ja" style="display:none">明主様の御執筆</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=waka.html" class="topic-card">
+                        <div class="topic-card__icon">20</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Os Waka de Meishu-Sama</span>
+                            <span class="lang-ja" style="display:none">明主様の和歌</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=syuxtupan1.html" class="topic-card">
+                        <div class="topic-card__icon">21</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">As Publicações de Meishu-Sama １</span>
+                            <span class="lang-ja" style="display:none">明主様の出版 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=syuxtupan2.html" class="topic-card">
+                        <div class="topic-card__icon">22</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">As Publicações de Meishu-Sama ２</span>
+                            <span class="lang-ja" style="display:none">明主様の出版 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=syuxtupan3.html" class="topic-card">
+                        <div class="topic-card__icon">23</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">As Publicações de Meishu-Sama ３</span>
+                            <span class="lang-ja" style="display:none">明主様の出版 3</span>
+                        </div>
+                    </a>
+                    <div style="height: 12px;"></div>
+                    <hr style="border:none; border-top:1px solid var(--border); margin: 32px 0; opacity: 0.5;">
+                    <h2 id="section-2" class="section-header">
+                        <span class="lang-pt">Arte e Beleza</span>
+                        <span class="lang-ja" style="display:none">芸術と美</span>
+                    </h2>
+                    <div style="height: 12px;"></div>
+                    <a href="../reader.html?vol=mioshiec4&file=radio.html" class="topic-card">
+                        <div class="topic-card__icon">24</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Aparições de Meishu-Sama no Rádio</span>
+                            <span class="lang-ja" style="display:none">明主様のラジオ放送御出演</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=taidan.html" class="topic-card">
+                        <div class="topic-card__icon">25</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Os Diálogos de Meishu-Sama</span>
+                            <span class="lang-ja" style="display:none">明主様の御対談</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kouzan.html" class="topic-card">
+                        <div class="topic-card__icon">26</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Administração de Minas por Meishu-Sama</span>
+                            <span class="lang-ja" style="display:none">明主様の鉱山経営</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=tozan.html" class="topic-card">
+                        <div class="topic-card__icon">27</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">As Escaladas de Meishu-Sama</span>
+                            <span class="lang-ja" style="display:none">明主様の登山</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=hounan1.html" class="topic-card">
+                        <div class="topic-card__icon">28</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">As Perseguições a Meishu-Sama １</span>
+                            <span class="lang-ja" style="display:none">明主様の御法難 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=hounan2.html" class="topic-card">
+                        <div class="topic-card__icon">29</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">As Perseguições a Meishu-Sama ２</span>
+                            <span class="lang-ja" style="display:none">明主様の御法難 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=hounan3.html" class="topic-card">
+                        <div class="topic-card__icon">30</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">As Perseguições a Meishu-Sama ３</span>
+                            <span class="lang-ja" style="display:none">明主様の御法難 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=hounan4.html" class="topic-card">
+                        <div class="topic-card__icon">31</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">As Perseguições a Meishu-Sama ４</span>
+                            <span class="lang-ja" style="display:none">明主様の御法難 4</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=hounan5.html" class="topic-card">
+                        <div class="topic-card__icon">32</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">As Perseguições a Meishu-Sama ５</span>
+                            <span class="lang-ja" style="display:none">明主様の御法難 5</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=haxtuten.html" class="topic-card">
+                        <div class="topic-card__icon">33</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Grande Expansão da Igreja Messiânica</span>
+                            <span class="lang-ja" style="display:none">メシヤ教の大発展</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=hawaii1.html" class="topic-card">
+                        <div class="topic-card__icon">34</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Difusão no Havaí durante a vida de Meishu-Sama １</span>
+                            <span class="lang-ja" style="display:none">明主様御在世中のハワイ布教 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=hawaii2.html" class="topic-card">
+                        <div class="topic-card__icon">35</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Difusão no Havaí durante a vida de Meishu-Sama ２</span>
+                            <span class="lang-ja" style="display:none">明主様御在世中のハワイ布教 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=USAhukyou.html" class="topic-card">
+                        <div class="topic-card__icon">36</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Difusão nos EUA durante a vida de Meishu-Sama</span>
+                            <span class="lang-ja" style="display:none">明主様御在世中の米国布教</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=saika.html" class="topic-card">
+                        <div class="topic-card__icon">37</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Viagem de Meishu-Sama para o Oeste</span>
+                            <span class="lang-ja" style="display:none">明主様の御西下</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=saigo.html" class="topic-card">
+                        <div class="topic-card__icon">38</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Última Obra Divina de Meishu-Sama</span>
+                            <span class="lang-ja" style="display:none">明主様最後の御神業</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=shouten.html" class="topic-card">
+                        <div class="topic-card__icon">39</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Ascensão de Meishu-Sama e o Johrei</span>
+                            <span class="lang-ja" style="display:none">明主様御昇天と浄霊</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=gyokusen.html" class="topic-card">
+                        <div class="topic-card__icon">40</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Tamagawa-go</span>
+                            <span class="lang-ja" style="display:none">玉川郷</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sinsen1.html" class="topic-card">
+                        <div class="topic-card__icon">41</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Hakone Shinsen-kyo １</span>
+                            <span class="lang-ja" style="display:none">箱根 神仙郷 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sinsen2.html" class="topic-card">
+                        <div class="topic-card__icon">42</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Hakone Shinsen-kyo ２</span>
+                            <span class="lang-ja" style="display:none">箱根 神仙郷 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zuiun.html" class="topic-card">
+                        <div class="topic-card__icon">43</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Atami Zuiun-kyo</span>
+                            <span class="lang-ja" style="display:none">熱海 瑞雲郷</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sakimi.html" class="topic-card">
+                        <div class="topic-card__icon">44</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Sede Provisória de Sakimi-cho</span>
+                            <span class="lang-ja" style="display:none">咲見町仮本部</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=heian1.html" class="topic-card">
+                        <div class="topic-card__icon">45</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Kyoto Heian-kyo １</span>
+                            <span class="lang-ja" style="display:none">京都 平安郷 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=heian2.html" class="topic-card">
+                        <div class="topic-card__icon">46</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Quioto Heian-kyo ２</span>
+                            <span class="lang-ja" style="display:none">京都 平安郷 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=mesiya1.html" class="topic-card">
+                        <div class="topic-card__icon">47</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Salão Messias １</span>
+                            <span class="lang-ja" style="display:none">メシヤ会館 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=mesiya2.html" class="topic-card">
+                        <div class="topic-card__icon">48</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Salão Messias ２</span>
+                            <span class="lang-ja" style="display:none">メシヤ会館 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=mesiya3.html" class="topic-card">
+                        <div class="topic-card__icon">49</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Salão Messias ３</span>
+                            <span class="lang-ja" style="display:none">メシヤ会館 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=suishou.html" class="topic-card">
+                        <div class="topic-card__icon">50</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Palácio de Cristal</span>
+                            <span class="lang-ja" style="display:none">水晶殿</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=koumyou.html" class="topic-card">
+                        <div class="topic-card__icon">51</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Palácio da Luz</span>
+                            <span class="lang-ja" style="display:none">光明殿</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=hakoneB1.html" class="topic-card">
+                        <div class="topic-card__icon">52</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Museu de Arte de Hakone １</span>
+                            <span class="lang-ja" style="display:none">箱根美術館 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=hakoneB2.html" class="topic-card">
+                        <div class="topic-card__icon">53</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Museu de Arte de Hakone ２</span>
+                            <span class="lang-ja" style="display:none">箱根美術館 2</span>
+                        </div>
+                    </a>
+                    <div style="height: 12px;"></div>
+                    <hr style="border:none; border-top:1px solid var(--border); margin: 32px 0; opacity: 0.5;">
+                    <h2 id="section-3" class="section-header">
+                        <span class="lang-pt">A Família</span>
+                        <span class="lang-ja" style="display:none">家庭</span>
+                    </h2>
+                    <div style="height: 12px;"></div>
+                    <a href="../reader.html?vol=mioshiec4&file=hakoneB3.html" class="topic-card">
+                        <div class="topic-card__icon">54</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Museu de Arte de Hakone ３</span>
+                            <span class="lang-ja" style="display:none">箱根美術館 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=hakoneB4.html" class="topic-card">
+                        <div class="topic-card__icon">55</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Museu de Arte de Hakone ４</span>
+                            <span class="lang-ja" style="display:none">箱根美術館 4</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=atamiB.html" class="topic-card">
+                        <div class="topic-card__icon">56</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Museu de Arte de Atami</span>
+                            <span class="lang-ja" style="display:none">熱海美術館</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=buxtukyouB.html" class="topic-card">
+                        <div class="topic-card__icon">57</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Museu de Arte Budista</span>
+                            <span class="lang-ja" style="display:none">仏教美術館</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=bizyutuhin.html" class="topic-card">
+                        <div class="topic-card__icon">58</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O milagre da coleção de obras de arte</span>
+                            <span class="lang-ja" style="display:none">美術品蒐集の奇蹟</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kensetuKEIRIN1.html" class="topic-card">
+                        <div class="topic-card__icon">59</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Construção e Plano Divino １</span>
+                            <span class="lang-ja" style="display:none">建設と経綸 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kensetuKEIRIN2.html" class="topic-card">
+                        <div class="topic-card__icon">60</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Construção e Plano Divino ２</span>
+                            <span class="lang-ja" style="display:none">建設と経綸 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kensetuKYOUSEN.html" class="topic-card">
+                        <div class="topic-card__icon">61</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O progresso da construção e a expansão da doutrina</span>
+                            <span class="lang-ja" style="display:none">建設の進展と教線の発展</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kata1.html" class="topic-card">
+                        <div class="topic-card__icon">62</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O significado do modelo do Paraíso na Terra １</span>
+                            <span class="lang-ja" style="display:none">地上天国の型の意義 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kata2.html" class="topic-card">
+                        <div class="topic-card__icon">63</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O significado do modelo do Paraíso na Terra ２</span>
+                            <span class="lang-ja" style="display:none">地上天国の型の意義 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kata3.html" class="topic-card">
+                        <div class="topic-card__icon">64</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O significado do modelo do Paraíso na Terra ３</span>
+                            <span class="lang-ja" style="display:none">地上天国の型の意義 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kata4.html" class="topic-card">
+                        <div class="topic-card__icon">65</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O significado do modelo do Paraíso na Terra ４</span>
+                            <span class="lang-ja" style="display:none">地上天国の型の意義 4</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=hakoneSENDEN.html" class="topic-card">
+                        <div class="topic-card__icon">66</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O efeito publicitário do Museu de Arte de Hakone</span>
+                            <span class="lang-ja" style="display:none">箱根美術館の宣伝効果</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=TTsenden1.html" class="topic-card">
+                        <div class="topic-card__icon">67</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O efeito publicitário do Paraíso na Terra １</span>
+                            <span class="lang-ja" style="display:none">地上天国の宣伝効果 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=TTsenden2.html" class="topic-card">
+                        <div class="topic-card__icon">68</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O efeito publicitário do Paraíso na Terra ２</span>
+                            <span class="lang-ja" style="display:none">地上天国の宣伝効果 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=TTtamasii.html" class="topic-card">
+                        <div class="topic-card__icon">69</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O Paraíso na Terra eleva a alma</span>
+                            <span class="lang-ja" style="display:none">地上天国は魂を高める</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sidou.html" class="topic-card">
+                        <div class="topic-card__icon">70</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A salvação da classe dirigente</span>
+                            <span class="lang-ja" style="display:none">指導階級の救い</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=masukomiKOUGEKI1.html" class="topic-card">
+                        <div class="topic-card__icon">71</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ataques da mídia １</span>
+                            <span class="lang-ja" style="display:none">マスコミからの攻撃 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=masukomiKOUGEKI2.html" class="topic-card">
+                        <div class="topic-card__icon">72</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ataques da mídia ２</span>
+                            <span class="lang-ja" style="display:none">マスコミからの攻撃 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=masukomiKOUGEKI3.html" class="topic-card">
+                        <div class="topic-card__icon">73</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ataques da mídia ３</span>
+                            <span class="lang-ja" style="display:none">マスコミからの攻撃 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=masukomiKOUGEKI4.html" class="topic-card">
+                        <div class="topic-card__icon">74</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ataques da mídia ４</span>
+                            <span class="lang-ja" style="display:none">マスコミからの攻撃 4</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=masukomiKOUGEKI5.html" class="topic-card">
+                        <div class="topic-card__icon">75</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ataques da mídia ５</span>
+                            <span class="lang-ja" style="display:none">マスコミからの攻撃 5</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=masukomiHIKYOURYOKU.html" class="topic-card">
+                        <div class="topic-card__icon">76</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A postura não cooperativa da mídia</span>
+                            <span class="lang-ja" style="display:none">マスコミの非協力的姿勢</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=masukomiKYOURYOKU.html" class="topic-card">
+                        <div class="topic-card__icon">77</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A cooperação da mídia</span>
+                            <span class="lang-ja" style="display:none">マスコミの協力</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yusuri.html" class="topic-card">
+                        <div class="topic-card__icon">78</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ameaças de extorsão</span>
+                            <span class="lang-ja" style="display:none">ユスリの恐喝</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sonotaBOUGAI.html" class="topic-card">
+                        <div class="topic-card__icon">79</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Outras obstruções</span>
+                            <span class="lang-ja" style="display:none">その他の妨害</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sisan.html" class="topic-card">
+                        <div class="topic-card__icon">80</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A situação financeira da organização religiosa</span>
+                            <span class="lang-ja" style="display:none">教団の資産状況</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=norito.html" class="topic-card">
+                        <div class="topic-card__icon">81</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Oração Norito</span>
+                            <span class="lang-ja" style="display:none">祝 詞</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=noritoMONGON.html" class="topic-card">
+                        <div class="topic-card__icon">82</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">As palavras da oração Norito</span>
+                            <span class="lang-ja" style="display:none">祝詞の文言</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zengensanzi.html" class="topic-card">
+                        <div class="topic-card__icon">83</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Zengen Sanshi</span>
+                            <span class="lang-ja" style="display:none">善言讃詞</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zengensanziMONGON.html" class="topic-card">
+                        <div class="topic-card__icon">84</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">As palavras da Zengen Sanshi</span>
+                            <span class="lang-ja" style="display:none">善言讃詞の文言</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kamunagara.html" class="topic-card">
+                        <div class="topic-card__icon">85</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Kannagara Tamachi Haemase</span>
+                            <span class="lang-ja" style="display:none">惟神霊幸倍坐せ</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=amanokazuuta.html" class="topic-card">
+                        <div class="topic-card__icon">86</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Amatsu Kazoeuta</span>
+                            <span class="lang-ja" style="display:none">天数歌</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=amatukanagi.html" class="topic-card">
+                        <div class="topic-card__icon">87</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Amatsu Kanagi</span>
+                            <span class="lang-ja" style="display:none">天津金木</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kannonriki.html" class="topic-card">
+                        <div class="topic-card__icon">88</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O poder de Kannon</span>
+                            <span class="lang-ja" style="display:none">観音力</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=guseKANNON.html" class="topic-card">
+                        <div class="topic-card__icon">89</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Kannon, a Salvadora do Mundo</span>
+                            <span class="lang-ja" style="display:none">救世観音</span>
+                        </div>
+                    </a>
+                    <div style="height: 12px;"></div>
+                    <hr style="border:none; border-top:1px solid var(--border); margin: 32px 0; opacity: 0.5;">
+                    <h2 id="section-4" class="section-header">
+                        <span class="lang-pt">A Sociedade</span>
+                        <span class="lang-ja" style="display:none">社会</span>
+                    </h2>
+                    <div style="height: 12px;"></div>
+                    <a href="../reader.html?vol=mioshiec4&file=asakusa.html" class="topic-card">
+                        <div class="topic-card__icon">90</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Kannon-sama de Asakusa</span>
+                            <span class="lang-ja" style="display:none">浅草の観音様</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kannonSAMA.html" class="topic-card">
+                        <div class="topic-card__icon">91</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Kannon-sama</span>
+                            <span class="lang-ja" style="display:none">観音様</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kannonZOU.html" class="topic-card">
+                        <div class="topic-card__icon">92</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Estátua de Kannon</span>
+                            <span class="lang-ja" style="display:none">観音像</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=567daikoku.html" class="topic-card">
+                        <div class="topic-card__icon">93</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Miroku Daikokuten</span>
+                            <span class="lang-ja" style="display:none">みろく大黒天</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=daikoku.html" class="topic-card">
+                        <div class="topic-card__icon">94</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Daikoku-sama</span>
+                            <span class="lang-ja" style="display:none">大黒様</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=daikokuEBISU.html" class="topic-card">
+                        <div class="topic-card__icon">95</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Daikoku-sama e Ebisu-sama</span>
+                            <span class="lang-ja" style="display:none">大黒様と恵比寿様</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=daikokuHOUSAI.html" class="topic-card">
+                        <div class="topic-card__icon">96</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Consagração de Daikoku-sama</span>
+                            <span class="lang-ja" style="display:none">大黒様の御奉斎</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=daikokuREIHAI.html" class="topic-card">
+                        <div class="topic-card__icon">97</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Adoração a Daikoku-sama</span>
+                            <span class="lang-ja" style="display:none">大黒様の礼拝</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=daikokuSAHOU.html" class="topic-card">
+                        <div class="topic-card__icon">98</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Etiqueta para Daikoku-sama</span>
+                            <span class="lang-ja" style="display:none">大黒様の作法</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sintou.html" class="topic-card">
+                        <div class="topic-card__icon">99</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Xinto ísmo</span>
+                            <span class="lang-ja" style="display:none">神 道</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zinzya.html" class="topic-card">
+                        <div class="topic-card__icon">100</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Santu ário</span>
+                            <span class="lang-ja" style="display:none">神 社</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kamidana.html" class="topic-card">
+                        <div class="topic-card__icon">101</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Kamida na</span>
+                            <span class="lang-ja" style="display:none">神 棚</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=uzigami.html" class="topic-card">
+                        <div class="topic-card__icon">102</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ujigami-sama</span>
+                            <span class="lang-ja" style="display:none">氏神様</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zizou.html" class="topic-card">
+                        <div class="topic-card__icon">103</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ojizō-sama</span>
+                            <span class="lang-ja" style="display:none">お地蔵様</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=gosintaiSHOBUN1.html" class="topic-card">
+                        <div class="topic-card__icon">104</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Método de descarte de objetos sagrados de outras religiões １</span>
+                            <span class="lang-ja" style="display:none">他宗教の御神体等の処分方法 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=gosintaiSHOBUN2.html" class="topic-card">
+                        <div class="topic-card__icon">105</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Método de descarte de objetos sagrados de outras religiões ２</span>
+                            <span class="lang-ja" style="display:none">他宗教の御神体等の処分方法 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=gosintaiSHOBUN3.html" class="topic-card">
+                        <div class="topic-card__icon">106</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Método de descarte de objetos sagrados de outras religiões ３</span>
+                            <span class="lang-ja" style="display:none">他宗教の御神体等の処分方法 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=ohudaSHOBUN.html" class="topic-card">
+                        <div class="topic-card__icon">107</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Método de descarte de ofuda, shinpu, omamori e gohei</span>
+                            <span class="lang-ja" style="display:none">お札、神符、お守り、御幣の処分方法</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=ryuuzinSHOBUN.html" class="topic-card">
+                        <div class="topic-card__icon">108</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Método de descarte de Ryūjin, etc.</span>
+                            <span class="lang-ja" style="display:none">龍神の処分方法等</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=toukenSHOBUN.html" class="topic-card">
+                        <div class="topic-card__icon">109</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Método de descarte de espadas</span>
+                            <span class="lang-ja" style="display:none">刀剣の処分方法</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=sonotaSHOBUN.html" class="topic-card">
+                        <div class="topic-card__icon">110</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Método de descarte de outros objetos possuídos, etc.</span>
+                            <span class="lang-ja" style="display:none">その他の憑霊物の処分方法等</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=Sdanpen1.html" class="topic-card">
+                        <div class="topic-card__icon">111</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Coletânea de Fragmentos Religiosos １</span>
+                            <span class="lang-ja" style="display:none">宗教断片集 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=Sdanpen2.html" class="topic-card">
+                        <div class="topic-card__icon">112</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Coletânea de Fragmentos Religiosos ２</span>
+                            <span class="lang-ja" style="display:none">宗教断片集 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=Sdanpen3.html" class="topic-card">
+                        <div class="topic-card__icon">113</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Coletânea de Fragmentos Religiosos ３</span>
+                            <span class="lang-ja" style="display:none">宗教断片集 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=Sdanpen4.html" class="topic-card">
+                        <div class="topic-card__icon">114</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Coletânea de Fragmentos Religiosos ４ (Cristianismo)</span>
+                            <span class="lang-ja" style="display:none">宗教断片集 4（キリスト教）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=Sdanpen5.html" class="topic-card">
+                        <div class="topic-card__icon">115</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Coletânea de Fragmentos Religiosos ５ (Budismo)</span>
+                            <span class="lang-ja" style="display:none">宗教断片集 5（仏教）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zabieru.html" class="topic-card">
+                        <div class="topic-card__icon">116</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Xavier</span>
+                            <span class="lang-ja" style="display:none">ザビエル</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=reisi1.html" class="topic-card">
+                        <div class="topic-card__icon">117</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Visão Espiritual １</span>
+                            <span class="lang-ja" style="display:none">霊 視 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=reisi2.html" class="topic-card">
+                        <div class="topic-card__icon">118</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Visão Espiritual ２</span>
+                            <span class="lang-ja" style="display:none">霊 視 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=reisi3.html" class="topic-card">
+                        <div class="topic-card__icon">119</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Visão Espiritual ３ (Visão Espiritual e Espíritos de Raposa)</span>
+                            <span class="lang-ja" style="display:none">霊 視 3（霊視と狐霊）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=reiSHASIN.html" class="topic-card">
+                        <div class="topic-card__icon">120</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Fotografia Espírita</span>
+                            <span class="lang-ja" style="display:none">霊写真</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kourei.html" class="topic-card">
+                        <div class="topic-card__icon">121</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Fenômenos de Comunicação Espiritual</span>
+                            <span class="lang-ja" style="display:none">交霊現象</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=hikiyose.html" class="topic-card">
+                        <div class="topic-card__icon">122</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Fenômeno de Aporte de Objetos</span>
+                            <span class="lang-ja" style="display:none">物品引き寄せ現象</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=reibai.html" class="topic-card">
+                        <div class="topic-card__icon">123</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Médi um</span>
+                            <span class="lang-ja" style="display:none">霊 媒</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=Rdanpen1.html" class="topic-card">
+                        <div class="topic-card__icon">124</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Coletânea de Fragmentos de Espiritologia １</span>
+                            <span class="lang-ja" style="display:none">霊学断片集 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=Rdanpen2.html" class="topic-card">
+                        <div class="topic-card__icon">125</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Coletânea de Fragmentos de Espiritologia ２</span>
+                            <span class="lang-ja" style="display:none">霊学断片集 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=Rdanpen3.html" class="topic-card">
+                        <div class="topic-card__icon">126</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Coletânea de Fragmentos de Espiritologia ３</span>
+                            <span class="lang-ja" style="display:none">霊学断片集 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=genrei.html" class="topic-card">
+                        <div class="topic-card__icon">127</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Análise de Kotodama e Caracteres</span>
+                            <span class="lang-ja" style="display:none">言霊、文字の解析</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=suuzi.html" class="topic-card">
+                        <div class="topic-card__icon">128</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Análise dos Números</span>
+                            <span class="lang-ja" style="display:none">数字の解析</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=iro.html" class="topic-card">
+                        <div class="topic-card__icon">129</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Sobre as Cores</span>
+                            <span class="lang-ja" style="display:none">色について</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kasou1.html" class="topic-card">
+                        <div class="topic-card__icon">130</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Geomancia e Direções １</span>
+                            <span class="lang-ja" style="display:none">家相方位 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kasou2.html" class="topic-card">
+                        <div class="topic-card__icon">131</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Geomancia e Direções ２</span>
+                            <span class="lang-ja" style="display:none">家相方位 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=ninsou.html" class="topic-card">
+                        <div class="topic-card__icon">132</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Fisiono mia</span>
+                            <span class="lang-ja" style="display:none">人 相</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=ningenseiHANDAN.html" class="topic-card">
+                        <div class="topic-card__icon">133</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Método para Julgar a Natureza Humana</span>
+                            <span class="lang-ja" style="display:none">人間性判断法</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=seimeigaku1.html" class="topic-card">
+                        <div class="topic-card__icon">134</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Onomancia １</span>
+                            <span class="lang-ja" style="display:none">姓名学 1</span>
+                        </div>
+                    </a>
+                    <div style="height: 12px;"></div>
+                    <hr style="border:none; border-top:1px solid var(--border); margin: 32px 0; opacity: 0.5;">
+                    <h2 id="section-5" class="section-header">
+                        <span class="lang-pt">O Caminho da Humanidade</span>
+                        <span class="lang-ja" style="display:none">人類の道</span>
+                    </h2>
+                    <div style="height: 12px;"></div>
+                    <a href="../reader.html?vol=mioshiec4&file=seimeigaku2.html" class="topic-card">
+                        <div class="topic-card__icon">135</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Onomancia ２</span>
+                            <span class="lang-ja" style="display:none">姓名学 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=seimeigaku3.html" class="topic-card">
+                        <div class="topic-card__icon">136</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Onomancia ３</span>
+                            <span class="lang-ja" style="display:none">姓名学 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yume.html" class="topic-card">
+                        <div class="topic-card__icon">137</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Sobre Sonhos</span>
+                            <span class="lang-ja" style="display:none">夢について</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yumeKAIKOU.html" class="topic-card">
+                        <div class="topic-card__icon">138</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Encontro em Sonhos (kaikou)</span>
+                            <span class="lang-ja" style="display:none">夢での邂逅（かいこう）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yumeHURIKAE.html" class="topic-card">
+                        <div class="topic-card__icon">139</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Substituição através de Sonhos</span>
+                            <span class="lang-ja" style="display:none">夢による振り替え</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yumeHANDAN1.html" class="topic-card">
+                        <div class="topic-card__icon">140</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Interpretação de Sonhos １ (Bons Presságios / Maus Presságios)</span>
+                            <span class="lang-ja" style="display:none">夢判断 1（吉兆凶兆）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yumeHANDAN2.html" class="topic-card">
+                        <div class="topic-card__icon">141</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Interpretação de Sonhos ２ (Fé)</span>
+                            <span class="lang-ja" style="display:none">夢判断 2（信仰）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yumeHANDAN3.html" class="topic-card">
+                        <div class="topic-card__icon">142</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Interpretação de Sonhos ３ (O Juízo Final)</span>
+                            <span class="lang-ja" style="display:none">夢判断 3（最後の審判）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yumeHANDAN4.html" class="topic-card">
+                        <div class="topic-card__icon">143</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Interpretação de Sonhos ４（Espíritos Ancestrais）</span>
+                            <span class="lang-ja" style="display:none">夢判断 4（祖霊）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yumeHANDAN5.html" class="topic-card">
+                        <div class="topic-card__icon">144</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Interpretação de Sonhos ５（Deuses DragõesEspíritos de Serpente）</span>
+                            <span class="lang-ja" style="display:none">夢判断 5（龍神蛇霊）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yumeHANDAN6.html" class="topic-card">
+                        <div class="topic-card__icon">145</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Interpretação de Sonhos ６（Animais）</span>
+                            <span class="lang-ja" style="display:none">夢判断 6（動物）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yumeHANDAN7.html" class="topic-card">
+                        <div class="topic-card__icon">146</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Interpretação de Sonhos ７（Outros）</span>
+                            <span class="lang-ja" style="display:none">夢判断 7（その他）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yumeAKURYOU.html" class="topic-card">
+                        <div class="topic-card__icon">147</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Sonhos e Espíritos Malignos</span>
+                            <span class="lang-ja" style="display:none">夢と悪霊</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kixtuchou.html" class="topic-card">
+                        <div class="topic-card__icon">148</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Bons Presságios</span>
+                            <span class="lang-ja" style="display:none">吉 兆</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kyouchou.html" class="topic-card">
+                        <div class="topic-card__icon">149</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Maus Presságios</span>
+                            <span class="lang-ja" style="display:none">凶 兆</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=udonge.html" class="topic-card">
+                        <div class="topic-card__icon">150</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Flor de Udonge</span>
+                            <span class="lang-ja" style="display:none">うどんげの花</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=shuuzoku.html" class="topic-card">
+                        <div class="topic-card__icon">151</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Costumes</span>
+                            <span class="lang-ja" style="display:none">習 俗</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=setubun.html" class="topic-card">
+                        <div class="topic-card__icon">152</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Setsubun e Risshun</span>
+                            <span class="lang-ja" style="display:none">節分と立春</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=denshou.html" class="topic-card">
+                        <div class="topic-card__icon">153</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Lendas</span>
+                            <span class="lang-ja" style="display:none">伝 承</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yogen.html" class="topic-card">
+                        <div class="topic-card__icon">154</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Profecias</span>
+                            <span class="lang-ja" style="display:none">予 言</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=uchuu.html" class="topic-card">
+                        <div class="topic-card__icon">155</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Universo</span>
+                            <span class="lang-ja" style="display:none">宇 宙</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=uchuuZIN.html" class="topic-card">
+                        <div class="topic-card__icon">156</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Extraterrestres</span>
+                            <span class="lang-ja" style="display:none">宇宙人</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zisin.html" class="topic-card">
+                        <div class="topic-card__icon">157</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Terremotos</span>
+                            <span class="lang-ja" style="display:none">地 震</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=huusuigai.html" class="topic-card">
+                        <div class="topic-card__icon">158</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Danos por Vento e Água</span>
+                            <span class="lang-ja" style="display:none">風水害</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=rakurai.html" class="topic-card">
+                        <div class="topic-card__icon">159</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Queda de Raios</span>
+                            <span class="lang-ja" style="display:none">落 雷</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=reigai.html" class="topic-card">
+                        <div class="topic-card__icon">160</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Danos por Frio</span>
+                            <span class="lang-ja" style="display:none">冷 害</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kasai.html" class="topic-card">
+                        <div class="topic-card__icon">161</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Incêndios</span>
+                            <span class="lang-ja" style="display:none">火 災</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kasaiRYUUZIN.html" class="topic-card">
+                        <div class="topic-card__icon">162</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Incêndios e Deuses Dragões</span>
+                            <span class="lang-ja" style="display:none">火災と龍神</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=atamiTAIKA.html" class="topic-card">
+                        <div class="topic-card__icon">163</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O Grande Incêndio de Atami</span>
+                            <span class="lang-ja" style="display:none">熱海の大火</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=tigaku.html" class="topic-card">
+                        <div class="topic-card__icon">164</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Geologia</span>
+                            <span class="lang-ja" style="display:none">地 学</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kishou.html" class="topic-card">
+                        <div class="topic-card__icon">165</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Fenômenos Estranhos</span>
+                            <span class="lang-ja" style="display:none">奇 象</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=siranui.html" class="topic-card">
+                        <div class="topic-card__icon">166</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Shiranui</span>
+                            <span class="lang-ja" style="display:none">不知火</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zinruiREKISI.html" class="topic-card">
+                        <div class="topic-card__icon">167</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A História da Humanidade</span>
+                            <span class="lang-ja" style="display:none">人類の歴史</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=nihonZENSEIKI.html" class="topic-card">
+                        <div class="topic-card__icon">168</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">O Século Anterior do Japão</span>
+                            <span class="lang-ja" style="display:none">日本の前世紀</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zintai1.html" class="topic-card">
+                        <div class="topic-card__icon">169</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Corpo Humano １（O Ser Humano é um Microcosmo）</span>
+                            <span class="lang-ja" style="display:none">人 体 1（人間は小宇宙）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zintai2.html" class="topic-card">
+                        <div class="topic-card__icon">170</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Corpo Humano ２</span>
+                            <span class="lang-ja" style="display:none">人 体 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=ningen.html" class="topic-card">
+                        <div class="topic-card__icon">171</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Seres Humanos</span>
+                            <span class="lang-ja" style="display:none">人 間</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=kinzyuu.html" class="topic-card">
+                        <div class="topic-card__icon">172</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Aves, Feras, Insetos e Peixes</span>
+                            <span class="lang-ja" style="display:none">禽獣虫魚</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=shokubutu.html" class="topic-card">
+                        <div class="topic-card__icon">173</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Plantas</span>
+                            <span class="lang-ja" style="display:none">植 物</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=youkai.html" class="topic-card">
+                        <div class="topic-card__icon">174</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Yōkai</span>
+                            <span class="lang-ja" style="display:none">妖 怪</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=yousei.html" class="topic-card">
+                        <div class="topic-card__icon">175</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Fadas</span>
+                            <span class="lang-ja" style="display:none">妖 精</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=tatari1.html" class="topic-card">
+                        <div class="topic-card__icon">176</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Maldição １（Maldição de Espíritos Humanos）</span>
+                            <span class="lang-ja" style="display:none">祟 り 1（人霊の祟り）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=tatari2.html" class="topic-card">
+                        <div class="topic-card__icon">177</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Maldição ２（Maldição de Espíritos de Animais）</span>
+                            <span class="lang-ja" style="display:none">祟 り 2（動物霊の祟り）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=tatari3.html" class="topic-card">
+                        <div class="topic-card__icon">178</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Maldição ３（Maldição da Terra）</span>
+                            <span class="lang-ja" style="display:none">祟 り 3（土地の祟り）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=tatari4.html" class="topic-card">
+                        <div class="topic-card__icon">179</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Maldição ４（Outras Maldições）</span>
+                            <span class="lang-ja" style="display:none">祟 り 4（その他の祟り）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zyuso.html" class="topic-card">
+                        <div class="topic-card__icon">180</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Feitiços</span>
+                            <span class="lang-ja" style="display:none">呪 詛</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=geizyutuSIMEI.html" class="topic-card">
+                        <div class="topic-card__icon">181</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">A Missão da Arte</span>
+                            <span class="lang-ja" style="display:none">芸術の使命</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=geizyutuZINKAKU.html" class="topic-card">
+                        <div class="topic-card__icon">182</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Arte e Personalidade</span>
+                            <span class="lang-ja" style="display:none">芸術と人格</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BH1.html" class="topic-card">
+                        <div class="topic-card__icon">183</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ensaio de Crítica de Arte １（A Arte Japonesa e seu Futuro）</span>
+                            <span class="lang-ja" style="display:none">美術評論文 1（日本美術とその将来）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BH2.html" class="topic-card">
+                        <div class="topic-card__icon">184</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ensaio de Crítica de Arte ２（Reflexões sobre a Arte Oriental）</span>
+                            <span class="lang-ja" style="display:none">美術評論文 2（東洋美術雑感）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BH3.html" class="topic-card">
+                        <div class="topic-card__icon">185</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ensaio de Crítica de Arte ３（A Razão do Desaparecimento dos Mestres）</span>
+                            <span class="lang-ja" style="display:none">美術評論文 3（名人の失くなった理由）</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BH4.html" class="topic-card">
+                        <div class="topic-card__icon">186</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ensaio de Crítica de Arte ４</span>
+                            <span class="lang-ja" style="display:none">美術評論文 4</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BH5.html" class="topic-card">
+                        <div class="topic-card__icon">187</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Ensaio de Crítica de Arte ５</span>
+                            <span class="lang-ja" style="display:none">美術評論文 5</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BK1.html" class="topic-card">
+                        <div class="topic-card__icon">188</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Discurso sobre Arte １</span>
+                            <span class="lang-ja" style="display:none">美術に関する御講話 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BK2.html" class="topic-card">
+                        <div class="topic-card__icon">189</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Discurso sobre Arte ２</span>
+                            <span class="lang-ja" style="display:none">美術に関する御講話 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BK3.html" class="topic-card">
+                        <div class="topic-card__icon">190</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Discurso sobre Arte ３</span>
+                            <span class="lang-ja" style="display:none">美術に関する御講話 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BK4.html" class="topic-card">
+                        <div class="topic-card__icon">191</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Discurso sobre Arte ４</span>
+                            <span class="lang-ja" style="display:none">美術に関する御講話 4</span>
+                        </div>
+                    </a>
+                    <div style="height: 12px;"></div>
+                    <hr style="border:none; border-top:1px solid var(--border); margin: 32px 0; opacity: 0.5;">
+                    <h2 id="section-6" class="section-header">
+                        <span class="lang-pt">Ensinamentos Diversos</span>
+                        <span class="lang-ja" style="display:none">その他の教え</span>
+                    </h2>
+                    <div style="height: 12px;"></div>
+                    <a href="../reader.html?vol=mioshiec4&file=BK5.html" class="topic-card">
+                        <div class="topic-card__icon">192</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Sermões sobre Arte ５</span>
+                            <span class="lang-ja" style="display:none">美術に関する御講話 5</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BK6.html" class="topic-card">
+                        <div class="topic-card__icon">193</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Sermões sobre Arte ６</span>
+                            <span class="lang-ja" style="display:none">美術に関する御講話 6</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BK7.html" class="topic-card">
+                        <div class="topic-card__icon">194</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Sermões sobre Arte ７</span>
+                            <span class="lang-ja" style="display:none">美術に関する御講話 7</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BK8.html" class="topic-card">
+                        <div class="topic-card__icon">195</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Sermões sobre Arte ８</span>
+                            <span class="lang-ja" style="display:none">美術に関する御講話 8</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BK9.html" class="topic-card">
+                        <div class="topic-card__icon">196</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Sermões sobre Arte ９</span>
+                            <span class="lang-ja" style="display:none">美術に関する御講話 9</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BK10.html" class="topic-card">
+                        <div class="topic-card__icon">197</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Sermões sobre Arte 10</span>
+                            <span class="lang-ja" style="display:none">美術に関する御講話 10</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BK11.html" class="topic-card">
+                        <div class="topic-card__icon">198</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Sermões sobre Arte 11</span>
+                            <span class="lang-ja" style="display:none">美術に関する御講話 11</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BS1.html" class="topic-card">
+                        <div class="topic-card__icon">199</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Orientações sobre Arte １</span>
+                            <span class="lang-ja" style="display:none">美術に関する御垂示 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BS2.html" class="topic-card">
+                        <div class="topic-card__icon">200</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Orientações sobre Arte ２</span>
+                            <span class="lang-ja" style="display:none">美術に関する御垂示 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BS3.html" class="topic-card">
+                        <div class="topic-card__icon">201</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Orientações sobre Arte ３</span>
+                            <span class="lang-ja" style="display:none">美術に関する御垂示 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=BS4.html" class="topic-card">
+                        <div class="topic-card__icon">202</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Orientações sobre Arte ４</span>
+                            <span class="lang-ja" style="display:none">美術に関する御垂示 4</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=geizyutuKA1.html" class="topic-card">
+                        <div class="topic-card__icon">203</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Artistas, Entertainers, Escritores １</span>
+                            <span class="lang-ja" style="display:none">芸術家、芸能家、文学者 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=geizyutuKA2.html" class="topic-card">
+                        <div class="topic-card__icon">204</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Artistas, Entertainers, Escritores ２</span>
+                            <span class="lang-ja" style="display:none">芸術家、芸能家、文学者 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=picaso1.html" class="topic-card">
+                        <div class="topic-card__icon">205</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Picasso １</span>
+                            <span class="lang-ja" style="display:none">ピカソ 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=picaso2.html" class="topic-card">
+                        <div class="topic-card__icon">206</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Picasso ２</span>
+                            <span class="lang-ja" style="display:none">ピカソ 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=ongaku.html" class="topic-card">
+                        <div class="topic-card__icon">207</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Mú sica</span>
+                            <span class="lang-ja" style="display:none">音 楽</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=eiga.html" class="topic-card">
+                        <div class="topic-card__icon">208</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Fil me</span>
+                            <span class="lang-ja" style="display:none">映 画</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zikyoku1.html" class="topic-card">
+                        <div class="topic-card__icon">209</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Atu alidades １</span>
+                            <span class="lang-ja" style="display:none">時 局 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zikyoku2.html" class="topic-card">
+                        <div class="topic-card__icon">210</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Atu alidades ２</span>
+                            <span class="lang-ja" style="display:none">時 局 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zikyoku3.html" class="topic-card">
+                        <div class="topic-card__icon">211</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Atu alidades ３</span>
+                            <span class="lang-ja" style="display:none">時 局 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zikyoku4.html" class="topic-card">
+                        <div class="topic-card__icon">212</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Atu alidades ４</span>
+                            <span class="lang-ja" style="display:none">時 局 4</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zikyoku5.html" class="topic-card">
+                        <div class="topic-card__icon">213</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Atu alidades ５</span>
+                            <span class="lang-ja" style="display:none">時 局 5</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zikyoku6.html" class="topic-card">
+                        <div class="topic-card__icon">214</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Atu alidades ６</span>
+                            <span class="lang-ja" style="display:none">時 局 6</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=zikyoku7.html" class="topic-card">
+                        <div class="topic-card__icon">215</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Atu alidades ７</span>
+                            <span class="lang-ja" style="display:none">時 局 7</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=mirai1.html" class="topic-card">
+                        <div class="topic-card__icon">216</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Previsões do Futuro １</span>
+                            <span class="lang-ja" style="display:none">未来予想 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=mirai2.html" class="topic-card">
+                        <div class="topic-card__icon">217</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Previsões do Futuro ２</span>
+                            <span class="lang-ja" style="display:none">未来予想 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=mirai3.html" class="topic-card">
+                        <div class="topic-card__icon">218</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Previsões do Futuro ３</span>
+                            <span class="lang-ja" style="display:none">未来予想 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=mirai4.html" class="topic-card">
+                        <div class="topic-card__icon">219</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Previsões do Futuro ４</span>
+                            <span class="lang-ja" style="display:none">未来予想 4</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=daitoua1.html" class="topic-card">
+                        <div class="topic-card__icon">220</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Estratégia da Guerra da Grande Ásia Oriental １</span>
+                            <span class="lang-ja" style="display:none">大東亜戦争戦略論 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=daitoua2.html" class="topic-card">
+                        <div class="topic-card__icon">221</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Estratégia da Guerra da Grande Ásia Oriental ２</span>
+                            <span class="lang-ja" style="display:none">大東亜戦争戦略論 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=aho1.html" class="topic-card">
+                        <div class="topic-card__icon">222</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Literatura Tola １</span>
+                            <span class="lang-ja" style="display:none">阿呆文学 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=aho2.html" class="topic-card">
+                        <div class="topic-card__icon">223</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Literatura Tola ２</span>
+                            <span class="lang-ja" style="display:none">阿呆文学 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=aho3.html" class="topic-card">
+                        <div class="topic-card__icon">224</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Literatura Tola ３</span>
+                            <span class="lang-ja" style="display:none">阿呆文学 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=suntetu1.html" class="topic-card">
+                        <div class="topic-card__icon">225</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Epi grama １</span>
+                            <span class="lang-ja" style="display:none">寸 鉄 1</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=suntetu2.html" class="topic-card">
+                        <div class="topic-card__icon">226</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Epi grama ２</span>
+                            <span class="lang-ja" style="display:none">寸 鉄 2</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=suntetu3.html" class="topic-card">
+                        <div class="topic-card__icon">227</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Epi grama ３</span>
+                            <span class="lang-ja" style="display:none">寸 鉄 3</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=suntetu4.html" class="topic-card">
+                        <div class="topic-card__icon">228</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Epi grama ４</span>
+                            <span class="lang-ja" style="display:none">寸 鉄 4</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=suntetu5.html" class="topic-card">
+                        <div class="topic-card__icon">229</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Epi grama ５</span>
+                            <span class="lang-ja" style="display:none">寸 鉄 5</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=suntetu6.html" class="topic-card">
+                        <div class="topic-card__icon">230</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Epi grama ６</span>
+                            <span class="lang-ja" style="display:none">寸 鉄 6</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=suntetu7.html" class="topic-card">
+                        <div class="topic-card__icon">231</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Epi grama ７</span>
+                            <span class="lang-ja" style="display:none">寸 鉄 7</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=suntetu8.html" class="topic-card">
+                        <div class="topic-card__icon">232</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Epi grama ８</span>
+                            <span class="lang-ja" style="display:none">寸 鉄 8</span>
+                        </div>
+                    </a>
+                    <a href="../reader.html?vol=mioshiec4&file=suntetu9.html" class="topic-card">
+                        <div class="topic-card__icon">233</div>
+                        <div class="topic-card__title">
+                            <span class="lang-pt">Epi grama ９</span>
+                            <span class="lang-ja" style="display:none">寸 鉄 9</span>
+                        </div>
+                    </a>
+
+                    <!-- Stats Footer -->
+                    <div class="volume-stats-footer">
+                        <div class="stats-header">
+                            <span class="stats-title">
+                                <span class="lang-pt">Estatísticas do Volume</span>
+                                <span class="lang-ja" style="display:none">巻の統計</span>
+                            </span>
+                            <div class="stats-totals">
+                                <div class="stats-total-item">
+                                    <span class="stats-total-number">7</span>
+                                    <span class="stats-total-label"><span class="lang-pt">Categorias</span><span
+                                            class="lang-ja" style="display:none">カテゴリ</span></span>
+                                </div>
+                                <div class="stats-total-item">
+                                    <span class="stats-total-number">235</span>
+                                    <span class="stats-total-label"><span class="lang-pt">Ensinamentos</span><span
+                                            class="lang-ja" style="display:none">刊行物</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-row"><span class="stat-section-name"><span class="lang-pt">Prefácio</span><span class="lang-ja" style="display:none">序 文</span></span><span class="stat-section-count">1</span></div>
+                            <div class="stat-row"><span class="stat-section-name"><span class="lang-pt">Espírito e Matéria</span><span class="lang-ja" style="display:none">霊と物質</span></span><span class="stat-section-count">22</span></div>
+                            <div class="stat-row"><span class="stat-section-name"><span class="lang-pt">Arte e Beleza</span><span class="lang-ja" style="display:none">芸術と美</span></span><span class="stat-section-count">30</span></div>
+                            <div class="stat-row"><span class="stat-section-name"><span class="lang-pt">A Família</span><span class="lang-ja" style="display:none">家庭</span></span><span class="stat-section-count">36</span></div>
+                            <div class="stat-row"><span class="stat-section-name"><span class="lang-pt">A Sociedade</span><span class="lang-ja" style="display:none">社会</span></span><span class="stat-section-count">45</span></div>
+                            <div class="stat-row"><span class="stat-section-name"><span class="lang-pt">O Caminho da Humanidade</span><span class="lang-ja" style="display:none">人類の道</span></span><span class="stat-section-count">57</span></div>
+                            <div class="stat-row"><span class="stat-section-name"><span class="lang-pt">Ensinamentos Diversos</span><span class="lang-ja" style="display:none">その他の教え</span></span><span class="stat-section-count">42</span></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <div class="search-modal-overlay" id="historyModal">
+        <div class="search-modal">
+            <div class="search-header">
+                <h2 style="font-size: 1.2rem; margin:0; color: var(--accent);">Histórico de Navegação</h2>
+                <button class="search-close" onclick="closeHistory()">&times;</button>
+            </div>
+            <ul class="search-results" id="historyResults"></ul>
+        </div>
+    </div>
+
+    <div class="search-modal-overlay" id="favoritesModal">
+        <div class="search-modal">
+            <div class="search-header">
+                <h2 style="font-size: 1.2rem; margin:0; color: var(--accent);">Ensinamentos Salvos</h2>
+                <button class="search-close" onclick="closeFavorites()">&times;</button>
+            </div>
+            <ul class="search-results" id="favoritesResults"></ul>
+        </div>
+    </div>
+
+
+    <div class="search-modal-overlay" id="searchModal">
+        <div class="search-modal">
+            <div class="search-header">
+                <div class="search-input-row">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Buscar nos ensinamentos..."
+                        autocomplete="off" inputmode="search" enterkeyhint="search">
+                    <button class="search-close" id="searchClose">&times;</button>
+                </div>
+                <div class="search-filters">
+                    <label class="filter-label"><input type="radio" name="searchFilter" value="all" checked>
+                        Tudo</label>
+                    <label class="filter-label"><input type="radio" name="searchFilter" value="title"> Só Título</label>
+                    <label class="filter-label"><input type="radio" name="searchFilter" value="content"> Só
+                        Conteúdo</label>
+                    <label class="filter-label" style="margin-left:auto; gap:8px;" title="Busca somente palavras inteiras. Ex: 'luz' não encontrará 'reluz'">
+                        <input type="checkbox" id="searchExactToggle"
+                            style="accent-color:var(--accent); cursor:pointer;">
+                        <span id="searchExactLabel">Palavra exata</span>
+                    </label>
+                </div>
+            </div>
+            <div id="searchCount" class="search-count"></div>
+            <ul class="search-results" id="searchResults"></ul>
+        </div>
+    </div>
+
+    </div>
+    </div>
+
+    <script type="importmap">
+    {"imports":{"@supabase/supabase-js":"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"}}</script>
+    <script type="module">
+      import { storageFetch, storageList } from '../js/storage.js';
+      window.supabaseStorageFetch = storageFetch;
+      window.supabaseStorageList = storageList;
+    </script>
+    <script type="module">
+      import * as cloudSync from '../js/sync.js';
+      window._cloudSync = cloudSync;
+    </script>
+    <script type="module" src="../js/login.js?v=5"></script>
+    <script src="../js/access.js?v=5"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => { initVolumeFilter('mioshiec4'); if (typeof revealPage === 'function') revealPage(); });
+    </script>
+    <script>document.addEventListener("DOMContentLoaded", function () { document.querySelectorAll(".topic-card__title .lang-pt").forEach(function (e) { if (e.innerHTML.length > 0) e.innerHTML = e.innerHTML.charAt(0).toUpperCase() + e.innerHTML.slice(1) }); });</script>
+</body>
+
+</html>

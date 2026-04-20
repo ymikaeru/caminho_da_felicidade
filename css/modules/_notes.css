@@ -1,0 +1,180 @@
+/* ============================================================
+   Notes — note editor modal, topic dot, panel styles
+   ============================================================ */
+
+/* Note button in header */
+#noteBtn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 6px 10px;
+  border-radius: 20px;
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+#noteBtn:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: none;
+}
+
+#noteBtn.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: none;
+}
+
+#noteBtn.active svg {
+  stroke: var(--accent);
+}
+
+.note-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: var(--font-ui);
+  line-height: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.note-badge.visible {
+  opacity: 1;
+}
+
+/* Per-topic note dot indicator */
+.note-topic-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #6ca3e0;
+  margin-left: 10px;
+  vertical-align: middle;
+  opacity: 0;
+  transform: scale(0);
+  cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.note-topic-dot.visible {
+  opacity: 0.85;
+  transform: scale(1);
+}
+
+.note-topic-dot:hover {
+  opacity: 1;
+  transform: scale(1.3);
+}
+
+/* Note preview block inside the notes panel */
+.note-preview-block {
+  font-size: 0.85rem;
+  color: var(--text-main);
+  margin-top: 5px;
+  line-height: 1.55;
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+  padding: 6px 10px;
+  border-radius: 0 6px 6px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Delete button in notes panel */
+.note-delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.note-delete-btn:hover {
+  color: var(--accent);
+}
+
+/* Note editor modal sizing */
+.note-editor-modal {
+  max-width: 520px !important;
+}
+
+.note-editor-body {
+  padding: 0 24px 20px;
+}
+
+#noteEditorTextarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card, var(--bg-color));
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+#noteEditorTextarea:focus {
+  border-color: var(--accent);
+}
+
+.note-editor-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+#noteEditorSaveBtn {
+  flex: 1;
+  padding: 10px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  transition: opacity 0.2s ease;
+}
+
+#noteEditorSaveBtn:hover {
+  opacity: 0.88;
+}
+
+#noteEditorDeleteBtn {
+  padding: 10px 16px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+#noteEditorDeleteBtn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}

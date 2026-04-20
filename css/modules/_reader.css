@@ -10,6 +10,14 @@
   max-width: 1400px;
 }
 
+#readerContainer.comparison-active mark.user-highlight {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: default !important;
+}
+
 .comparison-labels {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -195,7 +195,12 @@ window.toggleCustomize = function (isChecked) {
 };
 
 window.toggleComparison = function (isChecked) {
+  if (isChecked === undefined) {
+    isChecked = localStorage.getItem('reader_comparison') !== 'true';
+  }
   localStorage.setItem('reader_comparison', isChecked);
+  const highlightBtn = document.getElementById('mobileHighlightBtn');
+  if (highlightBtn) highlightBtn.style.display = isChecked ? 'none' : 'flex';
   if (typeof window.renderContent === 'function') window.renderContent();
   if (typeof closeThemeModal === 'function') closeThemeModal();
 };

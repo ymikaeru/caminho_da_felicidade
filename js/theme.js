@@ -39,11 +39,6 @@ function openThemeModal() {
   const slidersGroup = document.getElementById('themeSlidersGroup');
   if (customizeRow) customizeRow.style.display = isReaderPage ? '' : 'none';
   if (slidersGroup && !isReaderPage) slidersGroup.style.display = 'none';
-  const comparisonRow = document.getElementById('comparisonRow');
-  if (comparisonRow) comparisonRow.style.display = isReaderPage ? '' : 'none';
-  const savedComparison = localStorage.getItem('reader_comparison') === 'true';
-  const comparisonToggle = document.getElementById('themeComparisonToggle');
-  if (comparisonToggle) comparisonToggle.checked = savedComparison;
 
   if (typeof initLineHeight === 'function') initLineHeight();
   if (typeof initAdvancedOptions === 'function') initAdvancedOptions();
@@ -170,14 +165,6 @@ function _createThemeModal() {
             <div class="theme-btn-preview-text">Aa</div>
             <div class="theme-btn-label">Focus</div>
           </div>
-        </div>
-
-        <div class="theme-custom-row" id="comparisonRow" style="margin-top:8px;">
-          <span class="theme-custom-row-title">${t.comparison}</span>
-          <label class="theme-toggle">
-            <input type="checkbox" id="themeComparisonToggle" onchange="toggleComparison(this.checked)">
-            <span class="theme-toggle-slider"></span>
-          </label>
         </div>
 
         <div class="theme-custom-row" id="customizeRow" style="margin-top:8px;">

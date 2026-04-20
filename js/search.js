@@ -292,6 +292,9 @@ function _syncSpmLang() {
 }
 
 document.addEventListener('DOMContentLoaded', function _initSearchPreviewModal() {
+  const isMobile = window.innerWidth <= 767;
+  const openPubLabel = (localStorage.getItem('site_lang') || 'pt') === 'ja' ? '関連する教え' : 'Ensinamentos Relacionados';
+
   const overlay = document.createElement('div');
   overlay.className = 'search-preview-overlay';
   overlay.id = 'searchPreviewModal';
@@ -306,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function _initSearchPreviewModal()
           '<div class="search-preview-breadcrumb" id="searchPreviewBreadcrumb"></div>' +
           '<div class="search-preview-title" id="searchPreviewTitle"></div>' +
         '</div>' +
-        '<div class="search-preview-actions">' +
+        '<div class="search-preview-actions" id="spmActions">' +
           '<button class="btn-zen spm-btn" id="spmFavorite" title="Salvar">' +
             '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>' +
           '</button>' +
@@ -315,13 +318,21 @@ document.addEventListener('DOMContentLoaded', function _initSearchPreviewModal()
           '<button class="btn-zen spm-btn" id="spmLang" title="Mudar idioma">\u65e5\u672c\u8a9e</button>' +
           '<button class="btn-zen spm-btn" id="spmTheme" title="Themes & Settings">\u262f</button>' +
         '</div>' +
+        '<button class="btn-zen spm-btn spm-open-pub" id="spmOpenPub" title="' + openPubLabel + '" style="display:none">' + openPubLabel + '</button>' +
         '<button class="modal-close-btn search-preview-close" onclick="closeSearchPreview()" aria-label="Fechar preview">\u00d7</button>' +
       '</div>' +
       '<div class="search-preview-body">' +
         '<iframe id="searchPreviewIframe" title="Preview do ensinamento"></iframe>' +
+        '<div class="search-preview-card" id="searchPreviewCard" style="display:none">' +
+          '<div class="search-preview-card-content" id="searchPreviewCardContent"></div>' +
+        '</div>' +
       '</div>' +
     '</div>';
   document.body.appendChild(overlay);
+
+  if (isMobile) {
+    document.getElementById('spmOpenPub').style.display = 'inline-flex';
+  }
   overlay.addEventListener('click', function(e) {
     if (e.target === overlay) closeSearchPreview();
   });
@@ -337,35 +348,144 @@ document.addEventListener('DOMContentLoaded', function _initSearchPreviewModal()
     setTimeout(_syncSpmLang, 150);
   });
   document.getElementById('spmTheme').addEventListener('click', () => _iframeCall('toggleTheme'));
+
+  const openPubBtn = document.getElementById('spmOpenPub');
+  if (openPubBtn) {
+    openPubBtn.addEventListener('click', () => {
+      const iframe = document.getElementById('searchPreviewIframe');
+      const card = document.getElementById('searchPreviewCard');
+      const vol = iframe?.dataset.vol || card?.dataset.vol || '';
+      const file = iframe?.dataset.file || card?.dataset.file || '';
+      const lang = localStorage.getItem('site_lang') || 'pt';
+      window.location.href = `${getBasePath()}reader.html?vol=${vol}&file=${file}${lang === 'ja' ? '&lang=ja' : ''}`;
+    });
+  }
 });
 
 window.openSearchPreview = function (vol, file, search, displayTitle, topicIdx, sectionLabel) {
   const overlay = document.getElementById('searchPreviewModal');
   const iframe = document.getElementById('searchPreviewIframe');
+  const card = document.getElementById('searchPreviewCard');
   const titleEl = document.getElementById('searchPreviewTitle');
   const breadcrumbEl = document.getElementById('searchPreviewBreadcrumb');
-  if (!overlay || !iframe) return;
+  const cardContentEl = document.getElementById('searchPreviewCardContent');
+  if (!overlay) return;
 
   const basePath = getBasePath();
   const lang = localStorage.getItem('site_lang') || 'pt';
-  let readerUrl = `${basePath}reader.html?vol=${encodeURIComponent(vol)}&file=${encodeURIComponent(file)}`;
-  if (search) readerUrl += `&search=${encodeURIComponent(search)}`;
-  if (topicIdx != null && topicIdx > 0) readerUrl += `&topic=${topicIdx}`;
-  if (lang === 'ja') readerUrl += `&lang=ja`;
+  const isMobile = window.innerWidth <= 767;
 
   if (titleEl) titleEl.textContent = displayTitle || '';
   if (breadcrumbEl) breadcrumbEl.textContent = sectionLabel || '';
 
-  iframe.dataset.vol = vol;
-  iframe.dataset.file = file;
-  // Set iframe src fresh each time (destroys previous load)
-  iframe.src = readerUrl;
-  iframe.onload = function () {
-    const ov = document.getElementById('searchPreviewModal');
-    if (!ov || !ov.classList.contains('active')) return;
-    _syncSpmFavorite();
-    _syncSpmLang();
-  };
+  if (isMobile) {
+    if (iframe) iframe.style.display = 'none';
+    if (card) { card.style.display = 'block'; card.dataset.vol = vol; card.dataset.file = file; }
+
+    const activeLang = localStorage.getItem('site_lang') || 'pt';
+    const breadcrumbHtml = sectionLabel ? `<div class="search-preview-card-breadcrumb">${escHtml(sectionLabel)}</div>` : '';
+    const titleHtml = displayTitle ? `<div class="search-preview-card-title">${escHtml(displayTitle)}</div>` : '';
+    const headerHtml = breadcrumbHtml + titleHtml;
+
+    const renderCardContent = (contentHtml) => {
+      if (cardContentEl) cardContentEl.innerHTML = headerHtml + contentHtml;
+    };
+
+    const _applyHighlight = (text) => {
+      if (!search || !search.trim()) return text;
+      const queryParts = search.trim().toLowerCase().split('&').map(p => p.trim()).filter(p => p.length >= 2);
+      if (queryParts.length === 0) return text;
+      const exactToggle = document.getElementById('searchExactToggle');
+      const useExactMatch = exactToggle ? exactToggle.checked : false;
+      const isJapanese = activeLang === 'ja';
+      const escapedParts = queryParts.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      const highlightRegex = isJapanese
+        ? new RegExp(`(${escapedParts.join('|')})`, 'gi')
+        : (useExactMatch
+          ? new RegExp(`\\b(${escapedParts.join('|')})\\b`, 'gi')
+          : new RegExp(`\\b(${escapedParts.join('|')})`, 'gi'));
+      return text.replace(highlightRegex, '<mark class="search-highlight">$1</mark>');
+    };
+
+    function _renderFallback() {
+      let fallback = '';
+      if (typeof searchIndex !== 'undefined' && searchIndex) {
+        const items = searchIndex.filter(r => r.v === vol && r.f === file && (r.i == null ? 0 : r.i) === (topicIdx || 0));
+        if (items.length > 0) {
+          fallback = items.map(item => activeLang === 'ja' ? (item.cj || item.c || '') : (item.c || '')).join('\n\n');
+        }
+      }
+      if (fallback) {
+        let safeContent = String(fallback).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        safeContent = safeContent.split(/\n+/).filter(line => line.trim()).map(line => `<p>${line}</p>`).join('');
+        renderCardContent(_applyHighlight(safeContent));
+      } else {
+        renderCardContent('<p style="padding:2rem;text-align:center;color:var(--text-muted);">Conteúdo indisponível.</p>');
+      }
+    }
+
+    renderCardContent('<div style="padding:3rem;text-align:center;color:var(--text-muted);font-size:0.95rem;">Carregando o ensinamento completo...</div>');
+
+    if (window.supabaseStorageFetch) {
+      const fileNameStr = file.endsWith('.json') ? file : `${file}.json`;
+      window.supabaseStorageFetch(`${vol}/${fileNameStr}`).then(json => {
+        let topicsFound = [];
+        if (json && json.themes) {
+            json.themes.forEach(theme => {
+                if (theme.topics) theme.topics.forEach(topic => topicsFound.push(topic));
+            });
+        }
+        
+        let fullContent = '';
+        if (topicsFound.length > 0) {
+            const targetTopic = topicsFound[topicIdx || 0] || topicsFound[0];
+            if (targetTopic) {
+                fullContent = activeLang === 'ja' 
+                    ? (targetTopic.content_ja || targetTopic.content || '') 
+                    : (targetTopic.content_ptbr || targetTopic.content_pt || targetTopic.content || '');
+            }
+        }
+
+        if (fullContent) {
+          let safeContent = String(fullContent)
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<\/p>/gi, '\n')
+            .replace(/<[^>]+>/g, '')
+            .replace(/&nbsp;/gi, ' ');
+            
+          safeContent = escHtml(safeContent);
+          safeContent = safeContent.split(/\n+/).filter(line => line.trim()).map(line => `<p>${line}</p>`).join('');
+          renderCardContent(_applyHighlight(safeContent));
+        } else {
+          _renderFallback();
+        }
+      }).catch(err => {
+         console.warn('Erro ao carregar do Storage para preview:', err);
+         _renderFallback();
+      });
+    } else {
+      _renderFallback();
+    }
+  } else {
+    // Desktop: iframe mode
+    if (card) card.style.display = 'none';
+    if (iframe) iframe.style.display = 'block';
+
+    let readerUrl = `${basePath}reader.html?vol=${encodeURIComponent(vol)}&file=${encodeURIComponent(file)}`;
+    if (search) readerUrl += `&search=${encodeURIComponent(search)}`;
+    if (topicIdx != null && topicIdx > 0) readerUrl += `&topic=${topicIdx}`;
+    if (lang === 'ja') readerUrl += `&lang=ja`;
+
+    iframe.dataset.vol = vol;
+    iframe.dataset.file = file;
+    iframe.src = readerUrl;
+    iframe.onload = function () {
+      const ov = document.getElementById('searchPreviewModal');
+      if (!ov || !ov.classList.contains('active')) return;
+      _syncSpmFavorite();
+      _syncSpmLang();
+    };
+  }
 
   overlay.classList.add('active');
   _trapFocus(overlay);
@@ -374,11 +494,17 @@ window.openSearchPreview = function (vol, file, search, displayTitle, topicIdx, 
 window.closeSearchPreview = function () {
   const overlay = document.getElementById('searchPreviewModal');
   const iframe = document.getElementById('searchPreviewIframe');
+  const card = document.getElementById('searchPreviewCard');
   if (!overlay) return;
   overlay.classList.remove('active');
   _releaseFocus(overlay);
-  // Blank the iframe to stop any ongoing fetch/render
   if (iframe) setTimeout(() => { if (!overlay.classList.contains('active')) iframe.src = ''; }, 300);
+  if (card) {
+    const contentEl = document.getElementById('searchPreviewCardContent');
+    if (contentEl) contentEl.innerHTML = '';
+    delete card.dataset.vol;
+    delete card.dataset.file;
+  }
 };
 
 // --- Search DOM listeners ---

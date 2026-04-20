@@ -264,6 +264,82 @@
   margin-top: 4px;
 }
 
+@media (max-width: 767px) {
+  .search-header {
+    padding: 16px 16px 12px 16px;
+    gap: 12px;
+  }
+
+  .search-input-row {
+    gap: 10px;
+  }
+
+  .search-input {
+    font-size: 1rem;
+    padding: 8px 0;
+  }
+
+  .search-filters {
+    gap: 12px;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+  }
+
+  #searchClear {
+    font-size: 0.8rem;
+    padding: 3px 10px;
+  }
+
+  .search-result-item {
+    padding: 14px 16px;
+  }
+
+  .search-result-title {
+    font-size: 1rem;
+  }
+
+  .search-result-context {
+    font-size: 0.85rem;
+  }
+
+  .search-count {
+    padding: 4px 16px 0;
+    font-size: 0.78rem;
+  }
+
+  .modal-close-btn,
+  .search-close {
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .search-ghost {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .search-header {
+    padding: 14px 12px 10px 12px;
+    gap: 10px;
+  }
+
+  .search-input-row {
+    gap: 8px;
+  }
+
+  .search-filters {
+    gap: 8px;
+    font-size: 0.8rem;
+  }
+
+  .search-input {
+    font-size: 0.95rem;
+  }
+}
+
 @keyframes search-spin {
   to { transform: rotate(360deg); }
 }
@@ -327,4 +403,52 @@ mark.search-highlight {
 
 [data-theme="dark"] mark.search-highlight {
   background-color: transparent;
+}
+
+.related-teachings-bar {
+  display: none;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.btn-open-pub {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-open-pub:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+@media (max-width: 767px) {
+  .related-teachings-bar { display: block; }
+
+  body.reader-search-mode .header__nav,
+  body.reader-search-mode .controls {
+    display: none !important;
+  }
+
+  body.reader-search-mode .header__logo {
+    display: none !important;
+  }
+
+  body.reader-search-mode .header {
+    justify-content: center;
+  }
+
+  body.reader-search-mode .breadcrumbs {
+    display: none;
+  }
 }

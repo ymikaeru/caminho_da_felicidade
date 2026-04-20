@@ -176,6 +176,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!searchTopicTitle) window.scrollTo(0, 0);
     };
 
+    window.openFullPublication = function () {
+        const { volId, filename, searchQuery } = getParams();
+        const lang = localStorage.getItem('site_lang') || 'pt';
+        let url = `reader.html?vol=${volId}&file=${filename}`;
+        if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
+        if (lang === 'ja') url += '&lang=ja';
+        window.location.href = url;
+    };
+
     window.toggleFavorite = async function () {
         const { volId, filename } = getParams();
         let favorites = [];

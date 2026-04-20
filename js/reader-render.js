@@ -177,16 +177,42 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     });
 
     const bl = { pt: { home: 'Início', volume: 'Volume' }, ja: { home: 'トップ', volume: '巻' } }[lang] || { home: 'Início', volume: 'Volume' };
+
+    const isMobile = window.innerWidth <= 767;
+    const urlParamsForRender = new URLSearchParams(window.location.search);
+    const topicParamForRender = urlParamsForRender.get('topic');
+    const hasSearchQuery = searchQuery && searchQuery.trim();
+    const openPubLabel = lang === 'ja' ? '関連する教え' : 'Ensinamentos Relacionados';
+    const openPubHtml = (isMobile && hasSearchQuery && topicParamForRender)
+        ? `<div class="related-teachings-bar"><button class="btn-zen btn-open-pub" onclick="window.openFullPublication()">📖 ${openPubLabel}</button></div>`
+        : '';
+
+    // Mobile search mode: add class to simplify header
+    if (isMobile && hasSearchQuery && topicParamForRender) {
+        document.body.classList.add('reader-search-mode');
+    }
+
     container.innerHTML = `
         <nav class="breadcrumbs">
             <a href="index.html">${bl.home}</a> <span>/</span>
             <a href="${volId}/index.html">${bl.volume} ${volId.slice(-1)}</a> <span>/</span>
             <span style="color:var(--text-main)">${cleanTitle}</span>
         </nav>
+        ${openPubHtml}
         <div class="reader-container">
             ${contentHtml}
             ${navFooter}
         </div>`;
+
+    // Mobile: hide all topics except the searched one
+    if (isMobile && topicParamForRender) {
+        const targetIdx = parseInt(topicParamForRender, 10);
+        if (targetIdx > 0) {
+            container.querySelectorAll('.topic-content').forEach((el, i) => {
+                if (i !== targetIdx) el.style.display = 'none';
+            });
+        }
+    }
 
     container.classList.toggle('comparison-active', localStorage.getItem('reader_comparison') === 'true');
 
@@ -375,8 +401,9 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         _revealGate();
     }
 
-    // --- Always apply user highlights after content is rendered ---
-    if (typeof window.applyHighlightsOnPage === 'function') {
+    // --- Apply user highlights after content is rendered (skip in comparison mode) ---
+    const comparisonMode = localStorage.getItem('reader_comparison') === 'true';
+    if (typeof window.applyHighlightsOnPage === 'function' && !comparisonMode) {
         const delay = (searchTopicTitle || (topicIdx !== null && topicIdx > 0)) ? 150 : 50;
         setTimeout(() => {
             window.applyHighlightsOnPage();

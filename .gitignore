@@ -5,3 +5,4 @@ node_modules/
 auth-config.json
 *.pyc
 __pycache__/
+.agent/

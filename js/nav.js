@@ -90,6 +90,12 @@ function _initMobileNav() {
           <span class="link-text">${t.theme}</span>
         </button>
 
+        ${window.location.pathname.includes('reader.html') ? `
+        <button class="mobile-nav-link" onclick="toggleComparison(); closeMobileNav();" id="mobileNavLinkComparison">
+          <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+          <span class="link-text">${t.comparison}</span>
+        </button>` : ''}
+
         <div class="mobile-nav-divider"></div>
         <div class="mobile-nav-section-label" id="mobileNavLabelFont">${t.fontSize}</div>
         <div class="mobile-font-row">
@@ -155,7 +161,9 @@ function _initMobileNav() {
   highlightBtn.className = 'mobile-fav-btn';
   highlightBtn.id = 'mobileHighlightBtn';
   highlightBtn.setAttribute('aria-label', 'Destaques');
-  highlightBtn.style.display = window.location.pathname.includes('reader.html') ? 'flex' : 'none';
+  const isReaderPage = window.location.pathname.includes('reader.html');
+  const isComparisonMode = localStorage.getItem('reader_comparison') === 'true';
+  highlightBtn.style.display = (isReaderPage && !isComparisonMode) ? 'flex' : 'none';
   highlightBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12 20h9"/>

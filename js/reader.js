@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // When loading to a specific topic, create a temporary overlay so content
         // can be rendered and scrolled before becoming visible — eliminates the jump.
-        if (finalTopicTitle || (resolvedTopicIdx !== null && resolvedTopicIdx > 0) || (highlightId && hlScroll)) {
+        if (finalTopicTitle || (highlightId && hlScroll)) {
             if (!document.getElementById('reader-scroll-gate')) {
                 const g = document.createElement('div');
                 g.id = 'reader-scroll-gate';
@@ -138,13 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
             renderReader(volId, filename, articleJson, navJson, searchQuery, finalTopicTitle, hlScroll);
             _prefetchAdjacent(volId, navJson, filename);
 
-            // Scroll to restored position
+            // Show floating "continue reading" button instead of auto-scroll
             if (resolvedTopicIdx !== null && resolvedTopicIdx > 0 && !highlightId) {
                 setTimeout(() => {
-                    const el = document.getElementById(`topic-${resolvedTopicIdx}`);
-                    if (el) el.scrollIntoView({ behavior: 'auto', block: 'start' });
                     const gate = document.getElementById('reader-scroll-gate');
                     if (gate) { gate.style.transition = 'opacity 0.3s'; gate.style.opacity = '0'; setTimeout(() => gate.remove(), 300); }
+                    showResumeReadingButton(resolvedTopicIdx);
                 }, 100);
             }
 
@@ -254,6 +253,72 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initReader();
     window.addEventListener('popstate', () => initReader());
+
+    function showResumeReadingButton(topicIdx) {
+        const existing = document.getElementById('resume-reading-btn');
+        if (existing) existing.remove();
+
+        const btn = document.createElement('button');
+        btn.id = 'resume-reading-btn';
+        btn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>Continuar leitura</span>
+        `;
+        btn.style.cssText = `
+            position: fixed; bottom: 24px; right: 24px; z-index: 5000;
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 20px; border-radius: 28px; border: none;
+            background: var(--accent, #b8860b); color: #fff;
+            font-size: 0.9rem; font-weight: 600; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            animation: resumeBtnIn 0.4s ease;
+            font-family: inherit;
+        `;
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes resumeBtnIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+            @keyframes resumeBtnOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(20px); } }
+            #resume-reading-btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+            #resume-reading-btn:active { transform: scale(0.97); }
+            @media (max-width: 600px) { #resume-reading-btn { bottom: 16px; right: 16px; padding: 10px 16px; font-size: 0.85rem; } }
+        `;
+        document.head.appendChild(style);
+
+        btn.addEventListener('click', () => {
+            const el = document.getElementById(`topic-${topicIdx}`);
+            if (el) {
+                btn.style.animation = 'resumeBtnOut 0.3s ease forwards';
+                setTimeout(() => btn.remove(), 300);
+                const HEADER_H = document.querySelector('.header')?.offsetHeight || 80;
+                el.style.scrollMarginTop = `${HEADER_H + 12}px`;
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                el.style.transition = 'background-color 0.4s ease';
+                el.style.backgroundColor = 'var(--accent-soft)';
+                setTimeout(() => { el.style.backgroundColor = ''; }, 1800);
+            }
+        });
+
+        document.body.appendChild(btn);
+
+        // Auto-hide after 8s of no scroll interaction
+        let hideTimer;
+        function resetHideTimer() {
+            clearTimeout(hideTimer);
+            hideTimer = setTimeout(() => {
+                if (btn.parentElement) {
+                    btn.style.animation = 'resumeBtnOut 0.3s ease forwards';
+                    setTimeout(() => btn.remove(), 300);
+                }
+            }, 8000);
+        }
+        resetHideTimer();
+        window.addEventListener('scroll', resetHideTimer, { passive: true });
+        window.addEventListener('touchstart', resetHideTimer, { passive: true });
+    }
 
     function saveReadingPosition() {
         try {

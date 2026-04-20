@@ -173,6 +173,54 @@
 
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* Line chart (SVG-based) */
+    .line-chart-container { position: relative; }
+    .line-chart-container svg { width: 100%; height: auto; }
+    .line-chart-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* Ranking list */
+    .ranking-list { display: flex; flex-direction: column; gap: 6px; }
+    .ranking-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; background: var(--bg); }
+    .ranking-pos { font-size: 0.85rem; font-weight: 700; width: 24px; text-align: center; color: var(--text-muted); }
+    .ranking-pos.top1 { color: #ffd700; }
+    .ranking-pos.top2 { color: #c0c0c0; }
+    .ranking-pos.top3 { color: #cd7f32; }
+    .ranking-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.7rem; flex-shrink: 0; }
+    .ranking-info { flex: 1; min-width: 0; }
+    .ranking-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ranking-bar-track { flex: 1; height: 8px; background: var(--surface); border-radius: 4px; overflow: hidden; }
+    .ranking-bar-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.5s; }
+    .ranking-value { font-size: 0.75rem; font-weight: 600; width: 50px; text-align: right; color: var(--text-muted); flex-shrink: 0; }
+
+    /* Engagement cards */
+    .engagement-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+    .engagement-card { padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); }
+    .engagement-card .vol-name { font-size: 0.75rem; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
+    .engagement-stat { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .engagement-stat .label { font-size: 0.7rem; color: var(--text-muted); }
+    .engagement-stat .value { font-size: 0.85rem; font-weight: 700; }
+
+    /* Popular favorites table extras */
+    .fav-count { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+    .fav-count.high { background: rgba(184,134,11,0.15); color: var(--accent); }
+    .fav-count.med { background: rgba(0,0,0,0.06); color: var(--text-muted); }
+
+    /* Retention chart */
+    .retention-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .retention-card { padding: 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); text-align: center; }
+    .retention-circle { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; }
+    .retention-circle.returning { background: rgba(52,199,89,0.15); color: #34c759; border: 3px solid rgba(52,199,89,0.3); }
+    .retention-circle.new-users { background: rgba(184,134,11,0.15); color: var(--accent); border: 3px solid rgba(184,134,11,0.3); }
+    .retention-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .retention-sublabel { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* Retention over time table */
+    .retention-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 16px; }
+    .retention-table th { text-align: left; padding: 8px 10px; border-bottom: 2px solid var(--border); color: var(--text-muted); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; }
+    .retention-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    .retention-bar { height: 6px; border-radius: 3px; background: var(--bg); overflow: hidden; display: inline-block; width: 60px; vertical-align: middle; margin-right: 6px; }
+    .retention-bar-fill { height: 100%; background: #34c759; border-radius: 3px; }
   </style>
 </head>
 <body>
@@ -313,6 +361,36 @@
             <div class="admin-section">
               <h2>Atividade Recente</h2>
               <div id="recent-activity"><div class="loading">Carregando...</div></div>
+            </div>
+
+            <!-- Daily Activity Line Chart -->
+            <div class="admin-section">
+              <h2>📈 Atividade Diária</h2>
+              <div id="daily-activity-chart"><div class="loading">Carregando...</div></div>
+            </div>
+
+            <!-- Top Users Ranking -->
+            <div class="admin-section">
+              <h2>👥 Ranking de Usuários Mais Ativos</h2>
+              <div id="top-users-ranking"><div class="loading">Carregando...</div></div>
+            </div>
+
+            <!-- Engagement by Volume -->
+            <div class="admin-section">
+              <h2>📊 Engajamento por Volume</h2>
+              <div id="engagement-by-volume"><div class="loading">Carregando...</div></div>
+            </div>
+
+            <!-- Popular Favorites & Highlights -->
+            <div class="admin-section">
+              <h2>⭐ Favoritos & Destaques Populares</h2>
+              <div id="popular-favorites"><div class="loading">Carregando...</div></div>
+            </div>
+
+            <!-- Retention Rate -->
+            <div class="admin-section">
+              <h2>🔄 Taxa de Retenção</h2>
+              <div id="retention-rate"><div class="loading">Carregando...</div></div>
             </div>
 
             <!-- Storage & Sync Stats -->
@@ -827,6 +905,11 @@
       loadRecentActivity(days);
       loadSyncStats();
       loadRoleDistribution();
+      loadDailyActivityChart(days, since);
+      loadTopUsersRanking(days, since);
+      loadEngagementByVolume(days, since);
+      loadPopularFavorites(days, since);
+      loadRetentionRate(days, since);
     }
 
     async function loadOverviewStats(days, since) {
@@ -1075,6 +1158,360 @@
             <div class="chart-bar-value">${count} (${pctTotal}%)</div>
           </div>`;
       }).join('');
+    }
+
+    // ============================================================
+    // Daily Activity Line Chart
+    // ============================================================
+
+    async function loadDailyActivityChart(days, since) {
+      const { data } = await supabase
+        .from('access_logs')
+        .select('created_at')
+        .gte('created_at', since)
+        .order('created_at', { ascending: true });
+
+      if (!data || data.length === 0) {
+        document.getElementById('daily-activity-chart').innerHTML = '<div class="loading">Sem dados.</div>';
+        return;
+      }
+
+      const dayMap = {};
+      const now = new Date();
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        dayMap[key] = 0;
+      }
+
+      data.forEach(d => {
+        const key = d.created_at.split('T')[0];
+        if (dayMap[key] !== undefined) dayMap[key]++;
+      });
+
+      const entries = Object.entries(dayMap);
+      const values = entries.map(e => e[1]);
+      const maxVal = Math.max(...values, 1);
+      const chartH = 160;
+      const padL = 40;
+      const padR = 10;
+      const padT = 10;
+      const padB = 30;
+      const svgW = 800;
+      const svgH = chartH + padT + padB;
+      const plotW = svgW - padL - padR;
+      const plotH = chartH;
+
+      const points = entries.map((e, i) => {
+        const x = padL + (i / Math.max(entries.length - 1, 1)) * plotW;
+        const y = padT + plotH - (e[1] / maxVal) * plotH;
+        return { x, y, val: e[1], date: e[0] };
+      });
+
+      const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+      const areaPath = linePath + ` L${points[points.length - 1].x},${padT + plotH} L${points[0].x},${padT + plotH} Z`;
+
+      const yTicks = 4;
+      let yLines = '';
+      for (let i = 0; i <= yTicks; i++) {
+        const y = padT + (i / yTicks) * plotH;
+        const val = Math.round(maxVal * (1 - i / yTicks));
+        yLines += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
+        yLines += `<text x="${padL - 6}" y="${y + 4}" text-anchor="end" fill="var(--text-muted)" font-size="10">${val}</text>`;
+      }
+
+      const labelCount = Math.min(entries.length, 7);
+      const labelStep = Math.max(Math.floor(entries.length / labelCount), 1);
+      let xLabels = '';
+      for (let i = 0; i < entries.length; i += labelStep) {
+        const p = points[i];
+        const label = entries[i][0].slice(5);
+        xLabels += `<text x="${p.x}" y="${svgH - 4}" text-anchor="middle" fill="var(--text-muted)" font-size="9">${label}</text>`;
+      }
+
+      const dots = points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="3" fill="var(--accent)" opacity="0.8"><title>${p.date}: ${p.val} views</title></circle>`).join('');
+
+      document.getElementById('daily-activity-chart').innerHTML = `
+        <div class="line-chart-container">
+          <svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet">
+            ${yLines}
+            <path d="${areaPath}" fill="var(--accent)" opacity="0.08"/>
+            <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+            ${dots}
+            ${xLabels}
+          </svg>
+        </div>`;
+    }
+
+    // ============================================================
+    // Top Users Ranking
+    // ============================================================
+
+    async function loadTopUsersRanking(days, since) {
+      const { data } = await supabase
+        .from('access_logs')
+        .select('user_id')
+        .gte('created_at', since);
+
+      if (!data || data.length === 0) {
+        document.getElementById('top-users-ranking').innerHTML = '<div class="loading">Sem dados.</div>';
+        return;
+      }
+
+      const counts = {};
+      data.forEach(d => { counts[d.user_id] = (counts[d.user_id] || 0) + 1; });
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+      const maxViews = sorted[0][1];
+
+      const userIds = sorted.map(s => s[0]);
+      const { data: profiles } = await supabase
+        .from('user_profiles')
+        .select('id, display_name')
+        .in('id', userIds);
+      const nameMap = {};
+      (profiles || []).forEach(p => nameMap[p.id] = p.display_name);
+
+      document.getElementById('top-users-ranking').innerHTML = `
+        <div class="ranking-list">
+          ${sorted.map(([uid, count], i) => {
+            const name = nameMap[uid] || 'Desconhecido';
+            const initial = (name || 'U')[0].toUpperCase();
+            const pct = Math.round(count / maxViews * 100);
+            const posClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+            return `
+              <div class="ranking-item">
+                <div class="ranking-pos ${posClass}">${i + 1}</div>
+                <div class="ranking-avatar">${initial}</div>
+                <div class="ranking-info">
+                  <div class="ranking-name">${name}</div>
+                </div>
+                <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:${pct}%"></div></div>
+                <div class="ranking-value">${count} views</div>
+              </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    // ============================================================
+    // Engagement by Volume
+    // ============================================================
+
+    async function loadEngagementByVolume(days, since) {
+      const [logsRes, posRes] = await Promise.all([
+        supabase.from('access_logs').select('volume, user_id').gte('created_at', since),
+        supabase.from('reading_positions').select('volume, progress_pct, user_id').gte('updated_at', since)
+      ]);
+
+      const logs = logsRes.data || [];
+      const positions = posRes.data || [];
+
+      if (logs.length === 0) {
+        document.getElementById('engagement-by-volume').innerHTML = '<div class="loading">Sem dados.</div>';
+        return;
+      }
+
+      const volStats = {};
+      VOLUMES.forEach(v => {
+        volStats[v.key] = { views: 0, uniqueUsers: new Set(), totalProgress: 0, progressCount: 0, completed: 0 };
+      });
+
+      logs.forEach(l => {
+        if (volStats[l.volume]) {
+          volStats[l.volume].views++;
+          volStats[l.volume].uniqueUsers.add(l.user_id);
+        }
+      });
+
+      positions.forEach(p => {
+        if (volStats[p.volume]) {
+          volStats[p.volume].totalProgress += p.progress_pct;
+          volStats[p.volume].progressCount++;
+          if (p.progress_pct >= 90) volStats[p.volume].completed++;
+        }
+      });
+
+      document.getElementById('engagement-by-volume').innerHTML = `
+        <div class="engagement-grid">
+          ${VOLUMES.map(vol => {
+            const s = volStats[vol.key];
+            const avgProgress = s.progressCount > 0 ? Math.round(s.totalProgress / s.progressCount * 10) / 10 : 0;
+            const completionRate = s.progressCount > 0 ? Math.round(s.completed / s.progressCount * 100) : 0;
+            return `
+              <div class="engagement-card">
+                <div class="vol-name">${vol.name.split('—')[0].trim()}</div>
+                <div class="engagement-stat">
+                  <span class="label">Visualizações</span>
+                  <span class="value">${s.views}</span>
+                </div>
+                <div class="engagement-stat">
+                  <span class="label">Usuários únicos</span>
+                  <span class="value">${s.uniqueUsers.size}</span>
+                </div>
+                <div class="engagement-stat">
+                  <span class="label">Progresso médio</span>
+                  <span class="value">${avgProgress}%</span>
+                </div>
+                <div class="engagement-stat">
+                  <span class="label">Taxa conclusão (≥90%)</span>
+                  <span class="value">${completionRate}%</span>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    // ============================================================
+    // Popular Favorites & Highlights
+    // ============================================================
+
+    async function loadPopularFavorites(days, since) {
+      const [favRes, hlRes] = await Promise.all([
+        supabase.from('synced_favorites').select('volume, file, topic_title').gte('created_at', since),
+        supabase.from('user_highlights').select('volume, file').gte('updated_at', since)
+      ]);
+
+      const favs = favRes.data || [];
+      const highlights = hlRes.data || [];
+
+      if (favs.length === 0 && highlights.length === 0) {
+        document.getElementById('popular-favorites').innerHTML = '<div class="loading">Sem dados.</div>';
+        return;
+      }
+
+      const favCounts = {};
+      favs.forEach(f => {
+        const key = `${f.volume}/${f.file}`;
+        if (!favCounts[key]) favCounts[key] = { volume: f.volume, file: f.file, title: f.topic_title || f.file.replace('.html.json', ''), favs: 0, highlights: 0 };
+        favCounts[key].favs++;
+      });
+
+      highlights.forEach(h => {
+        const key = `${h.volume}/${h.file}`;
+        if (favCounts[key]) {
+          favCounts[key].highlights++;
+        } else {
+          favCounts[key] = { volume: h.volume, file: h.file, title: h.file.replace('.html.json', ''), favs: 0, highlights: 1 };
+        }
+      });
+
+      const sorted = Object.values(favCounts).sort((a, b) => (b.favs + b.highlights) - (a.favs + a.highlights)).slice(0, 15);
+      const maxTotal = sorted.length > 0 ? sorted[0].favs + sorted[0].highlights : 1;
+
+      document.getElementById('popular-favorites').innerHTML = `
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Ensinamento</th><th>Volume</th><th>⭐ Favoritos</th><th>🖍 Destaques</th><th>Total</th></tr></thead>
+          <tbody>${sorted.map((item, i) => {
+            const total = item.favs + item.highlights;
+            const pct = Math.round(total / maxTotal * 100);
+            const countClass = total >= maxTotal * 0.5 ? 'high' : 'med';
+            return `<tr>
+              <td>${i + 1}</td>
+              <td style="font-size:0.82rem;">${item.title}</td>
+              <td>${VOL_SHORT[item.volume] || item.volume}</td>
+              <td><span class="fav-count ${countClass}">${item.favs}</span></td>
+              <td><span class="fav-count ${countClass}">${item.highlights}</span></td>
+              <td><strong>${total}</strong></td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>`;
+    }
+
+    // ============================================================
+    // Retention Rate
+    // ============================================================
+
+    async function loadRetentionRate(days, since) {
+      const { data: allLogs } = await supabase
+        .from('access_logs')
+        .select('user_id, created_at')
+        .order('created_at', { ascending: true });
+
+      if (!allLogs || allLogs.length === 0) {
+        document.getElementById('retention-rate').innerHTML = '<div class="loading">Sem dados.</div>';
+        return;
+      }
+
+      const sinceDate = new Date(since);
+      const halfAgo = new Date(Date.now() - (days / 2) * 86400000);
+
+      const userActivity = {};
+      allLogs.forEach(l => {
+        if (!userActivity[l.user_id]) userActivity[l.user_id] = { first: l.created_at, last: l.created_at, total: 0, inPeriod: false, beforeHalf: false, afterHalf: false };
+        const d = new Date(l.created_at);
+        userActivity[l.user_id].total++;
+        if (d < new Date(userActivity[l.user_id].first)) userActivity[l.user_id].first = l.created_at;
+        if (d > new Date(userActivity[l.user_id].last)) userActivity[l.user_id].last = l.created_at;
+        if (d >= sinceDate) userActivity[l.user_id].inPeriod = true;
+        if (d < halfAgo) userActivity[l.user_id].beforeHalf = true;
+        if (d >= halfAgo) userActivity[l.user_id].afterHalf = true;
+      });
+
+      const allUsers = Object.values(userActivity);
+      const activeInPeriod = allUsers.filter(u => u.inPeriod);
+      const returningUsers = activeInPeriod.filter(u => u.beforeHalf && u.afterHalf);
+      const newUsers = activeInPeriod.filter(u => !u.beforeHalf && u.afterHalf);
+      const churnedUsers = allUsers.filter(u => u.beforeHalf && !u.afterHalf);
+
+      const totalActive = activeInPeriod.length;
+      const returningPct = totalActive > 0 ? Math.round(returningUsers.length / totalActive * 100) : 0;
+      const newPct = totalActive > 0 ? Math.round(newUsers.length / totalActive * 100) : 0;
+
+      const weekMap = {};
+      const now = new Date();
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const weekNum = Math.floor(i / 7);
+        const key = `S${days / 7 > 4 ? Math.floor((days - i - 1) / 7) + 1 : weekNum + 1}`;
+        if (!weekMap[key]) weekMap[key] = { total: 0, returning: 0, newU: 0 };
+      }
+
+      activeInPeriod.forEach(u => {
+        const lastDate = new Date(u.last);
+        const daysAgo = Math.floor((now - lastDate) / 86400000);
+        const weekNum = Math.floor(daysAgo / 7);
+        const key = `S${days / 7 > 4 ? Math.floor((days - daysAgo - 1) / 7) + 1 : weekNum + 1}`;
+        if (weekMap[key]) {
+          weekMap[key].total++;
+          if (u.beforeHalf && u.afterHalf) weekMap[key].returning++;
+          else weekMap[key].newU++;
+        }
+      });
+
+      const weekEntries = Object.entries(weekMap);
+
+      document.getElementById('retention-rate').innerHTML = `
+        <div class="retention-grid">
+          <div class="retention-card">
+            <div class="retention-circle returning">${returningPct}%</div>
+            <div class="retention-label">Usuários Retornando</div>
+            <div class="retention-sublabel">${returningUsers.length} de ${totalActive} ativos</div>
+          </div>
+          <div class="retention-card">
+            <div class="retention-circle new-users">${newPct}%</div>
+            <div class="retention-label">Usuários Novos</div>
+            <div class="retention-sublabel">${newUsers.length} de ${totalActive} ativos</div>
+          </div>
+        </div>
+        <div style="margin-top:12px; font-size:0.8rem; color:var(--text-muted);">
+          Total de usuários que já acessaram: <strong>${allUsers.length}</strong> &nbsp;|&nbsp;
+          Inativos no período: <strong>${churnedUsers.length}</strong>
+        </div>
+        ${weekEntries.length > 1 ? `
+        <table class="retention-table">
+          <thead><tr><th>Período</th><th>Ativos</th><th>Retornando</th><th>Novos</th><th>Retenção</th></tr></thead>
+          <tbody>${weekEntries.map(([key, w]) => {
+            const rate = w.total > 0 ? Math.round(w.returning / w.total * 100) : 0;
+            return `<tr>
+              <td><strong>${key}</strong></td>
+              <td>${w.total}</td>
+              <td>${w.returning}</td>
+              <td>${w.newU}</td>
+              <td><div class="retention-bar"><div class="retention-bar-fill" style="width:${rate}%"></div></div>${rate}%</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>` : ''}`;
     }
 
     checkAdmin();

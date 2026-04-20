@@ -108,6 +108,86 @@
       font-size: 0.85rem;
     }
     .back-link:hover { color: var(--text-main); }
+    .forgot-link {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+    .forgot-link:hover { text-decoration: underline; }
+    .reset-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .reset-modal-content {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: var(--shadow-premium);
+    }
+    .reset-modal-content h2 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .reset-modal-content p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .reset-modal-content input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-color);
+      color: var(--text-main);
+      font-size: 1rem;
+      font-family: var(--font-ui);
+      box-sizing: border-box;
+      margin-bottom: 16px;
+    }
+    .reset-modal-content input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .reset-modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .reset-modal-actions button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-ui);
+    }
+    .reset-modal-actions .cancel-btn {
+      background: var(--bg-color);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .reset-modal-actions .send-btn {
+      background: var(--accent);
+      color: #fff;
+    }
+    .reset-modal-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
     .loading-spinner {
       display: inline-block;
       width: 18px;
@@ -141,7 +221,22 @@
         <p class="login-error" id="error-msg"></p>
       </form>
 
+      <a href="#" class="forgot-link" id="forgot-link">Esqueceu a senha?</a>
       <a href="index.html" class="back-link">← Voltar ao início</a>
+    </div>
+  </div>
+
+  <div class="reset-modal" id="reset-modal">
+    <div class="reset-modal-content">
+      <h2>Redefinir Senha</h2>
+      <p>Insira seu email para receber um link de redefinição.</p>
+      <input type="email" id="reset-email" placeholder="seu@email.com">
+      <div class="reset-modal-actions">
+        <button class="cancel-btn" onclick="document.getElementById('reset-modal').style.display='none'">Cancelar</button>
+        <button class="send-btn" id="reset-btn">Enviar Link</button>
+      </div>
+      <p class="login-error" id="reset-error" style="margin-top: 12px;"></p>
+      <p class="login-error" id="reset-success" style="color: #34c759; margin-top: 12px;"></p>
     </div>
   </div>
 
@@ -153,18 +248,13 @@
   }
   </script>
   <script type="module">
-    import SUPABASE_CONFIG from './js/supabase-config.js';
-    import { createClient } from '@supabase/supabase-js';
+    import { supabase } from './js/supabase-config.js';
 
-    const supabase = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
-
-    // Check if already logged in
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       window.location.href = 'index.html';
     }
 
-    // Login form
     const loginForm = document.getElementById('login-form');
     const submitBtn = document.getElementById('submit-btn');
     const errorMsg = document.getElementById('error-msg');
@@ -182,7 +272,6 @@
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
 
-        // Load permissions
         const { data: perms } = await supabase
           .from('user_permissions')
           .select('volume, files')
@@ -211,15 +300,13 @@
       submitBtn.innerHTML = 'Entrar';
     });
 
-    // Reset password
     document.getElementById('forgot-link').addEventListener('click', (e) => {
       e.preventDefault();
       document.getElementById('reset-modal').style.display = 'flex';
       document.getElementById('reset-email').value = document.getElementById('email').value;
     });
 
-    document.getElementById('reset-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
+    document.getElementById('reset-btn').addEventListener('click', async () => {
       const resetError = document.getElementById('reset-error');
       const resetSuccess = document.getElementById('reset-success');
       resetError.style.display = 'none';
@@ -230,15 +317,21 @@
 
       try {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + '/reader.html'
+          redirectTo: window.location.origin + '/mioshie_college_app/reset-password.html'
         });
         if (error) throw error;
 
         resetSuccess.textContent = 'Link enviado! Verifique seu email.';
         resetSuccess.style.display = 'block';
+        resetError.style.display = 'none';
       } catch (err) {
-        resetError.textContent = err.message;
+        if (err.message.includes('not allowed') || err.message.includes('not found')) {
+          resetError.textContent = 'Email não encontrado. Verifique se digitou corretamente.';
+        } else {
+          resetError.textContent = err.message;
+        }
         resetError.style.display = 'block';
+        resetSuccess.style.display = 'none';
       }
 
       document.getElementById('reset-btn').disabled = false;

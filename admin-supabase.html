@@ -479,7 +479,7 @@
           <div class="user-avatar">${(u.display_name || 'U')[0].toUpperCase()}</div>
           <div class="user-info">
             <div class="user-name">${u.display_name || 'Sem nome'}
-              <button class="reset-btn" onclick="event.stopPropagation(); resetPassword('${u.id}', '${u.email || u.display_name}')" title="Resetar senha">🔑 reset</button>
+              <button class="reset-btn" onclick="event.stopPropagation(); resetPassword('${u.id}', '${u.email || ''}')" title="Resetar senha">🔑 reset</button>
             </div>
             <div class="user-email">${u.email || '—'}</div>
             <div class="user-meta">Criado em ${new Date(u.created_at).toLocaleDateString('pt-BR')}</div>
@@ -745,16 +745,16 @@
     };
 
     window.resetPassword = async function(userId, email) {
-      const newPass = prompt(`Nova senha para ${email || userId}:`, '');
-      if (!newPass || newPass.length < 6) {
-        if (newPass) alert('A senha deve ter pelo menos 6 caracteres.');
-        return;
-      }
-      const { error } = await supabase.auth.admin.updateUserById(userId, { password: newPass });
+      const inputEmail = prompt(`Email do usuário para enviar link de redefinição:`, email || '');
+      if (!inputEmail) return;
+
+      const { error } = await supabase.auth.resetPasswordForEmail(inputEmail, {
+        redirectTo: window.location.origin + '/mioshie_college_app/reset-password.html'
+      });
       if (error) {
-        alert('Erro ao resetar senha: ' + error.message);
+        alert('Erro ao enviar link: ' + error.message);
       } else {
-        alert('Senha resetada com sucesso!');
+        alert(`Link de redefinição enviado para ${inputEmail}.`);
       }
     };
 

@@ -144,10 +144,21 @@ async function signup(email, password, displayName, authCode) {
 // Password reset
 // ============================================================
 async function resetPassword(email) {
-  const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-    redirectTo: window.location.origin + '/reset-password.html'
+  const trimmedEmail = email.trim().toLowerCase();
+  if (!trimmedEmail || !trimmedEmail.includes('@')) {
+    throw new Error('Por favor, insira um email válido.');
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+    redirectTo: window.location.origin + '/mioshie_college_app/reset-password.html'
   });
-  if (error) throw error;
+
+  if (error) {
+    if (error.message.includes('not allowed') || error.message.includes('not found')) {
+      throw new Error('Email não encontrado. Verifique se digitou corretamente.');
+    }
+    throw error;
+  }
 }
 
 // ============================================================

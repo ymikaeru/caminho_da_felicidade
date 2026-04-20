@@ -75,7 +75,7 @@ function showLoginOverlay() {
       <button id="login-submit" class="login-button">Entrar</button>
       <p id="login-error" style="color: #ff3b30; margin-top: 16px; font-size: 0.9rem; display: none;"></p>
       <div style="margin-top:16px; text-align:center; font-size:0.85rem;">
-        <a href="login.html" style="color:var(--accent); text-decoration:none;">Esqueci minha senha</a>
+        <a href="reset-password.html" style="color:var(--accent); text-decoration:none;">Esqueci minha senha</a>
       </div>
     </div>
   `;

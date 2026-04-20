@@ -12,9 +12,19 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     window._usedNavTitles = new Set();
 
     let topicsFound = [];
+    let themeSectionName = '';
     if (json && json.themes) {
         json.themes.forEach(theme => {
-            if (theme.topics) theme.topics.forEach(topic => topicsFound.push(topic));
+            if (theme.topics) {
+                const themeTitle = theme.title || '';
+                theme.topics.forEach(topic => {
+                    topic._themeTitle = themeTitle;
+                    topicsFound.push(topic);
+                });
+                if (themeTitle && !themeSectionName) {
+                    themeSectionName = themeTitle;
+                }
+            }
         });
     }
 
@@ -33,10 +43,21 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     // Title resolution — prioritize SECTION_MAP (correct section names)
     // over GLOBAL_INDEX_TITLES (which may store per-file topic titles)
     let indexTitle = '';
+    let sectionName = '';
     try {
         const sectionMap = window.SECTION_MAP || {};
-        const sectObj = (sectionMap[volId] || {})[filename];
-        if (sectObj) indexTitle = isPt ? sectObj.pt : (sectObj.ja || sectObj.pt);
+        const volSections = sectionMap[volId] || {};
+        const sectObj = volSections[filename];
+        if (sectObj) {
+            indexTitle = isPt ? sectObj.pt : (sectObj.ja || sectObj.pt);
+            // Extract section name from the section key
+            for (const [fileKey, secData] of Object.entries(volSections)) {
+                if (fileKey === filename && secData.section) {
+                    sectionName = isPt ? secData.section : (secData.sectionJa || secData.section);
+                    break;
+                }
+            }
+        }
     } catch (e) { }
     if (!indexTitle) {
         let indexTitles = {};
@@ -205,9 +226,16 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     let breadcrumbTitleHtml = '';
     const cleanIndexTitle = indexTitle ? indexTitle.replace(/<br\s*\/?>/gi, ' ') : '';
     const cleanSpecificTitle = specificTitle ? specificTitle.replace(/<br\s*\/?>/gi, ' ') : '';
+    const cleanSectionName = sectionName ? sectionName.replace(/<br\s*\/?>/gi, ' ') : '';
+    const cleanThemeSection = themeSectionName ? themeSectionName.replace(/<br\s*\/?>/gi, ' ') : '';
+    const effectiveSection = cleanSectionName || cleanThemeSection;
 
     if (cleanIndexTitle && cleanSpecificTitle && cleanIndexTitle !== cleanSpecificTitle) {
-        breadcrumbTitleHtml = `<span>${cleanIndexTitle}</span> <span>/</span> <span style="color:var(--text-main)">${cleanSpecificTitle}</span>`;
+        if (effectiveSection) {
+            breadcrumbTitleHtml = `<a href="${volId}/index.html">${effectiveSection}</a> <span>/</span> <span style="color:var(--text-main)">${cleanSpecificTitle}</span>`;
+        } else {
+            breadcrumbTitleHtml = `<span>${cleanIndexTitle}</span> <span>/</span> <span style="color:var(--text-main)">${cleanSpecificTitle}</span>`;
+        }
     } else {
         breadcrumbTitleHtml = `<span style="color:var(--text-main)">${cleanTitle}</span>`;
     }

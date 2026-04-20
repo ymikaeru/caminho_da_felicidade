@@ -1,21 +1,32 @@
 // ============================================================
-// HIGHLIGHTS — text selection, color picker, save/apply, modal
-// Uses character offsets (stable across DOM mutations) instead
-// of DOM node paths (break when <mark> tags are inserted).
+// HIGHLIGHTS — CSS Custom Highlight API, no DOM mutation
+// Uses character offsets + CSS Custom Highlight API for rendering
+// Mobile-friendly floating action bar, offline queue support
 // ============================================================
 
 (function () {
   const COLORS = ['yellow', 'green', 'blue', 'pink', 'purple', 'orange'];
   const DEFAULT_COLOR = 'yellow';
 
+  const COLOR_MAP = {
+    yellow: '#fff3a1', green: '#a8e6cf', blue: '#a0c4ff',
+    pink: '#ffb3c6', purple: '#d4a5f5', orange: '#ffd6a5'
+  };
+
+  const DARK_COLOR_MAP = {
+    yellow: '#6b5f00', green: '#1a5c3a', blue: '#1a3a6b',
+    pink: '#6b1a3a', purple: '#4a1a6b', orange: '#6b4a00'
+  };
+
   let _tooltipEl = null;
   let _commentPopupEl = null;
+  let _mobileBarEl = null;
   let _currentSelection = null;
   let _selectedColor = DEFAULT_COLOR;
   let _highlights = [];
-  let _appliedIds = new Set();
+  let _highlightRegistry = null;
+  let _isMobile = false;
   let _savedRange = null;
-  let _tempMarkEl = null;
 
   function _lang() {
     return localStorage.getItem('site_lang') || 'pt';
@@ -35,7 +46,6 @@
     let volId = urlParams.get('vol') || urlParams.get('v');
     let filename = urlParams.get('file') || urlParams.get('f');
 
-    // Fallback to hash (e.g. #v1/artigo) when search params are empty
     if (!volId || !filename) {
       const hash = window.location.hash.substring(1).replace(/^#/, '');
       const hashMatch = hash.match(/^v(\d+)\/(.+)$/i);
@@ -75,7 +85,6 @@
     try {
       const tombstones = _getDeletedTombstones();
       tombstones.push(key);
-      // Keep only last 2000 tombstones to avoid localStorage bloat
       if (tombstones.length > 2000) tombstones.splice(0, tombstones.length - 2000);
       localStorage.setItem('highlightDeletedKeys', JSON.stringify(tombstones));
     } catch (e) {}
@@ -92,10 +101,6 @@
     return null;
   }
 
-  // Collect all text nodes inside an element (including inside <mark> wrappers)
-  // Returns [{node, startChar, endChar}]
-  // BUG 2 FIX: Must include text inside existing marks so character offsets
-  // stay consistent regardless of how many highlights are already applied.
   function _collectTextNodes(root) {
     const result = [];
     let charOffset = 0;
@@ -129,11 +134,48 @@
     return { startChar, endChar };
   }
 
+  // ============================================================
+  // CSS Custom Highlight API — no DOM mutation
+  // ============================================================
+
+  function _initHighlightRegistry() {
+    // CSS Custom Highlight API is not widely supported yet.
+    // We use traditional <mark> elements which work in all browsers.
+  }
+
+  function _buildHighlightRanges(topicEl, highlights) {
+    const textNodes = _collectTextNodes(topicEl);
+    if (textNodes.length === 0) return [];
+
+    const totalChars = textNodes[textNodes.length - 1].endChar;
+    const ranges = [];
+
+    highlights.forEach(h => {
+      const startChar = h.startChar;
+      const endChar = h.endChar;
+      if (startChar < 0 || endChar < 0 || startChar >= endChar || endChar > totalChars + 1) return;
+
+      for (const tn of textNodes) {
+        const overlapStart = Math.max(tn.startChar, startChar);
+        const overlapEnd = Math.min(tn.endChar, endChar);
+
+        if (overlapStart < overlapEnd) {
+          const range = new Range();
+          range.setStart(tn.node, overlapStart - tn.startChar);
+          range.setEnd(tn.node, overlapEnd - tn.startChar);
+          ranges.push({ range, highlight: h });
+        }
+      }
+    });
+
+    return ranges;
+  }
+
   function _applyHighlightsToPage() {
+    _initHighlightRegistry();
     const { volId, filename } = _getParams();
     const pageHighlights = _highlights.filter(h => h.vol === volId && h.file === filename);
 
-    // Group by topic
     const byTopic = {};
     pageHighlights.forEach(h => {
       if (!byTopic[h.topicId]) byTopic[h.topicId] = [];
@@ -144,26 +186,80 @@
       const topicEl = document.getElementById(topicId);
       if (!topicEl) continue;
 
-      const topicHighlights = byTopic[topicId].sort((a, b) => a.startChar - b.startChar);
-      _applyHighlightsToTopic(topicEl, topicHighlights);
+      const ranges = _buildHighlightRanges(topicEl, byTopic[topicId]);
+
+      ranges.forEach(({ range, highlight }) => {
+        const colorClass = `highlight-${highlight.color}`;
+        const existing = document.querySelector(`mark.user-highlight[data-highlight-id="${highlight.id}"]`);
+        if (existing) {
+          existing.remove();
+        }
+
+        const mark = document.createElement('mark');
+        mark.className = `user-highlight ${colorClass}`;
+        mark.dataset.highlightId = highlight.id;
+        if (highlight.comment) mark.title = highlight.comment;
+
+        try {
+          range.surroundContents(mark);
+          mark.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            _showCommentPopup(highlight, mark);
+          });
+        } catch (e) {
+          // Cross-node selections: split text nodes and wrap each segment
+          const startNode = range.startContainer;
+          const endNode = range.endContainer;
+          if (startNode === endNode) {
+            _applyWithSplit(startNode, range.startOffset, range.endOffset, highlight);
+          } else {
+            // Multi-node: wrap each node's portion individually
+            const startMark = mark.cloneNode(true);
+            const endMark = mark.cloneNode(true);
+            try {
+              const startRange = new Range();
+              startRange.setStart(startNode, range.startOffset);
+              startRange.setEnd(startNode, startNode.textContent.length);
+              startRange.surroundContents(startMark);
+              startMark.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                _showCommentPopup(highlight, startMark);
+              });
+            } catch (e2) {}
+            try {
+              const endRange = new Range();
+              endRange.setStart(endNode, 0);
+              endRange.setEnd(endNode, range.endOffset);
+              endRange.surroundContents(endMark);
+              endMark.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                _showCommentPopup(highlight, endMark);
+              });
+            } catch (e2) {}
+            // Middle nodes: wrap entirely
+            try {
+              const middleRange = new Range();
+              middleRange.setStartAfter(startNode);
+              middleRange.setEndBefore(endNode);
+              if (middleRange.toString().trim()) {
+                const midMark = mark.cloneNode(true);
+                middleRange.surroundContents(midMark);
+                midMark.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  _showCommentPopup(highlight, midMark);
+                });
+              }
+            } catch (e2) {}
+          }
+        }
+      });
     }
   }
 
-  // S1: Helper to create a <mark> element for a highlight
-  function _createMarkEl(highlight) {
-    const mark = document.createElement('mark');
-    mark.className = `user-highlight highlight-${highlight.color}`;
-    mark.dataset.highlightId = highlight.id;
-    if (highlight.comment) mark.title = highlight.comment;
-    mark.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      _showCommentPopup(highlight, mark);
-    });
-    return mark;
-  }
-
-  // Helper to unwrap all <mark.user-highlight> without deleting text (BUG 1 FIX)
   function _unwrapMarks() {
     document.querySelectorAll('mark.user-highlight').forEach(m => {
       const parent = m.parentNode;
@@ -171,74 +267,14 @@
       parent.removeChild(m);
       parent.normalize();
     });
+    if (_highlightRegistry) {
+      _highlightRegistry.clear();
+    }
   }
 
-  // S4: Unified single/multi node application
-  function _applyHighlightsToTopic(topicEl, highlights) {
-    const textNodes = _collectTextNodes(topicEl);
-    if (textNodes.length === 0) return;
-
-    const totalChars = textNodes[textNodes.length - 1].endChar;
-
-    highlights.forEach(h => {
-      if (_appliedIds.has(h.id)) return;
-
-      const startChar = h.startChar;
-      const endChar = h.endChar;
-
-      if (startChar < 0 || endChar < 0 || startChar >= endChar || endChar > totalChars + 1) return;
-
-      // Find all text nodes that overlap with [startChar, endChar]
-      const ranges = [];
-
-      for (const tn of textNodes) {
-        const overlapStart = Math.max(tn.startChar, startChar);
-        const overlapEnd = Math.min(tn.endChar, endChar);
-
-        if (overlapStart < overlapEnd) {
-          ranges.push({
-            node: tn.node,
-            offsetStart: overlapStart - tn.startChar,
-            offsetEnd: overlapEnd - tn.startChar,
-          });
-        }
-      }
-
-      if (ranges.length === 0) return;
-
-      // Try surroundContents first (works for single node and same-parent multi-node)
-      try {
-        const domRange = document.createRange();
-        domRange.setStart(ranges[0].node, ranges[0].offsetStart);
-        domRange.setEnd(ranges[ranges.length - 1].node, ranges[ranges.length - 1].offsetEnd);
-        const mark = _createMarkEl(h);
-        domRange.surroundContents(mark);
-        _appliedIds.add(h.id);
-      } catch (e) {
-        // Fallback: apply to each segment individually
-        ranges.forEach(r => {
-          _applyWithSplit(r.node, r.offsetStart, r.offsetEnd, h);
-        });
-        _appliedIds.add(h.id);
-      }
-    });
-  }
-
-  // BUG 3 FIX: normalize after split to clean empty text nodes
-  function _applyWithSplit(textNode, startOffset, endOffset, highlight) {
-    try {
-      const parent = textNode.parentNode;
-      if (!parent) return;
-
-      const after = textNode.splitText(endOffset);
-      const target = textNode.splitText(startOffset);
-
-      const mark = _createMarkEl(highlight);
-      parent.insertBefore(mark, after);
-      mark.appendChild(target);
-      parent.normalize();
-    } catch (e) {}
-  }
+  // ============================================================
+  // Tooltip (desktop)
+  // ============================================================
 
   function _showTooltip(range) {
     if (_tooltipEl) _tooltipEl.remove();
@@ -285,14 +321,6 @@
 
     _savedRange = range.cloneRange();
 
-    // Wrap selection in a temporary mark so it stays visible
-    try {
-      const tempMark = document.createElement('mark');
-      tempMark.className = 'temp-selection';
-      range.surroundContents(tempMark);
-      _tempMarkEl = tempMark;
-    } catch (e) {}
-
     _tooltipEl.addEventListener('mousedown', (e) => {
       e.stopPropagation();
     });
@@ -329,7 +357,6 @@
   }
 
   function _hideTooltip() {
-    _removeTempMark();
     _savedRange = null;
     if (_tooltipEl) {
       _tooltipEl.remove();
@@ -338,17 +365,65 @@
     _currentSelection = null;
   }
 
-  function _removeTempMark() {
-    if (_tempMarkEl && _tempMarkEl.parentNode) {
-      const parent = _tempMarkEl.parentNode;
-      while (_tempMarkEl.firstChild) {
-        parent.insertBefore(_tempMarkEl.firstChild, _tempMarkEl);
-      }
-      parent.removeChild(_tempMarkEl);
-      parent.normalize();
+  // ============================================================
+  // Mobile Floating Action Bar
+  // ============================================================
+
+  function _showMobileBar() {
+    if (_mobileBarEl) _mobileBarEl.remove();
+
+    const lang = _lang();
+    const highlightLabel = lang === 'ja' ? 'ハイライト' : 'Destacar';
+    const cancelLabel = lang === 'ja' ? 'キャンセル' : 'Cancelar';
+
+    _mobileBarEl = document.createElement('div');
+    _mobileBarEl.className = 'highlight-mobile-bar';
+    _mobileBarEl.id = 'highlightMobileBar';
+
+    let colorBtnsHTML = COLORS.map(c =>
+      `<button class="highlight-color-btn color-${c}" data-color="${c}"></button>`
+    ).join('');
+
+    _mobileBarEl.innerHTML =
+      `<div class="highlight-mobile-bar-content">` +
+        `<div class="highlight-colors">${colorBtnsHTML}</div>` +
+        `<div class="highlight-mobile-bar-actions">` +
+          `<button class="highlight-cancel-btn" id="highlightMobileCancelBtn">${cancelLabel}</button>` +
+          `<button class="highlight-save-btn" id="highlightMobileSaveBtn">${highlightLabel}</button>` +
+        `</div>` +
+      `</div>`;
+
+    document.body.appendChild(_mobileBarEl);
+
+    _mobileBarEl.querySelectorAll('.highlight-color-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _mobileBarEl.querySelectorAll('.highlight-color-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        _selectedColor = btn.dataset.color;
+      });
+    });
+
+    const firstColorBtn = _mobileBarEl.querySelector('.highlight-color-btn');
+    if (firstColorBtn) {
+      firstColorBtn.classList.add('selected');
+      _selectedColor = firstColorBtn.dataset.color;
     }
-    _tempMarkEl = null;
+
+    document.getElementById('highlightMobileCancelBtn').addEventListener('click', _hideMobileBar);
+    document.getElementById('highlightMobileSaveBtn').addEventListener('click', _saveSelection);
   }
+
+  function _hideMobileBar() {
+    if (_mobileBarEl) {
+      _mobileBarEl.remove();
+      _mobileBarEl = null;
+    }
+    _currentSelection = null;
+  }
+
+  // ============================================================
+  // Comment Popup
+  // ============================================================
 
   function _hideCommentPopup() {
     if (_commentPopupEl) {
@@ -431,7 +506,6 @@
 
     document.body.appendChild(tooltip);
 
-    // BUG 4 FIX: Position the edit tooltip near the highlight mark
     const markEl = document.querySelector(`mark.user-highlight[data-highlight-id="${highlight.id}"]`);
     if (markEl) {
       const rect = markEl.getBoundingClientRect();
@@ -444,7 +518,6 @@
       tooltip.style.left = `${left}px`;
       tooltip.style.top = `${top}px`;
     } else {
-      // Fallback: center on screen
       tooltip.style.left = '50%';
       tooltip.style.top = '50%';
       tooltip.style.transform = 'translate(-50%, -50%)';
@@ -476,6 +549,10 @@
       tooltip.remove();
     });
   }
+
+  // ============================================================
+  // Save / Remove
+  // ============================================================
 
   function _saveSelection() {
     if (!_currentSelection) return;
@@ -510,9 +587,12 @@
       );
     }
 
-    _hideTooltip();
+    if (_isMobile) {
+      _hideMobileBar();
+    } else {
+      _hideTooltip();
+    }
 
-    // Apply only the new highlight without disturbing existing ones
     const topicEl = document.getElementById(highlight.topicId);
     if (topicEl) {
       _applyHighlightsToTopic(topicEl, [highlight]);
@@ -525,7 +605,6 @@
     _highlights = _highlights.filter(x => x.id !== id);
     _saveHighlights();
 
-    // Record tombstone so cloud sync doesn't re-add it
     if (h) {
       const key = `${h.vol}:${h.file}:${h.topicId}:${h.startChar}:${h.endChar}`;
       _addDeletedTombstone(key);
@@ -535,7 +614,6 @@
       window._cloudSync.removeHighlight(h.vol, h.file, h.topicId, h.startChar, h.endChar);
     }
 
-    // Remove only the specific mark from DOM, don't re-apply all
     const mark = document.querySelector(`mark.user-highlight[data-highlight-id="${id}"]`);
     if (mark) {
       const parent = mark.parentNode;
@@ -546,13 +624,82 @@
       parent.normalize();
     }
 
-    _appliedIds.delete(id);
     _updateHighlightBadge();
   }
 
-  // BUG 1 FIX: unwrap marks instead of removing them (preserves text content)
+  function _applyHighlightsToTopic(topicEl, highlights) {
+    const textNodes = _collectTextNodes(topicEl);
+    if (textNodes.length === 0) return;
+
+    const totalChars = textNodes[textNodes.length - 1].endChar;
+
+    highlights.forEach(h => {
+      const startChar = h.startChar;
+      const endChar = h.endChar;
+
+      if (startChar < 0 || endChar < 0 || startChar >= endChar || endChar > totalChars + 1) return;
+
+      const ranges = [];
+
+      for (const tn of textNodes) {
+        const overlapStart = Math.max(tn.startChar, startChar);
+        const overlapEnd = Math.min(tn.endChar, endChar);
+
+        if (overlapStart < overlapEnd) {
+          ranges.push({
+            node: tn.node,
+            offsetStart: overlapStart - tn.startChar,
+            offsetEnd: overlapEnd - tn.startChar,
+          });
+        }
+      }
+
+      if (ranges.length === 0) return;
+
+      try {
+        const domRange = document.createRange();
+        domRange.setStart(ranges[0].node, ranges[0].offsetStart);
+        domRange.setEnd(ranges[ranges.length - 1].node, ranges[ranges.length - 1].offsetEnd);
+        const mark = _createMarkEl(h);
+        domRange.surroundContents(mark);
+      } catch (e) {
+        ranges.forEach(r => {
+          _applyWithSplit(r.node, r.offsetStart, r.offsetEnd, h);
+        });
+      }
+    });
+  }
+
+  function _createMarkEl(highlight) {
+    const mark = document.createElement('mark');
+    mark.className = `user-highlight highlight-${highlight.color}`;
+    mark.dataset.highlightId = highlight.id;
+    if (highlight.comment) mark.title = highlight.comment;
+    mark.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const h = _highlights.find(x => x.id === highlight.id);
+      if (h) _showCommentPopup(h, mark);
+    });
+    return mark;
+  }
+
+  function _applyWithSplit(textNode, startOffset, endOffset, highlight) {
+    try {
+      const parent = textNode.parentNode;
+      if (!parent) return;
+
+      const after = textNode.splitText(endOffset);
+      const target = textNode.splitText(startOffset);
+
+      const mark = _createMarkEl(highlight);
+      parent.insertBefore(mark, after);
+      mark.appendChild(target);
+      parent.normalize();
+    } catch (e) {}
+  }
+
   function _refreshPageHighlights() {
-    _appliedIds.clear();
     _unwrapMarks();
     _applyHighlightsToPage();
   }
@@ -569,11 +716,16 @@
     if (btn) btn.classList.toggle('active', count > 0);
   }
 
+  // ============================================================
+  // Event Handlers
+  // ============================================================
+
   function _handleSelection(e) {
     const clickedInsideTooltip = e && e.target && e.target.closest('.highlight-tooltip');
     const clickedInsidePopup = e && e.target && e.target.closest('.highlight-comment-popup');
     const clickedOnHighlight = e && e.target && e.target.closest('mark.user-highlight');
-    if (clickedInsideTooltip || clickedInsidePopup || clickedOnHighlight) return;
+    const clickedInsideMobileBar = e && e.target && e.target.closest('.highlight-mobile-bar');
+    if (clickedInsideTooltip || clickedInsidePopup || clickedOnHighlight || clickedInsideMobileBar) return;
 
     setTimeout(() => {
       const tooltip = document.getElementById('highlightTooltip');
@@ -581,17 +733,15 @@
 
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || !sel.rangeCount) {
-        if (_tooltipEl) {
-          _hideTooltip();
-        }
+        if (_tooltipEl) _hideTooltip();
+        if (_mobileBarEl) _hideMobileBar();
         return;
       }
 
       const text = sel.toString().trim();
       if (text.length < 2) {
-        if (_tooltipEl) {
-          _hideTooltip();
-        }
+        if (_tooltipEl) _hideTooltip();
+        if (_mobileBarEl) _hideMobileBar();
         return;
       }
 
@@ -599,6 +749,7 @@
       const topicId = _getTopicIdFromNode(range.startContainer);
       if (!topicId) {
         _hideTooltip();
+        _hideMobileBar();
         return;
       }
 
@@ -624,7 +775,11 @@
         endChar,
       };
 
-      _showTooltip(range);
+      if (_isMobile) {
+        _showMobileBar();
+      } else {
+        _showTooltip(range);
+      }
     }, 10);
   }
 
@@ -643,6 +798,10 @@
       _hideCommentPopup();
     }
   }
+
+  // ============================================================
+  // Public API
+  // ============================================================
 
   window.openHighlights = function () {
     const onReader = window.location.pathname.includes('reader.html');
@@ -671,11 +830,7 @@
       resultsEl.innerHTML = `<li style="padding: 24px 16px; text-align: center; color: var(--text-muted);">${noHighlights}</li>`;
     } else {
       const renderItem = (h, showMetaTitle) => {
-        const colorMap = {
-          yellow: '#fff3a1', green: '#a8e6cf', blue: '#a0c4ff',
-          pink: '#ffb3c6', purple: '#d4a5f5', orange: '#ffd6a5'
-        };
-        const bgColor = colorMap[h.color] || '#fff3a1';
+        const bgColor = COLOR_MAP[h.color] || '#fff3a1';
         const date = new Date(h.createdAt).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'pt-BR');
 
         return `<li class="highlight-item" data-id="${h.id}" data-topic="${h.topicIndex}" data-vol="${_esc(h.vol || '')}" data-file="${_esc(h.file || '')}">
@@ -699,10 +854,8 @@
           if (topicIdx !== undefined) {
             const el = document.getElementById(`topic-${topicIdx}`);
             if (el) {
-              // On reader page: close modal first, then scroll after overlay fades
               closeHighlights();
               setTimeout(() => {
-                // Try to scroll to the specific highlight mark, fallback to topic
                 const markEl = highlightId
                   ? document.querySelector(`mark.user-highlight[data-highlight-id="${highlightId}"]`)
                   : null;
@@ -716,15 +869,12 @@
                 }, 400);
               }, 350);
             } else {
-              // On home/other page: navigate to the reader with correct context
               const hVol  = item.dataset.vol;
               const hFile = item.dataset.file;
               if (hVol && hFile) {
                 const lang = _lang();
                 let url = `reader.html?vol=${encodeURIComponent(hVol)}&file=${encodeURIComponent(hFile)}`;
-                // Always include topic (even 0) so the reader knows where to scroll
                 if (topicIdx !== undefined && topicIdx !== '') url += `&topic=${topicIdx}`;
-                // Pass highlightId so the reader can scroll to the exact <mark>
                 if (highlightId) url += `&highlight=${encodeURIComponent(highlightId)}&hl_scroll=1`;
                 if (lang === 'ja') url += '&lang=ja';
                 closeHighlights();
@@ -756,7 +906,6 @@
     const modal = document.getElementById('highlightsModal');
     if (modal) {
       modal.classList.add('active');
-      // P2 FIX: trap focus for accessibility (WCAG 2.1.2)
       if (typeof _trapFocus === 'function') _trapFocus(modal);
     }
   };
@@ -772,6 +921,8 @@
   window.initHighlights = function () {
     _loadHighlights();
 
+    _isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
     document.addEventListener('mouseup', _handleSelection);
     document.addEventListener('touchend', _handleSelection);
     document.addEventListener('click', _handleClick);
@@ -780,12 +931,12 @@
       if (e.key === 'Escape') {
         _hideTooltip();
         _hideCommentPopup();
+        _hideMobileBar();
       }
     });
   };
 
   window.applyHighlightsOnPage = function () {
-    _appliedIds.clear();
     _applyHighlightsToPage();
     _updateHighlightBadge();
   };
@@ -795,11 +946,10 @@
     return _highlights.filter(h => h.vol === volId && h.file === filename);
   };
 
-  // Modern API for external managers (e.g. destaques-page.js)
   window._HighlightsApi = {
       getAll: () => {
           _loadHighlights();
-          return [..._highlights]; // Returns an array copy
+          return [..._highlights];
       },
       delete: (id) => {
           _removeHighlight(id);

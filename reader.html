@@ -99,6 +99,20 @@
     </div>
   </header>
   <script>if (window.self !== window.top) document.documentElement.classList.add('in-iframe');</script>
+  <script>
+    (function(){
+      if (!window.SECTION_MAP) {
+        var s = document.createElement('script');
+        s.src = 'site_data/section_map.js';
+        document.head.appendChild(s);
+      }
+      if (!window.GLOBAL_INDEX_TITLES) {
+        var s2 = document.createElement('script');
+        s2.src = 'site_data/global_index_titles.js';
+        document.head.appendChild(s2);
+      }
+    })();
+  </script>
   <main class="main" id="main-content">
     <div class="glass-pane" id="readerContainer">
       <div style="text-align:center; color:var(--text-muted)">
@@ -120,6 +134,11 @@
   <script type="module">
     import * as cloudSync from './js/sync.js';
     window._cloudSync = cloudSync;
+  </script>
+  <script type="module">
+    import { initSyncQueue, queueSaveHighlight, queueRemoveHighlight, getQueueStatus } from './js/sync-queue.js';
+    window._syncQueue = { init: initSyncQueue, queueSaveHighlight, queueRemoveHighlight, getStatus: getQueueStatus };
+    initSyncQueue().catch(err => console.warn('[sync-queue] init failed:', err));
   </script>
   <script type="module" src="js/login.js?v=5"></script>
   <script src="js/modals.js?v=1"></script>

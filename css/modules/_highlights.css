@@ -1,5 +1,6 @@
 /* ============================================================
-   Highlights — user text highlights (Apple Books style)
+   Highlights — user text highlights
+   CSS Custom Highlight API + traditional marks
    ============================================================ */
 
 /* Highlight colors */
@@ -68,6 +69,67 @@ mark.user-highlight.highlight-orange {
 [data-mode="dark"] mark.user-highlight.highlight-orange {
   background-color: #6b4a00;
   color: #fff;
+}
+
+/* CSS Custom Highlight API styling */
+::highlight(highlight-yellow) {
+  background-color: #fff3a1;
+  border-radius: 3px;
+  padding: 1px 2px;
+}
+
+::highlight(highlight-green) {
+  background-color: #a8e6cf;
+  border-radius: 3px;
+  padding: 1px 2px;
+}
+
+::highlight(highlight-blue) {
+  background-color: #a0c4ff;
+  border-radius: 3px;
+  padding: 1px 2px;
+}
+
+::highlight(highlight-pink) {
+  background-color: #ffb3c6;
+  border-radius: 3px;
+  padding: 1px 2px;
+}
+
+::highlight(highlight-purple) {
+  background-color: #d4a5f5;
+  border-radius: 3px;
+  padding: 1px 2px;
+}
+
+::highlight(highlight-orange) {
+  background-color: #ffd6a5;
+  border-radius: 3px;
+  padding: 1px 2px;
+}
+
+[data-mode="dark"] ::highlight(highlight-yellow) {
+  background-color: #6b5f00;
+}
+
+[data-mode="dark"] ::highlight(highlight-green) {
+  background-color: #1a5c3a;
+}
+
+[data-mode="dark"] ::highlight(highlight-blue) {
+  background-color: #1a3a6b;
+}
+
+[data-mode="dark"] ::highlight(highlight-pink) {
+  background-color: #6b1a3a;
+}
+
+[data-mode="dark"] ::highlight(highlight-purple) {
+  background-color: #4a1a6b;
+}
+
+[data-mode="dark"] ::highlight(highlight-orange) {
+  background-color: #6b4a00;
 }
 
 /* Temporary selection underline while tooltip is open */
@@ -224,8 +286,60 @@ mark.temp-selection {
   border-color: var(--accent);
 }
 
+/* ============================================================
+   Mobile Floating Action Bar
+   ============================================================ */
 
-/* Highlights list modal */
+.highlight-mobile-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 6000;
+  background: var(--bg-card, #fff);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  animation: highlightMobileBarIn 0.2s ease-out;
+}
+
+@keyframes highlightMobileBarIn {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.highlight-mobile-bar-content {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.highlight-mobile-bar .highlight-colors {
+  justify-content: center;
+}
+
+.highlight-mobile-bar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.highlight-mobile-bar-actions .highlight-cancel-btn,
+.highlight-mobile-bar-actions .highlight-save-btn {
+  padding: 10px 16px;
+  font-size: 0.9rem;
+}
+
+/* ============================================================
+   Highlights list modal
+   ============================================================ */
+
 .highlights-modal-list .highlight-item {
   padding: 12px 16px;
   border-bottom: 1px solid var(--border);
@@ -420,4 +534,22 @@ mark.temp-selection {
 .highlight-comment-popup .popup-actions button.delete-highlight-btn:hover {
   color: #e74c3c;
   border-color: #e74c3c;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .highlight-tooltip {
+    min-width: 180px;
+    padding: 6px;
+  }
+
+  .highlight-color-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .highlight-comment-popup {
+    min-width: 200px;
+    max-width: 280px;
+  }
 }

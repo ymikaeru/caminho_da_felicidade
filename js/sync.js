@@ -312,24 +312,39 @@ export async function syncLocalStorageToCloud() {
 
 export async function saveHighlight(volume, file, topicId, topicIndex, topicTitle, color, comment, text, startChar, endChar) {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return;
+  if (!session) {
+    if (window._syncQueue) {
+      await window._syncQueue.queueSaveHighlight({ volume, file, topicId, topicIndex, topicTitle, color, comment, text, startChar, endChar });
+    }
+    return;
+  }
 
-  await supabase
-    .from('user_highlights')
-    .upsert({
-      user_id: session.user.id,
-      volume,
-      file,
-      topic_id: topicId,
-      topic_index: topicIndex,
-      topic_title: topicTitle,
-      color,
-      comment,
-      text,
-      start_char: startChar,
-      end_char: endChar,
-      updated_at: new Date().toISOString()
-    }, { onConflict: 'user_id,volume,file,topic_id,start_char,end_char' });
+  try {
+    const { error } = await supabase
+      .from('user_highlights')
+      .upsert({
+        user_id: session.user.id,
+        volume,
+        file,
+        topic_id: topicId,
+        topic_index: topicIndex,
+        topic_title: topicTitle,
+        color,
+        comment,
+        text,
+        start_char: startChar,
+        end_char: endChar,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,volume,file,topic_id,start_char,end_char' });
+
+    if (error && window._syncQueue) {
+      await window._syncQueue.queueSaveHighlight({ volume, file, topicId, topicIndex, topicTitle, color, comment, text, startChar, endChar });
+    }
+  } catch (err) {
+    if (window._syncQueue) {
+      await window._syncQueue.queueSaveHighlight({ volume, file, topicId, topicIndex, topicTitle, color, comment, text, startChar, endChar });
+    }
+  }
 }
 
 export async function removeHighlight(volume, file, topicId, startChar, endChar) {
@@ -362,7 +377,6 @@ export async function removeHighlight(volume, file, topicId, startChar, endChar)
       console.error('[sync] removeHighlight fallback also failed:', error2.message);
     }
   }
-}
 }
 
 export async function loadAllHighlights() {

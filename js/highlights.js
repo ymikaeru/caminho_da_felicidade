@@ -292,6 +292,8 @@
       `<button class="highlight-color-btn color-${c}" data-color="${c}" title="${c}"></button>`
     ).join('');
 
+    const reportLabel = lang === 'ja' ? '翻訳エラーを報告' : 'Reportar erro de tradução';
+
     _tooltipEl.innerHTML =
       `<div class="highlight-colors">${colorBtnsHTML}</div>` +
       `<div class="highlight-tooltip-divider"></div>` +
@@ -301,7 +303,13 @@
           `<button class="highlight-cancel-btn" id="highlightCancelBtn">${cancelLabel}</button>` +
           `<button class="highlight-save-btn" id="highlightSaveBtn">${saveLabel}</button>` +
         `</div>` +
-      `</div>`;
+      `</div>` +
+      `<div class="highlight-tooltip-divider" style="margin-top:4px"></div>` +
+      `<button class="tr-report-btn" id="highlightReportBtn">` +
+        `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>` +
+        `${reportLabel}` +
+      `</button>`;
+
 
     document.body.appendChild(_tooltipEl);
 
@@ -354,6 +362,22 @@
 
     document.getElementById('highlightCancelBtn').addEventListener('click', _hideTooltip);
     document.getElementById('highlightSaveBtn').addEventListener('click', _saveSelection);
+
+    const reportBtn = document.getElementById('highlightReportBtn');
+    if (reportBtn) {
+      reportBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sel = _currentSelection;
+        if (sel && typeof window.openTranslationReport === 'function') {
+          _hideTooltip();
+          window.openTranslationReport(sel.text, {
+            topicId: sel.topicId,
+            vol: _getParams().volId,
+            file: _getParams().filename
+          });
+        }
+      });
+    }
   }
 
   function _hideTooltip() {

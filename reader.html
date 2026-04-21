@@ -134,6 +134,9 @@
   <script type="module">
     import * as cloudSync from './js/sync.js';
     window._cloudSync = cloudSync;
+    // Expose supabase singleton for translation-report.js (non-module IIFE)
+    import { supabase } from './js/supabase-config.js';
+    window._supabaseClient = supabase;
   </script>
   <script type="module">
     import { initSyncQueue, queueSaveHighlight, queueRemoveHighlight, getQueueStatus } from './js/sync-queue.js';
@@ -165,7 +168,8 @@
   <script src="js/marked.min.js" defer></script>
   <script src="js/reader-content.js?v=2" defer></script>
   <script src="js/reader-render.js?v=4" defer></script>
-  <script src="js/highlights.js?v=1" defer></script>
+  <script src="js/highlights.js?v=2" defer></script>
+  <script src="js/translation-report.js?v=1" defer></script>
   <script src="js/reader.js?v=10" defer></script>
   <script>document.addEventListener('DOMContentLoaded', () => { if (typeof initFontSize === 'function') initFontSize(); if (typeof initHighlights === 'function') initHighlights(); });</script>
 

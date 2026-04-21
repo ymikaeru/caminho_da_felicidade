@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/ymika/OneDrive/Documentos/Mioshie/mioshie_college -name \"*.html\" -type f -exec grep -l \"<font\" {})",
+      "Bash(grep -r \"TODO\\\\|FIXME\\\\|BUG\\\\|XXX\\\\|HACK\" SiteModerno/js/ SiteModerno/css/ --include=*.js --include=*.css)",
+      "Bash(find SiteModerno/mioshiec* -name \"*.html\")",
+      "Bash(xargs head:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(python scripts/minify_assets.py)",
+      "Bash(python scripts/rebuild_search_index.py)",
+      "Bash(git -C \"/c/Users/ymika/OneDrive/Documentos/Mioshie/mioshie_college/SiteModerno\" check-ignore node_modules)",
+      "Bash(git -C \"C:\\\\Users\\\\ymika\\\\OneDrive\\\\Documentos\\\\Mioshie\\\\mioshie_college\" remote -v)",
+      "Bash(grep -E \"\\\\.js$\")",
+      "Bash(npm run *)",
+      "Bash(git checkout *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{size_download}\\\\n\" \"http://localhost:8000/index.html?t=$\\(date +%s\\)\")",
+      "Bash(curl -s \"http://localhost:8000/index.html?t=$\\(date +%s\\)\")",
+      "Bash(node --check js/reader.js)",
+      "Bash(find \"C:\\\\Users\\\\ymika\\\\OneDrive\\\\Documentos\\\\Mioshie\\\\mioshie_college\\\\scripts\" -name \"*.sql\" -exec grep -l \"note\\\\|annotation\\\\|highlight\" {} \\\\;)"
+    ]
+  }
+}

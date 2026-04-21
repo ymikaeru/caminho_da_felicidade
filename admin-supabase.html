@@ -16,11 +16,19 @@
     .admin-tab {
       padding: 10px 20px; cursor: pointer; font-size: 0.9rem; font-weight: 500;
       color: var(--text-muted); border-bottom: 2px solid transparent; transition: all 0.15s;
+      display: flex; align-items: center; gap: 6px;
     }
     .admin-tab:hover { color: var(--text); }
     .admin-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+    .tab-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 18px; padding: 0 5px;
+      border-radius: 9px; font-size: 0.65rem; font-weight: 700;
+      background: rgba(255,80,80,0.15); color: #e05252;
+    }
+    .tab-badge.empty { display: none; }
 
     /* Stats cards */
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
@@ -183,6 +191,80 @@
       color: var(--text-muted); padding: 4px 8px;
     }
 
+    /* Editor Modal */
+    .editor-modal {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.6); align-items: center; justify-content: center; backdrop-filter: blur(4px);
+    }
+    .editor-modal.open { display: flex; }
+    .editor-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      width: 95%; max-width: 1000px; height: 90vh; display: flex; flex-direction: column;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+    }
+    .editor-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .editor-title { font-size: 1rem; font-weight: 600; color: var(--accent); margin: 0; }
+    .editor-subtitle { font-size: 0.8rem; font-family: monospace; color: var(--text-muted); margin-left: 10px; }
+    .editor-body { flex: 1; min-height: 0; padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto;}
+    .editor-search-hint { font-size: 0.8rem; background: rgba(184,134,11,0.1); color: var(--text); padding: 10px; border-radius: 6px; border-left: 3px solid var(--accent); flex-shrink:0;}
+    .editor-textarea {
+      flex: 1; width: 100%; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--bg); color: var(--text); padding: 12px; font-family: monospace; font-size: 13.5px;
+      resize: none; white-space: pre; overflow: auto; line-height: 1.4; outline: none; display:none;
+    }
+    .editor-textarea:focus { border-color: var(--accent); }
+    
+    .editor-structured-body { display: flex; flex-direction: column; gap: 24px; flex: 1; overflow-x: hidden; }
+    .topic-edit-block { background: var(--surface); border: 1px solid rgba(184, 134, 11, 0.15); box-shadow: 0 4px 16px rgba(0,0,0,0.02); border-radius: 8px; padding: 0; overflow:hidden; flex-shrink: 0; }
+    .topic-edit-header { font-weight: 600; color: var(--accent); padding: 12px 16px; border-bottom: 1px solid rgba(184, 134, 11, 0.1); background: rgba(184, 134, 11, 0.03); display:flex; justify-content:space-between; align-items:center; }
+    
+    .topic-split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .topic-split-col { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .topic-split-col.ja-col { border-right: 1px solid rgba(184, 134, 11, 0.1); background: rgba(0, 0, 0, 0.015); }
+    
+    .topic-field-group { display:flex; flex-direction:column; gap:4px; flex:1;}
+    .topic-field-group label { font-size: 0.75rem; font-weight: bold; color: var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;}
+    
+    .topic-field-group input, .topic-field-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-family: inherit; font-size: 0.95rem; box-sizing:border-box;}
+    .topic-field-group input:focus, .topic-field-group textarea:focus { border-color: var(--accent); outline:none;}
+    .topic-field-group textarea { resize: none; overflow-y: hidden; min-height: 80px; line-height: 1.6; flex:1; }
+    
+    /* Site-like immersive text fields */
+    .topic-readonly-text { padding: 10px; font-size: 0.9rem; color: var(--text-muted); line-height:1.6;}
+    .topic-readonly-text.html-content { font-family: var(--font-body), serif; font-size: 1rem; color: var(--text); }
+    
+    .topic-field-group textarea.html-content { 
+      font-family: var(--font-body), serif; 
+      font-size: 1rem; 
+      background: transparent; 
+      border: 1px solid transparent; 
+      transition: all 0.2s ease;
+    }
+    .topic-field-group textarea.html-content:hover {
+      background: rgba(184, 134, 11, 0.03);
+    }
+    .topic-field-group textarea.html-content:focus {
+      background: var(--surface);
+      border-color: rgba(184, 134, 11, 0.4);
+      box-shadow: 0 4px 12px rgba(184, 134, 11, 0.05);
+    }
+    
+    @media (max-width: 800px) { .topic-split-grid { grid-template-columns: 1fr; } .topic-split-col.ja-col { border-right:none; border-bottom: 1px solid rgba(184, 134, 11, 0.1); } }
+
+    .editor-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; flex-shrink:0;}
+    .editor-btn-cancel { padding: 8px 16px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); cursor: pointer; }
+    .editor-btn-cancel:hover { background: var(--hover, rgba(255,255,255,0.04)); }
+    .editor-btn-save { padding: 8px 24px; background: #34c759; border: none; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer; }
+    .editor-btn-save:hover { opacity: 0.9; }
+    .editor-btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .report-verify-btn {
+      display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px;
+      border: 1px solid var(--border); border-radius: 8px; background: var(--surface);
+      color: var(--text); font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s;
+    }
+    .report-verify-btn:hover { background: var(--bg); transform: translateY(-1px); }
+
     .period-select {
       padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border);
       background: var(--bg); color: var(--text); font-size: 0.8rem; margin-left: auto;
@@ -246,6 +328,44 @@
     .retention-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
     .retention-bar { height: 6px; border-radius: 3px; background: var(--bg); overflow: hidden; display: inline-block; width: 60px; vertical-align: middle; margin-right: 6px; }
     .retention-bar-fill { height: 100%; background: #34c759; border-radius: 3px; }
+    /* Reports tab */
+    .report-list { display: flex; flex-direction: column; gap: 10px; }
+    .report-card {
+      padding: 16px 18px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface); transition: background 0.15s;
+    }
+    .report-card:hover { background: var(--hover, rgba(255,255,255,0.04)); }
+    .report-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .report-vol {
+      font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 4px; background: rgba(184,134,11,0.12); color: var(--accent);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .report-file { font-size: 0.78rem; color: var(--text-muted); font-family: monospace; }
+    .report-lang { font-size: 0.7rem; color: var(--text-muted); margin-left: auto; }
+    .report-date { font-size: 0.72rem; color: var(--text-muted); }
+    .report-text {
+      font-size: 0.85rem; line-height: 1.5; margin-bottom: 6px;
+      padding: 8px 12px; border-left: 3px solid rgba(255,160,0,0.4);
+      background: rgba(255,160,0,0.04); border-radius: 0 6px 6px 0;
+      font-style: italic; color: var(--text); word-break: break-word;
+    }
+    .report-description { font-size: 0.82rem; color: var(--text); line-height: 1.5; margin-top: 6px; }
+    .report-description::before { content: '💬 '; opacity: 0.6; }
+    .report-group-label {
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--text-muted); margin: 20px 0 8px;
+    }
+    .report-empty { text-align: center; padding: 48px 0; color: var(--text-muted); font-size: 0.9rem; }
+    .report-summary-bar {
+      display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .report-summary-item {
+      padding: 14px 20px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--surface); flex: 1; min-width: 120px;
+    }
+    .report-summary-item .val { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+    .report-summary-item .lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -276,6 +396,7 @@
           <div class="admin-tabs">
             <div class="admin-tab active" onclick="switchTab('users')">Usuários</div>
             <div class="admin-tab" onclick="switchTab('analytics')">Analytics</div>
+            <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty" id="reportsTabBadge">0</span></div>
           </div>
 
           <!-- Users Tab -->
@@ -442,6 +563,16 @@
 
           </div>
 
+          <!-- Reports Tab -->
+          <div class="tab-content" id="tab-reports">
+            <div style="margin-bottom:24px;">
+              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Relatórios de Tradução</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Trechos reportados por usuários como possível erro de tradução.</p>
+            </div>
+            <div class="report-summary-bar" id="reportsSummary"></div>
+            <div id="reportsContainer"><div class="loading">Carregando relatórios...</div></div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -453,6 +584,26 @@
       <button class="user-detail-close" onclick="closeUserDetail()">✕</button>
       <h3 id="modal-user-name"></h3>
       <div id="modal-user-content"></div>
+    </div>
+  </div>
+
+  <!-- Raw File Editor Modal -->
+  <div class="editor-modal" id="editor-modal" onclick="if(event.target===this)closeEditor()">
+    <div class="editor-card">
+      <div class="editor-header">
+        <h3 class="editor-title">Editar Arquivo HTML.JSON <span class="editor-subtitle" id="editor-target-file"></span></h3>
+        <button class="user-detail-close" onclick="closeEditor()" style="margin:0; float:none;">✕</button>
+      </div>
+      <div class="editor-body">
+        <div class="editor-search-hint" id="editor-search-hint">💡 <strong>Dica:</strong> Use <b>Ctrl+F</b> para localizar palavras. Edite apenas o Português. Você <b>não precisa se preocupar com a sintaxe do JSON</b>!</div>
+        <textarea id="editor-textarea" class="editor-textarea" spellcheck="false" placeholder="Carregando conteúdo..."></textarea>
+        <div id="editor-structured-body" class="editor-structured-body"></div>
+      </div>
+      <div class="editor-footer">
+        <span id="editor-msg" class="msg" style="margin:0 auto 0 0; padding:6px 12px; align-self:center;"></span>
+        <button class="editor-btn-cancel" onclick="closeEditor()">Cancelar</button>
+        <button class="editor-btn-save" id="editor-btn-save" onclick="saveEditor()">💾 Salvar na Nuvem</button>
+      </div>
     </div>
   </div>
 
@@ -488,11 +639,433 @@
     window.switchTab = function(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'users': 0, 'analytics': 1 }[tab];
+      const tabIndex = { 'users': 0, 'analytics': 1, 'reports': 2 }[tab];
       document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'analytics') loadAnalytics();
+      if (tab === 'reports') loadReports();
     };
+
+    let _reportsLoaded = false;
+    let _allReports = [];
+
+    async function loadReports(forceReload = false) {
+      if (_reportsLoaded && !forceReload) return;
+      _reportsLoaded = true;
+
+      const container = document.getElementById('reportsContainer');
+      const summary = document.getElementById('reportsSummary');
+      container.innerHTML = '<div class="loading">Carregando relatórios...</div>';
+
+      const { data, error } = await supabase
+        .from('translation_reports')
+        .select('id, vol, file, topic_id, lang, selected_text, description, created_at, status')
+        .order('created_at', { ascending: false })
+        .limit(500);
+
+      if (error) {
+        container.innerHTML = `<div class="msg err">Erro ao carregar: ${error.message}</div>`;
+        return;
+      }
+
+      _allReports = data || [];
+      _renderReports();
+    }
+
+    function _renderReports() {
+      const container = document.getElementById('reportsContainer');
+      const summary = document.getElementById('reportsSummary');
+      const reports = _allReports;
+
+      const pending  = reports.filter(r => r.status !== 'verified');
+      const verified = reports.filter(r => r.status === 'verified');
+
+      // ── Badge: only pending count ──────────────────────────────────
+      const badge = document.getElementById('reportsTabBadge');
+      if (badge) {
+        badge.textContent = pending.length;
+        badge.classList.toggle('empty', pending.length === 0);
+      }
+
+      // ── Summary cards ──────────────────────────────────────────────
+      const uniqueFiles = new Set(pending.map(r => `${r.vol}/${r.file}`)).size;
+      const volCounts = {};
+      pending.forEach(r => { volCounts[r.vol] = (volCounts[r.vol] || 0) + 1; });
+      const topVol = Object.entries(volCounts).sort((a, b) => b[1] - a[1])[0];
+
+      summary.innerHTML = `
+        <div class="report-summary-item">
+          <div class="val">${pending.length}</div>
+          <div class="lbl">Pendentes</div>
+        </div>
+        <div class="report-summary-item">
+          <div class="val">${uniqueFiles}</div>
+          <div class="lbl">Arquivos Distintos</div>
+        </div>
+        <div class="report-summary-item">
+          <div class="val">${topVol ? (VOL_SHORT[topVol[0]] || topVol[0]) : '—'}</div>
+          <div class="lbl">Volume c/ mais reportes</div>
+        </div>
+        <div class="report-summary-item">
+          <div class="val" style="color:#34c759">${verified.length}</div>
+          <div class="lbl">Verificados</div>
+        </div>
+      `;
+
+      // ── Build report card HTML ──────────────────────────────────────
+      function buildCard(r, isPending) {
+        const date = new Date(r.created_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        const escapedText = r.selected_text?.replace(/</g, '&lt;').replace(/>/g, '&gt;') || '';
+        const escapedDesc = r.description?.replace(/</g, '&lt;').replace(/>/g, '&gt;') || '';
+        const fileLabel = r.file?.replace('.html.json','') || '—';
+        const langLabel = r.lang === 'ja' ? '🇯🇵 Japonês' : '🇧🇷 Português';
+
+        const verifyBtn = isPending
+          ? `<button class="report-verify-btn" onclick="verifyReport('${r.id}', this)" title="Marcar como verificado">
+               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+               Verificado
+             </button>`
+          : `<span class="report-verified-tag">✓ Verificado</span>`;
+
+        const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditor('${r.vol}', '${r.file}')" title="Abrir e editar arquivo original">✏️ Editar</button>`;
+
+        return `
+          <div class="report-card" id="report-card-${r.id}">
+            <div class="report-header">
+              <span class="report-vol">${VOL_SHORT[r.vol] || r.vol}</span>
+              <span class="report-file">${fileLabel}</span>
+              <span class="report-lang">${langLabel}</span>
+              <span class="report-date">${date}</span>
+              <div class="report-actions" style="display:flex; gap:8px;">
+                ${editBtn}
+                ${verifyBtn}
+              </div>
+            </div>
+            <div class="report-text">${escapedText}</div>
+            ${escapedDesc ? `<div class="report-description">${escapedDesc}</div>` : ''}
+          </div>`;
+      }
+
+      // ── Pending section ────────────────────────────────────────────
+      let html = '';
+
+      if (pending.length === 0) {
+        html += '<div class="report-empty">✅ Todos os reportes foram verificados.</div>';
+      } else {
+        const byVol = {};
+        pending.forEach(r => {
+          if (!byVol[r.vol]) byVol[r.vol] = [];
+          byVol[r.vol].push(r);
+        });
+
+        html += '<div class="report-list" id="pendingList">';
+        for (const vol of ['mioshiec1','mioshiec2','mioshiec3','mioshiec4']) {
+          const group = byVol[vol];
+          if (!group || group.length === 0) continue;
+          const volName = VOLUMES.find(v => v.key === vol)?.name || vol;
+          html += `<div class="report-group-label">⚠ ${volName} — ${group.length} reporte${group.length !== 1 ? 's' : ''}</div>`;
+          group.forEach(r => { html += buildCard(r, true); });
+        }
+        html += '</div>';
+      }
+
+      // ── Verified collapsible section ───────────────────────────────
+      if (verified.length > 0) {
+        html += `
+          <div class="report-verified-section" id="verifiedSection">
+            <button class="report-verified-toggle" id="verifiedToggle" onclick="toggleVerifiedSection()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="verifiedToggleIcon"><polyline points="6 9 12 15 18 9"/></svg>
+              Histórico de Verificados <span style="opacity:0.6; font-weight:400;">(${verified.length})</span>
+            </button>
+            <div class="report-verified-body" id="verifiedBody" style="display:none">
+              <div class="report-list">`;
+
+        const byVolV = {};
+        verified.forEach(r => {
+          if (!byVolV[r.vol]) byVolV[r.vol] = [];
+          byVolV[r.vol].push(r);
+        });
+        for (const vol of ['mioshiec1','mioshiec2','mioshiec3','mioshiec4']) {
+          const group = byVolV[vol];
+          if (!group || group.length === 0) continue;
+          const volName = VOLUMES.find(v => v.key === vol)?.name || vol;
+          html += `<div class="report-group-label" style="opacity:0.6">✓ ${volName} — ${group.length}</div>`;
+          group.forEach(r => { html += buildCard(r, false); });
+        }
+
+        html += `      </div>
+            </div>
+          </div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    window.toggleVerifiedSection = function() {
+      const body = document.getElementById('verifiedBody');
+      const icon = document.getElementById('verifiedToggleIcon');
+      if (!body) return;
+      const open = body.style.display !== 'none';
+      body.style.display = open ? 'none' : 'block';
+      if (icon) icon.style.transform = open ? '' : 'rotate(180deg)';
+    };
+
+    window.verifyReport = async function(id, btnEl) {
+      if (btnEl) { btnEl.disabled = true; btnEl.textContent = '...'; }
+
+      const { error } = await supabase
+        .from('translation_reports')
+        .update({ status: 'verified' })
+        .eq('id', id);
+
+      if (error) {
+        console.error('[admin] verifyReport failed:', error.message);
+        if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Verificado'; }
+        return;
+      }
+
+      // Update local state and re-render without full reload
+      const idx = _allReports.findIndex(r => r.id === id);
+      if (idx !== -1) _allReports[idx].status = 'verified';
+      _renderReports();
+    };
+
+
+    // ── Editor Logic ────────────────────────────────────────────────────────
+    let _currentEditVol = null;
+    let _currentEditFile = null;
+    let _currentEditJson = null;
+
+    window.openEditor = async function(vol, file) {
+      if (!vol || !file) return;
+      _currentEditVol = vol;
+      _currentEditFile = file.endsWith('.json') ? file : file + '.json';
+      _currentEditJson = null;
+
+      const modal = document.getElementById('editor-modal');
+      const textarea = document.getElementById('editor-textarea');
+      const structuredBody = document.getElementById('editor-structured-body');
+      const hint = document.getElementById('editor-search-hint');
+      const subtitle = document.getElementById('editor-target-file');
+      const msg = document.getElementById('editor-msg');
+      const btn = document.getElementById('editor-btn-save');
+
+      subtitle.textContent = `${vol}/${_currentEditFile}`;
+      textarea.value = '';
+      textarea.style.display = 'none';
+      structuredBody.style.display = 'none';
+      structuredBody.innerHTML = '';
+      
+      msg.className = 'msg';
+      msg.textContent = 'Baixando arquivo do Supabase...';
+      msg.style.display = 'block';
+      btn.disabled = true;
+      modal.classList.add('open');
+
+      try {
+        const { data, error } = await supabase.storage.from('teachings').download(`${vol}/${_currentEditFile}`);
+        if (error) throw error;
+
+        const text = await data.text();
+        
+        try {
+          _currentEditJson = JSON.parse(text);
+          if (_currentEditJson.themes) {
+            structuredBody.style.display = 'flex';
+            renderStructuredEditor(_currentEditJson);
+            hint.innerHTML = '💡 <strong>Dica:</strong> Use <b>Ctrl+F</b> para buscar palavras. Edite apenas as caixas da direita (Português).';
+          } else {
+            throw new Error('No themes array found');
+          }
+        } catch(e) {
+          // Fallback to raw editor if JSON is weird
+          console.warn("Using raw JSON fallback:", e);
+          textarea.value = JSON.stringify(JSON.parse(text), null, 2);
+          textarea.style.display = 'block';
+          hint.innerHTML = '💡 <strong>Modo Código:</strong> Arquivo não padronizado. Edite o JSON cru com <b>muito cuidado</b> com aspas e chaves.';
+        }
+
+        btn.disabled = false;
+        msg.style.display = 'none';
+      } catch (err) {
+        console.error('Editor download error:', err);
+        msg.textContent = `Erro ao baixar: ${err.message}`;
+        msg.className = 'msg err';
+        btn.disabled = true;
+      }
+    };
+
+    function renderStructuredEditor(jsonData) {
+      const container = document.getElementById('editor-structured-body');
+      let html = '';
+
+      jsonData.themes.forEach((theme, tIdx) => {
+        if (!theme.topics) return;
+        theme.topics.forEach((topic, pIdx) => {
+          const jaTitle = topic.title_ja || topic.title || 'Sem título JA';
+          const ptTitle = (topic.title_ptbr || topic.title_pt || topic.title || '').replace(/"/g, '&quot;');
+          
+          const jaContent = topic.content || '';
+          const ptContent = topic.content_ptbr || topic.content_pt || '';
+
+          const pathPrefix = `${tIdx}-${pIdx}`;
+
+          // Extrai o header do título (onde fica a publicação antes da quebra real)
+          const jaSegs = jaContent.split(/<br\s*\/?>/i);
+          const ptSegs = ptContent.split(/<br\s*\/?>/i);
+          const maxLen = Math.max(jaSegs.length, ptSegs.length);
+
+          let segmentsHtml = '';
+          for (let i = 0; i < maxLen; i++) {
+             const jS = jaSegs[i] || '';
+             const pS = ptSegs[i] || '';
+             segmentsHtml += `
+               <div class="topic-split-grid" style="border-top:1px solid rgba(184, 134, 11, 0.1); padding-top:16px; margin-top:16px;">
+                 <div class="topic-split-col ja-col" style="padding:0 16px 16px 16px">
+                   <div class="topic-readonly-text html-content">${jS.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                 </div>
+                 <div class="topic-split-col pt-col" style="padding:0 16px 16px 16px">
+                   <textarea class="editor-input-field html-content" data-path="${pathPrefix}-content_ptbr-seg" spellcheck="false" style="min-height:80px">${pS}</textarea>
+                 </div>
+               </div>
+             `;
+          }
+
+          html += `
+            <div class="topic-edit-block">
+              <div class="topic-edit-header">
+                <span>Tópico ${pIdx + 1}</span>
+              </div>
+              
+              <!-- Cabeçalho (Títulos) -->
+              <div class="topic-split-grid">
+                <div class="topic-split-col ja-col" style="padding-bottom:0">
+                  <div class="topic-field-group">
+                    <label>Título (Japonês original)</label>
+                    <div class="topic-readonly-text" style="font-weight:600; padding:10px 12px; background:rgba(184, 134, 11, 0.03); border-radius:6px; border:1px solid rgba(184, 134, 11, 0.15); color: var(--accent);">${jaTitle}</div>
+                  </div>
+                </div>
+                <div class="topic-split-col pt-col" style="padding-bottom:0">
+                  <div class="topic-field-group" style="flex:none">
+                    <label>Título (Tradução PT-BR)</label>
+                    <input type="text" class="editor-input-field" data-path="${pathPrefix}-title_ptbr" value="${ptTitle}">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Segmentos (Parágrafos) -->
+              <div style="padding:0 16px 16px 16px; margin-top:8px;">
+                 <div style="font-size:0.75rem; font-weight:bold; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Conteúdo (Segmentado)</div>
+              </div>
+              
+              ${segmentsHtml}
+
+            </div>
+          `;
+        });
+      });
+
+      container.innerHTML = html;
+
+      // Auto-resize para textareas
+      const textareas = container.querySelectorAll('textarea');
+      textareas.forEach(t => {
+        t.style.height = 'auto';
+        t.style.height = (t.scrollHeight + 2) + 'px';
+        
+        t.addEventListener('input', function() {
+          this.style.height = 'auto';
+          this.style.height = (this.scrollHeight + 2) + 'px';
+        });
+      });
+    }
+
+    window.closeEditor = function() {
+      document.getElementById('editor-modal').classList.remove('open');
+      _currentEditVol = null;
+      _currentEditFile = null;
+      _currentEditJson = null;
+    };
+
+    window.saveEditor = async function() {
+      const textarea = document.getElementById('editor-textarea');
+      const msg = document.getElementById('editor-msg');
+      const btn = document.getElementById('editor-btn-save');
+      let finalContentString = '';
+
+      // Structured mode saving
+      if (_currentEditJson && _currentEditJson.themes) {
+        try {
+          // Salvar títulos
+          const titles = document.querySelectorAll('.editor-input-field[data-path$="-title_ptbr"]');
+          titles.forEach(input => {
+            const keys = input.getAttribute('data-path').split('-');
+            const tIdx = parseInt(keys[0], 10);
+            const pIdx = parseInt(keys[1], 10);
+            _currentEditJson.themes[tIdx].topics[pIdx].title_ptbr = input.value;
+          });
+
+          // Salvar conteúdos segmentados
+          _currentEditJson.themes.forEach((theme, tIdx) => {
+            if (!theme.topics) return;
+            theme.topics.forEach((topic, pIdx) => {
+              const segs = document.querySelectorAll(`.editor-input-field[data-path="${tIdx}-${pIdx}-content_ptbr-seg"]`);
+              if (segs.length > 0) {
+                const joined = Array.from(segs).map(s => s.value).join('<br/>\n');
+                topic.content_ptbr = joined;
+              }
+            });
+          });
+
+          finalContentString = JSON.stringify(_currentEditJson, null, 2);
+        } catch (e) {
+          msg.textContent = 'Erro ao processar formulário estruturado.';
+          msg.className = 'msg err';
+          msg.style.display = 'block';
+          return;
+        }
+      } 
+      // Raw mode saving fallback
+      else {
+        let contentRaw = textarea.value;
+        try {
+          finalContentString = JSON.stringify(JSON.parse(contentRaw), null, 2);
+        } catch (e) {
+          if (!confirm('Atenção: O formato JSON está inválido e pode quebrar a leitura.\n\nTem certeza que deseja salvar mesmo assim?')) {
+            msg.textContent = 'Corrija o formato JSON cru.';
+            msg.className = 'msg err';
+            msg.style.display = 'block';
+            return;
+          }
+          finalContentString = contentRaw;
+        }
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+      msg.style.display = 'none';
+
+      try {
+        const blob = new Blob([finalContentString], { type: 'application/json' });
+        const { error } = await supabase.storage.from('teachings')
+          .upload(`${_currentEditVol}/${_currentEditFile}`, blob, { upsert: true, contentType: 'application/json' });
+
+        if (error) throw error;
+
+        msg.textContent = 'Arquivo salvo/atualizado com sucesso! 🎉';
+        msg.className = 'msg ok';
+        msg.style.display = 'block';
+        setTimeout(() => closeEditor(), 1500);
+      } catch (err) {
+        console.error('Editor upload error:', err);
+        msg.textContent = `Falha ao salvar: ${err.message}`;
+        msg.className = 'msg err';
+        msg.style.display = 'block';
+        btn.disabled = false;
+      }
+      btn.textContent = '💾 Salvar na Nuvem';
+    };
+
 
     async function checkAdmin() {
       const { data: { session } } = await supabase.auth.getSession();

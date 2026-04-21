@@ -89,6 +89,13 @@ async function logout() {
   // Clear legacy localStorage keys
   localStorage.removeItem('mioshie_auth');
   localStorage.removeItem('mioshie_access_config');
+  // Clear user-specific data to prevent leakage to next logged-in user
+  localStorage.removeItem('userHighlights');
+  localStorage.removeItem('readHistory');
+  localStorage.removeItem('savedFavorites');
+  localStorage.removeItem('highlightDeletedKeys');
+  localStorage.removeItem('favDeletedKeys');
+  localStorage.removeItem('mioshieSyncQueue');
 }
 
 async function signup(email, password, displayName, authCode) {

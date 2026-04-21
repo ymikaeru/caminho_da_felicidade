@@ -470,7 +470,7 @@
   }
   </script>
   <script type="module">
-    import { supabase } from './js/supabase-config.js';
+    import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './js/supabase-config.js';
 
     const VOLUMES = [
       { key: 'mioshiec1', name: 'Volume 1 — Mundo Espiritual' },
@@ -560,17 +560,15 @@
       const container = document.getElementById('user-list-container');
       container.innerHTML = '<div class="loading">Carregando usuários...</div>';
 
-      const { data: profiles, error } = await supabase
-        .from('user_profiles')
-        .select('id, display_name, role, created_at')
-        .order('created_at', { ascending: false });
+      // admin_get_users() é uma RPC SECURITY DEFINER que lê auth.users para retornar emails reais
+      const { data, error } = await supabase.rpc('admin_get_users');
 
       if (error) {
-        container.innerHTML = `<div class="msg err">Erro: ${error.message}</div>`;
+        container.innerHTML = `<div class="msg err">Erro ao carregar usuários: ${error.message}</div>`;
         return;
       }
 
-      allUsers = (profiles || []).map(p => ({ ...p, email: '' }));
+      allUsers = data || [];
       document.getElementById('user-count').textContent = `(${allUsers.length})`;
       renderUserList();
     };
@@ -620,38 +618,38 @@
 
       document.getElementById('modal-user-name').textContent = user.display_name || 'Usuário';
 
-      const { data: logs } = await supabase
-        .from('access_logs')
-        .select('volume, file, action, created_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      const { data: positions } = await supabase
-        .from('reading_positions')
-        .select('volume, file, progress_pct, updated_at')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false })
-        .limit(20);
-
-      const { data: favs } = await supabase
-        .from('synced_favorites')
-        .select('volume, file, topic_title, created_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      const { data: highlights } = await supabase
-        .from('user_highlights')
-        .select('volume, file, text, color, updated_at')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false })
-        .limit(20);
-
-      const { data: perms } = await supabase
-        .from('user_permissions')
-        .select('volume, files')
-        .eq('user_id', userId);
+      // 5 queries em paralelo — reduz latência de abertura do modal
+      const [
+        { data: logs },
+        { data: positions },
+        { data: favs },
+        { data: highlights },
+        { data: perms }
+      ] = await Promise.all([
+        supabase.from('access_logs')
+          .select('volume, file, action, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(50),
+        supabase.from('reading_positions')
+          .select('volume, file, progress_pct, updated_at')
+          .eq('user_id', userId)
+          .order('updated_at', { ascending: false })
+          .limit(20),
+        supabase.from('synced_favorites')
+          .select('volume, file, topic_title, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabase.from('user_highlights')
+          .select('volume, file, text, color, updated_at')
+          .eq('user_id', userId)
+          .order('updated_at', { ascending: false })
+          .limit(20),
+        supabase.from('user_permissions')
+          .select('volume, files')
+          .eq('user_id', userId)
+      ]);
 
       const totalViews = (logs || []).length;
       const uniqueTeachings = new Set((logs || []).map(l => `${l.volume}/${l.file}`)).size;
@@ -849,48 +847,70 @@
     };
 
     window.changeRole = async function(userId, role) {
-      console.log('changeRole chamado:', userId, role);
-      const { data: existing, error: fetchError } = await supabase.from('user_profiles').select('role').eq('id', userId).single();
+      // Proteção: admin não pode remover o próprio acesso
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.id === userId && role !== 'admin') {
+        alert('Você não pode remover seu próprio acesso de administrador.');
+        loadUsers(); // Restaura o select para o valor correto
+        return;
+      }
+
+      const { data: existing, error: fetchError } = await supabase
+        .from('user_profiles').select('role').eq('id', userId).single();
       if (fetchError) {
-        console.error('Erro ao buscar usuário:', fetchError.message);
         alert('Erro ao buscar usuário: ' + fetchError.message);
         return;
       }
-      console.log('Role atual:', existing?.role);
-      if (existing && existing.role === role) return;
-      if (role === 'admin' && !confirm('Dar permissão de ADMIN para este usuário?')) return;
-
-      const { data: updated, error } = await supabase.from('user_profiles').update({ role }).eq('id', userId).select();
-      console.log('Resultado do update:', updated, error);
-
-      if (error) {
-        console.error('Erro ao alterar função:', error.message, error.details, error.hint);
-        alert('Erro ao alterar função: ' + error.message + (error.details ? '\n' + error.details : ''));
+      if (existing?.role === role) return;
+      if (role === 'admin' && !confirm('Dar permissão de ADMIN para este usuário?')) {
         loadUsers();
         return;
+      }
+
+      const { error } = await supabase
+        .from('user_profiles').update({ role }).eq('id', userId);
+      if (error) {
+        alert('Erro ao alterar função: ' + error.message);
       }
       loadUsers();
     };
 
     window.deleteUser = async function(userId) {
       if (!confirm('Tem certeza que deseja remover este usuário? Esta ação não pode ser desfeita.')) return;
-      const tables = ['user_permissions', 'access_logs', 'reading_positions', 'synced_favorites', 'user_highlights', 'search_logs'];
-      for (const table of tables) {
-        const { error } = await supabase.from(table).delete().eq('user_id', userId);
-        if (error) console.error('Erro ao limpar ' + table + ':', error.message);
-      }
-      const { error: profileError } = await supabase.from('user_profiles').delete().eq('id', userId);
-      if (profileError) {
-        alert('Erro ao remover usuário: ' + profileError.message);
+
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('Sessão expirada. Faça login novamente.');
+
+        // admin-delete-user remove de auth.users + todas as tabelas relacionadas
+        const resp = await fetch(`${SUPABASE_URL}/functions/v1/admin-delete-user`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({ user_id: userId })
+        });
+
+        const result = await resp.json();
+        if (!resp.ok && resp.status !== 207) throw new Error(result.error || 'Erro ao remover usuário');
+        if (resp.status === 207) console.warn('Remoção parcial:', result.error);
+      } catch (err) {
+        alert('Erro ao remover usuário: ' + err.message);
         loadUsers();
         return;
       }
+
       if (selectedUserId === userId) closePermEditor();
       loadUsers();
     };
 
     window.resetPassword = async function(userId, email) {
-      const inputEmail = prompt(`Email do usuário para enviar link de redefinição:`, email || '');
+      // Se o email já veio da RPC admin_get_users, não precisa de prompt
+      const inputEmail = (email && email.trim())
+        ? email
+        : prompt('Email do usuário para enviar link de redefinição:', '');
       if (!inputEmail) return;
 
       const { error } = await supabase.auth.resetPasswordForEmail(inputEmail, {
@@ -927,38 +947,22 @@
       msg.style.display = 'none';
 
       try {
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { display_name: name || email.split('@')[0], role: 'user' }
-          }
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('Sessão expirada. Faça login novamente.');
+
+        // Usa Edge Function para criar via Admin API — NÃO altera a sessão do admin logado
+        const resp = await fetch(`${SUPABASE_URL}/functions/v1/admin-create-user`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({ email, password, display_name: name })
         });
 
-        if (signUpError) throw signUpError;
-
-        const userId = signUpData.user?.id;
-        console.log('signUp userId:', userId);
-        if (userId) {
-          const { data: profileData, error: profileError } = await supabase
-            .from('user_profiles')
-            .upsert({
-              id: userId,
-              display_name: name || email.split('@')[0],
-              role: 'user'
-            }, { onConflict: 'id' })
-            .select();
-
-          console.log('Profile upsert result:', profileData, profileError);
-          if (profileError) {
-            console.error('Erro ao criar perfil:', profileError.message, profileError.details, profileError.hint);
-            msg.textContent = 'Usuário criado no auth, mas falha ao criar perfil: ' + profileError.message;
-            msg.className = 'msg err';
-            loadUsers();
-            btn.disabled = false;
-            return;
-          }
-        }
+        const result = await resp.json();
+        if (!resp.ok) throw new Error(result.error || 'Erro ao criar usuário');
 
         msg.textContent = 'Usuário criado com sucesso!';
         msg.className = 'msg ok';
@@ -1003,51 +1007,82 @@
       loadRetentionRate(days, since);
     }
 
-    // ── Online Users ──────────────────────────────────────────
+    // ── Online Users — combina heartbeat (last_seen_at) + access_logs ──────
     async function loadOnlineUsers() {
-      const { data: profiles } = await supabase
-        .from('user_profiles')
-        .select('id, display_name, last_seen_at')
-        .not('last_seen_at', 'is', null)
-        .order('last_seen_at', { ascending: false });
-
       const now = Date.now();
-      const active = []; // last 5 min
-      const recent = []; // 5-30 min
-      const idle = []; // 30-60 min
+      const cutoff60 = new Date(now - 60 * 60000).toISOString();
 
-      (profiles || []).forEach(p => {
-        if (!p.last_seen_at) return;
-        const diff = (now - new Date(p.last_seen_at).getTime()) / 60000; // minutes
-        if (diff <= 5) active.push({ ...p, minutesAgo: Math.round(diff) });
-        else if (diff <= 30) recent.push({ ...p, minutesAgo: Math.round(diff) });
-        else if (diff <= 60) idle.push({ ...p, minutesAgo: Math.round(diff) });
-      });
+      // Consulta ambas as fontes em paralelo
+      const [profilesRes, logsRes] = await Promise.all([
+        supabase
+          .from('user_profiles')
+          .select('id, display_name, last_seen_at')
+          .not('last_seen_at', 'is', null)
+          .gte('last_seen_at', cutoff60)
+          .order('last_seen_at', { ascending: false }),
+        supabase
+          .from('access_logs')
+          .select('user_id, created_at')
+          .gte('created_at', cutoff60)
+          .order('created_at', { ascending: false })
+      ]);
 
-      const total = active.length + recent.length;
-      document.getElementById('online-count').textContent = total;
+      // Mapa unificado: userId → { name, lastSeen }
+      const activityMap = new Map();
 
-      const all = [
-        ...active.map(u => ({ ...u, status: 'active' })),
-        ...recent.map(u => ({ ...u, status: 'recent' })),
-        ...idle.map(u => ({ ...u, status: 'idle' }))
-      ];
+      for (const p of (profilesRes.data || [])) {
+        activityMap.set(p.id, { name: p.display_name, lastSeen: new Date(p.last_seen_at) });
+      }
 
+      // Agrupa access_logs por usuário (mais recente)
+      const logLatest = new Map();
+      for (const l of (logsRes.data || [])) {
+        const t = new Date(l.created_at);
+        if (!logLatest.has(l.user_id) || t > logLatest.get(l.user_id)) logLatest.set(l.user_id, t);
+      }
+
+      // Busca nomes de usuários que estão nos logs mas não no heartbeat
+      const unknownIds = [...logLatest.keys()].filter(uid => !activityMap.has(uid));
+      if (unknownIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('user_profiles').select('id, display_name').in('id', unknownIds);
+        for (const p of (profiles || [])) {
+          activityMap.set(p.id, { name: p.display_name, lastSeen: logLatest.get(p.id) });
+        }
+      }
+
+      // Usa o timestamp mais recente entre heartbeat e access_log
+      for (const [uid, logTime] of logLatest) {
+        const entry = activityMap.get(uid);
+        if (entry && logTime > entry.lastSeen) entry.lastSeen = logTime;
+      }
+
+      // Categoriza por recência
+      const active = [], recent = [], idle = [];
+      for (const [, { name, lastSeen }] of activityMap) {
+        const diff = (now - lastSeen.getTime()) / 60000;
+        const e = { name: name || 'Sem nome', minutesAgo: Math.round(diff) };
+        if (diff <= 5)       active.push({ ...e, status: 'active' });
+        else if (diff <= 30) recent.push({ ...e, status: 'recent' });
+        else                 idle.push({ ...e, status: 'idle' });
+      }
+
+      document.getElementById('online-count').textContent = active.length + recent.length;
+
+      const all = [...active, ...recent, ...idle];
       if (all.length === 0) {
-        document.getElementById('online-list').innerHTML = '<span style="font-size:0.8rem; color:var(--text-muted);">Nenhum usuário ativo recentemente.</span>';
+        document.getElementById('online-list').innerHTML = '<span style="font-size:0.8rem; color:var(--text-muted);">Nenhum usuário ativo na última hora.</span>';
         return;
       }
 
-      const statusLabels = { active: 'agora', recent: 'min atrás', idle: 'min atrás' };
-      document.getElementById('online-list').innerHTML = all.map(u => {
-        const timeLabel = u.status === 'active' ? 'agora' : `${u.minutesAgo} min`;
-        return `<div class="online-user">
+      document.getElementById('online-list').innerHTML = all.map(u => `
+        <div class="online-user">
           <div class="online-user-dot ${u.status}"></div>
-          <span class="online-user-name">${u.display_name || 'Sem nome'}</span>
-          <span class="online-user-time">${timeLabel}</span>
-        </div>`;
-      }).join('');
+          <span class="online-user-name">${u.name}</span>
+          <span class="online-user-time">${u.status === 'active' ? 'agora' : u.minutesAgo + ' min'}</span>
+        </div>`).join('');
     }
+
 
     async function loadOverviewStats(days, since) {
       // Count users independently (don't rely on allUsers from Users tab)
@@ -1249,12 +1284,13 @@
     }
 
     async function loadRecentActivity(days, since) {
-      const query = supabase
+      // IMPORTANTE: o query builder do Supabase é imutável — .gte() retorna novo objeto
+      let query = supabase
         .from('access_logs')
         .select('user_id, volume, file, action, created_at')
         .order('created_at', { ascending: false })
         .limit(25);
-      if (since) query.gte('created_at', since);
+      if (since) query = query.gte('created_at', since);
       const { data } = await query;
 
       if (!data || data.length === 0) {
@@ -1582,9 +1618,11 @@
     // ============================================================
 
     async function loadRetentionRate(days, since) {
+      // Busca apenas o período selecionado para evitar trazer a tabela inteira
       const { data: allLogs } = await supabase
         .from('access_logs')
         .select('user_id, created_at')
+        .gte('created_at', since)
         .order('created_at', { ascending: true });
 
       if (!allLogs || allLogs.length === 0) {

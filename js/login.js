@@ -216,12 +216,14 @@ window.supabaseAuth = {
   getPermissions: () => userPermissions,
   logAccess: async (volume, file, action = 'view') => {
     if (!supabaseSession) return;
-    await supabase.from('access_logs').insert({
-      user_id: supabaseSession.user.id,
-      volume,
-      file,
-      action
-    });
+    const userId = supabaseSession.user.id;
+    const now = new Date().toISOString();
+    // Registra acesso e atualiza presença em paralelo (belt + suspenders)
+    const [{ error }] = await Promise.all([
+      supabase.from('access_logs').insert({ user_id: userId, volume, file, action }),
+      supabase.from('user_profiles').update({ last_seen_at: now }).eq('id', userId)
+    ]);
+    if (error) console.warn('[logAccess] Falha ao registrar acesso:', error.message);
   }
 };
 
@@ -233,11 +235,10 @@ window.supabaseAuth = {
 
   async function updateLastSeen() {
     if (!supabaseSession) return;
-    try {
-      await supabase.from('user_profiles').update({
-        last_seen_at: new Date().toISOString()
-      }).eq('id', supabaseSession.user.id);
-    } catch (e) { /* silent */ }
+    const { error } = await supabase.from('user_profiles').update({
+      last_seen_at: new Date().toISOString()
+    }).eq('id', supabaseSession.user.id);
+    if (error) console.warn('[heartbeat] Falha ao atualizar presença:', error.message, '— verifique a RLS policy de UPDATE em user_profiles');
   }
 
   function startHeartbeat() {

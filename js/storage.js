@@ -7,12 +7,8 @@ import SUPABASE_CONFIG, { supabase } from './supabase-config.js';
 const BUCKET = 'teachings';
 
 async function getSession() {
-  // Try to get session from the shared auth instance first
-  if (window.supabaseAuth && window.supabaseAuth.supabase) {
-    const { data } = await window.supabaseAuth.supabase.auth.getSession();
-    if (data?.session) return data.session;
-  }
-  // Fallback: check our own client
+  // Usa apenas o singleton compartilhado de supabase-config.js
+  // (window.supabaseAuth era um padrão legado que criava um segundo cliente)
   const { data } = await supabase.auth.getSession();
   return data?.session;
 }

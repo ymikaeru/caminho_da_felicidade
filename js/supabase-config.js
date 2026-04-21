@@ -14,4 +14,8 @@ const SUPABASE_CONFIG = {
 // This prevents "Multiple GoTrueClient instances" warnings.
 export const supabase = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
 
+// Named exports for Edge Function fetch calls (anon key is safe to expose — it's public by design)
+export const SUPABASE_URL = SUPABASE_CONFIG.url;
+export const SUPABASE_ANON_KEY = SUPABASE_CONFIG.anonKey;
+
 export default SUPABASE_CONFIG;

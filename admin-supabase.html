@@ -7,16 +7,16 @@
   <link rel="stylesheet" href="css/styles.min.css?v=17">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <style>
-    .admin-wrap { max-width: 1000px; margin: 0 auto; padding: 40px 24px 120px; }
+    .admin-wrap { max-width: 1400px; margin: 0 auto; padding: 40px 32px 120px; }
     .admin-section { margin-bottom: 40px; }
     .admin-section h2 { font-size: 1rem; font-weight: 600; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
 
     /* Tabs */
-    .admin-tabs { display: flex; gap: 4px; margin-bottom: 32px; border-bottom: 1px solid var(--border); }
+    .admin-tabs { display: flex; gap: 4px; margin-bottom: 32px; border-bottom: 1px solid var(--border); overflow-x: auto; flex-wrap: nowrap; scrollbar-width: thin; }
     .admin-tab {
-      padding: 10px 20px; cursor: pointer; font-size: 0.9rem; font-weight: 500;
+      padding: 8px 14px; cursor: pointer; font-size: 0.85rem; font-weight: 500;
       color: var(--text-muted); border-bottom: 2px solid transparent; transition: all 0.15s;
-      display: flex; align-items: center; gap: 6px;
+      display: flex; align-items: center; gap: 5px; white-space: nowrap;
     }
     .admin-tab:hover { color: var(--text); }
     .admin-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
@@ -29,6 +29,21 @@
       background: rgba(255,80,80,0.15); color: #e05252;
     }
     .tab-badge.empty { display: none; }
+
+    .tab-group {
+      display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    .tab-group-label {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--accent); opacity: .65;
+      padding: 0 4px 5px; white-space: nowrap;
+    }
+    .tab-group-tabs {
+      display: flex; flex-direction: row;
+    }
+    .tab-group-sep {
+      width: 1px; background: var(--border); margin: 0 8px; align-self: stretch;
+    }
 
     /* Stats cards */
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
@@ -451,11 +466,25 @@
           </div>
 
           <!-- Tabs -->
-          <div class="admin-tabs">
-            <div class="admin-tab active" onclick="switchTab('users')">Usuários</div>
-            <div class="admin-tab" onclick="switchTab('analytics')">Analytics</div>
-            <div class="admin-tab" onclick="switchTab('destaques')">Destaques</div>
-            <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty" id="reportsTabBadge">0</span></div>
+          <div class="admin-tabs" style="align-items:flex-end;">
+            <div class="tab-group">
+              <div class="tab-group-label">Landing Page</div>
+              <div class="tab-group-tabs">
+                <div class="admin-tab" onclick="switchTab('calendar')">📅 Calendário</div>
+                <div class="admin-tab" onclick="switchTab('announcements')">📢 Comunicados</div>
+                <div class="admin-tab" onclick="switchTab('access')">🔑 Acesso</div>
+              </div>
+            </div>
+            <div class="tab-group-sep"></div>
+            <div class="tab-group">
+              <div class="tab-group-label">Caminho da Felicidade</div>
+              <div class="tab-group-tabs">
+                <div class="admin-tab active" onclick="switchTab('users')">👤 Usuários</div>
+                <div class="admin-tab" onclick="switchTab('analytics')">📊 Analytics</div>
+                <div class="admin-tab" onclick="switchTab('destaques')">⭐ Destaques</div>
+                <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty" id="reportsTabBadge">0</span></div>
+              </div>
+            </div>
           </div><!-- /admin-tabs -->
 
           <!-- Users Tab -->
@@ -692,6 +721,202 @@
             <div id="reportsContainer"><div class="loading">Carregando relatórios...</div></div>
           </div>
 
+          <!-- Calendar Tab -->
+          <div class="tab-content" id="tab-calendar">
+            <div style="margin-bottom:24px;">
+              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Calendário CMU</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Eventos exibidos no calendário da landing pública (cmu.org.br).</p>
+            </div>
+            <div class="admin-section">
+              <h2>Novo Evento</h2>
+              <div class="add-user-form" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="form-group">
+                  <label for="cal-date">Data</label>
+                  <input type="date" id="cal-date">
+                  <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:6px;">
+                    <button type="button" onclick="calAtalho(0)"  style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Hoje</button>
+                    <button type="button" onclick="calAtalho(1)"  style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Amanhã</button>
+                    <button type="button" onclick="calAtalho('sab')" style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Próx. sábado</button>
+                    <button type="button" onclick="calAtalho('dom')" style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Próx. domingo</button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="cal-horario">Horário de funcionamento</label>
+                  <select id="cal-horario" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                    <option value="">— sem horário —</option>
+                    <optgroup label="Manhã">
+                      <option>7h00</option>
+                      <option>7h30</option>
+                      <option>8h00</option>
+                      <option>8h30</option>
+                      <option>9h00</option>
+                      <option>9h30</option>
+                      <option>10h00</option>
+                      <option>10h30</option>
+                      <option>11h00</option>
+                      <option>11h30</option>
+                    </optgroup>
+                    <optgroup label="Tarde">
+                      <option>13h00</option>
+                      <option>13h30</option>
+                      <option>14h00</option>
+                      <option>14h30</option>
+                      <option>15h00</option>
+                      <option>15h30</option>
+                      <option>16h00</option>
+                      <option>17h00</option>
+                    </optgroup>
+                    <optgroup label="Noite">
+                      <option>18h00</option>
+                      <option>18h30</option>
+                      <option>19h00</option>
+                      <option>19h30</option>
+                      <option>20h00</option>
+                      <option>20h30</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                  <label for="cal-title">Título do evento</label>
+                  <input type="text" id="cal-title" placeholder="Ex: Reunião mensal">
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                  <label for="cal-desc">Observações (opcional)</label>
+                  <input type="text" id="cal-desc" placeholder="Informações adicionais">
+                </div>
+                <div style="grid-column:1/-1;">
+                  <button id="cal-add-btn" onclick="addCalendarEvent()">Adicionar Evento</button>
+                </div>
+              </div>
+              <div id="cal-msg" class="msg"></div>
+            </div>
+            <div class="admin-section">
+              <h2>Eventos <span id="cal-count" style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
+              <div id="cal-list"><div class="loading">Carregando...</div></div>
+            </div>
+          </div>
+
+          <!-- Announcements Tab -->
+          <div class="tab-content" id="tab-announcements">
+            <div style="margin-bottom:24px;">
+              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Comunicados</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Avisos exibidos na landing pública quando ativos.</p>
+            </div>
+            <div class="admin-section">
+              <h2>Novo Comunicado</h2>
+              <div class="add-user-form">
+                <div class="form-group" style="grid-column:1/-1;">
+                  <label for="ann-title">Título</label>
+                  <input type="text" id="ann-title" placeholder="Ex: Evento especial no domingo">
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                  <label for="ann-body">Corpo (use linha em branco para separar parágrafos)</label>
+                  <textarea id="ann-body" rows="5" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:0.9rem; background:var(--surface, #fff); color:var(--text);" placeholder="Texto do comunicado..."></textarea>
+                </div>
+                <div class="form-group">
+                  <label><input type="checkbox" id="ann-active" checked> Ativo (visível no site)</label>
+                </div>
+                <button id="ann-add-btn" onclick="addAnnouncement()">Publicar</button>
+              </div>
+              <div id="ann-msg" class="msg"></div>
+            </div>
+            <div class="admin-section">
+              <h2>Publicações <span id="ann-count" style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
+              <div id="ann-list"><div class="loading">Carregando...</div></div>
+            </div>
+          </div>
+
+          <!-- Access Tab -->
+          <div class="tab-content" id="tab-access">
+            <div style="margin-bottom:24px;">
+              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Dados de Acesso</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Informações de difusões e casas de Johrei exibidas na landing pública.</p>
+            </div>
+            <div class="admin-section">
+              <h2 id="access-form-title">Novo Registro</h2>
+              <div class="add-user-form" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="form-group">
+                  <label for="access-category">Categoria</label>
+                  <select id="access-category" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                    <option value="sede">Sede Central</option>
+                    <option value="difusao">Difusão</option>
+                    <option value="johrei">Casa de Johrei</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="access-nome">Nome</label>
+                  <input type="text" id="access-nome" placeholder="Ex: Sede Central">
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                  <label for="access-endereco">Endereço</label>
+                  <input type="text" id="access-endereco" placeholder="Ex: Rua das Flores, 123 — São Paulo/SP">
+                </div>
+                <div class="form-group">
+                  <label for="access-dias">Dias de funcionamento</label>
+                  <input type="text" id="access-dias" placeholder="Ex: Terças e Quintas">
+                </div>
+                <div class="form-group">
+                  <label>Horário</label>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <select id="access-horario-ini" style="flex:1; padding:9px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                      <option value="">—</option>
+                      <optgroup label="Manhã">
+                        <option>7h00</option><option>7h30</option><option>8h00</option><option>8h30</option>
+                        <option>9h00</option><option>9h30</option><option>10h00</option><option>10h30</option>
+                        <option>11h00</option><option>11h30</option>
+                      </optgroup>
+                      <optgroup label="Tarde">
+                        <option>13h00</option><option>13h30</option><option>14h00</option><option>14h30</option>
+                        <option>15h00</option><option>15h30</option><option>16h00</option><option>17h00</option>
+                      </optgroup>
+                      <optgroup label="Noite">
+                        <option>18h00</option><option>18h30</option><option>19h00</option><option>19h30</option>
+                        <option>20h00</option><option>20h30</option>
+                      </optgroup>
+                    </select>
+                    <span style="color:var(--text-muted); font-size:0.85rem; flex-shrink:0;">às</span>
+                    <select id="access-horario-fim" style="flex:1; padding:9px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                      <option value="">—</option>
+                      <optgroup label="Manhã">
+                        <option>7h00</option><option>7h30</option><option>8h00</option><option>8h30</option>
+                        <option>9h00</option><option>9h30</option><option>10h00</option><option>10h30</option>
+                        <option>11h00</option><option>11h30</option>
+                      </optgroup>
+                      <optgroup label="Tarde">
+                        <option>13h00</option><option>13h30</option><option>14h00</option><option>14h30</option>
+                        <option>15h00</option><option>15h30</option><option>16h00</option><option>17h00</option>
+                      </optgroup>
+                      <optgroup label="Noite">
+                        <option>18h00</option><option>18h30</option><option>19h00</option><option>19h30</option>
+                        <option>20h00</option><option>20h30</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="access-telefone">Telefone</label>
+                  <input type="text" id="access-telefone" placeholder="Ex: (11) 99999-9999">
+                </div>
+                <div class="form-group">
+                  <label for="access-sort">Ordem</label>
+                  <input type="number" id="access-sort" value="0" min="0" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                </div>
+                <div class="form-group" style="display:flex; align-items:flex-end; padding-bottom:2px;">
+                  <label><input type="checkbox" id="access-active" checked> Ativo (visível no site)</label>
+                </div>
+                <div style="grid-column:1/-1; display:flex; gap:8px; align-items:center;">
+                  <button id="access-add-btn" onclick="saveAccessInfo()">Adicionar</button>
+                  <button id="access-cancel-btn" onclick="resetAccessForm()" style="display:none; padding:9px 16px; border:1px solid var(--border); border-radius:8px; background:none; color:var(--text-muted); font-size:0.9rem; cursor:pointer;">Cancelar edição</button>
+                </div>
+              </div>
+              <div id="access-msg" class="msg"></div>
+            </div>
+            <div class="admin-section">
+              <h2>Registros <span id="access-count" style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
+              <div id="access-list"><div class="loading">Carregando...</div></div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -890,7 +1115,7 @@
     window.switchTab = function(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'users': 0, 'analytics': 1, 'destaques': 2, 'reports': 3 }[tab];
+      const tabIndex = { 'calendar': 0, 'announcements': 1, 'access': 2, 'users': 3, 'analytics': 4, 'destaques': 5, 'reports': 6 }[tab];
       document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'analytics') {
@@ -902,6 +1127,330 @@
       }
       if (tab === 'reports') loadReports();
       if (tab === 'destaques') initHlTab();
+      if (tab === 'calendar') loadCalendarEvents();
+      if (tab === 'announcements') loadAnnouncements();
+      if (tab === 'access') loadAccessInfo();
+    };
+
+    // ============================================================
+    // Calendar Events (landing CMU)
+    // ============================================================
+    function _escapeCmu(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    window.loadCalendarEvents = async function() {
+      const list = document.getElementById('cal-list');
+      const count = document.getElementById('cal-count');
+      list.innerHTML = '<div class="loading">Carregando...</div>';
+      const { data, error } = await supabase
+        .from('calendar_events')
+        .select('id, date, title, description, created_at')
+        .order('date', { ascending: false })
+        .limit(500);
+      if (error) {
+        list.innerHTML = `<div class="msg err">Erro: ${_escapeCmu(error.message)}</div>`;
+        return;
+      }
+      count.textContent = `(${data.length})`;
+      if (!data.length) {
+        list.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Nenhum evento cadastrado.</p>';
+        return;
+      }
+      list.innerHTML = `
+        <table class="data-table">
+          <thead><tr><th>Data</th><th>Título</th><th>Descrição</th><th></th></tr></thead>
+          <tbody>
+            ${data.map(e => `
+              <tr>
+                <td style="white-space:nowrap; font-variant-numeric:tabular-nums;">${_escapeCmu(e.date)}</td>
+                <td><strong>${_escapeCmu(e.title)}</strong></td>
+                <td style="color:var(--text-muted);">${_escapeCmu(e.description || '')}</td>
+                <td><button class="editor-btn-cancel" onclick="deleteCalendarEvent('${e.id}')" style="padding:4px 10px; font-size:0.8rem;">Excluir</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    };
+
+    window.calAtalho = function(alvo) {
+      const d = new Date();
+      if (alvo === 0 || alvo === 1) {
+        d.setDate(d.getDate() + alvo);
+      } else {
+        const alvo_dow = alvo === 'sab' ? 6 : 0;
+        const diff = (alvo_dow - d.getDay() + 7) % 7 || 7;
+        d.setDate(d.getDate() + diff);
+      }
+      document.getElementById('cal-date').value = d.toISOString().slice(0, 10);
+    };
+
+    window.addCalendarEvent = async function() {
+      const date    = document.getElementById('cal-date').value;
+      const title   = document.getElementById('cal-title').value.trim();
+      const horario = document.getElementById('cal-horario').value.trim();
+      const obs     = document.getElementById('cal-desc').value.trim();
+      const description = [horario, obs].filter(Boolean).join(' — ') || null;
+      const msg = document.getElementById('cal-msg');
+      if (!date || !title) {
+        msg.className = 'msg err';
+        msg.textContent = 'Data e título são obrigatórios.';
+        return;
+      }
+      const { error } = await supabase.from('calendar_events').insert({ date, title, description });
+      if (error) {
+        msg.className = 'msg err';
+        msg.textContent = 'Erro: ' + error.message;
+        return;
+      }
+      msg.className = 'msg ok';
+      msg.textContent = 'Evento adicionado.';
+      document.getElementById('cal-date').value = '';
+      document.getElementById('cal-horario').value = '';
+      document.getElementById('cal-title').value = '';
+      document.getElementById('cal-desc').value = '';
+      loadCalendarEvents();
+    };
+
+    window.deleteCalendarEvent = async function(id) {
+      if (!confirm('Excluir este evento?')) return;
+      const { error } = await supabase.from('calendar_events').delete().eq('id', id);
+      if (error) { alert('Erro: ' + error.message); return; }
+      loadCalendarEvents();
+    };
+
+    // ============================================================
+    // Announcements (landing CMU)
+    // ============================================================
+    window.loadAnnouncements = async function() {
+      const list = document.getElementById('ann-list');
+      const count = document.getElementById('ann-count');
+      list.innerHTML = '<div class="loading">Carregando...</div>';
+      const { data, error } = await supabase
+        .from('announcements')
+        .select('id, title, body, published_at, is_active')
+        .order('published_at', { ascending: false })
+        .limit(200);
+      if (error) {
+        list.innerHTML = `<div class="msg err">Erro: ${_escapeCmu(error.message)}</div>`;
+        return;
+      }
+      count.textContent = `(${data.length})`;
+      if (!data.length) {
+        list.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Nenhum comunicado publicado.</p>';
+        return;
+      }
+      list.innerHTML = `
+        <table class="data-table">
+          <thead><tr><th>Publicado</th><th>Título</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${data.map(a => `
+              <tr>
+                <td style="white-space:nowrap; font-variant-numeric:tabular-nums;">${new Date(a.published_at).toLocaleDateString('pt-BR')}</td>
+                <td>
+                  <strong>${_escapeCmu(a.title)}</strong>
+                  <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px; max-width:480px;">${_escapeCmu((a.body || '').slice(0, 140))}${(a.body || '').length > 140 ? '…' : ''}</div>
+                </td>
+                <td>
+                  <label style="display:inline-flex; gap:6px; align-items:center; cursor:pointer;">
+                    <input type="checkbox" ${a.is_active ? 'checked' : ''} onchange="toggleAnnouncement('${a.id}', this.checked)">
+                    ${a.is_active ? '<span style="color:var(--accent); font-size:0.8rem;">Ativo</span>' : '<span style="color:var(--text-muted); font-size:0.8rem;">Inativo</span>'}
+                  </label>
+                </td>
+                <td><button class="editor-btn-cancel" onclick="deleteAnnouncement('${a.id}')" style="padding:4px 10px; font-size:0.8rem;">Excluir</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    };
+
+    window.addAnnouncement = async function() {
+      const title = document.getElementById('ann-title').value.trim();
+      const body = document.getElementById('ann-body').value.trim();
+      const is_active = document.getElementById('ann-active').checked;
+      const msg = document.getElementById('ann-msg');
+      if (!title || !body) {
+        msg.className = 'msg err';
+        msg.textContent = 'Título e corpo são obrigatórios.';
+        return;
+      }
+      const { error } = await supabase.from('announcements').insert({ title, body, is_active });
+      if (error) {
+        msg.className = 'msg err';
+        msg.textContent = 'Erro: ' + error.message;
+        return;
+      }
+      msg.className = 'msg ok';
+      msg.textContent = 'Comunicado publicado.';
+      document.getElementById('ann-title').value = '';
+      document.getElementById('ann-body').value = '';
+      document.getElementById('ann-active').checked = true;
+      loadAnnouncements();
+    };
+
+    window.toggleAnnouncement = async function(id, active) {
+      const { error } = await supabase.from('announcements').update({ is_active: active }).eq('id', id);
+      if (error) { alert('Erro: ' + error.message); return; }
+      loadAnnouncements();
+    };
+
+    window.deleteAnnouncement = async function(id) {
+      if (!confirm('Excluir este comunicado?')) return;
+      const { error } = await supabase.from('announcements').delete().eq('id', id);
+      if (error) { alert('Erro: ' + error.message); return; }
+      loadAnnouncements();
+    };
+
+    // ============================================================
+    // Access Info (difusões e casas de Johrei — landing CMU)
+    // ============================================================
+    let _editingAccessId = null;
+    let _accessInfoMap = {};
+
+    function _collectAccessForm() {
+      return {
+        category:   document.getElementById('access-category').value,
+        nome:       document.getElementById('access-nome').value.trim(),
+        endereco:   document.getElementById('access-endereco').value.trim() || null,
+        dias:       document.getElementById('access-dias').value.trim() || null,
+        horario:    [document.getElementById('access-horario-ini').value, document.getElementById('access-horario-fim').value].filter(Boolean).join(' às ') || null,
+        telefone:   document.getElementById('access-telefone').value.trim() || null,
+        sort_order: Number(document.getElementById('access-sort').value) || 0,
+        is_active:  document.getElementById('access-active').checked,
+      };
+    }
+
+    window.resetAccessForm = function() {
+      _editingAccessId = null;
+      document.getElementById('access-form-title').textContent = 'Novo Registro';
+      document.getElementById('access-category').value = 'difusao';
+      document.getElementById('access-nome').value = '';
+      document.getElementById('access-endereco').value = '';
+      document.getElementById('access-dias').value = '';
+      document.getElementById('access-horario-ini').value = '';
+      document.getElementById('access-horario-fim').value = '';
+      document.getElementById('access-telefone').value = '';
+      document.getElementById('access-sort').value = '0';
+      document.getElementById('access-active').checked = true;
+      document.getElementById('access-add-btn').textContent = 'Adicionar';
+      document.getElementById('access-cancel-btn').style.display = 'none';
+      document.getElementById('access-msg').className = 'msg';
+    };
+
+    window.editAccessInfo = function(id) {
+      const a = _accessInfoMap[id];
+      if (!a) return;
+      _editingAccessId = id;
+      document.getElementById('access-form-title').textContent = 'Editando registro';
+      document.getElementById('access-category').value = a.category || 'difusao';
+      document.getElementById('access-nome').value = a.nome || '';
+      document.getElementById('access-endereco').value = a.endereco || '';
+      document.getElementById('access-dias').value = a.dias || '';
+      const [hIni = '', hFim = ''] = (a.horario || '').split(' às ');
+      document.getElementById('access-horario-ini').value = hIni;
+      document.getElementById('access-horario-fim').value = hFim;
+      document.getElementById('access-telefone').value = a.telefone || '';
+      document.getElementById('access-sort').value = a.sort_order ?? 0;
+      document.getElementById('access-active').checked = a.is_active;
+      document.getElementById('access-add-btn').textContent = 'Atualizar';
+      document.getElementById('access-cancel-btn').style.display = '';
+      document.getElementById('access-nome').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
+    window.saveAccessInfo = async function() {
+      const payload = _collectAccessForm();
+      const msg = document.getElementById('access-msg');
+      if (!payload.nome) {
+        msg.className = 'msg err'; msg.textContent = 'Nome é obrigatório.'; return;
+      }
+      const btn = document.getElementById('access-add-btn');
+      btn.disabled = true;
+      let error;
+      if (_editingAccessId) {
+        ({ error } = await supabase.from('access_info').update(payload).eq('id', _editingAccessId));
+      } else {
+        ({ error } = await supabase.from('access_info').insert(payload));
+      }
+      btn.disabled = false;
+      if (error) { msg.className = 'msg err'; msg.textContent = 'Erro: ' + error.message; return; }
+      msg.className = 'msg ok';
+      msg.textContent = _editingAccessId ? 'Registro atualizado.' : 'Registro adicionado.';
+      resetAccessForm();
+      loadAccessInfo();
+    };
+
+    window.toggleAccessInfo = async function(id, active) {
+      const { error } = await supabase.from('access_info').update({ is_active: active }).eq('id', id);
+      if (error) { alert('Erro: ' + error.message); return; }
+      loadAccessInfo();
+    };
+
+    window.deleteAccessInfo = async function(id) {
+      if (!confirm('Excluir este registro?')) return;
+      const { error } = await supabase.from('access_info').delete().eq('id', id);
+      if (error) { alert('Erro: ' + error.message); return; }
+      loadAccessInfo();
+    };
+
+    window.loadAccessInfo = async function() {
+      const list = document.getElementById('access-list');
+      const count = document.getElementById('access-count');
+      list.innerHTML = '<div class="loading">Carregando...</div>';
+      const { data, error } = await supabase
+        .from('access_info')
+        .select('id, category, nome, endereco, dias, horario, telefone, is_active, sort_order')
+        .order('sort_order', { ascending: true });
+      if (error) {
+        list.innerHTML = `<div class="msg err">Erro: ${_escapeCmu(error.message)}</div>`; return;
+      }
+      _accessInfoMap = {};
+      (data || []).forEach(a => { _accessInfoMap[a.id] = a; });
+      count.textContent = `(${(data || []).length})`;
+      if (!data || !data.length) {
+        list.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Nenhum registro cadastrado.</p>'; return;
+      }
+      list.innerHTML = `
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Categoria</th><th>Nome</th><th>Endereço</th>
+              <th>Dias / Horário</th><th>Telefone</th><th>Ord.</th><th>Status</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(a => `
+              <tr>
+                <td><span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--accent); letter-spacing:.04em;">
+                  ${{ sede: 'Sede', difusao: 'Difusão', johrei: 'Johrei' }[a.category] || a.category}
+                </span></td>
+                <td><strong>${_escapeCmu(a.nome || '')}</strong></td>
+                <td style="font-size:0.82rem; color:var(--text-muted); max-width:200px;">${_escapeCmu(a.endereco || '—')}</td>
+                <td style="font-size:0.82rem;">
+                  ${a.dias    ? `<div>${_escapeCmu(a.dias)}</div>` : ''}
+                  ${a.horario ? `<div style="color:var(--text-muted);">${_escapeCmu(a.horario)}</div>` : ''}
+                  ${!a.dias && !a.horario ? '—' : ''}
+                </td>
+                <td style="font-size:0.82rem; white-space:nowrap;">${_escapeCmu(a.telefone || '—')}</td>
+                <td style="font-variant-numeric:tabular-nums; text-align:center;">${a.sort_order ?? 0}</td>
+                <td>
+                  <label style="display:inline-flex; gap:6px; align-items:center; cursor:pointer;">
+                    <input type="checkbox" ${a.is_active ? 'checked' : ''} onchange="toggleAccessInfo('${a.id}', this.checked)">
+                    ${a.is_active
+                      ? '<span style="color:var(--accent); font-size:0.8rem;">Ativo</span>'
+                      : '<span style="color:var(--text-muted); font-size:0.8rem;">Inativo</span>'}
+                  </label>
+                </td>
+                <td style="white-space:nowrap;">
+                  <button class="reset-btn" onclick="editAccessInfo('${a.id}')">Editar</button>
+                  <button class="delete-btn" onclick="deleteAccessInfo('${a.id}')">Excluir</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
     };
 
     let _reportsLoaded = false;

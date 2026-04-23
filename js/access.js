@@ -103,9 +103,6 @@ function initSmartHome() {
     }
   });
 
-  // Hide global stats footer — reveals total volume/teaching counts to limited users
-  document.querySelectorAll('.volume-stats-footer').forEach(el => el.style.display = 'none');
-
   _applyNavFilter(enabled);
   revealPage();
 }
@@ -121,14 +118,12 @@ function initVolumeFilter(vol) {
   // Volume not in config at all → NO restrictions for this volume!
   if (volConfig == null) {
     _applyNavFilter(getEnabledVolumes(config));
-    document.querySelectorAll('.volume-stats-footer').forEach(el => el.style.display = 'none');
     revealPage();
     return;
   }
 
-  // Always filter nav and hide stats footer
+  // Always filter nav
   _applyNavFilter(getEnabledVolumes(config));
-  document.querySelectorAll('.volume-stats-footer').forEach(el => el.style.display = 'none');
 
   // "all" → The whole volume is BLOCKED
   if (volConfig === 'all') { 

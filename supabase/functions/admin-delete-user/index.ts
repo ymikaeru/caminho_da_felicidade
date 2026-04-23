@@ -1,12 +1,29 @@
 import { serve } from 'https://deno.land/std@0.192.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const ALLOWED_ORIGINS = [
+  'https://www.cmu.org.br',
+  'https://cmu.org.br',
+];
+
+function corsHeaders(req: Request) {
+  const origin = req.headers.get('Origin') || '';
+  const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  const allowed = ALLOWED_ORIGINS.includes(origin) || isLocalhost;
+  return {
+    'Access-Control-Allow-Origin': allowed ? origin : ALLOWED_ORIGINS[0],
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Vary': 'Origin',
+  };
+}
 
 serve(async (req) => {
+  const CORS = corsHeaders(req);
+  const json = (body: object, status: number) => new Response(JSON.stringify(body), {
+    status,
+    headers: { ...CORS, 'Content-Type': 'application/json' },
+  });
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS });
   }
@@ -54,6 +71,29 @@ serve(async (req) => {
       return json({ error: 'Você não pode remover sua própria conta' }, 400);
     }
 
+    // Impede remover o último admin do sistema — se o alvo é admin, confirma
+    // que existe pelo menos mais um admin antes de prosseguir. Sem isso, uma
+    // sequência de deletes poderia deixar o sistema sem nenhum administrador.
+    const { data: targetProfile } = await supabaseAdmin
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user_id)
+      .single();
+
+    if (targetProfile?.role === 'admin') {
+      const { count: adminCount, error: countErr } = await supabaseAdmin
+        .from('user_profiles')
+        .select('id', { count: 'exact', head: true })
+        .eq('role', 'admin');
+
+      if (countErr) {
+        return json({ error: `Falha ao validar admins: ${countErr.message}` }, 500);
+      }
+      if ((adminCount ?? 0) <= 1) {
+        return json({ error: 'Não é possível remover o último administrador do sistema.' }, 400);
+      }
+    }
+
     // Remove dados relacionados nas tabelas públicas em paralelo
     await Promise.all([
       supabaseAdmin.from('user_permissions').delete().eq('user_id', user_id),
@@ -79,10 +119,3 @@ serve(async (req) => {
     return json({ error: (err as Error).message }, 500);
   }
 });
-
-function json(body: object, status: number) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
-  });
-}

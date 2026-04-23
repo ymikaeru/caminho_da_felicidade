@@ -143,6 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.supabaseAuth.logAccess(volId, filename).catch(() => {});
             }
 
+            // Inicia rastreamento de tempo real de leitura (estilo YouTube)
+            if (window._readTimeTracker?.start) {
+                window._readTimeTracker.start(volId, filename).catch(() => {});
+            }
+
             // Show floating "continue reading" button instead of auto-scroll
             if (resolvedTopicIdx !== null && resolvedTopicIdx > 0 && !highlightId) {
                 setTimeout(() => {

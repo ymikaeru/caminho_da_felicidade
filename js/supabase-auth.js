@@ -89,12 +89,12 @@ async function logout() {
   // Clear legacy localStorage keys
   localStorage.removeItem('mioshie_auth');
   localStorage.removeItem('mioshie_access_config');
-  // Clear user-specific data to prevent leakage to next logged-in user
+  // Clear user-specific data to prevent leakage to next logged-in user.
+  // Preserve highlightDeletedKeys/favDeletedKeys tombstones: they represent
+  // deletions that may not have reached the cloud yet.
   localStorage.removeItem('userHighlights');
   localStorage.removeItem('readHistory');
   localStorage.removeItem('savedFavorites');
-  localStorage.removeItem('highlightDeletedKeys');
-  localStorage.removeItem('favDeletedKeys');
   localStorage.removeItem('mioshieSyncQueue');
 }
 

@@ -1012,7 +1012,8 @@
     function _escHtml(str) {
       return String(str ?? '')
         .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;').replace(/`/g, '&#96;');
     }
 
     async function logAdminAction(action, details = {}) {
@@ -1168,7 +1169,7 @@
         .rpc('get_user_highlights_for_admin', { target_user_id: userId });
 
       if (error) {
-        container.innerHTML = `<div class="msg err">Erro ao carregar: ${error.message}</div>`;
+        container.innerHTML = `<div class="msg err">Erro ao carregar: ${_escHtml(error.message)}</div>`;
         return;
       }
 
@@ -1584,7 +1585,7 @@
         .limit(500);
 
       if (error) {
-        container.innerHTML = `<div class="msg err">Erro ao carregar: ${error.message}</div>`;
+        container.innerHTML = `<div class="msg err">Erro ao carregar: ${_escHtml(error.message)}</div>`;
         return;
       }
 
@@ -2176,7 +2177,7 @@
       const { data, error } = await supabase.rpc('admin_get_users');
 
       if (error) {
-        container.innerHTML = `<div class="msg err">Erro ao carregar usuários: ${error.message}</div>`;
+        container.innerHTML = `<div class="msg err">Erro ao carregar usuários: ${_escHtml(error.message)}</div>`;
         return;
       }
 
@@ -2198,26 +2199,37 @@
         return;
       }
 
-      container.innerHTML = '<div class="user-list">' + filtered.map(u => `
-        <div class="user-row ${u.id === selectedUserId ? 'active' : ''}" onclick="selectUser('${u.id}')">
-          <div class="user-avatar">${(u.display_name || 'U')[0].toUpperCase()}</div>
+      // _escHtml em todos os campos controláveis pelo usuário (display_name, email).
+      // UUIDs e roles vêm do Supabase e também são escapados por defesa em profundidade.
+      container.innerHTML = '<div class="user-list">' + filtered.map(u => {
+        const idEsc = _escHtml(u.id);
+        const nameEsc = _escHtml(u.display_name || 'Sem nome');
+        const emailEsc = _escHtml(u.email || '');
+        const emailDisplay = _escHtml(u.email || '—');
+        const initial = _escHtml((u.display_name || 'U')[0].toUpperCase());
+        const roleEsc = _escHtml(u.role || '');
+        const createdEsc = _escHtml(new Date(u.created_at).toLocaleDateString('pt-BR'));
+        return `
+        <div class="user-row ${u.id === selectedUserId ? 'active' : ''}" onclick="selectUser('${idEsc}')">
+          <div class="user-avatar">${initial}</div>
           <div class="user-info">
-            <div class="user-name">${u.display_name || 'Sem nome'}
-              <button class="reset-btn" onclick="event.stopPropagation(); resetPassword('${u.id}', '${u.email || ''}')" title="Resetar senha">🔑 reset</button>
+            <div class="user-name">${nameEsc}
+              <button class="reset-btn" onclick="event.stopPropagation(); resetPassword('${idEsc}', '${emailEsc}')" title="Resetar senha">🔑 reset</button>
             </div>
-            <div class="user-email">${u.email || '—'}</div>
-            <div class="user-meta">Criado em ${new Date(u.created_at).toLocaleDateString('pt-BR')}</div>
+            <div class="user-email">${emailDisplay}</div>
+            <div class="user-meta">Criado em ${createdEsc}</div>
           </div>
           <div class="user-actions">
-            <span class="user-badge ${u.role}">${u.role}</span>
-            <select class="role-select" onclick="event.stopPropagation()" onchange="changeRole('${u.id}', this.value)">
+            <span class="user-badge ${roleEsc}">${roleEsc}</span>
+            <select class="role-select" onclick="event.stopPropagation()" onchange="changeRole('${idEsc}', this.value)">
               <option value="user" ${u.role === 'user' ? 'selected' : ''}>User</option>
               <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
             </select>
-            <button class="delete-btn" onclick="event.stopPropagation(); deleteUser('${u.id}')">✕</button>
+            <button class="delete-btn" onclick="event.stopPropagation(); deleteUser('${idEsc}')">✕</button>
           </div>
         </div>
-      `).join('') + '</div>';
+      `;
+      }).join('') + '</div>';
     }
 
     window.filterUsers = function() { renderUserList(); };
@@ -2611,41 +2623,36 @@
         progressBar.style.width = pct + '%';
         progressLabel.textContent = `Aplicando para ${user.display_name || user.email} (${done + 1}/${nonAdminUsers.length})...`;
 
-        // Snapshot existing permissions so we can rollback if insert fails
-        // (prevents leaving user with empty permissions after a partial failure)
-        let snapshot = null;
+        // Upsert-then-delete-stale — nunca deixa o usuário sem restrições
+        // mesmo por uma janela curta. Exige UNIQUE(user_id, volume) — confirmado.
         try {
-          const { data: prevRows, error: snapErr } = await supabase
-            .from('user_permissions')
-            .select('volume, files')
-            .eq('user_id', user.id);
-          if (snapErr) throw snapErr;
-          snapshot = prevRows || [];
-
-          const { error: delErr } = await supabase
-            .from('user_permissions')
-            .delete()
-            .eq('user_id', user.id);
-          if (delErr) throw delErr;
-
           if (defaultPerms.length > 0) {
             const rows = defaultPerms.map(p => ({ user_id: user.id, volume: p.volume, files: p.files }));
-            const { error: insErr } = await supabase.from('user_permissions').insert(rows);
-            if (insErr) {
-              // Rollback: restore previous permissions
-              if (snapshot.length > 0) {
-                const restoreRows = snapshot.map(r => ({ user_id: user.id, volume: r.volume, files: r.files }));
-                const { error: rbErr } = await supabase.from('user_permissions').insert(restoreRows);
-                if (rbErr) console.error(`[applyDefault] Rollback falhou para ${user.id}:`, rbErr.message);
-              }
-              throw insErr;
-            }
+            const { error: upsertErr } = await supabase
+              .from('user_permissions')
+              .upsert(rows, { onConflict: 'user_id,volume' });
+            if (upsertErr) throw upsertErr;
+          }
+
+          // Remove apenas volumes antigos que não estão no default atual.
+          // Se defaultPerms estiver vazio, remove tudo (= acesso total intencional).
+          const keepVolumes = defaultPerms.map(p => p.volume);
+          let delQuery = supabase.from('user_permissions').delete().eq('user_id', user.id);
+          if (keepVolumes.length > 0) {
+            delQuery = delQuery.not('volume', 'in', `(${keepVolumes.map(v => `"${v}"`).join(',')})`);
+          }
+          const { error: delErr } = await delQuery;
+          if (delErr) {
+            // Upsert já funcionou: usuário tem as restrições novas, mas pode
+            // ter restrições antigas extras. É um estado MAIS restritivo que o
+            // esperado, não menos — não é crítico de segurança.
+            throw new Error(`Restrições aplicadas, mas limpeza de antigas falhou: ${delErr.message}`);
           }
 
           successes++;
         } catch (e) {
           console.error(`[applyDefault] Falhou para ${user.id} (${user.email}):`, e.message);
-          failures.push({ user: user.display_name || user.email, reason: e.message });
+          failures.push({ user: user.display_name || user.email, reason: e.message, critical: false });
         }
 
         done++;
@@ -2754,6 +2761,25 @@
       if (role === 'admin' && !confirm('Dar permissão de ADMIN para este usuário?')) {
         loadUsers();
         return;
+      }
+
+      // Impede rebaixar o último admin do sistema (espelho do check da edge
+      // function de delete). Sem isso, poderia ficar sem nenhum administrador.
+      if (existing?.role === 'admin' && role !== 'admin') {
+        const { count: adminCount, error: countErr } = await supabase
+          .from('user_profiles')
+          .select('id', { count: 'exact', head: true })
+          .eq('role', 'admin');
+        if (countErr) {
+          alert('Erro ao validar quantidade de admins: ' + countErr.message);
+          loadUsers();
+          return;
+        }
+        if ((adminCount ?? 0) <= 1) {
+          alert('Não é possível rebaixar o último administrador do sistema.');
+          loadUsers();
+          return;
+        }
       }
 
       const { error } = await supabase
@@ -3089,7 +3115,7 @@
         const maxCount = sorted.length > 0 ? sorted[0][1] : 1;
         document.getElementById('search-trends').innerHTML = sorted.map(([query, count]) => {
           const isHot = count >= maxCount * 0.5;
-          return `<span class="search-tag ${isHot ? 'hot' : ''}">${query} (${count})</span>`;
+          return `<span class="search-tag ${isHot ? 'hot' : ''}">${_escHtml(query)} (${count})</span>`;
         }).join('');
         return;
       }
@@ -3105,7 +3131,7 @@
 
       document.getElementById('search-trends').innerHTML = sorted.map(([query, count]) => {
         const isHot = count >= maxCount * 0.5;
-        return `<span class="search-tag ${isHot ? 'hot' : ''}">${query} (${count})</span>`;
+        return `<span class="search-tag ${isHot ? 'hot' : ''}">${_escHtml(query)} (${count})</span>`;
       }).join('');
     }
 

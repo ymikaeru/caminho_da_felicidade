@@ -19,7 +19,15 @@ async function checkSupabaseAuth() {
   if (!session) return false;
 
   supabaseSession = session;
-  await loadUserPermissions(session.user.id);
+  try {
+    await loadUserPermissions(session.user.id);
+  } catch (e) {
+    // Fail-closed: preserva o estado anterior em localStorage e retorna false
+    // para que o fluxo caia no checkAuth() legado (usa o último estado
+    // conhecido) em vez de rebaixar o usuário para 'full'.
+    console.warn('[checkSupabaseAuth] Permissões não puderam ser carregadas — mantendo estado anterior.');
+    return false;
+  }
 
   // Same cross-user guard as login flow: if the browser still has data tagged
   // with a different user_id, wipe it before any sync happens.
@@ -38,18 +46,31 @@ async function checkSupabaseAuth() {
 }
 
 async function loadUserPermissions(userId) {
-  const { data: profile } = await supabase
+  const { data: profile, error: profileErr } = await supabase
     .from('user_profiles')
     .select('role')
     .eq('id', userId)
     .single();
 
+  // Fail-closed: se a leitura do perfil falhar, NÃO sobrescrevemos o estado
+  // local. Isso evita que uma falha transitória (RLS, rede, token) rebaixe
+  // um usuário 'limited' para 'full' silenciosamente.
+  if (profileErr) {
+    console.error('[loadUserPermissions] Falha ao carregar perfil:', profileErr);
+    throw profileErr;
+  }
+
   isAdminRole = profile?.role === 'admin';
 
-  const { data: perms } = await supabase
+  const { data: perms, error: permsErr } = await supabase
     .from('user_permissions')
     .select('volume, files')
     .eq('user_id', userId);
+
+  if (permsErr) {
+    console.error('[loadUserPermissions] Falha ao carregar permissões:', permsErr);
+    throw permsErr;
+  }
 
   if (perms && perms.length > 0) {
     userPermissions = {};

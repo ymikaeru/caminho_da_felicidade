@@ -143,6 +143,10 @@
     window._syncQueue = { init: initSyncQueue, queueSaveHighlight, queueRemoveHighlight, getStatus: getQueueStatus };
     initSyncQueue().catch(err => console.warn('[sync-queue] init failed:', err));
   </script>
+  <script type="module">
+    import { startTracking, stopTracking } from './js/read-time-tracker.js';
+    window._readTimeTracker = { start: startTracking, stop: stopTracking };
+  </script>
   <script type="module" src="js/login.js?v=5"></script>
   <script src="js/modals.js?v=1"></script>
   <script>

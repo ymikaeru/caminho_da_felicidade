@@ -22,6 +22,7 @@
     .admin-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+    #tab-destaques.active { display: flex; flex-direction: column; min-height: calc(100vh - 240px); }
     .tab-badge {
       display: inline-flex; align-items: center; justify-content: center;
       min-width: 18px; height: 18px; padding: 0 5px;
@@ -294,14 +295,61 @@
     }
 
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    @media (max-width: 700px) { 
-      .two-col { grid-template-columns: 1fr; } 
+    @media (max-width: 700px) {
+      .admin-wrap { padding: 24px 12px 100px; }
+      .two-col { grid-template-columns: 1fr; gap: 16px; }
       .user-row { flex-wrap: wrap; padding: 12px 14px; }
       .user-info { min-width: calc(100% - 48px); margin-bottom: 4px; }
       .user-actions { width: 100%; justify-content: flex-end; padding-left: 48px; border-top: 1px dashed var(--border); padding-top: 10px; margin-top: 6px; }
-      .add-user-form { flex-direction: column; align-items: stretch; }
-      .add-user-form .form-group { width: 100%; min-width: 100%; }
+      .add-user-form { flex-direction: column; align-items: stretch; grid-template-columns: 1fr !important; }
+      .add-user-form .form-group { width: 100%; min-width: 100%; grid-column: 1/-1 !important; }
       .add-user-form button { margin-top: 4px; }
+      .add-user-form input, .add-user-form select, .add-user-form textarea { font-size: 16px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .stat-card { padding: 12px; }
+      .stat-value { font-size: 1.3rem; }
+      .stat-label { font-size: 0.6rem; }
+      .engagement-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .engagement-card { padding: 10px; }
+      .retention-circle { width: 60px; height: 60px; font-size: 1.1rem; border-width: 2px; }
+      .admin-section { overflow-x: auto; }
+      .admin-section h2 { font-size: 0.9rem; }
+      .data-table { font-size: 0.78rem; }
+      .data-table th, .data-table td { padding: 8px 8px; }
+      .chart-bar-label { width: 80px; font-size: 0.7rem; }
+      .chart-bar-value { font-size: 0.7rem; width: 36px; }
+      .heatmap-cell { border-radius: 2px; }
+      .online-count { font-size: 1.1rem; }
+      .report-summary-bar { gap: 8px; }
+      .report-summary-item { padding: 10px 12px; min-width: 100px; }
+      .report-summary-item .val { font-size: 1.2rem; }
+      .report-header { font-size: 0.78rem; }
+      .report-user { margin-left: 0; }
+      .editor-card { width: 100%; height: 100vh; border-radius: 0; max-width: 100%; }
+      .topic-split-col { padding: 12px; }
+      .user-detail-card { padding: 20px; max-height: 90vh; }
+      .period-select { margin-left: 0; margin-top: 8px; }
+      .ranking-bar-track { display: none; }
+      .ranking-value { width: auto; }
+      .ranking-name { font-size: 0.8rem; }
+      .apply-all-btn { width: 100%; justify-content: center; }
+      .default-perm-header { padding: 12px 14px; }
+      .default-perm-body { padding: 14px; }
+      /* Formulário de Localização — empilhar selects de horário no mobile */
+      #tab-access .add-user-form > .form-group > div[style*="display:flex"] {
+        flex-direction: column !important; align-items: stretch !important; gap: 6px !important;
+      }
+      #tab-access .add-user-form > .form-group > div[style*="display:flex"] > span {
+        text-align: center; font-size: 0.75rem;
+      }
+      #tab-access #access-horario-ini,
+      #tab-access #access-horario-fim {
+        width: 100% !important; font-size: 16px !important;
+      }
+      #tab-access .add-user-form select,
+      #tab-access .add-user-form input {
+        padding: 10px 12px !important;
+      }
     }
 
     /* Line chart (SVG-based) */
@@ -422,6 +470,25 @@
       padding: 8px 12px; border-left: 3px solid rgba(255,160,0,0.4);
       background: rgba(255,160,0,0.04); border-radius: 0 6px 6px 0;
       font-style: italic; color: var(--text); word-break: break-word;
+    }
+    .report-text mark.report-selected {
+      background: #fff3a1; color: var(--text);
+      padding: 1px 3px; border-radius: 3px;
+      font-style: normal; font-weight: 500;
+      box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.35);
+    }
+    /* Destacar o trecho reportado no editor estruturado */
+    .seg-editable mark.editor-report-highlight,
+    .topic-readonly-text mark.editor-report-highlight {
+      background: #ffe14a; color: #2a2200;
+      padding: 1px 3px; border-radius: 3px;
+      box-shadow: 0 0 0 1px rgba(212, 145, 25, 0.55);
+      font-weight: 500;
+      animation: reportPulse 1.4s ease-in-out 3;
+    }
+    @keyframes reportPulse {
+      0%, 100% { box-shadow: 0 0 0 1px rgba(212, 145, 25, 0.55); background: #ffe14a; }
+      50% { box-shadow: 0 0 0 5px rgba(255, 180, 30, 0.45); background: #ffd34a; }
     }
     .report-description { font-size: 0.82rem; color: var(--text); line-height: 1.5; margin-top: 6px; }
     .report-description::before { content: '💬 '; opacity: 0.6; }
@@ -702,14 +769,14 @@
                      oninput="filterHlUsers()"
                      style="flex:1; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; box-sizing:border-box;">
             </div>
-            <div id="hl-user-list" style="display:flex; flex-direction:column; gap:6px; max-height:260px; overflow-y:auto; margin-bottom:24px;"></div>
+            <div id="hl-user-list" style="display:flex; flex-direction:column; gap:6px; margin-bottom:24px;"></div>
             <div id="hl-results-header" style="display:none; align-items:center; margin-bottom:16px; gap:10px;">
               <div style="flex:1;">
                 <span style="font-size:0.9rem; font-weight:600;" id="hl-selected-name"></span>
                 <span style="font-size:0.8rem; color:var(--text-muted); margin-left:8px;" id="hl-total-count"></span>
               </div>
             </div>
-            <div id="hl-results-container"></div>
+            <div id="hl-results-container" style="flex:1; min-height: 45vh;"></div>
           </div>
 
           <!-- Reports Tab -->
@@ -862,6 +929,7 @@
                   <label for="access-category">Categoria</label>
                   <select id="access-category" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
                     <option value="sede">Sede Central</option>
+                    <option value="regional">Regional</option>
                     <option value="difusao">Difusão</option>
                     <option value="johrei">Casa de Johrei</option>
                   </select>
@@ -1005,6 +1073,19 @@
     let allUsers = [];
     let selectedUserId = null;
     let volumeCategories = {};
+    let _adminIds = new Set();
+
+    async function _loadAdminIds() {
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('id')
+          .eq('role', 'admin');
+        _adminIds = new Set((data || []).map(u => u.id));
+      } catch (e) {
+        console.warn('[_loadAdminIds] failed:', e.message);
+      }
+    }
 
     let _onlineRefreshInterval = null;
 
@@ -1106,7 +1187,25 @@
     }
 
     // ── Destaques Tab ─────────────────────────────────────────────
-    function initHlTab() {
+    let _hlCountByUser = null; // Map<userId, number>
+
+    async function _loadHighlightCounts() {
+      if (_hlCountByUser) return _hlCountByUser;
+      const counts = new Map();
+      try {
+        // Traz só user_id (campo leve) — contagem client-side agrupada por usuário
+        const { data, error } = await supabase.from('user_highlights').select('user_id');
+        if (error) throw error;
+        (data || []).forEach(h => counts.set(h.user_id, (counts.get(h.user_id) || 0) + 1));
+      } catch (e) {
+        console.warn('[_loadHighlightCounts] falhou:', e.message);
+      }
+      _hlCountByUser = counts;
+      return counts;
+    }
+
+    async function initHlTab() {
+      await _loadHighlightCounts();
       const q = (document.getElementById('hl-user-search')?.value || '').toLowerCase();
       const filtered = q
         ? allUsers.filter(u => (u.display_name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q))
@@ -1129,16 +1228,25 @@
         container.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding:8px 0;">Nenhum usuário encontrado.</div>';
         return;
       }
-      container.innerHTML = users.map(u => `
+      // Ordena: quem tem mais destaques aparece primeiro (facilita varredura)
+      const counts = _hlCountByUser || new Map();
+      const withCounts = users.map(u => ({ u, count: counts.get(u.id) || 0 }));
+      withCounts.sort((a, b) => b.count - a.count);
+
+      container.innerHTML = withCounts.map(({ u, count }) => {
+        const active = count > 0;
+        const badge = `<span title="${count} destaque${count !== 1 ? 's' : ''}" style="flex-shrink:0; display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; background:${active ? 'rgba(184,134,11,0.14)' : 'rgba(120,120,120,0.10)'}; color:${active ? 'var(--accent)' : 'var(--text-muted)'}; font-size:0.78rem; font-weight:700;">🖍 ${count}</span>`;
+        return `
         <div class="user-row" onclick="loadUserHighlights('${u.id}', '${_escHtml(u.display_name || u.email || 'Usuário')}')">
           <div class="user-avatar">${(u.display_name || u.email || '?')[0].toUpperCase()}</div>
           <div class="user-info">
             <div class="user-name">${_escHtml(u.display_name || '')}</div>
             <div class="user-email">${_escHtml(u.email || '')}</div>
           </div>
-          <div class="user-meta" style="flex-shrink:0; font-size:0.75rem; color:var(--text-muted);">${_escHtml(u.role || 'user')}</div>
-        </div>
-      `).join('');
+          <div class="user-meta" style="flex-shrink:0; font-size:0.75rem; color:var(--text-muted); margin-left:auto;">${_escHtml(u.role || 'user')}</div>
+          ${badge}
+        </div>`;
+      }).join('');
     }
 
     function getFileTitle(volume, file) {
@@ -1537,7 +1645,7 @@
             ${data.map(a => `
               <tr>
                 <td><span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--accent); letter-spacing:.04em;">
-                  ${{ sede: 'Sede', difusao: 'Difusão', johrei: 'Johrei' }[a.category] || a.category}
+                  ${{ sede: 'Sede', regional: 'Regional', difusao: 'Difusão', johrei: 'Johrei' }[a.category] || a.category}
                 </span></td>
                 <td><strong>${_escapeCmu(a.nome || '')}</strong></td>
                 <td style="font-size:0.82rem; color:var(--text-muted); max-width:200px;">${_escapeCmu(a.endereco || '—')}</td>
@@ -1659,7 +1767,7 @@
              </button>`
           : `<span class="report-verified-tag">✓ Verificado</span>`;
 
-        const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditor('${r.vol}', '${r.file}')" title="Abrir e editar arquivo original">✏️ Editar</button>`;
+        const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
 
         return `
           <div class="report-card" id="report-card-${r.id}">
@@ -1677,7 +1785,7 @@
                 ${verifyBtn}
               </div>
             </div>
-            <div class="report-text">${escapedText}</div>
+            <div class="report-text"><mark class="report-selected">${escapedText}</mark></div>
             ${escapedDesc ? `<div class="report-description">${escapedDesc}</div>` : ''}
           </div>`;
       }
@@ -1823,12 +1931,20 @@
     let _currentEditVol = null;
     let _currentEditFile = null;
     let _currentEditJson = null;
+    let _currentReportHighlight = null; // { text, lang }
 
-    window.openEditor = async function(vol, file) {
+    window.openEditorFromReport = function(reportId) {
+      const r = (_allReports || []).find(x => x.id === reportId);
+      if (!r) return;
+      openEditor(r.vol, r.file, { text: r.selected_text, lang: r.lang });
+    };
+
+    window.openEditor = async function(vol, file, reportHighlight = null) {
       if (!vol || !file) return;
       _currentEditVol = vol;
       _currentEditFile = file.endsWith('.json') ? file : file + '.json';
       _currentEditJson = null;
+      _currentReportHighlight = reportHighlight && reportHighlight.text ? reportHighlight : null;
 
       const modal = document.getElementById('editor-modal');
       const textarea = document.getElementById('editor-textarea');
@@ -1862,7 +1978,12 @@
           if (_currentEditJson.themes) {
             structuredBody.style.display = 'flex';
             renderStructuredEditor(_currentEditJson);
-            hint.innerHTML = '💡 <strong>Dica:</strong> Use <b>Ctrl+F</b> para buscar palavras. Edite apenas as caixas da direita (Português).';
+            if (_currentReportHighlight) {
+              hint.innerHTML = '🖍️ <strong>Trecho reportado destacado em amarelo.</strong> Edite apenas a caixa da direita (Português).';
+              setTimeout(() => _highlightReportedPassage(_currentReportHighlight), 50);
+            } else {
+              hint.innerHTML = '💡 <strong>Dica:</strong> Use <b>Ctrl+F</b> para buscar palavras. Edite apenas as caixas da direita (Português).';
+            }
           } else {
             throw new Error('No themes array found');
           }
@@ -1956,6 +2077,141 @@
       });
     }
 
+    // Localiza o trecho reportado pelo usuário dentro do editor estruturado e
+    // aplica um <mark> amarelo em todas as ocorrências, além de rolar até a primeira.
+    function _highlightReportedPassage({ text, lang }) {
+      if (!text) return;
+      const needle = text.replace(/\s+/g, ' ').trim();
+      if (!needle) return;
+
+      const ptSegs = document.querySelectorAll('#editor-structured-body .seg-editable');
+      const jaSegs = document.querySelectorAll('#editor-structured-body .topic-readonly-text');
+      const candidates = lang === 'ja' ? [jaSegs, ptSegs] : [ptSegs, jaSegs];
+
+      let firstMark = null;
+      let anyMatch = false;
+      for (const list of candidates) {
+        for (const el of list) {
+          const count = _wrapAllMatchesInElement(el, needle);
+          if (count > 0) {
+            anyMatch = true;
+            if (!firstMark) firstMark = el.querySelector('mark.editor-report-highlight');
+          }
+        }
+        if (anyMatch) break;
+      }
+
+      if (firstMark) {
+        firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return true;
+      }
+
+      const hint = document.getElementById('editor-search-hint');
+      if (hint) {
+        hint.innerHTML = '⚠ <strong>Trecho reportado não foi localizado automaticamente.</strong> Use <b>Ctrl+F</b> para buscar: <em>' + _escHtml(needle.slice(0, 80)) + (needle.length > 80 ? '…' : '') + '</em>';
+      }
+      return false;
+    }
+
+    // Envolve TODAS as ocorrências de `needle` (texto plano, whitespace-insensitive)
+    // em <mark>. Constrói um mapa de caracteres da versão normalizada → offsets
+    // originais para lidar com quebras de linha, espaços duplos e NBSP.
+    function _wrapAllMatchesInElement(root, needle) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+      const nodes = [];
+      let n;
+      while ((n = walker.nextNode())) nodes.push(n);
+      if (!nodes.length) return 0;
+
+      // Monta combined + charMap: charMap[i] = offset original do i-ésimo char normalizado
+      let combined = '';
+      const nodeMap = [];
+      for (const node of nodes) {
+        nodeMap.push({ node, start: combined.length, end: combined.length + node.nodeValue.length });
+        combined += node.nodeValue;
+      }
+      // Normaliza combined colapsando whitespace (inclui NBSP \u00A0) e mantém charMap
+      let normalized = '';
+      const charMap = [];
+      let prevWasSpace = false;
+      for (let i = 0; i < combined.length; i++) {
+        const ch = combined[i];
+        if (/[\s\u00A0]/.test(ch)) {
+          if (!prevWasSpace && normalized.length > 0) {
+            normalized += ' ';
+            charMap.push(i);
+          }
+          prevWasSpace = true;
+        } else {
+          normalized += ch;
+          charMap.push(i);
+          prevWasSpace = false;
+        }
+      }
+      // Remove espaço trailing se houver
+      if (normalized.endsWith(' ')) {
+        normalized = normalized.slice(0, -1);
+        charMap.pop();
+      }
+
+      const needleNorm = needle.replace(/[\s\u00A0]+/g, ' ').trim();
+      if (!needleNorm) return 0;
+
+      // Encontra todas as ocorrências do needle em normalized
+      const ranges = [];
+      let searchFrom = 0;
+      while (true) {
+        const idx = normalized.indexOf(needleNorm, searchFrom);
+        if (idx === -1) break;
+        const startIdx = idx;
+        const endIdx = idx + needleNorm.length - 1;
+        if (startIdx >= charMap.length || endIdx >= charMap.length) break;
+        const startOffset = charMap[startIdx];
+        // endOffset é inclusivo no charMap; precisa ser exclusivo para Range
+        const endOffset = charMap[endIdx] + 1;
+        ranges.push({ startOffset, endOffset });
+        searchFrom = idx + Math.max(1, needleNorm.length);
+      }
+
+      if (!ranges.length) return 0;
+
+      // Envolve do último para o primeiro para preservar offsets
+      let wrapped = 0;
+      for (let r = ranges.length - 1; r >= 0; r--) {
+        const { startOffset, endOffset } = ranges[r];
+        let startNode = null, startDelta = 0, endNode = null, endDelta = 0;
+        for (const m of nodeMap) {
+          if (startNode === null && startOffset >= m.start && startOffset < m.end) {
+            startNode = m.node; startDelta = startOffset - m.start;
+          }
+          if (endOffset > m.start && endOffset <= m.end) {
+            endNode = m.node; endDelta = endOffset - m.start;
+          }
+        }
+        if (!startNode || !endNode) continue;
+        try {
+          const range = document.createRange();
+          range.setStart(startNode, startDelta);
+          range.setEnd(endNode, endDelta);
+          const mark = document.createElement('mark');
+          mark.className = 'editor-report-highlight';
+          try {
+            range.surroundContents(mark);
+          } catch (_) {
+            // surroundContents falha se o range cruza boundaries de elemento.
+            // Fallback: extrai conteúdo e envolve.
+            const frag = range.extractContents();
+            mark.appendChild(frag);
+            range.insertNode(mark);
+          }
+          wrapped++;
+        } catch (e) {
+          console.warn('[_wrapAllMatchesInElement] failed:', e);
+        }
+      }
+      return wrapped;
+    }
+
     function _sanitizeSegHtml(html) {
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
@@ -1970,6 +2226,12 @@
         while (span.firstChild) parent.insertBefore(span.firstChild, span);
         parent.removeChild(span);
       });
+      // Desembrulha <mark>s — grifo visual do relatório, não deve persistir
+      tmp.querySelectorAll('mark').forEach(mark => {
+        const parent = mark.parentNode;
+        while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+        parent.removeChild(mark);
+      });
       return tmp.innerHTML.trim();
     }
 
@@ -1978,6 +2240,7 @@
       _currentEditVol = null;
       _currentEditFile = null;
       _currentEditJson = null;
+      _currentReportHighlight = null;
     };
 
     window.saveEditor = async function() {
@@ -2432,26 +2695,74 @@
       chevron.classList.toggle('open', !isOpen);
     };
 
-    const DEFAULT_PERM_KEY = 'mioshie_admin_default_perms';
+    // Legacy key — só lido uma vez para migrar o config antigo (por-navegador)
+    // para o admin_settings compartilhado. Depois disso é ignorado.
+    const DEFAULT_PERM_LEGACY_KEY = 'mioshie_admin_default_perms';
+    const DEFAULT_PERM_SETTING_KEY = 'default_permissions';
 
+    let _saveDefaultPermTimer = null;
     window.saveDefaultPermState = function() {
-      const panel = document.getElementById('default-perm-volumes');
-      if (!panel) return;
-      const state = {};
-      panel.querySelectorAll(':scope > .vol-block').forEach(volBlock => {
-        const volKey = volBlock.dataset.vol;
-        const allCb = volBlock.querySelector(':scope > .vol-body > div:first-child input[type=checkbox]');
-        const files = Array.from(volBlock.querySelectorAll('.file-list input[type=checkbox]:checked')).map(cb => cb.value);
-        state[volKey] = { blockAll: allCb?.checked || false, files };
-      });
-      localStorage.setItem(DEFAULT_PERM_KEY, JSON.stringify(state));
+      // Debounce — os handlers inline disparam em cascata (toggleDefaultVolume
+      // chama saveDefaultPermState para cada file cb). 150ms agrupa tudo em
+      // um único upsert.
+      clearTimeout(_saveDefaultPermTimer);
+      _saveDefaultPermTimer = setTimeout(async () => {
+        const panel = document.getElementById('default-perm-volumes');
+        if (!panel) return;
+        const state = {};
+        panel.querySelectorAll(':scope > .vol-block').forEach(volBlock => {
+          const volKey = volBlock.dataset.vol;
+          const allCb = volBlock.querySelector(':scope > .vol-body > div:first-child input[type=checkbox]');
+          const files = Array.from(volBlock.querySelectorAll('.file-list input[type=checkbox]:checked')).map(cb => cb.value);
+          state[volKey] = { blockAll: allCb?.checked || false, files };
+        });
+        const { error } = await supabase.from('admin_settings').upsert({
+          key: DEFAULT_PERM_SETTING_KEY,
+          value: state,
+          updated_at: new Date().toISOString(),
+          updated_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+        }, { onConflict: 'key' });
+        if (error) console.error('[saveDefaultPermState] Supabase:', error.message);
+      }, 150);
     };
 
-    function restoreDefaultPermState() {
-      const saved = localStorage.getItem(DEFAULT_PERM_KEY);
-      if (!saved) return;
+    async function restoreDefaultPermState() {
+      let state = null;
+
+      const { data, error } = await supabase
+        .from('admin_settings')
+        .select('value')
+        .eq('key', DEFAULT_PERM_SETTING_KEY)
+        .maybeSingle();
+      if (error) {
+        console.error('[restoreDefaultPerm] Supabase:', error.message);
+        return;
+      }
+      if (data?.value) {
+        state = data.value;
+      } else {
+        // Fallback: se havia config legacy em localStorage (admin anterior à
+        // migração), importa e persiste no Supabase para os outros admins.
+        const legacy = localStorage.getItem(DEFAULT_PERM_LEGACY_KEY);
+        if (legacy) {
+          try {
+            state = JSON.parse(legacy);
+            await supabase.from('admin_settings').upsert({
+              key: DEFAULT_PERM_SETTING_KEY,
+              value: state,
+              updated_at: new Date().toISOString(),
+              updated_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+            }, { onConflict: 'key' });
+            localStorage.removeItem(DEFAULT_PERM_LEGACY_KEY);
+          } catch (e) {
+            console.error('[restoreDefaultPerm] legacy parse:', e);
+          }
+        }
+      }
+
+      if (!state) return;
+
       try {
-        const state = JSON.parse(saved);
         const panel = document.getElementById('default-perm-volumes');
         if (!panel) return;
         Object.entries(state).forEach(([volKey, config]) => {
@@ -2467,7 +2778,6 @@
               if (cb) cb.checked = true;
             });
           }
-          // Sync section and volume header checkboxes
           volBlock.querySelectorAll('.file-list input[type=checkbox]').forEach(cb => updateParentChecks(cb));
         });
       } catch(e) { console.error('[restoreDefaultPerm]', e); }
@@ -2912,6 +3222,8 @@
       const days = getPeriodDays();
       const since = new Date(Date.now() - days * 86400000).toISOString();
 
+      await _loadAdminIds();
+
       loadOnlineUsers();
       loadOverviewStats(days, since);
       loadVolumePopularity(days, since);
@@ -2939,6 +3251,7 @@
           .from('user_profiles')
           .select('id, display_name, last_seen_at')
           .not('last_seen_at', 'is', null)
+          .neq('role', 'admin')
           .gte('last_seen_at', cutoff60)
           .order('last_seen_at', { ascending: false }),
         supabase
@@ -2955,9 +3268,10 @@
         activityMap.set(p.id, { name: p.display_name, lastSeen: new Date(p.last_seen_at), lastVol: null, lastFile: null });
       }
 
-      // Agrupa logs: guarda o mais recente por usuário
+      // Agrupa logs: guarda o mais recente por usuário (ignorando admins)
       const logLatest = new Map();
       for (const l of (logsRes.data || [])) {
+        if (_adminIds.has(l.user_id)) continue;
         const t = new Date(l.created_at);
         if (!logLatest.has(l.user_id) || t > logLatest.get(l.user_id).t)
           logLatest.set(l.user_id, { t, volume: l.volume, file: l.file });
@@ -3027,56 +3341,53 @@
 
 
     async function loadOverviewStats(days, since) {
-      // Count users independently (don't rely on allUsers from Users tab)
+      // Total users (exclude admins)
       const { count: totalUserCount } = await supabase
         .from('user_profiles')
-        .select('*', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true })
+        .neq('role', 'admin');
       document.getElementById('stat-total-users').textContent = totalUserCount || 0;
 
       const { data: activeUsers } = await supabase
         .from('access_logs')
-        .select('user_id')
+        .select('user_id, volume, file')
         .gte('created_at', since);
-      const uniqueActive = new Set((activeUsers || []).map(u => u.user_id));
+      const activeFiltered = (activeUsers || []).filter(u => !_adminIds.has(u.user_id));
+      const uniqueActive = new Set(activeFiltered.map(u => u.user_id));
       document.getElementById('stat-active-users').textContent = uniqueActive.size;
 
       const { count: newUsers } = await supabase
         .from('user_profiles')
         .select('*', { count: 'exact', head: true })
-        .gte('created_at', since);
+        .gte('created_at', since)
+        .neq('role', 'admin');
       document.getElementById('stat-new-users').textContent = newUsers || 0;
 
-      const { count: totalViews } = await supabase
-        .from('access_logs')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', since);
-      document.getElementById('stat-total-views').textContent = totalViews || 0;
+      const totalViews = activeFiltered.length;
+      document.getElementById('stat-total-views').textContent = totalViews;
 
-      const { data: viewsData } = await supabase
-        .from('access_logs')
-        .select('volume, file')
-        .gte('created_at', since);
-      const uniqueTeachings = new Set((viewsData || []).map(v => `${v.volume}/${v.file}`));
+      const uniqueTeachings = new Set(activeFiltered.map(v => `${v.volume}/${v.file}`));
       document.getElementById('stat-teachings-read').textContent = uniqueTeachings.size;
 
-      const avg = uniqueActive.size > 0 ? Math.round((totalViews || 0) / uniqueActive.size * 10) / 10 : 0;
+      const avg = uniqueActive.size > 0 ? Math.round(totalViews / uniqueActive.size * 10) / 10 : 0;
       document.getElementById('stat-avg-session').textContent = avg;
     }
 
     async function loadVolumePopularity(days, since) {
       const { data } = await supabase
         .from('access_logs')
-        .select('volume')
+        .select('volume, user_id')
         .gte('created_at', since);
 
-      if (!data || data.length === 0) {
+      const filtered = (data || []).filter(d => !_adminIds.has(d.user_id));
+      if (filtered.length === 0) {
         document.getElementById('volume-chart').innerHTML = '<div class="loading">Sem dados.</div>';
         return;
       }
 
       const counts = {};
       VOLUMES.forEach(v => counts[v.key] = 0);
-      data.forEach(d => { if (counts[d.volume] !== undefined) counts[d.volume]++; });
+      filtered.forEach(d => { if (counts[d.volume] !== undefined) counts[d.volume]++; });
       const max = Math.max(...Object.values(counts), 1);
 
       document.getElementById('volume-chart').innerHTML = VOLUMES.map(vol => {
@@ -3093,10 +3404,11 @@
     }
 
     async function loadSearchTrends(days, since) {
-      const { data } = await supabase
+      const { data: raw } = await supabase
         .from('search_logs')
-        .select('query')
+        .select('query, user_id')
         .gte('created_at', since);
+      const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
       if (!data || data.length === 0) {
         // Fallback: try localStorage for backwards compatibility
@@ -3136,12 +3448,13 @@
     }
 
     async function loadTopTeachings(days, since) {
-      const { data } = await supabase
+      const { data: raw } = await supabase
         .from('access_logs')
-        .select('volume, file')
+        .select('volume, file, user_id')
         .gte('created_at', since);
+      const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
-      if (!data || data.length === 0) {
+      if (!data.length) {
         document.getElementById('top-teachings').innerHTML = '<div class="loading">Sem dados.</div>';
         return;
       }
@@ -3169,12 +3482,13 @@
     }
 
     async function loadHeatmap(days, since) {
-      const { data } = await supabase
+      const { data: raw } = await supabase
         .from('access_logs')
-        .select('created_at')
+        .select('created_at, user_id')
         .gte('created_at', since);
+      const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
-      if (!data || data.length === 0) {
+      if (!data.length) {
         document.getElementById('heatmap-chart').innerHTML = '<div class="loading">Sem dados.</div>';
         return;
       }
@@ -3197,12 +3511,13 @@
     }
 
     async function loadCompletionRates(days, since) {
-      const { data } = await supabase
+      const { data: raw } = await supabase
         .from('reading_positions')
-        .select('volume, progress_pct')
+        .select('volume, progress_pct, user_id')
         .gte('updated_at', since);
+      const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
-      if (!data || data.length === 0) {
+      if (!data.length) {
         document.getElementById('completion-chart').innerHTML = '<div class="loading">Sem dados.</div>';
         return;
       }
@@ -3230,16 +3545,17 @@
     }
 
     async function loadRecentActivity(days, since) {
-      // IMPORTANTE: o query builder do Supabase é imutável — .gte() retorna novo objeto
+      // Fetch more than needed since client-side filter removes admins
       let query = supabase
         .from('access_logs')
         .select('user_id, volume, file, action, created_at')
         .order('created_at', { ascending: false })
-        .limit(25);
+        .limit(100);
       if (since) query = query.gte('created_at', since);
-      const { data } = await query;
+      const { data: raw } = await query;
+      const data = (raw || []).filter(d => !_adminIds.has(d.user_id)).slice(0, 25);
 
-      if (!data || data.length === 0) {
+      if (!data.length) {
         document.getElementById('recent-activity').innerHTML = '<div class="loading">Sem atividade.</div>';
         return;
       }
@@ -3312,13 +3628,14 @@
     // ============================================================
 
     async function loadDailyActivityChart(days, since) {
-      const { data } = await supabase
+      const { data: raw } = await supabase
         .from('access_logs')
-        .select('created_at')
+        .select('created_at, user_id')
         .gte('created_at', since)
         .order('created_at', { ascending: true });
+      const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
-      if (!data || data.length === 0) {
+      if (!data.length) {
         document.getElementById('daily-activity-chart').innerHTML = '<div class="loading">Sem dados.</div>';
         return;
       }
@@ -3396,20 +3713,32 @@
     // ============================================================
 
     async function loadTopUsersRanking(days, since) {
-      const { data } = await supabase
-        .from('access_logs')
-        .select('user_id')
-        .gte('created_at', since);
+      // Conta leituras "reais" por TEMPO ATIVO (estilo YouTube): só conta quem
+      // ficou ≥ 60 s na página com aba visível e atividade recente.
+      const MIN_READ_SECONDS = 60;
+      const { data: raw } = await supabase
+        .from('reading_positions')
+        .select('user_id, volume, file, time_spent_seconds')
+        .gte('updated_at', since)
+        .gte('time_spent_seconds', MIN_READ_SECONDS);
+      const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
-      if (!data || data.length === 0) {
-        document.getElementById('top-users-ranking').innerHTML = '<div class="loading">Sem dados.</div>';
+      if (!data.length) {
+        document.getElementById('top-users-ranking').innerHTML = '<div class="loading">Sem leituras registradas no período.</div>';
         return;
       }
 
-      const counts = {};
-      data.forEach(d => { counts[d.user_id] = (counts[d.user_id] || 0) + 1; });
-      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-      const maxViews = sorted[0][1];
+      // Cada entrada única (user, vol, file) é um ensinamento lido
+      const reads = {};
+      data.forEach(d => {
+        if (!reads[d.user_id]) reads[d.user_id] = new Set();
+        reads[d.user_id].add(`${d.volume}/${d.file}`);
+      });
+      const sorted = Object.entries(reads)
+        .map(([uid, set]) => [uid, set.size])
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+      const maxReads = sorted[0][1];
 
       const userIds = sorted.map(s => s[0]);
       const { data: profiles } = await supabase
@@ -3420,21 +3749,22 @@
       (profiles || []).forEach(p => nameMap[p.id] = p.display_name);
 
       document.getElementById('top-users-ranking').innerHTML = `
+        <p style="font-size:0.75rem; color:var(--text-muted); margin:-8px 0 12px;">Contagem de ensinamentos efetivamente lidos (≥${MIN_READ_SECONDS}s de leitura ativa).</p>
         <div class="ranking-list">
           ${sorted.map(([uid, count], i) => {
             const name = nameMap[uid] || 'Desconhecido';
             const initial = (name || 'U')[0].toUpperCase();
-            const pct = Math.round(count / maxViews * 100);
+            const pct = Math.round(count / maxReads * 100);
             const posClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
             return `
               <div class="ranking-item">
                 <div class="ranking-pos ${posClass}">${i + 1}</div>
                 <div class="ranking-avatar">${initial}</div>
                 <div class="ranking-info">
-                  <div class="ranking-name">${name}</div>
+                  <div class="ranking-name">${_escHtml(name)}</div>
                 </div>
                 <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:${pct}%"></div></div>
-                <div class="ranking-value">${count} views</div>
+                <div class="ranking-value">${count} lidos</div>
               </div>`;
           }).join('')}
         </div>`;
@@ -3450,8 +3780,8 @@
         supabase.from('reading_positions').select('volume, progress_pct, user_id').gte('updated_at', since)
       ]);
 
-      const logs = logsRes.data || [];
-      const positions = posRes.data || [];
+      const logs = (logsRes.data || []).filter(d => !_adminIds.has(d.user_id));
+      const positions = (posRes.data || []).filter(d => !_adminIds.has(d.user_id));
 
       if (logs.length === 0) {
         document.getElementById('engagement-by-volume').innerHTML = '<div class="loading">Sem dados.</div>';
@@ -3514,12 +3844,12 @@
 
     async function loadPopularFavorites(days, since) {
       const [favRes, hlRes] = await Promise.all([
-        supabase.from('synced_favorites').select('volume, file, topic_title').gte('created_at', since),
-        supabase.from('user_highlights').select('volume, file').gte('updated_at', since)
+        supabase.from('synced_favorites').select('volume, file, topic_title, user_id').gte('created_at', since),
+        supabase.from('user_highlights').select('volume, file, user_id').gte('updated_at', since)
       ]);
 
-      const favs = favRes.data || [];
-      const highlights = hlRes.data || [];
+      const favs = (favRes.data || []).filter(d => !_adminIds.has(d.user_id));
+      const highlights = (hlRes.data || []).filter(d => !_adminIds.has(d.user_id));
 
       if (favs.length === 0 && highlights.length === 0) {
         document.getElementById('popular-favorites').innerHTML = '<div class="loading">Sem dados.</div>';
@@ -3574,13 +3904,14 @@
 
     async function loadRetentionRate(days, since) {
       // Busca apenas o período selecionado para evitar trazer a tabela inteira
-      const { data: allLogs } = await supabase
+      const { data: rawLogs } = await supabase
         .from('access_logs')
         .select('user_id, created_at')
         .gte('created_at', since)
         .order('created_at', { ascending: true });
+      const allLogs = (rawLogs || []).filter(d => !_adminIds.has(d.user_id));
 
-      if (!allLogs || allLogs.length === 0) {
+      if (!allLogs.length) {
         document.getElementById('retention-rate').innerHTML = '<div class="loading">Sem dados.</div>';
         return;
       }

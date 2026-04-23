@@ -210,12 +210,13 @@ async function logout() {
   localStorage.removeItem('mioshie_auth');
   localStorage.removeItem('mioshie_access_config');
   localStorage.removeItem('mioshie_user_id');
-  // Clear user-specific data to prevent leakage to next logged-in user
+  // Clear user-specific data to prevent leakage to next logged-in user.
+  // Preserve highlightDeletedKeys/favDeletedKeys tombstones: they represent
+  // deletions that may not have reached the cloud yet. Clearing them would
+  // let pullCloudToLocal re-hydrate highlights the user already removed.
   localStorage.removeItem('userHighlights');
   localStorage.removeItem('readHistory');
   localStorage.removeItem('savedFavorites');
-  localStorage.removeItem('highlightDeletedKeys');
-  localStorage.removeItem('favDeletedKeys');
   localStorage.removeItem('mioshieSyncQueue');
   window.location.reload();
 }

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@300;400;500&display=swap">
-  <link href="css/styles.min.css?v=17" rel="stylesheet" />
+  <link href="css/styles.min.css?v=18" rel="stylesheet" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
   <!-- SEO -->
@@ -114,6 +114,8 @@
     })();
   </script>
   <main class="main" id="main-content">
+    <!-- Disciples-only sidebar: hidden until body.disciples-active is set by disciples-reader.js -->
+    <aside class="disciples-sidebar-panel" id="readerSidebar" aria-label="Navegação do livro" style="display:none"></aside>
     <div class="glass-pane" id="readerContainer">
       <div style="text-align:center; color:var(--text-muted)">
         Preparando leitura...
@@ -175,6 +177,7 @@
   <script src="js/highlights.js?v=2" defer></script>
   <script src="js/translation-report.js?v=1" defer></script>
   <script src="js/reader.js?v=10" defer></script>
+  <script src="js/disciples-reader.js?v=2" defer></script>
   <script>document.addEventListener('DOMContentLoaded', () => { if (typeof initFontSize === 'function') initFontSize(); if (typeof initHighlights === 'function') initHighlights(); });</script>
 
   <script>

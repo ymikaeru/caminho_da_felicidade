@@ -1,0 +1,650 @@
+/* ── Publicações de Discípulos ────────────────────────────────── */
+
+/* Home section */
+.disciples-home-section {
+  max-width: var(--container-width);
+  margin: 48px auto 0;
+  padding: 0 24px;
+}
+
+.disciples-home-section .section-label {
+  display: block;
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.disciples-home-section__desc {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.disciples-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 720px) {
+  .disciples-card-grid { grid-template-columns: 1fr; }
+}
+
+/* Discreet home button (replaces the large card) */
+.disciples-home-btn {
+  display: block;
+  padding: 14px 0;
+  text-decoration: none;
+  color: inherit;
+  border-top: 1px solid var(--border);
+  transition: opacity 0.2s var(--ease);
+}
+.disciples-home-btn:hover { opacity: 0.75; }
+.disciples-home-btn__title {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+.disciples-home-btn__desc {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.disciples-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  box-shadow: var(--shadow-sm);
+}
+
+.disciples-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-premium);
+}
+
+.disciples-card__kicker {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.disciples-card__title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0 0 2px;
+  color: var(--text-main);
+}
+
+.disciples-card__title-ja {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.disciples-card__author {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.disciples-card__desc {
+  font-size: 0.92rem;
+  color: var(--text-main);
+  opacity: 0.8;
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* Reader — overview */
+.disciples-overview {
+  padding: 2rem 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.disciples-overview-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.disciples-overview-header h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  color: var(--text-main);
+  margin: 0 0 0.5rem;
+}
+
+.disciples-overview-desc {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.disciples-book-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.disciples-book-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.disciples-book-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.disciples-book-cover {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(184,134,11,0.1), rgba(184,134,11,0.05));
+  border-radius: 12px;
+  color: var(--accent);
+}
+
+.disciples-book-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.disciples-book-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0 0 0.15rem;
+}
+
+.disciples-book-author {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 0.25rem;
+}
+
+.disciples-book-title-ja {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 0.5rem;
+}
+
+.disciples-book-desc {
+  font-size: 0.9rem;
+  color: var(--text-main);
+  opacity: 0.85;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Reader — book reading view */
+.disciples-book-content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.disciples-book-header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.disciples-book-header h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  color: var(--text-main);
+  margin: 0 0 0.25rem;
+}
+
+.disciples-book-author-header {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.disciples-book-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.disciples-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.disciples-back-link:hover { opacity: 0.7; }
+
+.disciples-section-author {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+/* Sections */
+.disciples-part-divider {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 3px solid var(--accent);
+}
+
+.disciples-part-divider h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0 0 1rem;
+}
+
+.disciples-section {
+  margin-top: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.disciples-section-title {
+  font-family: var(--font-serif);
+  margin: 0 0 0.75rem;
+  color: var(--text-main);
+  line-height: 1.3;
+}
+
+.disciples-section > .disciples-section-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.disciples-section--child > .disciples-section-title { font-size: 1.15rem; font-weight: 600; }
+.disciples-section--depth-4 > .disciples-section-title { font-size: 1.05rem; font-weight: 600; }
+.disciples-section--depth-5 > .disciples-section-title { font-size: 0.98rem; font-weight: 600; color: var(--text-muted); }
+.disciples-section--depth-6 > .disciples-section-title { font-size: 0.92rem; font-weight: 600; color: var(--text-muted); }
+.disciples-section--depth-7 > .disciples-section-title { font-size: 0.87rem; font-weight: 600; color: var(--text-muted); }
+
+.disciples-section--child { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+
+.disciples-section--depth-4,
+.disciples-section--depth-5,
+.disciples-section--depth-6,
+.disciples-section--depth-7 {
+  margin-left: 0.5rem;
+  border-left: 2px solid var(--border);
+  padding-left: 0.75rem;
+}
+
+.disciples-section-content {
+  font-family: var(--font-serif);
+  font-size: var(--reader-font-size);
+  line-height: var(--reader-line-height);
+  color: var(--text-main);
+}
+
+.disciples-section-content p { margin: 0 0 1rem; }
+.disciples-section-content strong { font-weight: 600; }
+.disciples-section-content em { font-style: italic; }
+.disciples-section-content h1,
+.disciples-section-content h2,
+.disciples-section-content h3 {
+  font-family: var(--font-serif);
+  margin: 1.5rem 0 0.75rem;
+}
+
+/* Chapter navigation (prev/next) */
+.disciples-chapter-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+.disciples-chapter-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  color: var(--accent);
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.disciples-chapter-nav-btn:hover:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.disciples-chapter-nav-btn:disabled {
+  color: var(--text-muted);
+  border-color: transparent;
+  cursor: default;
+  opacity: 0.45;
+}
+.disciples-chapter-nav-info {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+  white-space: nowrap;
+}
+.disciples-chapter-nav-current {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* Sidebar panel container (fixed to left when active) */
+body.disciples-active {
+  --disciples-sidebar-width: 280px;
+}
+
+.disciples-sidebar-panel {
+  position: fixed;
+  top: var(--nav-height, 60px);
+  left: 0;
+  width: var(--disciples-sidebar-width, 280px);
+  height: calc(100vh - var(--nav-height, 60px));
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  z-index: 20;
+  overflow: hidden;
+}
+
+body.disciples-active .main {
+  padding-left: calc(var(--disciples-sidebar-width, 280px) + 24px);
+}
+
+@media (max-width: 900px) {
+  body.disciples-active .main { padding-left: 0; }
+  .disciples-sidebar-panel {
+    position: static;
+    width: 100%;
+    height: auto;
+    max-height: 50vh;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+.disciples-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.disciples-sb-fixed-header {
+  flex-shrink: 0;
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.disciples-sb-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 1rem;
+}
+
+.disciples-sb-book-link {
+  display: block;
+  padding: 0.55rem 1rem;
+  font-size: 0.82rem;
+  color: var(--text-main);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: all 0.15s ease;
+  font-weight: 400;
+}
+
+.disciples-sb-book-link:hover { background: var(--accent-soft); }
+
+.disciples-sb-book-link.active {
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+
+.disciples-sb-book-title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.disciples-sb-tree { padding-bottom: 0.5rem; }
+
+.disciples-sb-cat { border-bottom: 1px solid var(--border); }
+.disciples-sb-cat > summary { list-style: none; }
+.disciples-sb-cat > summary::-webkit-details-marker { display: none; }
+
+.disciples-sb-cat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-main);
+  transition: background 0.15s;
+}
+
+.disciples-sb-cat-header:hover { background: var(--accent-soft); }
+.disciples-sb-cat-header.active { background: var(--surface); }
+.disciples-sb-cat-title { flex: 1; }
+.disciples-sb-cat-body { padding: 0 0 4px 0; }
+
+.disciples-sb-sub { margin: 0; }
+.disciples-sb-sub > summary { list-style: none; }
+.disciples-sb-sub > summary::-webkit-details-marker { display: none; }
+
+.disciples-sb-sub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 12px 5px 28px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.disciples-sb-sub-header:hover { background: var(--accent-soft); }
+
+.disciples-sb-sub-header.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+  border-left: 3px solid var(--accent);
+  padding-left: 25px;
+}
+
+.disciples-sb-sub-label { flex: 1; }
+.disciples-sb-sub-count {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  min-width: 20px;
+  text-align: right;
+}
+
+.disciples-sb-leaf {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  padding: 5px 10px 5px 36px;
+  line-height: 1.4;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.disciples-sb-leaf:last-child { border-bottom: none; }
+.disciples-sb-leaf:hover { background: var(--accent-soft); color: var(--text-main); }
+.disciples-sb-leaf.active { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+
+.disciples-sb-leaf--lvl-3 { padding-left: 44px; }
+.disciples-sb-leaf--lvl-4 { padding-left: 52px; font-size: 0.74rem; }
+.disciples-sb-leaf--lvl-5 { padding-left: 60px; font-size: 0.72rem; }
+.disciples-sb-leaf--lvl-6 { padding-left: 68px; font-size: 0.7rem; }
+.disciples-sb-leaf--lvl-7 { padding-left: 76px; font-size: 0.68rem; }
+
+.disciples-sb-sub--lvl-3 > .disciples-sb-sub-header { padding-left: 44px; font-size: 0.78rem; }
+.disciples-sb-sub--lvl-4 > .disciples-sb-sub-header { padding-left: 52px; font-size: 0.76rem; }
+.disciples-sb-sub--lvl-5 > .disciples-sb-sub-header { padding-left: 60px; font-size: 0.74rem; }
+.disciples-sb-sub--lvl-6 > .disciples-sb-sub-header { padding-left: 68px; font-size: 0.72rem; }
+.disciples-sb-sub--lvl-7 > .disciples-sb-sub-header { padding-left: 76px; font-size: 0.7rem; }
+
+.disciples-sb-sub--lvl-4 { margin-left: 4px; }
+.disciples-sb-sub--lvl-5 { margin-left: 8px; }
+.disciples-sb-sub--lvl-6 { margin-left: 12px; }
+.disciples-sb-sub--lvl-7 { margin-left: 16px; }
+
+/* Person biography cards */
+.person-card { margin: 0.5rem 0; }
+.person-card-summary {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  cursor: pointer;
+  list-style: none;
+}
+.person-card-summary::-webkit-details-marker { display: none; }
+.person-card-summary::marker { display: none; content: ''; }
+.person-card-toggle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  transition: transform 0.15s;
+  display: inline-block;
+}
+.person-card[open] .person-card-toggle { transform: rotate(45deg); }
+.person-card-content {
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  padding: 0.55rem 0.9rem;
+  margin-top: 0.3rem;
+  font-size: 0.91rem;
+  color: var(--text-main);
+  opacity: 0.9;
+  line-height: 1.65;
+}
+
+/* Continue reading banner */
+.continue-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin: 0 0 16px;
+  position: relative;
+}
+.continue-banner__label {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.continue-banner__item {
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.continue-banner__title {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.continue-banner__meta {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.continue-banner__dismiss {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+.continue-banner__dismiss:hover { opacity: 1; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .disciples-book-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .disciples-book-content { padding: 1.5rem 1rem 3rem; }
+}

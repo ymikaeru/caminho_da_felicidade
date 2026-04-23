@@ -54,6 +54,12 @@ function _prefetchAdjacent(volId, navJson, currentFilename) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Disciples mode (reader.html?pub=disciples) is handled by js/disciples-reader.js —
+    // bail out before any volume-oriented init runs so we don't overwrite the container
+    // or log volume analytics for book reading.
+    if (new URLSearchParams(window.location.search).get('pub') === 'disciples') {
+        return;
+    }
     const container = document.getElementById('readerContainer');
     window._readerContainer = container;
     window._genericRegex = /O Método do Johrei|Princípio do Johrei|Sobre a Verdade|Verdade \d|Ensinamento \d|Parte \d|JH\d|JH \d|Publicação \d|Agricultura Natural|Instrução Divina|Purificação Equilibrada|Coletânea de fragmentos/i;

@@ -677,6 +677,18 @@
               </div>
             </div>
 
+            <!-- Engagement Funnel -->
+            <div class="admin-section">
+              <h2>🎯 Funil de Engajamento</h2>
+              <div id="engagement-funnel"><div class="loading">Carregando...</div></div>
+            </div>
+
+            <!-- User Segmentation -->
+            <div class="admin-section">
+              <h2>🧭 Segmentação de Usuários</h2>
+              <div id="user-segmentation"><div class="loading">Carregando...</div></div>
+            </div>
+
             <!-- Volume Popularity -->
             <div class="two-col">
               <div class="admin-section">
@@ -693,6 +705,12 @@
             <div class="admin-section">
               <h2>Ensinamentos Mais Lidos</h2>
               <div id="top-teachings"><div class="loading">Carregando...</div></div>
+            </div>
+
+            <!-- Article Quality -->
+            <div class="admin-section">
+              <h2>💎 Qualidade por Ensinamento</h2>
+              <div id="article-quality"><div class="loading">Carregando...</div></div>
             </div>
 
             <!-- Two col: Heatmap + Completion -->
@@ -718,6 +736,12 @@
             <div class="admin-section">
               <h2>📈 Atividade Diária</h2>
               <div id="daily-activity-chart"><div class="loading">Carregando...</div></div>
+            </div>
+
+            <!-- Session Stats -->
+            <div class="admin-section">
+              <h2>⏱️ Sessions de Leitura</h2>
+              <div id="session-stats"><div class="loading">Carregando...</div></div>
             </div>
 
             <!-- Top Users Ranking -->
@@ -3226,15 +3250,19 @@
 
       loadOnlineUsers();
       loadOverviewStats(days, since);
+      loadEngagementFunnel(days, since);
+      loadUserSegmentation(days, since);
       loadVolumePopularity(days, since);
       loadSearchTrends(days, since);
       loadTopTeachings(days, since);
+      loadArticleQuality(days, since);
       loadHeatmap(days, since);
       loadCompletionRates(days, since);
       loadRecentActivity(days, since);
       loadSyncStats();
       loadRoleDistribution();
       loadDailyActivityChart(days, since);
+      loadSessionStats(days, since);
       loadTopUsersRanking(days, since);
       loadEngagementByVolume(days, since);
       loadPopularFavorites(days, since);
@@ -3371,6 +3399,347 @@
 
       const avg = uniqueActive.size > 0 ? Math.round(totalViews / uniqueActive.size * 10) / 10 : 0;
       document.getElementById('stat-avg-session').textContent = avg;
+    }
+
+    // ── Engagement Funnel ─────────────────────────────────────────────────
+    // Cliques → iniciou leitura → leu ≥60s → leu ≥180s. Unidade: par único
+    // (usuário × artigo) para dar proporções comparáveis entre as etapas.
+    async function loadEngagementFunnel(days, since) {
+      const container = document.getElementById('engagement-funnel');
+
+      const [logsRes, posRes] = await Promise.all([
+        supabase.from('access_logs').select('user_id, volume, file').gte('created_at', since),
+        supabase.from('reading_positions').select('user_id, volume, file, time_spent_seconds, progress_pct').gte('updated_at', since)
+      ]);
+
+      const logs = (logsRes.data || []).filter(r => !_adminIds.has(r.user_id));
+      const positions = (posRes.data || []).filter(r => !_adminIds.has(r.user_id));
+
+      const uniqueClicks = new Set(logs.map(r => `${r.user_id}|${r.volume}|${r.file}`)).size;
+
+      if (uniqueClicks === 0) {
+        container.innerHTML = '<div class="loading">Sem cliques no período.</div>';
+        return;
+      }
+
+      const started = positions.filter(r => (r.time_spent_seconds || 0) > 0).length;
+      const real    = positions.filter(r => (r.time_spent_seconds || 0) >= 60).length;
+      const deep    = positions.filter(r => (r.time_spent_seconds || 0) >= 180).length;
+
+      const bounce = Math.max(0, Math.round((1 - real / uniqueClicks) * 100));
+      const bounceColor = bounce > 80 ? '#ef4444' : bounce > 60 ? '#f59e0b' : '#10b981';
+
+      const steps = [
+        { label: 'Cliques (user × artigo)', value: uniqueClicks, color: 'var(--text-muted)' },
+        { label: 'Iniciou leitura (>0s ativos)', value: started, color: '#3b82f6' },
+        { label: 'Leitura real (≥60s)', value: real, color: '#10b981' },
+        { label: 'Leitura profunda (≥180s)', value: deep, color: '#8b5cf6' },
+      ];
+
+      container.innerHTML = `
+        <p style="font-size:0.8rem; color:var(--text-muted); margin:-8px 0 14px;">
+          Conversão de clique em leitura efetiva, contando pares únicos (usuário × artigo). Tempo é cumulativo na tabela <code>reading_positions</code>, então rows antigos que foram re-acessados no período entram.
+        </p>
+        <div style="display:grid; gap:10px;">
+          ${steps.map(s => {
+            const pct = Math.round(s.value / uniqueClicks * 100);
+            const rel = (s.value / uniqueClicks * 100).toFixed(1);
+            return `
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:180px; font-size:0.8rem; color:var(--text-muted); text-align:right; flex-shrink:0;">${s.label}</div>
+                <div class="chart-bar-track" style="flex:1;">
+                  <div class="chart-bar-fill" style="width:${pct}%; background:${s.color};"></div>
+                </div>
+                <div style="font-size:0.8rem; font-weight:600; width:110px; text-align:right; flex-shrink:0;">${s.value} <span style="color:var(--text-muted); font-weight:400;">(${rel}%)</span></div>
+              </div>`;
+          }).join('')}
+        </div>
+        <div style="margin-top:18px; padding:12px 14px; background:var(--bg); border-radius:8px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.9rem; color:var(--text-muted);">Taxa de bounce (clique sem leitura ≥60s):</span>
+          <span style="font-size:1.35rem; font-weight:600; color:${bounceColor};">${bounce}%</span>
+        </div>
+      `;
+    }
+
+    // ── User Segmentation ─────────────────────────────────────────────────
+    // Classifica cada usuário não-admin do período em 4 perfis mutuamente
+    // exclusivos baseados em tempo médio de leitura, dias distintos de acesso
+    // e presença de highlights/favoritos.
+    async function loadUserSegmentation(days, since) {
+      const container = document.getElementById('user-segmentation');
+
+      const [logsRes, posRes, hlRes, favRes] = await Promise.all([
+        supabase.from('access_logs').select('user_id, created_at').gte('created_at', since),
+        supabase.from('reading_positions').select('user_id, time_spent_seconds').gte('updated_at', since),
+        supabase.from('user_highlights').select('user_id').gte('created_at', since),
+        supabase.from('synced_favorites').select('user_id').gte('created_at', since),
+      ]);
+
+      const logs = (logsRes.data || []).filter(r => !_adminIds.has(r.user_id));
+      const positions = (posRes.data || []).filter(r => !_adminIds.has(r.user_id));
+      const highlights = (hlRes.data || []).filter(r => !_adminIds.has(r.user_id));
+      const favs = (favRes.data || []).filter(r => !_adminIds.has(r.user_id));
+
+      if (logs.length === 0) {
+        container.innerHTML = '<div class="loading">Sem atividade no período.</div>';
+        return;
+      }
+
+      // Por usuário: dias distintos, tempo médio, tem highlight/fav?
+      const users = {};
+      const touch = uid => (users[uid] = users[uid] || { days: new Set(), timeSum: 0, timeCount: 0, hasEngage: false });
+
+      logs.forEach(l => touch(l.user_id).days.add(l.created_at.slice(0, 10)));
+      positions.forEach(p => {
+        if ((p.time_spent_seconds || 0) > 0) {
+          const u = touch(p.user_id);
+          u.timeSum += p.time_spent_seconds;
+          u.timeCount++;
+        }
+      });
+      highlights.forEach(h => touch(h.user_id).hasEngage = true);
+      favs.forEach(f => touch(f.user_id).hasEngage = true);
+
+      const segments = { engaged: [], returning: [], casual: [], skimmer: [] };
+
+      for (const [uid, u] of Object.entries(users)) {
+        const avgTime = u.timeCount > 0 ? u.timeSum / u.timeCount : 0;
+        const days = u.days.size;
+        // Ordem de prioridade: engaged > returning > casual > skimmer
+        if (avgTime >= 120 || u.hasEngage) segments.engaged.push(uid);
+        else if (days >= 3) segments.returning.push(uid);
+        else if (avgTime >= 30) segments.casual.push(uid);
+        else segments.skimmer.push(uid);
+      }
+
+      const total = Object.values(segments).reduce((a, arr) => a + arr.length, 0);
+      const defs = [
+        { key: 'engaged',   label: 'Engajados',    desc: '≥120s médios ou marcam destaques/favs', color: '#10b981', emoji: '🔥' },
+        { key: 'returning', label: 'Retornantes',  desc: '≥3 dias distintos no período',           color: '#8b5cf6', emoji: '🔄' },
+        { key: 'casual',    label: 'Casuais',      desc: 'tempo médio entre 30s e 120s',           color: '#3b82f6', emoji: '👤' },
+        { key: 'skimmer',   label: 'Skimmers',     desc: '<30s médios — clicam sem ler',           color: '#ef4444', emoji: '⚡' },
+      ];
+
+      container.innerHTML = `
+        <p style="font-size:0.8rem; color:var(--text-muted); margin:-8px 0 14px;">
+          ${total} usuários ativos no período, classificados por comportamento de leitura. Ordem: engajados → retornantes → casuais → skimmers (primeira condição ganha).
+        </p>
+        <div class="stats-grid" style="margin-bottom:18px;">
+          ${defs.map(d => {
+            const count = segments[d.key].length;
+            const pct = total > 0 ? Math.round(count / total * 100) : 0;
+            return `
+              <div class="stat-card" style="border-top:3px solid ${d.color};">
+                <div class="stat-value" style="color:${d.color};">${d.emoji} ${count}</div>
+                <div class="stat-label">${d.label} <span style="opacity:0.6;">(${pct}%)</span></div>
+                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">${d.desc}</div>
+              </div>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    // ── Article Quality ───────────────────────────────────────────────────
+    // Top 15 ensinamentos por score de qualidade. Score combina tempo médio
+    // de leitura, progresso médio e engajamento (highlights + favoritos).
+    async function loadArticleQuality(days, since) {
+      const container = document.getElementById('article-quality');
+
+      const [logsRes, posRes, hlRes, favRes] = await Promise.all([
+        supabase.from('access_logs').select('user_id, volume, file').gte('created_at', since),
+        supabase.from('reading_positions').select('user_id, volume, file, time_spent_seconds, progress_pct').gte('updated_at', since),
+        supabase.from('user_highlights').select('user_id, volume, file').gte('created_at', since),
+        supabase.from('synced_favorites').select('user_id, volume, file').gte('created_at', since),
+      ]);
+
+      const logs = (logsRes.data || []).filter(r => !_adminIds.has(r.user_id));
+      const positions = (posRes.data || []).filter(r => !_adminIds.has(r.user_id));
+      const highlights = (hlRes.data || []).filter(r => !_adminIds.has(r.user_id));
+      const favs = (favRes.data || []).filter(r => !_adminIds.has(r.user_id));
+
+      if (logs.length === 0) {
+        container.innerHTML = '<div class="loading">Sem dados.</div>';
+        return;
+      }
+
+      const arts = {};
+      const keyFor = r => `${r.volume}/${r.file}`;
+      const touch = r => (arts[keyFor(r)] = arts[keyFor(r)] || {
+        volume: r.volume, file: r.file,
+        views: 0, readers: new Set(),
+        timeSum: 0, timeCount: 0,
+        progSum: 0, progCount: 0, completed: 0,
+        highlights: 0, favs: 0,
+      });
+
+      logs.forEach(l => { const a = touch(l); a.views++; a.readers.add(l.user_id); });
+      positions.forEach(p => {
+        const a = touch(p);
+        if ((p.time_spent_seconds || 0) > 0) { a.timeSum += p.time_spent_seconds; a.timeCount++; }
+        if ((p.progress_pct || 0) > 0) {
+          a.progSum += p.progress_pct; a.progCount++;
+          if (p.progress_pct >= 70) a.completed++;
+        }
+      });
+      highlights.forEach(h => touch(h).highlights++);
+      favs.forEach(f => touch(f).favs++);
+
+      // Score: 0.4*tempo_norm + 0.4*conclusao + 0.2*engajamento_norm
+      const rows = Object.values(arts).map(a => {
+        const avgTime = a.timeCount > 0 ? a.timeSum / a.timeCount : 0;
+        const avgProg = a.progCount > 0 ? a.progSum / a.progCount : 0;
+        const complRate = a.progCount > 0 ? a.completed / a.progCount : 0;
+        const engage = a.highlights + a.favs;
+        return { ...a, readers: a.readers.size, avgTime, avgProg, complRate, engage };
+      }).filter(a => a.views >= 2); // filtra artigos com 1 view só (ruído)
+
+      if (rows.length === 0) {
+        container.innerHTML = '<div class="loading">Sem artigos com dados suficientes.</div>';
+        return;
+      }
+
+      const maxTime = Math.max(...rows.map(r => r.avgTime), 1);
+      const maxEngage = Math.max(...rows.map(r => r.engage), 1);
+      rows.forEach(r => {
+        r.score = Math.round((0.4 * (r.avgTime / maxTime) + 0.4 * r.complRate + 0.2 * (r.engage / maxEngage)) * 100);
+      });
+      rows.sort((a, b) => b.score - a.score);
+      const top = rows.slice(0, 15);
+
+      // Garante que o mapa volume→file→title esteja carregado para getFileTitle
+      if (!volumeCategories || Object.keys(volumeCategories).length === 0) {
+        try { await loadVolumeFiles(); } catch (e) { console.warn('loadVolumeFiles falhou:', e); }
+      }
+
+      const fmtTime = s => s < 60 ? `${Math.round(s)}s` : `${Math.floor(s/60)}m${String(Math.round(s%60)).padStart(2,'0')}s`;
+
+      container.innerHTML = `
+        <p style="font-size:0.8rem; color:var(--text-muted); margin:-8px 0 14px;">
+          Score = 40% tempo médio + 40% conclusão (≥70% scroll) + 20% engajamento (highlights + favs). Só artigos com ≥2 views.
+        </p>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="text-align:left;">#</th>
+                <th style="text-align:left;">Ensinamento</th>
+                <th style="text-align:left;">Volume</th>
+                <th>Views</th>
+                <th>Leitores</th>
+                <th>Tempo méd.</th>
+                <th>Progresso méd.</th>
+                <th>Concluíram</th>
+                <th>⭐ / 🖍️</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${top.map((r, i) => `
+                <tr>
+                  <td>${i + 1}</td>
+                  <td style="text-align:left; font-size:0.82rem;" title="${_escHtml(r.volume)}/${_escHtml(r.file)}">${_escHtml(getFileTitle(r.volume, r.file))}</td>
+                  <td style="text-align:left;">${VOL_SHORT[r.volume] || r.volume}</td>
+                  <td>${r.views}</td>
+                  <td>${r.readers}</td>
+                  <td>${r.timeCount > 0 ? fmtTime(r.avgTime) : '—'}</td>
+                  <td>${r.progCount > 0 ? Math.round(r.avgProg) + '%' : '—'}</td>
+                  <td>${r.progCount > 0 ? Math.round(r.complRate * 100) + '%' : '—'}</td>
+                  <td>${r.favs} / ${r.highlights}</td>
+                  <td><strong style="color:var(--accent);">${r.score}</strong></td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // ── Session Stats ─────────────────────────────────────────────────────
+    // Agrupa access_logs por usuário, sessões separadas por gap > 30 min.
+    // Mostra: total de sessions, duração média, artigos por session, distribuição.
+    async function loadSessionStats(days, since) {
+      const container = document.getElementById('session-stats');
+      const GAP_MS = 30 * 60 * 1000;
+
+      const { data: raw } = await supabase
+        .from('access_logs')
+        .select('user_id, created_at, volume, file')
+        .gte('created_at', since)
+        .order('created_at', { ascending: true });
+
+      const logs = (raw || []).filter(r => !_adminIds.has(r.user_id));
+
+      if (logs.length === 0) {
+        container.innerHTML = '<div class="loading">Sem atividade no período.</div>';
+        return;
+      }
+
+      // Agrupa por usuário ordenado no tempo
+      const byUser = {};
+      logs.forEach(l => (byUser[l.user_id] = byUser[l.user_id] || []).push(l));
+
+      const sessions = [];
+      for (const events of Object.values(byUser)) {
+        let cur = null;
+        for (const e of events) {
+          const t = new Date(e.created_at).getTime();
+          if (!cur || (t - cur.lastT) > GAP_MS) {
+            if (cur) sessions.push(cur);
+            cur = { user: e.user_id, start: t, lastT: t, articles: new Set() };
+          } else {
+            cur.lastT = t;
+          }
+          cur.articles.add(`${e.volume}/${e.file}`);
+        }
+        if (cur) sessions.push(cur);
+      }
+
+      const total = sessions.length;
+      const durations = sessions.map(s => (s.lastT - s.start) / 1000); // em seg
+      const articleCounts = sessions.map(s => s.articles.size);
+
+      const avgDuration = durations.reduce((a, b) => a + b, 0) / total;
+      const avgArticles = articleCounts.reduce((a, b) => a + b, 0) / total;
+
+      // Distribuição de artigos por session
+      const bucket = { 'Só 1': 0, '2–3': 0, '4–7': 0, '8+': 0 };
+      articleCounts.forEach(n => {
+        if (n === 1) bucket['Só 1']++;
+        else if (n <= 3) bucket['2–3']++;
+        else if (n <= 7) bucket['4–7']++;
+        else bucket['8+']++;
+      });
+      const maxBucket = Math.max(...Object.values(bucket), 1);
+
+      const fmtDur = s => s < 60 ? `${Math.round(s)}s` : s < 3600 ? `${Math.round(s/60)}min` : `${(s/3600).toFixed(1)}h`;
+
+      // Estimativa grosseira: sessão com 1 artigo e duração <10s ≈ abandonou logo
+      const bounced = sessions.filter(s => s.articles.size === 1 && (s.lastT - s.start) / 1000 < 10).length;
+      const bouncePct = Math.round(bounced / total * 100);
+
+      container.innerHTML = `
+        <p style="font-size:0.8rem; color:var(--text-muted); margin:-8px 0 14px;">
+          Sessions definidas por gap &lt;30min entre cliques do mesmo usuário. Duração = primeiro → último clique (não inclui tempo no último artigo).
+        </p>
+        <div class="stats-grid" style="margin-bottom:18px;">
+          <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Total Sessions</div></div>
+          <div class="stat-card"><div class="stat-value">${fmtDur(avgDuration)}</div><div class="stat-label">Duração Média</div></div>
+          <div class="stat-card"><div class="stat-value">${avgArticles.toFixed(1)}</div><div class="stat-label">Artigos / Session</div></div>
+          <div class="stat-card"><div class="stat-value" style="color:${bouncePct > 50 ? '#ef4444' : bouncePct > 30 ? '#f59e0b' : '#10b981'};">${bouncePct}%</div><div class="stat-label">Saíram em &lt;10s</div></div>
+        </div>
+        <h3 style="font-size:0.9rem; color:var(--text-muted); margin:0 0 10px;">Profundidade (artigos por session)</h3>
+        <div style="display:grid; gap:8px;">
+          ${Object.entries(bucket).map(([lbl, val]) => {
+            const pct = Math.round(val / maxBucket * 100);
+            const share = Math.round(val / total * 100);
+            return `
+              <div class="chart-bar">
+                <div class="chart-bar-label">${lbl} artigo${lbl === 'Só 1' ? '' : 's'}</div>
+                <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%;"></div></div>
+                <div class="chart-bar-value" style="width:90px;">${val} <span style="color:var(--text-muted); font-weight:400;">(${share}%)</span></div>
+              </div>`;
+          }).join('')}
+        </div>
+      `;
     }
 
     async function loadVolumePopularity(days, since) {

@@ -68,6 +68,10 @@
     display: none !important;
   }
 
+  .header__site-name {
+    display: none !important;
+  }
+
   .topic-list {
     grid-template-columns: 1fr !important;
   }

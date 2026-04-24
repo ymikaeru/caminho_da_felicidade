@@ -54,6 +54,20 @@
     margin-right: 0 !important;
   }
 
+  .header__logo {
+    position: static;
+    left: auto;
+    transform: none;
+  }
+
+  .header__logo:hover {
+    transform: scale(1.08);
+  }
+
+  .header > .btn-zen {
+    display: none !important;
+  }
+
   .topic-list {
     grid-template-columns: 1fr !important;
   }

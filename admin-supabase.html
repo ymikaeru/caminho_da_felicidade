@@ -536,8 +536,9 @@
     }
     .fr-diff-item:first-child { border-top: none; }
     .fr-diff-item-body { flex: 1; min-width: 0; }
-    .fr-ja-btn { margin-top: 5px; font-size: 0.72rem; color: var(--text-muted); background: transparent; border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; cursor: pointer; display: inline-block; }
-    .fr-ja-btn:hover { background: rgba(184,134,11,0.08); color: var(--accent); border-color: var(--accent); }
+    .fr-ja-btn { margin-top: 5px; font-size: 0.72rem; color: var(--text-muted); background: transparent; border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; cursor: pointer; display: inline-block; transition: color 0.15s, border-color 0.15s; }
+    .fr-ja-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .fr-ja-inline { margin-top: 6px; padding: 8px 12px; background: rgba(184,134,11,0.05); border-left: 3px solid rgba(184,134,11,0.35); border-radius: 0 6px 6px 0; font-size: 0.78rem; line-height: 1.85; color: var(--text); white-space: pre-wrap; word-break: break-word; max-height: 220px; overflow-y: auto; }
     .fr-diff-line { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.78rem; white-space: pre-wrap; word-break: break-word; }
     .fr-diff-old { background: rgba(255,59,48,0.08); border-left: 2px solid #ff3b30; padding: 4px 8px; margin-bottom: 2px; color: var(--text); }
     .fr-diff-new { background: rgba(52,199,89,0.08); border-left: 2px solid #34c759; padding: 4px 8px; color: var(--text); }
@@ -546,6 +547,25 @@
     .fr-diff-new mark { background: rgba(52,199,89,0.28); color: #1f9b47; }
     .fr-checkbox { width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); }
     .fr-empty { text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 0.9rem; }
+    /* Johrei Analytics */
+    #tab-analytics-johrei .jr-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap:12px; margin-bottom:24px; }
+    #tab-analytics-johrei .jr-card { padding:18px; border:1px solid var(--border); border-radius:12px; background:var(--surface); }
+    #tab-analytics-johrei .jr-card .v { font-size:1.7rem; font-weight:700; color:var(--accent); line-height:1; }
+    #tab-analytics-johrei .jr-card .s { font-size:.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.14em; margin-top:6px; }
+    #tab-analytics-johrei .jr-card .u { font-size:.75rem; color:var(--text-muted); margin-top:4px; }
+    #tab-analytics-johrei .jr-chart-wrap { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:24px; }
+    #tab-analytics-johrei .jr-chart-wrap h3 { font-size:.78rem; text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted); margin:0 0 14px; font-weight:600; }
+    #tab-analytics-johrei canvas { max-width:100%; height:260px !important; }
+    #tab-analytics-johrei .jr-tables { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media (max-width:700px) { #tab-analytics-johrei .jr-tables { grid-template-columns:1fr; } }
+    #tab-analytics-johrei .jr-tbl { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; }
+    #tab-analytics-johrei .jr-tbl h3 { font-size:.78rem; text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted); margin:0 0 12px; font-weight:600; }
+    #tab-analytics-johrei table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    #tab-analytics-johrei th { text-align:left; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); padding:6px 0; border-bottom:1px solid var(--border); font-weight:500; }
+    #tab-analytics-johrei td { padding:8px 0; border-bottom:1px solid var(--border); }
+    #tab-analytics-johrei tr:last-child td { border-bottom:none; }
+    #tab-analytics-johrei td.num { text-align:right; color:var(--accent); font-weight:600; }
+    #tab-analytics-johrei td.ell { max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   </style>
 </head>
 <body>
@@ -601,7 +621,7 @@
             </div>
             <div class="tab-group" data-section="johrei">
               <div class="tab-group-tabs">
-                <a class="admin-tab" href="analytics-johrei.html" style="text-decoration:none;">📊 Analytics</a>
+                <div class="admin-tab" onclick="switchTab('analytics-johrei')">📊 Analytics</div>
               </div>
             </div>
           </div><!-- /admin-tabs -->
@@ -1147,6 +1167,27 @@
             </div>
           </div>
 
+          <!-- Johrei Analytics Tab -->
+          <div class="tab-content" id="tab-analytics-johrei">
+            <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Analytics — Johrei Guia Prático</h2>
+                <p id="jr-gen-at" style="font-size:0.85rem; color:var(--text-muted); margin:0;">Carregando…</p>
+              </div>
+              <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <label style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
+                <select id="jr-range" onchange="loadJohreiAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
+                  <option value="7">7 dias</option>
+                  <option value="30" selected>30 dias</option>
+                  <option value="90">90 dias</option>
+                  <option value="365">1 ano</option>
+                </select>
+                <button onclick="loadJohreiAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻ Atualizar</button>
+              </div>
+            </div>
+            <div id="jr-dashboard"><div class="loading">Carregando dados…</div></div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -1190,12 +1231,14 @@
   <script type="importmap">
   {
     "imports": {
-      "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm",
+      "chart.js/auto": "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/+esm"
     }
   }
   </script>
   <script type="module">
     import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './js/supabase-config.js';
+    import Chart from 'chart.js/auto';
 
     const VOLUMES = [
       { key: 'mioshiec1', name: 'Volume 1 — Mundo Espiritual' },
@@ -1479,6 +1522,8 @@
         g.style.display = g.dataset.section === section ? '' : 'none';
       });
       try { localStorage.setItem('admin_section', section); } catch (e) {}
+      const firstTab = { 'landing': 'calendar', 'caminho': 'users', 'johrei': 'analytics-johrei' }[section];
+      if (firstTab && window.switchTab) window.switchTab(firstTab);
     };
 
     (function _restoreAdminSection() {
@@ -1486,14 +1531,15 @@
         const saved = localStorage.getItem('admin_section') || 'caminho';
         const sel = document.getElementById('adminSectionSel');
         if (sel) sel.value = saved;
-        window.switchAdminSection(saved);
-      } catch (e) { window.switchAdminSection('caminho'); }
+        // Defer so switchTab is already defined when this runs
+        setTimeout(() => window.switchAdminSection(saved), 0);
+      } catch (e) { setTimeout(() => window.switchAdminSection('caminho'), 0); }
     })();
 
     window.switchTab = function(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'calendar': 0, 'announcements': 1, 'access': 2, 'users': 3, 'analytics': 4, 'destaques': 5, 'reports': 6, 'findreplace': 7, 'logs': 8 }[tab];
+      const tabIndex = { 'calendar': 0, 'announcements': 1, 'access': 2, 'users': 3, 'analytics': 4, 'destaques': 5, 'reports': 6, 'findreplace': 7, 'logs': 8, 'analytics-johrei': 9 }[tab];
       document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'analytics') {
@@ -1509,6 +1555,7 @@
       if (tab === 'announcements') loadAnnouncements();
       if (tab === 'access') loadAccessInfo();
       if (tab === 'logs') loadAdminLogs();
+      if (tab === 'analytics-johrei') loadJohreiAnalytics();
     };
 
     // ============================================================
@@ -4631,6 +4678,12 @@
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
+    function _frStripHtml(html) {
+      const d = document.createElement('div');
+      d.innerHTML = html;
+      return (d.textContent || d.innerText || '').trim();
+    }
+
     // Retorna [{startIdx, endIdx}] para todas as ocorrências literais de needle em haystack
     function _frFindAll(haystack, needle) {
       const out = [];
@@ -4908,7 +4961,7 @@
             const checkHtml = r.applied ? '' :
               `<input type="checkbox" class="fr-occ-check fr-checkbox" data-fi="${idx}" data-hi="${hIdx}" data-mi="${mIdx}" checked style="margin-top:3px; flex-shrink:0;">`;
             const jaBtnHtml = (mIdx === 0 && hit.jaText)
-              ? `<button class="fr-ja-btn" data-fi="${idx}" data-hi="${hIdx}" onclick="showFrJa(+this.dataset.fi,+this.dataset.hi)">日本語 ▸</button>`
+              ? `<button class="fr-ja-btn" onclick="const p=this.nextElementSibling;p.hidden=!p.hidden;this.textContent=p.hidden?'日本語 ▸':'日本語 ▾'">日本語 ▸</button><div class="fr-ja-inline" hidden>${_frEsc(_frStripHtml(hit.jaText))}</div>`
               : '';
             return `<div class="fr-diff-item" data-fi="${idx}" data-hi="${hIdx}" data-mi="${mIdx}">
               ${checkHtml}
@@ -5041,11 +5094,171 @@
       progress.textContent = `Concluído. ${pending.length} arquivo(s) atualizado(s).`;
     };
 
-    window.showFrJa = function(fi, hi) {
-      const hit = _frResults[fi]?.hits[hi];
-      if (!hit?.jaText) return;
-      document.getElementById('fr-ja-modal-text').textContent = hit.jaText;
-      document.getElementById('fr-ja-modal').style.display = 'block';
+    // ============================================================
+    // Johrei Analytics
+    // ============================================================
+    let _jrChart = null;
+
+    window.loadJohreiAnalytics = async function() {
+      const dash = document.getElementById('jr-dashboard');
+      const genAt = document.getElementById('jr-gen-at');
+      const days = parseInt(document.getElementById('jr-range')?.value || '30', 10);
+      if (!dash) return;
+      dash.innerHTML = '<div class="loading">Carregando dados…</div>';
+
+      const since = new Date(Date.now() - days * 86400000).toISOString();
+
+      // Fetch RPC and extra raw data in parallel
+      const [rpcRes, rawRes] = await Promise.all([
+        supabase.rpc('admin_get_johrei_analytics', { days_back: days }),
+        supabase.from('johrei_visits').select('viewport,lang,created_at').gte('created_at', since)
+      ]);
+
+      if (rpcRes.error) {
+        const msg = /Not authorized|42501/i.test(rpcRes.error.message)
+          ? 'Sem permissão de admin para ver esta seção.'
+          : `Erro: ${rpcRes.error.message}`;
+        dash.innerHTML = `<div class="loading" style="color:#e05252;">${msg}</div>`;
+        return;
+      }
+
+      const data = rpcRes.data;
+      const raw = rawRes.data || [];
+      const t = data.totals || {};
+      const daily = data.daily || [];
+      const refs = data.top_referrers || [];
+      const paths = data.top_paths || [];
+
+      if (genAt) genAt.textContent = `Atualizado em ${new Date(data.generated_at).toLocaleString('pt-BR')}`;
+
+      if (!(t.all_time_visits > 0)) {
+        dash.innerHTML = '<div class="loading">Ainda não há visitas registradas.</div>';
+        return;
+      }
+
+      // ── Aggregate extra fields ──────────────────────────────────
+      const devices = { Mobile: 0, Tablet: 0, Desktop: 0 };
+      const langMap = {};
+      const hours = new Array(24).fill(0);
+
+      raw.forEach(r => {
+        const w = parseInt((r.viewport || '').split('x')[0], 10);
+        if (w > 0) {
+          if (w < 768) devices.Mobile++;
+          else if (w < 1024) devices.Tablet++;
+          else devices.Desktop++;
+        }
+        const l = ((r.lang || '').split('-')[0].toLowerCase()) || '?';
+        langMap[l] = (langMap[l] || 0) + 1;
+        hours[new Date(r.created_at).getHours()]++;
+      });
+
+      const deviceTotal = Object.values(devices).reduce((a, b) => a + b, 0) || 1;
+      const topLangs = Object.entries(langMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      const langTotal = topLangs.reduce((s, e) => s + e[1], 0) || 1;
+      const hourMax = Math.max(...hours, 1);
+
+      // ── Helpers ─────────────────────────────────────────────────
+      const esc = s => String(s ?? '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+      const card = (v, label, uniques) => `<div class="jr-card">
+        <div class="v">${(v ?? 0).toLocaleString('pt-BR')}</div>
+        <div class="s">${label}</div>
+        ${uniques != null ? `<div class="u">${uniques.toLocaleString('pt-BR')} únicos</div>` : ''}
+      </div>`;
+      const tbl = (rows, keyCol, valCol) => {
+        if (!rows.length) return '<div class="loading">Sem dados.</div>';
+        return `<table><thead><tr><th>${keyCol === 'path' ? 'Caminho' : 'Origem'}</th><th style="text-align:right;">Visitas</th></tr></thead><tbody>${
+          rows.map(r => `<tr><td class="ell">${esc(r[keyCol])}</td><td class="num">${(r[valCol]??0).toLocaleString('pt-BR')}</td></tr>`).join('')
+        }</tbody></table>`;
+      };
+
+      // Dispositivos bar
+      const deviceColors = { Mobile: '#34c759', Tablet: '#007aff', Desktop: '#b8860b' };
+      const deviceBars = Object.entries(devices).map(([name, n]) => {
+        const pct = Math.round(n / deviceTotal * 100);
+        return `<div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px;">
+            <span>${name}</span><span style="color:${deviceColors[name]};font-weight:600;">${pct}% <span style="color:var(--text-muted);font-weight:400;">(${n})</span></span>
+          </div>
+          <div style="height:7px;background:var(--border);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:${deviceColors[name]};border-radius:4px;transition:width .4s;"></div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // Idiomas pills
+      const langPills = topLangs.map(([l, n]) => {
+        const pct = Math.round(n / langTotal * 100);
+        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:.82rem;min-width:32px;font-weight:600;">${esc(l)}</span>
+          <div style="flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:var(--accent);border-radius:4px;"></div>
+          </div>
+          <span style="font-size:.75rem;color:var(--text-muted);min-width:36px;text-align:right;">${pct}%</span>
+        </div>`;
+      }).join('');
+
+      // Horário sparkline (SVG)
+      const bw = 16, gap = 2, svgW = 24 * (bw + gap), svgH = 56;
+      const hourBars = hours.map((v, h) => {
+        const bh = Math.round((v / hourMax) * svgH);
+        const x = h * (bw + gap);
+        const isNight = h < 6 || h >= 22;
+        return `<rect x="${x}" y="${svgH - bh}" width="${bw}" height="${bh}" rx="2" fill="${isNight ? '#6b7280' : 'var(--accent)'}" opacity="${v === 0 ? 0.15 : 0.85}"/>
+          <title>${h}h: ${v} visita${v !== 1 ? 's' : ''}</title>`;
+      }).join('');
+      const hourPeakIdx = hours.indexOf(Math.max(...hours));
+      const hourSvg = `<svg viewBox="0 0 ${svgW} ${svgH}" width="100%" height="${svgH}" style="margin-top:10px;">${hourBars}</svg>
+        <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-muted);margin-top:3px;"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span></div>
+        <p style="font-size:.78rem;color:var(--text-muted);margin:6px 0 0;">Pico: <strong>${hourPeakIdx}h</strong> (${hours[hourPeakIdx]} visitas)</p>`;
+
+      dash.innerHTML = `
+        <div class="jr-cards">
+          ${card(t.today_visits,'Hoje',t.today_uniques)}
+          ${card(t.week_visits,'7 dias',t.week_uniques)}
+          ${card(t.period_visits,`${data.days_back} dias`,t.period_uniques)}
+          ${card(t.all_time_visits,'Total',t.all_time_uniques)}
+        </div>
+        <div class="jr-chart-wrap">
+          <h3>Visitas por dia (últimos ${data.days_back} dias)</h3>
+          <canvas id="jr-chart"></canvas>
+        </div>
+        <div class="jr-tables" style="margin-bottom:16px;">
+          <div class="jr-tbl"><h3>Top referrers</h3>${tbl(refs,'referrer','visits')}</div>
+          <div class="jr-tbl"><h3>Top páginas</h3>${tbl(paths,'path','visits')}</div>
+        </div>
+        <div class="jr-tables">
+          <div class="jr-tbl"><h3>Dispositivos</h3>${deviceTotal > 1 ? deviceBars : '<div class="loading">Sem dados.</div>'}</div>
+          <div class="jr-tbl"><h3>Idiomas</h3>${topLangs.length ? langPills : '<div class="loading">Sem dados.</div>'}</div>
+        </div>
+        <div class="jr-chart-wrap" style="margin-top:16px;">
+          <h3>Horário de pico (últimos ${data.days_back} dias)</h3>
+          ${hourSvg}
+        </div>`;
+
+      const ctx = document.getElementById('jr-chart');
+      if (ctx) {
+        if (_jrChart) _jrChart.destroy();
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#b8860b';
+        _jrChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: daily.map(r => r.day.slice(5)),
+            datasets: [
+              { label: 'Visitas', data: daily.map(r => r.visits), borderColor: accent, backgroundColor: 'rgba(184,134,11,0.1)', fill: true, tension: 0.3, pointRadius: 2 },
+              { label: 'Únicos', data: daily.map(r => r.uniques), borderColor: '#6b7280', backgroundColor: 'transparent', borderDash: [4,4], tension: 0.3, pointRadius: 2 }
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } } },
+            scales: {
+              x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+              y: { beginAtZero: true, ticks: { font: { size: 10 }, precision: 0 } }
+            }
+          }
+        });
+      }
     };
 
     window.rebuildSearchIndex = async function() {
@@ -5118,13 +5331,5 @@
     checkAdmin();
   </script>
 
-  <!-- Modal japonês F&R -->
-  <div id="fr-ja-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.55); padding:20px; overflow:auto;" onclick="if(event.target===this)this.style.display='none'">
-    <div style="max-width:680px; margin:60px auto; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:24px 28px; position:relative;">
-      <button onclick="document.getElementById('fr-ja-modal').style.display='none'" style="position:absolute; top:14px; right:16px; background:transparent; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted); line-height:1;">✕</button>
-      <p style="margin:0 0 14px; font-size:0.78rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.6px;">Texto original em japonês</p>
-      <div id="fr-ja-modal-text" style="font-size:0.88rem; line-height:1.9; white-space:pre-wrap; word-break:break-word; color:var(--text);"></div>
-    </div>
-  </div>
 </body>
 </html>

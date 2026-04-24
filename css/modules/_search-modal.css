@@ -286,8 +286,7 @@
   }
 
   #searchClear {
-    font-size: 0.8rem;
-    padding: 3px 10px;
+    display: none !important;
   }
 
   .search-result-item {

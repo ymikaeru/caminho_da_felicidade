@@ -121,7 +121,6 @@ h2.section-header {
 .volume-stats-footer {
   margin-top: 56px;
   padding-top: 40px;
-  border-top: 1px solid var(--border);
 }
 
 .stats-header {

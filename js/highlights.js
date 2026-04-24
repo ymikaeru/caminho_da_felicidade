@@ -616,6 +616,14 @@
         highlight.topicTitle, highlight.color, highlight.comment, highlight.text,
         highlight.startChar, highlight.endChar
       );
+    } else if (window._syncQueue) {
+      window._syncQueue.queueSaveHighlight({
+        volume: highlight.vol, file: highlight.file,
+        topicId: highlight.topicId, topicIndex: highlight.topicIndex,
+        topicTitle: highlight.topicTitle, color: highlight.color,
+        comment: highlight.comment, text: highlight.text,
+        startChar: highlight.startChar, endChar: highlight.endChar,
+      });
     }
 
     if (_isMobile) {
@@ -639,10 +647,23 @@
     if (h) {
       const key = `${h.vol}:${h.file}:${h.topicId}:${h.startChar}:${h.endChar}`;
       _addDeletedTombstone(key);
-    }
 
-    if (window._cloudSync && h) {
-      window._cloudSync.removeHighlight(h.vol, h.file, h.topicId, h.startChar, h.endChar);
+      const queueFallback = () => {
+        if (window._syncQueue) {
+          window._syncQueue.queueRemoveHighlight({
+            volume: h.vol, file: h.file, topicId: h.topicId,
+            startChar: h.startChar, endChar: h.endChar,
+          });
+        }
+      };
+
+      if (window._cloudSync) {
+        window._cloudSync
+          .removeHighlight(h.vol, h.file, h.topicId, h.startChar, h.endChar)
+          .catch(() => queueFallback());
+      } else {
+        queueFallback();
+      }
     }
 
     const mark = document.querySelector(`mark.user-highlight[data-highlight-id="${id}"]`);

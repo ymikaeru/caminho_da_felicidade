@@ -127,9 +127,9 @@ async function _processQueue() {
           }, { onConflict: 'user_id,volume,file,topic_id,start_char,end_char' });
         success = !error;
       } else if (operation === 'removeHighlight') {
-        const { error } = await supabase
+        const { error, count } = await supabase
           .from('user_highlights')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('user_id', session.user.id)
           .eq('volume', payload.volume)
           .eq('file', payload.file)
@@ -137,6 +137,9 @@ async function _processQueue() {
           .eq('start_char', Number(payload.startChar))
           .eq('end_char', Number(payload.endChar));
         success = !error;
+        if (!error && count === 0) {
+          console.warn('[sync-queue] removeHighlight: 0 rows matched, dropping from queue', payload);
+        }
       }
 
       if (success) {

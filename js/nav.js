@@ -94,6 +94,10 @@ function _initMobileNav() {
         <button class="mobile-nav-link" onclick="toggleComparison(); closeMobileNav();" id="mobileNavLinkComparison">
           <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
           <span class="link-text">${t.comparison}</span>
+        </button>
+        <button class="mobile-nav-link" onclick="closeMobileNav(); printCurrentTeaching();" id="mobileNavLinkPrint">
+          <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          <span class="link-text">${t.print || 'Imprimir'}</span>
         </button>` : ''}
 
         <div class="mobile-nav-divider"></div>

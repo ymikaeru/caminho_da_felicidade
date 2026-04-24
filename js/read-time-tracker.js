@@ -6,7 +6,7 @@
 import { supabase } from './supabase-config.js';
 
 const HEARTBEAT_MS = 15000;     // intervalo de envio
-const IDLE_TIMEOUT_MS = 45000;  // inativo após 45 s sem scroll/click/keydown/mouse
+const IDLE_TIMEOUT_MS = 90000;  // inativo após 90 s sem scroll/click/keydown/mouse (leitura parada conta)
 const MAX_DELTA_SECS = 300;     // cap por chamada (seguro contra clock jumps)
 
 let _currentKey = null;         // `${volume}|${file}`
@@ -36,6 +36,7 @@ function _tick() {
 }
 
 async function _flush() {
+  _tick(); // garante que tempo ativo desde o último tick entre no acumulado antes de enviar
   if (!_currentVolume || !_currentFile) return;
   const secs = Math.floor(_accumulatedMs / 1000);
   if (secs <= 0) return;

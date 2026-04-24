@@ -30,6 +30,7 @@ const MENU_TEXTS = {
     justify: 'Justificar Texto',
     boldText: 'Texto em Negrito',
     comparison: 'Comparação 日本語／PT',
+    print: 'Imprimir ensinamento',
     volumeTopics: 'Temas do Volume'
   },
   ja: {
@@ -55,6 +56,7 @@ const MENU_TEXTS = {
     justify: 'テキストを両端揃え',
     boldText: '太字テキスト',
     comparison: '比較モード 日本語／PT',
+    print: '教えを印刷',
     volumeTopics: 'このボリュームのテーマ'
   }
 };

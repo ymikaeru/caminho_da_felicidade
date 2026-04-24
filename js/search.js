@@ -174,31 +174,99 @@ async function getSearchIndex() {
   return searchIndex;
 }
 
-window.openRandomFromVolume = async function(vol) {
-  await getSearchIndex();
-  if (!searchIndex || searchIndex.length === 0) return;
+function _resolveAccessibleVolumes() {
+  const limitedConfig = (typeof isLimitedUser === 'function' && isLimitedUser())
+    ? (typeof getAccessConfig === 'function' ? getAccessConfig() : null)
+    : null;
+  return limitedConfig && typeof getEnabledVolumes === 'function'
+    ? getEnabledVolumes(limitedConfig)
+    : ['mioshiec1', 'mioshiec2', 'mioshiec3', 'mioshiec4'];
+}
+
+function _setRandomLoading(btn) {
+  if (!btn || btn.disabled) return { restore: () => {} };
+  const origHtml = btn.innerHTML;
+  const origWidth = btn.offsetWidth;
   const lang = localStorage.getItem('site_lang') || 'pt';
-  const filtered = searchIndex.filter(item => item.v === vol);
-  if (filtered.length === 0) return;
-  const item = filtered[Math.floor(Math.random() * filtered.length)];
-  const topicIdx = item.i != null ? item.i : 0;
-  let href = `${getBasePath()}reader.html?vol=${item.v}&file=${item.f}`;
-  if (topicIdx > 0) href += `&topic=${topicIdx}`;
-  if (lang === 'ja') href += `&lang=ja`;
-  window.location.href = href;
+  const txt = lang === 'ja' ? '読み込み中...' : 'Carregando...';
+  btn.disabled = true;
+  btn.setAttribute('aria-busy', 'true');
+  btn.style.minWidth = origWidth + 'px';
+  btn.innerHTML = `<span class="search-spinner" aria-hidden="true"></span><span>${txt}</span>`;
+  return {
+    restore: () => {
+      btn.disabled = false;
+      btn.removeAttribute('aria-busy');
+      btn.style.minWidth = '';
+      btn.innerHTML = origHtml;
+    }
+  };
+}
+
+window.openRandomFromVolume = async function(vol, evt) {
+  const loader = _setRandomLoading(evt?.currentTarget);
+  try {
+    const lang = localStorage.getItem('site_lang') || 'pt';
+    let items;
+    if (searchIndex && searchIndex.length > 0) {
+      items = searchIndex.filter(item => item.v === vol);
+    } else if (window.supabaseStorageFetch) {
+      try {
+        items = await window.supabaseStorageFetch(`search_index_${vol}.json`);
+      } catch (e) {
+        console.warn(`Volume index ${vol} failed:`, e);
+        loader.restore();
+        return;
+      }
+    } else {
+      loader.restore();
+      return;
+    }
+    if (!items || items.length === 0) { loader.restore(); return; }
+    const item = items[Math.floor(Math.random() * items.length)];
+    const topicIdx = item.i != null ? item.i : 0;
+    let href = `${getBasePath()}reader.html?vol=${item.v || vol}&file=${item.f}`;
+    if (topicIdx > 0) href += `&topic=${topicIdx}`;
+    if (lang === 'ja') href += `&lang=ja`;
+    window.location.href = href;
+  } catch (err) {
+    console.error('Random volume teaching failed:', err);
+    loader.restore();
+  }
 };
 
-window.openRandomTeaching = async function() {
-  await getSearchIndex();
-  if (!searchIndex || searchIndex.length === 0) return;
-  const lang = localStorage.getItem('site_lang') || 'pt';
-  const item = searchIndex[Math.floor(Math.random() * searchIndex.length)];
-  const title = (lang === 'ja' && item.tj) ? item.tj : (item.t || '');
-  const topicIdx = item.i != null ? item.i : 0;
-  let href = `${getBasePath()}reader.html?vol=${item.v}&file=${item.f}`;
-  if (topicIdx > 0) href += `&topic=${topicIdx}`;
-  if (lang === 'ja') href += `&lang=ja`;
-  window.location.href = href;
+window.openRandomTeaching = async function(evt) {
+  const loader = _setRandomLoading(evt?.currentTarget);
+  try {
+    const lang = localStorage.getItem('site_lang') || 'pt';
+    let items = (searchIndex && searchIndex.length > 0) ? searchIndex : null;
+
+    if (!items) {
+      if (!window.supabaseStorageFetch) { loader.restore(); return; }
+      const volumes = _resolveAccessibleVolumes();
+      if (!volumes || volumes.length === 0) { loader.restore(); return; }
+      const randomVol = volumes[Math.floor(Math.random() * volumes.length)];
+      try {
+        items = await window.supabaseStorageFetch(`search_index_${randomVol}.json`);
+        items = (items || []).map(it => ({ ...it, v: it.v || randomVol }));
+      } catch (e) {
+        console.warn('Fast random load failed, falling back to full index:', e);
+        await getSearchIndex();
+        items = searchIndex;
+      }
+    }
+
+    if (!items || items.length === 0) { loader.restore(); return; }
+    const item = items[Math.floor(Math.random() * items.length)];
+    const topicIdx = item.i != null ? item.i : 0;
+    let href = `${getBasePath()}reader.html?vol=${item.v}&file=${item.f}`;
+    if (topicIdx > 0) href += `&topic=${topicIdx}`;
+    if (lang === 'ja') href += `&lang=ja`;
+    window.location.href = href;
+  } catch (err) {
+    console.error('Random teaching failed:', err);
+    loader.restore();
+  }
 };
 
 window.clearSearch = function () {

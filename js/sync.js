@@ -359,9 +359,9 @@ export async function removeHighlight(volume, file, topicId, startChar, endChar)
   }
 
   try {
-    const { error } = await supabase
+    const { error, count } = await supabase
       .from('user_highlights')
-      .delete()
+      .delete({ count: 'exact' })
       .eq('user_id', session.user.id)
       .eq('volume', volume)
       .eq('file', file)
@@ -371,22 +371,17 @@ export async function removeHighlight(volume, file, topicId, startChar, endChar)
 
     if (error) {
       console.error('[sync] removeHighlight failed:', error.message, { volume, file, topicId, startChar, endChar });
-      // Fallback: try without type coercion
-      const { error: error2 } = await supabase
-        .from('user_highlights')
-        .delete()
-        .eq('user_id', session.user.id)
-        .eq('volume', volume)
-        .eq('file', file)
-        .eq('topic_id', topicId)
-        .eq('start_char', startChar)
-        .eq('end_char', endChar);
-      if (error2) {
-        console.error('[sync] removeHighlight fallback also failed:', error2.message);
-        if (window._syncQueue) {
-          await window._syncQueue.queueRemoveHighlight({ volume, file, topicId, startChar, endChar });
-        }
+      if (window._syncQueue) {
+        await window._syncQueue.queueRemoveHighlight({ volume, file, topicId, startChar, endChar });
       }
+      return;
+    }
+
+    if (count === 0) {
+      // Row didn't match — either already deleted on another device, or local/cloud
+      // schema mismatch on start_char/end_char. Either way, retrying won't help, so
+      // just surface a warning instead of enqueueing an infinite retry loop.
+      console.warn('[sync] removeHighlight: 0 rows matched', { volume, file, topicId, startChar, endChar });
     }
   } catch (err) {
     console.error('[sync] removeHighlight threw:', err);

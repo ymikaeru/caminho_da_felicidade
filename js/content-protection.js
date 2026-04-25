@@ -18,6 +18,7 @@
   }
 
   function _inProtectedContent(target) {
+    if (typeof isAdminUser === 'function' && isAdminUser()) return false;
     if (!target || !target.closest) return false;
     if (target.closest(INTERACTIVE_WHITELIST)) return false;
     return !!target.closest(PROTECTED_SELECTOR);

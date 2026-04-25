@@ -30,6 +30,11 @@
   gap: 16px;
 }
 
+.topic-group-break {
+  grid-column: 1 / -1;
+  height: 8px;
+}
+
 .topic-card {
   display: flex;
   align-items: center;

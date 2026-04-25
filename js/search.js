@@ -833,7 +833,8 @@ function performSearch(query) {
         let snippet = raw.substring(start, end);
         if (start > 0) snippet = '...' + snippet;
         if (end < raw.length) snippet += '...';
-        item.snippet = snippet;
+        results.push({ ...item, score, snippet });
+        continue;
       }
     }
 
@@ -934,7 +935,7 @@ function _renderResultItem(r, basePath, highlightRegex, q, activeLang) {
     : '';
   const breadcrumbLabel = isDifferent ? `${homeLabel} / ${volLabel} / ${sectLabel}` : `${homeLabel} / ${volLabel}`;
 
-  const highlight = (r.snippet || '')
+  const highlight = escHtml(r.snippet || '')
     .replace(highlightRegex, '<mark class="search-highlight">$1</mark>');
 
   let href = `${basePath}reader.html?vol=${r.v}&file=${r.f}&search=${encodeURIComponent(q)}`;

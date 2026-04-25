@@ -2,7 +2,7 @@ import os
 import re
 import json
 
-base_dir = r"c:\Users\ymika\OneDrive\Documentos\Mioshie\mioshie_college_app"
+base_dir = os.path.dirname(os.path.abspath(__file__))
 vols = ["mioshiec1", "mioshiec2", "mioshiec3", "mioshiec4"]
 
 section_map = {}
@@ -21,20 +21,20 @@ for vol in vols:
     for i, part in enumerate(parts):
         if i == 0: continue
         
-        m_pt = re.search(r'<span class="lang-pt">(.*?)</span>', part)
-        m_ja = re.search(r'<span class="lang-ja"[^>]*>(.*?)</span>', part)
-        
-        sec_pt = m_pt.group(1).strip() if m_pt else ""
-        sec_ja = m_ja.group(1).strip() if m_ja else ""
-        
+        m_pt = re.search(r'<span class="lang-pt">(.*?)</span>', part, re.DOTALL)
+        m_ja = re.search(r'<span class="lang-ja"[^>]*>(.*?)</span>', part, re.DOTALL)
+
+        sec_pt = re.sub(r'\s+', ' ', m_pt.group(1)).strip() if m_pt else ""
+        sec_ja = re.sub(r'\s+', ' ', m_ja.group(1)).strip() if m_ja else ""
+
         cards = re.findall(r'<a.*?href=".*?(?:file=)([^"&]+)[^"]*".*?class="topic-card".*?>(.*?)</a>', part, re.DOTALL)
         for card_file, card_html in cards:
             title_pt = ""
             title_ja = ""
-            cm_pt = re.search(r'<span class="lang-pt">(.*?)</span>', card_html)
-            cm_ja = re.search(r'<span class="lang-ja"[^>]*>(.*?)</span>', card_html)
-            if cm_pt: title_pt = cm_pt.group(1).strip()
-            if cm_ja: title_ja = cm_ja.group(1).strip()
+            cm_pt = re.search(r'<span class="lang-pt">(.*?)</span>', card_html, re.DOTALL)
+            cm_ja = re.search(r'<span class="lang-ja"[^>]*>(.*?)</span>', card_html, re.DOTALL)
+            if cm_pt: title_pt = re.sub(r'\s+', ' ', cm_pt.group(1)).strip()
+            if cm_ja: title_ja = re.sub(r'\s+', ' ', cm_ja.group(1)).strip()
             
             section_map[vol][card_file] = {
                 "section": sec_pt,

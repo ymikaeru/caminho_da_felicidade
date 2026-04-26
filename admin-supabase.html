@@ -641,6 +641,7 @@
             <div class="tab-group" data-section="johrei">
               <div class="tab-group-tabs">
                 <div class="admin-tab" onclick="switchTab('analytics-johrei')">📊 Analytics</div>
+                <div class="admin-tab" onclick="switchTab('essencia-guia')">📌 Essência</div>
               </div>
             </div>
           </div><!-- /admin-tabs -->
@@ -1207,6 +1208,57 @@
             <div id="jr-dashboard"><div class="loading">Carregando dados…</div></div>
           </div>
 
+          <!-- Essência (Guia) Tab -->
+          <div class="tab-content" id="tab-essencia-guia">
+            <div class="admin-section">
+              <h2>📌 Essência — Destaque editorial do guia_johrei</h2>
+              <p style="color:var(--text-muted);font-size:.85rem;max-width:680px;line-height:1.55;margin-bottom:24px;">
+                Um único ensinamento aparece no card "Essência" no topo do site, em todas as abas.
+                Use pra conscientizar ministrantes sobre ensinamentos centrais que ficam ocultos no fluxo natural.
+                Mudanças aqui aparecem no próximo carregamento do site.
+              </p>
+
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;max-width:760px;">
+                <label style="display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">
+                  Ensinamento em destaque
+                </label>
+                <div id="ess-search-wrap" style="position:relative;margin-bottom:6px;">
+                  <input id="ess-search" type="search" autocomplete="off" placeholder="Buscar título do ensinamento..." style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.95rem;">
+                  <div id="ess-results" style="position:absolute;top:100%;left:0;right:0;max-height:280px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;z-index:10;display:none;"></div>
+                </div>
+
+                <div id="ess-selected" style="margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:8px;background:var(--bg);display:none;">
+                  <div style="font-size:.95rem;font-weight:600;color:var(--text);" id="ess-selected-title"></div>
+                  <div style="font-size:.78rem;color:var(--text-muted);margin-top:4px;" id="ess-selected-meta"></div>
+                  <div style="margin-top:10px;display:flex;gap:8px;">
+                    <a id="ess-open-site" href="#" target="_blank" rel="noopener" style="font-size:.78rem;color:var(--accent);text-decoration:none;">abrir no site ↗</a>
+                    <button type="button" id="ess-clear" style="font-size:.78rem;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0;">trocar</button>
+                  </div>
+                </div>
+
+                <label style="display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text-muted);font-weight:600;margin:28px 0 8px;">
+                  Trecho exibido no card
+                </label>
+                <textarea id="ess-excerpt" rows="4" placeholder="Cole ou escreva o trecho de impacto que vai aparecer junto ao título no site..." style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.92rem;line-height:1.5;resize:vertical;font-family:inherit;"></textarea>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+                  <span style="font-size:.72rem;color:var(--text-muted);">Recomendado: até 280 caracteres</span>
+                  <span id="ess-charcount" style="font-size:.72rem;color:var(--text-muted);">0</span>
+                </div>
+
+                <div id="ess-status" style="margin-top:18px;font-size:.78rem;color:var(--text-muted);"></div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:24px;border-top:1px solid var(--border);padding-top:18px;">
+                  <button type="button" id="ess-delete" style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;">
+                    Remover destaque
+                  </button>
+                  <button type="button" id="ess-save" disabled style="background:var(--accent);color:#fff;border:none;padding:9px 22px;border-radius:6px;cursor:pointer;font-size:.9rem;font-weight:600;opacity:.5;">
+                    Salvar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Landing Analytics Tab -->
           <div class="tab-content" id="tab-analytics-landing">
             <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
@@ -1579,7 +1631,7 @@
     window.switchTab = function(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'calendar': 0, 'announcements': 1, 'access': 2, 'analytics-landing': 3, 'users': 4, 'analytics': 5, 'destaques': 6, 'reports': 7, 'findreplace': 8, 'logs': 9, 'analytics-johrei': 10 }[tab];
+      const tabIndex = { 'calendar': 0, 'access': 1, 'announcements': 2, 'analytics-landing': 3, 'users': 4, 'analytics': 5, 'destaques': 6, 'reports': 7, 'findreplace': 8, 'logs': 9, 'analytics-johrei': 10, 'essencia-guia': 11 }[tab];
       document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'analytics') {
@@ -5170,6 +5222,8 @@
       const refs = data.top_referrers || [];
       const paths = data.top_paths || [];
 
+      console.log('[jr-analytics] totals:', t, 'daily.length:', daily.length, 'daily[0..2]:', daily.slice(0, 3));
+
       if (genAt) genAt.textContent = `Atualizado em ${new Date(data.generated_at).toLocaleString('pt-BR')}`;
 
       if (!(t.all_time_visits > 0)) {
@@ -5278,27 +5332,35 @@
         </div>`;
 
       const ctx = document.getElementById('jr-chart');
+      console.log('[jr-analytics] canvas ctx:', ctx, 'size:', ctx?.clientWidth, 'x', ctx?.clientHeight);
       if (ctx) {
         if (_jrChart) _jrChart.destroy();
         const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#b8860b';
-        _jrChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: daily.map(r => r.day.slice(5)),
-            datasets: [
-              { label: 'Visitas', data: daily.map(r => r.visits), borderColor: accent, backgroundColor: 'rgba(184,134,11,0.1)', fill: true, tension: 0.3, pointRadius: 2 },
-              { label: 'Únicos', data: daily.map(r => r.uniques), borderColor: '#6b7280', backgroundColor: 'transparent', borderDash: [4,4], tension: 0.3, pointRadius: 2 }
-            ]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } } },
-            scales: {
-              x: { ticks: { font: { size: 10 } }, grid: { display: false } },
-              y: { beginAtZero: true, ticks: { font: { size: 10 }, precision: 0 } }
+        try {
+          _jrChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: daily.map(r => r.day.slice(5)),
+              datasets: [
+                { label: 'Visitas', data: daily.map(r => r.visits), borderColor: accent, backgroundColor: 'rgba(184,134,11,0.1)', fill: true, tension: 0.3, pointRadius: 2 },
+                { label: 'Únicos', data: daily.map(r => r.uniques), borderColor: '#6b7280', backgroundColor: 'transparent', borderDash: [4,4], tension: 0.3, pointRadius: 2 }
+              ]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: false,
+              plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } } },
+              scales: {
+                x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+                y: { beginAtZero: true, ticks: { font: { size: 10 }, precision: 0 } }
+              }
             }
-          }
-        });
+          });
+          console.log('[jr-analytics] chart created OK');
+        } catch (e) {
+          console.error('[jr-analytics] chart failed:', e);
+        }
+      } else {
+        console.error('[jr-analytics] canvas #jr-chart not found in DOM');
       }
     };
 

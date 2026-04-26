@@ -33,10 +33,14 @@
   function _logAction(action) {
     try {
       const { volId, filename } = _getPageRef();
+      console.log('[content-protection] _logAction →', { action, volId, filename, hasAuth: !!window.supabaseAuth, hasLogAccess: typeof window.supabaseAuth?.logAccess });
       if (window.supabaseAuth && typeof window.supabaseAuth.logAccess === 'function') {
-        window.supabaseAuth.logAccess(volId || null, filename || null, action).catch(() => {});
+        window.supabaseAuth.logAccess(volId || null, filename || null, action)
+          .catch((err) => console.warn('[content-protection] logAccess throw:', err));
+      } else {
+        console.warn('[content-protection] window.supabaseAuth.logAccess não disponível — log abortado');
       }
-    } catch (e) { /* silencioso */ }
+    } catch (e) { console.warn('[content-protection] _logAction throw:', e); }
   }
 
   function _lang() {
@@ -48,8 +52,12 @@
   // ----------------------------------------------------------------
 
   function _onCopy(e) {
-    if (!_inProtectedContent(e.target)) return;
+    const inProtected = _inProtectedContent(e.target);
+    const isAdmin = (typeof isAdminUser === 'function' && isAdminUser());
+    console.log('[content-protection] copy event:', { type: e.type, inProtected, isAdmin, target: e.target?.tagName });
+    if (!inProtected) return;
     const sel = (window.getSelection && window.getSelection().toString()) || '';
+    console.log('[content-protection] seleção:', { length: sel.length, preview: sel.slice(0, 40) });
     if (!sel.trim()) return;
     _logAction('copy');
   }

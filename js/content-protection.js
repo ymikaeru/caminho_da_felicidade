@@ -1,10 +1,8 @@
 // ============================================================
 // CONTENT PROTECTION — Mioshie College
-// - Bloqueia copy/cut/contextmenu/dragstart dentro de .topic-content
-// - Seleção continua permitida (necessária pros destaques)
+// - Cópia liberada; loga 'copy' (1x por evento, inclui cut) em access_logs
 // - printCurrentTeaching() abre um seletor de tópicos antes de imprimir
 // - CSS @media print oculta chrome e deixa só o conteúdo escolhido
-// - Loga 'copy_blocked' (1x por página/sessão) e 'print' em access_logs
 // ============================================================
 
 (function () {
@@ -46,27 +44,14 @@
   }
 
   // ----------------------------------------------------------------
-  // Copy / Cut / Context menu blocking
+  // Copy / Cut logging (não bloqueia — apenas registra)
   // ----------------------------------------------------------------
 
-  let _copyLoggedThisPage = false;
-
-  function _blockCopy(e) {
+  function _onCopy(e) {
     if (!_inProtectedContent(e.target)) return;
-    e.preventDefault();
-    if (e.clipboardData) {
-      try { e.clipboardData.setData('text/plain', ''); } catch (_) {}
-    }
-    if (!_copyLoggedThisPage) {
-      _copyLoggedThisPage = true;
-      _logAction('copy_blocked');
-    }
-    _flashToast();
-  }
-
-  function _blockContextMenu(e) {
-    if (!_inProtectedContent(e.target)) return;
-    e.preventDefault();
+    const sel = (window.getSelection && window.getSelection().toString()) || '';
+    if (!sel.trim()) return;
+    _logAction('copy');
   }
 
   function _blockKeyboardShortcuts(e) {
@@ -81,29 +66,6 @@
       e.preventDefault();
       if (k === 'p') window.printCurrentTeaching();
     }
-  }
-
-  // ----------------------------------------------------------------
-  // Toast feedback
-  // ----------------------------------------------------------------
-
-  let _toastEl = null;
-  let _toastTimer = null;
-
-  function _flashToast() {
-    const msg = _lang() === 'ja' ? 'コピーは無効化されています' : 'Cópia de conteúdo desativada';
-    if (!_toastEl) {
-      _toastEl = document.createElement('div');
-      _toastEl.className = 'content-protection-toast';
-      _toastEl.setAttribute('role', 'status');
-      document.body.appendChild(_toastEl);
-    }
-    _toastEl.textContent = msg;
-    _toastEl.classList.add('visible');
-    clearTimeout(_toastTimer);
-    _toastTimer = setTimeout(() => {
-      if (_toastEl) _toastEl.classList.remove('visible');
-    }, 2200);
   }
 
   // ----------------------------------------------------------------
@@ -229,24 +191,6 @@
     const style = document.createElement('style');
     style.id = 'content-protection-styles';
     style.textContent = `
-      /* Toast */
-      .content-protection-toast {
-        position: fixed; bottom: 24px; left: 50%;
-        transform: translateX(-50%) translateY(20px);
-        background: rgba(20,20,20,0.92); color: #fff;
-        padding: 10px 18px; border-radius: 22px;
-        font-size: 0.85rem; font-family: inherit;
-        z-index: 9999; opacity: 0; pointer-events: none;
-        transition: opacity 0.2s ease, transform 0.2s ease;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-      }
-      .content-protection-toast.visible {
-        opacity: 1; transform: translateX(-50%) translateY(0);
-      }
-      [data-mode="dark"] .content-protection-toast {
-        background: rgba(245,245,245,0.92); color: #111;
-      }
-
       /* Print picker modal */
       .print-picker-modal {
         position: fixed; inset: 0; z-index: 10000;
@@ -338,7 +282,7 @@
         .theme-modal, .side-drawer, .skip-link,
         .related-teachings-bar, .breadcrumbs,
         .reader-nav, .reader-nav-footer,
-        .content-protection-toast, .print-picker-modal,
+        .print-picker-modal,
         #readerTopicSelect,
         #backToIndexBtn, .skip-link,
         .topic-content.print-excluded {
@@ -400,13 +344,9 @@
 
   function _init() {
     _injectStyles();
-    document.addEventListener('copy', _blockCopy, true);
-    document.addEventListener('cut', _blockCopy, true);
-    document.addEventListener('contextmenu', _blockContextMenu, true);
+    document.addEventListener('copy', _onCopy, true);
+    document.addEventListener('cut', _onCopy, true);
     document.addEventListener('keydown', _blockKeyboardShortcuts);
-    document.addEventListener('dragstart', (e) => {
-      if (_inProtectedContent(e.target)) e.preventDefault();
-    }, true);
   }
 
   if (document.readyState === 'loading') {

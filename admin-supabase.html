@@ -822,11 +822,11 @@
               <div id="recent-activity"><div class="loading">Carregando...</div></div>
             </div>
 
-            <!-- Content Protection (print / copy_blocked) -->
+            <!-- Content Protection (print / copy) -->
             <div class="admin-section">
-              <h2>🛡️ Proteção de Conteúdo</h2>
+              <h2>🛡️ Cópias e Impressões</h2>
               <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">
-                Tentativas de cópia bloqueadas e impressões no período. Cópia é registrada 1x por página por sessão; impressão toda vez que o botão é acionado.
+                Cópias e impressões registradas no período. Cada evento de cópia (Ctrl+C, recortar ou clique-direito) e cada impressão é contado individualmente.
               </p>
               <div id="content-protection-stats"><div class="loading">Carregando...</div></div>
             </div>
@@ -4221,7 +4221,7 @@
       let q = supabase
         .from('access_logs')
         .select('user_id, volume, file, action, created_at')
-        .in('action', ['print', 'copy_blocked'])
+        .in('action', ['print', 'copy'])
         .order('created_at', { ascending: false })
         .limit(2000);
       if (since) q = q.gte('created_at', since);
@@ -4233,7 +4233,7 @@
 
       const rows = (raw || []).filter(r => !_adminIds.has(r.user_id));
       const prints = rows.filter(r => r.action === 'print');
-      const copies = rows.filter(r => r.action === 'copy_blocked');
+      const copies = rows.filter(r => r.action === 'copy');
 
       const byUser = new Map();
       rows.forEach(r => {
@@ -4259,7 +4259,7 @@
 
       const cardsHtml = `
         <div class="stats-grid" style="margin-bottom:20px;">
-          <div class="stat-card"><div class="stat-value" style="color:#e05252;">${copies.length}</div><div class="stat-label">Tentativas de Cópia</div></div>
+          <div class="stat-card"><div class="stat-value">${copies.length}</div><div class="stat-label">Cópias</div></div>
           <div class="stat-card"><div class="stat-value">${prints.length}</div><div class="stat-label">Impressões</div></div>
           <div class="stat-card"><div class="stat-value">${byUser.size}</div><div class="stat-label">Usuários Envolvidos</div></div>
         </div>`;
@@ -4272,14 +4272,14 @@
           .sort((a, b) => (b[1].copies + b[1].prints) - (a[1].copies + a[1].prints));
         tableHtml = `
           <table class="data-table">
-            <thead><tr><th>Usuário</th><th>Cópias Bloq.</th><th>Impressões</th><th>Última Ação</th><th>Último Ensinamento</th></tr></thead>
+            <thead><tr><th>Usuário</th><th>Cópias</th><th>Impressões</th><th>Última Ação</th><th>Último Ensinamento</th></tr></thead>
             <tbody>${sortedUsers.map(([uid, u]) => {
               const date = new Date(u.last);
               const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
               const title = u.lastFile ? getFileTitle(u.lastVol, u.lastFile) : '—';
               return `<tr>
                 <td>${_escHtml(nameMap[uid] || 'Desconhecido')}</td>
-                <td style="color:${u.copies ? '#e05252' : 'var(--text-muted)'}; font-weight:${u.copies ? '600' : '400'};">${u.copies}</td>
+                <td style="font-weight:${u.copies ? '600' : '400'};">${u.copies}</td>
                 <td style="font-weight:${u.prints ? '600' : '400'};">${u.prints}</td>
                 <td style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</td>
                 <td style="font-size:0.82rem;" title="${_escHtml(u.lastFile || '')}">${VOL_SHORT[u.lastVol] || u.lastVol || '—'} · ${_escHtml(title)}</td>

@@ -409,7 +409,8 @@
     ).join('');
 
     const commentPlaceholder = lang === 'ja' ? 'コメントを追加...' : 'Adicionar comentário...';
-    
+    const reportLabel = lang === 'ja' ? '翻訳エラーを報告' : 'Reportar erro de tradução';
+
     _mobileBarEl.innerHTML =
       `<div class="highlight-mobile-bar-content">` +
         `<div class="highlight-colors">${colorBtnsHTML}</div>` +
@@ -420,6 +421,11 @@
           `<button class="highlight-cancel-btn" id="highlightMobileCancelBtn">${cancelLabel}</button>` +
           `<button class="highlight-save-btn" id="highlightMobileSaveBtn">${highlightLabel}</button>` +
         `</div>` +
+        `<div class="highlight-tooltip-divider" style="margin: 2px 0"></div>` +
+        `<button class="tr-report-btn tr-report-btn--mobile" id="highlightMobileReportBtn">` +
+          `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>` +
+          `${reportLabel}` +
+        `</button>` +
       `</div>`;
 
     document.body.appendChild(_mobileBarEl);
@@ -440,6 +446,22 @@
 
     document.getElementById('highlightMobileCancelBtn').addEventListener('click', _hideMobileBar);
     document.getElementById('highlightMobileSaveBtn').addEventListener('click', _saveSelection);
+
+    const mobileReportBtn = document.getElementById('highlightMobileReportBtn');
+    if (mobileReportBtn) {
+      mobileReportBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sel = _currentSelection;
+        if (sel && typeof window.openTranslationReport === 'function') {
+          _hideMobileBar();
+          window.openTranslationReport(sel.text, {
+            topicId: sel.topicId,
+            vol: _getParams().volId,
+            file: _getParams().filename
+          });
+        }
+      });
+    }
   }
 
   function _hideMobileBar() {

@@ -1,7 +1,7 @@
 // ============================================================
 // Translation Report — Mioshie College
 // Permite ao usuário reportar erros de tradução via seleção de texto.
-// Desktop/tablet only. Requer usuário autenticado.
+// Disponível em desktop, tablet e mobile. Requer usuário autenticado.
 // ============================================================
 
 (function () {
@@ -264,6 +264,18 @@
         opacity: 0.6;
       }
 
+      /* Mobile bar variant — larger touch target, centered */
+      .tr-report-btn--mobile {
+        padding: 11px 12px;
+        font-size: 13px;
+        justify-content: center;
+        margin-top: 0;
+      }
+      .tr-report-btn--mobile svg {
+        width: 14px;
+        height: 14px;
+      }
+
       /* ── Modal Overlay ────────────────────────────────────── */
       .tr-modal-overlay {
         position: fixed;
@@ -508,11 +520,6 @@
 
   // ── Init ───────────────────────────────────────────────────
   function _init() {
-    // Desktop/tablet only — mirrors highlights.js detection
-    const isMobile = /Android|iPhone|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-      || window.innerWidth <= 768;
-    if (isMobile) return;
-
     _injectStyles();
     _buildModal();
 

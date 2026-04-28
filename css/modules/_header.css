@@ -17,7 +17,7 @@
   -webkit-box-align: center;
   -webkit-align-items: center;
   align-items: center;
-  padding: 0 max(16px, calc((100% - var(--container-width)) / 2));
+  padding: 0 clamp(16px, 2vw, 40px);
   z-index: 2000;
   -webkit-column-gap: 16px;
   column-gap: 16px;

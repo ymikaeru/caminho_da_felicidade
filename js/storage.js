@@ -6,6 +6,11 @@
 import SUPABASE_CONFIG, { supabase } from './supabase-config.js';
 const BUCKET = 'teachings';
 
+// In-memory cache: evita re-download do mesmo arquivo na mesma sessão.
+// TTL de 30 min — conteúdo dos ensinamentos raramente muda.
+const _cache = new Map();
+const CACHE_TTL = 30 * 60 * 1000;
+
 async function getSession() {
   // Usa apenas o singleton compartilhado de supabase-config.js
   // (window.supabaseAuth era um padrão legado que criava um segundo cliente)
@@ -21,33 +26,31 @@ async function getSession() {
  * @returns {Promise<object>} Parsed JSON
  */
 export async function storageFetch(path) {
+  const hit = _cache.get(path);
+  if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
+
   const session = await getSession();
 
+  let data;
   if (!session) {
     const baseUrl = window.DATA_OUTPUT_DIR || 'site_data';
-    const res = await fetch(`${baseUrl}/${path}`, { cache: 'no-store' });
-    if (!res.ok) {
-      throw new Error('Authentication required or file not found');
-    }
-    return res.json();
+    const res = await fetch(`${baseUrl}/${path}`);
+    if (!res.ok) throw new Error('Authentication required or file not found');
+    data = await res.json();
+  } else {
+    const storageUrl = `${SUPABASE_CONFIG.url}/storage/v1/object/authenticated/${BUCKET}/${path}`;
+    const res = await fetch(storageUrl, {
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: SUPABASE_CONFIG.anonKey
+      }
+    });
+    if (!res.ok) throw new Error(`Storage download failed: ${res.status}`);
+    data = await res.json();
   }
 
-  // Fetch diretamente com cache: 'no-store' para garantir conteúdo sempre atualizado.
-  // O supabase.storage.download() pode servir resposta cacheada pelo browser.
-  const storageUrl = `${SUPABASE_CONFIG.url}/storage/v1/object/authenticated/${BUCKET}/${path}`;
-  const res = await fetch(storageUrl, {
-    cache: 'no-store',
-    headers: {
-      Authorization: `Bearer ${session.access_token}`,
-      apikey: SUPABASE_CONFIG.anonKey
-    }
-  });
-
-  if (!res.ok) {
-    throw new Error(`Storage download failed: ${res.status}`);
-  }
-
-  return res.json();
+  _cache.set(path, { data, ts: Date.now() });
+  return data;
 }
 
 /**

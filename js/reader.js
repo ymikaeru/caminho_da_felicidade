@@ -40,8 +40,8 @@ function _prefetchAdjacent(volId, navJson, currentFilename) {
   if (idx - 1 >= 0) targets.push(navJson[idx - 1]);
 
   const schedule = window.requestIdleCallback
-    ? (fn) => window.requestIdleCallback(fn, { timeout: 2000 })
-    : (fn) => setTimeout(fn, 400);
+    ? (fn) => window.requestIdleCallback(fn, { timeout: 4000 })
+    : (fn) => setTimeout(fn, 4000);
 
   schedule(() => {
     for (const f of targets) {

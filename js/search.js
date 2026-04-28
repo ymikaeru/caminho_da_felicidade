@@ -1,9 +1,10 @@
 // ============================================================
-// SEARCH — bilingual full-text search with Japanese (tj/cj) field support
+// SEARCH — bilingual full-text search via Postgres FTS RPC
 // ============================================================
+// Cliente usa supabase.rpc('search_teachings'). Permissões por
+// volume/arquivo são aplicadas server-side via auth.uid() na RPC,
+// então o cliente NÃO precisa filtrar por user_permissions.
 
-let searchIndex = null;
-let isFetchingIndex = false;
 let searchTimeout = null;
 let _allResults = [];
 let _displayedCount = 0;
@@ -39,148 +40,26 @@ function escHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
-async function getSearchIndex() {
-  if (searchIndex && searchIndex.length > 0 && !isFetchingIndex) return searchIndex;
-
-  if (isFetchingIndex) {
-    while (isFetchingIndex) {
-      await new Promise(r => setTimeout(r, 200));
-    }
-    return searchIndex;
-  }
-
-  isFetchingIndex = true;
-  const resultsEl = document.getElementById('searchResults');
-  const currentLang = localStorage.getItem('site_lang') || 'pt';
-
-  const updateLoadingMsg = (msg) => {
-    const inp = document.getElementById('searchInput');
-    if (resultsEl && inp?.value.trim())
-      resultsEl.innerHTML = `<li class="search-loading"><span class="search-spinner"></span>${msg}</li>`;
-  };
-
-  const loadingMsg = currentLang === 'ja' ? '検索インデックスを読み込み中...' : 'Carregando índice de pesquisa...';
-  updateLoadingMsg(loadingMsg);
-
+// Carrega os scripts de breadcrumb (section_map.js / global_index_titles.js).
+// Usados por _renderResultItem para gerar a trilha "Início / Volume X / Seção".
+function _loadSectionMaps() {
   const basePath = getBasePath();
-
-  // Load section map dynamically
   if (!window.SECTION_MAP && !document.getElementById('sectionMapScript')) {
     const script = document.createElement('script');
     script.id = 'sectionMapScript';
     script.src = `${basePath}site_data/section_map.js`;
     document.head.appendChild(script);
   }
-
-  // Load global index titles dynamically
   if (!window.GLOBAL_INDEX_TITLES && !document.getElementById('globalIndexTitlesScript')) {
     const script = document.createElement('script');
     script.id = 'globalIndexTitlesScript';
     script.src = `${basePath}site_data/global_index_titles.js`;
     document.head.appendChild(script);
   }
-
-  // Require authentication for search
-  if (!window.supabaseStorageFetch) {
-    const errorMsg = currentLang === 'ja' ? 'ログインが必要です。' : 'Login necessário.';
-    if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errorMsg}</li>`;
-    isFetchingIndex = false;
-    return searchIndex;
-  }
-
-  // For limited users, only load volumes they have access to
-  const _limitedConfig = (typeof isLimitedUser === 'function' && isLimitedUser())
-    ? (typeof getAccessConfig === 'function' ? getAccessConfig() : null)
-    : null;
-  const allVolumes = _limitedConfig && typeof getEnabledVolumes === 'function'
-    ? getEnabledVolumes(_limitedConfig)
-    : ['mioshiec1', 'mioshiec2', 'mioshiec3', 'mioshiec4'];
-
-  // Detect current volume to load it first
-  const pathMatch = window.location.pathname.match(/mioshiec(\d)/);
-  const urlParams = new URLSearchParams(window.location.search);
-  const volParam = urlParams.get('vol') || urlParams.get('v');
-  const currentVol = pathMatch ? `mioshiec${pathMatch[1]}` : (volParam || null);
-
-  const [first, ...rest] = currentVol
-    ? [currentVol, ...allVolumes.filter(v => v !== currentVol)]
-    : allVolumes;
-
-  try {
-    searchIndex = [];
-
-    try {
-      if (!window.supabaseStorageFetch) {
-        throw new Error('Authentication required');
-      }
-      const firstData = await window.supabaseStorageFetch(`search_index_${first}.json`);
-      searchIndex = firstData;
-    } catch (e) {
-      console.warn(`Search index ${first} failed:`, e);
-    }
-
-    // Release the lock — first vol loaded, search is usable now
-    isFetchingIndex = false;
-
-    const progressMsg = currentLang === 'ja'
-      ? `インデックス読み込み中 (1/${allVolumes.length})...`
-      : `Carregando índice (1/${allVolumes.length})...`;
-    updateLoadingMsg(progressMsg);
-
-    // 2. Remaining volumes — all in parallel
-    if (rest.length > 0) {
-      const settled = await Promise.allSettled(
-        rest.map(async (vol) => {
-          if (!window.supabaseStorageFetch) throw new Error('Auth required');
-          return await window.supabaseStorageFetch(`search_index_${vol}.json`);
-        })
-      );
-      settled.forEach((result, i) => {
-        if (result.status === 'fulfilled') {
-          searchIndex = searchIndex.concat(result.value);
-        } else {
-          console.warn(`Search index ${rest[i]} failed:`, result.reason);
-        }
-      });
-    }
-
-    if (searchIndex.length === 0) {
-      throw new Error('Nenhum dado de pesquisa encontrado.');
-    }
-
-    // Filter entries for limited users with file-level restrictions
-    if (_limitedConfig) {
-      searchIndex = searchIndex.filter(item => {
-        const volConfig = _limitedConfig[item.v];
-        if (volConfig === 'all') return true;
-        if (Array.isArray(volConfig)) return volConfig.includes(item.f);
-        return false;
-      });
-    }
-  } catch (err) {
-    console.error('Search index error:', err);
-    const errorMsg = currentLang === 'ja' ? 'インデックスの読み込みに失敗しました。' : 'Erro ao carregar o índice. Verifique sua conexão.';
-    if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errorMsg}</li>`;
-  } finally {
-    isFetchingIndex = false;
-  }
-
-  const searchInput = document.getElementById('searchInput');
-  const clearBtn = document.getElementById('searchClear');
-  if (searchInput && clearBtn) {
-    clearBtn.style.display = searchInput.value.trim() ? 'flex' : 'none';
-  }
-
-  return searchIndex;
 }
 
-function _resolveAccessibleVolumes() {
-  const limitedConfig = (typeof isLimitedUser === 'function' && isLimitedUser())
-    ? (typeof getAccessConfig === 'function' ? getAccessConfig() : null)
-    : null;
-  return limitedConfig && typeof getEnabledVolumes === 'function'
-    ? getEnabledVolumes(limitedConfig)
-    : ['mioshiec1', 'mioshiec2', 'mioshiec3', 'mioshiec4'];
+function _getSupabase() {
+  return window.supabaseAuth?.supabase || null;
 }
 
 function _setRandomLoading(btn) {
@@ -208,32 +87,31 @@ function _setRandomLoading(btn) {
   };
 }
 
+async function _pickRandomViaRpc(onlyVol, loader) {
+  const lang = localStorage.getItem('site_lang') || 'pt';
+  const supabase = _getSupabase();
+  if (!supabase) { loader.restore(); return; }
+
+  const { data, error } = await supabase.rpc('random_teaching', { only_vol: onlyVol });
+  if (error) {
+    console.warn('random_teaching RPC error:', error);
+    loader.restore();
+    return;
+  }
+  if (!data || data.length === 0) { loader.restore(); return; }
+
+  const item = data[0];
+  const topicIdx = item.topic_idx != null ? item.topic_idx : 0;
+  let href = `${getBasePath()}reader.html?vol=${item.vol}&file=${item.file}`;
+  if (topicIdx > 0) href += `&topic=${topicIdx}`;
+  if (lang === 'ja') href += `&lang=ja`;
+  window.location.href = href;
+}
+
 window.openRandomFromVolume = async function(vol, evt) {
   const loader = _setRandomLoading(evt?.currentTarget);
   try {
-    const lang = localStorage.getItem('site_lang') || 'pt';
-    let items;
-    if (searchIndex && searchIndex.length > 0) {
-      items = searchIndex.filter(item => item.v === vol);
-    } else if (window.supabaseStorageFetch) {
-      try {
-        items = await window.supabaseStorageFetch(`search_index_${vol}.json`);
-      } catch (e) {
-        console.warn(`Volume index ${vol} failed:`, e);
-        loader.restore();
-        return;
-      }
-    } else {
-      loader.restore();
-      return;
-    }
-    if (!items || items.length === 0) { loader.restore(); return; }
-    const item = items[Math.floor(Math.random() * items.length)];
-    const topicIdx = item.i != null ? item.i : 0;
-    let href = `${getBasePath()}reader.html?vol=${item.v || vol}&file=${item.f}`;
-    if (topicIdx > 0) href += `&topic=${topicIdx}`;
-    if (lang === 'ja') href += `&lang=ja`;
-    window.location.href = href;
+    await _pickRandomViaRpc(vol, loader);
   } catch (err) {
     console.error('Random volume teaching failed:', err);
     loader.restore();
@@ -243,31 +121,7 @@ window.openRandomFromVolume = async function(vol, evt) {
 window.openRandomTeaching = async function(evt) {
   const loader = _setRandomLoading(evt?.currentTarget);
   try {
-    const lang = localStorage.getItem('site_lang') || 'pt';
-    let items = (searchIndex && searchIndex.length > 0) ? searchIndex : null;
-
-    if (!items) {
-      if (!window.supabaseStorageFetch) { loader.restore(); return; }
-      const volumes = _resolveAccessibleVolumes();
-      if (!volumes || volumes.length === 0) { loader.restore(); return; }
-      const randomVol = volumes[Math.floor(Math.random() * volumes.length)];
-      try {
-        items = await window.supabaseStorageFetch(`search_index_${randomVol}.json`);
-        items = (items || []).map(it => ({ ...it, v: it.v || randomVol }));
-      } catch (e) {
-        console.warn('Fast random load failed, falling back to full index:', e);
-        await getSearchIndex();
-        items = searchIndex;
-      }
-    }
-
-    if (!items || items.length === 0) { loader.restore(); return; }
-    const item = items[Math.floor(Math.random() * items.length)];
-    const topicIdx = item.i != null ? item.i : 0;
-    let href = `${getBasePath()}reader.html?vol=${item.v}&file=${item.f}`;
-    if (topicIdx > 0) href += `&topic=${topicIdx}`;
-    if (lang === 'ja') href += `&lang=ja`;
-    window.location.href = href;
+    await _pickRandomViaRpc(null, loader);
   } catch (err) {
     console.error('Random teaching failed:', err);
     loader.restore();
@@ -304,17 +158,14 @@ window.openSearch = function () {
       const clearBtn = document.getElementById('searchClear');
       if (clearBtn) clearBtn.style.display = input.value.trim() ? 'flex' : 'none';
 
-      // If we have a query but no rendered results (e.g., after page reload),
-      // re-trigger the search to generate results with correct data attributes
+      // Restaurando estado após reload: se tem query salva mas nenhum resultado
+      // renderizado, re-roda a busca pra gerar items com os data-attrs corretos.
       const resultsEl = document.getElementById('searchResults');
       if (input.value.trim() && resultsEl && !resultsEl.querySelector('.search-result-item')) {
-        getSearchIndex().then(() => {
-          if (typeof performSearch === 'function') performSearch(input.value);
-        });
-        return;
+        if (typeof performSearch === 'function') performSearch(input.value);
       }
     }
-    getSearchIndex();
+    _loadSectionMaps();
   }
 }
 
@@ -449,20 +300,9 @@ window.openSearchPreview = function (vol, file, search, displayTitle, topicIdx, 
   };
 
   function _renderFallback() {
-    let fallback = '';
-    if (typeof searchIndex !== 'undefined' && searchIndex) {
-      const items = searchIndex.filter(r => r.v === vol && r.f === file && (r.i == null ? 0 : r.i) === (topicIdx || 0));
-      if (items.length > 0) {
-        fallback = items.map(item => lang === 'ja' ? (item.cj || item.c || '') : (item.c || '')).join('\n\n');
-      }
-    }
-    if (fallback) {
-      let safeContent = String(fallback).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      safeContent = safeContent.split(/\n+/).filter(line => line.trim()).map(line => `<p>${line}</p>`).join('');
-      renderCardContent(_applyHighlight(safeContent));
-    } else {
-      renderCardContent('<p style="padding:2rem;text-align:center;color:var(--text-muted);">Conteúdo indisponível.</p>');
-    }
+    // O conteúdo canônico vem do JSON em Storage. Quando o download falha,
+    // simplesmente avisamos o usuário — não há mais índice em memória pra ler.
+    renderCardContent('<p style="padding:2rem;text-align:center;color:var(--text-muted);">Conteúdo indisponível.</p>');
   }
 
   renderCardContent('<div style="padding:3rem;text-align:center;color:var(--text-muted);font-size:0.95rem;">Carregando o ensinamento completo...</div>');
@@ -566,14 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (resultsEl) resultsEl.innerHTML = `<li class="search-loading"><span class="search-spinner"></span>${searchingMsg}</li>`;
 
     const delay = query.trim().length <= 3 ? 500 : 200;
-    searchTimeout = setTimeout(async () => {
-      const loaded = await getSearchIndex();
-      if (!searchIndex || searchIndex.length === 0) {
-        const resultsEl = document.getElementById('searchResults');
-        const errMsg = currentLang === 'ja' ? '検索インデックスの読み込みに失敗しました。' : 'Falha ao carregar o índice de busca.';
-        if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${errMsg}</li>`;
-        return;
-      }
+    searchTimeout = setTimeout(() => {
       performSearch(query);
     }, delay);
   };
@@ -714,9 +547,34 @@ function _updateSearchCount(total, shown, lang, hitLimit = false) {
   el.textContent = text;
 }
 
-function performSearch(query) {
+// Constrói um RegExp pra highlight client-side a partir do que o usuário digitou.
+// Usado pelo caminho JA (cujo snippet vem da RPC sem <mark>) e pelo loadMoreResults.
+function _buildHighlightRegex(query, activeLang) {
+  const parts = (query || '').toLowerCase().split('&').map(p => p.trim()).filter(p => p.length >= 2);
+  if (parts.length === 0) return null;
+  const escaped = parts.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  // Sem word boundary em JA (kanji não tem \b).
+  if (activeLang === 'ja') return new RegExp(`(${escaped.join('|')})`, 'gi');
+  return new RegExp(`\\b(${escaped.join('|')})`, 'gi');
+}
+
+// Traduz o input do usuário para a sintaxe do websearch_to_tsquery.
+//   - "a & b"  → "a b"          (AND é o default)
+//   - exact on → wrap em aspas  ("a" "b")
+function _translateQuery(rawQuery, useExact) {
+  const trimmed = (rawQuery || '').trim();
+  if (!trimmed) return '';
+  const parts = trimmed.split('&').map(p => p.trim()).filter(p => p.length >= 2);
+  if (parts.length === 0) return trimmed;
+  return useExact
+    ? parts.map(p => `"${p.replace(/"/g, '\\"')}"`).join(' ')
+    : parts.join(' ');
+}
+
+async function performSearch(query) {
   const resultsEl = document.getElementById('searchResults');
   const activeLang = localStorage.getItem('site_lang') || 'pt';
+
   if (!query || query.trim().length < 2) {
     if (!query || query.trim().length === 0) {
       if (resultsEl) resultsEl.innerHTML = '';
@@ -724,169 +582,77 @@ function performSearch(query) {
       const minCharsMsg = activeLang === 'ja' ? '2文字以上入力してください...' : 'Digite pelo menos 2 caracteres...';
       if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${minCharsMsg}</li>`;
     }
+    _updateSearchCount(0, 0, activeLang);
     return;
   }
-
-  if (!searchIndex) return;
 
   const q = query.trim();
-  const qLower = q.toLowerCase();
-
-  // Support for multiple search terms with & (AND logic)
-  const queryParts = qLower.split('&').map(p => p.trim()).filter(p => p.length >= 2);
-  if (queryParts.length === 0) {
-    const invalidQueryMsg = activeLang === 'ja' ? '有効な検索ワードを入力してください...' : 'Digite termos de busca válidos...';
-    if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${invalidQueryMsg}</li>`;
+  const supabase = _getSupabase();
+  if (!supabase) {
+    const errMsg = activeLang === 'ja' ? 'ログインが必要です。' : 'Login necessário.';
+    if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errMsg}</li>`;
     return;
-  }
-
-  const filterNodes = document.querySelectorAll('input[name="searchFilter"]');
-  let filterMode = 'all';
-  for (const node of filterNodes) {
-    if (node.checked) { filterMode = node.value; break; }
   }
 
   const exactToggle = document.getElementById('searchExactToggle');
   const useExactMatch = exactToggle ? exactToggle.checked : false;
+  const serverQuery = _translateQuery(q, useExactMatch);
 
-  // ── #2: Improvement — compile RegExp ONCE before the search loop ──
-  // Previously a new RegExp was created for every (item × part) combination.
-  // With 2000+ index entries and 3 query parts, that was 6000+ allocations per search.
-  // NOTE: Japanese doesn't use word boundaries, so we skip \b for JA mode.
-  const isJapanese = activeLang === 'ja';
-  const partRegexes = queryParts.map(part => {
-    const escaped = part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    if (isJapanese) {
-      return useExactMatch
-        ? new RegExp(`${escaped}`, 'i')
-        : new RegExp(`${escaped}`, 'i');
-    }
-    return useExactMatch
-      ? new RegExp(`\\b${escaped}\\b`, 'i')
-      : new RegExp(`\\b${escaped}`, 'i');
-  });
-
-  let results = [];
-  for (const item of searchIndex) {
-    // PT fields (always available)
-    const tPt = (item.t || '').toLowerCase();
-    const cPt = (item.c || '').toLowerCase();
-    // JA fields (optional)
-    const tJa = (item.tj || '').toLowerCase();
-    const cJa = (item.cj || '').toLowerCase();
-
-    // Choose primary fields based on active language
-    const titleSearch   = activeLang === 'ja' ? (tJa || tPt) : tPt;
-    const contentSearch = activeLang === 'ja' ? (cJa || cPt) : cPt;
-    // Always search both languages for cross-language discoverability
-    const titleAlt   = activeLang === 'ja' ? tPt : tJa;
-    const contentAlt = activeLang === 'ja' ? cPt : cJa;
-
-    let allMatched = true;
-    let score = 0;
-    let matchedTitleOnce = false;
-    let matchedContentOnce = false;
-
-    for (let pi = 0; pi < queryParts.length; pi++) {
-      const rx = partRegexes[pi];
-
-      const matchTitlePart   = rx.test(titleSearch)   || rx.test(titleAlt);
-      const matchContentPart = rx.test(contentSearch) || rx.test(contentAlt);
-
-      if (!matchTitlePart && !matchContentPart) {
-        allMatched = false;
-        break;
-      }
-
-      if (matchTitlePart) {
-        score += 120;
-        // ── #8: Improvement — boost for matches at the start of the title ──
-        // A query that appears at the beginning of the title is almost certainly
-        // the most relevant result and should rank above mid-title matches.
-        if (titleSearch.startsWith(queryParts[pi]) || titleAlt.startsWith(queryParts[pi])) {
-          score += 50;
-        }
-      }
-      if (matchContentPart) score += 10;
-      if (matchTitlePart)   matchedTitleOnce   = true;
-      if (matchContentPart) matchedContentOnce = true;
-    }
-
-    if (!allMatched) continue;
-    if (filterMode === 'title'   && !matchedTitleOnce)   continue;
-    if (filterMode === 'content' && !matchedContentOnce) continue;
-
-    if (matchedContentOnce) {
-      const raw = activeLang === 'ja' ? (item.cj || item.c || '') : (item.c || '');
-      const rawLower = raw.toLowerCase();
-
-      let bestPart = queryParts[0];
-      let bestIdx = -1;
-      for (const part of queryParts) {
-        const idx = rawLower.indexOf(part);
-        if (idx !== -1) { bestPart = part; bestIdx = idx; break; }
-      }
-
-      if (bestIdx !== -1) {
-        const start = Math.max(0, bestIdx - 60);
-        const end = Math.min(raw.length, bestIdx + bestPart.length + 60);
-        let snippet = raw.substring(start, end);
-        if (start > 0) snippet = '...' + snippet;
-        if (end < raw.length) snippet += '...';
-        results.push({ ...item, score, snippet });
-        continue;
-      }
-    }
-
-    results.push({ ...item, score });
-  }
-
-  results.sort((a, b) => b.score - a.score);
-
-  // Deduplicate: keep only the best result per (volume + file + raw title).
-  const _seenResultKeys = new Set();
-  results = results.filter(r => {
-    const key = `${r.v}:${r.f}:${(r.t || '').toLowerCase().trim()}`;
-    if (_seenResultKeys.has(key)) return false;
-    _seenResultKeys.add(key);
-    return true;
-  });
-
-  const hitLimit = results.length > MAX_RESULTS;
-  results = results.slice(0, MAX_RESULTS);
-
-  if (results.length === 0) {
-    const noResultsMsg = activeLang === 'ja' ? '結果が見つかりませんでした。' : 'Nenhum resultado.';
-    if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${noResultsMsg}</li>`;
-    _updateSearchCount(0, 0, activeLang);
-    logSearch(q, 0);
-    sessionStorage.removeItem('searchQuery');
-    sessionStorage.removeItem('searchResultsHtml');
-    _allResults = [];
-    _displayedCount = 0;
-    _currentQuery = '';
+  if (!serverQuery) {
+    const invalidMsg = activeLang === 'ja' ? '有効な検索ワードを入力してください...' : 'Digite termos de busca válidos...';
+    if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${invalidMsg}</li>`;
     return;
   }
 
-  const basePath = getBasePath();
-  const escapedParts = queryParts.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-  const highlightRegex = isJapanese
-    ? new RegExp(`(${escapedParts.join('|')})`, 'gi')
-    : (useExactMatch
-      ? new RegExp(`\\b(${escapedParts.join('|')})\\b`, 'gi')
-      : new RegExp(`\\b(${escapedParts.join('|')})`, 'gi'));
+  try {
+    const { data, error } = await supabase.rpc('search_teachings', {
+      q: serverQuery,
+      lang: activeLang,
+      max_results: MAX_RESULTS,
+    });
 
-  _allResults = results;
-  _currentQuery = q;
-  _displayedCount = Math.min(RESULTS_PER_PAGE, results.length);
-  _focusedIndex = -1;
+    if (error) {
+      console.error('search_teachings RPC error:', error);
+      const errMsg = activeLang === 'ja' ? '検索に失敗しました。' : 'Erro ao buscar. Tente novamente.';
+      if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errMsg}</li>`;
+      _updateSearchCount(0, 0, activeLang);
+      return;
+    }
 
-  resultsEl.innerHTML = _renderResultsList(results, _displayedCount, highlightRegex, q, activeLang);
-  _updateSearchCount(results.length, _displayedCount, activeLang, hitLimit);
-  logSearch(q, results.length);
+    const results = data || [];
 
-  sessionStorage.setItem('searchQuery', query);
-  sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
+    if (results.length === 0) {
+      const noResultsMsg = activeLang === 'ja' ? '結果が見つかりませんでした。' : 'Nenhum resultado.';
+      if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${noResultsMsg}</li>`;
+      _updateSearchCount(0, 0, activeLang);
+      logSearch(q, 0);
+      sessionStorage.removeItem('searchQuery');
+      sessionStorage.removeItem('searchResultsHtml');
+      _allResults = [];
+      _displayedCount = 0;
+      _currentQuery = '';
+      return;
+    }
+
+    const highlightRegex = _buildHighlightRegex(q, activeLang);
+    const hitLimit = results.length >= MAX_RESULTS;
+
+    _allResults = results;
+    _currentQuery = q;
+    _displayedCount = Math.min(RESULTS_PER_PAGE, results.length);
+    _focusedIndex = -1;
+
+    resultsEl.innerHTML = _renderResultsList(results, _displayedCount, highlightRegex, q, activeLang);
+    _updateSearchCount(results.length, _displayedCount, activeLang, hitLimit);
+    logSearch(q, results.length);
+
+    sessionStorage.setItem('searchQuery', query);
+    sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
+  } catch (err) {
+    console.error('Search exception:', err);
+    const errMsg = activeLang === 'ja' ? 'エラーが発生しました。' : 'Erro inesperado na busca.';
+    if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errMsg}</li>`;
+  }
 }
 
 window.loadMoreResults = function() {
@@ -895,39 +661,49 @@ window.loadMoreResults = function() {
   const resultsEl = document.getElementById('searchResults');
   if (!resultsEl) return;
   const activeLang = localStorage.getItem('site_lang') || 'pt';
-  const isJapanese = activeLang === 'ja';
-  const queryParts = _currentQuery.trim().toLowerCase().split('&').map(p => p.trim()).filter(p => p.length >= 2);
-  const exactToggle = document.getElementById('searchExactToggle');
-  const useExactMatch = exactToggle ? exactToggle.checked : false;
-  const escapedParts = queryParts.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-  const highlightRegex = isJapanese
-    ? new RegExp(`(${escapedParts.join('|')})`, 'gi')
-    : (useExactMatch
-      ? new RegExp(`\\b(${escapedParts.join('|')})\\b`, 'gi')
-      : new RegExp(`\\b(${escapedParts.join('|')})`, 'gi'));
-
+  const highlightRegex = _buildHighlightRegex(_currentQuery, activeLang);
   resultsEl.innerHTML = _renderResultsList(_allResults, _displayedCount, highlightRegex, _currentQuery, activeLang);
   _updateSearchCount(_allResults.length, _displayedCount, activeLang);
   _focusedIndex = -1;
   sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
 };
 
-function _renderResultItem(r, basePath, highlightRegex, q, activeLang) {
-  const displayTitle = (activeLang === 'ja' && r.tj) ? r.tj : (r.t || '');
-  const topicIdx = r.i != null ? r.i : 0;
+// PT: snippet vem da RPC com <mark> (sem class). Escapa todo o resto, preserva
+// os marks e injeta a classe pro CSS de highlight pegar.
+// JA: snippet vem como substring puro (sem mark). Escapa e aplica regex client-side.
+function _styleSnippet(rawSnippet, activeLang, highlightRegex) {
+  if (!rawSnippet) return '';
+  if (activeLang === 'ja') {
+    const escaped = escHtml(rawSnippet);
+    return highlightRegex
+      ? escaped.replace(highlightRegex, '<mark class="search-highlight">$1</mark>')
+      : escaped;
+  }
+  // PT: split mantendo os tokens <mark>/</mark>; escapa só o texto entre eles.
+  return rawSnippet.split(/(<mark>|<\/mark>)/g).map(part => {
+    if (part === '<mark>') return '<mark class="search-highlight">';
+    if (part === '</mark>') return '</mark>';
+    return escHtml(part);
+  }).join('');
+}
 
-  // Prioritize SECTION_MAP (has correct section names like "O Método do Johrei　１")
-  // over GLOBAL_INDEX_TITLES (which may store per-file topic titles)
-  const volMap = window.SECTION_MAP ? window.SECTION_MAP[r.v] : null;
-  const sectObj = volMap ? volMap[r.f] : null;
+function _renderResultItem(r, basePath, highlightRegex, q, activeLang) {
+  // Shape vindo da RPC: { vol, file, topic_idx, title_pt, title_ja, snippet, rank }
+  const displayTitle = (activeLang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '');
+  const topicIdx = r.topic_idx != null ? r.topic_idx : 0;
+  const vol = r.vol;
+  const file = r.file;
+
+  const volMap = window.SECTION_MAP ? window.SECTION_MAP[vol] : null;
+  const sectObj = volMap ? volMap[file] : null;
   let sectLabel = sectObj ? (activeLang === 'ja' ? (sectObj.ja || sectObj.pt) : sectObj.pt) : '';
   if (!sectLabel) {
-    const pubTitles = window.GLOBAL_INDEX_TITLES ? window.GLOBAL_INDEX_TITLES[r.v] : null;
-    sectLabel = pubTitles ? (pubTitles[r.f] || '') : '';
+    const pubTitles = window.GLOBAL_INDEX_TITLES ? window.GLOBAL_INDEX_TITLES[vol] : null;
+    sectLabel = pubTitles ? (pubTitles[file] || '') : '';
   }
-  const volNum = r.v.slice(-1);
+  const volNum = vol.slice(-1);
   const isDifferent = sectLabel && _norm(sectLabel) !== _norm(displayTitle);
-  
+
   const homeLabel = activeLang === 'ja' ? 'トップ' : 'Início';
   const volLabel = activeLang === 'ja' ? `第${volNum}巻` : `Volume ${volNum}`;
   const sectionHtml = isDifferent
@@ -935,23 +711,22 @@ function _renderResultItem(r, basePath, highlightRegex, q, activeLang) {
     : '';
   const breadcrumbLabel = isDifferent ? `${homeLabel} / ${volLabel} / ${sectLabel}` : `${homeLabel} / ${volLabel}`;
 
-  const highlight = escHtml(r.snippet || '')
-    .replace(highlightRegex, '<mark class="search-highlight">$1</mark>');
+  const styledSnippet = _styleSnippet(r.snippet, activeLang, highlightRegex);
 
-  let href = `${basePath}reader.html?vol=${r.v}&file=${r.f}&search=${encodeURIComponent(q)}`;
+  let href = `${basePath}reader.html?vol=${vol}&file=${file}&search=${encodeURIComponent(q)}`;
   if (topicIdx > 0) href += `&topic=${topicIdx}`;
   if (activeLang === 'ja') href += `&lang=ja`;
 
   return `<li><a href="${href}"
       class="search-result-item"
-      data-vol="${escHtml(r.v)}"
-      data-file="${escHtml(r.f)}"
+      data-vol="${escHtml(vol)}"
+      data-file="${escHtml(file)}"
       data-query="${escHtml(q)}"
       data-title="${escHtml(displayTitle)}"
       data-section="${escHtml(breadcrumbLabel)}"
       data-topic="${topicIdx}">
       ${sectionHtml}
       <div class="search-result-title">${escHtml(displayTitle)}</div>
-      <div class="search-result-context">${highlight}</div>
+      <div class="search-result-context">${styledSnippet}</div>
     </a></li>`;
 }

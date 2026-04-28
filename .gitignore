@@ -7,3 +7,9 @@ auth-config.json
 __pycache__/
 .agent/
 .claude
+
+# Dados de processamento local — não vão ao repo
+scripts/storage_update/
+scripts/storage_update2/
+scripts/storage_update3/
+supabase/.temp/

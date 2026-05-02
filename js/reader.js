@@ -91,10 +91,36 @@ document.addEventListener('DOMContentLoaded', () => {
         let bestIdx = 0, bestDist = Infinity;
         const viewMid = window.innerHeight / 3;
         topics.forEach((el, i) => {
-            const dist = Math.abs(el.getBoundingClientRect().top - viewMid);
+            const r = el.getBoundingClientRect();
+            if (r.height === 0) return; // ignore hidden topics (mobile single-topic mode)
+            const dist = Math.abs(r.top - viewMid);
             if (dist < bestDist) { bestDist = dist; bestIdx = i; }
         });
         return bestIdx;
+    }
+
+    // Retorna { topicIdx, paragraphIdx }. paragraphIdx = índice do <p>
+    // (data-p-idx) mais central na viewport dentro do tópico mais
+    // central. null se não houver <p> com data-p-idx (artigos antigos
+    // ou conteúdo sem parágrafos).
+    function getVisiblePosition() {
+        const topicIdx = getVisibleTopicIndex();
+        const topicEl = container.querySelectorAll('.topic-content')[topicIdx];
+        if (!topicEl) return { topicIdx, paragraphIdx: null };
+        const paragraphs = topicEl.querySelectorAll('p[data-p-idx]');
+        if (!paragraphs.length) return { topicIdx, paragraphIdx: null };
+        const viewMid = window.innerHeight / 3;
+        let bestIdx = null, bestDist = Infinity;
+        paragraphs.forEach(p => {
+            const r = p.getBoundingClientRect();
+            if (r.height === 0) return;
+            const dist = Math.abs(r.top - viewMid);
+            if (dist < bestDist) {
+                bestDist = dist;
+                bestIdx = parseInt(p.dataset.pIdx, 10);
+            }
+        });
+        return { topicIdx, paragraphIdx: bestIdx };
     }
 
     async function initReader(ovrVol, ovrFile, searchTopicTitle) {
@@ -107,11 +133,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Restore reading position from cloud if no explicit topic was requested
         let resolvedTopicIdx = topicIdx;
+        let resolvedParagraphIdx = null;
         if (resolvedTopicIdx === null && window._cloudSync) {
             try {
                 const pos = await window._cloudSync.getLastPosition(volId, filename);
                 if (pos && pos.topic_index > 0) {
                     resolvedTopicIdx = pos.topic_index;
+                }
+                // paragraph_index é independente: pode existir mesmo
+                // com topic_index=0 (artigo de um tópico só, mas com
+                // posição salva dentro dele).
+                if (pos && Number.isInteger(pos.paragraph_index)) {
+                    resolvedParagraphIdx = pos.paragraph_index;
                 }
             } catch (e) { /* fallback to 0 */ }
         }
@@ -154,12 +187,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 window._readTimeTracker.start(volId, filename).catch(() => {});
             }
 
-            // Show floating "continue reading" button instead of auto-scroll
-            if (resolvedTopicIdx !== null && resolvedTopicIdx > 0 && !highlightId) {
+            // Show floating "continue reading" button instead of auto-scroll.
+            // Mostra mesmo quando topic_index=0 desde que tenha paragraph
+            // salvo (artigos longos de 1 tópico precisam do bookmark).
+            const _hasResume = (resolvedTopicIdx !== null && resolvedTopicIdx > 0)
+                || (resolvedParagraphIdx !== null && resolvedParagraphIdx > 0);
+            if (_hasResume && !highlightId) {
                 setTimeout(() => {
                     const gate = document.getElementById('reader-scroll-gate');
                     if (gate) { gate.style.transition = 'opacity 0.3s'; gate.style.opacity = '0'; setTimeout(() => gate.remove(), 300); }
-                    showResumeReadingButton(resolvedTopicIdx);
+                    showResumeReadingButton(resolvedTopicIdx || 0, resolvedParagraphIdx);
                 }, 100);
             }
 
@@ -270,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initReader();
     window.addEventListener('popstate', () => initReader());
 
-    function showResumeReadingButton(topicIdx) {
+    function showResumeReadingButton(topicIdx, paragraphIdx) {
         const existing = document.getElementById('resume-reading-btn');
         if (existing) existing.remove();
 
@@ -305,7 +342,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.head.appendChild(style);
 
         btn.addEventListener('click', () => {
-            const el = document.getElementById(`topic-${topicIdx}`);
+            // Preferimos o parágrafo exato se foi salvo. Fallback pro
+            // topic se o p não existir mais (artigo editado).
+            const topicEl = document.getElementById(`topic-${topicIdx}`);
+            const pEl = (Number.isInteger(paragraphIdx) && topicEl)
+                ? topicEl.querySelector(`p[data-p-idx="${paragraphIdx}"]`)
+                : null;
+            const el = pEl || topicEl;
             if (el) {
                 btn.style.animation = 'resumeBtnOut 0.3s ease forwards';
                 setTimeout(() => btn.remove(), 300);
@@ -362,15 +405,20 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const { volId, filename } = getParams();
             if (!volId || !filename) return;
-            const topicIndex = getVisibleTopicIndex();
+            const { topicIdx, paragraphIdx } = getVisiblePosition();
             const totalTopics = window._currentTotalTopics || 1;
             const history = JSON.parse(localStorage.getItem('readHistory') || '[]');
             const existing = history.find(h => h.file === filename && h.vol === volId);
-            if (existing) { existing.topic = topicIndex; existing.totalTopics = totalTopics; localStorage.setItem('readHistory', JSON.stringify(history)); }
+            if (existing) {
+                existing.topic = topicIdx;
+                existing.totalTopics = totalTopics;
+                if (paragraphIdx !== null) existing.paragraphIdx = paragraphIdx;
+                localStorage.setItem('readHistory', JSON.stringify(history));
+            }
 
             // Sync to cloud
             if (window._cloudSync) {
-                window._cloudSync.saveReadingPosition(volId, filename, topicIndex, totalTopics);
+                window._cloudSync.saveReadingPosition(volId, filename, topicIdx, totalTopics, paragraphIdx);
             }
         } catch (e) { }
     }

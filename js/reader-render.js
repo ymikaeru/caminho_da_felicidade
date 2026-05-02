@@ -186,7 +186,15 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             }
         }
 
-        const formatted = _normalizeContent(rawContent);
+        let formatted = _normalizeContent(rawContent);
+
+        // Anota cada <p> top-level com data-p-idx pra permitir
+        // posição de leitura granular por parágrafo. Saving lê o
+        // <p> mais central no viewport; resume scrolla até ele.
+        {
+            let _pIdx = 0;
+            formatted = formatted.replace(/<p(\s|>)/gi, (_, end) => `<p data-p-idx="${_pIdx++}"${end}`);
+        }
 
         const comparisonMode = localStorage.getItem('reader_comparison') === 'true';
         if (comparisonMode) {

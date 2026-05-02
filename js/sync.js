@@ -8,23 +8,39 @@ import SUPABASE_CONFIG, { supabase } from './supabase-config.js';
 // Reading Positions
 // ============================================================
 
-export async function saveReadingPosition(volume, file, topicIndex, totalTopics) {
+export async function saveReadingPosition(volume, file, topicIndex, totalTopics, paragraphIndex) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return;
 
   const progressPct = totalTopics > 0 ? Math.round((topicIndex / totalTopics) * 10000) / 100 : 0;
 
+  const baseRow = {
+    user_id: session.user.id,
+    volume,
+    file,
+    topic_index: topicIndex,
+    total_topics: totalTopics,
+    progress_pct: progressPct,
+    updated_at: new Date().toISOString()
+  };
+
+  // Tenta com paragraph_index; se a coluna ainda não existe (migração
+  // não rodou), refaz o upsert sem esse campo.
+  if (Number.isInteger(paragraphIndex)) {
+    const { error } = await supabase
+      .from('reading_positions')
+      .upsert({ ...baseRow, paragraph_index: paragraphIndex }, { onConflict: 'user_id,volume,file' });
+    if (error && /paragraph_index/i.test(error.message || '')) {
+      await supabase
+        .from('reading_positions')
+        .upsert(baseRow, { onConflict: 'user_id,volume,file' });
+    }
+    return;
+  }
+
   await supabase
     .from('reading_positions')
-    .upsert({
-      user_id: session.user.id,
-      volume,
-      file,
-      topic_index: topicIndex,
-      total_topics: totalTopics,
-      progress_pct: progressPct,
-      updated_at: new Date().toISOString()
-    }, { onConflict: 'user_id,volume,file' });
+    .upsert(baseRow, { onConflict: 'user_id,volume,file' });
 }
 
 export async function loadReadingPositions() {
@@ -41,17 +57,42 @@ export async function loadReadingPositions() {
   return data || [];
 }
 
+export async function deleteAllReadingPositions() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return { ok: false, reason: 'no-session' };
+
+  const { error } = await supabase
+    .from('reading_positions')
+    .delete()
+    .eq('user_id', session.user.id);
+
+  if (error) return { ok: false, reason: error.message };
+  return { ok: true };
+}
+
 export async function getLastPosition(volume, file) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return null;
 
-  const { data } = await supabase
+  // Tenta com paragraph_index; se a coluna ainda não existe (migração
+  // não rodou), faz fallback pro select original.
+  let { data, error } = await supabase
     .from('reading_positions')
-    .select('topic_index, total_topics, progress_pct')
+    .select('topic_index, total_topics, progress_pct, paragraph_index')
     .eq('user_id', session.user.id)
     .eq('volume', volume)
     .eq('file', file)
     .maybeSingle();
+
+  if (error && /paragraph_index/i.test(error.message || '')) {
+    ({ data } = await supabase
+      .from('reading_positions')
+      .select('topic_index, total_topics, progress_pct')
+      .eq('user_id', session.user.id)
+      .eq('volume', volume)
+      .eq('file', file)
+      .maybeSingle());
+  }
 
   return data;
 }

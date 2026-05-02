@@ -41,8 +41,20 @@
       .replace(/'/g, '&#39;');
   }
 
+  function _isDisciplesMode() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('pub') === 'disciples';
+  }
+
   function _getParams() {
     const urlParams = new URLSearchParams(window.location.search);
+
+    // Disciples mode: vol = 'disciples', file = book id
+    if (_isDisciplesMode()) {
+      const bookId = urlParams.get('book') || '';
+      return { volId: 'disciples', filename: bookId };
+    }
+
     let volId = urlParams.get('vol') || urlParams.get('v');
     let filename = urlParams.get('file') || urlParams.get('f');
 
@@ -93,8 +105,15 @@
   function _getTopicIdFromNode(node) {
     let el = node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
     while (el) {
-      if (el.classList && el.classList.contains('topic-content')) {
-        return el.id;
+      if (el.classList) {
+        if (el.classList.contains('topic-content')) {
+          return el.id;
+        }
+        // Disciples mode: each section has id="sec-xxx" and content under .disciples-section-content
+        if ((el.classList.contains('disciples-section') || el.classList.contains('disciples-part-divider'))
+            && el.id) {
+          return el.id;
+        }
       }
       el = el.parentNode;
     }
@@ -828,14 +847,20 @@
       }
 
       const topicEl = document.getElementById(topicId);
-      const topicIndex = parseInt(topicId.replace('topic-', ''), 10);
+      const topicIndex = topicId.startsWith('topic-')
+        ? parseInt(topicId.replace('topic-', ''), 10)
+        : -1;
       let topicTitle = '';
-      if (window._currentTopics && window._currentTopics[topicIndex]) {
+      if (topicIndex >= 0 && window._currentTopics && window._currentTopics[topicIndex]) {
         const lang = _lang();
         topicTitle = (lang === 'pt'
           ? (window._currentTopics[topicIndex].title_ptbr || window._currentTopics[topicIndex].title_pt || window._currentTopics[topicIndex].title || '')
           : (window._currentTopics[topicIndex].title_ja || window._currentTopics[topicIndex].title || '')
         ).replace(/<[^>]+>/g, '').trim();
+      } else if (topicEl) {
+        // Disciples mode: pull title from the section's heading
+        const heading = topicEl.querySelector('h1, h2, h3, h4, h5, h6, .disciples-section-title');
+        topicTitle = (heading?.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
       }
 
       const { startChar, endChar } = _getCharOffsetsFromSelection(range, topicEl);
@@ -907,7 +932,7 @@
         const bgColor = COLOR_MAP[h.color] || '#fff3a1';
         const date = new Date(h.createdAt).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'pt-BR');
 
-        return `<li class="highlight-item" data-id="${h.id}" data-topic="${h.topicIndex}" data-vol="${_esc(h.vol || '')}" data-file="${_esc(h.file || '')}">
+        return `<li class="highlight-item" data-id="${h.id}" data-topic="${h.topicIndex}" data-topic-id="${_esc(h.topicId || '')}" data-vol="${_esc(h.vol || '')}" data-file="${_esc(h.file || '')}">
           <div class="highlight-item-text" style="border-left: 3px solid ${bgColor}; padding-left: 10px;">${_esc(h.text)}</div>
           ${h.comment ? `<div class="highlight-item-comment">${_esc(h.comment)}</div>` : ''}
           <div class="highlight-item-meta">${showMetaTitle ? _esc(h.topicTitle || '') + ' · ' : ''}${date}</div>
@@ -924,9 +949,13 @@
         item.addEventListener('click', (e) => {
           if (e.target.tagName === 'BUTTON') return;
           const topicIdx = item.dataset.topic;
+          const topicIdRaw = item.dataset.topicId;
           const highlightId = item.dataset.id;
           if (topicIdx !== undefined) {
-            const el = document.getElementById(`topic-${topicIdx}`);
+            const lookupId = (topicIdRaw && !/^topic-/.test(topicIdRaw))
+              ? topicIdRaw
+              : `topic-${topicIdx}`;
+            const el = document.getElementById(lookupId);
             if (el) {
               closeHighlights();
               setTimeout(() => {
@@ -947,9 +976,14 @@
               const hFile = item.dataset.file;
               if (hVol && hFile) {
                 const lang = _lang();
-                let url = `reader.html?vol=${encodeURIComponent(hVol)}&file=${encodeURIComponent(hFile)}`;
-                if (topicIdx !== undefined && topicIdx !== '') url += `&topic=${topicIdx}`;
-                if (highlightId) url += `&highlight=${encodeURIComponent(highlightId)}&hl_scroll=1`;
+                let url;
+                if (hVol === 'disciples') {
+                  url = `reader.html?pub=disciples&book=${encodeURIComponent(hFile)}`;
+                } else {
+                  url = `reader.html?vol=${encodeURIComponent(hVol)}&file=${encodeURIComponent(hFile)}`;
+                  if (topicIdx !== undefined && topicIdx !== '') url += `&topic=${topicIdx}`;
+                  if (highlightId) url += `&highlight=${encodeURIComponent(highlightId)}&hl_scroll=1`;
+                }
                 if (lang === 'ja') url += '&lang=ja';
                 closeHighlights();
                 window.location.href = url;

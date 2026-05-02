@@ -331,6 +331,9 @@
     container.innerHTML = `<div class="reader-content disciples-book-content"><div class="disciples-book-header"><h1>${esc(book.title)}</h1>${book.author ? `<div class="disciples-book-author-header">${esc(book.author)}</div>` : ''}<a class="disciples-back-link" href="reader.html?pub=disciples"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>${isPt ? 'Publicações dos Discípulos' : '弟子たちの著作一覧'}</a></div>${chapterNavHtml}<div class="disciples-book-body">${renderSection(chapter)}</div>${chapterNavHtml}</div>`;
 
     updateDiscSidebarActiveState();
+
+    // Re-apply user highlights to the freshly rendered chapter
+    try { window.applyHighlightsOnPage?.(); } catch (_) {}
   }
 
   // ── Sidebar rendering ──
@@ -404,7 +407,7 @@
       sectionsHtml = aboutHtml + `<div class="disciples-sb-tree">${treeHtml}</div>`;
     }
 
-    sidebar.innerHTML = `<div class="disciples-sidebar"><div class="disciples-sb-fixed-header"><div class="disciples-sb-header-row"><div class="disciples-sb-header-titles"><div style="font-size:0.95rem;font-weight:600;color:var(--text-main);line-height:1.25">${_currentDisciplesBook ? esc(_currentDisciplesBook.title) : (isPt ? 'Livros' : '書籍')}</div>${_currentDisciplesBook?.titleJa ? `<div style="font-family:'Noto Serif JP',serif;font-size:0.78rem;color:var(--text-muted);margin-top:2px">${esc(_currentDisciplesBook.titleJa)}</div>` : ''}</div>${_collapseToggleHtml(isPt)}</div><a href="reader.html?pub=disciples" class="disciples-back-link" style="padding:0.4rem 1rem;display:flex"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>${isPt ? 'Todas as obras' : '作品一覧'}</a></div><div class="disciples-sb-scrollable">${sectionsHtml}</div><div class="disciples-sb-rail">${_railHtmlForChapters()}</div></div>`;
+    sidebar.innerHTML = `<div class="disciples-sidebar"><div class="disciples-sb-fixed-header"><div class="disciples-sb-header-row"><div class="disciples-sb-header-titles"><div style="font-size:0.95rem;font-weight:600;color:var(--text-main);line-height:1.25">${_currentDisciplesBook ? esc(_currentDisciplesBook.title) : (isPt ? 'Livros' : '書籍')}</div>${_currentDisciplesBook?.titleJa ? `<div style="font-family:'Noto Serif JP',serif;font-size:0.78rem;color:var(--text-muted);margin-top:2px">${esc(_currentDisciplesBook.titleJa)}</div>` : ''}</div>${_collapseToggleHtml(isPt)}</div><a href="reader.html?pub=disciples" class="disciples-back-link disciples-sb-back-link"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>${isPt ? 'Todas as obras' : '作品一覧'}</a></div><div class="disciples-sb-scrollable">${sectionsHtml}</div><div class="disciples-sb-rail">${_railHtmlForChapters()}</div></div>`;
 
     requestAnimationFrame(() => attachSidebarBehaviors(sidebar));
   }
@@ -598,10 +601,21 @@
     } catch (_) { /* storage unavailable */ }
   };
 
-  // ── Mobile sidebar drawer toggle ──
+  // ── Sidebar toggle: drawer on mobile, slide-in/out on desktop ──
   window._disciplesToggleSidebar = function () {
     const body = document.body;
     const btn = document.getElementById('discSidebarToggle');
+    const isDesktop = window.matchMedia('(min-width: 901px)').matches;
+    if (isDesktop) {
+      const willCollapse = !body.classList.contains('disciples-sidebar-collapsed');
+      body.classList.toggle('disciples-sidebar-collapsed', willCollapse);
+      try {
+        if (willCollapse) localStorage.setItem('disciples_sidebar_collapsed', '1');
+        else localStorage.removeItem('disciples_sidebar_collapsed');
+      } catch (_) {}
+      if (btn) btn.setAttribute('aria-expanded', willCollapse ? 'false' : 'true');
+      return;
+    }
     if (body.classList.contains('disciples-sidebar-open')) {
       body.classList.remove('disciples-sidebar-open');
       if (btn) btn.setAttribute('aria-expanded', 'false');
@@ -629,6 +643,45 @@
 
     const lang = localStorage.getItem('site_lang') || 'pt';
     const isPt = lang !== 'ja';
+
+    // Botões A− / A+ (tamanho de fonte direto) e Aa (abre themeModal)
+    if (!document.getElementById('discFontDecBtn')) {
+      const fontDec = document.createElement('button');
+      fontDec.id = 'discFontDecBtn';
+      fontDec.className = 'disciples-font-btn';
+      fontDec.setAttribute('aria-label', isPt ? 'Diminuir fonte' : 'フォント縮小');
+      fontDec.setAttribute('title', isPt ? 'Diminuir fonte' : 'フォント縮小');
+      fontDec.textContent = 'A−';
+      fontDec.addEventListener('click', () => {
+        if (typeof window.changeFontSize === 'function') window.changeFontSize(-1);
+      });
+      headerActions.appendChild(fontDec);
+
+      const fontInc = document.createElement('button');
+      fontInc.id = 'discFontIncBtn';
+      fontInc.className = 'disciples-font-btn disciples-font-btn--inc';
+      fontInc.setAttribute('aria-label', isPt ? 'Aumentar fonte' : 'フォント拡大');
+      fontInc.setAttribute('title', isPt ? 'Aumentar fonte' : 'フォント拡大');
+      fontInc.textContent = 'A+';
+      fontInc.addEventListener('click', () => {
+        if (typeof window.changeFontSize === 'function') window.changeFontSize(1);
+      });
+      headerActions.appendChild(fontInc);
+    }
+
+    if (!document.getElementById('discThemeToggle')) {
+      const themeBtn = document.createElement('button');
+      themeBtn.id = 'discThemeToggle';
+      themeBtn.className = 'disciples-theme-toggle';
+      themeBtn.setAttribute('aria-label', isPt ? 'Tema e ajustes' : 'テーマと設定');
+      themeBtn.setAttribute('title', isPt ? 'Tema e ajustes de leitura' : 'テーマと読書設定');
+      themeBtn.textContent = 'Aa';
+      themeBtn.addEventListener('click', () => {
+        if (typeof window.toggleTheme === 'function') window.toggleTheme();
+        else if (typeof window.openThemeModal === 'function') window.openThemeModal();
+      });
+      headerActions.appendChild(themeBtn);
+    }
 
     // Botão Índice no header (substitui hamburger — drawer entra pela direita)
     const btn = document.createElement('button');

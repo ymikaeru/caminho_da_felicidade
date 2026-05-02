@@ -87,8 +87,16 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     document.title = `Meishu-Sama: ${cleanTitle} - Caminho da Felicidade`;
     try {
         const history = JSON.parse(localStorage.getItem('readHistory') || '[]');
+        const existing = history.find(h => h.file === filename && h.vol === volId);
         const filtered = history.filter(h => h.file !== filename || h.vol !== volId);
-        filtered.unshift({ title: cleanTitle, vol: volId, file: filename, time: Date.now(), topic: 0, totalTopics: topicsFound.length });
+        // Preserva o topic da entrada existente — se for resetado pra 0
+        // toda vez que o artigo é aberto, o "Histórico de Navegação"
+        // fica sempre mostrando 0% mesmo quando o usuário tinha avançado.
+        // Só reseta se topic estiver fora do range (artigo encurtou).
+        const preservedTopic = (existing && existing.topic > 0 && existing.topic < topicsFound.length)
+            ? existing.topic
+            : 0;
+        filtered.unshift({ title: cleanTitle, vol: volId, file: filename, time: Date.now(), topic: preservedTopic, totalTopics: topicsFound.length });
         localStorage.setItem('readHistory', JSON.stringify(filtered.slice(0, 20)));
     } catch (e) { }
 

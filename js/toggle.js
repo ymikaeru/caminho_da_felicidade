@@ -188,6 +188,11 @@ window.clearAllHistory = function () {
   const confirmMsg = currentLang === 'ja' ? '履歴をすべて消去しますか？' : 'Tem certeza que deseja limpar todo o histórico?';
   if (confirm(confirmMsg)) {
     localStorage.removeItem('readHistory');
+    // Tombstone: marca o momento da limpeza pra que pullCloudToLocal
+    // não repuxe entradas antigas do cloud. Posições de leitura no
+    // cloud ficam preservadas (outros dispositivos não perdem) — só
+    // não voltam pra este histórico até haver atividade nova.
+    try { localStorage.setItem('readHistoryClearedAt', String(Date.now())); } catch (e) {}
     renderHistory();
   }
 };

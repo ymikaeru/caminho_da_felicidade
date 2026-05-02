@@ -168,10 +168,17 @@ export async function pullCloudToLocal() {
     let localHist = [];
     try { localHist = JSON.parse(localStorage.getItem('readHistory') || '[]'); } catch (e) {}
 
+    // Tombstone: se o usuário limpou o histórico, não trazemos de volta
+    // entradas do cloud que já existiam antes do clear. Só novas
+    // atividades (updated_at > clearedAt) repopulam.
+    let clearedAt = 0;
+    try { clearedAt = parseInt(localStorage.getItem('readHistoryClearedAt') || '0', 10) || 0; } catch (e) {}
+
     const localMap = new Map(localHist.map(h => [`${h.vol}:${h.file}`, h]));
     for (const cp of cloudPos) {
       const key = `${cp.volume}:${cp.file}`;
       const cloudTime = new Date(cp.updated_at).getTime();
+      if (cloudTime <= clearedAt) continue;
       const local = localMap.get(key);
 
       if (!local) {

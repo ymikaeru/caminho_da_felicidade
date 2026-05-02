@@ -282,13 +282,15 @@ window.supabaseAuth = {
   getPermissions: () => userPermissions,
   logAccess: async (volume, file, action = 'view') => {
     if (!supabaseSession) return;
-    const userId = supabaseSession.user.id;
-    const now = new Date().toISOString();
-    // Registra acesso e atualiza presença em paralelo (belt + suspenders)
-    const [{ error }] = await Promise.all([
-      supabase.from('access_logs').insert({ user_id: userId, volume, file, action }),
-      supabase.from('user_profiles').update({ last_seen_at: now }).eq('id', userId)
-    ]);
+    // Server-side dedupe via RPC: pula o INSERT se já existe um log com
+    // mesmo (user, volume, file, action) nos últimos 60s. A RPC sempre
+    // atualiza last_seen_at independente do dedupe. Sobrevive a refresh
+    // de página e abas separadas (in-memory dedupe não cobre).
+    const { error } = await supabase.rpc('log_access_dedup', {
+      p_volume: volume,
+      p_file: file,
+      p_action: action
+    });
     if (error) console.warn('[logAccess] Falha ao registrar acesso:', error.message);
   }
 };

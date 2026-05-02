@@ -336,7 +336,29 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('touchstart', resetHideTimer, { passive: true });
     }
 
+    // ──────────────────────────────────────────────────────────────────
+    // Interaction guard para saveReadingPosition.
+    //
+    // Sem isso, abrir um artigo (sem ?topic=) e sair sem rolar salvava
+    // topic_index=0 no cloud, sobrescrevendo o progresso anterior. Aí o
+    // "Continuar leitura" parava de aparecer porque o cloud sempre
+    // tinha 0.
+    //
+    // Regra: só salvamos posição se o usuário REALMENTE rolou/tocou o
+    // artigo nesta sessão. Auto-scrolls iniciais (URL ?topic=N, click
+    // do "Continuar leitura") acontecem nos primeiros ~1500ms e não
+    // contam — só interações depois desse settle.
+    // ──────────────────────────────────────────────────────────────────
+    let _userInteracted = false;
+    let _interactionEnabled = false;
+    setTimeout(() => { _interactionEnabled = true; }, 1500);
+    const _markInteraction = () => { if (_interactionEnabled) _userInteracted = true; };
+    window.addEventListener('scroll', _markInteraction, { passive: true });
+    window.addEventListener('touchstart', _markInteraction, { passive: true });
+    window.addEventListener('keydown', _markInteraction);
+
     function saveReadingPosition() {
+        if (!_userInteracted) return;
         try {
             const { volId, filename } = getParams();
             if (!volId || !filename) return;

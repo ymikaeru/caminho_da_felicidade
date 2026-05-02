@@ -7,7 +7,10 @@
     "build:css": "postcss css/styles.css --config postcss.config.cjs -o css/styles.min.css",
     "watch:css": "postcss css/styles.css --config postcss.config.cjs -o css/styles.min.css --watch",
     "build": "npm run build:css",
-    "split:index": "node scripts/split_search_index.js"
+    "split:index": "node scripts/split_search_index.js",
+    "storage:pull": "node scripts/storage-pull.mjs",
+    "storage:status": "node scripts/storage-status.mjs",
+    "storage:push": "node scripts/storage-push.mjs"
   },
   "keywords": [
     "meishu-sama",

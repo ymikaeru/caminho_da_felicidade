@@ -13,3 +13,8 @@ scripts/storage_update/
 scripts/storage_update2/
 scripts/storage_update3/
 supabase/.temp/
+
+# Espelho local do Storage para edição em massa (storage-pull / push)
+.local-edits/
+
+.env.local

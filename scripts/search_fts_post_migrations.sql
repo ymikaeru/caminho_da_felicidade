@@ -156,8 +156,59 @@ revoke all on function admin_search_analytics(int) from public;
 grant execute on function admin_search_analytics(int) to authenticated;
 
 -- ============================================================
+-- Dedupe de access_logs no servidor
+-- ============================================================
+-- Substitui o INSERT direto em access_logs por uma RPC que:
+--   - Checa se já existe row com mesmo (user, volume, file, action) nos
+--     últimos 60s. Se sim, pula o insert.
+--   - Insere a row caso contrário.
+--   - Sempre atualiza user_profiles.last_seen_at (mantém presença).
+--
+-- Por que servidor: o dedupe in-memory do client perde estado em refresh
+-- e em abas separadas. O servidor garante "next records" idempotentes
+-- mesmo com double-fire de popstate, navegação cruzada ou refresh.
+-- ============================================================
+create or replace function log_access_dedup(
+  p_volume text,
+  p_file text,
+  p_action text default 'view'
+)
+returns void
+language plpgsql security definer
+set search_path = public
+as $func$
+declare
+  v_user uuid := auth.uid();
+  v_dup boolean;
+begin
+  if v_user is null then return; end if;
+
+  select exists (
+    select 1 from public.access_logs
+    where user_id = v_user
+      and volume = p_volume
+      and file = p_file
+      and action = p_action
+      and created_at >= now() - interval '60 seconds'
+  ) into v_dup;
+
+  if not v_dup then
+    insert into public.access_logs (user_id, volume, file, action)
+    values (v_user, p_volume, p_file, p_action);
+  end if;
+
+  -- Sempre atualiza presença, mesmo no caso dedupado.
+  update public.user_profiles set last_seen_at = now() where id = v_user;
+end;
+$func$;
+
+revoke all on function log_access_dedup(text, text, text) from public;
+grant execute on function log_access_dedup(text, text, text) to authenticated;
+
+-- ============================================================
 -- Sanity check
 -- ============================================================
 -- select * from suggest_teachings('johre', 'pt');
 -- select * from suggest_teachings('mishu sma', 'pt');
 -- select admin_search_analytics(30);
+-- select log_access_dedup('mioshiec1', 'test.html', 'view');

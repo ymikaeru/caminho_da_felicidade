@@ -7,7 +7,12 @@
   <link rel="stylesheet" href="css/styles.min.css?v=52">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <style>
-    .admin-wrap { max-width: 1700px; margin: 0 auto; padding: 40px 32px 120px; }
+    /* Override global content-wrapper / glass-pane caps for the admin page (desktop only) */
+    @media (min-width: 1025px) {
+      main.main > .content-wrapper { max-width: min(1250px, calc(100vw - 48px)) !important; }
+      main.main > .content-wrapper > .glass-pane { padding: 32px !important; }
+    }
+    .admin-wrap { max-width: 100%; margin: 0 auto; padding: 40px 0 120px; }
     .admin-section { margin-bottom: 40px; }
     .admin-section h2 { font-size: 1rem; font-weight: 600; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
 

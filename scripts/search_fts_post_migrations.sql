@@ -206,6 +206,16 @@ revoke all on function log_access_dedup(text, text, text) from public;
 grant execute on function log_access_dedup(text, text, text) to authenticated;
 
 -- ============================================================
+-- Posição de leitura granular por parágrafo
+-- ============================================================
+-- Coluna nova em reading_positions. NULL pra rows antigas (fallback
+-- pro scroll-to-topic). saveReadingPosition + getLastPosition no
+-- client passam a ler/escrever isto junto com topic_index.
+-- ============================================================
+alter table public.reading_positions
+  add column if not exists paragraph_index integer;
+
+-- ============================================================
 -- Sanity check
 -- ============================================================
 -- select * from suggest_teachings('johre', 'pt');

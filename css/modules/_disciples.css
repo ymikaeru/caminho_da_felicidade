@@ -228,6 +228,12 @@
 
 .disciples-back-link:hover { opacity: 0.7; }
 
+/* Sidebar header back-link (replaces inline padding/display) */
+.disciples-sb-back-link {
+  display: flex;
+  padding: 0.4rem 1rem;
+}
+
 .disciples-section-author {
   font-size: 0.9rem;
   color: var(--text-muted);
@@ -359,9 +365,36 @@ body.disciples-active {
 body.disciples-active .mobile-menu-btn,
 body.disciples-active .mobile-search-btn,
 body.disciples-active #mobileFavoriteBtn,
-body.disciples-active #mobileHighlightBtn {
+body.disciples-active #headerPrintBtn,
+body.disciples-active #mobileNavLinkPrint,
+body.disciples-active #mobileNavLinkFavorites,
+body.disciples-active #mobileNavLinkComparison,
+body.disciples-active #mobileNavLinkHistory {
   display: none !important;
 }
+
+/* Header button: Aa (theme + font size) — disciples mode */
+.disciples-theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 10px;
+  min-height: 40px;
+  color: var(--text-main);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: var(--font-serif, inherit);
+  letter-spacing: 0.02em;
+  transition: background 0.2s var(--ease, ease);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.disciples-theme-toggle:hover { background: var(--accent-soft); }
+.disciples-theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Voltar — override btn-zen + responsive hide para parecer nativo no header */
 body.disciples-active #backToIndexBtn {

@@ -601,10 +601,21 @@
     } catch (_) { /* storage unavailable */ }
   };
 
-  // ── Mobile sidebar drawer toggle ──
+  // ── Sidebar toggle: drawer on mobile, slide-in/out on desktop ──
   window._disciplesToggleSidebar = function () {
     const body = document.body;
     const btn = document.getElementById('discSidebarToggle');
+    const isDesktop = window.matchMedia('(min-width: 901px)').matches;
+    if (isDesktop) {
+      const willCollapse = !body.classList.contains('disciples-sidebar-collapsed');
+      body.classList.toggle('disciples-sidebar-collapsed', willCollapse);
+      try {
+        if (willCollapse) localStorage.setItem('disciples_sidebar_collapsed', '1');
+        else localStorage.removeItem('disciples_sidebar_collapsed');
+      } catch (_) {}
+      if (btn) btn.setAttribute('aria-expanded', willCollapse ? 'false' : 'true');
+      return;
+    }
     if (body.classList.contains('disciples-sidebar-open')) {
       body.classList.remove('disciples-sidebar-open');
       if (btn) btn.setAttribute('aria-expanded', 'false');
@@ -633,13 +644,37 @@
     const lang = localStorage.getItem('site_lang') || 'pt';
     const isPt = lang !== 'ja';
 
-    // Botão "Aa" — abre o themeModal (tema + tamanho de fonte) em desktop e mobile
+    // Botões A− / A+ (tamanho de fonte direto) e Aa (abre themeModal)
+    if (!document.getElementById('discFontDecBtn')) {
+      const fontDec = document.createElement('button');
+      fontDec.id = 'discFontDecBtn';
+      fontDec.className = 'disciples-font-btn';
+      fontDec.setAttribute('aria-label', isPt ? 'Diminuir fonte' : 'フォント縮小');
+      fontDec.setAttribute('title', isPt ? 'Diminuir fonte' : 'フォント縮小');
+      fontDec.textContent = 'A−';
+      fontDec.addEventListener('click', () => {
+        if (typeof window.changeFontSize === 'function') window.changeFontSize(-1);
+      });
+      headerActions.appendChild(fontDec);
+
+      const fontInc = document.createElement('button');
+      fontInc.id = 'discFontIncBtn';
+      fontInc.className = 'disciples-font-btn disciples-font-btn--inc';
+      fontInc.setAttribute('aria-label', isPt ? 'Aumentar fonte' : 'フォント拡大');
+      fontInc.setAttribute('title', isPt ? 'Aumentar fonte' : 'フォント拡大');
+      fontInc.textContent = 'A+';
+      fontInc.addEventListener('click', () => {
+        if (typeof window.changeFontSize === 'function') window.changeFontSize(1);
+      });
+      headerActions.appendChild(fontInc);
+    }
+
     if (!document.getElementById('discThemeToggle')) {
       const themeBtn = document.createElement('button');
       themeBtn.id = 'discThemeToggle';
       themeBtn.className = 'disciples-theme-toggle';
-      themeBtn.setAttribute('aria-label', isPt ? 'Tema e fonte' : 'テーマとフォント');
-      themeBtn.setAttribute('title', isPt ? 'Tema e tamanho da fonte' : 'テーマとフォントサイズ');
+      themeBtn.setAttribute('aria-label', isPt ? 'Tema e ajustes' : 'テーマと設定');
+      themeBtn.setAttribute('title', isPt ? 'Tema e ajustes de leitura' : 'テーマと読書設定');
       themeBtn.textContent = 'Aa';
       themeBtn.addEventListener('click', () => {
         if (typeof window.toggleTheme === 'function') window.toggleTheme();

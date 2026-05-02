@@ -57,6 +57,19 @@ export async function loadReadingPositions() {
   return data || [];
 }
 
+export async function deleteAllReadingPositions() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return { ok: false, reason: 'no-session' };
+
+  const { error } = await supabase
+    .from('reading_positions')
+    .delete()
+    .eq('user_id', session.user.id);
+
+  if (error) return { ok: false, reason: error.message };
+  return { ok: true };
+}
+
 export async function getLastPosition(volume, file) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return null;

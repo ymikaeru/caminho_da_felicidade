@@ -25,15 +25,12 @@ function _applyFontSize() {
   const size = FONT_SIZES[_currentFontSizeIdx];
   document.documentElement.style.setProperty('--reader-font-size', size + 'px');
 
-  const btnMinus = document.getElementById('fontDecrease');
-  const btnPlus = document.getElementById('fontIncrease');
-  const mBtnMinus = document.getElementById('mobileFontDown');
-  const mBtnPlus = document.getElementById('mobileFontUp');
-
-  if (btnMinus) btnMinus.disabled = (_currentFontSizeIdx === 0);
-  if (btnPlus) btnPlus.disabled = (_currentFontSizeIdx === FONT_SIZES.length - 1);
-  if (mBtnMinus) mBtnMinus.disabled = (_currentFontSizeIdx === 0);
-  if (mBtnPlus) mBtnPlus.disabled = (_currentFontSizeIdx === FONT_SIZES.length - 1);
+  const atMin = (_currentFontSizeIdx === 0);
+  const atMax = (_currentFontSizeIdx === FONT_SIZES.length - 1);
+  const minIds = ['fontDecrease', 'mobileFontDown', 'discFontDecBtn'];
+  const maxIds = ['fontIncrease', 'mobileFontUp', 'discFontIncBtn'];
+  minIds.forEach(id => { const el = document.getElementById(id); if (el) el.disabled = atMin; });
+  maxIds.forEach(id => { const el = document.getElementById(id); if (el) el.disabled = atMax; });
 }
 
 window.initLineHeight = function () {

@@ -120,9 +120,21 @@
     if (index < 0 || index >= _flatChapters.length) return;
     _currentChapterIndex = index;
     saveDiscChapterPos(_currentDisciplesBook.id, index);
+    syncDiscReadingPosition();
     renderCurrentDiscChapter();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     updateDiscSidebarActiveState();
+  }
+
+  // Push current chapter index → reading_positions (admin progress view)
+  function syncDiscReadingPosition() {
+    if (!_currentDisciplesBook || !_flatChapters.length) return;
+    const fn = window._cloudSync?.saveReadingPosition;
+    if (typeof fn !== 'function') return;
+    try {
+      fn('disciples', _currentDisciplesBook.id, _currentChapterIndex, _flatChapters.length)
+        ?.catch?.(() => {});
+    } catch (_) {}
   }
 
   function goToChapter(sectionId) {
@@ -254,6 +266,10 @@
     document.title = (isPt ? 'Publicações de Discípulos' : '弟子の著作') + ' | Caminho da Felicidade';
     setBackButton('home');
     renderDisciplesSidebar(null);
+
+    // Leaving any specific book — stop the read-time heartbeat
+    _currentDisciplesBook = null;
+    try { window._readTimeTracker?.stop?.(); } catch (_) {}
   }
 
   // ── Render specific book ──
@@ -267,6 +283,11 @@
     setBackButton('books');
     renderCurrentDiscChapter();
     renderDisciplesSidebar(book.id);
+
+    // Log book open + start read-time tracking + sync chapter progress (admin analytics)
+    try { window.supabaseAuth?.logAccess?.('disciples', book.id, 'view')?.catch?.(() => {}); } catch (_) {}
+    try { window._readTimeTracker?.start?.('disciples', book.id); } catch (_) {}
+    syncDiscReadingPosition();
   }
 
   function renderCurrentDiscChapter() {

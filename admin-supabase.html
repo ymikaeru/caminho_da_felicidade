@@ -7,12 +7,12 @@
   <link rel="stylesheet" href="css/styles.min.css?v=50">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <style>
-    .admin-wrap { max-width: 1400px; margin: 0 auto; padding: 40px 32px 120px; }
+    .admin-wrap { max-width: 1700px; margin: 0 auto; padding: 40px 32px 120px; }
     .admin-section { margin-bottom: 40px; }
     .admin-section h2 { font-size: 1rem; font-weight: 600; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
 
     /* Tabs */
-    .admin-tabs { display: flex; gap: 4px; margin-bottom: 32px; border-bottom: 1px solid var(--border); overflow-x: auto; flex-wrap: nowrap; scrollbar-width: thin; }
+    .admin-tabs { display: flex; gap: 4px; row-gap: 10px; margin-bottom: 32px; border-bottom: 1px solid var(--border); flex-wrap: wrap; scrollbar-width: thin; }
     .admin-tab {
       padding: 8px 14px; cursor: pointer; font-size: 0.85rem; font-weight: 500;
       color: var(--text-muted); border-bottom: 2px solid transparent; transition: all 0.15s;
@@ -23,6 +23,7 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     #tab-destaques.active { display: flex; flex-direction: column; min-height: calc(100vh - 240px); }
+    .hl-card:hover { transform: translateX(2px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     .tab-badge {
       display: inline-flex; align-items: center; justify-content: center;
       min-width: 18px; height: 18px; padding: 0 5px;
@@ -477,6 +478,88 @@
       font-style: normal; font-weight: 500;
       box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.35);
     }
+    /* Highlight Reader Modal (read-only) */
+    .hl-reader-modal {
+      display: none; position: fixed; inset: 0; z-index: 9998;
+      background: rgba(0,0,0,0.55); align-items: center; justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .hl-reader-modal.open { display: flex; }
+    .hl-reader-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      width: 95%; max-width: 880px; height: 90vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.3); overflow: hidden;
+    }
+    .hl-reader-header {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 22px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .hl-reader-title { font-size: 1rem; font-weight: 700; color: var(--accent); margin: 0; line-height: 1.3; }
+    .hl-reader-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; font-family: monospace; }
+    .hl-reader-close {
+      background: none; border: none; font-size: 1.2rem; cursor: pointer;
+      color: var(--text-muted); padding: 4px 10px; flex-shrink: 0;
+    }
+    .hl-reader-close:hover { color: var(--text); }
+    .hl-reader-snippet {
+      padding: 8px 22px; background: rgba(120,120,120,0.06);
+      border-bottom: 1px solid var(--border); font-size: 0.82rem;
+      color: var(--text-muted); flex-shrink: 0;
+    }
+    .hl-reader-body {
+      flex: 1; min-height: 0; overflow-y: auto; padding: 24px 36px;
+      font-family: var(--font-body), serif; line-height: 1.75;
+    }
+    .hl-reader-msg { color: var(--text-muted); font-size: 0.9rem; padding: 18px 0; }
+    .hl-reader-warn {
+      background: rgba(120,120,120,0.08); color: var(--text-muted);
+      padding: 8px 12px; border-radius: 6px; margin-bottom: 16px;
+      font-size: 0.8rem; border-left: 2px solid var(--text-muted);
+    }
+    .hl-reader-topic { padding: 18px 0; border-top: 1px solid var(--border); }
+    .hl-reader-topic:first-child { padding-top: 0; border-top: none; }
+
+    /* Conteúdo do ensinamento — neutralização total das cores/fontes inline
+       que vêm do HTML legado (font color="red", <font size="...">, etc).
+       Tipografia limpa: tudo em var(--text) na fonte serifada do site. */
+    .hl-reader-topic-content,
+    .hl-reader-topic-content * {
+      color: var(--text) !important;
+      background-color: transparent !important;
+      font-family: var(--font-body), serif !important;
+    }
+    .hl-reader-topic-content { font-size: 0.97rem; }
+    .hl-reader-topic-content font,
+    .hl-reader-topic-content font[size] { font-size: inherit; }
+    .hl-reader-topic-content h1,
+    .hl-reader-topic-content h2,
+    .hl-reader-topic-content h3 { font-size: 1.02rem; font-weight: 700; margin: 0 0 8px; line-height: 1.4; }
+    .hl-reader-topic-content b,
+    .hl-reader-topic-content strong { font-weight: 700; }
+    .hl-reader-topic-content i,
+    .hl-reader-topic-content em { font-style: italic; }
+    .hl-reader-topic-content p { margin: 0 0 10px; }
+
+    /* Marca do destaque: tom único e sutil — independe da cor escolhida pelo usuário */
+    mark.hl-reader-mark {
+      background: rgba(184,134,11,0.20) !important;
+      color: var(--text) !important;
+      padding: 0 2px; border-radius: 2px;
+      box-shadow: inset 0 -2px 0 rgba(184,134,11,0.45);
+      animation: hlReaderPulse 1.4s ease-in-out 2;
+    }
+    @keyframes hlReaderPulse {
+      0%, 100% { box-shadow: inset 0 -2px 0 rgba(184,134,11,0.45); }
+      50%      { box-shadow: inset 0 -2px 0 rgba(184,134,11,0.95); }
+    }
+    @media (max-width: 700px) {
+      .hl-reader-card { width: 100%; height: 100%; max-width: none; border-radius: 0; }
+      .hl-reader-body { padding: 20px 18px; }
+      .hl-reader-header { padding: 12px 16px; }
+      .hl-reader-snippet { padding: 10px 16px; }
+    }
+
     /* Destacar o trecho reportado no editor estruturado */
     .seg-editable mark.editor-report-highlight,
     .topic-readonly-text mark.editor-report-highlight {
@@ -545,6 +628,19 @@
     .fr-diff-old mark, .fr-diff-new mark { padding: 0 1px; border-radius: 2px; font-weight: 600; background: transparent; }
     .fr-diff-old mark { background: rgba(255,59,48,0.28); color: #ff3b30; text-decoration: line-through; }
     .fr-diff-new mark { background: rgba(52,199,89,0.28); color: #1f9b47; }
+    /* Modo "Buscar no japonês": snippet JA é só uma âncora pra localizar o termo
+       — não vai ser editado nem apagado, então usamos um tom neutro dourado. */
+    .fr-ja-anchor {
+      font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.78rem;
+      white-space: pre-wrap; word-break: break-word;
+      background: rgba(184,134,11,0.06); border-left: 2px solid rgba(184,134,11,0.45);
+      padding: 4px 8px; margin-bottom: 2px; color: var(--text);
+    }
+    .fr-ja-anchor mark {
+      background: rgba(184,134,11,0.28); color: inherit;
+      padding: 0 2px; border-radius: 2px; font-weight: 600;
+      text-decoration: none;
+    }
     .fr-checkbox { width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); }
     .fr-empty { text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 0.9rem; }
     /* Johrei Analytics */
@@ -585,6 +681,27 @@
     #tab-analytics-landing tr:last-child td { border-bottom:none; }
     #tab-analytics-landing td.num { text-align:right; color:var(--accent); font-weight:600; }
     #tab-analytics-landing td.ell { max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    #tab-analytics-disciples .dc-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+    #tab-analytics-disciples .dc-card { padding:18px; border:1px solid var(--border); border-radius:12px; background:var(--surface); }
+    #tab-analytics-disciples .dc-card .v { font-size:1.7rem; font-weight:700; color:var(--accent); line-height:1; }
+    #tab-analytics-disciples .dc-card .s { font-size:.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.14em; margin-top:6px; }
+    #tab-analytics-disciples .dc-card .u { font-size:.75rem; color:var(--text-muted); margin-top:4px; }
+    #tab-analytics-disciples .dc-chart-wrap { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:24px; }
+    #tab-analytics-disciples .dc-chart-wrap h3 { font-size:.78rem; text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted); margin:0 0 14px; font-weight:600; }
+    #tab-analytics-disciples canvas { max-width:100%; height:260px !important; }
+    #tab-analytics-disciples .dc-tables { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media (max-width:900px) { #tab-analytics-disciples .dc-tables { grid-template-columns:1fr; } }
+    #tab-analytics-disciples .dc-tbl { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; }
+    #tab-analytics-disciples .dc-tbl h3 { font-size:.78rem; text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted); margin:0 0 12px; font-weight:600; }
+    #tab-analytics-disciples table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    #tab-analytics-disciples th { text-align:left; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); padding:6px 0; border-bottom:1px solid var(--border); font-weight:500; }
+    #tab-analytics-disciples td { padding:8px 0; border-bottom:1px solid var(--border); }
+    #tab-analytics-disciples tr:last-child td { border-bottom:none; }
+    #tab-analytics-disciples td.num { text-align:right; color:var(--accent); font-weight:600; }
+    #tab-analytics-disciples .dc-book-card { display:flex; flex-direction:column; }
+    #tab-analytics-disciples .dc-book-stats { display:flex; gap:18px; flex-wrap:wrap; margin-top:8px; }
+    #tab-analytics-disciples .dc-book-stats > div .v { font-size:1.3rem; }
   </style>
 </head>
 <body>
@@ -632,6 +749,7 @@
               <div class="tab-group-tabs">
                 <div class="admin-tab active" onclick="switchTab('users')">👤 Usuários</div>
                 <div class="admin-tab" onclick="switchTab('analytics')">📊 Analytics</div>
+                <div class="admin-tab" onclick="switchTab('analytics-disciples')">📊 Analytics Discípulos</div>
                 <div class="admin-tab" onclick="switchTab('destaques')">⭐ Destaques</div>
                 <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty" id="reportsTabBadge">0</span></div>
                 <div class="admin-tab" onclick="switchTab('findreplace')">🔎 Buscar &amp; Substituir</div>
@@ -921,12 +1039,19 @@
             </div>
 
             <div class="admin-section" style="margin-bottom:24px;">
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+              <div style="margin-bottom:12px;">
+                <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem;">
+                  <input type="checkbox" id="fr-search-ja" onchange="onFindReplaceModeChange()">
+                  <strong>Buscar no japonês</strong>
+                  <span style="color:var(--text-muted); font-size:0.78rem;">— localiza termos JA inconsistentemente traduzidos; o admin abre o editor e digita a tradução correta manualmente.</span>
+                </label>
+              </div>
+              <div id="fr-search-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
                 <div>
-                  <label style="display:block; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Texto a buscar</label>
+                  <label id="fr-search-label" style="display:block; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Texto a buscar</label>
                   <textarea id="fr-search" rows="2" oninput="onFindReplaceSearchChange()" placeholder="Ex: a Imagem da Luz Divina (Komei Nyorai)" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; font-family:inherit; resize:vertical;"></textarea>
                 </div>
-                <div>
+                <div id="fr-replace-col">
                   <label style="display:block; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Substituir por</label>
                   <textarea id="fr-replace" rows="2" oninput="onFindReplaceReplaceChange()" placeholder="Ex: a Imagem de Komyo Nyorai" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; font-family:inherit; resize:vertical;"></textarea>
                 </div>
@@ -950,22 +1075,6 @@
             </div>
 
             <div id="fr-results-container"></div>
-
-            <!-- Regenerar Índice de Busca -->
-            <div style="margin-top:28px; padding:18px 20px; border:1px solid var(--border); border-radius:10px; background:var(--surface);">
-              <h4 style="margin:0 0 6px; font-size:0.9rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.5px;">Índice de Busca</h4>
-              <p style="font-size:0.83rem; color:var(--text-muted); margin:0 0 14px;">Após editar textos, regenere o índice para que as buscas reflitam as alterações.</p>
-              <div style="display:flex; gap:18px; flex-wrap:wrap; margin-bottom:14px; font-size:0.86rem;">
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="fr-idx-scope fr-checkbox" value="mioshiec1" checked> Vol. 1</label>
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="fr-idx-scope fr-checkbox" value="mioshiec2" checked> Vol. 2</label>
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="fr-idx-scope fr-checkbox" value="mioshiec3" checked> Vol. 3</label>
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="fr-idx-scope fr-checkbox" value="mioshiec4" checked> Vol. 4</label>
-              </div>
-              <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-                <button id="fr-btn-rebuild-idx" onclick="rebuildSearchIndex()" style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer; font-size:0.86rem;">⟳ Regenerar</button>
-                <span id="fr-idx-progress" style="font-size:0.82rem; color:var(--text-muted);"></span>
-              </div>
-            </div>
           </div>
 
           <!-- Logs Tab -->
@@ -988,6 +1097,27 @@
               </div>
             </div>
             <div id="admin-logs-container"><div class="loading">Carregando logs...</div></div>
+          </div>
+
+          <!-- Disciples Analytics Tab -->
+          <div class="tab-content" id="tab-analytics-disciples">
+            <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Analytics — Publicações de Discípulos</h2>
+                <p id="dc-gen-at" style="font-size:0.85rem; color:var(--text-muted); margin:0;">Carregando…</p>
+              </div>
+              <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <label style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
+                <select id="dc-range" onchange="loadDisciplesAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
+                  <option value="7">7 dias</option>
+                  <option value="30" selected>30 dias</option>
+                  <option value="90">90 dias</option>
+                  <option value="365">1 ano</option>
+                </select>
+                <button onclick="loadDisciplesAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻ Atualizar</button>
+              </div>
+            </div>
+            <div id="dc-dashboard"><div class="loading">Carregando dados…</div></div>
           </div>
 
           <!-- Calendar Tab -->
@@ -1294,6 +1424,23 @@
     </div>
   </div>
 
+  <!-- Highlight Reader Modal (read-only) -->
+  <div class="hl-reader-modal" id="hl-reader-modal" onclick="if(event.target===this)closeHlReader()">
+    <div class="hl-reader-card">
+      <div class="hl-reader-header">
+        <div style="flex:1; min-width:0;">
+          <div class="hl-reader-title" id="hl-reader-title">Carregando…</div>
+          <div class="hl-reader-meta" id="hl-reader-meta"></div>
+        </div>
+        <button class="hl-reader-close" onclick="closeHlReader()" aria-label="Fechar">✕</button>
+      </div>
+      <div class="hl-reader-snippet" id="hl-reader-snippet" style="display:none;"></div>
+      <div class="hl-reader-body" id="hl-reader-body">
+        <div class="hl-reader-msg">Baixando ensinamento…</div>
+      </div>
+    </div>
+  </div>
+
   <!-- Raw File Editor Modal -->
   <div class="editor-modal" id="editor-modal" onclick="if(event.target===this)closeEditor()">
     <div class="editor-card">
@@ -1341,7 +1488,8 @@
 
     const VOL_SHORT = {
       mioshiec1: 'V1', mioshiec2: 'V2', mioshiec3: 'V3', mioshiec4: 'V4',
-      shumeic1:  'V1', shumeic2:  'V2', shumeic3:  'V3', shumeic4:  'V4'
+      shumeic1:  'V1', shumeic2:  'V2', shumeic3:  'V3', shumeic4:  'V4',
+      disciples: 'Disc'
     };
 
     let allUsers = [];
@@ -1441,6 +1589,7 @@
         'apply_default_permissions': { label: 'Aplicou restrições a todos', color: '#e05252' },
         'search_replace':            { label: 'Buscar & Substituir',        color: '#8e7cc3' },
         'rebuild_search_index':      { label: 'Regenerou Índice de Busca',  color: '#5ba4cf' },
+        'delete_highlight':          { label: 'Apagou destaque',            color: '#ff3b30' },
       };
       container.innerHTML = `<table class="data-table">
         <thead><tr><th>Data/Hora</th><th>Admin</th><th>Ação</th><th>Detalhes</th></tr></thead>
@@ -1525,7 +1674,13 @@
       }).join('');
     }
 
+    const DISCIPLES_BOOK_TITLES = {
+      keigyou: 'Keigyou',
+      'ashita-no-ijitsu-wo-ikiru': 'Ashita No Ijitsu Wo Ikiru'
+    };
+
     function getFileTitle(volume, file) {
+      if (volume === 'disciples') return DISCIPLES_BOOK_TITLES[file] || file;
       const cats = volumeCategories?.[volume];
       if (cats) {
         for (const arr of Object.values(cats)) {
@@ -1543,6 +1698,11 @@
       document.getElementById('hl-total-count').textContent = '';
       header.style.display = 'flex';
       container.innerHTML = '<div class="loading">Carregando destaques...</div>';
+      // Guarda quem é o dono dos destaques pra usar no delete e no log
+      window._currentHlUserId = userId;
+      window._currentHlUserName = userName;
+      // Scroll the highlights header into view so o admin não precisa rolar até o fim da lista de usuários
+      header.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       // Ensure the volume→file→title map is loaded before rendering
       if (!volumeCategories || Object.keys(volumeCategories).length === 0) {
@@ -1570,9 +1730,13 @@
         pink: '#ffb3c6', purple: '#d4a5f5', orange: '#ffd6a5'
       };
 
+      // Indexa cada destaque para o handler de clique poder recuperar texto/vol/file sem escape inline
+      const indexed = highlights.map((h, i) => ({ ...h, _idx: i }));
+      window._currentHlContext = indexed;
+
       // Agrupar por volume + arquivo
       const grouped = new Map();
-      highlights.forEach(h => {
+      indexed.forEach(h => {
         const key = `${h.volume}__${h.file}`;
         if (!grouped.has(key)) grouped.set(key, { volume: h.volume, file: h.file, items: [] });
         grouped.get(key).items.push(h);
@@ -1594,11 +1758,14 @@
                 const bg = colorMap[h.color] || '#fff3a1';
                 const date = new Date(h.updated_at).toLocaleDateString('pt-BR');
                 return `
-                  <div style="border-left:4px solid ${bg}; padding:10px 14px; background:var(--surface); border-radius:0 8px 8px 0; border:1px solid var(--border); border-left-color:${bg};">
+                  <div class="hl-card" data-hl-idx="${h._idx}" onclick="openHighlightInContext(${h._idx})" title="Clique para ver no contexto" style="cursor:pointer; border-left:4px solid ${bg}; padding:10px 14px; background:var(--surface); border-radius:0 8px 8px 0; border:1px solid var(--border); border-left-color:${bg}; transition:transform 0.12s ease, box-shadow 0.12s ease, opacity 0.25s ease;">
                     ${h.topic_title ? `<div style="font-size:0.73rem; color:var(--text-muted); margin-bottom:4px; font-family:'Outfit',sans-serif;">${_escHtml(h.topic_title)}</div>` : ''}
                     <div style="font-size:0.95rem; line-height:1.6; color:var(--text);">${_escHtml(h.text)}</div>
                     ${h.comment ? `<div style="margin-top:6px; font-size:0.82rem; color:var(--text-muted); font-style:italic; font-family:'Outfit',sans-serif;">📝 ${_escHtml(h.comment)}</div>` : ''}
-                    <div style="margin-top:6px; font-size:0.7rem; color:var(--text-muted); font-family:'Outfit',sans-serif;">${date}</div>
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
+                      <span style="font-size:0.7rem; color:var(--text-muted); font-family:'Outfit',sans-serif;">${date}</span>
+                      <button class="hl-delete-btn" onclick="event.stopPropagation(); deleteHighlightAt(${h._idx})" title="Apagar este destaque" style="margin-left:auto; padding:3px 9px; border:1px solid rgba(255,59,48,0.3); background:rgba(255,59,48,0.06); color:#ff3b30; border-radius:6px; font-size:0.72rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif;">🗑 Apagar</button>
+                    </div>
                   </div>
                 `;
               }).join('')}
@@ -1608,6 +1775,243 @@
       }
       container.innerHTML = html;
     };
+
+    // Abre o destaque em um modal de LEITURA (não-editável), marcando a passagem
+    // com a cor original do usuário e rolando até ela.
+    window.openHighlightInContext = function(idx) {
+      // Lookup por _idx (não posição) — após deletes o array é filtrado
+      const h = (window._currentHlContext || []).find(x => x._idx === idx);
+      if (!h || !h.volume || !h.file) return;
+      window.openHlReader(h.volume, h.file, {
+        text: h.text || '',
+        color: h.color || 'yellow',
+        comment: h.comment || '',
+        topicTitle: h.topic_title || ''
+      });
+    };
+
+    window.closeHlReader = function() {
+      const m = document.getElementById('hl-reader-modal');
+      if (m) m.classList.remove('open');
+    };
+
+    // Apaga um destaque do usuário (destaques que vazaram por bug, etc).
+    // Requer admin (RLS em user_highlights). Confirma antes, anima a remoção do
+    // card, atualiza contagens locais e registra a ação em admin_logs.
+    window.deleteHighlightAt = async function(idx) {
+      // Lookup por _idx (não posição) — após deletes o array é filtrado
+      const h = (window._currentHlContext || []).find(x => x._idx === idx);
+      if (!h) return;
+
+      const uid = window._currentHlUserId;
+
+      // Estratégia de identificação:
+      //   1) id (UUID PK) — caminho padrão se o RPC devolver
+      //   2) chave composta (user_id, volume, file, topic_id, start_char, end_char)
+      //      — mesma unique constraint usada pelo client em sync.js
+      const hasId        = !!h.id;
+      const hasComposite = !!uid && h.volume != null && h.file != null
+                        && h.topic_id != null && h.start_char != null && h.end_char != null;
+
+      if (!hasId && !hasComposite) {
+        const fields = Object.keys(h).filter(k => k !== '_idx').join(', ');
+        console.error('[deleteHighlightAt] Faltam campos pra identificar o destaque. Disponíveis:', fields, h);
+        alert(
+          'Não foi possível identificar este destaque para apagar.\n\n' +
+          'O RPC get_user_highlights_for_admin precisa devolver o campo "id" ' +
+          '(ou pelo menos topic_id, start_char e end_char). Atualize a função no Supabase.\n\n' +
+          'Campos disponíveis agora: ' + fields
+        );
+        return;
+      }
+
+      const preview = (h.text || '').slice(0, 80) + ((h.text || '').length > 80 ? '…' : '');
+      if (!confirm(`Apagar este destaque?\n\n"${preview}"\n\nEsta ação não pode ser desfeita.`)) return;
+
+      // Encontra o card e dá feedback de "apagando…"
+      const card = document.querySelector(`.hl-card[data-hl-idx="${idx}"]`);
+      const btn  = card?.querySelector('.hl-delete-btn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Apagando…'; }
+
+      try {
+        let q = supabase.from('user_highlights').delete({ count: 'exact' });
+        if (hasId) {
+          q = q.eq('id', h.id);
+        } else {
+          q = q.eq('user_id', uid)
+               .eq('volume', h.volume)
+               .eq('file', h.file)
+               .eq('topic_id', h.topic_id)
+               .eq('start_char', Number(h.start_char))
+               .eq('end_char', Number(h.end_char));
+        }
+        const { error, count } = await q;
+        if (error) throw error;
+        if (count === 0) throw new Error('Nenhuma linha foi apagada (RLS bloqueou ou destaque já não existia).');
+
+        // Anima a remoção do card
+        if (card) {
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+          setTimeout(() => card.remove(), 250);
+        }
+
+        // Atualiza estado local: remove do contexto, ajusta contador no header
+        window._currentHlContext = (window._currentHlContext || []).filter(x => x._idx !== idx);
+        const remaining = window._currentHlContext.length;
+        const countEl = document.getElementById('hl-total-count');
+        if (countEl) countEl.textContent = `${remaining} destaque${remaining !== 1 ? 's' : ''}`;
+
+        // Atualiza o badge na lista de usuários (o cache _hlCountByUser)
+        const uid = window._currentHlUserId;
+        if (uid && _hlCountByUser) {
+          _hlCountByUser.set(uid, Math.max(0, (_hlCountByUser.get(uid) || 1) - 1));
+          // Re-render da lista de usuários pra atualizar o badge
+          const q = (document.getElementById('hl-user-search')?.value || '').toLowerCase();
+          const filtered = q
+            ? allUsers.filter(u => (u.display_name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q))
+            : allUsers;
+          renderHlUserList(filtered);
+        }
+
+        // Se era o último, mostra estado vazio
+        if (remaining === 0) {
+          const container = document.getElementById('hl-results-container');
+          if (container) container.innerHTML = '<div style="color:var(--text-muted); font-size:0.9rem; padding:20px 0;">Nenhum destaque restante para este usuário.</div>';
+        }
+
+        // Registra a ação
+        logAdminAction('delete_highlight', {
+          user_id: uid,
+          user_name: window._currentHlUserName || '—',
+          volume: h.volume,
+          file: h.file,
+          trecho: (h.text || '').slice(0, 120)
+        });
+      } catch (err) {
+        console.error('[deleteHighlightAt]', err);
+        alert(`Erro ao apagar destaque: ${err.message || err}`);
+        if (btn) { btn.disabled = false; btn.textContent = '🗑 Apagar'; }
+      }
+    };
+
+    // Remove TODAS as cores/fontes inline do HTML legado dos ensinamentos
+    // (font color, bgcolor, color: nos style=""). Garante que o modal renderize
+    // tudo no tema padrão, sem depender de overrides CSS frágeis.
+    function _neutralizeContentHtml(html) {
+      if (!html) return '';
+      return String(html)
+        // Atributos presentacionais HTML4
+        .replace(/\s(?:color|bgcolor|face|size)\s*=\s*"[^"]*"/gi, '')
+        .replace(/\s(?:color|bgcolor|face|size)\s*=\s*'[^']*'/gi, '')
+        .replace(/\s(?:color|bgcolor|face|size)\s*=\s*[^\s>]+/gi, '')
+        // Limpa color/background/font-* dentro de style=""
+        .replace(/\sstyle\s*=\s*"([^"]*)"/gi, (_, css) => {
+          const cleaned = css
+            .replace(/(?:^|;)\s*(?:color|background|background-color|font-family|font-size)\s*:[^;]*/gi, '')
+            .replace(/^\s*;+/, '').trim();
+          return cleaned ? ` style="${cleaned}"` : '';
+        })
+        .replace(/\sstyle\s*=\s*'([^']*)'/gi, (_, css) => {
+          const cleaned = css
+            .replace(/(?:^|;)\s*(?:color|background|background-color|font-family|font-size)\s*:[^;]*/gi, '')
+            .replace(/^\s*;+/, '').trim();
+          return cleaned ? ` style='${cleaned}'` : '';
+        });
+    }
+
+    // Modal de leitura: baixa o JSON do ensinamento, renderiza o lado PT em modo
+    // somente-leitura, marca o trecho destacado pelo usuário com a cor original e
+    // rola até a primeira ocorrência. Se não encontrar em PT, tenta JA.
+    window.openHlReader = async function(vol, file, opts = {}) {
+      const { text = '', color = 'yellow', comment = '', topicTitle = '' } = opts;
+      const fileName = file.endsWith('.json') ? file : file + '.json';
+
+      const modal    = document.getElementById('hl-reader-modal');
+      const body     = document.getElementById('hl-reader-body');
+      const titleEl  = document.getElementById('hl-reader-title');
+      const metaEl   = document.getElementById('hl-reader-meta');
+      const snipEl   = document.getElementById('hl-reader-snippet');
+
+      // Garante que o mapa de títulos esteja carregado
+      if (!volumeCategories || Object.keys(volumeCategories).length === 0) {
+        try { await loadVolumeFiles(); } catch (e) {}
+      }
+
+      titleEl.textContent = getFileTitle(vol, file);
+      metaEl.textContent  = `${VOL_SHORT[vol] || vol} · ${fileName}`;
+
+      // Mostra o snippet APENAS quando há comentário do usuário — caso contrário
+      // o trecho destacado e o título já aparecem no corpo (evita poluição visual).
+      if (comment) {
+        snipEl.innerHTML = `📝 ${_escHtml(comment)}`;
+        snipEl.style.display = 'block';
+      } else {
+        snipEl.style.display = 'none';
+      }
+
+      body.innerHTML = '<div class="hl-reader-msg">Baixando ensinamento…</div>';
+      modal.classList.add('open');
+
+      try {
+        const { data, error } = await supabase.storage.from('teachings').download(`${vol}/${fileName}`);
+        if (error) throw error;
+        if (!data) throw new Error('Arquivo vazio ou indisponível.');
+
+        const json = JSON.parse(await data.text());
+        if (!json || !Array.isArray(json.themes)) throw new Error('Estrutura inesperada (sem themes).');
+
+        // Renderiza PT (preferencial). Se PT estiver vazio para um tópico, cai pro JA.
+        // Sem header próprio: o content_ptbr já traz seu próprio título + data, então
+        // adicionar um header em maiúsculas duplicaria a informação.
+        let html = '';
+        json.themes.forEach((theme) => {
+          (theme.topics || []).forEach((topic) => {
+            const ptContent = topic.content_ptbr || topic.content_pt || '';
+            const jaContent = topic.content || '';
+            const useContent = (ptContent && ptContent.trim()) ? ptContent : jaContent;
+            if (!useContent || !useContent.trim()) return;
+            html += `
+              <div class="hl-reader-topic">
+                <div class="hl-reader-topic-content html-content">${_neutralizeContentHtml(useContent)}</div>
+              </div>
+            `;
+          });
+        });
+        body.innerHTML = html || '<div class="hl-reader-msg">Sem conteúdo disponível neste ensinamento.</div>';
+
+        // Marca a passagem destacada (texto puro, whitespace-insensitive).
+        // A marca usa um tom único e sutil via CSS — sem refletir a cor escolhida
+        // pelo usuário, para manter o modal visualmente limpo.
+        if (text) {
+          const blocks = body.querySelectorAll('.hl-reader-topic-content');
+          let firstMark = null;
+          for (const el of blocks) {
+            const count = _wrapAllMatchesInElement(el, text, 'hl-reader-mark');
+            if (count > 0 && !firstMark) firstMark = el.querySelector('mark.hl-reader-mark');
+          }
+
+          if (firstMark) {
+            setTimeout(() => firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+          } else {
+            const warn = document.createElement('div');
+            warn.className = 'hl-reader-warn';
+            warn.innerHTML = 'Trecho destacado não foi localizado automaticamente. Use <b>Ctrl+F</b> para buscar.';
+            body.insertBefore(warn, body.firstChild);
+          }
+        }
+      } catch (err) {
+        console.error('[openHlReader]', err);
+        body.innerHTML = `<div class="hl-reader-msg" style="color:#c0392b;">Erro ao carregar: ${_escHtml(err.message || String(err))}</div>`;
+      }
+    };
+
+    // ESC fecha o modal de leitura quando aberto
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const m = document.getElementById('hl-reader-modal');
+      if (m && m.classList.contains('open')) window.closeHlReader();
+    });
 
     window.switchAdminSection = function(section) {
       document.querySelectorAll('.tab-group[data-section]').forEach(g => {
@@ -1631,7 +2035,7 @@
     window.switchTab = function(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'calendar': 0, 'access': 1, 'announcements': 2, 'analytics-landing': 3, 'users': 4, 'analytics': 5, 'destaques': 6, 'reports': 7, 'findreplace': 8, 'logs': 9, 'analytics-johrei': 10, 'essencia-guia': 11 }[tab];
+      const tabIndex = { 'calendar': 0, 'access': 1, 'announcements': 2, 'analytics-landing': 3, 'users': 4, 'analytics': 5, 'analytics-disciples': 6, 'destaques': 7, 'reports': 8, 'findreplace': 9, 'logs': 10, 'analytics-johrei': 11, 'essencia-guia': 12 }[tab];
       document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'analytics') {
@@ -1649,6 +2053,7 @@
       if (tab === 'logs') loadAdminLogs();
       if (tab === 'analytics-johrei') loadJohreiAnalytics();
       if (tab === 'analytics-landing') loadLandingAnalytics();
+      if (tab === 'analytics-disciples') loadDisciplesAnalytics();
     };
 
     // ============================================================
@@ -2413,7 +2818,7 @@
     // Envolve TODAS as ocorrências de `needle` (texto plano, whitespace-insensitive)
     // em <mark>. Constrói um mapa de caracteres da versão normalizada → offsets
     // originais para lidar com quebras de linha, espaços duplos e NBSP.
-    function _wrapAllMatchesInElement(root, needle) {
+    function _wrapAllMatchesInElement(root, needle, markClass = 'editor-report-highlight') {
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
       const nodes = [];
       let n;
@@ -2491,7 +2896,7 @@
           range.setStart(startNode, startDelta);
           range.setEnd(endNode, endDelta);
           const mark = document.createElement('mark');
-          mark.className = 'editor-report-highlight';
+          mark.className = markClass;
           try {
             range.surroundContents(mark);
           } catch (_) {
@@ -4847,29 +5252,34 @@
       }
     }
 
-    // Escaneia o JSON de um arquivo e retorna lista de "campos" que contêm matches
-    function _frScanJson(json, needle, isBook) {
+    // Escaneia o JSON de um arquivo e retorna lista de "campos" que contêm matches.
+    // searchInJa=true: busca em title/content (JA) e expõe title_ptbr/content_ptbr como contexto.
+    function _frScanJson(json, needle, isBook, searchInJa = false) {
       const hits = [];
       if (isBook) {
+        // Livros têm só title/content (sem split JA/PT) — modo JA não se aplica
+        if (searchInJa) return hits;
         if (Array.isArray(json.sections)) {
           json.sections.forEach((s, i) => _frScanBookNode(s, ['sections', i], needle, hits));
         }
       } else {
-        // teachings: themes[].topics[] com title_ptbr + content_ptbr
         if (!Array.isArray(json.themes)) return hits;
+        // [campo a buscar, campo do outro idioma usado como contexto/edição]
+        const fieldPairs = searchInJa
+          ? [['title', 'title_ptbr'], ['content', 'content_ptbr']]
+          : [['title_ptbr', 'title'], ['content_ptbr', 'content']];
         json.themes.forEach((theme, tIdx) => {
           if (!Array.isArray(theme.topics)) return;
           theme.topics.forEach((topic, pIdx) => {
-            ['title_ptbr', 'content_ptbr'].forEach(field => {
-              const val = topic[field];
+            fieldPairs.forEach(([searchField, otherField]) => {
+              const val = topic[searchField];
               if (typeof val !== 'string') return;
               const matches = _frFindAll(val, needle);
               if (matches.length) {
-                const jaField = field === 'title_ptbr' ? 'title' : 'content';
                 hits.push({
-                  field,
+                  field: searchField,
                   text: val,
-                  jaText: typeof topic[jaField] === 'string' ? topic[jaField] : '',
+                  jaText: typeof topic[otherField] === 'string' ? topic[otherField] : '',
                   path: ['themes', tIdx, 'topics', pIdx],
                   matches
                 });
@@ -4953,9 +5363,52 @@
       updateFindReplaceDiff();
     };
 
+    // Alterna entre o modo PT (find/replace clássico) e o modo "Buscar no japonês"
+    // (localiza termo JA e abre o editor para o admin corrigir o PT manualmente).
+    window.onFindReplaceModeChange = function() {
+      const ja = document.getElementById('fr-search-ja').checked;
+      const replaceCol = document.getElementById('fr-replace-col');
+      const grid       = document.getElementById('fr-search-grid');
+      const searchEl   = document.getElementById('fr-search');
+      const searchLbl  = document.getElementById('fr-search-label');
+      const btnSel     = document.getElementById('fr-btn-apply-selected');
+      const btnAll     = document.getElementById('fr-btn-apply-all');
+
+      if (ja) {
+        replaceCol.style.display = 'none';
+        grid.style.gridTemplateColumns = '1fr';
+        searchEl.placeholder = 'Termo japonês (ex: 善言讃詞)';
+        searchLbl.textContent = 'Termo japonês a localizar';
+        btnSel.style.display = 'none';
+        btnAll.style.display = 'none';
+        // Modo JA não se aplica a livros (sem split JA/PT)
+        document.querySelectorAll('.fr-scope[value="books"]').forEach(c => {
+          c.checked = false; c.disabled = true;
+          const lbl = c.closest('label'); if (lbl) lbl.style.opacity = '0.4';
+        });
+      } else {
+        replaceCol.style.display = '';
+        grid.style.gridTemplateColumns = '1fr 1fr';
+        searchEl.placeholder = 'Ex: a Imagem da Luz Divina (Komei Nyorai)';
+        searchLbl.textContent = 'Texto a buscar';
+        btnSel.style.display = '';
+        btnAll.style.display = '';
+        document.querySelectorAll('.fr-scope[value="books"]').forEach(c => {
+          c.disabled = false;
+          const lbl = c.closest('label'); if (lbl) lbl.style.opacity = '';
+        });
+      }
+
+      // Limpa resultados anteriores — mudar de modo invalida o que estava na tela
+      _frResults = [];
+      document.getElementById('fr-results-container').innerHTML = '';
+      document.getElementById('fr-progress').textContent = '';
+    };
+
     window.runFindReplaceSearch = async function() {
       const search = document.getElementById('fr-search').value;
       const replace = document.getElementById('fr-replace').value;
+      const searchInJa = document.getElementById('fr-search-ja').checked;
       const progress = document.getElementById('fr-progress');
       const container = document.getElementById('fr-results-container');
       const btnSearch = document.getElementById('fr-btn-search');
@@ -4964,7 +5417,8 @@
         container.innerHTML = '<div class="fr-empty">Informe o texto a buscar.</div>';
         return;
       }
-      if (search === replace) {
+      // Modo PT (replace ativo) precisa que search ≠ replace; modo JA não usa replace
+      if (!searchInJa && search === replace) {
         container.innerHTML = '<div class="fr-empty">O texto a buscar é igual ao de substituição — nada a fazer.</div>';
         return;
       }
@@ -5007,10 +5461,10 @@
         await Promise.all(slice.map(async (w) => {
           try {
             const json = await _frDownloadJson(w.path);
-            const hits = _frScanJson(json, _frSearch, w.isBook);
+            const hits = _frScanJson(json, _frSearch, w.isBook, searchInJa);
             if (hits.length) {
               const totalMatches = hits.reduce((s, h) => s + h.matches.length, 0);
-              results.push({ ...w, hits, totalMatches, applied: false });
+              results.push({ ...w, hits, totalMatches, applied: false, searchInJa });
             }
           } catch (e) {
             console.warn(`[fr] scan ${w.path} falhou:`, e.message);
@@ -5048,6 +5502,50 @@
 
       container.innerHTML = _frResults.map((r, idx) => {
         const fieldBadges = [...new Set(r.hits.map(h => h.field))].map(f => `<span class="fr-file-field">${_frEsc(f)}</span>`).join('');
+
+        // ── Modo "Buscar no japonês" ─────────────────────────────────
+        // Não há diff/replace: só mostra o trecho JA com highlight + o PT
+        // correspondente, e um botão pra abrir o editor estruturado.
+        if (r.searchInJa) {
+          const itemsHtml = r.hits.map(hit => {
+            // Mostra o trecho JA com highlight em volta de cada match (só âncora — não vai ser editado/apagado)
+            const jaSnippets = hit.matches.map(m => {
+              const d = _frDiffLine(hit.text, m, _frSearch, _frSearch);
+              return `<div class="fr-ja-anchor">${d.oldHtml}</div>`;
+            }).join('');
+            const ptText = (hit.jaText || '').trim();
+            const ptHtml = ptText
+              ? `<div style="margin-top:6px; padding:8px 10px; background:rgba(184,134,11,0.06); border-left:2px solid var(--accent); border-radius:0 6px 6px 0; font-size:0.85rem; line-height:1.6; color:var(--text);">
+                  <div style="font-size:0.68rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">PT atual (${_frEsc(hit.field === 'title' ? 'title_ptbr' : 'content_ptbr')})</div>
+                  ${_frEsc(_frStripHtml(ptText))}
+                </div>`
+              : `<div style="margin-top:6px; padding:8px 10px; background:rgba(255,80,80,0.08); border-left:2px solid #e05252; border-radius:0 6px 6px 0; font-size:0.82rem; color:var(--text-muted);">⚠ Sem tradução PT correspondente neste tópico.</div>`;
+            return `<div class="fr-diff-item" style="align-items:flex-start;">
+              <div class="fr-diff-item-body">
+                <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">JA (${_frEsc(hit.field)})</div>
+                ${jaSnippets}
+                ${ptHtml}
+              </div>
+            </div>`;
+          }).join('');
+
+          // Escapa os args pra inline onclick (search/file podem ter aspas)
+          const escAttr = s => String(s).replace(/&/g, '&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+          const editArg = `'${escAttr(r.vol)}', '${escAttr(r.file)}'`;
+          return `<div class="fr-file-card" data-fr-idx="${idx}">
+            <div class="fr-file-header">
+              <span class="fr-file-path">${_frEsc(r.path)}</span>
+              ${fieldBadges}
+              <span class="fr-file-count">${r.totalMatches} ${r.totalMatches === 1 ? 'ocorrência' : 'ocorrências'}</span>
+              <div class="fr-file-actions">
+                <button class="fr-apply-btn" onclick="openFrJaEditor(${editArg})">✏️ Editar PT no editor</button>
+              </div>
+            </div>
+            <div class="fr-diff-list">${itemsHtml}</div>
+          </div>`;
+        }
+
+        // ── Modo PT (clássico find/replace) ──────────────────────────
         const diffHtml = r.hits.map((hit, hIdx) => {
           return hit.matches.map((m, mIdx) => {
             const d = _frDiffLine(hit.text, m, _frSearch, _frReplace);
@@ -5083,6 +5581,12 @@
         </div>`;
       }).join('');
     }
+
+    // Abre o editor estruturado do arquivo, com o termo JA destacado pra o
+    // admin localizar visualmente o tópico e digitar a tradução PT correta.
+    window.openFrJaEditor = function(vol, file) {
+      window.openEditor(vol, file, { text: _frSearch || '', lang: 'ja' });
+    };
 
     // forceAll=true → aplica todas as ocorrências ignorando checkboxes (usado por "Aplicar tudo")
     window.applyFindReplaceRow = async function(idx, forceAll) {
@@ -5185,6 +5689,271 @@
         await window.applyFindReplaceRow(pending[n].i, true);
       }
       progress.textContent = `Concluído. ${pending.length} arquivo(s) atualizado(s).`;
+    };
+
+    // ============================================================
+    // Disciples Analytics — Publicações de Discípulos
+    // Lê access_logs e reading_positions filtrados por volume='disciples'
+    // ============================================================
+    let _dcChart = null;
+
+    window.loadDisciplesAnalytics = async function() {
+      const dash = document.getElementById('dc-dashboard');
+      const genAt = document.getElementById('dc-gen-at');
+      const days = parseInt(document.getElementById('dc-range')?.value || '30', 10);
+      if (!dash) return;
+      dash.innerHTML = '<div class="loading">Carregando dados…</div>';
+
+      const since = new Date(Date.now() - days * 86400000).toISOString();
+
+      try {
+        const [logsRes, posRes] = await Promise.all([
+          supabase.from('access_logs')
+            .select('user_id, file, action, created_at')
+            .eq('volume', 'disciples')
+            .gte('created_at', since)
+            .order('created_at', { ascending: false })
+            .limit(5000),
+          supabase.from('reading_positions')
+            .select('user_id, file, time_spent_seconds, topic_index, total_topics, progress_pct, updated_at')
+            .eq('volume', 'disciples')
+        ]);
+
+        if (logsRes.error || posRes.error) {
+          const e = logsRes.error || posRes.error;
+          dash.innerHTML = `<div class="loading" style="color:#e05252;">Erro: ${_escHtml(e.message)}</div>`;
+          return;
+        }
+
+        const logs = (logsRes.data || []).filter(l => !_adminIds.has(l.user_id));
+        const positions = (posRes.data || []).filter(p => !_adminIds.has(p.user_id));
+
+        if (genAt) genAt.textContent = `Atualizado em ${new Date().toLocaleString('pt-BR')}`;
+
+        if (!logs.length && !positions.length) {
+          dash.innerHTML = '<div class="loading">Ainda não há leitura registrada nos livros de discípulos.</div>';
+          return;
+        }
+
+        // Resolve display names
+        const userIds = [...new Set([
+          ...logs.map(l => l.user_id),
+          ...positions.map(p => p.user_id)
+        ])];
+        let nameMap = {};
+        if (userIds.length) {
+          const { data: profiles } = await supabase
+            .from('user_profiles')
+            .select('id, display_name')
+            .in('id', userIds);
+          nameMap = Object.fromEntries((profiles || []).map(p => [p.id, p.display_name || 'Sem nome']));
+        }
+
+        const bookTitle = id => DISCIPLES_BOOK_TITLES[id] || id;
+
+        // ── Totals ──
+        const totalOpens = logs.filter(l => l.action === 'view').length;
+        const uniqueReaders = new Set([
+          ...logs.map(l => l.user_id),
+          ...positions.filter(p => (p.time_spent_seconds || 0) > 0).map(p => p.user_id)
+        ]).size;
+        const totalSeconds = positions.reduce((s, p) => s + (p.time_spent_seconds || 0), 0);
+        const lastActivity = logs[0]?.created_at || null;
+
+        // ── Per-book ──
+        const allBookIds = new Set([
+          ...Object.keys(DISCIPLES_BOOK_TITLES),
+          ...logs.map(l => l.file).filter(Boolean),
+          ...positions.map(p => p.file).filter(Boolean)
+        ]);
+        const bookStats = {};
+        for (const id of allBookIds) {
+          bookStats[id] = { opens: 0, readers: new Set(), seconds: 0, lastAt: null };
+        }
+        for (const l of logs) {
+          if (!l.file) continue;
+          const b = bookStats[l.file];
+          if (l.action === 'view') b.opens++;
+          b.readers.add(l.user_id);
+          if (!b.lastAt || l.created_at > b.lastAt) b.lastAt = l.created_at;
+        }
+        for (const p of positions) {
+          if (!p.file) continue;
+          const b = bookStats[p.file];
+          b.seconds += p.time_spent_seconds || 0;
+          if ((p.time_spent_seconds || 0) > 0) b.readers.add(p.user_id);
+        }
+
+        // ── Daily series ──
+        const dayKeys = [];
+        for (let i = days - 1; i >= 0; i--) {
+          const d = new Date(Date.now() - i * 86400000);
+          dayKeys.push(d.toISOString().slice(0, 10));
+        }
+        const dayMap = new Map(dayKeys.map(k => [k, { day: k, opens: 0, uniques: new Set() }]));
+        for (const l of logs) {
+          if (l.action !== 'view') continue;
+          const key = (l.created_at || '').slice(0, 10);
+          const entry = dayMap.get(key);
+          if (entry) { entry.opens++; entry.uniques.add(l.user_id); }
+        }
+        const daily = dayKeys.map(k => {
+          const e = dayMap.get(k);
+          return { day: k, opens: e.opens, uniques: e.uniques.size };
+        });
+
+        // ── Top readers (by time_spent) ──
+        const readerMap = new Map();
+        for (const p of positions) {
+          const cur = readerMap.get(p.user_id) || { user_id: p.user_id, seconds: 0, books: new Set(), lastAt: null };
+          cur.seconds += p.time_spent_seconds || 0;
+          if ((p.time_spent_seconds || 0) > 0) cur.books.add(p.file);
+          if (!cur.lastAt || p.updated_at > cur.lastAt) cur.lastAt = p.updated_at;
+          readerMap.set(p.user_id, cur);
+        }
+        const topReaders = [...readerMap.values()]
+          .filter(r => r.seconds > 0)
+          .sort((a, b) => b.seconds - a.seconds)
+          .slice(0, 15);
+
+        // ── Render helpers ──
+        const fmtSecs = secs => {
+          secs = Math.round(secs || 0);
+          if (secs < 60) return `${secs}s`;
+          if (secs < 3600) return `${Math.round(secs / 60)} min`;
+          const h = Math.floor(secs / 3600);
+          const m = Math.round((secs - h * 3600) / 60);
+          return m ? `${h}h ${m}min` : `${h}h`;
+        };
+        const fmtDate = iso => iso ? new Date(iso).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—';
+        const card = (v, label, sub) => `<div class="dc-card">
+          <div class="v">${typeof v === 'number' ? v.toLocaleString('pt-BR') : (v ?? '—')}</div>
+          <div class="s">${label}</div>
+          ${sub != null ? `<div class="u">${sub}</div>` : ''}
+        </div>`;
+
+        const bookCardHtml = id => {
+          const b = bookStats[id];
+          return `<div class="dc-card dc-book-card">
+            <div style="font-size:.95rem; font-weight:600; margin-bottom:4px;">${_escHtml(bookTitle(id))}</div>
+            <div class="u" style="margin:0;">${b.lastAt ? 'Última: ' + fmtDate(b.lastAt) : 'Nenhum acesso ainda'}</div>
+            <div class="dc-book-stats">
+              <div><div class="v">${b.opens.toLocaleString('pt-BR')}</div><div class="s">aberturas</div></div>
+              <div><div class="v">${b.readers.size.toLocaleString('pt-BR')}</div><div class="s">leitores</div></div>
+              <div><div class="v">${fmtSecs(b.seconds)}</div><div class="s">tempo lido</div></div>
+            </div>
+          </div>`;
+        };
+
+        const topReadersHtml = topReaders.length
+          ? `<table><thead><tr><th>Usuário</th><th style="text-align:right;">Tempo</th><th>Livros</th><th>Última leitura</th></tr></thead><tbody>${
+              topReaders.map(r => `<tr>
+                <td>${_escHtml(nameMap[r.user_id] || 'Desconhecido')}</td>
+                <td class="num">${fmtSecs(r.seconds)}</td>
+                <td style="font-size:.78rem;">${[...r.books].map(bookTitle).map(_escHtml).join(', ') || '—'}</td>
+                <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(r.lastAt)}</td>
+              </tr>`).join('')
+            }</tbody></table>`
+          : '<div class="loading">Sem leitores com tempo registrado ainda.</div>';
+
+        const recentRows = logs.filter(l => l.action === 'view').slice(0, 25);
+        const recentHtml = recentRows.length
+          ? `<table><thead><tr><th>Usuário</th><th>Livro</th><th>Quando</th></tr></thead><tbody>${
+              recentRows.map(l => `<tr>
+                <td>${_escHtml(nameMap[l.user_id] || 'Desconhecido')}</td>
+                <td>${_escHtml(bookTitle(l.file))}</td>
+                <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(l.created_at)}</td>
+              </tr>`).join('')
+            }</tbody></table>`
+          : '<div class="loading">Sem aberturas no período.</div>';
+
+        // ── Progresso por leitor × livro ──
+        const progressRows = positions
+          .filter(p => p.total_topics > 0 || (p.time_spent_seconds || 0) > 0)
+          .sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
+        const progressBar = pct => {
+          const w = Math.max(0, Math.min(100, Math.round(pct || 0)));
+          return `<div style="display:flex; align-items:center; gap:8px; min-width:140px;">
+            <div style="flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden;">
+              <div style="height:100%; width:${w}%; background:var(--accent); border-radius:3px;"></div>
+            </div>
+            <span style="font-size:.78rem; color:var(--text-muted); min-width:36px; text-align:right;">${w}%</span>
+          </div>`;
+        };
+        const progressHtml = progressRows.length
+          ? `<table><thead><tr><th>Usuário</th><th>Livro</th><th>Capítulo</th><th>Progresso</th><th style="text-align:right;">Tempo</th><th>Última leitura</th></tr></thead><tbody>${
+              progressRows.map(p => {
+                const tot = p.total_topics || 0;
+                const idx = (p.topic_index ?? 0);
+                const chap = tot > 0 ? `${idx + 1} de ${tot}` : '—';
+                const pct = (tot > 0) ? ((idx + 1) / tot) * 100 : (p.progress_pct || 0);
+                return `<tr>
+                  <td>${_escHtml(nameMap[p.user_id] || 'Desconhecido')}</td>
+                  <td>${_escHtml(bookTitle(p.file))}</td>
+                  <td style="font-size:.82rem; color:var(--text-muted);">${chap}</td>
+                  <td>${progressBar(pct)}</td>
+                  <td class="num">${fmtSecs(p.time_spent_seconds || 0)}</td>
+                  <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(p.updated_at)}</td>
+                </tr>`;
+              }).join('')
+            }</tbody></table>`
+          : '<div class="loading">Sem progresso registrado ainda.</div>';
+
+        dash.innerHTML = `
+          <div class="dc-cards">
+            ${card(totalOpens, `Aberturas (${days} dias)`)}
+            ${card(uniqueReaders, 'Leitores únicos')}
+            ${card(fmtSecs(totalSeconds), 'Tempo total lido')}
+            ${card(fmtDate(lastActivity), 'Última atividade')}
+          </div>
+          <div class="dc-cards">
+            ${[...allBookIds].map(bookCardHtml).join('')}
+          </div>
+          <div class="dc-chart-wrap">
+            <h3>Aberturas por dia (últimos ${days} dias)</h3>
+            <canvas id="dc-chart"></canvas>
+          </div>
+          <div class="dc-tables">
+            <div class="dc-tbl"><h3>Top leitores (por tempo)</h3>${topReadersHtml}</div>
+            <div class="dc-tbl"><h3>Atividade recente</h3>${recentHtml}</div>
+          </div>
+          <div class="dc-tbl" style="margin-top:16px;">
+            <h3>Progresso de leitura (por usuário e livro)</h3>${progressHtml}
+          </div>
+        `;
+
+        // ── Chart ──
+        const ctx = document.getElementById('dc-chart');
+        if (ctx) {
+          if (_dcChart) _dcChart.destroy();
+          const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#b8860b';
+          try {
+            _dcChart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels: daily.map(r => r.day.slice(5)),
+                datasets: [
+                  { label: 'Aberturas', data: daily.map(r => r.opens), borderColor: accent, backgroundColor: 'rgba(184,134,11,0.1)', fill: true, tension: 0.3, pointRadius: 2 },
+                  { label: 'Únicos', data: daily.map(r => r.uniques), borderColor: '#6b7280', backgroundColor: 'transparent', borderDash: [4, 4], tension: 0.3, pointRadius: 2 }
+                ]
+              },
+              options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } } },
+                scales: {
+                  x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+                  y: { beginAtZero: true, ticks: { font: { size: 10 }, precision: 0 } }
+                }
+              }
+            });
+          } catch (e) {
+            console.error('[dc-analytics] chart failed:', e);
+          }
+        }
+      } catch (err) {
+        console.error('[dc-analytics] load failed:', err);
+        dash.innerHTML = `<div class="loading" style="color:#e05252;">Erro: ${_escHtml(err.message || String(err))}</div>`;
+      }
     };
 
     // ============================================================
@@ -5526,112 +6295,6 @@
       }
     };
 
-    window.rebuildSearchIndex = async function() {
-      const scopes = Array.from(document.querySelectorAll('.fr-idx-scope:checked')).map(c => c.value);
-      if (!scopes.length) { alert('Selecione ao menos um volume.'); return; }
-
-      const btn = document.getElementById('fr-btn-rebuild-idx');
-      const progress = document.getElementById('fr-idx-progress');
-      btn.disabled = true;
-      btn.textContent = '⟳ Processando…';
-      progress.textContent = '';
-
-      let grandTotal = 0;
-
-      const _idxStripHtml = (html) => {
-        if (!html) return '';
-        return String(html)
-          .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
-          .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<')
-          .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
-          .replace(/\*/g, '').replace(/\s+/g, ' ').trim();
-      };
-
-      const _QUOTED_RE = /[“”""「]([^“”""」]{5,150})[“”""」]/;
-      const _BOLD_RE = /<(?:b|strong)(?:\s[^>]*)?>(?:<font[^>]*)?>?([\s\S]+?)<\/(?:b|strong)>/i;
-
-      const _idxResolveTitle = (topic) => {
-        const br = (topic.topic_title_br || '').trim();
-        if (br) return br;
-        const raw = (topic.title_ptbr || topic.title_pt || topic.title || '').trim();
-        if (raw) {
-          const mq = raw.match(_QUOTED_RE);
-          if (mq && mq[1].length < 150) return mq[1].trim();
-        }
-        const content = topic.content_ptbr || topic.content_pt || '';
-        if (content) {
-          const mb = content.slice(0, 400).match(_BOLD_RE);
-          if (mb) {
-            const t = mb[1].replace(/<[^>]+>/g, '').trim();
-            if (t && t.length > 3 && t.length < 150) return t;
-          }
-        }
-        return raw;
-      };
-
-      try {
-        for (const vol of scopes) {
-          progress.textContent = `${vol}: listando arquivos…`;
-          const files = await _frListFiles(vol);
-          const indexEntries = [];
-          let scanned = 0;
-          const BATCH = 8;
-
-          for (let i = 0; i < files.length; i += BATCH) {
-            const slice = files.slice(i, i + BATCH);
-            await Promise.all(slice.map(async (fname) => {
-              try {
-                const json = await _frDownloadJson(`${vol}/${fname}`);
-                if (!Array.isArray(json.themes)) return;
-                const fKey = fname.replace(/\.json$/, '');
-                let topicIdx = 0;
-                json.themes.forEach(theme => {
-                  if (!Array.isArray(theme.topics)) return;
-                  theme.topics.forEach(topic => {
-                    const titlePt = _idxResolveTitle(topic);
-                    const cleanPt = _idxStripHtml(topic.content_ptbr || topic.content_pt || topic.content || '');
-                    if (!cleanPt) { topicIdx++; return; }
-
-                    const entry = { v: vol, f: fKey, i: topicIdx++, t: titlePt, c: cleanPt };
-
-                    const titleJa = (topic.topic_title_ja || topic.title_ja || topic.title || '').trim();
-                    if (titleJa && titleJa !== titlePt) entry.tj = titleJa;
-
-                    const cleanJa = _idxStripHtml(topic.content_ja || topic.content || '');
-                    if (cleanJa && cleanJa !== cleanPt) entry.cj = cleanJa;
-
-                    indexEntries.push(entry);
-                  });
-                });
-              } catch (e) {
-                console.warn(`[idx] ${vol}/${fname}:`, e.message);
-              }
-              scanned++;
-              progress.textContent = `${vol}: ${scanned}/${files.length} arquivos…`;
-            }));
-          }
-
-          progress.textContent = `${vol}: enviando índice (${indexEntries.length} entradas)…`;
-          const blob = new Blob([JSON.stringify(indexEntries)], { type: 'application/json' });
-          const { error } = await supabase.storage.from('teachings')
-            .upload(`search_index_${vol}.json`, blob, { upsert: true, contentType: 'application/json', cacheControl: '0' });
-          if (error) throw error;
-
-          await logAdminAction('rebuild_search_index', { volume: vol, entradas: indexEntries.length });
-          grandTotal += indexEntries.length;
-        }
-
-        progress.textContent = `Concluído: ${scopes.length} volume(s), ${grandTotal} entradas no total.`;
-      } catch (e) {
-        console.error('[idx] Falha ao regenerar índice:', e);
-        progress.textContent = `Erro: ${e.message}`;
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '⟳ Regenerar';
-      }
-    };
 
     checkAdmin();
   </script>

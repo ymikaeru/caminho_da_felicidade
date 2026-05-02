@@ -498,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let _supabaseLogTimer = null;
 
-function logSearch(query, count) {
+function logSearch(query, count, latencyMs) {
   try {
     const key = 'mioshie_search_log';
     const log = JSON.parse(localStorage.getItem(key) || '[]');
@@ -517,11 +517,13 @@ function logSearch(query, count) {
       if (supabase) {
         supabase.auth.getSession().then(({ data: { session } }) => {
           if (session) {
-            supabase.from('search_logs').insert({
+            const row = {
               user_id: session.user.id,
               query: trimmed.substring(0, 200),
               results_count: count
-            }).then(() => {}).catch(() => {});
+            };
+            if (Number.isFinite(latencyMs) && latencyMs >= 0) row.latency_ms = Math.round(latencyMs);
+            supabase.from('search_logs').insert(row).then(() => {}).catch(() => {});
           }
         });
       }
@@ -571,6 +573,48 @@ function _translateQuery(rawQuery, useExact) {
     : parts.join(' ');
 }
 
+// "Você quis dizer...?" — chama suggest_teachings (pg_trgm) e renderiza
+// links acima da mensagem "Nenhum resultado". Falhas silenciosas: se a
+// RPC não existir ou der erro, o usuário só vê a mensagem normal.
+async function _maybeSuggestDidYouMean(rawQuery, activeLang, resultsEl) {
+  if (!resultsEl) return;
+  if (!rawQuery || rawQuery.trim().length < 3) return;
+  const supabase = _getSupabase();
+  if (!supabase) return;
+  try {
+    const { data, error } = await supabase.rpc('suggest_teachings', {
+      q: rawQuery.trim(),
+      lang: activeLang,
+    });
+    if (error || !data || data.length === 0) return;
+    // Se o user já editou a query e disparou outra busca, abortamos
+    // para não sobrescrever resultados novos com sugestão antiga.
+    const inputNow = document.getElementById('searchInput')?.value?.trim() || '';
+    if (inputNow !== rawQuery.trim()) return;
+    const basePath = getBasePath();
+    const labelTxt = activeLang === 'ja' ? 'もしかして:' : 'Você quis dizer:';
+    const linksHtml = data.map(s => {
+      const title = (activeLang === 'ja' && s.title_ja) ? s.title_ja : (s.title_pt || '');
+      const topicIdx = s.topic_idx != null ? s.topic_idx : 0;
+      let href = `${basePath}reader.html?vol=${s.vol}&file=${s.file}`;
+      if (topicIdx > 0) href += `&topic=${topicIdx}`;
+      if (activeLang === 'ja') href += `&lang=ja`;
+      return `<a href="${href}"
+          class="search-suggest-link"
+          data-vol="${escHtml(s.vol)}"
+          data-file="${escHtml(s.file)}"
+          data-topic="${topicIdx}"
+          data-title="${escHtml(title)}">${escHtml(title)}</a>`;
+    }).join('<span class="search-suggest-sep"> · </span>');
+    const noResultsMsg = activeLang === 'ja' ? '結果が見つかりませんでした。' : 'Nenhum resultado.';
+    resultsEl.innerHTML =
+      `<li class="search-suggest"><span class="search-suggest-label">${labelTxt}</span> ${linksHtml}</li>` +
+      `<li class="search-empty">${noResultsMsg}</li>`;
+  } catch (e) {
+    // RPC ausente ou erro de rede — mantém a mensagem normal.
+  }
+}
+
 async function performSearch(query) {
   const resultsEl = document.getElementById('searchResults');
   const activeLang = localStorage.getItem('site_lang') || 'pt';
@@ -604,12 +648,14 @@ async function performSearch(query) {
     return;
   }
 
+  const _t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {
     const { data, error } = await supabase.rpc('search_teachings', {
       q: serverQuery,
       lang: activeLang,
       max_results: MAX_RESULTS,
     });
+    const _latencyMs = ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - _t0;
 
     if (error) {
       console.error('search_teachings RPC error:', error);
@@ -625,12 +671,16 @@ async function performSearch(query) {
       const noResultsMsg = activeLang === 'ja' ? '結果が見つかりませんでした。' : 'Nenhum resultado.';
       if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${noResultsMsg}</li>`;
       _updateSearchCount(0, 0, activeLang);
-      logSearch(q, 0);
+      logSearch(q, 0, _latencyMs);
       sessionStorage.removeItem('searchQuery');
       sessionStorage.removeItem('searchResultsHtml');
       _allResults = [];
       _displayedCount = 0;
       _currentQuery = '';
+      // "Você quis dizer...?" — chama suggest_teachings com o texto cru
+      // (não a tsquery traduzida). Se o user já mudou a query enquanto
+      // a busca rodava, _currentQuery foi resetado e descartamos.
+      _maybeSuggestDidYouMean(q, activeLang, resultsEl);
       return;
     }
 
@@ -644,7 +694,7 @@ async function performSearch(query) {
 
     resultsEl.innerHTML = _renderResultsList(results, _displayedCount, highlightRegex, q, activeLang);
     _updateSearchCount(results.length, _displayedCount, activeLang, hitLimit);
-    logSearch(q, results.length);
+    logSearch(q, results.length, _latencyMs);
 
     sessionStorage.setItem('searchQuery', query);
     sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);

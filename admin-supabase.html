@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Admin — Caminho da Felicidade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/styles.min.css?v=50">
+  <link rel="stylesheet" href="css/styles.min.css?v=51">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <style>
     .admin-wrap { max-width: 1700px; margin: 0 auto; padding: 40px 32px 120px; }
@@ -750,6 +750,7 @@
               <div class="tab-group-tabs">
                 <div class="admin-tab" onclick="switchTab('analytics')">📊 Analytics</div>
                 <div class="admin-tab" onclick="switchTab('analytics-disciples')">📊 Analytics Discípulos</div>
+                <div class="admin-tab" onclick="switchTab('analytics-search')">🔎 Buscas</div>
                 <div class="admin-tab active" onclick="switchTab('users')">👤 Usuários</div>
                 <div class="admin-tab" onclick="switchTab('destaques')">⭐ Destaques</div>
                 <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty" id="reportsTabBadge">0</span></div>
@@ -900,15 +901,9 @@
             </div>
 
             <!-- Volume Popularity -->
-            <div class="two-col">
-              <div class="admin-section">
-                <h2>Popularidade por Volume</h2>
-                <div id="volume-chart"><div class="loading">Carregando...</div></div>
-              </div>
-              <div class="admin-section">
-                <h2>Buscas Mais Frequentes</h2>
-                <div id="search-trends"><div class="loading">Carregando...</div></div>
-              </div>
+            <div class="admin-section">
+              <h2>Popularidade por Volume</h2>
+              <div id="volume-chart"><div class="loading">Carregando...</div></div>
             </div>
 
             <!-- Top Teachings -->
@@ -1119,6 +1114,45 @@
               </div>
             </div>
             <div id="dc-dashboard"><div class="loading">Carregando dados…</div></div>
+          </div>
+
+          <!-- Search Analytics Tab -->
+          <div class="tab-content" id="tab-analytics-search">
+            <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Analytics — Buscas</h2>
+                <p id="sa-gen-at" style="font-size:0.85rem; color:var(--text-muted); margin:0;">Carregando…</p>
+              </div>
+              <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <label style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
+                <select id="sa-range" onchange="loadSearchAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
+                  <option value="7">7 dias</option>
+                  <option value="30" selected>30 dias</option>
+                  <option value="90">90 dias</option>
+                  <option value="365">1 ano</option>
+                </select>
+                <button onclick="loadSearchAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻ Atualizar</button>
+              </div>
+            </div>
+
+            <!-- Latency cards -->
+            <div class="stats-grid" id="sa-latency-cards" style="margin-bottom:24px;">
+              <div class="stat-card"><div class="stat-value" id="sa-stat-total">—</div><div class="stat-label">Buscas no período</div></div>
+              <div class="stat-card"><div class="stat-value" id="sa-stat-p50">—</div><div class="stat-label">Latência mediana (ms)</div></div>
+              <div class="stat-card"><div class="stat-value" id="sa-stat-p95">—</div><div class="stat-label">P95 (ms)</div></div>
+              <div class="stat-card"><div class="stat-value" id="sa-stat-p99">—</div><div class="stat-label">P99 (ms)</div></div>
+            </div>
+
+            <div class="two-col">
+              <div class="admin-section">
+                <h2>Buscas Mais Frequentes</h2>
+                <div id="sa-top-queries"><div class="loading">Carregando...</div></div>
+              </div>
+              <div class="admin-section">
+                <h2>Buscas com Zero Resultados <span style="font-size:0.7rem; color:var(--text-muted); font-weight:400; text-transform:none; letter-spacing:0;">(gaps de conteúdo)</span></h2>
+                <div id="sa-zero-queries"><div class="loading">Carregando...</div></div>
+              </div>
+            </div>
           </div>
 
           <!-- Calendar Tab -->
@@ -2036,7 +2070,7 @@
     window.switchTab = function(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'users': 6, 'destaques': 7, 'reports': 8, 'findreplace': 9, 'logs': 10, 'analytics-johrei': 11, 'essencia-guia': 12 }[tab];
+      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-search': 6, 'users': 7, 'destaques': 8, 'reports': 9, 'findreplace': 10, 'logs': 11, 'analytics-johrei': 12, 'essencia-guia': 13 }[tab];
       document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'analytics') {
@@ -2055,6 +2089,7 @@
       if (tab === 'analytics-johrei') loadJohreiAnalytics();
       if (tab === 'analytics-landing') loadLandingAnalytics();
       if (tab === 'analytics-disciples') loadDisciplesAnalytics();
+      if (tab === 'analytics-search') loadSearchAnalytics();
     };
 
     // ============================================================
@@ -3932,7 +3967,6 @@
       loadEngagementFunnel(days, since);
       loadUserSegmentation(days, since);
       loadVolumePopularity(days, since);
-      loadSearchTrends(days, since);
       loadTopTeachings(days, since);
       loadArticleQuality(days, since);
       loadHeatmap(days, since);
@@ -4264,7 +4298,9 @@
       highlights.forEach(h => touch(h).highlights++);
       favs.forEach(f => touch(f).favs++);
 
-      // Score: 0.4*tempo_norm + 0.4*conclusao + 0.2*engajamento_norm
+      // Score period-aware: 50% views_no_periodo + 30% conclusao + 20% engajamento.
+      // avgTime sai do score (é acumulador all-time, não respeita o período);
+      // continua na tabela como coluna informativa.
       const rows = Object.values(arts).map(a => {
         const avgTime = a.timeCount > 0 ? a.timeSum / a.timeCount : 0;
         const avgProg = a.progCount > 0 ? a.progSum / a.progCount : 0;
@@ -4278,10 +4314,10 @@
         return;
       }
 
-      const maxTime = Math.max(...rows.map(r => r.avgTime), 1);
+      const maxViews = Math.max(...rows.map(r => r.views), 1);
       const maxEngage = Math.max(...rows.map(r => r.engage), 1);
       rows.forEach(r => {
-        r.score = Math.round((0.4 * (r.avgTime / maxTime) + 0.4 * r.complRate + 0.2 * (r.engage / maxEngage)) * 100);
+        r.score = Math.round((0.5 * (r.views / maxViews) + 0.3 * r.complRate + 0.2 * (r.engage / maxEngage)) * 100);
       });
       rows.sort((a, b) => b.score - a.score);
       const top = rows.slice(0, 15);
@@ -4295,7 +4331,7 @@
 
       container.innerHTML = `
         <p style="font-size:0.8rem; color:var(--text-muted); margin:-8px 0 14px;">
-          Score = 40% tempo médio + 40% conclusão (≥70% scroll) + 20% engajamento (highlights + favs). Só artigos com ≥2 views.
+          Score = 50% views no período + 30% conclusão (≥70% dos tópicos) + 20% engajamento (highlights + favs). Só artigos com ≥2 views. Tempo médio é acumulado all-time (não respeita o período).
         </p>
         <div style="overflow-x:auto;">
           <table class="data-table">
@@ -4449,50 +4485,6 @@
             <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%"></div></div>
             <div class="chart-bar-value">${count}</div>
           </div>`;
-      }).join('');
-    }
-
-    async function loadSearchTrends(days, since) {
-      const { data: raw } = await supabase
-        .from('search_logs')
-        .select('query, user_id')
-        .gte('created_at', since);
-      const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
-
-      if (!data || data.length === 0) {
-        // Fallback: try localStorage for backwards compatibility
-        let searches = [];
-        try { searches = JSON.parse(localStorage.getItem('mioshie_search_log') || '[]'); } catch {}
-        if (searches.length === 0) {
-          document.getElementById('search-trends').innerHTML = '<div class="loading">Sem buscas registradas.</div>';
-          return;
-        }
-        const counts = {};
-        searches.forEach(s => {
-          const q = (s.q || s.query || '').toLowerCase().trim();
-          if (q && q.length > 1) counts[q] = (counts[q] || 0) + 1;
-        });
-        const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 30);
-        const maxCount = sorted.length > 0 ? sorted[0][1] : 1;
-        document.getElementById('search-trends').innerHTML = sorted.map(([query, count]) => {
-          const isHot = count >= maxCount * 0.5;
-          return `<span class="search-tag ${isHot ? 'hot' : ''}">${_escHtml(query)} (${count})</span>`;
-        }).join('');
-        return;
-      }
-
-      const counts = {};
-      data.forEach(s => {
-        const q = (s.query || '').toLowerCase().trim();
-        if (q && q.length > 1) counts[q] = (counts[q] || 0) + 1;
-      });
-
-      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 30);
-      const maxCount = sorted.length > 0 ? sorted[0][1] : 1;
-
-      document.getElementById('search-trends').innerHTML = sorted.map(([query, count]) => {
-        const isHot = count >= maxCount * 0.5;
-        return `<span class="search-tag ${isHot ? 'hot' : ''}">${_escHtml(query)} (${count})</span>`;
       }).join('');
     }
 
@@ -5697,6 +5689,69 @@
     // Lê access_logs e reading_positions filtrados por volume='disciples'
     // ============================================================
     let _dcChart = null;
+
+    window.loadSearchAnalytics = async function() {
+      const days = parseInt(document.getElementById('sa-range')?.value || '30', 10);
+      const genAt = document.getElementById('sa-gen-at');
+      const totalEl = document.getElementById('sa-stat-total');
+      const p50El = document.getElementById('sa-stat-p50');
+      const p95El = document.getElementById('sa-stat-p95');
+      const p99El = document.getElementById('sa-stat-p99');
+      const topEl = document.getElementById('sa-top-queries');
+      const zeroEl = document.getElementById('sa-zero-queries');
+      if (!topEl || !zeroEl) return;
+
+      topEl.innerHTML = '<div class="loading">Carregando...</div>';
+      zeroEl.innerHTML = '<div class="loading">Carregando...</div>';
+      totalEl.textContent = '—'; p50El.textContent = '—'; p95El.textContent = '—'; p99El.textContent = '—';
+
+      try {
+        const { data, error } = await supabase.rpc('admin_search_analytics', { days_back: days });
+        if (error) {
+          topEl.innerHTML = `<div class="loading" style="color:#e05252;">Erro: ${_escHtml(error.message)}</div>`;
+          zeroEl.innerHTML = '';
+          if (genAt) genAt.textContent = 'Falha ao carregar';
+          return;
+        }
+        if (genAt) {
+          const since = new Date(data.since);
+          genAt.textContent = `Período: últimos ${days} dia(s) — desde ${since.toLocaleDateString('pt-BR')}`;
+        }
+
+        // Latency cards
+        const lat = data.latency || {};
+        totalEl.textContent = (lat.count ?? 0).toLocaleString('pt-BR');
+        p50El.textContent = lat.p50 != null ? Math.round(lat.p50) : '—';
+        p95El.textContent = lat.p95 != null ? Math.round(lat.p95) : '—';
+        p99El.textContent = lat.p99 != null ? Math.round(lat.p99) : '—';
+
+        // Top queries
+        const top = data.top_queries || [];
+        if (!top.length) {
+          topEl.innerHTML = '<div class="loading">Sem buscas registradas no período.</div>';
+        } else {
+          const maxCount = top[0].count;
+          topEl.innerHTML = top.map(({ query, count }) => {
+            const isHot = count >= maxCount * 0.5;
+            return `<span class="search-tag ${isHot ? 'hot' : ''}">${_escHtml(query)} (${count})</span>`;
+          }).join('');
+        }
+
+        // Zero-result queries
+        const zero = data.zero_result_queries || [];
+        if (!zero.length) {
+          zeroEl.innerHTML = '<div class="loading">Nenhuma busca sem resultado no período. 🎉</div>';
+        } else {
+          zeroEl.innerHTML = zero.map(({ query, count, last_seen }) => {
+            const ago = last_seen ? new Date(last_seen).toLocaleDateString('pt-BR') : '';
+            return `<span class="search-tag" title="Última: ${_escHtml(ago)}" style="background:rgba(224,82,82,0.08); color:#c44; border-color:rgba(224,82,82,0.25);">${_escHtml(query)} (${count})</span>`;
+          }).join('');
+        }
+      } catch (err) {
+        topEl.innerHTML = `<div class="loading" style="color:#e05252;">Erro: ${_escHtml(err?.message || String(err))}</div>`;
+        zeroEl.innerHTML = '';
+      }
+    };
 
     window.loadDisciplesAnalytics = async function() {
       const dash = document.getElementById('dc-dashboard');

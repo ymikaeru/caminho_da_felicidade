@@ -213,14 +213,16 @@ function getEnabledVolumes() {
 // ============================================================
 // Access logging
 // ============================================================
-async function logAccess(volume, file, action = 'view') {
+async function logAccess(volume, file, action = 'view', metadata = null) {
   if (!currentUser) return;
-  await supabase.from('access_logs').insert({
+  const row = {
     user_id: currentUser.id,
     volume,
     file,
     action
-  });
+  };
+  if (metadata) row.metadata = metadata;
+  await supabase.from('access_logs').insert(row);
 }
 
 // ============================================================

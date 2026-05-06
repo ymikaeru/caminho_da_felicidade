@@ -30,12 +30,12 @@
     return { volId, filename };
   }
 
-  function _logAction(action) {
+  function _logAction(action, metadata = null) {
     try {
       const { volId, filename } = _getPageRef();
       console.log('[content-protection] _logAction →', { action, volId, filename, hasAuth: !!window.supabaseAuth, hasLogAccess: typeof window.supabaseAuth?.logAccess });
       if (window.supabaseAuth && typeof window.supabaseAuth.logAccess === 'function') {
-        window.supabaseAuth.logAccess(volId || null, filename || null, action)
+        window.supabaseAuth.logAccess(volId || null, filename || null, action, metadata)
           .catch((err) => console.warn('[content-protection] logAccess throw:', err));
       } else {
         console.warn('[content-protection] window.supabaseAuth.logAccess não disponível — log abortado');
@@ -59,7 +59,9 @@
     const sel = (window.getSelection && window.getSelection().toString()) || '';
     console.log('[content-protection] seleção:', { length: sel.length, preview: sel.slice(0, 40) });
     if (!sel.trim()) return;
-    _logAction('copy');
+    // Captura o texto copiado (cap em 2000 chars; preserva tamanho original)
+    const text = sel.length > 2000 ? sel.slice(0, 2000) + '…' : sel;
+    _logAction('copy', { text, length: sel.length, kind: e.type });
   }
 
   function _blockKeyboardShortcuts(e) {

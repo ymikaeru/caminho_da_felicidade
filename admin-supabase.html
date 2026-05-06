@@ -2568,8 +2568,6 @@
 
         const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
         const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Sugerir correção pontual via Claude AI">✨ Sugerir IA</button>`;
-        const topicIdx = parseInt((r.topic_id || '0').replace(/\D/g, '')) || 0;
-        const readerBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.08); color:#34c759; border-color:rgba(52,199,89,0.3);" onclick="openReportInReader('${r.vol}','${r.file}',${topicIdx})" title="Abrir ensinamento em modo bilíngue JP↔PT">📖 Ver bilíngue</button>`;
 
         return `
           <div class="report-card" id="report-card-${r.id}">
@@ -2584,7 +2582,6 @@
               <span class="report-date">${date}</span>
               <div class="report-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
                 ${editBtn}
-                ${readerBtn}
                 ${aiBtn}
                 ${verifyBtn}
               </div>
@@ -2852,11 +2849,6 @@ ESTILO GERAL:
 - Bijeção 1:1 de parágrafos JP↔PT — NUNCA fundir nem dividir parágrafos
 - Linhas em branco onde o JP tem linha em branco
 - Pergunta-resposta: cada turno é um parágrafo separado`;
-
-    window.openReportInReader = function(vol, file, topicIdx) {
-      localStorage.setItem('reader_comparison', 'true');
-      window.open(`reader.html?vol=${vol}&file=${file}&topic=${topicIdx}`, '_blank');
-    };
 
     window.suggestTranslationWithAI = async function(reportId) {
       const r = _allReports.find(x => x.id === reportId);

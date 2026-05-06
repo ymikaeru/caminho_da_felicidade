@@ -2567,6 +2567,7 @@
           : `<span class="report-verified-tag">✓ Verificado</span>`;
 
         const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
+        const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Montar prompt e abrir no Claude AI">✨ Sugerir IA</button>`;
 
         return `
           <div class="report-card" id="report-card-${r.id}">
@@ -2581,6 +2582,7 @@
               <span class="report-date">${date}</span>
               <div class="report-actions" style="display:flex; gap:8px;">
                 ${editBtn}
+                ${aiBtn}
                 ${verifyBtn}
               </div>
             </div>
@@ -2758,6 +2760,103 @@
 
       const thread = document.getElementById(`rn-thread-${reportId}`);
       if (thread) thread.innerHTML = _buildNotesThread(reportId);
+    };
+
+    window.suggestTranslationWithAI = async function(reportId) {
+      const r = _allReports.find(x => x.id === reportId);
+      if (!r) return;
+
+      const btn = document.querySelector(`#report-card-${reportId} button[onclick*="suggestTranslationWithAI"]`);
+      const origHtml = btn?.innerHTML;
+      if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Buscando…'; }
+
+      // Busca content_ja do tópico correspondente no teachings_topics
+      const topicIdx = parseInt((r.topic_id || '0').replace(/\D/g, '')) || 0;
+      let contentJa = '';
+      try {
+        const { data } = await supabase
+          .from('teachings_topics')
+          .select('content_ja, content_pt, title_pt, title_ja')
+          .eq('vol', r.vol)
+          .eq('file', r.file)
+          .eq('topic_idx', topicIdx)
+          .maybeSingle();
+        if (data) {
+          contentJa = data.content_ja || '';
+        }
+      } catch (e) { console.warn('[suggestAI] fetch failed:', e); }
+
+      if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
+
+      const prompt = `Você é um tradutor sênior e devoto da Sekaikyūseikyō, com foco em fidelidade documental. Sua missão é sugerir a correção de uma tradução do japonês para o português do Brasil (PT-BR), garantindo a sacralidade dos ensinamentos de Meishu-Sama e a precisão do registro histórico original.
+
+PRINCÍPIO DOUTRINÁRIO: aquilo que o mundo chama de "doença" é, sob a ótica de Meishu-Sama, purificação se manifestando. O frame deve ser sempre espiritual, nunca clínico.
+
+GLOSSÁRIO MANDATÓRIO (nunca traduzir por sinônimos):
+- 浄化 / jōka → purificação
+- 薬毒 / yakudoku → toxinas medicinais
+- 急所 / kyūsho → ponto vital
+- 浄霊 / jōrei → Johrei (nunca traduzir)
+- 御光 / Ohikari → Ohikari (nunca traduzir)
+- 浄霊医術 → arte do Johrei (não "arte médica")
+- 力を抜く → retirar a força
+- 観音 / Kannon → Kannon [観音] (1ª menção)
+- sonen → sonen (em itálico)
+- Tratamento: sempre "Meishu-sama" (minúsculo no sama)
+
+ESTILO:
+- Tom profético e assertivo ("É impossível", "Inexiste", "Constitui verdadeiramente")
+- Conectivos variados, evitar frases soltas
+- Naturalizar metáforas mantendo a intenção (Shin-i)
+- Bijeção 1:1 de parágrafos JP↔PT — não fundir nem dividir parágrafos
+
+---
+
+## REPORT DE TRADUÇÃO
+
+**Localização:** ${r.vol} / ${r.file} / tópico ${topicIdx}
+**Idioma reportado:** ${r.lang === 'ja' ? 'Japonês' : 'Português'}
+**Trecho reportado como problemático:**
+"${r.selected_text || ''}"
+${r.description ? `\n**Comentário do usuário:**\n"${r.description}"` : ''}
+
+${contentJa ? `## TEXTO JAPONÊS ORIGINAL DO TÓPICO\n\n${contentJa}` : ''}
+
+---
+
+## TAREFA
+
+Com base no texto japonês original acima e nas diretrizes, sugira:
+1. A tradução correta em PT-BR do trecho reportado
+2. Breve justificativa (termos do glossário aplicados, ajustes de tom, etc.)
+
+Seja direto e objetivo — esta é uma sugestão de correção pontual, não uma tradução completa.`;
+
+      try {
+        await navigator.clipboard.writeText(prompt);
+      } catch (e) {
+        // Fallback para browsers sem clipboard API
+        const ta = document.createElement('textarea');
+        ta.value = prompt;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+
+      window.open('https://claude.ai/new', '_blank');
+
+      // Toast de confirmação
+      let toast = document.getElementById('ai-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'ai-toast';
+        toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#6366f1;color:#fff;padding:10px 20px;border-radius:10px;font-size:0.85rem;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.2);transition:opacity 0.3s;';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✨ Prompt copiado! Cole no Claude com Ctrl+V e pressione Enter.';
+      toast.style.opacity = '1';
+      setTimeout(() => { toast.style.opacity = '0'; }, 4000);
     };
 
     window.clearVerifiedHistory = async function(btnEl) {

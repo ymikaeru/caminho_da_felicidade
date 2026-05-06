@@ -1168,6 +1168,17 @@
                 <div id="sa-zero-queries"><div class="loading">Carregando...</div></div>
               </div>
             </div>
+
+            <div class="two-col" style="margin-top:16px;">
+              <div class="admin-section">
+                <h2>👤 Usuários que Mais Buscaram</h2>
+                <div id="sa-top-searchers"><div class="loading">Carregando...</div></div>
+              </div>
+              <div class="admin-section">
+                <h2>🕐 Buscas Recentes por Usuário</h2>
+                <div id="sa-recent-searches"><div class="loading">Carregando...</div></div>
+              </div>
+            </div>
           </div>
 
           <!-- Calendar Tab -->
@@ -5804,10 +5815,14 @@
       const p99El = document.getElementById('sa-stat-p99');
       const topEl = document.getElementById('sa-top-queries');
       const zeroEl = document.getElementById('sa-zero-queries');
+      const searchersEl = document.getElementById('sa-top-searchers');
+      const recentEl = document.getElementById('sa-recent-searches');
       if (!topEl || !zeroEl) return;
 
       topEl.innerHTML = '<div class="loading">Carregando...</div>';
       zeroEl.innerHTML = '<div class="loading">Carregando...</div>';
+      if (searchersEl) searchersEl.innerHTML = '<div class="loading">Carregando...</div>';
+      if (recentEl) recentEl.innerHTML = '<div class="loading">Carregando...</div>';
       totalEl.textContent = '—'; p50El.textContent = '—'; p95El.textContent = '—'; p99El.textContent = '—';
 
       try {
@@ -5855,6 +5870,87 @@
       } catch (err) {
         topEl.innerHTML = `<div class="loading" style="color:#e05252;">Erro: ${_escHtml(err?.message || String(err))}</div>`;
         zeroEl.innerHTML = '';
+      }
+
+      // Buscas por usuário — query direta em search_logs (admins podem ler tudo via RLS)
+      if (searchersEl && recentEl) {
+        try {
+          const since = new Date(Date.now() - days * 86400000).toISOString();
+          const { data: logs } = await supabase
+            .from('search_logs')
+            .select('user_id, query, results_count, created_at')
+            .gte('created_at', since)
+            .order('created_at', { ascending: false })
+            .limit(2000);
+
+          const filtered = (logs || []).filter(r => !_adminIds.has(r.user_id));
+          if (!filtered.length) {
+            searchersEl.innerHTML = '<div class="loading">Sem buscas no período.</div>';
+            recentEl.innerHTML = '';
+          } else {
+            // Busca nomes dos usuários únicos
+            const uids = [...new Set(filtered.map(r => r.user_id))];
+            const { data: profiles } = await supabase
+              .from('user_profiles').select('id, display_name').in('id', uids);
+            const nameMap = {};
+            (profiles || []).forEach(p => nameMap[p.id] = p.display_name || 'Desconhecido');
+
+            // Top usuários por volume de buscas
+            const byUser = {};
+            filtered.forEach(r => {
+              const u = byUser[r.user_id] || (byUser[r.user_id] = { total: 0, zeros: 0, last: null });
+              u.total++;
+              if (r.results_count === 0) u.zeros++;
+              if (!u.last || r.created_at > u.last) u.last = r.created_at;
+            });
+            const topSearchers = Object.entries(byUser)
+              .map(([uid, u]) => ({ uid, ...u, name: nameMap[uid] || 'Desconhecido' }))
+              .sort((a, b) => b.total - a.total)
+              .slice(0, 15);
+
+            searchersEl.innerHTML = `
+              <table>
+                <thead><tr>
+                  <th>Usuário</th>
+                  <th class="num">Buscas</th>
+                  <th class="num" title="Buscas sem resultado">Zero</th>
+                  <th>Último acesso</th>
+                </tr></thead>
+                <tbody>
+                  ${topSearchers.map(u => `
+                    <tr>
+                      <td>${_escHtml(u.name)}</td>
+                      <td class="num">${u.total}</td>
+                      <td class="num" style="${u.zeros > 0 ? 'color:#c44;' : ''}">${u.zeros || '—'}</td>
+                      <td style="font-size:0.8rem; color:var(--text-muted);">${u.last ? new Date(u.last).toLocaleDateString('pt-BR') : '—'}</td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>`;
+
+            // Buscas recentes (últimas 30)
+            const recent = filtered.slice(0, 30);
+            recentEl.innerHTML = `
+              <table>
+                <thead><tr>
+                  <th>Usuário</th>
+                  <th>Busca</th>
+                  <th class="num">Result.</th>
+                  <th>Hora</th>
+                </tr></thead>
+                <tbody>
+                  ${recent.map(r => `
+                    <tr>
+                      <td style="white-space:nowrap;">${_escHtml(nameMap[r.user_id] || '?')}</td>
+                      <td>${_escHtml(r.query)}</td>
+                      <td class="num" style="${r.results_count === 0 ? 'color:#c44;' : ''}">${r.results_count ?? '—'}</td>
+                      <td style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">${new Date(r.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>`;
+          }
+        } catch (err) {
+          if (searchersEl) searchersEl.innerHTML = `<div class="loading" style="color:#e05252;">Erro: ${_escHtml(err?.message || String(err))}</div>`;
+        }
       }
     };
 

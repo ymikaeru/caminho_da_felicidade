@@ -2568,7 +2568,6 @@
 
         const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
         const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Sugerir correção pontual via Claude AI">✨ Sugerir IA</button>`;
-        const retranslateBtn = `<button class="report-verify-btn" style="background:rgba(168,85,247,0.1); color:#a855f7; border-color:rgba(168,85,247,0.3);" onclick="retranslateTopicWithAI('${r.id}')" title="Retraduzir o tópico inteiro do zero via Claude AI">🔄 Retraduzir</button>`;
         const topicIdx = parseInt((r.topic_id || '0').replace(/\D/g, '')) || 0;
         const readerBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.08); color:#34c759; border-color:rgba(52,199,89,0.3);" onclick="openReportInReader('${r.vol}','${r.file}',${topicIdx})" title="Abrir ensinamento em modo bilíngue JP↔PT">📖 Ver bilíngue</button>`;
 
@@ -2587,7 +2586,6 @@
                 ${editBtn}
                 ${readerBtn}
                 ${aiBtn}
-                ${retranslateBtn}
                 ${verifyBtn}
               </div>
             </div>
@@ -2955,110 +2953,6 @@ Responda **exatamente** neste formato:
         document.body.appendChild(toast);
       }
       toast.textContent = '✨ Prompt copiado! Cole no Claude com Ctrl+V e pressione Enter.';
-      toast.style.opacity = '1';
-      setTimeout(() => { toast.style.opacity = '0'; }, 4000);
-    };
-
-    window.retranslateTopicWithAI = async function(reportId) {
-      const r = _allReports.find(x => x.id === reportId);
-      if (!r) return;
-
-      const btn = document.querySelector(`#report-card-${reportId} button[onclick*="retranslateTopicWithAI"]`);
-      const origHtml = btn?.innerHTML;
-      if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Buscando…'; }
-
-      const topicIdx = parseInt((r.topic_id || '0').replace(/\D/g, '')) || 0;
-      let contentJa = '', contentPt = '', titlePt = '', titleJa = '';
-      try {
-        const { data } = await supabase
-          .from('teachings_topics')
-          .select('content_ja, content_pt, title_pt, title_ja')
-          .eq('vol', r.vol)
-          .eq('file', r.file)
-          .eq('topic_idx', topicIdx)
-          .maybeSingle();
-        if (data) {
-          contentJa = data.content_ja || '';
-          contentPt = data.content_pt || '';
-          titlePt = data.title_pt || '';
-          titleJa = data.title_ja || '';
-        }
-      } catch (e) { console.warn('[retranslateAI] fetch failed:', e); }
-
-      if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
-
-      if (!contentJa) {
-        alert('Não foi possível buscar o texto japonês deste tópico.');
-        return;
-      }
-
-      const prompt = `${TRANSLATION_GUIDELINES}
-
----
-
-## CONTEXTO: RETRADUÇÃO COMPLETA DO TÓPICO
-
-Um usuário reportou problemas na tradução abaixo. Em vez de uma correção pontual, você foi solicitado a produzir uma tradução completamente nova do tópico, do zero, aplicando todas as diretrizes acima.
-
-**NÃO se baseie na tradução atual** — ela está sendo questionada e pode estar enviesada. Use APENAS o texto japonês original como referência canônica.
-
-## LOCALIZAÇÃO
-${r.vol} / ${r.file} / tópico ${topicIdx}
-
-${titleJa ? `## TÍTULO ORIGINAL (japonês)\n${titleJa}\n\n` : ''}${titlePt ? `## TÍTULO ATUAL (PT-BR — apenas para contexto, retraduza também se necessário)\n${titlePt}\n\n` : ''}## TEXTO JAPONÊS ORIGINAL (referência canônica)
-
-${contentJa}
-
-${contentPt ? `## TRADUÇÃO ATUAL (apenas para contexto — NÃO copie, retraduza do zero)\n\n${contentPt}\n\n` : ''}---
-
-## TAREFA: RETRADUÇÃO COMPLETA
-
-Produza uma tradução completa nova do tópico em PT-BR.
-
-REGRAS OBRIGATÓRIAS:
-- **Bijeção 1:1**: cada parágrafo do japonês gera exatamente um parágrafo no português, na mesma ordem.
-- **Linhas em branco**: onde o JP tem linha em branco entre parágrafos, o PT também tem.
-- **NÃO fundir** dois parágrafos JP em um do PT.
-- **NÃO dividir** um parágrafo JP em dois do PT.
-- **Aplicar todo o glossário** mandatório, sem exceções.
-- **Calibrar o registro PT-BR** seguindo os exemplos GOOD/BAD acima — natural, brasileiro, elevado mas vivo.
-- **Pergunta-resposta**: cada turno é um parágrafo separado, com **(Pergunta)** e **(Meishu-sama)** em negrito.
-
-## FORMATO DA RESPOSTA
-
-Entregue:
-
-**📌 Título sugerido (PT-BR):**
-[Tradução do título]
-
-**📜 Tradução completa:**
-[Texto completo retraduzido, parágrafo por parágrafo]
-
-**🔍 Mudanças principais em relação à tradução anterior:**
-[Liste 3-5 mudanças críticas e por quê — termos do glossário ajustados, lusitanismos removidos, calibração de tom, etc.]`;
-
-      try {
-        await navigator.clipboard.writeText(prompt);
-      } catch (e) {
-        const ta = document.createElement('textarea');
-        ta.value = prompt;
-        ta.style.position = 'fixed'; ta.style.opacity = '0';
-        document.body.appendChild(ta); ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-      }
-
-      window.open('https://claude.ai/new', '_blank');
-
-      let toast = document.getElementById('ai-toast');
-      if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'ai-toast';
-        toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#a855f7;color:#fff;padding:10px 20px;border-radius:10px;font-size:0.85rem;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.2);transition:opacity 0.3s;';
-        document.body.appendChild(toast);
-      }
-      toast.style.background = '#a855f7';
-      toast.textContent = '🔄 Prompt de retradução copiado! Cole no Claude e pressione Enter.';
       toast.style.opacity = '1';
       setTimeout(() => { toast.style.opacity = '0'; }, 4000);
     };

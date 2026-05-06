@@ -975,7 +975,7 @@
 
             <!-- Top Users by Total Time -->
             <div class="admin-section">
-              <h2>⏳ Tempo Total no Site por Usuário</h2>
+              <h2>⏳ Tempo Total no Site por Usuário <span style="font-size:0.7rem; color:var(--text-muted); font-weight:400; text-transform:none; letter-spacing:0;">(acumulado all-time)</span></h2>
               <div id="top-users-time"><div class="loading">Carregando...</div></div>
             </div>
 
@@ -4946,9 +4946,14 @@
     // ============================================================
     // Top Users by Total Time
     // ============================================================
-    // Soma `time_spent_seconds` por usuário no período. O tracker conta só
-    // tempo de aba ativa (heartbeat de 15s), então isto reflete tempo real
-    // de leitura — não tempo de browser aberto em background.
+    // `reading_positions.time_spent_seconds` é cumulativo all-time (cada
+    // heartbeat soma na linha existente; updated_at só marca o último
+    // toque). Por isso NÃO filtramos por período — o `since` daria um
+    // resultado errado: pegaria linhas tocadas no período mas somaria
+    // tempo histórico inteiro acumulado nelas.
+    //
+    // Mostra: top 10 leitores all-time + último acesso (que respeita
+    // visualmente o filtro de período só pra contexto).
     async function loadTopUsersByTime(days, since) {
       const fmtSecs = secs => {
         secs = Math.round(secs || 0);
@@ -4962,7 +4967,6 @@
       const { data: raw } = await supabase
         .from('reading_positions')
         .select('user_id, volume, file, time_spent_seconds, updated_at')
-        .gte('updated_at', since)
         .gt('time_spent_seconds', 0);
       const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
@@ -5006,7 +5010,7 @@
       };
 
       document.getElementById('top-users-time').innerHTML = `
-        <p style="font-size:0.75rem; color:var(--text-muted); margin:-8px 0 12px;">Soma do tempo ativo de leitura (aba visível) por usuário no período. Não inclui tempo navegando index/buscas/destaques.</p>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin:-8px 0 12px;">Tempo total acumulado (all-time) de leitura ativa por usuário. Heartbeat de 15s, só conta com aba visível. Não inclui tempo navegando index/buscas/destaques. O filtro de período no topo não se aplica a este card — só ao "último acesso".</p>
         <div class="ranking-list">
           ${sorted.map((u, i) => {
             const name = nameMap[u.uid] || 'Desconhecido';

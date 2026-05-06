@@ -484,6 +484,25 @@
       font-style: normal; font-weight: 500;
       box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.35);
     }
+    /* Report Notes Chat */
+    .rn-thread { margin-top:12px; padding-top:12px; border-top:1px dashed var(--border); }
+    .rn-label { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--text-muted); margin-bottom:10px; }
+    .rn-empty { font-size:.8rem; color:var(--text-muted); font-style:italic; margin-bottom:10px; }
+    .rn-bubble { display:flex; gap:9px; margin-bottom:10px; align-items:flex-start; }
+    .rn-avatar { width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; flex-shrink:0; margin-top:1px; }
+    .rn-avatar.mine { background:#6b7280; }
+    .rn-body { flex:1; min-width:0; }
+    .rn-meta { font-size:.68rem; color:var(--text-muted); margin-bottom:3px; display:flex; align-items:center; gap:8px; }
+    .rn-name { font-weight:600; color:var(--text); }
+    .rn-del { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:.7rem; padding:0; opacity:.5; }
+    .rn-del:hover { opacity:1; color:#c44; }
+    .rn-text { font-size:.84rem; line-height:1.55; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:7px 10px; word-break:break-word; white-space:pre-wrap; }
+    .rn-input-row { display:flex; gap:8px; align-items:flex-end; margin-top:8px; }
+    .rn-input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:.84rem; font-family:inherit; resize:none; min-height:52px; line-height:1.5; }
+    .rn-input:focus { outline:none; border-color:var(--accent); }
+    .rn-send { padding:8px 14px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:.82rem; font-weight:600; cursor:pointer; white-space:nowrap; align-self:flex-end; }
+    .rn-send:hover { opacity:.88; }
+
     /* Highlight Reader Modal (read-only) */
     .hl-reader-modal {
       display: none; position: fixed; inset: 0; z-index: 9998;
@@ -973,6 +992,12 @@
               <div id="top-users-ranking"><div class="loading">Carregando...</div></div>
             </div>
 
+            <!-- Top Users by Total Time -->
+            <div class="admin-section">
+              <h2>⏳ Tempo Total no Site por Usuário <span style="font-size:0.7rem; color:var(--text-muted); font-weight:400; text-transform:none; letter-spacing:0;">(acumulado all-time)</span></h2>
+              <div id="top-users-time"><div class="loading">Carregando...</div></div>
+            </div>
+
             <!-- Engagement by Volume -->
             <div class="admin-section">
               <h2>📊 Engajamento por Volume</h2>
@@ -1161,6 +1186,16 @@
                 <h2>Buscas com Zero Resultados <span style="font-size:0.7rem; color:var(--text-muted); font-weight:400; text-transform:none; letter-spacing:0;">(gaps de conteúdo)</span></h2>
                 <div id="sa-zero-queries"><div class="loading">Carregando...</div></div>
               </div>
+            </div>
+
+            <div class="admin-section" style="margin-top:16px;">
+              <h2>👤 Usuários que Mais Buscaram</h2>
+              <div id="sa-top-searchers"><div class="loading">Carregando...</div></div>
+            </div>
+
+            <div class="admin-section">
+              <h2>🕐 Buscas Recentes por Usuário</h2>
+              <div id="sa-recent-searches" style="max-height:400px; overflow-y:auto;"><div class="loading">Carregando...</div></div>
             </div>
           </div>
 
@@ -1537,6 +1572,8 @@
     };
 
     let allUsers = [];
+    let _myUid = null;
+    let _reportNotes = {}; // { report_id: [notes] }
     let selectedUserId = null;
     let volumeCategories = {};
     let _adminIds = new Set();
@@ -2446,6 +2483,21 @@
 
       _allReports = data || [];
 
+      // Carrega notas de todos os reports em uma query só
+      if (_allReports.length) {
+        const ids = _allReports.map(r => r.id);
+        const { data: notes } = await supabase
+          .from('report_notes')
+          .select('id, report_id, admin_id, note, created_at')
+          .in('report_id', ids)
+          .order('created_at', { ascending: true });
+        _reportNotes = {};
+        (notes || []).forEach(n => {
+          if (!_reportNotes[n.report_id]) _reportNotes[n.report_id] = [];
+          _reportNotes[n.report_id].push(n);
+        });
+      }
+
       if (!volumeCategories || Object.keys(volumeCategories).length === 0) {
         try { await loadVolumeFiles(); } catch (e) { console.warn('loadVolumeFiles falhou:', e); }
       }
@@ -2534,6 +2586,16 @@
             </div>
             <div class="report-text"><mark class="report-selected">${escapedText}</mark></div>
             ${escapedDesc ? `<div class="report-description">${escapedDesc}</div>` : ''}
+            <div class="rn-thread">
+              <div class="rn-label">💬 Notas internas</div>
+              <div id="rn-thread-${r.id}">${_buildNotesThread(r.id)}</div>
+              <div class="rn-input-row">
+                <textarea id="rn-input-${r.id}" class="rn-input"
+                  placeholder="Escreva uma nota… (Ctrl+Enter para enviar)"
+                  onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){sendReportNote('${r.id}');event.preventDefault();}"></textarea>
+                <button class="rn-send" onclick="sendReportNote('${r.id}')">Enviar</button>
+              </div>
+            </div>
           </div>`;
       }
 
@@ -2624,6 +2686,78 @@
       const idx = _allReports.findIndex(r => r.id === id);
       if (idx !== -1) _allReports[idx].status = 'verified';
       _renderReports();
+    };
+
+    function _buildNotesThread(reportId) {
+      const notes = _reportNotes[reportId] || [];
+      if (!notes.length) return '<div class="rn-empty">Nenhuma nota ainda.</div>';
+      return notes.map(n => {
+        const isMine = n.admin_id === _myUid;
+        const author = allUsers.find(u => u.id === n.admin_id);
+        const name = author?.display_name || 'Admin';
+        const initial = name[0].toUpperCase();
+        const hora = new Date(n.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        const delBtn = isMine
+          ? `<button class="rn-del" onclick="deleteReportNote('${n.id}','${reportId}')" title="Apagar">✕</button>`
+          : '';
+        return `
+          <div class="rn-bubble">
+            <div class="rn-avatar${isMine ? ' mine' : ''}">${initial}</div>
+            <div class="rn-body">
+              <div class="rn-meta">
+                <span class="rn-name">${_escHtml(isMine ? 'Você' : name)}</span>
+                <span>${hora}</span>
+                ${delBtn}
+              </div>
+              <div class="rn-text">${_escHtml(n.note)}</div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    window.sendReportNote = async function(reportId) {
+      const textarea = document.getElementById(`rn-input-${reportId}`);
+      const text = textarea?.value?.trim();
+      if (!text) return;
+
+      const btn = textarea?.closest('.rn-input-row')?.querySelector('.rn-send');
+      if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+      const { data: note, error } = await supabase
+        .from('report_notes')
+        .insert({ report_id: reportId, admin_id: _myUid, note: text })
+        .select()
+        .single();
+
+      if (btn) { btn.disabled = false; btn.textContent = 'Enviar'; }
+
+      if (error) { console.error('[report notes] send failed:', error.message); return; }
+
+      if (!_reportNotes[reportId]) _reportNotes[reportId] = [];
+      _reportNotes[reportId].push(note);
+      textarea.value = '';
+
+      const thread = document.getElementById(`rn-thread-${reportId}`);
+      if (thread) {
+        thread.innerHTML = _buildNotesThread(reportId);
+        thread.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    };
+
+    window.deleteReportNote = async function(noteId, reportId) {
+      const { error } = await supabase
+        .from('report_notes')
+        .delete()
+        .eq('id', noteId);
+
+      if (error) { console.error('[report notes] delete failed:', error.message); return; }
+
+      if (_reportNotes[reportId]) {
+        _reportNotes[reportId] = _reportNotes[reportId].filter(n => n.id !== noteId);
+      }
+
+      const thread = document.getElementById(`rn-thread-${reportId}`);
+      if (thread) thread.innerHTML = _buildNotesThread(reportId);
     };
 
     window.clearVerifiedHistory = async function(btnEl) {
@@ -3073,6 +3207,7 @@
     async function checkAdmin() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
+      _myUid = session.user.id;
 
       const { data: profile } = await supabase
         .from('user_profiles')
@@ -3987,6 +4122,7 @@
       loadDailyActivityChart(days, since);
       loadSessionStats(days, since);
       loadTopUsersRanking(days, since);
+      loadTopUsersByTime(days, since);
       loadEngagementByVolume(days, since);
       loadPopularFavorites(days, since);
       loadRetentionRate(days, since);
@@ -4937,6 +5073,95 @@
     }
 
     // ============================================================
+    // Top Users by Total Time
+    // ============================================================
+    // `reading_positions.time_spent_seconds` é cumulativo all-time (cada
+    // heartbeat soma na linha existente; updated_at só marca o último
+    // toque). Por isso NÃO filtramos por período — o `since` daria um
+    // resultado errado: pegaria linhas tocadas no período mas somaria
+    // tempo histórico inteiro acumulado nelas.
+    //
+    // Mostra: top 10 leitores all-time + último acesso (que respeita
+    // visualmente o filtro de período só pra contexto).
+    async function loadTopUsersByTime(days, since) {
+      const fmtSecs = secs => {
+        secs = Math.round(secs || 0);
+        if (secs < 60) return `${secs}s`;
+        if (secs < 3600) return `${Math.round(secs / 60)} min`;
+        const h = Math.floor(secs / 3600);
+        const m = Math.round((secs - h * 3600) / 60);
+        return m ? `${h}h ${m}min` : `${h}h`;
+      };
+
+      const { data: raw } = await supabase
+        .from('reading_positions')
+        .select('user_id, volume, file, time_spent_seconds, updated_at')
+        .gt('time_spent_seconds', 0);
+      const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
+
+      if (!data.length) {
+        document.getElementById('top-users-time').innerHTML = '<div class="loading">Sem tempo de leitura registrado no período.</div>';
+        return;
+      }
+
+      // Agrega: total de segundos, ensinamentos distintos, último acesso por usuário
+      const byUser = {};
+      data.forEach(d => {
+        const u = byUser[d.user_id] || (byUser[d.user_id] = { secs: 0, items: new Set(), last: null });
+        u.secs += (d.time_spent_seconds || 0);
+        u.items.add(`${d.volume}/${d.file}`);
+        if (!u.last || d.updated_at > u.last) u.last = d.updated_at;
+      });
+
+      const sorted = Object.entries(byUser)
+        .map(([uid, u]) => ({ uid, secs: u.secs, items: u.items.size, last: u.last }))
+        .sort((a, b) => b.secs - a.secs)
+        .slice(0, 10);
+      const maxSecs = sorted[0].secs;
+
+      const userIds = sorted.map(s => s.uid);
+      const { data: profiles } = await supabase
+        .from('user_profiles')
+        .select('id, display_name')
+        .in('id', userIds);
+      const nameMap = {};
+      (profiles || []).forEach(p => nameMap[p.id] = p.display_name);
+
+      const fmtRel = iso => {
+        if (!iso) return '—';
+        const diffMs = Date.now() - new Date(iso).getTime();
+        const days = Math.floor(diffMs / 86400000);
+        if (days === 0) return 'hoje';
+        if (days === 1) return 'ontem';
+        if (days < 30) return `há ${days} dias`;
+        const months = Math.floor(days / 30);
+        return months === 1 ? 'há 1 mês' : `há ${months} meses`;
+      };
+
+      document.getElementById('top-users-time').innerHTML = `
+        <p style="font-size:0.75rem; color:var(--text-muted); margin:-8px 0 12px;">Tempo total acumulado (all-time) de leitura ativa por usuário. Heartbeat de 15s, só conta com aba visível. Não inclui tempo navegando index/buscas/destaques. O filtro de período no topo não se aplica a este card — só ao "último acesso".</p>
+        <div class="ranking-list">
+          ${sorted.map((u, i) => {
+            const name = nameMap[u.uid] || 'Desconhecido';
+            const initial = (name || 'U')[0].toUpperCase();
+            const pct = Math.round(u.secs / maxSecs * 100);
+            const posClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+            return `
+              <div class="ranking-item">
+                <div class="ranking-pos ${posClass}">${i + 1}</div>
+                <div class="ranking-avatar">${initial}</div>
+                <div class="ranking-info">
+                  <div class="ranking-name">${_escHtml(name)}</div>
+                  <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${u.items} ensinamentos · último acesso ${fmtRel(u.last)}</div>
+                </div>
+                <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:${pct}%"></div></div>
+                <div class="ranking-value">${fmtSecs(u.secs)}</div>
+              </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    // ============================================================
     // Engagement by Volume
     // ============================================================
 
@@ -5703,6 +5928,7 @@
     let _dcChart = null;
 
     window.loadSearchAnalytics = async function() {
+      await _loadAdminIds();
       const days = parseInt(document.getElementById('sa-range')?.value || '30', 10);
       const genAt = document.getElementById('sa-gen-at');
       const totalEl = document.getElementById('sa-stat-total');
@@ -5711,10 +5937,14 @@
       const p99El = document.getElementById('sa-stat-p99');
       const topEl = document.getElementById('sa-top-queries');
       const zeroEl = document.getElementById('sa-zero-queries');
+      const searchersEl = document.getElementById('sa-top-searchers');
+      const recentEl = document.getElementById('sa-recent-searches');
       if (!topEl || !zeroEl) return;
 
       topEl.innerHTML = '<div class="loading">Carregando...</div>';
       zeroEl.innerHTML = '<div class="loading">Carregando...</div>';
+      if (searchersEl) searchersEl.innerHTML = '<div class="loading">Carregando...</div>';
+      if (recentEl) recentEl.innerHTML = '<div class="loading">Carregando...</div>';
       totalEl.textContent = '—'; p50El.textContent = '—'; p95El.textContent = '—'; p99El.textContent = '—';
 
       try {
@@ -5762,6 +5992,109 @@
       } catch (err) {
         topEl.innerHTML = `<div class="loading" style="color:#e05252;">Erro: ${_escHtml(err?.message || String(err))}</div>`;
         zeroEl.innerHTML = '';
+      }
+
+      // Buscas por usuário — query direta em search_logs (admins podem ler tudo via RLS)
+      if (searchersEl && recentEl) {
+        try {
+          const since = new Date(Date.now() - days * 86400000).toISOString();
+          const { data: { session } } = await supabase.auth.getSession();
+          const myUid = session?.user?.id;
+
+          const { data: logs } = await supabase
+            .from('search_logs')
+            .select('user_id, query, results_count, created_at')
+            .gte('created_at', since)
+            .order('created_at', { ascending: false })
+            .limit(2000);
+
+          // Exclui admins (por role) e o próprio usuário logado
+          const filtered = (logs || []).filter(r =>
+            !_adminIds.has(r.user_id) && r.user_id !== myUid
+          );
+
+          if (!filtered.length) {
+            searchersEl.innerHTML = '<div class="loading">Sem buscas no período.</div>';
+            recentEl.innerHTML = '<div class="loading">—</div>';
+          } else {
+            const uids = [...new Set(filtered.map(r => r.user_id))];
+            const { data: profiles } = await supabase
+              .from('user_profiles').select('id, display_name').in('id', uids);
+            const nameMap = {};
+            (profiles || []).forEach(p => nameMap[p.id] = p.display_name || 'Desconhecido');
+
+            // Top usuários por volume de buscas
+            const byUser = {};
+            filtered.forEach(r => {
+              const u = byUser[r.user_id] || (byUser[r.user_id] = { total: 0, zeros: 0, last: null });
+              u.total++;
+              if (r.results_count === 0) u.zeros++;
+              if (!u.last || r.created_at > u.last) u.last = r.created_at;
+            });
+            const topSearchers = Object.entries(byUser)
+              .map(([uid, u]) => ({ uid, ...u, name: nameMap[uid] || 'Desconhecido' }))
+              .sort((a, b) => b.total - a.total)
+              .slice(0, 15);
+
+            const maxTotal = topSearchers[0]?.total || 1;
+            const fmtDate = iso => iso ? new Date(iso).toLocaleDateString('pt-BR') : '—';
+
+            searchersEl.innerHTML = `
+              <p style="font-size:0.75rem; color:var(--text-muted); margin:-8px 0 12px;">Buscas no período por usuário (excluindo admins). Zero = buscas sem resultado.</p>
+              <div class="ranking-list">
+                ${topSearchers.map((u, i) => {
+                  const initial = (u.name || 'U')[0].toUpperCase();
+                  const pct = Math.round(u.total / maxTotal * 100);
+                  const posClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+                  return `
+                    <div class="ranking-item">
+                      <div class="ranking-pos ${posClass}">${i + 1}</div>
+                      <div class="ranking-avatar">${initial}</div>
+                      <div class="ranking-info">
+                        <div class="ranking-name">${_escHtml(u.name)}</div>
+                        <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">
+                          ${u.zeros > 0 ? `<span style="color:#c44;">${u.zeros} sem resultado</span> · ` : ''}último acesso ${fmtDate(u.last)}
+                        </div>
+                      </div>
+                      <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:${pct}%"></div></div>
+                      <div class="ranking-value">${u.total} buscas</div>
+                    </div>`;
+                }).join('')}
+              </div>`;
+
+            // Todas as buscas do período (já limitado a 2000 na query), scrollável
+            const recent = filtered;
+            recentEl.innerHTML = `
+              <table style="font-size:0.85rem; width:100%; border-collapse:collapse; table-layout:fixed;">
+                <colgroup>
+                  <col style="width:22%;">
+                  <col style="width:auto;">
+                  <col style="width:60px;">
+                  <col style="width:110px;">
+                </colgroup>
+                <thead style="position:sticky; top:0; background:var(--surface); z-index:1;"><tr>
+                  <th style="text-align:left; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); padding:6px 12px 6px 0; border-bottom:1px solid var(--border); font-weight:500;">Usuário</th>
+                  <th style="text-align:left; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); padding:6px 12px 6px 0; border-bottom:1px solid var(--border); font-weight:500;">Busca</th>
+                  <th style="text-align:right; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); padding:6px 0 6px 0; border-bottom:1px solid var(--border); font-weight:500;">Result.</th>
+                  <th style="text-align:right; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); padding:6px 0 6px 12px; border-bottom:1px solid var(--border); font-weight:500;">Hora</th>
+                </tr></thead>
+                <tbody>
+                  ${recent.map(r => {
+                    const name = nameMap[r.user_id] || '?';
+                    const isZero = r.results_count === 0;
+                    return `<tr>
+                      <td style="padding:7px 12px 7px 0; border-bottom:1px solid var(--border); color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_escHtml(name)}</td>
+                      <td style="padding:7px 12px 7px 0; border-bottom:1px solid var(--border); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; ${isZero ? 'color:var(--text-muted);' : ''}">${_escHtml(r.query)}</td>
+                      <td style="padding:7px 0; border-bottom:1px solid var(--border); text-align:right; font-weight:${isZero ? '600' : '400'}; color:${isZero ? '#c44' : 'var(--accent)'};">${isZero ? '0' : (r.results_count ?? '—')}</td>
+                      <td style="padding:7px 0 7px 12px; border-bottom:1px solid var(--border); text-align:right; font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">${new Date(r.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</td>
+                    </tr>`;
+                  }).join('')}
+                </tbody>
+              </table>`;
+          }
+        } catch (err) {
+          if (searchersEl) searchersEl.innerHTML = `<div class="loading" style="color:#e05252;">Erro: ${_escHtml(err?.message || String(err))}</div>`;
+        }
       }
     };
 

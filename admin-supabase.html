@@ -3063,6 +3063,172 @@ Entregue:
       setTimeout(() => { toast.style.opacity = '0'; }, 4000);
     };
 
+    // ─── Retradução de parágrafo individual (dentro do editor) ───
+    // Fluxo: clica 🔄 IA → abre Claude + expande painel inline → admin
+    // cola resposta → sistema extrai o parágrafo → mostra comparação
+    // lado-a-lado → admin aceita/descarta/edita.
+    window._editorRetranslateSegment = function(btnEl) {
+      const segRow = btnEl.closest('.editor-seg-row');
+      if (!segRow) return;
+
+      const jaEl = segRow.querySelector('.topic-readonly-text');
+      const ptEl = segRow.querySelector('.seg-editable');
+      const panel = segRow.querySelector('.seg-ai-panel');
+      if (!jaEl || !ptEl || !panel) return;
+
+      const jaSeg = (jaEl.textContent || '').trim();
+      const ptSeg = (ptEl.textContent || '').trim();
+
+      // Reúne contexto do tópico inteiro pra Claude entender o entorno
+      const topicBlock = segRow.closest('.topic-edit-block');
+      const allJa = topicBlock?.querySelectorAll('.topic-readonly-text') || [];
+      const allPt = topicBlock?.querySelectorAll('.seg-editable') || [];
+      const fullJa = Array.from(allJa).map(e => (e.textContent || '').trim()).filter(Boolean).join('\n\n');
+      const fullPt = Array.from(allPt).map(e => (e.textContent || '').trim()).filter(Boolean).join('\n\n');
+
+      const prompt = `${TRANSLATION_GUIDELINES}
+
+---
+
+## CONTEXTO: RETRADUÇÃO DE PARÁGRAFO ESPECÍFICO
+
+Você foi solicitado a retraduzir UM parágrafo específico de um ensinamento de Meishu-sama. Use o resto do tópico abaixo apenas como contexto para entender o sentido e a continuidade — mas entregue APENAS a retradução do parágrafo solicitado.
+
+## TÓPICO COMPLETO (apenas referência)
+
+### Texto japonês completo:
+${fullJa}
+
+### Tradução PT atual completa (referência, NÃO copiar):
+${fullPt}
+
+---
+
+## PARÁGRAFO PARA RETRADUZIR
+
+### Original japonês:
+${jaSeg}
+
+### Tradução PT atual (questionada):
+${ptSeg}
+
+---
+
+## TAREFA
+
+Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
+- Glossário mandatório completo
+- Calibração de registro PT-BR (sem lusitanismos, sem academicismos)
+- Tom de mestre falando com discípulos
+- NÃO fundir, NÃO dividir — UM parágrafo só
+
+## FORMATO OBRIGATÓRIO DA RESPOSTA
+
+**📜 Parágrafo retraduzido:**
+[Apenas o parágrafo, em uma única linha ou bloco contínuo, pronto para copiar e colar de volta no admin]
+
+**🔍 Mudanças principais:**
+- [Mudança 1: termo do glossário aplicado / lusitanismo removido / etc.]
+- [Mudança 2]
+- [Mudança 3 se houver]`;
+
+      try {
+        navigator.clipboard.writeText(prompt);
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = prompt;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+
+      window.open('https://claude.ai/new', '_blank');
+
+      // Expande painel pra paste da resposta
+      panel.style.display = 'block';
+      panel.innerHTML = `
+        <div style="font-size:0.72rem; font-weight:600; color:#a855f7; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">🔄 Sugestão da IA</div>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px; line-height:1.5;">
+          1) Prompt copiado e claude.ai aberto. Cole com Ctrl+V e envie.<br>
+          2) Copie a resposta completa do Claude e cole abaixo.
+        </div>
+        <textarea class="seg-ai-paste" placeholder="Cole aqui a resposta completa do Claude (incluindo os marcadores 📜 e 🔍)..."
+          style="width:100%; box-sizing:border-box; min-height:90px; padding:8px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.85rem; font-family:inherit; resize:vertical;"></textarea>
+        <div style="display:flex; gap:8px; margin-top:8px; align-items:center;">
+          <button onclick="_editorParseAISuggestion(this)" style="padding:6px 14px; background:#a855f7; color:#fff; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">Comparar</button>
+          <button onclick="_editorDiscardAIPanel(this)" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">Cancelar</button>
+        </div>
+      `;
+      const paste = panel.querySelector('.seg-ai-paste');
+      if (paste) setTimeout(() => paste.focus(), 100);
+    };
+
+    // Extrai o parágrafo retraduzido da resposta colada (entre 📜 e 🔍 ou fim)
+    window._editorParseAISuggestion = function(btnEl) {
+      const panel = btnEl.closest('.seg-ai-panel');
+      const segRow = panel.closest('.editor-seg-row');
+      const ptEl = segRow.querySelector('.seg-editable');
+      const paste = panel.querySelector('.seg-ai-paste');
+      if (!paste || !ptEl) return;
+
+      const raw = paste.value.trim();
+      if (!raw) return;
+
+      // Tenta extrair o trecho entre "📜 Parágrafo retraduzido:" e "🔍 Mudanças"
+      // Se falhar, usa o raw todo (limpando markdown comum).
+      let extracted = raw;
+      const m = raw.match(/📜[^\n]*\n+([\s\S]*?)(?=\n\s*\*?\*?\s*🔍|\n\s*\*?\*?\s*Mudanças|$)/);
+      if (m && m[1]) extracted = m[1].trim();
+      // Remove ** e linhas vazias soltas no início/fim
+      extracted = extracted.replace(/^\*+\s*|\s*\*+$/g, '').trim();
+
+      const ptCurrent = (ptEl.textContent || '').trim();
+
+      panel.innerHTML = `
+        <div style="font-size:0.72rem; font-weight:600; color:#a855f7; text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px;">🔄 Comparação</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px; font-weight:600;">PT atual</div>
+            <div style="padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px; font-size:0.85rem; line-height:1.55; min-height:60px; white-space:pre-wrap;">${_escHtml(ptCurrent)}</div>
+          </div>
+          <div>
+            <div style="font-size:0.7rem; color:#a855f7; margin-bottom:4px; font-weight:600;">Nova sugestão</div>
+            <div class="seg-ai-new" contenteditable="true" style="padding:8px 10px; background:rgba(168,85,247,0.04); border:1px solid rgba(168,85,247,0.4); border-radius:6px; font-size:0.85rem; line-height:1.55; min-height:60px; white-space:pre-wrap; color:var(--text);">${_escHtml(extracted)}</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
+          <button onclick="_editorAcceptAISuggestion(this)" style="padding:6px 14px; background:#34c759; color:#fff; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">✓ Aceitar nova</button>
+          <button onclick="_editorDiscardAIPanel(this)" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">✗ Manter atual</button>
+          <span style="font-size:0.72rem; color:var(--text-muted);">Edite a nova sugestão antes de aceitar, se quiser</span>
+        </div>
+      `;
+    };
+
+    // Substitui o seg-editable pela nova sugestão e fecha o painel
+    window._editorAcceptAISuggestion = function(btnEl) {
+      const panel = btnEl.closest('.seg-ai-panel');
+      const segRow = panel.closest('.editor-seg-row');
+      const ptEl = segRow.querySelector('.seg-editable');
+      const newEl = panel.querySelector('.seg-ai-new');
+      if (!ptEl || !newEl) return;
+
+      ptEl.textContent = (newEl.textContent || '').trim();
+      panel.style.display = 'none';
+      panel.innerHTML = '';
+      // Pisca o seg-editable pra dar feedback
+      ptEl.style.transition = 'background 0.4s';
+      ptEl.style.background = 'rgba(52,199,89,0.15)';
+      setTimeout(() => { ptEl.style.background = ''; }, 800);
+    };
+
+    window._editorDiscardAIPanel = function(btnEl) {
+      const panel = btnEl.closest('.seg-ai-panel');
+      if (!panel) return;
+      panel.style.display = 'none';
+      panel.innerHTML = '';
+    };
+
     window.clearVerifiedHistory = async function(btnEl) {
       // First, count how many records will be affected so the admin knows exactly what they're deleting
       const { count, error: countErr } = await supabase
@@ -3215,13 +3381,16 @@ Entregue:
              const pS = (ptSegs[i] || '').trim();
              if (!jS && !pS) continue;
              segmentsHtml += `
-               <div class="topic-split-grid" style="border-top:1px solid rgba(184,134,11,0.08); padding-top:16px; margin-top:16px;">
+               <div class="topic-split-grid editor-seg-row" data-seg-idx="${i}" style="border-top:1px solid rgba(184,134,11,0.08); padding-top:16px; margin-top:16px; position:relative;">
                  <div class="topic-split-col ja-col" style="padding:0 16px 16px 16px">
                    <div class="topic-readonly-text html-content">${jS}</div>
                  </div>
-                 <div class="topic-split-col pt-col" style="padding:0 16px 16px 16px">
+                 <div class="topic-split-col pt-col" style="padding:0 16px 16px 16px; position:relative;">
+                   <button onclick="_editorRetranslateSegment(this)" title="Retraduzir este parágrafo via Claude AI"
+                     style="position:absolute; top:0; right:8px; padding:3px 10px; background:rgba(168,85,247,0.1); color:#a855f7; border:1px solid rgba(168,85,247,0.3); border-radius:6px; font-size:0.72rem; font-weight:600; cursor:pointer; z-index:1;">🔄 IA</button>
                    <div class="seg-editable editor-seg-content" contenteditable="true"
                         data-path="${pathPrefix}-content_ptbr-seg" spellcheck="true">${pS.trim()}</div>
+                   <div class="seg-ai-panel" style="display:none; margin-top:12px; border:1px dashed rgba(168,85,247,0.4); border-radius:8px; padding:12px; background:rgba(168,85,247,0.04);"></div>
                  </div>
                </div>
              `;

@@ -5009,8 +5009,11 @@
     // ============================================================
 
     async function loadPopularFavorites(days, since) {
+      // Favoritos: ranking all-time (sem filtro de período). Toggle on/off não
+      // gera novo created_at, então filtrar por período subestima popularidade.
+      // Highlights: filtrado por updated_at, refletindo atividade no período.
       const [favRes, hlRes] = await Promise.all([
-        supabase.from('synced_favorites').select('volume, file, topic_title, user_id').gte('created_at', since),
+        supabase.from('synced_favorites').select('volume, file, topic_title, user_id'),
         supabase.from('user_highlights').select('volume, file, user_id').gte('updated_at', since)
       ]);
 

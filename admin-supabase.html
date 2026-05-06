@@ -1170,13 +1170,13 @@
             </div>
 
             <div class="two-col" style="margin-top:16px;">
-              <div class="admin-section">
+              <div class="admin-section" style="min-width:0;">
                 <h2>👤 Usuários que Mais Buscaram</h2>
                 <div id="sa-top-searchers"><div class="loading">Carregando...</div></div>
               </div>
-              <div class="admin-section">
+              <div class="admin-section" style="min-width:0;">
                 <h2>🕐 Buscas Recentes por Usuário</h2>
-                <div id="sa-recent-searches"><div class="loading">Carregando...</div></div>
+                <div id="sa-recent-searches" style="max-height:480px; overflow-y:auto;"><div class="loading">Carregando...</div></div>
               </div>
             </div>
           </div>
@@ -5876,6 +5876,9 @@
       if (searchersEl && recentEl) {
         try {
           const since = new Date(Date.now() - days * 86400000).toISOString();
+          const { data: { session } } = await supabase.auth.getSession();
+          const myUid = session?.user?.id;
+
           const { data: logs } = await supabase
             .from('search_logs')
             .select('user_id, query, results_count, created_at')
@@ -5883,17 +5886,22 @@
             .order('created_at', { ascending: false })
             .limit(2000);
 
-          const filtered = (logs || []).filter(r => !_adminIds.has(r.user_id));
+          // Exclui admins (por role) e o próprio usuário logado
+          const filtered = (logs || []).filter(r =>
+            !_adminIds.has(r.user_id) && r.user_id !== myUid
+          );
+
           if (!filtered.length) {
             searchersEl.innerHTML = '<div class="loading">Sem buscas no período.</div>';
-            recentEl.innerHTML = '';
+            recentEl.innerHTML = '<div class="loading">—</div>';
           } else {
-            // Busca nomes dos usuários únicos
             const uids = [...new Set(filtered.map(r => r.user_id))];
             const { data: profiles } = await supabase
               .from('user_profiles').select('id, display_name').in('id', uids);
             const nameMap = {};
             (profiles || []).forEach(p => nameMap[p.id] = p.display_name || 'Desconhecido');
+
+            const truncName = name => name.length > 18 ? name.slice(0, 17) + '…' : name;
 
             // Top usuários por volume de buscas
             const byUser = {};
@@ -5908,43 +5916,51 @@
               .sort((a, b) => b.total - a.total)
               .slice(0, 15);
 
+            const maxTotal = topSearchers[0]?.total || 1;
             searchersEl.innerHTML = `
-              <table>
+              <table style="font-size:0.85rem;">
                 <thead><tr>
-                  <th>Usuário</th>
+                  <th style="width:40%;">Usuário</th>
                   <th class="num">Buscas</th>
-                  <th class="num" title="Buscas sem resultado">Zero</th>
-                  <th>Último acesso</th>
+                  <th class="num" title="Sem resultado" style="color:var(--text-muted);">Zero</th>
+                  <th style="color:var(--text-muted); font-size:0.7rem;">Último dia</th>
                 </tr></thead>
                 <tbody>
-                  ${topSearchers.map(u => `
-                    <tr>
-                      <td>${_escHtml(u.name)}</td>
-                      <td class="num">${u.total}</td>
-                      <td class="num" style="${u.zeros > 0 ? 'color:#c44;' : ''}">${u.zeros || '—'}</td>
-                      <td style="font-size:0.8rem; color:var(--text-muted);">${u.last ? new Date(u.last).toLocaleDateString('pt-BR') : '—'}</td>
-                    </tr>`).join('')}
+                  ${topSearchers.map(u => {
+                    const pct = Math.round(u.total / maxTotal * 100);
+                    return `<tr>
+                      <td title="${_escHtml(u.name)}" style="max-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                        ${_escHtml(truncName(u.name))}
+                      </td>
+                      <td class="num" style="font-weight:600;">${u.total}</td>
+                      <td class="num" style="${u.zeros > 0 ? 'color:#c44; font-weight:600;' : 'color:var(--text-muted);'}">${u.zeros || '—'}</td>
+                      <td style="font-size:0.78rem; color:var(--text-muted);">${u.last ? new Date(u.last).toLocaleDateString('pt-BR') : '—'}</td>
+                    </tr>`;
+                  }).join('')}
                 </tbody>
               </table>`;
 
-            // Buscas recentes (últimas 30)
-            const recent = filtered.slice(0, 30);
+            // Buscas recentes (últimas 40, scrollável)
+            const recent = filtered.slice(0, 40);
             recentEl.innerHTML = `
-              <table>
-                <thead><tr>
-                  <th>Usuário</th>
+              <table style="font-size:0.82rem;">
+                <thead style="position:sticky; top:0; background:var(--surface); z-index:1;"><tr>
+                  <th style="width:26%;">Usuário</th>
                   <th>Busca</th>
-                  <th class="num">Result.</th>
-                  <th>Hora</th>
+                  <th class="num" style="width:10%;">N</th>
+                  <th style="width:22%; color:var(--text-muted); font-size:0.7rem;">Hora</th>
                 </tr></thead>
                 <tbody>
-                  ${recent.map(r => `
-                    <tr>
-                      <td style="white-space:nowrap;">${_escHtml(nameMap[r.user_id] || '?')}</td>
-                      <td>${_escHtml(r.query)}</td>
-                      <td class="num" style="${r.results_count === 0 ? 'color:#c44;' : ''}">${r.results_count ?? '—'}</td>
-                      <td style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">${new Date(r.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</td>
-                    </tr>`).join('')}
+                  ${recent.map(r => {
+                    const name = nameMap[r.user_id] || '?';
+                    const isZero = r.results_count === 0;
+                    return `<tr style="${isZero ? 'opacity:0.75;' : ''}">
+                      <td title="${_escHtml(name)}" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:0;">${_escHtml(truncName(name))}</td>
+                      <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:0;">${_escHtml(r.query)}</td>
+                      <td class="num" style="${isZero ? 'color:#c44; font-weight:600;' : ''}">${r.results_count ?? '—'}</td>
+                      <td style="color:var(--text-muted); white-space:nowrap;">${new Date(r.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</td>
+                    </tr>`;
+                  }).join('')}
                 </tbody>
               </table>`;
           }

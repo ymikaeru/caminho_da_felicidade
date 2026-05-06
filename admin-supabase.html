@@ -2569,8 +2569,7 @@
         const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
         const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Montar prompt e abrir no Claude AI">✨ Sugerir IA</button>`;
         const topicIdx = parseInt((r.topic_id || '0').replace(/\D/g, '')) || 0;
-        const readerUrl = `reader.html?vol=${r.vol}&file=${r.file}&topic=${topicIdx}`;
-        const readerBtn = `<a href="${readerUrl}" target="_blank" class="report-verify-btn" style="background:rgba(52,199,89,0.08); color:#34c759; border-color:rgba(52,199,89,0.3); text-decoration:none; display:inline-flex; align-items:center; gap:4px;" title="Abrir ensinamento completo bilíngue no leitor">📖 Ver</a>`;
+        const readerBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.08); color:#34c759; border-color:rgba(52,199,89,0.3);" onclick="openReportInReader('${r.vol}','${r.file}',${topicIdx})" title="Abrir ensinamento em modo bilíngue JP↔PT">📖 Ver bilíngue</button>`;
 
         return `
           <div class="report-card" id="report-card-${r.id}">
@@ -2764,6 +2763,11 @@
 
       const thread = document.getElementById(`rn-thread-${reportId}`);
       if (thread) thread.innerHTML = _buildNotesThread(reportId);
+    };
+
+    window.openReportInReader = function(vol, file, topicIdx) {
+      localStorage.setItem('reader_comparison', 'true');
+      window.open(`reader.html?vol=${vol}&file=${file}&topic=${topicIdx}`, '_blank');
     };
 
     window.suggestTranslationWithAI = async function(reportId) {

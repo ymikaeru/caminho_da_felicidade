@@ -1169,15 +1169,14 @@
               </div>
             </div>
 
-            <div class="two-col" style="margin-top:16px;">
-              <div class="admin-section" style="min-width:0;">
-                <h2>👤 Usuários que Mais Buscaram</h2>
-                <div id="sa-top-searchers"><div class="loading">Carregando...</div></div>
-              </div>
-              <div class="admin-section" style="min-width:0;">
-                <h2>🕐 Buscas Recentes por Usuário</h2>
-                <div id="sa-recent-searches" style="max-height:480px; overflow-y:auto;"><div class="loading">Carregando...</div></div>
-              </div>
+            <div class="admin-section" style="margin-top:16px;">
+              <h2>👤 Usuários que Mais Buscaram</h2>
+              <div id="sa-top-searchers"><div class="loading">Carregando...</div></div>
+            </div>
+
+            <div class="admin-section">
+              <h2>🕐 Buscas Recentes por Usuário</h2>
+              <div id="sa-recent-searches" style="max-height:400px; overflow-y:auto;"><div class="loading">Carregando...</div></div>
             </div>
           </div>
 
@@ -5902,8 +5901,6 @@
             const nameMap = {};
             (profiles || []).forEach(p => nameMap[p.id] = p.display_name || 'Desconhecido');
 
-            const truncName = name => name.length > 18 ? name.slice(0, 17) + '…' : name;
-
             // Top usuários por volume de buscas
             const byUser = {};
             filtered.forEach(r => {
@@ -5918,48 +5915,50 @@
               .slice(0, 15);
 
             const maxTotal = topSearchers[0]?.total || 1;
+            const fmtDate = iso => iso ? new Date(iso).toLocaleDateString('pt-BR') : '—';
+
             searchersEl.innerHTML = `
-              <table style="font-size:0.85rem;">
-                <thead><tr>
-                  <th style="width:40%;">Usuário</th>
-                  <th class="num">Buscas</th>
-                  <th class="num" title="Sem resultado" style="color:var(--text-muted);">Zero</th>
-                  <th style="color:var(--text-muted); font-size:0.7rem;">Último dia</th>
-                </tr></thead>
-                <tbody>
-                  ${topSearchers.map(u => {
-                    const pct = Math.round(u.total / maxTotal * 100);
-                    return `<tr>
-                      <td title="${_escHtml(u.name)}" style="max-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                        ${_escHtml(truncName(u.name))}
-                      </td>
-                      <td class="num" style="font-weight:600;">${u.total}</td>
-                      <td class="num" style="${u.zeros > 0 ? 'color:#c44; font-weight:600;' : 'color:var(--text-muted);'}">${u.zeros || '—'}</td>
-                      <td style="font-size:0.78rem; color:var(--text-muted);">${u.last ? new Date(u.last).toLocaleDateString('pt-BR') : '—'}</td>
-                    </tr>`;
-                  }).join('')}
-                </tbody>
-              </table>`;
+              <p style="font-size:0.75rem; color:var(--text-muted); margin:-8px 0 12px;">Buscas no período por usuário (excluindo admins). Zero = buscas sem resultado.</p>
+              <div class="ranking-list">
+                ${topSearchers.map((u, i) => {
+                  const initial = (u.name || 'U')[0].toUpperCase();
+                  const pct = Math.round(u.total / maxTotal * 100);
+                  const posClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+                  return `
+                    <div class="ranking-item">
+                      <div class="ranking-pos ${posClass}">${i + 1}</div>
+                      <div class="ranking-avatar">${initial}</div>
+                      <div class="ranking-info">
+                        <div class="ranking-name">${_escHtml(u.name)}</div>
+                        <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">
+                          ${u.zeros > 0 ? `<span style="color:#c44;">${u.zeros} sem resultado</span> · ` : ''}último acesso ${fmtDate(u.last)}
+                        </div>
+                      </div>
+                      <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:${pct}%"></div></div>
+                      <div class="ranking-value">${u.total} buscas</div>
+                    </div>`;
+                }).join('')}
+              </div>`;
 
             // Buscas recentes (últimas 40, scrollável)
             const recent = filtered.slice(0, 40);
             recentEl.innerHTML = `
-              <table style="font-size:0.82rem;">
+              <table style="font-size:0.85rem; width:100%;">
                 <thead style="position:sticky; top:0; background:var(--surface); z-index:1;"><tr>
-                  <th style="width:26%;">Usuário</th>
+                  <th style="width:18%;">Usuário</th>
                   <th>Busca</th>
-                  <th class="num" style="width:10%;">N</th>
-                  <th style="width:22%; color:var(--text-muted); font-size:0.7rem;">Hora</th>
+                  <th class="num" style="width:8%;">Result.</th>
+                  <th style="width:18%; text-align:right;">Hora</th>
                 </tr></thead>
                 <tbody>
                   ${recent.map(r => {
                     const name = nameMap[r.user_id] || '?';
                     const isZero = r.results_count === 0;
-                    return `<tr style="${isZero ? 'opacity:0.75;' : ''}">
-                      <td title="${_escHtml(name)}" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:0;">${_escHtml(truncName(name))}</td>
-                      <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:0;">${_escHtml(r.query)}</td>
-                      <td class="num" style="${isZero ? 'color:#c44; font-weight:600;' : ''}">${r.results_count ?? '—'}</td>
-                      <td style="color:var(--text-muted); white-space:nowrap;">${new Date(r.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</td>
+                    return `<tr>
+                      <td style="color:var(--text-muted); white-space:nowrap;">${_escHtml(name)}</td>
+                      <td style="${isZero ? 'color:var(--text-muted);' : ''}">${_escHtml(r.query)}</td>
+                      <td class="num" style="${isZero ? 'color:#c44; font-weight:600;' : ''}">${isZero ? '0' : (r.results_count ?? '—')}</td>
+                      <td style="font-size:0.78rem; color:var(--text-muted); text-align:right; white-space:nowrap;">${new Date(r.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</td>
                     </tr>`;
                   }).join('')}
                 </tbody>

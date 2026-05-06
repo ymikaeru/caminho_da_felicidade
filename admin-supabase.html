@@ -5940,8 +5940,8 @@
                 }).join('')}
               </div>`;
 
-            // Buscas recentes (últimas 40, scrollável)
-            const recent = filtered.slice(0, 40);
+            // Todas as buscas do período (já limitado a 2000 na query), scrollável
+            const recent = filtered;
             recentEl.innerHTML = `
               <table style="font-size:0.85rem; width:100%; border-collapse:collapse; table-layout:fixed;">
                 <colgroup>

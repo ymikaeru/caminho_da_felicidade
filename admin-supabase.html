@@ -484,6 +484,25 @@
       font-style: normal; font-weight: 500;
       box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.35);
     }
+    /* Report Notes Chat */
+    .rn-thread { margin-top:12px; padding-top:12px; border-top:1px dashed var(--border); }
+    .rn-label { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--text-muted); margin-bottom:10px; }
+    .rn-empty { font-size:.8rem; color:var(--text-muted); font-style:italic; margin-bottom:10px; }
+    .rn-bubble { display:flex; gap:9px; margin-bottom:10px; align-items:flex-start; }
+    .rn-avatar { width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; flex-shrink:0; margin-top:1px; }
+    .rn-avatar.mine { background:#6b7280; }
+    .rn-body { flex:1; min-width:0; }
+    .rn-meta { font-size:.68rem; color:var(--text-muted); margin-bottom:3px; display:flex; align-items:center; gap:8px; }
+    .rn-name { font-weight:600; color:var(--text); }
+    .rn-del { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:.7rem; padding:0; opacity:.5; }
+    .rn-del:hover { opacity:1; color:#c44; }
+    .rn-text { font-size:.84rem; line-height:1.55; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:7px 10px; word-break:break-word; white-space:pre-wrap; }
+    .rn-input-row { display:flex; gap:8px; align-items:flex-end; margin-top:8px; }
+    .rn-input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:.84rem; font-family:inherit; resize:none; min-height:52px; line-height:1.5; }
+    .rn-input:focus { outline:none; border-color:var(--accent); }
+    .rn-send { padding:8px 14px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:.82rem; font-weight:600; cursor:pointer; white-space:nowrap; align-self:flex-end; }
+    .rn-send:hover { opacity:.88; }
+
     /* Highlight Reader Modal (read-only) */
     .hl-reader-modal {
       display: none; position: fixed; inset: 0; z-index: 9998;
@@ -1553,6 +1572,8 @@
     };
 
     let allUsers = [];
+    let _myUid = null;
+    let _reportNotes = {}; // { report_id: [notes] }
     let selectedUserId = null;
     let volumeCategories = {};
     let _adminIds = new Set();
@@ -2462,6 +2483,21 @@
 
       _allReports = data || [];
 
+      // Carrega notas de todos os reports em uma query só
+      if (_allReports.length) {
+        const ids = _allReports.map(r => r.id);
+        const { data: notes } = await supabase
+          .from('report_notes')
+          .select('id, report_id, admin_id, note, created_at')
+          .in('report_id', ids)
+          .order('created_at', { ascending: true });
+        _reportNotes = {};
+        (notes || []).forEach(n => {
+          if (!_reportNotes[n.report_id]) _reportNotes[n.report_id] = [];
+          _reportNotes[n.report_id].push(n);
+        });
+      }
+
       if (!volumeCategories || Object.keys(volumeCategories).length === 0) {
         try { await loadVolumeFiles(); } catch (e) { console.warn('loadVolumeFiles falhou:', e); }
       }
@@ -2532,10 +2568,6 @@
 
         const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
 
-        const escapedNote = (r.admin_note || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const noteId = `note-${r.id}`;
-        const noteStatusId = `note-status-${r.id}`;
-
         return `
           <div class="report-card" id="report-card-${r.id}">
             <div class="report-header">
@@ -2554,19 +2586,14 @@
             </div>
             <div class="report-text"><mark class="report-selected">${escapedText}</mark></div>
             ${escapedDesc ? `<div class="report-description">${escapedDesc}</div>` : ''}
-            <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);">
-              <div style="font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); margin-bottom:6px;">📝 Nota interna (admins)</div>
-              <textarea id="${noteId}"
-                placeholder="Ex: correção ficou assim → "novo texto". Pode aplicar. Ou: verificar no japonês, original diz..."
-                style="width:100%; box-sizing:border-box; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.85rem; font-family:inherit; resize:vertical; min-height:60px; line-height:1.5;"
-                onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){saveReportNote('${r.id}');event.preventDefault();}"
-              >${escapedNote}</textarea>
-              <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
-                <button onclick="saveReportNote('${r.id}')"
-                  style="padding:5px 14px; background:var(--accent); color:#fff; border:none; border-radius:7px; font-size:0.8rem; font-weight:600; cursor:pointer;">
-                  Salvar nota
-                </button>
-                <span id="${noteStatusId}" style="font-size:0.75rem; color:var(--text-muted);"></span>
+            <div class="rn-thread">
+              <div class="rn-label">💬 Notas internas</div>
+              <div id="rn-thread-${r.id}">${_buildNotesThread(r.id)}</div>
+              <div class="rn-input-row">
+                <textarea id="rn-input-${r.id}" class="rn-input"
+                  placeholder="Escreva uma nota… (Ctrl+Enter para enviar)"
+                  onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){sendReportNote('${r.id}');event.preventDefault();}"></textarea>
+                <button class="rn-send" onclick="sendReportNote('${r.id}')">Enviar</button>
               </div>
             </div>
           </div>`;
@@ -2661,33 +2688,76 @@
       _renderReports();
     };
 
-    window.saveReportNote = async function(id) {
-      const textarea = document.getElementById(`note-${id}`);
-      const statusEl = document.getElementById(`note-status-${id}`);
-      if (!textarea) return;
+    function _buildNotesThread(reportId) {
+      const notes = _reportNotes[reportId] || [];
+      if (!notes.length) return '<div class="rn-empty">Nenhuma nota ainda.</div>';
+      return notes.map(n => {
+        const isMine = n.admin_id === _myUid;
+        const author = allUsers.find(u => u.id === n.admin_id);
+        const name = author?.display_name || 'Admin';
+        const initial = name[0].toUpperCase();
+        const hora = new Date(n.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        const delBtn = isMine
+          ? `<button class="rn-del" onclick="deleteReportNote('${n.id}','${reportId}')" title="Apagar">✕</button>`
+          : '';
+        return `
+          <div class="rn-bubble">
+            <div class="rn-avatar${isMine ? ' mine' : ''}">${initial}</div>
+            <div class="rn-body">
+              <div class="rn-meta">
+                <span class="rn-name">${_escHtml(isMine ? 'Você' : name)}</span>
+                <span>${hora}</span>
+                ${delBtn}
+              </div>
+              <div class="rn-text">${_escHtml(n.note)}</div>
+            </div>
+          </div>`;
+      }).join('');
+    }
 
-      const note = textarea.value.trim();
-      if (statusEl) { statusEl.textContent = 'Salvando…'; statusEl.style.color = 'var(--text-muted)'; }
+    window.sendReportNote = async function(reportId) {
+      const textarea = document.getElementById(`rn-input-${reportId}`);
+      const text = textarea?.value?.trim();
+      if (!text) return;
 
+      const btn = textarea?.closest('.rn-input-row')?.querySelector('.rn-send');
+      if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+      const { data: note, error } = await supabase
+        .from('report_notes')
+        .insert({ report_id: reportId, admin_id: _myUid, note: text })
+        .select()
+        .single();
+
+      if (btn) { btn.disabled = false; btn.textContent = 'Enviar'; }
+
+      if (error) { console.error('[report notes] send failed:', error.message); return; }
+
+      if (!_reportNotes[reportId]) _reportNotes[reportId] = [];
+      _reportNotes[reportId].push(note);
+      textarea.value = '';
+
+      const thread = document.getElementById(`rn-thread-${reportId}`);
+      if (thread) {
+        thread.innerHTML = _buildNotesThread(reportId);
+        thread.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    };
+
+    window.deleteReportNote = async function(noteId, reportId) {
       const { error } = await supabase
-        .from('translation_reports')
-        .update({ admin_note: note || null })
-        .eq('id', id);
+        .from('report_notes')
+        .delete()
+        .eq('id', noteId);
 
-      if (error) {
-        if (statusEl) { statusEl.textContent = 'Erro ao salvar.'; statusEl.style.color = '#c44'; }
-        return;
+      if (error) { console.error('[report notes] delete failed:', error.message); return; }
+
+      if (_reportNotes[reportId]) {
+        _reportNotes[reportId] = _reportNotes[reportId].filter(n => n.id !== noteId);
       }
 
-      // Atualiza estado local para não perder a nota num re-render
-      const idx = _allReports.findIndex(r => r.id === id);
-      if (idx !== -1) _allReports[idx].admin_note = note || null;
-
-      if (statusEl) {
-        const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        statusEl.textContent = `✓ salvo às ${hora}`;
-        statusEl.style.color = '#34c759';
-      }
+      const thread = document.getElementById(`rn-thread-${reportId}`);
+      if (thread) thread.innerHTML = _buildNotesThread(reportId);
     };
 
     window.clearVerifiedHistory = async function(btnEl) {
@@ -3137,6 +3207,7 @@
     async function checkAdmin() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
+      _myUid = session.user.id;
 
       const { data: profile } = await supabase
         .from('user_profiles')

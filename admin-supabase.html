@@ -2567,9 +2567,7 @@
           : `<span class="report-verified-tag">✓ Verificado</span>`;
 
         const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
-        const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Montar prompt e abrir no Claude AI">✨ Sugerir IA</button>`;
-        const topicIdx = parseInt((r.topic_id || '0').replace(/\D/g, '')) || 0;
-        const readerBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.08); color:#34c759; border-color:rgba(52,199,89,0.3);" onclick="openReportInReader('${r.vol}','${r.file}',${topicIdx})" title="Abrir ensinamento em modo bilíngue JP↔PT">📖 Ver bilíngue</button>`;
+        const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Sugerir correção pontual via Claude AI">✨ Sugerir IA</button>`;
 
         return `
           <div class="report-card" id="report-card-${r.id}">
@@ -2582,9 +2580,8 @@
                 ${userName}
               </span>
               <span class="report-date">${date}</span>
-              <div class="report-actions" style="display:flex; gap:8px;">
+              <div class="report-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
                 ${editBtn}
-                ${readerBtn}
                 ${aiBtn}
                 ${verifyBtn}
               </div>
@@ -2765,10 +2762,93 @@
       if (thread) thread.innerHTML = _buildNotesThread(reportId);
     };
 
-    window.openReportInReader = function(vol, file, topicIdx) {
-      localStorage.setItem('reader_comparison', 'true');
-      window.open(`reader.html?vol=${vol}&file=${file}&topic=${topicIdx}`, '_blank');
-    };
+    // Diretrizes compartilhadas pelos prompts de sugestão e retradução.
+    // Mantém glossário, registro PT-BR e exemplos de calibração GOOD/BAD em
+    // um só lugar — qualquer ajuste afeta os dois fluxos.
+    const TRANSLATION_GUIDELINES = `Você é um revisor sênior brasileiro, devoto da Sekaikyūseikyō, com conhecimento profundo do registro religioso e doutrinário em português brasileiro. Sua tradução deve soar como Meishu-sama falando diretamente com discípulos brasileiros.
+
+PRINCÍPIO DOUTRINÁRIO FUNDAMENTAL: aquilo que o mundo chama de "doença" é, sob a ótica de Meishu-sama, purificação se manifestando. O frame deve ser sempre espiritual, nunca clínico. Quando o autor descreve o fenômeno externo, é legítimo usar "doença"; quando a perspectiva é doutrinária, preferir "purificação", "manifestação" ou "afecção".
+
+GLOSSÁRIO MANDATÓRIO (nunca traduzir por sinônimos):
+- 浄化 / jōka → purificação
+- 病気 / byōki (fenômeno externo) → doença
+- 薬毒 / yakudoku → toxinas medicinais (nunca "veneno")
+- 急所 / kyūsho → ponto vital
+- 固まり / katamari → indurações (técnico) ou solidificações (nódulos)
+- 浄霊 / jōrei → Johrei (nunca traduzir)
+- 御光 / Ohikari → Ohikari (nunca traduzir; 1ª menção: "Ohikari [御光]")
+- 浄霊医術 → arte do Johrei (NUNCA "arte médica do Johrei")
+- 力を抜く → retirar a força (nunca "relaxar a força")
+- 観音 / Kannon → Kannon [観音] (1ª menção), depois Kannon
+- 釈尊 / Shakuson → Shakuson [釈尊] (1ª menção), depois Shakuson
+- 神様 / kamisama → Deus (sem "nosso", sem "o Senhor")
+- 教え / oshie → ensinamento (não "doutrina")
+- 救い / sukui → salvação
+- 御加護 / gokago → proteção divina
+- 因縁 / in'nen → vínculo cármico
+- 業 / gō → carma
+- 罪穢 / zaie → impurezas espirituais
+- 真理 / shinri → verdade
+- 信仰 / shinkō → fé (não "crença", não "fervor")
+- 想念 / sonen → sonen (em itálico, minúsculo)
+- 原因 (em contexto patológico) → etiologia (técnico) ou causa (narrativo)
+- 御神霊 / Kami genérico → Deus
+- Tratamento: sempre "Meishu-sama" (minúsculo no sama)
+- Pergunta-resposta: **(Pergunta)** e **(Meishu-sama)** em negrito
+
+CALIBRAÇÃO DE REGISTRO PT-BR (CRÍTICO):
+
+Português brasileiro elevado mas vivo. Solene, mas não pomposo. Sábio, mas não acadêmico. Direto, mas não casual. Como um mestre japonês falando em português brasileiro fluente — autoridade tranquila, sabedoria sem ostentação.
+
+EVITAR (lusitanismos, academicismos, pompa desnecessária):
+- "Ademais" / "Outrossim" → use "Além disso", "E ainda", "E também"
+- "Cumpre" / "Insta" / "Mister" → use "É preciso", "É necessário"
+- "Eis que" / "Há de se notar" → use "Vejam:", "Pois bem,", "É preciso notar"
+- "Constitui verdadeiramente" → use "É verdadeiramente"
+- "Tal qual" desnecessário → use "Assim como"
+- "Em contrapartida" excessivo → alterne com "Por outro lado", "Já"
+- "Sob esta ótica" / "Em tal mister" → use "Deste ponto de vista", "Vendo assim"
+- "Outrora" → use "Antigamente", "No passado"
+- "Por conseguinte" / "Destarte" → use "Por isso", "Assim", "Desta forma"
+- "Configura-se como" → use "É", "Constitui"
+- "Há que se" → use "É preciso"
+- "Nesta senda" / "Sob este prisma" → use "Neste sentido", "Assim"
+
+PREFERIR:
+- Conectivos brasileiros vivos: "Por isso", "Assim", "Desta forma", "E então"
+- Convocações diretas: "Vejam:", "Pensem nisto:", "Compreendam:", "É fundamental compreender:"
+- Modernidade: "É preciso" em vez de "É imperativo"
+- Sacralidade brasileira: "graça divina", "missão", "fé verdadeira", "elevação espiritual"
+- Afirmações fortes: "É impossível", "Inexiste", "É de fato", "Verdadeiramente"
+
+EXEMPLOS DE CALIBRAÇÃO (estude e siga este padrão):
+
+JP: それを否定するわけにはいかない。
+❌ "Não se pode obstá-lo." (rebuscado, lusitano)
+✅ "Não se pode negar isso." (natural, claro, mantém autoridade)
+
+JP: 神様の恵みは無限である。
+❌ "A graça divina constitui verdadeiramente o infinito." (pomposo)
+✅ "A graça de Deus é infinita." (direto, profundo, brasileiro)
+
+JP: 病気とは浄化作用である。
+❌ "A enfermidade configura-se como atuação purificatória." (acadêmico)
+✅ "A doença é a purificação se manifestando." (claro, doutrinário)
+
+JP: それゆえ、信仰深き者は救われる。
+❌ "Outrossim, aqueles dotados de profunda fé hão de ser salvos." (lusitano + pomposo)
+✅ "Por isso, aqueles que têm fé verdadeira são salvos." (vivo, brasileiro, sacro)
+
+JP: 浄霊を行なうにあたっては、力を抜くことが肝要である。
+❌ "Cumpre, ao ministrar Johrei, despojar-se do esforço muscular." (acadêmico, errado terminologicamente)
+✅ "Ao ministrar Johrei, é fundamental retirar a força." (correto, direto)
+
+ESTILO GERAL:
+- Tom de mestre falando com discípulos (autoridade tranquila, não professoral)
+- Naturalizar metáforas mantendo a intenção espiritual (Shin-i [真意])
+- Bijeção 1:1 de parágrafos JP↔PT — NUNCA fundir nem dividir parágrafos
+- Linhas em branco onde o JP tem linha em branco
+- Pergunta-resposta: cada turno é um parágrafo separado`;
 
     window.suggestTranslationWithAI = async function(reportId) {
       const r = _allReports.find(x => x.id === reportId);
@@ -2797,25 +2877,13 @@
 
       if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
 
-      const prompt = `Você é um revisor sênior e devoto da Sekaikyūseikyō, especialista em comparar traduções do japonês para o português do Brasil (PT-BR). Um usuário reportou um possível erro de tradução nos ensinamentos de Meishu-Sama. Sua missão é identificar exatamente onde está o erro e sugerir a correção.
-
-PRINCÍPIO DOUTRINÁRIO: aquilo que o mundo chama de "doença" é, sob a ótica de Meishu-Sama, purificação se manifestando. O frame deve ser sempre espiritual, nunca clínico.
-
-GLOSSÁRIO MANDATÓRIO:
-- 浄化 / jōka → purificação (nunca "sintoma" ou "doença" para o processo espiritual)
-- 薬毒 / yakudoku → toxinas medicinais
-- 急所 / kyūsho → ponto vital
-- 浄霊 / jōrei → Johrei (nunca traduzir)
-- 御光 / Ohikari → Ohikari (nunca traduzir)
-- 浄霊医術 → arte do Johrei (não "arte médica")
-- 力を抜く → retirar a força
-- 観音 / Kannon → Kannon [観音] (1ª menção)
-- sonen → sonen (em itálico)
-- Tratamento: sempre "Meishu-sama" (minúsculo no sama)
-
-ESTILO: tom profético e assertivo, conectivos variados, bijeção 1:1 de parágrafos JP↔PT.
+      const prompt = `${TRANSLATION_GUIDELINES}
 
 ---
+
+## CONTEXTO: SUGESTÃO DE CORREÇÃO PONTUAL
+
+Um usuário reportou um possível erro de tradução nos ensinamentos de Meishu-sama. Sua missão é identificar exatamente onde está o erro (mesmo que o trecho selecionado pelo usuário não seja o ponto exato) e sugerir a correção, aplicando todas as diretrizes acima.
 
 ## DADOS DO REPORT
 
@@ -2849,10 +2917,10 @@ Responda **exatamente** neste formato:
 "[cole o trecho problemático exato da tradução atual]"
 
 **✅ Correção sugerida (PT):**
-"[cole o trecho corrigido]"
+"[cole o trecho corrigido — aplicando glossário, calibração de registro PT-BR e estilo]"
 
 **💡 Justificativa:**
-[Explique brevemente — qual palavra japonesa foi mal traduzida, qual regra do glossário foi violada, qual ajuste de tom foi necessário.]`;
+[Explique brevemente — qual palavra japonesa foi mal traduzida, qual regra do glossário foi violada, qual ajuste de calibração de registro foi necessário.]`;
 
       try {
         await navigator.clipboard.writeText(prompt);
@@ -2879,6 +2947,172 @@ Responda **exatamente** neste formato:
       toast.textContent = '✨ Prompt copiado! Cole no Claude com Ctrl+V e pressione Enter.';
       toast.style.opacity = '1';
       setTimeout(() => { toast.style.opacity = '0'; }, 4000);
+    };
+
+    // ─── Retradução de parágrafo individual (dentro do editor) ───
+    // Fluxo: clica 🔄 IA → abre Claude + expande painel inline → admin
+    // cola resposta → sistema extrai o parágrafo → mostra comparação
+    // lado-a-lado → admin aceita/descarta/edita.
+    window._editorRetranslateSegment = function(btnEl) {
+      const segRow = btnEl.closest('.editor-seg-row');
+      if (!segRow) return;
+
+      const jaEl = segRow.querySelector('.topic-readonly-text');
+      const ptEl = segRow.querySelector('.seg-editable');
+      const panel = segRow.querySelector('.seg-ai-panel');
+      if (!jaEl || !ptEl || !panel) return;
+
+      const jaSeg = (jaEl.textContent || '').trim();
+      const ptSeg = (ptEl.textContent || '').trim();
+
+      // Reúne contexto do tópico inteiro pra Claude entender o entorno
+      const topicBlock = segRow.closest('.topic-edit-block');
+      const allJa = topicBlock?.querySelectorAll('.topic-readonly-text') || [];
+      const allPt = topicBlock?.querySelectorAll('.seg-editable') || [];
+      const fullJa = Array.from(allJa).map(e => (e.textContent || '').trim()).filter(Boolean).join('\n\n');
+      const fullPt = Array.from(allPt).map(e => (e.textContent || '').trim()).filter(Boolean).join('\n\n');
+
+      const prompt = `${TRANSLATION_GUIDELINES}
+
+---
+
+## CONTEXTO: RETRADUÇÃO DE PARÁGRAFO ESPECÍFICO
+
+Você foi solicitado a retraduzir UM parágrafo específico de um ensinamento de Meishu-sama. Use o resto do tópico abaixo apenas como contexto para entender o sentido e a continuidade — mas entregue APENAS a retradução do parágrafo solicitado.
+
+## TÓPICO COMPLETO (apenas referência)
+
+### Texto japonês completo:
+${fullJa}
+
+### Tradução PT atual completa (referência, NÃO copiar):
+${fullPt}
+
+---
+
+## PARÁGRAFO PARA RETRADUZIR
+
+### Original japonês:
+${jaSeg}
+
+### Tradução PT atual (questionada):
+${ptSeg}
+
+---
+
+## TAREFA
+
+Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
+- Glossário mandatório completo
+- Calibração de registro PT-BR (sem lusitanismos, sem academicismos)
+- Tom de mestre falando com discípulos
+- NÃO fundir, NÃO dividir — UM parágrafo só
+
+## FORMATO OBRIGATÓRIO DA RESPOSTA
+
+**📜 Parágrafo retraduzido:**
+[Apenas o parágrafo, em uma única linha ou bloco contínuo, pronto para copiar e colar de volta no admin]
+
+**🔍 Mudanças principais:**
+- [Mudança 1: termo do glossário aplicado / lusitanismo removido / etc.]
+- [Mudança 2]
+- [Mudança 3 se houver]`;
+
+      try {
+        navigator.clipboard.writeText(prompt);
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = prompt;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+
+      window.open('https://claude.ai/new', '_blank');
+
+      // Expande painel pra paste da resposta
+      panel.style.display = 'block';
+      panel.innerHTML = `
+        <div style="font-size:0.72rem; font-weight:600; color:#a855f7; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">🔄 Sugestão da IA</div>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px; line-height:1.5;">
+          1) Prompt copiado e claude.ai aberto. Cole com Ctrl+V e envie.<br>
+          2) Copie a resposta completa do Claude e cole abaixo.
+        </div>
+        <textarea class="seg-ai-paste" placeholder="Cole aqui a resposta completa do Claude (incluindo os marcadores 📜 e 🔍)..."
+          style="width:100%; box-sizing:border-box; min-height:90px; padding:8px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.85rem; font-family:inherit; resize:vertical;"></textarea>
+        <div style="display:flex; gap:8px; margin-top:8px; align-items:center;">
+          <button onclick="_editorParseAISuggestion(this)" style="padding:6px 14px; background:#a855f7; color:#fff; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">Comparar</button>
+          <button onclick="_editorDiscardAIPanel(this)" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">Cancelar</button>
+        </div>
+      `;
+      const paste = panel.querySelector('.seg-ai-paste');
+      if (paste) setTimeout(() => paste.focus(), 100);
+    };
+
+    // Extrai o parágrafo retraduzido da resposta colada (entre 📜 e 🔍 ou fim)
+    window._editorParseAISuggestion = function(btnEl) {
+      const panel = btnEl.closest('.seg-ai-panel');
+      const segRow = panel.closest('.editor-seg-row');
+      const ptEl = segRow.querySelector('.seg-editable');
+      const paste = panel.querySelector('.seg-ai-paste');
+      if (!paste || !ptEl) return;
+
+      const raw = paste.value.trim();
+      if (!raw) return;
+
+      // Tenta extrair o trecho entre "📜 Parágrafo retraduzido:" e "🔍 Mudanças"
+      // Se falhar, usa o raw todo (limpando markdown comum).
+      let extracted = raw;
+      const m = raw.match(/📜[^\n]*\n+([\s\S]*?)(?=\n\s*\*?\*?\s*🔍|\n\s*\*?\*?\s*Mudanças|$)/);
+      if (m && m[1]) extracted = m[1].trim();
+      // Remove ** e linhas vazias soltas no início/fim
+      extracted = extracted.replace(/^\*+\s*|\s*\*+$/g, '').trim();
+
+      const ptCurrent = (ptEl.textContent || '').trim();
+
+      panel.innerHTML = `
+        <div style="font-size:0.72rem; font-weight:600; color:#a855f7; text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px;">🔄 Comparação</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px; font-weight:600;">PT atual</div>
+            <div style="padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px; font-size:0.85rem; line-height:1.55; min-height:60px; white-space:pre-wrap;">${_escHtml(ptCurrent)}</div>
+          </div>
+          <div>
+            <div style="font-size:0.7rem; color:#a855f7; margin-bottom:4px; font-weight:600;">Nova sugestão</div>
+            <div class="seg-ai-new" contenteditable="true" style="padding:8px 10px; background:rgba(168,85,247,0.04); border:1px solid rgba(168,85,247,0.4); border-radius:6px; font-size:0.85rem; line-height:1.55; min-height:60px; white-space:pre-wrap; color:var(--text);">${_escHtml(extracted)}</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
+          <button onclick="_editorAcceptAISuggestion(this)" style="padding:6px 14px; background:#34c759; color:#fff; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">✓ Aceitar nova</button>
+          <button onclick="_editorDiscardAIPanel(this)" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">✗ Manter atual</button>
+          <span style="font-size:0.72rem; color:var(--text-muted);">Edite a nova sugestão antes de aceitar, se quiser</span>
+        </div>
+      `;
+    };
+
+    // Substitui o seg-editable pela nova sugestão e fecha o painel
+    window._editorAcceptAISuggestion = function(btnEl) {
+      const panel = btnEl.closest('.seg-ai-panel');
+      const segRow = panel.closest('.editor-seg-row');
+      const ptEl = segRow.querySelector('.seg-editable');
+      const newEl = panel.querySelector('.seg-ai-new');
+      if (!ptEl || !newEl) return;
+
+      ptEl.textContent = (newEl.textContent || '').trim();
+      panel.style.display = 'none';
+      panel.innerHTML = '';
+      // Pisca o seg-editable pra dar feedback
+      ptEl.style.transition = 'background 0.4s';
+      ptEl.style.background = 'rgba(52,199,89,0.15)';
+      setTimeout(() => { ptEl.style.background = ''; }, 800);
+    };
+
+    window._editorDiscardAIPanel = function(btnEl) {
+      const panel = btnEl.closest('.seg-ai-panel');
+      if (!panel) return;
+      panel.style.display = 'none';
+      panel.innerHTML = '';
     };
 
     window.clearVerifiedHistory = async function(btnEl) {
@@ -3033,13 +3267,16 @@ Responda **exatamente** neste formato:
              const pS = (ptSegs[i] || '').trim();
              if (!jS && !pS) continue;
              segmentsHtml += `
-               <div class="topic-split-grid" style="border-top:1px solid rgba(184,134,11,0.08); padding-top:16px; margin-top:16px;">
+               <div class="topic-split-grid editor-seg-row" data-seg-idx="${i}" style="border-top:1px solid rgba(184,134,11,0.08); padding-top:16px; margin-top:16px; position:relative;">
                  <div class="topic-split-col ja-col" style="padding:0 16px 16px 16px">
                    <div class="topic-readonly-text html-content">${jS}</div>
                  </div>
-                 <div class="topic-split-col pt-col" style="padding:0 16px 16px 16px">
+                 <div class="topic-split-col pt-col" style="padding:0 16px 16px 16px; position:relative;">
+                   <button onclick="_editorRetranslateSegment(this)" title="Retraduzir este parágrafo via Claude AI"
+                     style="position:absolute; top:0; right:8px; padding:3px 10px; background:rgba(168,85,247,0.1); color:#a855f7; border:1px solid rgba(168,85,247,0.3); border-radius:6px; font-size:0.72rem; font-weight:600; cursor:pointer; z-index:1;">🔄 IA</button>
                    <div class="seg-editable editor-seg-content" contenteditable="true"
                         data-path="${pathPrefix}-content_ptbr-seg" spellcheck="true">${pS.trim()}</div>
+                   <div class="seg-ai-panel" style="display:none; margin-top:12px; border:1px dashed rgba(168,85,247,0.4); border-radius:8px; padding:12px; background:rgba(168,85,247,0.04);"></div>
                  </div>
                </div>
              `;

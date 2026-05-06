@@ -5807,6 +5807,7 @@
     let _dcChart = null;
 
     window.loadSearchAnalytics = async function() {
+      await _loadAdminIds();
       const days = parseInt(document.getElementById('sa-range')?.value || '30', 10);
       const genAt = document.getElementById('sa-gen-at');
       const totalEl = document.getElementById('sa-stat-total');

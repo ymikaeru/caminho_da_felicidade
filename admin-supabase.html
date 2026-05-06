@@ -6037,8 +6037,8 @@
 
       // Fetch RPC and extra raw data in parallel
       const [rpcRes, rawRes] = await Promise.all([
-        supabase.rpc('admin_get_johrei_analytics', { days_back: days }),
-        supabase.from('johrei_visits').select('viewport,lang,created_at').gte('created_at', since)
+        supabase.rpc('admin_get_site_analytics', { p_site: 'johrei', days_back: days }),
+        supabase.from('site_events').select('props,created_at').eq('site','johrei').eq('event_type','pageview').gte('created_at', since)
       ]);
 
       if (rpcRes.error) {
@@ -6055,6 +6055,8 @@
       const daily = data.daily || [];
       const refs = data.top_referrers || [];
       const paths = data.top_paths || [];
+      const eng = data.engagement || {};
+      const clicks = data.top_clicks || [];
 
       console.log('[jr-analytics] totals:', t, 'daily.length:', daily.length, 'daily[0..2]:', daily.slice(0, 3));
 
@@ -6071,13 +6073,14 @@
       const hours = new Array(24).fill(0);
 
       raw.forEach(r => {
-        const w = parseInt((r.viewport || '').split('x')[0], 10);
+        const p = r.props || {};
+        const w = parseInt((p.viewport || '').split('x')[0], 10);
         if (w > 0) {
           if (w < 768) devices.Mobile++;
           else if (w < 1024) devices.Tablet++;
           else devices.Desktop++;
         }
-        const l = ((r.lang || '').split('-')[0].toLowerCase()) || '?';
+        const l = ((p.lang || '').split('-')[0].toLowerCase()) || '?';
         langMap[l] = (langMap[l] || 0) + 1;
         hours[new Date(r.created_at).getHours()]++;
       });
@@ -6094,6 +6097,17 @@
         <div class="s">${label}</div>
         ${uniques != null ? `<div class="u">${uniques.toLocaleString('pt-BR')} únicos</div>` : ''}
       </div>`;
+      const engCard = (v, label, suffix) => `<div class="jr-card">
+        <div class="v">${v == null ? '—' : (typeof v === 'number' ? v.toLocaleString('pt-BR') : v)}${suffix || ''}</div>
+        <div class="s">${label}</div>
+      </div>`;
+      const fmtTime = s => {
+        const n = Number(s);
+        if (!n || n <= 0) return '0s';
+        if (n < 60) return `${Math.round(n)}s`;
+        const m = Math.floor(n / 60), sec = Math.round(n % 60);
+        return sec ? `${m}m ${sec}s` : `${m}m`;
+      };
       const tbl = (rows, keyCol, valCol) => {
         if (!rows.length) return '<div class="loading">Sem dados.</div>';
         return `<table><thead><tr><th>${keyCol === 'path' ? 'Caminho' : 'Origem'}</th><th style="text-align:right;">Visitas</th></tr></thead><tbody>${
@@ -6141,12 +6155,24 @@
         <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-muted);margin-top:3px;"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span></div>
         <p style="font-size:.78rem;color:var(--text-muted);margin:6px 0 0;">Pico: <strong>${hourPeakIdx}h</strong> (${hours[hourPeakIdx]} visitas)</p>`;
 
+      const clicksTbl = clicks.length
+        ? `<table><thead><tr><th>Rótulo</th><th style="text-align:right;">Cliques</th></tr></thead><tbody>${
+            clicks.map(c => `<tr><td class="ell">${esc(c.label)}${c.kind === 'cta' ? ' <span style="font-size:.6rem;color:var(--text-muted);">CTA</span>' : ''}</td><td class="num">${(c.clicks??0).toLocaleString('pt-BR')}</td></tr>`).join('')
+          }</tbody></table>`
+        : '<div class="loading">Nenhum clique rastreado ainda.</div>';
+
       dash.innerHTML = `
         <div class="jr-cards">
           ${card(t.today_visits,'Hoje',t.today_uniques)}
           ${card(t.week_visits,'7 dias',t.week_uniques)}
           ${card(t.period_visits,`${data.days_back} dias`,t.period_uniques)}
           ${card(t.all_time_visits,'Total',t.all_time_uniques)}
+        </div>
+        <div class="jr-cards" style="margin-bottom:24px;">
+          ${engCard(fmtTime(eng.avg_session_seconds), 'Tempo médio / sessão')}
+          ${engCard(eng.avg_max_scroll_pct, 'Scroll médio máx.', '%')}
+          ${engCard(eng.bounce_rate_pct, 'Bounce rate', '%')}
+          ${engCard(t.period_sessions, `Sessões (${data.days_back}d)`)}
         </div>
         <div class="jr-chart-wrap">
           <h3>Visitas por dia (últimos ${data.days_back} dias)</h3>
@@ -6156,13 +6182,13 @@
           <div class="jr-tbl"><h3>Top referrers</h3>${tbl(refs,'referrer','visits')}</div>
           <div class="jr-tbl"><h3>Top páginas</h3>${tbl(paths,'path','visits')}</div>
         </div>
-        <div class="jr-tables">
+        <div class="jr-tables" style="margin-bottom:16px;">
+          <div class="jr-tbl"><h3>Top cliques</h3>${clicksTbl}</div>
           <div class="jr-tbl"><h3>Dispositivos</h3>${deviceTotal > 1 ? deviceBars : '<div class="loading">Sem dados.</div>'}</div>
-          <div class="jr-tbl"><h3>Idiomas</h3>${topLangs.length ? langPills : '<div class="loading">Sem dados.</div>'}</div>
         </div>
-        <div class="jr-chart-wrap" style="margin-top:16px;">
-          <h3>Horário de pico (últimos ${data.days_back} dias)</h3>
-          ${hourSvg}
+        <div class="jr-tables">
+          <div class="jr-tbl"><h3>Idiomas</h3>${topLangs.length ? langPills : '<div class="loading">Sem dados.</div>'}</div>
+          <div class="jr-tbl"><h3>Horário de pico (últimos ${data.days_back} dias)</h3>${hourSvg}</div>
         </div>`;
 
       const ctx = document.getElementById('jr-chart');
@@ -6213,8 +6239,8 @@
       const since = new Date(Date.now() - days * 86400000).toISOString();
 
       const [rpcRes, rawRes] = await Promise.all([
-        supabase.rpc('admin_get_landing_analytics', { days_back: days }),
-        supabase.from('landing_visits').select('viewport,lang,created_at').gte('created_at', since)
+        supabase.rpc('admin_get_site_analytics', { p_site: 'landing', days_back: days }),
+        supabase.from('site_events').select('props,created_at').eq('site','landing').eq('event_type','pageview').gte('created_at', since)
       ]);
 
       if (rpcRes.error) {
@@ -6231,6 +6257,8 @@
       const daily = data.daily || [];
       const refs = data.top_referrers || [];
       const paths = data.top_paths || [];
+      const eng = data.engagement || {};
+      const clicks = data.top_clicks || [];
 
       if (genAt) genAt.textContent = `Atualizado em ${new Date(data.generated_at).toLocaleString('pt-BR')}`;
 
@@ -6245,13 +6273,14 @@
       const hours = new Array(24).fill(0);
 
       raw.forEach(r => {
-        const w = parseInt((r.viewport || '').split('x')[0], 10);
+        const p = r.props || {};
+        const w = parseInt((p.viewport || '').split('x')[0], 10);
         if (w > 0) {
           if (w < 768) devices.Mobile++;
           else if (w < 1024) devices.Tablet++;
           else devices.Desktop++;
         }
-        const l = ((r.lang || '').split('-')[0].toLowerCase()) || '?';
+        const l = ((p.lang || '').split('-')[0].toLowerCase()) || '?';
         langMap[l] = (langMap[l] || 0) + 1;
         hours[new Date(r.created_at).getHours()]++;
       });
@@ -6267,6 +6296,17 @@
         <div class="s">${label}</div>
         ${uniques != null ? `<div class="u">${uniques.toLocaleString('pt-BR')} únicos</div>` : ''}
       </div>`;
+      const engCard = (v, label, suffix) => `<div class="lp-card">
+        <div class="v">${v == null ? '—' : (typeof v === 'number' ? v.toLocaleString('pt-BR') : v)}${suffix || ''}</div>
+        <div class="s">${label}</div>
+      </div>`;
+      const fmtTime = s => {
+        const n = Number(s);
+        if (!n || n <= 0) return '0s';
+        if (n < 60) return `${Math.round(n)}s`;
+        const m = Math.floor(n / 60), sec = Math.round(n % 60);
+        return sec ? `${m}m ${sec}s` : `${m}m`;
+      };
       const tbl = (rows, keyCol, valCol) => {
         if (!rows.length) return '<div class="loading">Sem dados.</div>';
         return `<table><thead><tr><th>${keyCol === 'path' ? 'Caminho' : 'Origem'}</th><th style="text-align:right;">Visitas</th></tr></thead><tbody>${
@@ -6311,12 +6351,24 @@
         <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-muted);margin-top:3px;"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span></div>
         <p style="font-size:.78rem;color:var(--text-muted);margin:6px 0 0;">Pico: <strong>${hourPeakIdx}h</strong> (${hours[hourPeakIdx]} visitas)</p>`;
 
+      const clicksTbl = clicks.length
+        ? `<table><thead><tr><th>Rótulo</th><th style="text-align:right;">Cliques</th></tr></thead><tbody>${
+            clicks.map(c => `<tr><td class="ell">${esc(c.label)}${c.kind === 'cta' ? ' <span style="font-size:.6rem;color:var(--text-muted);">CTA</span>' : ''}</td><td class="num">${(c.clicks??0).toLocaleString('pt-BR')}</td></tr>`).join('')
+          }</tbody></table>`
+        : '<div class="loading">Nenhum clique rastreado ainda.</div>';
+
       dash.innerHTML = `
         <div class="lp-cards">
           ${card(t.today_visits,'Hoje',t.today_uniques)}
           ${card(t.week_visits,'7 dias',t.week_uniques)}
           ${card(t.period_visits,`${data.days_back} dias`,t.period_uniques)}
           ${card(t.all_time_visits,'Total',t.all_time_uniques)}
+        </div>
+        <div class="lp-cards" style="margin-bottom:24px;">
+          ${engCard(fmtTime(eng.avg_session_seconds), 'Tempo médio / sessão')}
+          ${engCard(eng.avg_max_scroll_pct, 'Scroll médio máx.', '%')}
+          ${engCard(eng.bounce_rate_pct, 'Bounce rate', '%')}
+          ${engCard(t.period_sessions, `Sessões (${data.days_back}d)`)}
         </div>
         <div class="lp-chart-wrap">
           <h3>Visitas por dia (últimos ${data.days_back} dias)</h3>
@@ -6326,13 +6378,13 @@
           <div class="lp-tbl"><h3>Top referrers</h3>${tbl(refs,'referrer','visits')}</div>
           <div class="lp-tbl"><h3>Top páginas</h3>${tbl(paths,'path','visits')}</div>
         </div>
-        <div class="lp-tables">
+        <div class="lp-tables" style="margin-bottom:16px;">
+          <div class="lp-tbl"><h3>Top cliques</h3>${clicksTbl}</div>
           <div class="lp-tbl"><h3>Dispositivos</h3>${deviceTotal > 1 ? deviceBars : '<div class="loading">Sem dados.</div>'}</div>
-          <div class="lp-tbl"><h3>Idiomas</h3>${topLangs.length ? langPills : '<div class="loading">Sem dados.</div>'}</div>
         </div>
-        <div class="lp-chart-wrap" style="margin-top:16px;">
-          <h3>Horário de pico (últimos ${data.days_back} dias)</h3>
-          ${hourSvg}
+        <div class="lp-tables">
+          <div class="lp-tbl"><h3>Idiomas</h3>${topLangs.length ? langPills : '<div class="loading">Sem dados.</div>'}</div>
+          <div class="lp-tbl"><h3>Horário de pico (últimos ${data.days_back} dias)</h3>${hourSvg}</div>
         </div>`;
 
       const ctx = document.getElementById('lp-chart');

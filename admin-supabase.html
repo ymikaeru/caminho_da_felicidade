@@ -2451,7 +2451,7 @@
 
       const { data, error } = await supabase
         .from('translation_reports')
-        .select('id, vol, file, topic_id, lang, selected_text, description, created_at, status, user_id')
+        .select('id, vol, file, topic_id, lang, selected_text, description, created_at, status, user_id, admin_note')
         .order('created_at', { ascending: false })
         .limit(500);
 
@@ -2532,6 +2532,10 @@
 
         const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
 
+        const escapedNote = (r.admin_note || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const noteId = `note-${r.id}`;
+        const noteStatusId = `note-status-${r.id}`;
+
         return `
           <div class="report-card" id="report-card-${r.id}">
             <div class="report-header">
@@ -2550,6 +2554,21 @@
             </div>
             <div class="report-text"><mark class="report-selected">${escapedText}</mark></div>
             ${escapedDesc ? `<div class="report-description">${escapedDesc}</div>` : ''}
+            <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);">
+              <div style="font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); margin-bottom:6px;">📝 Nota interna (admins)</div>
+              <textarea id="${noteId}"
+                placeholder="Ex: correção ficou assim → "novo texto". Pode aplicar. Ou: verificar no japonês, original diz..."
+                style="width:100%; box-sizing:border-box; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.85rem; font-family:inherit; resize:vertical; min-height:60px; line-height:1.5;"
+                onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){saveReportNote('${r.id}');event.preventDefault();}"
+              >${escapedNote}</textarea>
+              <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+                <button onclick="saveReportNote('${r.id}')"
+                  style="padding:5px 14px; background:var(--accent); color:#fff; border:none; border-radius:7px; font-size:0.8rem; font-weight:600; cursor:pointer;">
+                  Salvar nota
+                </button>
+                <span id="${noteStatusId}" style="font-size:0.75rem; color:var(--text-muted);"></span>
+              </div>
+            </div>
           </div>`;
       }
 
@@ -2640,6 +2659,35 @@
       const idx = _allReports.findIndex(r => r.id === id);
       if (idx !== -1) _allReports[idx].status = 'verified';
       _renderReports();
+    };
+
+    window.saveReportNote = async function(id) {
+      const textarea = document.getElementById(`note-${id}`);
+      const statusEl = document.getElementById(`note-status-${id}`);
+      if (!textarea) return;
+
+      const note = textarea.value.trim();
+      if (statusEl) { statusEl.textContent = 'Salvando…'; statusEl.style.color = 'var(--text-muted)'; }
+
+      const { error } = await supabase
+        .from('translation_reports')
+        .update({ admin_note: note || null })
+        .eq('id', id);
+
+      if (error) {
+        if (statusEl) { statusEl.textContent = 'Erro ao salvar.'; statusEl.style.color = '#c44'; }
+        return;
+      }
+
+      // Atualiza estado local para não perder a nota num re-render
+      const idx = _allReports.findIndex(r => r.id === id);
+      if (idx !== -1) _allReports[idx].admin_note = note || null;
+
+      if (statusEl) {
+        const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        statusEl.textContent = `✓ salvo às ${hora}`;
+        statusEl.style.color = '#34c759';
+      }
     };
 
     window.clearVerifiedHistory = async function(btnEl) {

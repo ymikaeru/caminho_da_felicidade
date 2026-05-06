@@ -2472,7 +2472,7 @@
 
       const { data, error } = await supabase
         .from('translation_reports')
-        .select('id, vol, file, topic_id, lang, selected_text, description, created_at, status, user_id, admin_note')
+        .select('id, vol, file, topic_id, lang, selected_text, description, created_at, status, user_id')
         .order('created_at', { ascending: false })
         .limit(500);
 

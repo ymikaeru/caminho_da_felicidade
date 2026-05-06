@@ -973,6 +973,12 @@
               <div id="top-users-ranking"><div class="loading">Carregando...</div></div>
             </div>
 
+            <!-- Top Users by Total Time -->
+            <div class="admin-section">
+              <h2>⏳ Tempo Total no Site por Usuário</h2>
+              <div id="top-users-time"><div class="loading">Carregando...</div></div>
+            </div>
+
             <!-- Engagement by Volume -->
             <div class="admin-section">
               <h2>📊 Engajamento por Volume</h2>
@@ -3987,6 +3993,7 @@
       loadDailyActivityChart(days, since);
       loadSessionStats(days, since);
       loadTopUsersRanking(days, since);
+      loadTopUsersByTime(days, since);
       loadEngagementByVolume(days, since);
       loadPopularFavorites(days, since);
       loadRetentionRate(days, since);
@@ -4931,6 +4938,91 @@
                 </div>
                 <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:${pct}%"></div></div>
                 <div class="ranking-value">${count} lidos</div>
+              </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    // ============================================================
+    // Top Users by Total Time
+    // ============================================================
+    // Soma `time_spent_seconds` por usuário no período. O tracker conta só
+    // tempo de aba ativa (heartbeat de 15s), então isto reflete tempo real
+    // de leitura — não tempo de browser aberto em background.
+    async function loadTopUsersByTime(days, since) {
+      const fmtSecs = secs => {
+        secs = Math.round(secs || 0);
+        if (secs < 60) return `${secs}s`;
+        if (secs < 3600) return `${Math.round(secs / 60)} min`;
+        const h = Math.floor(secs / 3600);
+        const m = Math.round((secs - h * 3600) / 60);
+        return m ? `${h}h ${m}min` : `${h}h`;
+      };
+
+      const { data: raw } = await supabase
+        .from('reading_positions')
+        .select('user_id, volume, file, time_spent_seconds, updated_at')
+        .gte('updated_at', since)
+        .gt('time_spent_seconds', 0);
+      const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
+
+      if (!data.length) {
+        document.getElementById('top-users-time').innerHTML = '<div class="loading">Sem tempo de leitura registrado no período.</div>';
+        return;
+      }
+
+      // Agrega: total de segundos, ensinamentos distintos, último acesso por usuário
+      const byUser = {};
+      data.forEach(d => {
+        const u = byUser[d.user_id] || (byUser[d.user_id] = { secs: 0, items: new Set(), last: null });
+        u.secs += (d.time_spent_seconds || 0);
+        u.items.add(`${d.volume}/${d.file}`);
+        if (!u.last || d.updated_at > u.last) u.last = d.updated_at;
+      });
+
+      const sorted = Object.entries(byUser)
+        .map(([uid, u]) => ({ uid, secs: u.secs, items: u.items.size, last: u.last }))
+        .sort((a, b) => b.secs - a.secs)
+        .slice(0, 10);
+      const maxSecs = sorted[0].secs;
+
+      const userIds = sorted.map(s => s.uid);
+      const { data: profiles } = await supabase
+        .from('user_profiles')
+        .select('id, display_name')
+        .in('id', userIds);
+      const nameMap = {};
+      (profiles || []).forEach(p => nameMap[p.id] = p.display_name);
+
+      const fmtRel = iso => {
+        if (!iso) return '—';
+        const diffMs = Date.now() - new Date(iso).getTime();
+        const days = Math.floor(diffMs / 86400000);
+        if (days === 0) return 'hoje';
+        if (days === 1) return 'ontem';
+        if (days < 30) return `há ${days} dias`;
+        const months = Math.floor(days / 30);
+        return months === 1 ? 'há 1 mês' : `há ${months} meses`;
+      };
+
+      document.getElementById('top-users-time').innerHTML = `
+        <p style="font-size:0.75rem; color:var(--text-muted); margin:-8px 0 12px;">Soma do tempo ativo de leitura (aba visível) por usuário no período. Não inclui tempo navegando index/buscas/destaques.</p>
+        <div class="ranking-list">
+          ${sorted.map((u, i) => {
+            const name = nameMap[u.uid] || 'Desconhecido';
+            const initial = (name || 'U')[0].toUpperCase();
+            const pct = Math.round(u.secs / maxSecs * 100);
+            const posClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+            return `
+              <div class="ranking-item">
+                <div class="ranking-pos ${posClass}">${i + 1}</div>
+                <div class="ranking-avatar">${initial}</div>
+                <div class="ranking-info">
+                  <div class="ranking-name">${_escHtml(name)}</div>
+                  <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${u.items} ensinamentos · último acesso ${fmtRel(u.last)}</div>
+                </div>
+                <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:${pct}%"></div></div>
+                <div class="ranking-value">${fmtSecs(u.secs)}</div>
               </div>`;
           }).join('')}
         </div>`;

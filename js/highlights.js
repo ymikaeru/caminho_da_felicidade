@@ -648,24 +648,23 @@
       updatedAt: Date.now()
     };
 
+    // Highlights são cloud-first: requerem conexão. O site exige internet
+    // pra carregar os ensinamentos de qualquer forma, então oferecer
+    // suporte offline pra destaques só causava ressurreição de itens
+    // apagados pelo admin (bulk push no login). Aborta com aviso.
+    if (!window._cloudSync) {
+      alert('Você precisa estar online para criar destaques.');
+      return;
+    }
+
     _highlights.unshift(highlight);
     _saveHighlights();
 
-    if (window._cloudSync) {
-      window._cloudSync.saveHighlight(
-        highlight.vol, highlight.file, highlight.topicId, highlight.topicIndex,
-        highlight.topicTitle, highlight.color, highlight.comment, highlight.text,
-        highlight.startChar, highlight.endChar
-      );
-    } else if (window._syncQueue) {
-      window._syncQueue.queueSaveHighlight({
-        volume: highlight.vol, file: highlight.file,
-        topicId: highlight.topicId, topicIndex: highlight.topicIndex,
-        topicTitle: highlight.topicTitle, color: highlight.color,
-        comment: highlight.comment, text: highlight.text,
-        startChar: highlight.startChar, endChar: highlight.endChar,
-      });
-    }
+    window._cloudSync.saveHighlight(
+      highlight.vol, highlight.file, highlight.topicId, highlight.topicIndex,
+      highlight.topicTitle, highlight.color, highlight.comment, highlight.text,
+      highlight.startChar, highlight.endChar
+    );
 
     if (_isMobile) {
       _hideMobileBar();
@@ -681,6 +680,13 @@
   }
 
   function _removeHighlight(id) {
+    // Cloud-first: requer conexão. Sem fallback offline (ver _saveHighlights
+    // acima — mesma justificativa).
+    if (!window._cloudSync) {
+      alert('Você precisa estar online para apagar destaques.');
+      return;
+    }
+
     const h = _highlights.find(x => x.id === id);
     _highlights = _highlights.filter(x => x.id !== id);
     _saveHighlights();
@@ -688,23 +694,9 @@
     if (h) {
       const key = `${h.vol}:${h.file}:${h.topicId}:${h.startChar}:${h.endChar}`;
       _addDeletedTombstone(key);
-
-      const queueFallback = () => {
-        if (window._syncQueue) {
-          window._syncQueue.queueRemoveHighlight({
-            volume: h.vol, file: h.file, topicId: h.topicId,
-            startChar: h.startChar, endChar: h.endChar,
-          });
-        }
-      };
-
-      if (window._cloudSync) {
-        window._cloudSync
-          .removeHighlight(h.vol, h.file, h.topicId, h.startChar, h.endChar)
-          .catch(() => queueFallback());
-      } else {
-        queueFallback();
-      }
+      window._cloudSync
+        .removeHighlight(h.vol, h.file, h.topicId, h.startChar, h.endChar)
+        .catch(err => console.warn('Failed to remove highlight from cloud:', err));
     }
 
     const mark = document.querySelector(`mark.user-highlight[data-highlight-id="${id}"]`);

@@ -5943,22 +5943,28 @@
             // Buscas recentes (últimas 40, scrollável)
             const recent = filtered.slice(0, 40);
             recentEl.innerHTML = `
-              <table style="font-size:0.85rem; width:100%;">
+              <table style="font-size:0.85rem; width:100%; border-collapse:collapse; table-layout:fixed;">
+                <colgroup>
+                  <col style="width:22%;">
+                  <col style="width:auto;">
+                  <col style="width:60px;">
+                  <col style="width:110px;">
+                </colgroup>
                 <thead style="position:sticky; top:0; background:var(--surface); z-index:1;"><tr>
-                  <th style="width:18%;">Usuário</th>
-                  <th>Busca</th>
-                  <th class="num" style="width:8%;">Result.</th>
-                  <th style="width:18%; text-align:right;">Hora</th>
+                  <th style="text-align:left; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); padding:6px 12px 6px 0; border-bottom:1px solid var(--border); font-weight:500;">Usuário</th>
+                  <th style="text-align:left; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); padding:6px 12px 6px 0; border-bottom:1px solid var(--border); font-weight:500;">Busca</th>
+                  <th style="text-align:right; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); padding:6px 0 6px 0; border-bottom:1px solid var(--border); font-weight:500;">Result.</th>
+                  <th style="text-align:right; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); padding:6px 0 6px 12px; border-bottom:1px solid var(--border); font-weight:500;">Hora</th>
                 </tr></thead>
                 <tbody>
                   ${recent.map(r => {
                     const name = nameMap[r.user_id] || '?';
                     const isZero = r.results_count === 0;
                     return `<tr>
-                      <td style="color:var(--text-muted); white-space:nowrap;">${_escHtml(name)}</td>
-                      <td style="${isZero ? 'color:var(--text-muted);' : ''}">${_escHtml(r.query)}</td>
-                      <td class="num" style="${isZero ? 'color:#c44; font-weight:600;' : ''}">${isZero ? '0' : (r.results_count ?? '—')}</td>
-                      <td style="font-size:0.78rem; color:var(--text-muted); text-align:right; white-space:nowrap;">${new Date(r.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</td>
+                      <td style="padding:7px 12px 7px 0; border-bottom:1px solid var(--border); color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_escHtml(name)}</td>
+                      <td style="padding:7px 12px 7px 0; border-bottom:1px solid var(--border); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; ${isZero ? 'color:var(--text-muted);' : ''}">${_escHtml(r.query)}</td>
+                      <td style="padding:7px 0; border-bottom:1px solid var(--border); text-align:right; font-weight:${isZero ? '600' : '400'}; color:${isZero ? '#c44' : 'var(--accent)'};">${isZero ? '0' : (r.results_count ?? '—')}</td>
+                      <td style="padding:7px 0 7px 12px; border-bottom:1px solid var(--border); text-align:right; font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">${new Date(r.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</td>
                     </tr>`;
                   }).join('')}
                 </tbody>

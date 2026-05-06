@@ -5173,7 +5173,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
 
       let q = supabase
         .from('access_logs')
-        .select('user_id, volume, file, action, created_at')
+        .select('user_id, volume, file, action, created_at, metadata')
         .in('action', ['print', 'copy'])
         .order('created_at', { ascending: false })
         .limit(2000);
@@ -5241,7 +5241,46 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           </table>`;
       }
 
-      container.innerHTML = cardsHtml + tableHtml;
+      // Lista de trechos copiados (com texto, quando disponível)
+      const copyRows = copies.filter(r => r.metadata && r.metadata.text);
+      let copiesListHtml = '';
+      if (copyRows.length > 0) {
+        const recentCopies = copyRows.slice(0, 50);
+        copiesListHtml = `
+          <div style="margin-top:24px;">
+            <h3 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted); margin:0 0 12px; font-weight:600;">📋 Trechos copiados (últimos ${recentCopies.length} de ${copyRows.length})</h3>
+            <div style="display:flex; flex-direction:column; gap:10px; max-height:520px; overflow-y:auto; padding-right:6px;">
+              ${recentCopies.map(r => {
+                const date = new Date(r.created_at);
+                const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const title = r.file ? getFileTitle(r.volume, r.file) : '—';
+                const text = r.metadata.text || '';
+                const length = r.metadata.length || text.length;
+                const lengthBadge = length > 2000 ? `<span style="color:#c44;">${length} chars (truncado)</span>` : `${length} chars`;
+                return `
+                  <div style="border:1px solid var(--border); border-radius:10px; padding:12px 14px; background:var(--surface);">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
+                      <span style="font-size:0.78rem; font-weight:600; color:var(--accent);">${_escHtml(nameMap[r.user_id] || 'Desconhecido')}</span>
+                      <span style="font-size:0.7rem; color:var(--text-muted);">·</span>
+                      <span style="font-size:0.72rem; color:var(--text-muted);" title="${_escHtml(r.file || '')}">${VOL_SHORT[r.volume] || r.volume || '—'} · ${_escHtml(title)}</span>
+                      <span style="font-size:0.7rem; color:var(--text-muted);">·</span>
+                      <span style="font-size:0.72rem; color:var(--text-muted);">${dateStr}</span>
+                      <span style="margin-left:auto; font-size:0.68rem; color:var(--text-muted); background:var(--bg); padding:2px 8px; border-radius:4px;">${lengthBadge}</span>
+                    </div>
+                    <div style="font-size:0.85rem; line-height:1.55; padding:8px 10px; background:var(--bg); border-radius:6px; white-space:pre-wrap; word-break:break-word; max-height:120px; overflow-y:auto;">${_escHtml(text)}</div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>`;
+      } else if (copies.length > 0) {
+        copiesListHtml = `
+          <div style="margin-top:24px; padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:10px; font-size:0.82rem; color:var(--text-muted);">
+            ⓘ ${copies.length} cópia(s) registrada(s) sem o conteúdo capturado. Cópias futuras já incluirão o texto.
+          </div>`;
+      }
+
+      container.innerHTML = cardsHtml + tableHtml + copiesListHtml;
     }
 
     async function loadSyncStats() {

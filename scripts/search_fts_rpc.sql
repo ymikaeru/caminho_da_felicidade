@@ -54,77 +54,97 @@ returns table(
   snippet text,
   rank real
 )
-language sql stable security invoker
+language plpgsql stable security invoker
 -- O default da role authenticated é 8s, insuficiente para queries JA curtas
 -- (2 chars como '浄霊' ou '神様') que não conseguem usar o GIN trigram e
 -- precisam fazer seq scan no content_ja. 30s cobre o pior caso.
 set statement_timeout to '30s'
 as $$
-  with
-  q_clean as (
+-- Perf: a função é plpgsql (não SQL) com IF lang='ja' explícito porque
+-- um único `WHERE ... OR (lang<>'ja' AND tsv_pt @@ tsq)` força o planner
+-- a manter um plano genérico que ignora o índice GIN de tsv_pt e cai pra
+-- seq scan + ILIKE em content_ja, mesmo em queries PT (medido: 5.4s vs
+-- 119ms no fix). Ramificar em plpgsql dá um plano dedicado por idioma.
+--
+-- Perf #2: ts_headline / position(lower(content_ja)) só rodam DEPOIS do
+-- ORDER BY + LIMIT do CTE `matched` — antes disso, eles eram aplicados
+-- em todas as linhas que casavam com o WHERE.
+declare
+  v_raw text := coalesce(nullif(trim(q), ''), '<<empty>>');
+  v_ilike text := replace(replace(replace(coalesce(q, ''), '\', '\\'), '%', '\%'), '_', '\_');
+  v_tsq tsquery := websearch_to_tsquery('pt_unaccent', v_raw);
+begin
+  if lang = 'ja' then
+    return query
+    with
+    blocks as (select volume, files from _user_blocks()),
+    fully_blocked as (select volume from blocks where files is null),
+    matched as (
+      select
+        t.vol, t.file, t.topic_idx, t.title_pt, t.title_ja,
+        t.content_ja,
+        ((case when t.title_ja   ilike '%' || v_ilike || '%' escape '\' then 1.0 else 0 end) +
+         (case when t.content_ja ilike '%' || v_ilike || '%' escape '\' then 0.3 else 0 end))::real as r
+      from teachings_topics t
+      where
+        -- Bloqueio server-side: ignora qualquer param de volume vindo do cliente.
+        t.vol not in (select volume from fully_blocked)
+        and not exists (
+          select 1 from blocks b
+          where b.volume = t.vol and b.files is not null and t.file = any(b.files)
+        )
+        and (
+          t.title_ja   ilike '%' || v_ilike || '%' escape '\'
+          or
+          t.content_ja ilike '%' || v_ilike || '%' escape '\'
+        )
+      order by r desc nulls last
+      limit greatest(1, least(max_results, 100))
+    )
     select
-      coalesce(nullif(trim(q), ''), '<<empty>>') as raw,
-      -- Escapa \ % _ para o ESCAPE '\' no ILIKE.
-      replace(replace(replace(coalesce(q, ''), '\', '\\'), '%', '\%'), '_', '\_') as ilike_safe
-  ),
-  blocks as (
-    select volume, files from _user_blocks()
-  ),
-  fully_blocked as (
-    select volume from blocks where files is null
-  ),
-  ts as (
-    select websearch_to_tsquery('pt_unaccent', (select raw from q_clean)) as tsq
-  )
-  select
-    t.vol,
-    t.file,
-    t.topic_idx,
-    t.title_pt,
-    t.title_ja,
-    case
-      when lang = 'ja' then
-        substring(
-          coalesce(t.content_ja, ''),
-          greatest(1, position(lower((select raw from q_clean)) in lower(coalesce(t.content_ja, ''))) - 60),
-          180
+      m.vol, m.file, m.topic_idx, m.title_pt, m.title_ja,
+      substring(
+        coalesce(m.content_ja, ''),
+        greatest(1, position(lower(v_raw) in lower(coalesce(m.content_ja, ''))) - 60),
+        180
+      ) as snippet,
+      m.r as rank
+    from matched m
+    order by m.r desc nulls last;
+  else
+    return query
+    with
+    blocks as (select volume, files from _user_blocks()),
+    fully_blocked as (select volume from blocks where files is null),
+    matched as (
+      select
+        t.vol, t.file, t.topic_idx, t.title_pt, t.title_ja,
+        t.content_pt,
+        ts_rank(t.tsv_pt, v_tsq) as r
+      from teachings_topics t
+      where
+        t.vol not in (select volume from fully_blocked)
+        and not exists (
+          select 1 from blocks b
+          where b.volume = t.vol and b.files is not null and t.file = any(b.files)
         )
-      else
-        ts_headline(
-          'pt_unaccent',
-          coalesce(t.content_pt, ''),
-          (select tsq from ts),
-          'StartSel=<mark>, StopSel=</mark>, MaxWords=30, MinWords=10, MaxFragments=1'
-        )
-    end as snippet,
-    case
-      when lang = 'ja' then
-        (case when t.title_ja   ilike '%' || (select ilike_safe from q_clean) || '%' escape '\' then 1.0 else 0 end) +
-        (case when t.content_ja ilike '%' || (select ilike_safe from q_clean) || '%' escape '\' then 0.3 else 0 end)
-      else
-        ts_rank(t.tsv_pt, (select tsq from ts))
-    end as rank
-  from teachings_topics t
-  where
-    -- Bloqueio server-side: ignora qualquer param de volume vindo do cliente.
-    t.vol not in (select volume from fully_blocked)
-    and not exists (
-      select 1 from blocks b
-      where b.volume = t.vol
-        and b.files is not null
-        and t.file = any(b.files)
+        and t.tsv_pt @@ v_tsq
+      order by r desc nulls last
+      limit greatest(1, least(max_results, 100))
     )
-    and (
-      (lang = 'ja' and (
-        t.title_ja   ilike '%' || (select ilike_safe from q_clean) || '%' escape '\'
-        or
-        t.content_ja ilike '%' || (select ilike_safe from q_clean) || '%' escape '\'
-      ))
-      or
-      (lang <> 'ja' and t.tsv_pt @@ (select tsq from ts))
-    )
-  order by rank desc nulls last
-  limit greatest(1, least(max_results, 100));
+    select
+      m.vol, m.file, m.topic_idx, m.title_pt, m.title_ja,
+      ts_headline(
+        'pt_unaccent',
+        coalesce(m.content_pt, ''),
+        v_tsq,
+        'StartSel=<mark>, StopSel=</mark>, MaxWords=30, MinWords=10, MaxFragments=1'
+      ) as snippet,
+      m.r as rank
+    from matched m
+    order by m.r desc nulls last;
+  end if;
+end;
 $$;
 
 revoke all on function search_teachings(text, text, int) from public;

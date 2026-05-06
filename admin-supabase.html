@@ -2568,6 +2568,9 @@
 
         const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
         const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Montar prompt e abrir no Claude AI">✨ Sugerir IA</button>`;
+        const topicIdx = parseInt((r.topic_id || '0').replace(/\D/g, '')) || 0;
+        const readerUrl = `reader.html?vol=${r.vol}&file=${r.file}&topic=${topicIdx}`;
+        const readerBtn = `<a href="${readerUrl}" target="_blank" class="report-verify-btn" style="background:rgba(52,199,89,0.08); color:#34c759; border-color:rgba(52,199,89,0.3); text-decoration:none; display:inline-flex; align-items:center; gap:4px;" title="Abrir ensinamento completo bilíngue no leitor">📖 Ver</a>`;
 
         return `
           <div class="report-card" id="report-card-${r.id}">
@@ -2582,6 +2585,7 @@
               <span class="report-date">${date}</span>
               <div class="report-actions" style="display:flex; gap:8px;">
                 ${editBtn}
+                ${readerBtn}
                 ${aiBtn}
                 ${verifyBtn}
               </div>
@@ -2770,9 +2774,9 @@
       const origHtml = btn?.innerHTML;
       if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Buscando…'; }
 
-      // Busca content_ja do tópico correspondente no teachings_topics
+      // Busca content_ja e content_pt do tópico correspondente
       const topicIdx = parseInt((r.topic_id || '0').replace(/\D/g, '')) || 0;
-      let contentJa = '';
+      let contentJa = '', contentPt = '';
       try {
         const { data } = await supabase
           .from('teachings_topics')
@@ -2783,17 +2787,18 @@
           .maybeSingle();
         if (data) {
           contentJa = data.content_ja || '';
+          contentPt = data.content_pt || '';
         }
       } catch (e) { console.warn('[suggestAI] fetch failed:', e); }
 
       if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
 
-      const prompt = `Você é um tradutor sênior e devoto da Sekaikyūseikyō, com foco em fidelidade documental. Sua missão é sugerir a correção de uma tradução do japonês para o português do Brasil (PT-BR), garantindo a sacralidade dos ensinamentos de Meishu-Sama e a precisão do registro histórico original.
+      const prompt = `Você é um revisor sênior e devoto da Sekaikyūseikyō, especialista em comparar traduções do japonês para o português do Brasil (PT-BR). Um usuário reportou um possível erro de tradução nos ensinamentos de Meishu-Sama. Sua missão é identificar exatamente onde está o erro e sugerir a correção.
 
 PRINCÍPIO DOUTRINÁRIO: aquilo que o mundo chama de "doença" é, sob a ótica de Meishu-Sama, purificação se manifestando. O frame deve ser sempre espiritual, nunca clínico.
 
-GLOSSÁRIO MANDATÓRIO (nunca traduzir por sinônimos):
-- 浄化 / jōka → purificação
+GLOSSÁRIO MANDATÓRIO:
+- 浄化 / jōka → purificação (nunca "sintoma" ou "doença" para o processo espiritual)
 - 薬毒 / yakudoku → toxinas medicinais
 - 急所 / kyūsho → ponto vital
 - 浄霊 / jōrei → Johrei (nunca traduzir)
@@ -2804,33 +2809,46 @@ GLOSSÁRIO MANDATÓRIO (nunca traduzir por sinônimos):
 - sonen → sonen (em itálico)
 - Tratamento: sempre "Meishu-sama" (minúsculo no sama)
 
-ESTILO:
-- Tom profético e assertivo ("É impossível", "Inexiste", "Constitui verdadeiramente")
-- Conectivos variados, evitar frases soltas
-- Naturalizar metáforas mantendo a intenção (Shin-i)
-- Bijeção 1:1 de parágrafos JP↔PT — não fundir nem dividir parágrafos
+ESTILO: tom profético e assertivo, conectivos variados, bijeção 1:1 de parágrafos JP↔PT.
 
 ---
 
-## REPORT DE TRADUÇÃO
+## DADOS DO REPORT
 
 **Localização:** ${r.vol} / ${r.file} / tópico ${topicIdx}
-**Idioma reportado:** ${r.lang === 'ja' ? 'Japonês' : 'Português'}
-**Trecho reportado como problemático:**
-"${r.selected_text || ''}"
-${r.description ? `\n**Comentário do usuário:**\n"${r.description}"` : ''}
-
-${contentJa ? `## TEXTO JAPONÊS ORIGINAL DO TÓPICO\n\n${contentJa}` : ''}
+**Idioma onde o erro foi identificado:** ${r.lang === 'ja' ? 'Japonês' : 'Português'}
+**Trecho selecionado pelo usuário:**
+"${r.selected_text || '(não informado)'}"
+${r.description ? `\n**Comentário do usuário (pista sobre o erro):**\n"${r.description}"` : ''}
 
 ---
+${contentJa ? `## TEXTO JAPONÊS ORIGINAL (referência canônica)
+
+${contentJa}
+
+` : ''}${contentPt ? `## TRADUÇÃO PT-BR ATUAL (versão em uso no site)
+
+${contentPt}
+
+` : ''}---
 
 ## TAREFA
 
-Com base no texto japonês original acima e nas diretrizes, sugira:
-1. A tradução correta em PT-BR do trecho reportado
-2. Breve justificativa (termos do glossário aplicados, ajustes de tom, etc.)
+Compare o japonês original com a tradução PT-BR atual. Use o comentário do usuário como pista, mas analise o tópico completo se necessário.
 
-Seja direto e objetivo — esta é uma sugestão de correção pontual, não uma tradução completa.`;
+Responda **exatamente** neste formato:
+
+**🔍 Erro identificado:**
+[Descreva onde está o problema — qual trecho do PT não corresponde ao JP, ou qual termo do glossário foi violado. Se o trecho selecionado não for o erro exato, aponte onde realmente está.]
+
+**📄 Trecho atual (PT):**
+"[cole o trecho problemático exato da tradução atual]"
+
+**✅ Correção sugerida (PT):**
+"[cole o trecho corrigido]"
+
+**💡 Justificativa:**
+[Explique brevemente — qual palavra japonesa foi mal traduzida, qual regra do glossário foi violada, qual ajuste de tom foi necessário.]`;
 
       try {
         await navigator.clipboard.writeText(prompt);

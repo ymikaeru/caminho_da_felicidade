@@ -316,26 +316,17 @@ export async function syncLocalStorageToCloud() {
     console.warn('Failed to sync favorites to cloud:', e);
   }
 
-  // Sync highlights
-  try {
-    const localHighlights = JSON.parse(localStorage.getItem('userHighlights') || '[]');
-    if (localHighlights.length > 0) {
-      const cloudHighlights = await loadAllHighlights();
-      const cloudKeys = new Set(cloudHighlights.map(h => `${h.volume}:${h.file}:${h.topic_id}:${h.start_char}:${h.end_char}`));
-      for (const h of localHighlights) {
-        const key = `${h.vol}:${h.file}:${h.topicId}:${h.startChar}:${h.endChar}`;
-        if (!cloudKeys.has(key)) {
-          await saveHighlight(
-            h.vol, h.file, h.topicId, h.topicIndex, h.topicTitle || '',
-            h.color || 'yellow', h.comment || '', h.text || '',
-            h.startChar, h.endChar
-          );
-        }
-      }
-    }
-  } catch (e) {
-    console.warn('Failed to sync highlights to cloud:', e);
-  }
+  // Sync highlights — DESABILITADO INTENCIONALMENTE.
+  //
+  // Antes: highlights criados offline eram empurrados pra cloud no próximo
+  // login. Problema: quando admin removia destaques de um usuário pelo
+  // painel, eles voltavam no próximo login dele (porque o local ainda tinha
+  // e o cloud não — bulk push os ressuscitava).
+  //
+  // Highlights criados online já vão direto pro cloud via _cloudSync em
+  // highlights.js (linha 655). Únicos casos perdidos: highlights criados
+  // estritamente offline. Trade-off aceitável vs. ressurreição de destaques
+  // já apagados pelo admin.
 
   // Sync reading positions
   try {

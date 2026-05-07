@@ -3856,15 +3856,31 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const container = document.getElementById('user-list-container');
       container.innerHTML = '<div class="loading">Carregando usuários...</div>';
 
-      // admin_get_users() é uma RPC SECURITY DEFINER que lê auth.users para retornar emails reais
-      const { data, error } = await supabase.rpc('admin_get_users');
+      // admin_get_users() é uma RPC SECURITY DEFINER que lê auth.users para retornar emails reais.
+      // admin_get_user_visit_days() conta dias distintos com pelo menos 1 access_log (view).
+      const [usersRes, visitsRes] = await Promise.all([
+        supabase.rpc('admin_get_users'),
+        supabase.rpc('admin_get_user_visit_days')
+      ]);
 
-      if (error) {
-        container.innerHTML = `<div class="msg err">Erro ao carregar usuários: ${_escHtml(error.message)}</div>`;
+      if (usersRes.error) {
+        container.innerHTML = `<div class="msg err">Erro ao carregar usuários: ${_escHtml(usersRes.error.message)}</div>`;
         return;
       }
 
-      allUsers = data || [];
+      const visitsByUser = {};
+      if (!visitsRes.error && Array.isArray(visitsRes.data)) {
+        for (const v of visitsRes.data) {
+          visitsByUser[v.user_id] = { active_days: v.active_days, last_visit: v.last_visit };
+        }
+      }
+
+      allUsers = (usersRes.data || []).map(u => ({
+        ...u,
+        active_days: visitsByUser[u.id]?.active_days || 0,
+        last_visit:  visitsByUser[u.id]?.last_visit  || null
+      }));
+
       document.getElementById('user-count').textContent = `(${allUsers.length})`;
       renderUserList();
     };
@@ -3892,6 +3908,13 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         const initial = _escHtml((u.display_name || 'U')[0].toUpperCase());
         const roleEsc = _escHtml(u.role || '');
         const createdEsc = _escHtml(new Date(u.created_at).toLocaleDateString('pt-BR'));
+        const days = Number(u.active_days || 0);
+        const daysLabel = days === 0 ? 'Nunca acessou'
+                        : days === 1 ? '1 dia ativo'
+                        : `${days} dias ativos`;
+        const lastVisitStr = u.last_visit
+          ? ` · último: ${_escHtml(new Date(u.last_visit).toLocaleDateString('pt-BR'))}`
+          : '';
         return `
         <div class="user-row ${u.id === selectedUserId ? 'active' : ''}" onclick="selectUser('${idEsc}')">
           <div class="user-avatar">${initial}</div>
@@ -3900,7 +3923,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
               <button class="reset-btn" onclick="event.stopPropagation(); resetPassword('${idEsc}', '${emailEsc}')" title="Resetar senha">🔑 reset</button>
             </div>
             <div class="user-email">${emailDisplay}</div>
-            <div class="user-meta">Criado em ${createdEsc}</div>
+            <div class="user-meta">Criado em ${createdEsc} · ${daysLabel}${lastVisitStr}</div>
           </div>
           <div class="user-actions">
             <span class="user-badge ${roleEsc}">${roleEsc}</span>

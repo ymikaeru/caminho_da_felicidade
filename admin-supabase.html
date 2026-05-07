@@ -3737,9 +3737,9 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       window.location.href = dest || 'index.html';
     };
 
-    // Auto-logout por inatividade no painel admin (5 minutos sem mexer).
+    // Auto-logout por inatividade no painel admin (2 minutos sem mexer).
     (function setupAdminIdleLogout() {
-      const IDLE_MS = 5 * 60 * 1000;
+      const IDLE_MS = 2 * 60 * 1000;
       let timer = null;
       const doLogout = async () => {
         try { await supabase.auth.signOut(); } catch (_) {}

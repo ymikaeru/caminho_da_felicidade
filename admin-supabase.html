@@ -762,6 +762,17 @@
     .admin-pin-msg.err { color: #c0392b; }
     .admin-pin-msg.ok { color: #2c7a3d; }
     body.admin-locked .main { visibility: hidden; }
+
+    /* Timer discreto de inatividade do painel admin */
+    .admin-idle-timer {
+      position: fixed; right: 14px; bottom: 14px; z-index: 9000;
+      font-family: monospace; font-size: .72rem; letter-spacing: .08em;
+      color: var(--text-muted); background: rgba(0,0,0,0.04);
+      border: 1px solid var(--border); border-radius: 999px;
+      padding: 4px 10px; pointer-events: none; opacity: .55;
+      transition: opacity .2s, color .2s, border-color .2s, background .2s;
+    }
+    .admin-idle-timer.warn { opacity: 1; color: #c0392b; border-color: #c0392b; background: rgba(192,57,43,0.08); }
   </style>
 </head>
 <body class="admin-locked">
@@ -3737,23 +3748,43 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       window.location.href = dest || 'index.html';
     };
 
-    // Auto-logout por inatividade no painel admin (2 minutos sem mexer).
+    // Auto-saída do painel admin por inatividade (1 minuto sem mexer).
+    // NÃO faz signOut — só redireciona para fora do admin. A sessão da conta
+    // continua válida; voltar ao painel exige o PIN novamente (gate em cada load).
     (function setupAdminIdleLogout() {
-      const IDLE_MS = 2 * 60 * 1000;
-      let timer = null;
-      const doLogout = async () => {
-        try { await supabase.auth.signOut(); } catch (_) {}
-        alert('Sessão administrativa encerrada por inatividade.');
-        window.location.href = 'login.html';
+      const IDLE_MS = 60 * 1000;
+      const WARN_MS = 15 * 1000; // pinta de vermelho nos últimos 15s
+      let endsAt = Date.now() + IDLE_MS;
+      let tickHandle = null;
+
+      const badge = document.createElement('div');
+      badge.className = 'admin-idle-timer';
+      badge.title = 'Sai do painel automaticamente por inatividade';
+      document.body.appendChild(badge);
+
+      const doLeave = () => {
+        if (tickHandle) clearInterval(tickHandle);
+        window.location.href = 'index.html';
       };
-      const reset = () => {
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(doLogout, IDLE_MS);
+
+      const tick = () => {
+        const left = endsAt - Date.now();
+        if (left <= 0) { doLeave(); return; }
+        const s = Math.ceil(left / 1000);
+        const mm = String(Math.floor(s / 60)).padStart(2, '0');
+        const ss = String(s % 60).padStart(2, '0');
+        badge.textContent = `⏱ ${mm}:${ss}`;
+        badge.classList.toggle('warn', left <= WARN_MS);
       };
+
+      const reset = () => { endsAt = Date.now() + IDLE_MS; tick(); };
+
       ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach((evt) => {
         window.addEventListener(evt, reset, { passive: true });
       });
-      reset();
+
+      tick();
+      tickHandle = setInterval(tick, 1000);
     })();
 
     // Trocar PIN a partir do painel (chamado pela UI da aba Usuários).

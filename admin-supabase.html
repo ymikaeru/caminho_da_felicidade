@@ -731,9 +731,55 @@
     #tab-analytics-disciples .dc-book-card { display:flex; flex-direction:column; }
     #tab-analytics-disciples .dc-book-stats { display:flex; gap:18px; flex-wrap:wrap; margin-top:8px; }
     #tab-analytics-disciples .dc-book-stats > div .v { font-size:1.3rem; }
+
+    /* Admin PIN gate */
+    .admin-pin-modal {
+      display: none; position: fixed; inset: 0; z-index: 100000;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      align-items: center; justify-content: center;
+    }
+    .admin-pin-modal.open { display: flex; }
+    .admin-pin-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      padding: 36px 32px; max-width: 380px; width: 90%;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5); text-align: center;
+    }
+    .admin-pin-card h3 {
+      font-size: .9rem; color: var(--accent); letter-spacing: 2px;
+      text-transform: uppercase; margin: 0 0 10px; font-weight: 600;
+    }
+    .admin-pin-card p { font-size: .85rem; color: var(--text-muted); margin: 0 0 22px; line-height: 1.5; }
+    .admin-pin-input {
+      width: 100%; box-sizing: border-box; padding: 14px 16px; font-size: 1.4rem;
+      text-align: center; letter-spacing: .5em; border: 1px solid var(--border);
+      border-radius: 10px; background: var(--bg); color: var(--text);
+      font-family: monospace; outline: none;
+    }
+    .admin-pin-input:focus { border-color: var(--accent); }
+    .admin-pin-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .admin-pin-actions button { flex: 1; }
+    .admin-pin-msg { font-size: .8rem; min-height: 18px; margin-top: 12px; }
+    .admin-pin-msg.err { color: #c0392b; }
+    .admin-pin-msg.ok { color: #2c7a3d; }
+    body.admin-locked .main { visibility: hidden; }
   </style>
 </head>
-<body>
+<body class="admin-locked">
+  <!-- Admin PIN gate -->
+  <div id="adminPinModal" class="admin-pin-modal" role="dialog" aria-modal="true" aria-labelledby="adminPinTitle">
+    <div class="admin-pin-card">
+      <h3 id="adminPinTitle">Acesso Administrativo</h3>
+      <p id="adminPinDesc">Digite seu PIN para continuar.</p>
+      <input id="adminPinInput" class="admin-pin-input" type="password" inputmode="numeric"
+             autocomplete="off" maxlength="12" pattern="[0-9]*" />
+      <div id="adminPinMsg" class="admin-pin-msg"></div>
+      <div class="admin-pin-actions">
+        <button id="adminPinCancel" class="btn-zen" type="button">Sair</button>
+        <button id="adminPinSubmit" class="btn-zen primary" type="button">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
   <header class="header">
     <a href="index.html" class="header__logo">
       <svg width="28" height="28" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Emblema da Comunidade Messiânica Universal"><circle cx="100" cy="100" r="98" fill="#b8860b"/><circle cx="100" cy="100" r="92" fill="#fff"/><rect x="80" y="8" width="40" height="184" fill="#006400"/><rect x="8" y="80" width="184" height="40" fill="#006400"/><circle cx="100" cy="100" r="42" fill="#cc0000"/><circle cx="100" cy="100" r="28" fill="#b8860b"/></svg>
@@ -748,9 +794,12 @@
       <div class="glass-pane">
         <div class="admin-wrap">
 
-          <div class="index-header" style="margin-bottom:24px;">
-            <span class="section-label" style="color:var(--accent); font-weight:600; letter-spacing:2px;">ADMIN</span>
-            <h1 class="index-title" style="margin-top:12px;">Painel Administrativo</h1>
+          <div class="index-header" style="margin-bottom:24px; display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap;">
+            <div>
+              <span class="section-label" style="color:var(--accent); font-weight:600; letter-spacing:2px;">ADMIN</span>
+              <h1 class="index-title" style="margin-top:12px;">Painel Administrativo</h1>
+            </div>
+            <button class="btn-zen" type="button" onclick="changeAdminPin()" style="font-size:.8rem;" title="Trocar o PIN exigido para entrar no painel">🔑 Trocar PIN</button>
           </div>
 
           <!-- Seção picker -->
@@ -3579,6 +3628,11 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         return;
       }
 
+      const unlocked = await runAdminPinGate();
+      if (!unlocked) return; // gate fechou a sessão / redirecionou
+
+      document.body.classList.remove('admin-locked');
+
       loadUsers();
       const ok = await loadVolumeFiles();
       if (!ok) {
@@ -3590,6 +3644,111 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         renderDefaultPermVolumes();
       }
     }
+
+    // ── Admin PIN gate ─────────────────────────────────────────────
+    // Camada extra ao entrar no painel. PIN fica como hash bcrypt no Supabase
+    // (RPCs has_admin_pin / set_admin_pin / verify_admin_pin). Após verificar,
+    // marca sessionStorage.adminUnlocked para não pedir de novo na mesma aba.
+    async function runAdminPinGate() {
+      if (sessionStorage.getItem('adminUnlocked') === '1') return true;
+
+      const { data: hasPin, error: hasErr } = await supabase.rpc('has_admin_pin');
+      if (hasErr) {
+        console.warn('[adminPinGate] has_admin_pin falhou:', hasErr);
+        alert('Não foi possível validar o gate de administrador. Tente novamente.');
+        return false;
+      }
+
+      const isFirstTime = !hasPin;
+      const modal  = document.getElementById('adminPinModal');
+      const input  = document.getElementById('adminPinInput');
+      const desc   = document.getElementById('adminPinDesc');
+      const title  = document.getElementById('adminPinTitle');
+      const msg    = document.getElementById('adminPinMsg');
+      const submit = document.getElementById('adminPinSubmit');
+      const cancel = document.getElementById('adminPinCancel');
+
+      title.textContent = isFirstTime ? 'Definir PIN de Administrador' : 'Acesso Administrativo';
+      desc.textContent  = isFirstTime
+        ? 'Crie um PIN numérico (4 a 12 dígitos) que será exigido sempre que você entrar no painel.'
+        : 'Digite seu PIN para continuar.';
+      input.value = '';
+      msg.textContent = '';
+      msg.className = 'admin-pin-msg';
+      modal.classList.add('open');
+      setTimeout(() => input.focus(), 50);
+
+      return new Promise((resolve) => {
+        const setBusy = (b) => { submit.disabled = b; cancel.disabled = b; input.disabled = b; };
+
+        const tryValidate = async () => {
+          const pin = (input.value || '').trim();
+          msg.className = 'admin-pin-msg';
+          if (!/^[0-9]{4,12}$/.test(pin)) {
+            msg.textContent = 'PIN deve ter de 4 a 12 dígitos numéricos.';
+            msg.classList.add('err');
+            return;
+          }
+          setBusy(true);
+          try {
+            if (isFirstTime) {
+              const { error } = await supabase.rpc('set_admin_pin', { new_pin: pin });
+              if (error) throw error;
+              sessionStorage.setItem('adminUnlocked', '1');
+              msg.textContent = 'PIN definido. Liberando painel…';
+              msg.classList.add('ok');
+              setTimeout(() => { modal.classList.remove('open'); resolve(true); }, 600);
+            } else {
+              const { data: ok, error } = await supabase.rpc('verify_admin_pin', { pin });
+              if (error) throw error;
+              if (!ok) {
+                msg.textContent = 'PIN incorreto.';
+                msg.classList.add('err');
+                input.value = '';
+                input.focus();
+                setBusy(false);
+                return;
+              }
+              sessionStorage.setItem('adminUnlocked', '1');
+              modal.classList.remove('open');
+              resolve(true);
+            }
+          } catch (err) {
+            console.error('[adminPinGate] erro:', err);
+            msg.textContent = 'Falha: ' + (err.message || err);
+            msg.classList.add('err');
+            setBusy(false);
+          }
+        };
+
+        const onCancel = async () => {
+          await supabase.auth.signOut().catch(() => {});
+          window.location.href = 'login.html';
+          resolve(false);
+        };
+
+        submit.onclick = tryValidate;
+        cancel.onclick = onCancel;
+        input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); tryValidate(); } };
+      });
+    }
+    window.runAdminPinGate = runAdminPinGate;
+
+    // Trocar PIN a partir do painel (chamado pela UI da aba Usuários).
+    window.changeAdminPin = async function changeAdminPin() {
+      const cur = prompt('PIN atual (deixe em branco se ainda não definiu):') || '';
+      if (cur) {
+        const { data: ok, error } = await supabase.rpc('verify_admin_pin', { pin: cur });
+        if (error) { alert('Erro: ' + error.message); return; }
+        if (!ok)  { alert('PIN atual incorreto.'); return; }
+      }
+      const nv = prompt('Novo PIN (4 a 12 dígitos):') || '';
+      if (!/^[0-9]{4,12}$/.test(nv)) { alert('PIN inválido (4 a 12 dígitos numéricos).'); return; }
+      const { error } = await supabase.rpc('set_admin_pin', { new_pin: nv });
+      if (error) { alert('Erro: ' + error.message); return; }
+      sessionStorage.setItem('adminUnlocked', '1');
+      alert('PIN atualizado.');
+    };
 
     // ── Volume files for permission editor ────────────────────────
 

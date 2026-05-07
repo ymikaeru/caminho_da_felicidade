@@ -6,8 +6,10 @@
 -- Execute no SQL Editor do Supabase Dashboard.
 -- ==============================================================================
 
--- 0. Extensão necessária para crypt()/gen_salt('bf')
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+-- 0. Extensão necessária para crypt()/gen_salt('bf').
+--    No Supabase, pgcrypto vive no schema "extensions" (não em "public"),
+--    por isso as RPCs abaixo qualificam as chamadas como extensions.crypt/gen_salt.
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 
 -- 1. Coluna do hash (NULL = PIN ainda não configurado)
 ALTER TABLE public.user_profiles
@@ -37,7 +39,7 @@ BEGIN
   END IF;
 
   UPDATE public.user_profiles
-     SET admin_pin_hash = crypt(new_pin, gen_salt('bf', 10))
+     SET admin_pin_hash = extensions.crypt(new_pin, extensions.gen_salt('bf', 10))
    WHERE id = uid;
 
   RETURN true;
@@ -68,7 +70,7 @@ BEGIN
     RETURN false;
   END IF;
 
-  RETURN stored = crypt(pin, stored);
+  RETURN stored = extensions.crypt(pin, stored);
 END;
 $$;
 

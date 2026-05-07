@@ -781,11 +781,11 @@
   </div>
 
   <header class="header">
-    <a href="index.html" class="header__logo">
+    <a href="index.html" class="header__logo" onclick="adminLeave(event, 'index.html')">
       <svg width="28" height="28" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Emblema da Comunidade Messiânica Universal"><circle cx="100" cy="100" r="98" fill="#b8860b"/><circle cx="100" cy="100" r="92" fill="#fff"/><rect x="80" y="8" width="40" height="184" fill="#006400"/><rect x="8" y="80" width="184" height="40" fill="#006400"/><circle cx="100" cy="100" r="42" fill="#cc0000"/><circle cx="100" cy="100" r="28" fill="#b8860b"/></svg>
     </a>
     <div class="header__nav">
-      <a href="index.html"><span>⌂ Início</span></a>
+      <a href="index.html" onclick="adminLeave(event, 'index.html')"><span>⌂ Início</span></a>
     </div>
   </header>
 
@@ -3647,11 +3647,9 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
 
     // ── Admin PIN gate ─────────────────────────────────────────────
     // Camada extra ao entrar no painel. PIN fica como hash bcrypt no Supabase
-    // (RPCs has_admin_pin / set_admin_pin / verify_admin_pin). Após verificar,
-    // marca sessionStorage.adminUnlocked para não pedir de novo na mesma aba.
+    // (RPCs has_admin_pin / set_admin_pin / verify_admin_pin). O PIN é pedido
+    // a cada carregamento da página — não há cache de sessão.
     async function runAdminPinGate() {
-      if (sessionStorage.getItem('adminUnlocked') === '1') return true;
-
       const { data: hasPin, error: hasErr } = await supabase.rpc('has_admin_pin');
       if (hasErr) {
         console.warn('[adminPinGate] has_admin_pin falhou:', hasErr);
@@ -3694,7 +3692,6 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
             if (isFirstTime) {
               const { error } = await supabase.rpc('set_admin_pin', { new_pin: pin });
               if (error) throw error;
-              sessionStorage.setItem('adminUnlocked', '1');
               msg.textContent = 'PIN definido. Liberando painel…';
               msg.classList.add('ok');
               setTimeout(() => { modal.classList.remove('open'); resolve(true); }, 600);
@@ -3709,7 +3706,6 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
                 setBusy(false);
                 return;
               }
-              sessionStorage.setItem('adminUnlocked', '1');
               modal.classList.remove('open');
               resolve(true);
             }
@@ -3734,6 +3730,32 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
     }
     window.runAdminPinGate = runAdminPinGate;
 
+    // Sair do painel sempre desloga (evita esquecer o logout aberto).
+    window.adminLeave = async function adminLeave(ev, dest) {
+      if (ev && ev.preventDefault) ev.preventDefault();
+      try { await supabase.auth.signOut(); } catch (_) {}
+      window.location.href = dest || 'index.html';
+    };
+
+    // Auto-logout por inatividade no painel admin (5 minutos sem mexer).
+    (function setupAdminIdleLogout() {
+      const IDLE_MS = 5 * 60 * 1000;
+      let timer = null;
+      const doLogout = async () => {
+        try { await supabase.auth.signOut(); } catch (_) {}
+        alert('Sessão administrativa encerrada por inatividade.');
+        window.location.href = 'login.html';
+      };
+      const reset = () => {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(doLogout, IDLE_MS);
+      };
+      ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach((evt) => {
+        window.addEventListener(evt, reset, { passive: true });
+      });
+      reset();
+    })();
+
     // Trocar PIN a partir do painel (chamado pela UI da aba Usuários).
     window.changeAdminPin = async function changeAdminPin() {
       const cur = prompt('PIN atual (deixe em branco se ainda não definiu):') || '';
@@ -3746,7 +3768,6 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       if (!/^[0-9]{4,12}$/.test(nv)) { alert('PIN inválido (4 a 12 dígitos numéricos).'); return; }
       const { error } = await supabase.rpc('set_admin_pin', { new_pin: nv });
       if (error) { alert('Erro: ' + error.message); return; }
-      sessionStorage.setItem('adminUnlocked', '1');
       alert('PIN atualizado.');
     };
 

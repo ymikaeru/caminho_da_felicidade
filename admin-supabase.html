@@ -7024,6 +7024,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const paths = data.top_paths || [];
       const eng = data.engagement || {};
       const clicks = data.top_clicks || [];
+      const items = data.top_items || [];
 
       console.log('[jr-analytics] totals:', t, 'daily.length:', daily.length, 'daily[0..2]:', daily.slice(0, 3));
 
@@ -7081,6 +7082,16 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           rows.map(r => `<tr><td class="ell">${esc(r[keyCol])}</td><td class="num">${(r[valCol]??0).toLocaleString('pt-BR')}</td></tr>`).join('')
         }</tbody></table>`;
       };
+      // Slug "a-ordem-do-johrei" → "A ordem do johrei". Slug original fica no title pra debugging.
+      const prettySlug = s => {
+        const str = String(s || '').replace(/[-_]+/g, ' ').trim();
+        return str ? str.charAt(0).toUpperCase() + str.slice(1) : '(sem título)';
+      };
+      const itemsTbl = items.length
+        ? `<table><thead><tr><th>Ensinamento</th><th style="text-align:right;">Visitas</th></tr></thead><tbody>${
+            items.map(it => `<tr><td class="ell" title="${esc(it.item)}">${esc(prettySlug(it.item))}</td><td class="num">${(it.visits??0).toLocaleString('pt-BR')}</td></tr>`).join('')
+          }</tbody></table>`
+        : '<div class="loading">Sem dados ainda. (Aguardando primeiras navegações com tracking SPA ativo.)</div>';
 
       // Dispositivos bar
       const deviceColors = { Mobile: '#34c759', Tablet: '#007aff', Desktop: '#b8860b' };
@@ -7146,11 +7157,14 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           <canvas id="jr-chart"></canvas>
         </div>
         <div class="jr-tables" style="margin-bottom:16px;">
-          <div class="jr-tbl"><h3>Top referrers</h3>${tbl(refs,'referrer','visits')}</div>
+          <div class="jr-tbl"><h3>Top ensinamentos</h3>${itemsTbl}</div>
           <div class="jr-tbl"><h3>Top páginas</h3>${tbl(paths,'path','visits')}</div>
         </div>
         <div class="jr-tables" style="margin-bottom:16px;">
+          <div class="jr-tbl"><h3>Top referrers</h3>${tbl(refs,'referrer','visits')}</div>
           <div class="jr-tbl"><h3>Top cliques</h3>${clicksTbl}</div>
+        </div>
+        <div class="jr-tables" style="margin-bottom:16px;">
           <div class="jr-tbl"><h3>Dispositivos</h3>${deviceTotal > 1 ? deviceBars : '<div class="loading">Sem dados.</div>'}</div>
         </div>
         <div class="jr-tables">

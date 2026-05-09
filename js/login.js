@@ -171,6 +171,7 @@ function showLoginOverlay() {
 
       overlay.remove();
       injectLogoutButton();
+      startHeartbeat();
       if (typeof revealPage === 'function') revealPage();
 
       // Apply access filters for the current page
@@ -296,29 +297,32 @@ window.supabaseAuth = {
 };
 
 // ============================================================
+// Presence heartbeat — keeps user_profiles.last_seen_at fresh
+// ============================================================
+let _heartbeatInterval = null;
+
+async function updateLastSeen() {
+  if (!supabaseSession) return;
+  const { error } = await supabase.from('user_profiles').update({
+    last_seen_at: new Date().toISOString()
+  }).eq('id', supabaseSession.user.id);
+  if (error) console.warn('[heartbeat] Falha ao atualizar presença:', error.message, '— verifique a RLS policy de UPDATE em user_profiles');
+}
+
+function startHeartbeat() {
+  if (_heartbeatInterval) return;
+  updateLastSeen();
+  _heartbeatInterval = setInterval(updateLastSeen, 5 * 60 * 1000); // every 5 minutes
+}
+
+function stopHeartbeat() {
+  if (_heartbeatInterval) { clearInterval(_heartbeatInterval); _heartbeatInterval = null; }
+}
+
+// ============================================================
 // Auto-run on page load
 // ============================================================
 (function () {
-  let _heartbeatInterval = null;
-
-  async function updateLastSeen() {
-    if (!supabaseSession) return;
-    const { error } = await supabase.from('user_profiles').update({
-      last_seen_at: new Date().toISOString()
-    }).eq('id', supabaseSession.user.id);
-    if (error) console.warn('[heartbeat] Falha ao atualizar presença:', error.message, '— verifique a RLS policy de UPDATE em user_profiles');
-  }
-
-  function startHeartbeat() {
-    if (_heartbeatInterval) return;
-    updateLastSeen();
-    _heartbeatInterval = setInterval(updateLastSeen, 5 * 60 * 1000); // every 5 minutes
-  }
-
-  function stopHeartbeat() {
-    if (_heartbeatInterval) { clearInterval(_heartbeatInterval); _heartbeatInterval = null; }
-  }
-
   const init = async () => {
     const authenticated = await checkSupabaseAuth();
     if (!authenticated && !checkAuth()) {

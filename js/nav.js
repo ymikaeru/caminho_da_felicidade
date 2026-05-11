@@ -137,15 +137,25 @@ function _initMobileNav() {
     if (e.key === 'Escape') closeMobileNav();
   });
 
-  const searchBtn = document.createElement('button');
-  searchBtn.className = 'mobile-search-btn';
-  searchBtn.setAttribute('aria-label', 'Buscar');
-  searchBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-  </svg>`;
-  searchBtn.addEventListener('click', () => openSearch());
-  headerActions.insertBefore(searchBtn, hamburgerBtn);
+  // Gate provisional: só renderiza o botão se a busca está habilitada
+  // pra esse user. Knob central em js/search.js (SEARCH_ADMIN_ONLY).
+  // Se search.js ainda não carregou, mostra o botão por padrão — o
+  // próprio openSearch() vai bloquear no clique se for o caso.
+  const searchAllowed = typeof window._searchEnabled === 'function'
+    ? window._searchEnabled()
+    : true;
+  let searchBtn = null;
+  if (searchAllowed) {
+    searchBtn = document.createElement('button');
+    searchBtn.className = 'mobile-search-btn';
+    searchBtn.setAttribute('aria-label', 'Buscar');
+    searchBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>`;
+    searchBtn.addEventListener('click', () => openSearch());
+    headerActions.insertBefore(searchBtn, hamburgerBtn);
+  }
 
   const favBtn = document.createElement('button');
   favBtn.className = 'mobile-fav-btn';

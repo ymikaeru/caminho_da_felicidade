@@ -90,6 +90,55 @@
   overflow-wrap: break-word;
 }
 
+/* Stats line inside the volume cards on the home page. */
+.topic-card__stats {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  opacity: 0.7;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+/* Tagline below the canonical volume title. Categoriza o volume sem competir
+   tipograficamente com o título serif. Usada nos cards da home. */
+.topic-card__tagline {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--accent);
+  margin: -4px 0 12px 0;
+  opacity: 0.85;
+}
+
+/* "Recommended starter" badge — applied only to the recommended volume. */
+.topic-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 4px 10px;
+  margin-bottom: 12px;
+  align-self: flex-start;
+}
+
+/* Subtle accent on the recommended volume card itself. */
+.topic-card--recommended {
+  box-shadow: inset 0 3px 0 0 var(--accent);
+}
+.topic-card--recommended:hover {
+  box-shadow: inset 0 3px 0 0 var(--accent), var(--shadow-sm);
+}
+
 .section-header {
   font-family: var(--font-serif);
   font-size: 22px;

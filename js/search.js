@@ -5,6 +5,30 @@
 // volume/arquivo são aplicadas server-side via auth.uid() na RPC,
 // então o cliente NÃO precisa filtrar por user_permissions.
 
+// ---------------------------------------------------------------
+// PROVISIONAL — gating da busca por role
+// ---------------------------------------------------------------
+// Motivo: usuários estavam pegando o "atalho" da busca e perdendo a
+// descoberta orgânica pelo índice. Esconder a busca pra não-admin
+// força browsing manual.
+//
+// Pra religar a busca pra TODOS: mude SEARCH_ADMIN_ONLY para false
+// abaixo (uma única linha). Nenhuma outra mudança necessária.
+//
+// Nota de segurança: a checagem é client-side (localStorage). Um
+// usuário determinado pode forjar 'admin' no localStorage, mas isso
+// só revela o modal — o RPC search_teachings ainda funciona pra
+// qualquer authed user pelas RLS normais. O objetivo aqui é UX
+// (nudge), não controle de acesso.
+const SEARCH_ADMIN_ONLY = true;
+
+function _searchEnabled() {
+  if (!SEARCH_ADMIN_ONLY) return true;
+  try { return localStorage.getItem('mioshie_auth') === 'admin'; }
+  catch (e) { return false; }
+}
+window._searchEnabled = _searchEnabled;
+
 let searchTimeout = null;
 let _allResults = [];
 let _displayedCount = 0;
@@ -201,6 +225,9 @@ window.clearSearch = function () {
 }
 
 window.openSearch = function () {
+  // Single chokepoint pra todos os entrypoints (botão + Ctrl+K + "/").
+  // Se a busca está provisoriamente gated, no-op silencioso.
+  if (!_searchEnabled()) return;
   const modal = document.getElementById('searchModal');
   const input = document.getElementById('searchInput');
   if (modal) {

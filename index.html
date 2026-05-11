@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&display=swap">
-    <link rel="stylesheet" href="css/styles.min.css?v=52">
+    <link rel="stylesheet" href="css/styles.min.css?v=55">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <!-- SEO -->
@@ -21,11 +21,11 @@
     <meta property="og:image" content="icon-512.png">
     <meta name="twitter:card" content="summary">
     <script src="js/toggle.js?v=25" defer></script>
-    <script src="js/nav.js?v=1" defer></script>
+    <script src="js/nav.js?v=2" defer></script>
     <script src="js/theme.js?v=1" defer></script>
     <script src="js/language.js?v=1" defer></script>
     <script src="js/typography.js?v=1" defer></script>
-    <script src="js/search.js?v=9" defer></script>
+    <script src="js/search.js?v=10" defer></script>
     <script>
         // Reader handles its own initialization that differs from Home/Index
         if (!window.location.href.includes('reader.html')) {
@@ -86,6 +86,14 @@
                     </p>
                     <div style="text-align:center; margin-bottom:48px;">
                         <button class="btn-random-hero" onclick="openRandomTeaching(event)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M16 3h5v5" />
+                                <path d="M4 20L21 3" />
+                                <path d="M21 16v5h-5" />
+                                <path d="M15 15l6 6" />
+                                <path d="M4 4l5 5" />
+                            </svg>
                             <span class="lang-pt">Luz do Momento</span>
                             <span class="lang-ja" style="display:none">御縁の御教え</span>
                         </button>
@@ -93,15 +101,21 @@
                     <div class="topic-list" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
                         <a href="mioshiec1/index.html" class="topic-card"
                             style="flex-direction:column; align-items:flex-start; height:100%; padding: 32px;">
-                            <span class="section-label" style="text-align:left; margin-bottom:12px;">Volume 1</span>
-                            <div class="topic-card__title" style="font-size:22px; margin-bottom:8px">
+                            <div class="topic-card__title" style="font-size:22px; margin-bottom:4px; flex:0 0 auto">
                                 <span class="lang-pt">Mundo Espiritual</span>
                                 <span class="lang-ja" style="display:none">霊界編</span>
                             </div>
+                            <div class="topic-card__tagline">
+                                <span class="lang-pt">Revelações Sagradas</span>
+                                <span class="lang-ja" style="display:none">神聖な啓示</span>
+                            </div>
                             <div style="font-size:14px; color:var(--text-muted); line-height:1.5">
-                                <span class="lang-pt">Ensinamentos sobre o mundo espiritual e princípios
-                                    fundamentais.</span>
-                                <span class="lang-ja" style="display:none">霊界と根本義に関する御教え集。</span>
+                                <span class="lang-pt">Revelações sobre o mundo invisível — a precedência do espírito sobre a matéria, a transição da Noite para o Dia, o culto aos antepassados. <strong style="color: var(--text-main); font-weight: 500;">Ensinamentos profundos — não recomendado iniciar o estudo por esse capítulo.</strong></span>
+                                <span class="lang-ja" style="display:none">霊界からの啓示——霊主体従、夜昼転換、先祖供養についての御教え。<strong style="color: var(--text-main); font-weight: 500;">深遠な御教えのため、学び始める巻としてはお勧めしません。</strong></span>
+                            </div>
+                            <div class="topic-card__stats">
+                                <span class="lang-pt">401 temas · 4.690 ensinamentos</span>
+                                <span class="lang-ja" style="display:none">401テーマ · 4,690刊行物</span>
                             </div>
                             <button class="vol-random-btn"
                                 onclick="event.preventDefault(); event.stopPropagation(); openRandomFromVolume('mioshiec1', event)"
@@ -115,15 +129,21 @@
                         </a>
                         <a href="mioshiec2/index.html" class="topic-card"
                             style="flex-direction:column; align-items:flex-start; height:100%; padding: 32px;">
-                            <span class="section-label" style="text-align:left; margin-bottom:12px;">Volume 2</span>
-                            <div class="topic-card__title" style="font-size:22px; margin-bottom:8px">
+                            <div class="topic-card__title" style="font-size:22px; margin-bottom:4px; flex:0 0 auto">
                                 <span class="lang-pt">Método Divino de Saúde</span>
                                 <span class="lang-ja" style="display:none">浄霊・自然農法</span>
                             </div>
+                            <div class="topic-card__tagline">
+                                <span class="lang-pt">Em Serviço ao Próximo</span>
+                                <span class="lang-ja" style="display:none">隣人への奉仕</span>
+                            </div>
                             <div style="font-size:14px; color:var(--text-muted); line-height:1.5">
-                                <span class="lang-pt">Método Divino de Saúde e Agricultura Natural em harmonia com a
-                                    natureza.</span>
-                                <span class="lang-ja" style="display:none">浄霊、健康法、自然農法の御教え。</span>
+                                <span class="lang-pt">A ação do Johrei sobre o corpo e a alma, os princípios da saúde divina e da Agricultura Natural em comunhão com a natureza. Caminho de serviço para a salvação da humanidade.</span>
+                                <span class="lang-ja" style="display:none">浄霊の作用、神聖な健康法、自然と共に生きる自然農法。人類救済への奉仕の道。</span>
+                            </div>
+                            <div class="topic-card__stats">
+                                <span class="lang-pt">484 temas · 6.032 ensinamentos</span>
+                                <span class="lang-ja" style="display:none">484テーマ · 6,032刊行物</span>
                             </div>
                             <button class="vol-random-btn"
                                 onclick="event.preventDefault(); event.stopPropagation(); openRandomFromVolume('mioshiec2', event)"
@@ -137,15 +157,21 @@
                         </a>
                         <a href="mioshiec3/index.html" class="topic-card"
                             style="flex-direction:column; align-items:flex-start; height:100%; padding: 32px;">
-                            <span class="section-label" style="text-align:left; margin-bottom:12px;">Volume 3</span>
-                            <div class="topic-card__title" style="font-size:22px; margin-bottom:8px">
+                            <div class="topic-card__title" style="font-size:22px; margin-bottom:4px; flex:0 0 auto">
                                 <span class="lang-pt">A Verdadeira Fé</span>
                                 <span class="lang-ja" style="display:none">信仰編</span>
                             </div>
+                            <div class="topic-card__tagline">
+                                <span class="lang-pt">Polimento da Alma</span>
+                                <span class="lang-ja" style="display:none">魂の研磨</span>
+                            </div>
                             <div style="font-size:14px; color:var(--text-muted); line-height:1.5">
-                                <span class="lang-pt">Volume 3 - Ensinamentos sobre a prática e o aprimoramento da
-                                    fé.</span>
-                                <span class="lang-ja" style="display:none">第三巻：信仰の実践 e 向上に関する御教え集。</span>
+                                <span class="lang-pt">A fé vivida no cotidiano — atitudes, provações, aprimoramento da alma. Caminho para o aprofundamento e o polimento interior da fé.</span>
+                                <span class="lang-ja" style="display:none">日々に生きる信仰——心構え、試練、魂の向上。信仰を深め、内面を磨く道。</span>
+                            </div>
+                            <div class="topic-card__stats">
+                                <span class="lang-pt">390 temas · 4.148 ensinamentos</span>
+                                <span class="lang-ja" style="display:none">390テーマ · 4,148刊行物</span>
                             </div>
                             <button class="vol-random-btn"
                                 onclick="event.preventDefault(); event.stopPropagation(); openRandomFromVolume('mioshiec3', event)"
@@ -159,15 +185,21 @@
                         </a>
                         <a href="mioshiec4/index.html" class="topic-card"
                             style="flex-direction:column; align-items:flex-start; height:100%; padding: 32px;">
-                            <span class="section-label" style="text-align:left; margin-bottom:12px;">Volume 4</span>
-                            <div class="topic-card__title" style="font-size:22px; margin-bottom:8px">
-                                <span class="lang-pt">Ensinamentos Complementares</span>
-                                <span class="lang-ja" style="display:none">補足編</span>
+                            <div class="topic-card__title" style="font-size:22px; margin-bottom:4px; flex:0 0 auto">
+                                <span class="lang-pt">Ensinamentos Diversos</span>
+                                <span class="lang-ja" style="display:none">多様な御教え</span>
+                            </div>
+                            <div class="topic-card__tagline">
+                                <span class="lang-pt">Estudo Complementar</span>
+                                <span class="lang-ja" style="display:none">補足の学び</span>
                             </div>
                             <div style="font-size:14px; color:var(--text-muted); line-height:1.5">
-                                <span class="lang-pt">Ensinamentos complementares e temas diversos da obra
-                                    divina.</span>
-                                <span class="lang-ja" style="display:none">第四巻：補足の御教えと様々なテーマ。</span>
+                                <span class="lang-pt">Reúne os Feitos de Meishu-Sama, a Análise da Criação, ensinamentos Sobre as Artes e a Construção do Paraíso Terrestre, entre outros temas. Pode ser explorado livremente, conforme o que despertar o interesse.</span>
+                                <span class="lang-ja" style="display:none">明主様の御事跡、森羅万象の解析、芸術論、地上天国の雛形建設など、多様なテーマを収めた巻。関心の赴くままに、自由にお読みください。</span>
+                            </div>
+                            <div class="topic-card__stats">
+                                <span class="lang-pt">233 temas · 2.582 ensinamentos</span>
+                                <span class="lang-ja" style="display:none">233テーマ · 2,582刊行物</span>
                             </div>
                             <button class="vol-random-btn"
                                 onclick="event.preventDefault(); event.stopPropagation(); openRandomFromVolume('mioshiec4', event)"
@@ -181,7 +213,8 @@
                         </a>
                     </div>
 
-                    <!-- Global Statistics -->
+                    <!-- Global Statistics — temporariamente oculto, descomente o bloco abaixo para reativar -->
+                    <!--
                     <div class="volume-stats-footer" style="margin-top: 48px;">
                         <div class="stats-header">
                             <span class="stats-title">
@@ -258,6 +291,7 @@
                             </div>
                         </div>
                     </div>
+                    -->
 
                     <!-- ─── Publicações de Discípulos (apenas PT) ─────────── -->
                     <section class="disciples-home-section lang-pt">

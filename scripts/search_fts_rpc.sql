@@ -40,10 +40,15 @@ grant execute on function _user_blocks() to authenticated;
 -- ------------------------------------------------------------
 -- Busca principal
 -- ------------------------------------------------------------
+-- Drop assinaturas antigas — o param `scope` é novo e Postgres trata
+-- assinaturas diferentes como funções distintas.
+drop function if exists search_teachings(text, text, int);
+
 create or replace function search_teachings(
   q text,
   lang text default 'pt',
-  max_results int default 50
+  max_results int default 50,
+  scope text default 'all'  -- 'all' | 'title' | 'content'
 )
 returns table(
   vol text,
@@ -69,11 +74,25 @@ as $$
 -- Perf #2: ts_headline / position(lower(content_ja)) só rodam DEPOIS do
 -- ORDER BY + LIMIT do CTE `matched` — antes disso, eles eram aplicados
 -- em todas as linhas que casavam com o WHERE.
+--
+-- Ranking PT (ts_rank_cd):
+--   - weights {D=0.05, C=0.1, B=0.2, A=1.0} → título (A) pesa 5× conteúdo (B).
+--     Default seria 2.5×; aumentamos para que título "Purificação Equilibrada"
+--     suba acima de tópicos longos que só mencionam "purificação" no corpo.
+--   - normalization 33 (= 32 | 1):
+--       1  → divide pelo log do tamanho do doc (anula vantagem de conteúdo longo)
+--       32 → bounded em [0, 1) (rank/(rank+1)) — facilita threshold de UI
 declare
+  v_scope text := lower(coalesce(scope, 'all'));
   v_raw text := coalesce(nullif(trim(q), ''), '<<empty>>');
   v_ilike text := replace(replace(replace(coalesce(q, ''), '\', '\\'), '%', '\%'), '_', '\_');
   v_tsq tsquery := websearch_to_tsquery('pt_unaccent', v_raw);
+  v_weights real[] := ARRAY[0.05, 0.1, 0.2, 1.0]::real[];
 begin
+  if v_scope not in ('all', 'title', 'content') then
+    v_scope := 'all';
+  end if;
+
   if lang = 'ja' then
     return query
     with
@@ -83,8 +102,8 @@ begin
       select
         t.vol, t.file, t.topic_idx, t.title_pt, t.title_ja,
         t.content_ja,
-        ((case when t.title_ja   ilike '%' || v_ilike || '%' escape '\' then 1.0 else 0 end) +
-         (case when t.content_ja ilike '%' || v_ilike || '%' escape '\' then 0.3 else 0 end))::real as r
+        ((case when v_scope <> 'content' and t.title_ja   ilike '%' || v_ilike || '%' escape '\' then 1.0 else 0 end) +
+         (case when v_scope <> 'title'   and t.content_ja ilike '%' || v_ilike || '%' escape '\' then 0.3 else 0 end))::real as r
       from teachings_topics t
       where
         -- Bloqueio server-side: ignora qualquer param de volume vindo do cliente.
@@ -94,20 +113,23 @@ begin
           where b.volume = t.vol and b.files is not null and t.file = any(b.files)
         )
         and (
-          t.title_ja   ilike '%' || v_ilike || '%' escape '\'
+          (v_scope <> 'content' and t.title_ja   ilike '%' || v_ilike || '%' escape '\')
           or
-          t.content_ja ilike '%' || v_ilike || '%' escape '\'
+          (v_scope <> 'title'   and t.content_ja ilike '%' || v_ilike || '%' escape '\')
         )
       order by r desc nulls last
       limit greatest(1, least(max_results, 100))
     )
     select
       m.vol, m.file, m.topic_idx, m.title_pt, m.title_ja,
-      substring(
-        coalesce(m.content_ja, ''),
-        greatest(1, position(lower(v_raw) in lower(coalesce(m.content_ja, ''))) - 60),
-        180
-      ) as snippet,
+      case
+        when v_scope = 'title' then ''
+        else substring(
+          coalesce(m.content_ja, ''),
+          greatest(1, position(lower(v_raw) in lower(coalesce(m.content_ja, ''))) - 60),
+          180
+        )
+      end as snippet,
       m.r as rank
     from matched m
     order by m.r desc nulls last;
@@ -120,7 +142,10 @@ begin
       select
         t.vol, t.file, t.topic_idx, t.title_pt, t.title_ja,
         t.content_pt,
-        ts_rank(t.tsv_pt, v_tsq) as r
+        -- ts_rank_cd usa tsv_pt completo (com setweight) pra ranking — pesos
+        -- amplificados (A 5× B) + normalization de tamanho dão ao título
+        -- vantagem decisiva mesmo quando o corpo tem muitos hits.
+        ts_rank_cd(v_weights, t.tsv_pt, v_tsq, 33) as r
       from teachings_topics t
       where
         t.vol not in (select volume from fully_blocked)
@@ -128,18 +153,28 @@ begin
           select 1 from blocks b
           where b.volume = t.vol and b.files is not null and t.file = any(b.files)
         )
+        -- Coarse filter usa GIN(tsv_pt). Quando scope é title/content,
+        -- refinamos com tsvector inline (sem índice, mas n é pequeno).
         and t.tsv_pt @@ v_tsq
+        and (
+          v_scope = 'all'
+          or (v_scope = 'title'   and to_tsvector('pt_unaccent', coalesce(t.title_pt,   '')) @@ v_tsq)
+          or (v_scope = 'content' and to_tsvector('pt_unaccent', coalesce(t.content_pt, '')) @@ v_tsq)
+        )
       order by r desc nulls last
       limit greatest(1, least(max_results, 100))
     )
     select
       m.vol, m.file, m.topic_idx, m.title_pt, m.title_ja,
-      ts_headline(
-        'pt_unaccent',
-        coalesce(m.content_pt, ''),
-        v_tsq,
-        'StartSel=<mark>, StopSel=</mark>, MaxWords=30, MinWords=10, MaxFragments=1'
-      ) as snippet,
+      case
+        when v_scope = 'title' then ''
+        else ts_headline(
+          'pt_unaccent',
+          coalesce(m.content_pt, ''),
+          v_tsq,
+          'StartSel=<mark>, StopSel=</mark>, MaxWords=30, MinWords=10, MaxFragments=1'
+        )
+      end as snippet,
       m.r as rank
     from matched m
     order by m.r desc nulls last;
@@ -147,8 +182,8 @@ begin
 end;
 $$;
 
-revoke all on function search_teachings(text, text, int) from public;
-grant execute on function search_teachings(text, text, int) to authenticated;
+revoke all on function search_teachings(text, text, int, text) from public;
+grant execute on function search_teachings(text, text, int, text) to authenticated;
 
 -- ------------------------------------------------------------
 -- Random teaching (respeitando bloqueios)
@@ -186,7 +221,9 @@ grant execute on function random_teaching(text) to authenticated;
 -- para não pagar custo extra no caminho feliz.
 --
 -- Threshold 0.3 é empírico: catches "Johre" → "Johrei", "Meishu Sma"
--- → "Meishu-Sama"; rejeita matches genéricos. Ajustar se necessário.
+-- → "Meishu-Sama"; rejeita matches genéricos. Histórico: começou em 0.5
+-- (estrito demais — perdia "purificacao" → "Purificação Equilibrada");
+-- 0.3 dá recall melhor sem ruído perceptível em testes.
 --
 -- Respeita _user_blocks() (mesma garantia da search_teachings).
 -- ------------------------------------------------------------
@@ -230,13 +267,50 @@ as $$
   )
   select vol, file, topic_idx, title_pt, title_ja, sim as similarity
   from scored
-  where sim > 0.5
+  where sim > 0.3
   order by sim desc
   limit 3;
 $$;
 
 revoke all on function suggest_teachings(text, text) from public;
 grant execute on function suggest_teachings(text, text) to authenticated;
+
+-- ------------------------------------------------------------
+-- popular_searches — top queries para o empty-state do search modal
+-- ------------------------------------------------------------
+-- Retorna as buscas mais frequentes (com resultados > 0) dos últimos
+-- 60 dias, agregadas, sem expor user_id. Usado pelos chips de sugestão
+-- quando o usuário abre o modal sem ter digitado nada.
+--
+-- Filtros aplicados:
+--   - exclui queries de admins (não enviesa pelo nosso próprio uso)
+--   - exclui buscas com 0 resultados (chip que leva pra zero = péssimo)
+--   - exige length >= 3 e count >= 3 (corta typos isolados)
+--
+-- security definer para alcançar search_logs com a função is_admin_user_id
+-- preservando segurança (não retorna nenhum identificador).
+-- ------------------------------------------------------------
+create or replace function popular_searches(
+  limit_n int default 8
+)
+returns table(query text, n int)
+language sql stable security definer
+set search_path = public
+as $$
+  select lower(trim(query)) as query, count(*)::int as n
+  from public.search_logs
+  where created_at >= now() - interval '60 days'
+    and results_count > 0
+    and length(trim(query)) >= 3
+    and not is_admin_user_id(user_id)
+  group by lower(trim(query))
+  having count(*) >= 3
+  order by count(*) desc, max(created_at) desc
+  limit greatest(1, least(coalesce(limit_n, 8), 20));
+$$;
+
+revoke all on function popular_searches(int) from public;
+grant execute on function popular_searches(int) to authenticated;
 
 -- ------------------------------------------------------------
 -- Analytics de busca para o admin

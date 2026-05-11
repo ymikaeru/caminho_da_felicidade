@@ -62,6 +62,58 @@ function _getSupabase() {
   return window.supabaseAuth?.supabase || null;
 }
 
+// ---------- Empty-state suggestions chips ----------
+// Mostrados quando o user abre o modal sem ter digitado nada. Combina
+// 3 chips curados (termos doutrinários core) com até 5 chips dinâmicos
+// vindos de popular_searches (top buscas reais dos últimos 60 dias).
+// Cache por sessão pra não bater no RPC toda vez que abre o modal.
+const _CURATED_SUGGESTIONS = {
+  pt: ['Johrei', 'Salvação Divina', 'Purificação Equilibrada'],
+  ja: ['浄霊', '救い', '浄化'],
+};
+let _popularCache = null;
+
+async function _fetchPopularSearches() {
+  if (_popularCache !== null) return _popularCache;
+  const supabase = _getSupabase();
+  if (!supabase) { _popularCache = []; return []; }
+  try {
+    const { data, error } = await supabase.rpc('popular_searches', { limit_n: 8 });
+    if (error || !Array.isArray(data)) { _popularCache = []; return []; }
+    _popularCache = data.map(r => r.query).filter(Boolean);
+    return _popularCache;
+  } catch (e) {
+    _popularCache = [];
+    return [];
+  }
+}
+
+async function _renderSuggestionsPanel() {
+  const panel = document.getElementById('searchSuggestions');
+  const chipsEl = document.getElementById('searchSuggestionsChips');
+  if (!panel || !chipsEl) return;
+  const lang = localStorage.getItem('site_lang') || 'pt';
+  const curated = _CURATED_SUGGESTIONS[lang] || _CURATED_SUGGESTIONS.pt;
+  const popular = await _fetchPopularSearches();
+  // Dedup case-insensitive: chips populares que coincidem com curados são
+  // descartados pra não repetir.
+  const curatedLower = new Set(curated.map(s => s.toLowerCase()));
+  const popularFiltered = popular.filter(s => !curatedLower.has(s.toLowerCase())).slice(0, 5);
+  const all = [...curated, ...popularFiltered];
+  if (all.length === 0) { panel.style.display = 'none'; return; }
+  chipsEl.innerHTML = all.map(term =>
+    `<button type="button" class="search-suggest-chip" data-term="${escHtml(term)}">${escHtml(term)}</button>`
+  ).join('');
+  panel.style.display = '';
+}
+
+function _toggleSuggestionsForInput() {
+  const input = document.getElementById('searchInput');
+  const panel = document.getElementById('searchSuggestions');
+  if (!panel) return;
+  panel.style.display = (input && input.value.trim()) ? 'none' : '';
+}
+
 function _setRandomLoading(btn) {
   if (!btn || btn.disabled) return { restore: () => {} };
   const origHtml = btn.innerHTML;
@@ -145,6 +197,7 @@ window.clearSearch = function () {
   _displayedCount = 0;
   _currentQuery = '';
   _focusedIndex = -1;
+  _toggleSuggestionsForInput();
 }
 
 window.openSearch = function () {
@@ -166,6 +219,9 @@ window.openSearch = function () {
       }
     }
     _loadSectionMaps();
+    // Render suggestions panel (only if input is empty).
+    _renderSuggestionsPanel();
+    _toggleSuggestionsForInput();
   }
 }
 
@@ -396,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentLang = localStorage.getItem('site_lang') || 'pt';
     _focusedIndex = -1;
     _updateSearchCount(0, 0, currentLang);
+    _toggleSuggestionsForInput();
 
     if (!query.trim()) {
       if (resultsEl) resultsEl.innerHTML = '';
@@ -494,6 +551,24 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     });
   }
+
+  // Chips do empty-state: clicar preenche o input + dispara a busca.
+  const suggestionsContainer = document.getElementById('searchSuggestionsChips');
+  if (suggestionsContainer) {
+    suggestionsContainer.addEventListener('click', (e) => {
+      const chip = e.target.closest('.search-suggest-chip');
+      if (!chip || !searchInput) return;
+      const term = chip.dataset.term || chip.textContent.trim();
+      if (!term) return;
+      searchInput.value = term;
+      searchInput.focus();
+      _toggleSuggestionsForInput();
+      clearTimeout(searchTimeout);
+      performSearch(term);
+      const clearBtn = document.getElementById('searchClear');
+      if (clearBtn) clearBtn.style.display = 'flex';
+    });
+  }
 });
 
 let _supabaseLogTimer = null;
@@ -574,9 +649,16 @@ function _translateQuery(rawQuery, useExact) {
 }
 
 // "Você quis dizer...?" — chama suggest_teachings (pg_trgm) e renderiza
-// links acima da mensagem "Nenhum resultado". Falhas silenciosas: se a
-// RPC não existir ou der erro, o usuário só vê a mensagem normal.
-async function _maybeSuggestDidYouMean(rawQuery, activeLang, resultsEl) {
+// links acima dos resultados (ou da mensagem "Nenhum resultado").
+// Falhas silenciosas: se a RPC não existir ou der erro, o usuário só vê
+// a mensagem normal.
+//
+// mode:
+//   'replace' (default): zero resultados — substitui o innerHTML por
+//                        [suggest + "Nenhum resultado"].
+//   'prepend':           tem resultados mas poucos/fracos — insere o
+//                        bloco de sugestão ANTES dos resultados.
+async function _maybeSuggestDidYouMean(rawQuery, activeLang, resultsEl, mode = 'replace') {
   if (!resultsEl) return;
   if (!rawQuery || rawQuery.trim().length < 3) return;
   const supabase = _getSupabase();
@@ -606,13 +688,37 @@ async function _maybeSuggestDidYouMean(rawQuery, activeLang, resultsEl) {
           data-topic="${topicIdx}"
           data-title="${escHtml(title)}">${escHtml(title)}</a>`;
     }).join('<span class="search-suggest-sep"> · </span>');
-    const noResultsMsg = activeLang === 'ja' ? '結果が見つかりませんでした。' : 'Nenhum resultado.';
-    resultsEl.innerHTML =
-      `<li class="search-suggest"><span class="search-suggest-label">${labelTxt}</span> ${linksHtml}</li>` +
-      `<li class="search-empty">${noResultsMsg}</li>`;
+    const suggestLi =
+      `<li class="search-suggest"><span class="search-suggest-label">${labelTxt}</span> ${linksHtml}</li>`;
+    if (mode === 'prepend') {
+      // Evita duplicar se a sugestão já está no topo.
+      if (resultsEl.querySelector('.search-suggest')) return;
+      resultsEl.insertAdjacentHTML('afterbegin', suggestLi);
+    } else {
+      const noResultsMsg = activeLang === 'ja' ? '結果が見つかりませんでした。' : 'Nenhum resultado.';
+      resultsEl.innerHTML = suggestLi + `<li class="search-empty">${noResultsMsg}</li>`;
+    }
   } catch (e) {
     // RPC ausente ou erro de rede — mantém a mensagem normal.
   }
+}
+
+// Heurística do "few-results trigger":
+//   - sempre se results.length === 0 (já tratado fora desta função)
+//   - se results.length < 3
+//   - se results.length < 5 E o top rank for fraco (< 0.1 em PT, < 1.0 em JA).
+//     Em PT, ts_rank_cd com normalization 33 retorna [0,1); empiricamente
+//     matches relevantes ficam acima de 0.1. Em JA, rank=1.0 indica match
+//     em título; abaixo disso só matched no corpo (sinal fraco).
+function _shouldTriggerDidYouMean(results, activeLang) {
+  if (!results || !results.length) return false;
+  if (results.length < 3) return true;
+  if (results.length < 5) {
+    const topRank = Number(results[0]?.rank) || 0;
+    const weakThreshold = activeLang === 'ja' ? 1.0 : 0.1;
+    if (topRank < weakThreshold) return true;
+  }
+  return false;
 }
 
 async function performSearch(query) {
@@ -648,12 +754,19 @@ async function performSearch(query) {
     return;
   }
 
+  // Lê o radio "Tudo / Só Título / Só Conteúdo" e passa pra RPC.
+  // Antes esse valor era lido só pra ENABLE/disable, mas nunca chegava
+  // no servidor — a busca sempre cobria título+conteúdo. Bug histórico.
+  const scopeNode = document.querySelector('input[name="searchFilter"]:checked');
+  const scope = scopeNode ? scopeNode.value : 'all';
+
   const _t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {
     const { data, error } = await supabase.rpc('search_teachings', {
       q: serverQuery,
       lang: activeLang,
       max_results: MAX_RESULTS,
+      scope: scope,
     });
     const _latencyMs = ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - _t0;
 
@@ -695,6 +808,12 @@ async function performSearch(query) {
     resultsEl.innerHTML = _renderResultsList(results, _displayedCount, highlightRegex, q, activeLang);
     _updateSearchCount(results.length, _displayedCount, activeLang, hitLimit);
     logSearch(q, results.length, _latencyMs);
+
+    // Few-results case: prepende "Você quis dizer..." sem destruir os
+    // resultados. Espera o RPC retornar antes de salvar o snapshot.
+    if (_shouldTriggerDidYouMean(results, activeLang)) {
+      await _maybeSuggestDidYouMean(q, activeLang, resultsEl, 'prepend');
+    }
 
     sessionStorage.setItem('searchQuery', query);
     sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);

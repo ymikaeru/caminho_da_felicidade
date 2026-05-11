@@ -21,6 +21,7 @@ function buildSearchModal() {
   const contentLabel = lang === 'ja' ? '内容のみ' : 'Só Conteúdo';
   const exactLabel = lang === 'ja' ? '完全一致' : 'Palavra exata';
   const exactTitle = lang === 'ja' ? '単語全体のみを検索' : 'Busca somente palavras inteiras. Ex: \'luz\' não encontrará \'reluz\'';
+  const suggestionsLabel = lang === 'ja' ? 'おすすめ' : 'Sugestões';
 
   const el = document.createElement('div');
   el.className = 'search-modal-overlay';
@@ -47,6 +48,10 @@ function buildSearchModal() {
             '<span id="searchExactLabel">' + exactLabel + '</span>' +
           '</label>' +
         '</div>' +
+      '</div>' +
+      '<div id="searchSuggestions" class="search-suggestions" style="display:none;">' +
+        '<div class="search-suggestions-label">' + suggestionsLabel + '</div>' +
+        '<div id="searchSuggestionsChips" class="search-suggestions-chips"></div>' +
       '</div>' +
       '<div id="searchCount" class="search-count"></div>' +
       '<ul class="search-results" id="searchResults" aria-live="polite"></ul>' +

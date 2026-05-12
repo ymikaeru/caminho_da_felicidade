@@ -2323,10 +2323,17 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         const roleEsc = _escHtml(u.role || '');
         const createdEsc = _escHtml(new Date(u.created_at).toLocaleDateString('pt-BR'));
         const days = Number(u.active_days || 0);
-        const daysLabel = days === 0 ? 'Nunca acessou'
-                        : days === 1 ? '1 dia ativo'
-                        : `${days} dias ativos`;
-        const lastVisitStr = u.last_visit
+        // active_days conta dias com action='view' (abertura de ensinamento).
+        // last_seen_at é heartbeat de presença, gravado a partir do login.
+        // Distinguir: nunca logou × logou mas não leu × leu N dias.
+        const lastSeenStr = u.last_seen_at
+          ? _escHtml(new Date(u.last_seen_at).toLocaleDateString('pt-BR'))
+          : null;
+        const daysLabel = days === 0
+          ? (lastSeenStr ? `Sem leituras · acessou ${lastSeenStr}` : 'Nunca acessou')
+          : days === 1 ? '1 dia ativo'
+          : `${days} dias ativos`;
+        const lastVisitStr = (days > 0 && u.last_visit)
           ? ` · último: ${_escHtml(new Date(u.last_visit).toLocaleDateString('pt-BR'))}`
           : '';
         return `

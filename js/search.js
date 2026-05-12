@@ -20,7 +20,7 @@
 // só revela o modal — o RPC search_teachings ainda funciona pra
 // qualquer authed user pelas RLS normais. O objetivo aqui é UX
 // (nudge), não controle de acesso.
-const SEARCH_ADMIN_ONLY = true;
+const SEARCH_ADMIN_ONLY = false;
 
 function _searchEnabled() {
   if (!SEARCH_ADMIN_ONLY) return true;
@@ -87,30 +87,14 @@ function _getSupabase() {
 }
 
 // ---------- Empty-state suggestions chips ----------
-// Mostrados quando o user abre o modal sem ter digitado nada. Combina
-// 3 chips curados (termos doutrinários core) com até 5 chips dinâmicos
-// vindos de popular_searches (top buscas reais dos últimos 60 dias).
-// Cache por sessão pra não bater no RPC toda vez que abre o modal.
+// Mostrados quando o user abre o modal sem ter digitado nada. Apenas
+// chips curados (termos doutrinários core). A RPC popular_searches
+// ainda é populada pelo log de buscas (analytics), mas não é exibida
+// aqui — base de usuários pequena, mostrar buscas alheias era invasivo.
 const _CURATED_SUGGESTIONS = {
-  pt: ['Johrei', 'Salvação Divina', 'Purificação Equilibrada'],
-  ja: ['浄霊', '救い', '浄化'],
+  pt: ['Johrei', 'Salvação Divina', 'Purificação Equilibrada', 'Daijo', 'Verdade'],
+  ja: ['浄霊', '救い', '浄化', '大乗', '真理'],
 };
-let _popularCache = null;
-
-async function _fetchPopularSearches() {
-  if (_popularCache !== null) return _popularCache;
-  const supabase = _getSupabase();
-  if (!supabase) { _popularCache = []; return []; }
-  try {
-    const { data, error } = await supabase.rpc('popular_searches', { limit_n: 8 });
-    if (error || !Array.isArray(data)) { _popularCache = []; return []; }
-    _popularCache = data.map(r => r.query).filter(Boolean);
-    return _popularCache;
-  } catch (e) {
-    _popularCache = [];
-    return [];
-  }
-}
 
 async function _renderSuggestionsPanel() {
   const panel = document.getElementById('searchSuggestions');
@@ -118,14 +102,8 @@ async function _renderSuggestionsPanel() {
   if (!panel || !chipsEl) return;
   const lang = localStorage.getItem('site_lang') || 'pt';
   const curated = _CURATED_SUGGESTIONS[lang] || _CURATED_SUGGESTIONS.pt;
-  const popular = await _fetchPopularSearches();
-  // Dedup case-insensitive: chips populares que coincidem com curados são
-  // descartados pra não repetir.
-  const curatedLower = new Set(curated.map(s => s.toLowerCase()));
-  const popularFiltered = popular.filter(s => !curatedLower.has(s.toLowerCase())).slice(0, 5);
-  const all = [...curated, ...popularFiltered];
-  if (all.length === 0) { panel.style.display = 'none'; return; }
-  chipsEl.innerHTML = all.map(term =>
+  if (curated.length === 0) { panel.style.display = 'none'; return; }
+  chipsEl.innerHTML = curated.map(term =>
     `<button type="button" class="search-suggest-chip" data-term="${escHtml(term)}">${escHtml(term)}</button>`
   ).join('');
   panel.style.display = '';

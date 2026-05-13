@@ -7,4 +7,10 @@
     var c = { 'dark:light': '#1A1A1A', 'dark:quiet': '#2D2D2F', 'dark:paper': '#2A2824', 'dark:bold': '#000', 'dark:calm': '#3B3326', 'dark:focus': '#000', 'light:light': '#F8F9F5', 'light:quiet': '#404043', 'light:paper': '#EFE8D6', 'light:bold': '#FFF', 'light:calm': '#DFCDAE', 'light:focus': '#FFF' };
     var bg = c[m + ':' + t] || (m === 'dark' ? '#121212' : '#F8F9F5');
     d.style.backgroundColor = bg;
+    // Mesma regra do reader.html: o TOC desktop ("Capítulos deste
+    // Volume") é injetado pelo nav.js após o load. Adicionar a classe
+    // aqui (sync, antes do render) evita flash do painel aberto antes
+    // do JS rodar. Toggle continua funcional na sessão, mas próximo
+    // carregamento volta a fechar.
+    d.classList.add('toc-collapsed');
 })();

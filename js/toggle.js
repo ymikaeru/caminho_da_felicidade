@@ -31,7 +31,7 @@ const MENU_TEXTS = {
     boldText: 'Texto em Negrito',
     comparison: 'Comparação 日本語／PT',
     print: 'Imprimir ensinamento',
-    volumeTopics: 'Temas do Volume'
+    volumeTopics: 'Capítulos deste Volume'
   },
   ja: {
     title: '御教えカレッジ',
@@ -57,7 +57,7 @@ const MENU_TEXTS = {
     boldText: '太字テキスト',
     comparison: '比較モード 日本語／PT',
     print: '教えを印刷',
-    volumeTopics: 'このボリュームのテーマ'
+    volumeTopics: 'この巻の章'
   }
 };
 

@@ -24,6 +24,25 @@ function _initMobileNav() {
   headerActions.appendChild(hamburgerBtn);
   header.appendChild(headerActions);
 
+  // Move o tocToggle pra DEPOIS do botão "Voltar ao Índice" e transfere
+  // o `margin-right: auto` de Voltar pro toggle. Voltar tinha esse auto
+  // inline pra empurrar header__actions pra direita; sem mover, o toggle
+  // ficava no meio do header (em cima do logo absolute-centrado). Agora:
+  //   - Voltar: margin-right 8px (gap fixo até o toggle)
+  //   - toggle: margin-right auto (consome o espaço entre ele e actions)
+  //   - actions: continua com margin-left auto (canto direito)
+  // Idempotente: pode rodar várias vezes sem quebrar.
+  const tocToggleBtn = header.querySelector('#tocToggle');
+  const backIdxBtn = header.querySelector('#backToIndexBtn');
+  if (tocToggleBtn && backIdxBtn) {
+    if (backIdxBtn.nextElementSibling !== tocToggleBtn) {
+      backIdxBtn.insertAdjacentElement('afterend', tocToggleBtn);
+    }
+    backIdxBtn.style.marginRight = '8px';
+    tocToggleBtn.style.marginRight = 'auto';
+  }
+  document.documentElement.classList.add('toc-ready');
+
   const desktopNav = header.querySelector('.header__nav');
   const navLinks = desktopNav ? Array.from(desktopNav.querySelectorAll('a')) : [];
   const topicSelect = desktopNav ? desktopNav.querySelector('select') : null;
@@ -215,8 +234,79 @@ function _initMobileNav() {
     }));
     if (opts.length > 0) {
       window._updateMobileNavTopics(sectionLabel, opts);
+      // Espelha no TOC desktop, mesma estratégia do reader. As páginas
+      // de volume não têm o aside/botão no HTML — injeta aqui sob demanda
+      // pra não precisar editar mioshiec{1..4}/index.html. Hash atual
+      // determina o item ativo (#section-N).
+      _injectVolumeToc(header, sectionLabel, opts);
     }
   }
+}
+
+// Injeta o aside e o botão de toggle do TOC desktop em páginas de
+// volume (mioshiec{N}/index.html). No reader.html esses elementos já
+// existem no HTML — aqui só na página de volume.
+function _injectVolumeToc(header, sectionLabel, opts) {
+  if (typeof window._updateDesktopToc !== 'function') return;
+
+  // Injeta o aside no <main> se ainda não existe.
+  let aside = document.getElementById('publicationToc');
+  if (!aside) {
+    aside = document.createElement('aside');
+    aside.id = 'publicationToc';
+    aside.className = 'publication-toc';
+    aside.setAttribute('aria-label', sectionLabel);
+    aside.hidden = true;
+    const main = document.querySelector('main') || document.body;
+    main.insertBefore(aside, main.firstChild);
+  }
+
+  // Injeta o botão de toggle no header se ainda não existe.
+  let btn = document.getElementById('tocToggle');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'tocToggle';
+    btn.className = 'toc-toggle';
+    btn.setAttribute('aria-label', 'Mostrar/ocultar ' + sectionLabel.toLowerCase());
+    btn.setAttribute('aria-expanded', 'true');
+    btn.setAttribute('title', sectionLabel);
+    btn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="8" y1="6" x2="21" y2="6"/>
+        <line x1="8" y1="12" x2="21" y2="12"/>
+        <line x1="8" y1="18" x2="21" y2="18"/>
+        <line x1="3" y1="6" x2="3.01" y2="6"/>
+        <line x1="3" y1="12" x2="3.01" y2="12"/>
+        <line x1="3" y1="18" x2="3.01" y2="18"/>
+      </svg>
+    `;
+    // Insere logo após o primeiro btn-zen do header (botão "Início"
+    // no caso da volume page) — mesma posição lógica que o reader.
+    const firstBtnZen = header.querySelector('.btn-zen');
+    if (firstBtnZen && firstBtnZen.parentElement === header) {
+      firstBtnZen.insertAdjacentElement('afterend', btn);
+    } else {
+      header.appendChild(btn);
+    }
+    // NÃO adiciona click handler aqui — o handler global no
+    // DOMContentLoaded (linha ~479) cuida disso. _initMobileNav é
+    // chamado por toggle.js no MESMO DOMContentLoaded, antes do nav.js
+    // anexar seu próprio handler — então quando o handler global roda,
+    // o botão já está no DOM. Se duplicasse, cada clique alternaria a
+    // classe duas vezes = no-op.
+  }
+
+  // Item ativo = ancora do hash atual, ou primeira opção se sem hash.
+  const currentHref = window.location.hash || (opts[0] && opts[0].value) || '';
+  window._updateDesktopToc(sectionLabel, opts, currentHref);
+
+  // Liga scroll spy nas seções do volume (anchors #section-N).
+  if (typeof window._attachTocScrollSpy === 'function') {
+    requestAnimationFrame(() => window._attachTocScrollSpy());
+  }
+
+  document.documentElement.classList.add('toc-ready');
 }
 
 window.openMobileNav = function () {
@@ -242,12 +332,12 @@ window._updateMobileNavTopics = function (label, optionsList) {
   const currentLang = localStorage.getItem('site_lang') || 'pt';
   let label_to_use = label;
   if (!label_to_use) {
-    label_to_use = currentLang === 'ja' ? '巻のテーマ' : 'Temas do Volume';
+    label_to_use = currentLang === 'ja' ? 'この巻の章' : 'Capítulos deste Volume';
   } else {
-    if (label === 'Temas do Volume' || label === '巻のテーマ') {
-      label_to_use = currentLang === 'ja' ? '巻のテーマ' : 'Temas do Volume';
-    } else if (label === 'Publicações deste ensinamento' || label === '刊行物：テーマ') {
-      label_to_use = currentLang === 'ja' ? '刊行物：テーマ' : 'Publicações deste ensinamento';
+    if (label === 'Capítulos deste Volume' || label === 'この巻の章') {
+      label_to_use = currentLang === 'ja' ? 'この巻の章' : 'Capítulos deste Volume';
+    } else if (label === 'Ensinamentos deste tema' || label === 'このテーマの教え') {
+      label_to_use = currentLang === 'ja' ? 'このテーマの教え' : 'Ensinamentos deste tema';
     }
   }
 
@@ -278,7 +368,7 @@ window._updateDesktopToc = function (label, optionsList, currentHref) {
   }
   aside.hidden = false;
   const currentLang = localStorage.getItem('site_lang') || 'pt';
-  const heading = label || (currentLang === 'ja' ? '刊行物：テーマ' : 'Publicações deste ensinamento');
+  const heading = label || (currentLang === 'ja' ? 'このテーマの教え' : 'Ensinamentos deste tema');
   const items = optionsList.map(o => {
     const active = currentHref && o.value === currentHref ? ' is-active' : '';
     return `<a href="${o.value}" class="publication-toc__item${active}">
@@ -374,6 +464,26 @@ window._attachTocScrollSpy = function () {
   window.addEventListener('scroll', _tocSpyHandler, { passive: true });
   update();
 };
+
+// Wire do botão de toggle do TOC desktop. Aplica a classe inicial no
+// botão (lê do <html>, que já tem a classe setada inline no <head>),
+// e persiste a preferência em localStorage entre sessões.
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('tocToggle');
+  if (!btn) return;
+  const reflect = () => {
+    const collapsed = document.documentElement.classList.contains('toc-collapsed');
+    btn.setAttribute('aria-expanded', String(!collapsed));
+    btn.classList.toggle('is-collapsed', collapsed);
+  };
+  reflect();
+  btn.addEventListener('click', () => {
+    const next = !document.documentElement.classList.contains('toc-collapsed');
+    document.documentElement.classList.toggle('toc-collapsed', next);
+    try { localStorage.setItem('caminho_toc_collapsed', next ? 'true' : 'false'); } catch (e) {}
+    reflect();
+  });
+});
 
 window._mobileSwitchLang = function (lang) {
   if (typeof setLanguage === 'function') setLanguage(lang);

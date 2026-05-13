@@ -386,7 +386,7 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
                 if (extractedTitle.length > 60) extractedTitle = extractedTitle.substring(0, 57) + '…';
                 return { value: `#topic-${i}`, text: `"${extractedTitle}"` };
             });
-            const tocLabel = lang === 'ja' ? '刊行物：テーマ' : 'Publicações deste ensinamento';
+            const tocLabel = lang === 'ja' ? 'このテーマの教え' : 'Ensinamentos deste tema';
             window._updateMobileNavTopics(tocLabel, opts);
 
             // Espelha no TOC desktop. Calcula o tópico atual a partir
@@ -410,6 +410,7 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             }
         }
     }
+
 
     // --- Shared gate/scroll helpers ---
     const _revealGate = () => {

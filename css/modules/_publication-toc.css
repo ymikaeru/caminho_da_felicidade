@@ -4,7 +4,10 @@
 
 .publication-toc {
   position: fixed;
-  left: 16px;
+  /* Alinha com a borda esquerda dos botões "Voltar" / "Início" do header:
+     header tem padding-left clamp(16px, 2vw, 40px) e o botão tem
+     margin-left: 16px inline. clamp + 16px casa visualmente. */
+  left: calc(clamp(16px, 2vw, 40px) + 16px);
   top: calc(var(--nav-height, 60px) + 16px);
   width: 240px;
   max-height: calc(100vh - var(--nav-height, 60px) - 32px);
@@ -18,6 +21,17 @@
   flex-direction: column;
   overflow: hidden;
   font-family: var(--font-ui);
+  transition: transform 0.25s var(--ease), opacity 0.25s var(--ease);
+}
+
+/* Estado escondido — alterna pela classe html.toc-collapsed (setada
+   inline no <head> via localStorage pra evitar flash). Slide-out
+   suave pra esquerda + fade. Pointer-events:none garante que mesmo
+   semi-transparente nada bloqueia clicks. */
+html.toc-collapsed .publication-toc {
+  transform: translateX(calc(-100% - 32px));
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Só aparece quando o espaço lateral ao conteúdo central (1024px max)
@@ -91,3 +105,49 @@
   flex: 1;
   min-width: 0;
 }
+
+/* Botão de toggle no header — só aparece em viewport ≥1280px (mesma
+   regra que mostra o TOC). Inicia oculto via visibility:hidden no
+   <html> — o JS em nav.js move o botão pra dentro de .header__actions
+   e marca o html como toc-ready, aí o botão fica visível. Sem isso o
+   botão aparece brevemente no fluxo errado do header (sob o logo
+   centralizado ou atrás do Voltar ao Índice) durante o load. */
+.toc-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 8px;
+  min-height: 36px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-main);
+  cursor: pointer;
+  visibility: hidden;
+  transition: background 0.18s var(--ease), color 0.18s var(--ease), opacity 0.18s var(--ease);
+}
+
+html.toc-ready .toc-toggle {
+  visibility: visible;
+}
+
+.toc-toggle:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.toc-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.toc-toggle.is-collapsed {
+  opacity: 0.55;
+}
+
+@media (min-width: 1280px) {
+  .toc-toggle {
+    display: inline-flex;
+  }
+}
+

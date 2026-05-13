@@ -269,7 +269,10 @@ function _injectVolumeToc(header, sectionLabel, opts) {
     btn.id = 'tocToggle';
     btn.className = 'toc-toggle';
     btn.setAttribute('aria-label', 'Mostrar/ocultar ' + sectionLabel.toLowerCase());
-    btn.setAttribute('aria-expanded', 'true');
+    // Default colapsado — alinhado com a regra "sempre fechado por
+    // carregamento" do boot script em reader.html. reflect() abaixo
+    // ajusta este atributo dinamicamente quando o user toggla.
+    btn.setAttribute('aria-expanded', 'false');
     btn.setAttribute('title', sectionLabel);
     btn.innerHTML = `
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

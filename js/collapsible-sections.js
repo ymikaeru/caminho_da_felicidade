@@ -29,8 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
     header.setAttribute('role', 'button');
     header.setAttribute('tabindex', '0');
 
+    // Sempre começar colapsado a cada carregamento — mesma regra
+    // do TOC do reader.html. Toggle funciona pra sessão atual mas
+    // não persiste; navegar pra próxima página volta a fechar.
+    // A chave em localStorage é mantida só pra compatibilidade
+    // (writes não fazem nada visível, podem ser removidos depois).
     const key = `collapse_${volKey}_${sectionId}`;
-    let collapsed = localStorage.getItem(key) === '1';
+    let collapsed = true;
 
     const apply = () => {
       items.forEach(item => { item.style.display = collapsed ? 'none' : ''; });

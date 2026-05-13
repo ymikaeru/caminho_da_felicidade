@@ -19,6 +19,9 @@
 // Ao final, apaga rows órfãs (vol, file) que sumiram do Storage.
 // ============================================================
 
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import { extractTopicsFromJson } from '../supabase/functions/_shared/topic_normalize.mjs';
 
@@ -26,6 +29,33 @@ const VOLUMES_DEFAULT = ['mioshiec1', 'mioshiec2', 'mioshiec3', 'mioshiec4'];
 const BUCKET = 'teachings';
 const BATCH_SIZE = 100;
 const LIST_PAGE = 1000;
+
+// ---------------- nav labels ----------------
+// Carrega site_data/section_map.js (window.SECTION_MAP = {...};) e expõe um
+// lookup file-level com pt/ja do card + pt/ja da seção. Esses rótulos são
+// gravados em teachings_topics APENAS na row topic_idx=0 de cada arquivo,
+// para evitar inflar a busca com N rows idênticas por arquivo.
+function loadSectionMap() {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const filePath = path.join(here, '..', 'site_data', 'section_map.js');
+  const src = fs.readFileSync(filePath, 'utf8');
+  const m = src.match(/window\.SECTION_MAP\s*=\s*(\{[\s\S]*\})\s*;?\s*$/);
+  if (!m) throw new Error('section_map.js: não consegui extrair o objeto literal');
+  return JSON.parse(m[1]);
+}
+
+function navLabelsFor(sectionMap, vol, fileKey) {
+  // fileKey vem sem `.json`; SECTION_MAP usa as chaves `.html`.
+  const htmlKey = fileKey.endsWith('.html') ? fileKey : `${fileKey}.html`;
+  const entry = sectionMap?.[vol]?.[htmlKey];
+  if (!entry) return null;
+  return {
+    nav_title_pt: entry.pt || null,
+    nav_title_ja: entry.ja || null,
+    section_pt: entry.section || null,
+    section_ja: entry.sectionJa || null,
+  };
+}
 
 // ---------------- args ----------------
 const args = process.argv.slice(2);
@@ -122,7 +152,7 @@ async function deleteOrphans(vol, keepFiles) {
 }
 
 // ---------------- main ----------------
-async function processFile(vol, fileEntry) {
+async function processFile(vol, fileEntry, sectionMap) {
   const fileKey = fileEntry.name.replace(/\.json$/, '');
   const json = await downloadJson(vol, fileEntry.name);
   const { rows, topicsSeen, topicsSkipped } = extractTopicsFromJson({
@@ -131,11 +161,18 @@ async function processFile(vol, fileEntry) {
     json,
   });
 
+  // Rótulos de navegação (file-level) — gravados só na row topic_idx=0.
+  const nav = navLabelsFor(sectionMap, vol, fileKey);
+
   // Inclui source_updated_at em cada row para evitar segundo round-trip
   // e a janela onde rows existem com source_updated_at = NULL.
   const enriched = rows.map(r => ({
     ...r,
     source_updated_at: fileEntry.updated_at || null,
+    nav_title_pt: r.topic_idx === 0 ? (nav?.nav_title_pt ?? null) : null,
+    nav_title_ja: r.topic_idx === 0 ? (nav?.nav_title_ja ?? null) : null,
+    section_pt:   r.topic_idx === 0 ? (nav?.section_pt   ?? null) : null,
+    section_ja:   r.topic_idx === 0 ? (nav?.section_ja   ?? null) : null,
   }));
 
   // Substituição atômica por arquivo: delete + reinsert garante que
@@ -149,7 +186,7 @@ async function processFile(vol, fileEntry) {
   return { fileKey, topicsSeen, topicsSkipped, inserted: enriched.length };
 }
 
-async function processVolume(vol) {
+async function processVolume(vol, sectionMap) {
   console.log(`\n━━━ ${vol} ━━━`);
   const files = await listAllFiles(vol);
   console.log(`  ${files.length} arquivo(s) JSON encontrado(s).`);
@@ -166,7 +203,7 @@ async function processVolume(vol) {
 
   for (const f of files) {
     try {
-      const r = await processFile(vol, f);
+      const r = await processFile(vol, f, sectionMap);
       seenFiles.add(r.fileKey);
       stats.files_processed++;
       stats.topics_seen += r.topicsSeen;
@@ -191,10 +228,15 @@ async function processVolume(vol) {
   console.log(`Seeder iniciado${dryRun ? ' [DRY-RUN]' : ''}.`);
   console.log(`Volumes: ${volumes.join(', ')}`);
 
+  // Carrega site_data/section_map.js uma vez por execução.
+  const sectionMap = loadSectionMap();
+  const navTotal = Object.values(sectionMap).reduce((a, v) => a + Object.keys(v).length, 0);
+  console.log(`section_map.js: ${navTotal} arquivo(s) com rótulo de navegação.`);
+
   const report = {};
   for (const vol of volumes) {
     try {
-      report[vol] = await processVolume(vol);
+      report[vol] = await processVolume(vol, sectionMap);
     } catch (e) {
       console.error(`\nERRO em ${vol}: ${e.message}`);
       report[vol] = { error: e.message };

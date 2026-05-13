@@ -264,6 +264,117 @@ window._updateMobileNavTopics = function (label, optionsList) {
   container.innerHTML = html;
 };
 
+// TOC desktop — espelha os topics do arquivo atual num painel fixo à
+// esquerda. Mesmo dataset que alimenta o menu sanduíche em mobile, só
+// que aqui sempre visível (em viewports ≥1280px, via CSS). Esconde no
+// hidden attr quando não há publicações suficientes.
+window._updateDesktopToc = function (label, optionsList, currentHref) {
+  const aside = document.getElementById('publicationToc');
+  if (!aside) return;
+  if (!optionsList || optionsList.length === 0) {
+    aside.hidden = true;
+    aside.innerHTML = '';
+    return;
+  }
+  aside.hidden = false;
+  const currentLang = localStorage.getItem('site_lang') || 'pt';
+  const heading = label || (currentLang === 'ja' ? '刊行物：テーマ' : 'Publicações deste ensinamento');
+  const items = optionsList.map(o => {
+    const active = currentHref && o.value === currentHref ? ' is-active' : '';
+    return `<a href="${o.value}" class="publication-toc__item${active}">
+      <span class="publication-toc__bullet" aria-hidden="true"></span>
+      <span class="publication-toc__text">${o.text}</span>
+    </a>`;
+  }).join('');
+  aside.innerHTML = `
+    <div class="publication-toc__heading">${heading}</div>
+    <nav class="publication-toc__list">${items}</nav>
+  `;
+};
+
+// Scroll spy do TOC desktop — destaca a publicação visível conforme o
+// usuário rola o leitor. Implementado com scroll listener + rAF (em vez
+// de IntersectionObserver) porque a regra "tópico ativo = aquele cujo
+// topo está mais próximo da linha-âncora, mas ainda acima dela" é mais
+// natural de expressar com posições absolutas.
+let _tocSpyHandler = null;
+let _tocSpyRaf = null;
+
+function _detachTocScrollSpy() {
+  if (_tocSpyHandler) {
+    window.removeEventListener('scroll', _tocSpyHandler);
+    _tocSpyHandler = null;
+  }
+  if (_tocSpyRaf) {
+    cancelAnimationFrame(_tocSpyRaf);
+    _tocSpyRaf = null;
+  }
+}
+
+function _setTocActive(href) {
+  const aside = document.getElementById('publicationToc');
+  if (!aside) return;
+  aside.querySelectorAll('.publication-toc__item').forEach(a => {
+    a.classList.toggle('is-active', a.getAttribute('href') === href);
+  });
+  // Auto-scroll do TOC pra manter o item ativo visível mesmo em
+  // publicações com muitos tópicos (lista do TOC pode rolar internamente).
+  const activeEl = aside.querySelector('.publication-toc__item.is-active');
+  if (activeEl) {
+    const list = aside.querySelector('.publication-toc__list');
+    if (list) {
+      const aRect = activeEl.getBoundingClientRect();
+      const lRect = list.getBoundingClientRect();
+      if (aRect.top < lRect.top || aRect.bottom > lRect.bottom) {
+        activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+  }
+}
+
+window._attachTocScrollSpy = function () {
+  _detachTocScrollSpy();
+  const aside = document.getElementById('publicationToc');
+  if (!aside || aside.hidden) return;
+
+  const targets = Array.from(aside.querySelectorAll('.publication-toc__item'))
+    .map(a => {
+      const href = a.getAttribute('href') || '';
+      const id = href.startsWith('#') ? href.slice(1) : '';
+      const el = id ? document.getElementById(id) : null;
+      return el ? { el, href } : null;
+    })
+    .filter(Boolean);
+
+  if (targets.length < 2) return;
+
+  // Linha-âncora a 140px do topo da viewport — abaixo da nav (60px) e do
+  // breadcrumb/título do tópico. Tópico ativo = o que tem topo mais
+  // próximo desta linha, mas ainda acima dela (estamos lendo ele).
+  const ACTIVE_LINE_Y = 140;
+
+  const update = () => {
+    _tocSpyRaf = null;
+    let activeHref = targets[0].href;
+    let bestTop = -Infinity;
+    for (const t of targets) {
+      const top = t.el.getBoundingClientRect().top;
+      if (top <= ACTIVE_LINE_Y && top > bestTop) {
+        bestTop = top;
+        activeHref = t.href;
+      }
+    }
+    _setTocActive(activeHref);
+  };
+
+  _tocSpyHandler = () => {
+    if (_tocSpyRaf) return;
+    _tocSpyRaf = requestAnimationFrame(update);
+  };
+  window.addEventListener('scroll', _tocSpyHandler, { passive: true });
+  update();
+};
+
 window._mobileSwitchLang = function (lang) {
   if (typeof setLanguage === 'function') setLanguage(lang);
   const ptBtn = document.getElementById('mobileLangPt');

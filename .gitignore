@@ -19,3 +19,5 @@ supabase/.temp/
 
 .env.local
 ComandosUteis
+.cli-latest
+supabase/.temp  

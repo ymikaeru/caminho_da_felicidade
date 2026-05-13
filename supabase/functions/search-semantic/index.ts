@@ -28,7 +28,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const VOYAGE_EMBED_URL = 'https://api.voyageai.com/v1/embeddings';
 const VOYAGE_RERANK_URL = 'https://api.voyageai.com/v1/rerank';
 const VOYAGE_EMBED_MODEL = 'voyage-3';
-const VOYAGE_RERANK_MODEL = 'rerank-2.5-lite';
+const VOYAGE_RERANK_MODEL = 'rerank-2.5';
 const VOYAGE_TIMEOUT_MS = 4000;
 const RERANK_INPUT_CAP = 50; // máx docs por chamada de rerank
 
@@ -158,8 +158,22 @@ serve(async (req) => {
   const embedding = await embedQuery(q);
   const q_embedding = embedding ? '[' + embedding.join(',') + ']' : null;
 
+  // Heurística: queries de 4+ palavras são conceituais ("como cuidar de
+  // alguém doente", "sofrimento após perda"). FTS tende a injetar matches
+  // lexicais em contextos tematicamente distantes (tokens "alguém doente"
+  // aparecem em teachings sobre gato-monstro, dragão, etc.), que sobrevivem
+  // ao rerank pelo overlap textual mesmo sem relevância prática.
+  //
+  // Quando temos embedding semântico, é mais limpo pular FTS pra essas
+  // queries — o candidato pool fica 100% vetorial. Queries curtas (1-3
+  // palavras) continuam usando FTS, onde matches lexicais geralmente
+  // são doutrinariamente importantes (termos como "Johrei", "Daijo",
+  // "Princípio do Johrei").
+  const word_count = q.split(/\s+/).filter(Boolean).length;
+  const use_fts = !(embedding && word_count >= 4);
+
   const { data, error } = await supabase.rpc('search_teachings_hybrid', {
-    q, q_embedding, lang, max_results, scope,
+    q, q_embedding, lang, max_results, scope, use_fts,
   });
 
   if (error) {
@@ -178,20 +192,33 @@ serve(async (req) => {
     const cap = Math.min(results.length, RERANK_INPUT_CAP);
     const slice = results.slice(0, cap);
     const docs = slice.map((r) => {
-      const title = (lang === 'ja' ? r.title_ja : r.title_pt) || r.title_pt || r.title_ja || '';
+      const isJa = lang === 'ja';
+      const section = (isJa ? r.section_ja : r.section_pt) || r.section_pt || r.section_ja || '';
+      const navTitle = (isJa ? r.nav_title_ja : r.nav_title_pt) || '';
+      const title = (isJa ? r.title_ja : r.title_pt) || r.title_pt || r.title_ja || '';
       const excerpt = r.content_excerpt || '';
-      // Title + excerpt: reranker pesa título separadamente quando aparece
-      // primeiro. Mantém formato consistente pros 2 idiomas.
-      return `${title}\n\n${excerpt}`.trim();
+      // Formato pro reranker: [seção] título doutrinário + excerpt.
+      // Seção dá ao reranker contexto temático ("Johrei para animais" vs
+      // "Sobre a saúde") que diferencia matches lexicais coincidentes em
+      // domínios distantes. nav_title é o rótulo curado quando difere do
+      // título doutrinário — incluído se existir, pra dar peso de "isto
+      // é como o teaching é navegado no site".
+      const header = [section, navTitle && navTitle !== title ? navTitle : null, title]
+        .filter(Boolean)
+        .join(' — ');
+      return `${header}\n\n${excerpt}`.trim();
     });
     const scores = await rerankCandidates(q, docs);
     if (scores && scores.length === slice.length) {
       // Reordena slice pelos scores; mantém a "cauda" (resultados além
-      // do cap) na ordem original do RRF, ao final.
+      // do cap) na ordem original do RRF, ao final. Anexa rerank_score
+      // em cada item — usado pelo cliente pra debug/threshold visual e
+      // pra eventual filtro futuro.
+      const scoreById = new Map(scores.map((s) => [s.index, s.relevance_score]));
       const ordered = scores
         .slice()
         .sort((a, b) => b.relevance_score - a.relevance_score)
-        .map((s) => slice[s.index])
+        .map((s) => ({ ...slice[s.index], rerank_score: s.relevance_score }))
         .filter(Boolean);
       results = [...ordered, ...results.slice(cap)];
       reranked = true;
@@ -206,7 +233,7 @@ serve(async (req) => {
   });
 
   return new Response(
-    JSON.stringify({ data: out, semantic: embedding != null, reranked }),
+    JSON.stringify({ data: out, semantic: embedding != null, reranked, use_fts }),
     { status: 200, headers: { ...corsHeaders, 'content-type': 'application/json' } }
   );
 });

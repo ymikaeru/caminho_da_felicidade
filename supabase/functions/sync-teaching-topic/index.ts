@@ -26,6 +26,68 @@ const PATH_RE = /^(mioshiec[1-9])\/(.+)\.json$/;
 const BUCKET = 'teachings';
 const BATCH_SIZE = 100;
 
+const VOYAGE_URL = 'https://api.voyageai.com/v1/embeddings';
+const VOYAGE_MODEL = 'voyage-3';
+const VOYAGE_MAX_CHARS = 6000;
+
+function buildEmbedInput(r: any): string {
+  const parts = [
+    r.title_pt, r.nav_title_pt, r.section_pt, r.content_pt,
+    r.title_ja, r.nav_title_ja, r.section_ja, r.content_ja,
+  ].filter(Boolean);
+  let text = parts.join('\n\n');
+  if (text.length > VOYAGE_MAX_CHARS) text = text.slice(0, VOYAGE_MAX_CHARS);
+  return text;
+}
+
+// Reembedda os topics tocados nesse webhook. Falhas são log-only — não
+// quebram o sync de FTS. Embedding fica stale até o próximo reconcile
+// ou re-trigger manual.
+async function reembedRows(supabase: any, vol: string, fileKey: string): Promise<{ ok: boolean; n: number; reason?: string }> {
+  const key = Deno.env.get('VOYAGE_API_KEY');
+  if (!key) return { ok: false, n: 0, reason: 'no_key' };
+
+  const { data: rows, error } = await supabase
+    .from('teachings_topics')
+    .select('vol,file,topic_idx,title_pt,nav_title_pt,section_pt,content_pt,title_ja,nav_title_ja,section_ja,content_ja')
+    .eq('vol', vol)
+    .eq('file', fileKey);
+  if (error) return { ok: false, n: 0, reason: `select: ${error.message}` };
+  if (!rows || rows.length === 0) return { ok: true, n: 0 };
+
+  const inputs = rows.map(buildEmbedInput);
+  const valid = rows.map((_r: any, i: number) => inputs[i].length > 0);
+  const toSend = inputs.filter((_t: string, i: number) => valid[i]);
+  if (toSend.length === 0) return { ok: true, n: 0 };
+
+  const res = await fetch(VOYAGE_URL, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ input: toSend, model: VOYAGE_MODEL, input_type: 'document' }),
+  });
+  if (!res.ok) {
+    return { ok: false, n: 0, reason: `voyage_${res.status}` };
+  }
+  const json = await res.json();
+  const embeds: number[][] = (json?.data || []).map((d: any) => d.embedding);
+  if (embeds.length !== toSend.length) return { ok: false, n: 0, reason: 'voyage_shape' };
+
+  const nowIso = new Date().toISOString();
+  let cursor = 0;
+  for (let i = 0; i < rows.length; i++) {
+    if (!valid[i]) continue;
+    const emb = embeds[cursor++];
+    const { error: uerr } = await supabase
+      .from('teachings_topics')
+      .update({ embedding: emb, embedding_updated_at: nowIso })
+      .eq('vol', rows[i].vol)
+      .eq('file', rows[i].file)
+      .eq('topic_idx', rows[i].topic_idx);
+    if (uerr) return { ok: false, n: cursor - 1, reason: `update: ${uerr.message}` };
+  }
+  return { ok: true, n: toSend.length };
+}
+
 type WebhookPayload = {
   type: 'INSERT' | 'UPDATE' | 'DELETE';
   table: string;
@@ -147,8 +209,25 @@ serve(async (req) => {
       .gt('topic_idx', maxIdx);
     if (trimErr) throw new Error(`trim: ${trimErr.message}`);
 
+    // Re-embedda os topics afetados. Falha aqui não derruba o sync FTS —
+    // o RPC híbrido degrada gracioso pra FTS-only enquanto embeddings
+    // ficam stale. Reconcile noturno pode pegar o que faltou.
+    const embedResult = await reembedRows(supabase, vol, fileKey).catch((err) => ({
+      ok: false, n: 0, reason: (err as Error).message,
+    }));
+    if (!embedResult.ok && embedResult.reason !== 'no_key') {
+      console.warn(`[sync-teaching-topic] embedding falhou ${vol}/${fileKey}: ${embedResult.reason}`);
+    }
+
     return new Response(
-      JSON.stringify({ ok: true, action: payload.type.toLowerCase(), vol, file: fileKey, rows: enriched.length }),
+      JSON.stringify({
+        ok: true,
+        action: payload.type.toLowerCase(),
+        vol,
+        file: fileKey,
+        rows: enriched.length,
+        embedded: embedResult.n,
+      }),
       { status: 200, headers: { 'content-type': 'application/json' } }
     );
   } catch (err) {

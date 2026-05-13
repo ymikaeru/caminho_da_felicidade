@@ -815,16 +815,27 @@ async function performSearch(query) {
 
   const _t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {
-    const { data, error } = await supabase.rpc('search_teachings', {
-      q: serverQuery,
-      lang: activeLang,
-      max_results: MAX_RESULTS,
-      scope: scope,
-    });
+    // Tenta a Edge Function de busca híbrida (FTS + embedding semântico).
+    // Se falhar (Voyage down, função não deployada, etc.), cai pro RPC
+    // FTS-only — preserva o caminho antigo como rede de segurança.
+    let data = null, error = null;
+    try {
+      const { data: edgeData, error: edgeError } = await supabase.functions.invoke('search-semantic', {
+        body: { q: serverQuery, lang: activeLang, max_results: MAX_RESULTS, scope },
+      });
+      if (edgeError) throw edgeError;
+      data = edgeData?.data ?? [];
+    } catch (edgeErr) {
+      console.warn('search-semantic indisponível, fallback FTS:', edgeErr?.message || edgeErr);
+      const r = await supabase.rpc('search_teachings', {
+        q: serverQuery, lang: activeLang, max_results: MAX_RESULTS, scope,
+      });
+      data = r.data; error = r.error;
+    }
     const _latencyMs = ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - _t0;
 
     if (error) {
-      console.error('search_teachings RPC error:', error);
+      console.error('search RPC error:', error);
       const errMsg = activeLang === 'ja' ? '検索に失敗しました。' : 'Erro ao buscar. Tente novamente.';
       if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errMsg}</li>`;
       _updateSearchCount(0, 0, activeLang);

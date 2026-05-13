@@ -400,6 +400,65 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('touchstart', _markInteraction, { passive: true });
     window.addEventListener('keydown', _markInteraction);
 
+    // ── Scroll high-water mark (% do conteúdo realmente exposto na maior leitura)
+    // Usado pelo admin pra distinguir "ficou 10 min e leu até o fim" de
+    // "ficou 10 min mas só viu o início". Persistido via update_max_scroll_pct.
+    let _maxScrollKey = null;
+    let _maxScrollPct = 0;
+    let _scrollFlushTimer = null;
+
+    function _computeScrollPct() {
+        // Mede % do reader-content já exposto ao usuário (fundo da viewport).
+        // Fallback para o documento se o container não existir.
+        const el = document.getElementById('readerContainer') || document.documentElement;
+        const rect = el.getBoundingClientRect ? el.getBoundingClientRect() : null;
+        const viewportBottom = window.innerHeight;
+        let pct;
+        if (rect) {
+            const total = el.scrollHeight || rect.height;
+            if (total <= viewportBottom) return 100; // cabe na tela
+            const exposed = Math.min(total, viewportBottom - rect.top);
+            pct = (exposed / total) * 100;
+        } else {
+            const docH = document.documentElement.scrollHeight;
+            if (docH <= viewportBottom) return 100;
+            pct = ((window.scrollY + viewportBottom) / docH) * 100;
+        }
+        return Math.max(0, Math.min(100, Math.round(pct)));
+    }
+
+    function _trackScroll() {
+        try {
+            const { volId, filename } = getParams();
+            if (!volId || !filename) return;
+            const key = `${volId}|${filename}`;
+            if (_maxScrollKey !== key) {
+                // Mudou de ensinamento — flush antes de zerar
+                _flushScrollPct();
+                _maxScrollKey = key;
+                _maxScrollPct = 0;
+            }
+            const cur = _computeScrollPct();
+            if (cur > _maxScrollPct) _maxScrollPct = cur;
+        } catch (_) {}
+    }
+
+    function _flushScrollPct() {
+        if (!_maxScrollKey || _maxScrollPct <= 0) return;
+        const [volId, filename] = _maxScrollKey.split('|');
+        if (window._cloudSync?.updateMaxScrollPct) {
+            window._cloudSync.updateMaxScrollPct(volId, filename, _maxScrollPct);
+        }
+    }
+
+    window.addEventListener('scroll', () => {
+        _trackScroll();
+        clearTimeout(_scrollFlushTimer);
+        _scrollFlushTimer = setTimeout(_flushScrollPct, 2000);
+    }, { passive: true });
+    // Captura também o estado inicial (caso o reader caiba inteiro na tela)
+    setTimeout(_trackScroll, 1800);
+
     function saveReadingPosition() {
         if (!_userInteracted) return;
         try {
@@ -422,8 +481,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (e) { }
     }
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveReadingPosition(); });
-    window.addEventListener('beforeunload', saveReadingPosition);
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            _trackScroll();
+            _flushScrollPct();
+            saveReadingPosition();
+        }
+    });
+    window.addEventListener('beforeunload', () => {
+        _trackScroll();
+        _flushScrollPct();
+        saveReadingPosition();
+    });
 
     // Swipe navigation (mobile)
     let _touchStartX = 0, _touchStartY = 0;

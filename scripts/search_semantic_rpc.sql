@@ -28,7 +28,12 @@ returns table(
   nav_title_pt text,
   nav_title_ja text,
   snippet text,
-  rank real
+  rank real,
+  -- content_excerpt: prefixo do conteúdo (até 1500 chars) que a Edge Function
+  -- envia pro Voyage reranker. Não é retornado pro frontend; Edge Function
+  -- remove esse campo antes do response final. Tamanho calibrado pra ficar
+  -- dentro de ~400 tokens/doc no rerank (custo previsível).
+  content_excerpt text
 )
 language plpgsql stable security invoker
 set statement_timeout to '30s'
@@ -185,7 +190,18 @@ begin
         'StartSel=<mark>, StopSel=</mark>, MaxWords=30, MinWords=10, MaxFragments=1'
       )
     end as snippet,
-    r.score as rank
+    r.score as rank,
+    -- Excerpt pro reranker. Usa content do idioma da query; cai pro outro
+    -- se o nativo for null (alguns topics têm só PT ou só JA).
+    substring(
+      coalesce(
+        case when lang = 'ja' then t.content_ja else t.content_pt end,
+        t.content_pt,
+        t.content_ja,
+        ''
+      )
+      from 1 for 1500
+    ) as content_excerpt
   from ranked r
   join teachings_topics t using (vol, file, topic_idx)
   order by r.score desc;

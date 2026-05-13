@@ -33,6 +33,12 @@ returns table(
 language plpgsql stable security invoker
 set statement_timeout to '30s'
 as $$
+-- Nomes das colunas do RETURNS TABLE (vol, file, ...) ficam visíveis como
+-- variáveis dentro da função, e PL/pgSQL erra com "ambiguous reference"
+-- quando uma query também tem coluna com mesmo nome. Diretiva abaixo diz
+-- pra preferir coluna sobre variável em qualquer ambiguidade.
+#variable_conflict use_column
+--
 -- RRF constant. k=60 é o valor canônico (Cormack et al. 2009) — penaliza
 -- ranks tardios o suficiente pra que top 1-3 dominem, sem zerar o sinal
 -- dos top 10-20. Valores menores (k=10) tornam top-1 quase ditatorial;

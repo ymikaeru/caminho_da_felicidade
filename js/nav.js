@@ -24,6 +24,25 @@ function _initMobileNav() {
   headerActions.appendChild(hamburgerBtn);
   header.appendChild(headerActions);
 
+  // Move o tocToggle pra DEPOIS do botão "Voltar ao Índice" e transfere
+  // o `margin-right: auto` de Voltar pro toggle. Voltar tinha esse auto
+  // inline pra empurrar header__actions pra direita; sem mover, o toggle
+  // ficava no meio do header (em cima do logo absolute-centrado). Agora:
+  //   - Voltar: margin-right 8px (gap fixo até o toggle)
+  //   - toggle: margin-right auto (consome o espaço entre ele e actions)
+  //   - actions: continua com margin-left auto (canto direito)
+  // Idempotente: pode rodar várias vezes sem quebrar.
+  const tocToggleBtn = header.querySelector('#tocToggle');
+  const backIdxBtn = header.querySelector('#backToIndexBtn');
+  if (tocToggleBtn && backIdxBtn) {
+    if (backIdxBtn.nextElementSibling !== tocToggleBtn) {
+      backIdxBtn.insertAdjacentElement('afterend', tocToggleBtn);
+    }
+    backIdxBtn.style.marginRight = '8px';
+    tocToggleBtn.style.marginRight = 'auto';
+  }
+  document.documentElement.classList.add('toc-ready');
+
   const desktopNav = header.querySelector('.header__nav');
   const navLinks = desktopNav ? Array.from(desktopNav.querySelectorAll('a')) : [];
   const topicSelect = desktopNav ? desktopNav.querySelector('select') : null;
@@ -215,8 +234,79 @@ function _initMobileNav() {
     }));
     if (opts.length > 0) {
       window._updateMobileNavTopics(sectionLabel, opts);
+      // Espelha no TOC desktop, mesma estratégia do reader. As páginas
+      // de volume não têm o aside/botão no HTML — injeta aqui sob demanda
+      // pra não precisar editar mioshiec{1..4}/index.html. Hash atual
+      // determina o item ativo (#section-N).
+      _injectVolumeToc(header, sectionLabel, opts);
     }
   }
+}
+
+// Injeta o aside e o botão de toggle do TOC desktop em páginas de
+// volume (mioshiec{N}/index.html). No reader.html esses elementos já
+// existem no HTML — aqui só na página de volume.
+function _injectVolumeToc(header, sectionLabel, opts) {
+  if (typeof window._updateDesktopToc !== 'function') return;
+
+  // Injeta o aside no <main> se ainda não existe.
+  let aside = document.getElementById('publicationToc');
+  if (!aside) {
+    aside = document.createElement('aside');
+    aside.id = 'publicationToc';
+    aside.className = 'publication-toc';
+    aside.setAttribute('aria-label', sectionLabel);
+    aside.hidden = true;
+    const main = document.querySelector('main') || document.body;
+    main.insertBefore(aside, main.firstChild);
+  }
+
+  // Injeta o botão de toggle no header se ainda não existe.
+  let btn = document.getElementById('tocToggle');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'tocToggle';
+    btn.className = 'toc-toggle';
+    btn.setAttribute('aria-label', 'Mostrar/ocultar ' + sectionLabel.toLowerCase());
+    btn.setAttribute('aria-expanded', 'true');
+    btn.setAttribute('title', sectionLabel);
+    btn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="8" y1="6" x2="21" y2="6"/>
+        <line x1="8" y1="12" x2="21" y2="12"/>
+        <line x1="8" y1="18" x2="21" y2="18"/>
+        <line x1="3" y1="6" x2="3.01" y2="6"/>
+        <line x1="3" y1="12" x2="3.01" y2="12"/>
+        <line x1="3" y1="18" x2="3.01" y2="18"/>
+      </svg>
+    `;
+    // Insere logo após o primeiro btn-zen do header (botão "Início"
+    // no caso da volume page) — mesma posição lógica que o reader.
+    const firstBtnZen = header.querySelector('.btn-zen');
+    if (firstBtnZen && firstBtnZen.parentElement === header) {
+      firstBtnZen.insertAdjacentElement('afterend', btn);
+    } else {
+      header.appendChild(btn);
+    }
+    // NÃO adiciona click handler aqui — o handler global no
+    // DOMContentLoaded (linha ~479) cuida disso. _initMobileNav é
+    // chamado por toggle.js no MESMO DOMContentLoaded, antes do nav.js
+    // anexar seu próprio handler — então quando o handler global roda,
+    // o botão já está no DOM. Se duplicasse, cada clique alternaria a
+    // classe duas vezes = no-op.
+  }
+
+  // Item ativo = ancora do hash atual, ou primeira opção se sem hash.
+  const currentHref = window.location.hash || (opts[0] && opts[0].value) || '';
+  window._updateDesktopToc(sectionLabel, opts, currentHref);
+
+  // Liga scroll spy nas seções do volume (anchors #section-N).
+  if (typeof window._attachTocScrollSpy === 'function') {
+    requestAnimationFrame(() => window._attachTocScrollSpy());
+  }
+
+  document.documentElement.classList.add('toc-ready');
 }
 
 window.openMobileNav = function () {
@@ -242,12 +332,12 @@ window._updateMobileNavTopics = function (label, optionsList) {
   const currentLang = localStorage.getItem('site_lang') || 'pt';
   let label_to_use = label;
   if (!label_to_use) {
-    label_to_use = currentLang === 'ja' ? '巻のテーマ' : 'Temas do Volume';
+    label_to_use = currentLang === 'ja' ? 'この巻の章' : 'Capítulos deste Volume';
   } else {
-    if (label === 'Temas do Volume' || label === '巻のテーマ') {
-      label_to_use = currentLang === 'ja' ? '巻のテーマ' : 'Temas do Volume';
-    } else if (label === 'Publicações deste ensinamento' || label === '刊行物：テーマ') {
-      label_to_use = currentLang === 'ja' ? '刊行物：テーマ' : 'Publicações deste ensinamento';
+    if (label === 'Capítulos deste Volume' || label === 'この巻の章') {
+      label_to_use = currentLang === 'ja' ? 'この巻の章' : 'Capítulos deste Volume';
+    } else if (label === 'Ensinamentos deste tema' || label === 'このテーマの教え') {
+      label_to_use = currentLang === 'ja' ? 'このテーマの教え' : 'Ensinamentos deste tema';
     }
   }
 
@@ -263,6 +353,137 @@ window._updateMobileNavTopics = function (label, optionsList) {
   });
   container.innerHTML = html;
 };
+
+// TOC desktop — espelha os topics do arquivo atual num painel fixo à
+// esquerda. Mesmo dataset que alimenta o menu sanduíche em mobile, só
+// que aqui sempre visível (em viewports ≥1280px, via CSS). Esconde no
+// hidden attr quando não há publicações suficientes.
+window._updateDesktopToc = function (label, optionsList, currentHref) {
+  const aside = document.getElementById('publicationToc');
+  if (!aside) return;
+  if (!optionsList || optionsList.length === 0) {
+    aside.hidden = true;
+    aside.innerHTML = '';
+    return;
+  }
+  aside.hidden = false;
+  const currentLang = localStorage.getItem('site_lang') || 'pt';
+  const heading = label || (currentLang === 'ja' ? 'このテーマの教え' : 'Ensinamentos deste tema');
+  const items = optionsList.map(o => {
+    const active = currentHref && o.value === currentHref ? ' is-active' : '';
+    return `<a href="${o.value}" class="publication-toc__item${active}">
+      <span class="publication-toc__bullet" aria-hidden="true"></span>
+      <span class="publication-toc__text">${o.text}</span>
+    </a>`;
+  }).join('');
+  aside.innerHTML = `
+    <div class="publication-toc__heading">${heading}</div>
+    <nav class="publication-toc__list">${items}</nav>
+  `;
+};
+
+// Scroll spy do TOC desktop — destaca a publicação visível conforme o
+// usuário rola o leitor. Implementado com scroll listener + rAF (em vez
+// de IntersectionObserver) porque a regra "tópico ativo = aquele cujo
+// topo está mais próximo da linha-âncora, mas ainda acima dela" é mais
+// natural de expressar com posições absolutas.
+let _tocSpyHandler = null;
+let _tocSpyRaf = null;
+
+function _detachTocScrollSpy() {
+  if (_tocSpyHandler) {
+    window.removeEventListener('scroll', _tocSpyHandler);
+    _tocSpyHandler = null;
+  }
+  if (_tocSpyRaf) {
+    cancelAnimationFrame(_tocSpyRaf);
+    _tocSpyRaf = null;
+  }
+}
+
+function _setTocActive(href) {
+  const aside = document.getElementById('publicationToc');
+  if (!aside) return;
+  aside.querySelectorAll('.publication-toc__item').forEach(a => {
+    a.classList.toggle('is-active', a.getAttribute('href') === href);
+  });
+  // Auto-scroll do TOC pra manter o item ativo visível mesmo em
+  // publicações com muitos tópicos (lista do TOC pode rolar internamente).
+  const activeEl = aside.querySelector('.publication-toc__item.is-active');
+  if (activeEl) {
+    const list = aside.querySelector('.publication-toc__list');
+    if (list) {
+      const aRect = activeEl.getBoundingClientRect();
+      const lRect = list.getBoundingClientRect();
+      if (aRect.top < lRect.top || aRect.bottom > lRect.bottom) {
+        activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+  }
+}
+
+window._attachTocScrollSpy = function () {
+  _detachTocScrollSpy();
+  const aside = document.getElementById('publicationToc');
+  if (!aside || aside.hidden) return;
+
+  const targets = Array.from(aside.querySelectorAll('.publication-toc__item'))
+    .map(a => {
+      const href = a.getAttribute('href') || '';
+      const id = href.startsWith('#') ? href.slice(1) : '';
+      const el = id ? document.getElementById(id) : null;
+      return el ? { el, href } : null;
+    })
+    .filter(Boolean);
+
+  if (targets.length < 2) return;
+
+  // Linha-âncora a 140px do topo da viewport — abaixo da nav (60px) e do
+  // breadcrumb/título do tópico. Tópico ativo = o que tem topo mais
+  // próximo desta linha, mas ainda acima dela (estamos lendo ele).
+  const ACTIVE_LINE_Y = 140;
+
+  const update = () => {
+    _tocSpyRaf = null;
+    let activeHref = targets[0].href;
+    let bestTop = -Infinity;
+    for (const t of targets) {
+      const top = t.el.getBoundingClientRect().top;
+      if (top <= ACTIVE_LINE_Y && top > bestTop) {
+        bestTop = top;
+        activeHref = t.href;
+      }
+    }
+    _setTocActive(activeHref);
+  };
+
+  _tocSpyHandler = () => {
+    if (_tocSpyRaf) return;
+    _tocSpyRaf = requestAnimationFrame(update);
+  };
+  window.addEventListener('scroll', _tocSpyHandler, { passive: true });
+  update();
+};
+
+// Wire do botão de toggle do TOC desktop. Aplica a classe inicial no
+// botão (lê do <html>, que já tem a classe setada inline no <head>),
+// e persiste a preferência em localStorage entre sessões.
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('tocToggle');
+  if (!btn) return;
+  const reflect = () => {
+    const collapsed = document.documentElement.classList.contains('toc-collapsed');
+    btn.setAttribute('aria-expanded', String(!collapsed));
+    btn.classList.toggle('is-collapsed', collapsed);
+  };
+  reflect();
+  btn.addEventListener('click', () => {
+    const next = !document.documentElement.classList.contains('toc-collapsed');
+    document.documentElement.classList.toggle('toc-collapsed', next);
+    try { localStorage.setItem('caminho_toc_collapsed', next ? 'true' : 'false'); } catch (e) {}
+    reflect();
+  });
+});
 
 window._mobileSwitchLang = function (lang) {
   if (typeof setLanguage === 'function') setLanguage(lang);

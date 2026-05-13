@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 
 <head>
-  <script>(function(){var m=localStorage.getItem('site_mode')||'light';var t=localStorage.getItem('theme')||'light';var d=document.documentElement;d.setAttribute('data-mode',m);d.setAttribute('data-theme',t);var c={'dark:light':'#1A1A1A','dark:quiet':'#2D2D2F','dark:paper':'#2A2824','dark:bold':'#000','dark:calm':'#3B3326','dark:focus':'#000','light:light':'#F2F2F0','light:quiet':'#404043','light:paper':'#EFE8D6','light:bold':'#FFF','light:calm':'#DFCDAE','light:focus':'#FFF'};var bg=c[m+':'+t]||(m==='dark'?'#121212':'#F2F2F0');d.style.backgroundColor=bg})();</script>
+  <script>(function(){var m=localStorage.getItem('site_mode')||'light';var t=localStorage.getItem('theme')||'light';var d=document.documentElement;d.setAttribute('data-mode',m);d.setAttribute('data-theme',t);var c={'dark:light':'#1A1A1A','dark:quiet':'#2D2D2F','dark:paper':'#2A2824','dark:bold':'#000','dark:calm':'#3B3326','dark:focus':'#000','light:light':'#F2F2F0','light:quiet':'#404043','light:paper':'#EFE8D6','light:bold':'#FFF','light:calm':'#DFCDAE','light:focus':'#FFF'};var bg=c[m+':'+t]||(m==='dark'?'#121212':'#F2F2F0');d.style.backgroundColor=bg;try{if(localStorage.getItem('caminho_toc_collapsed')==='true')d.classList.add('toc-collapsed')}catch(e){}})();</script>
   <meta charset="UTF-8">
   <title>Ensinamentos de Meishu-Sama - Leitura</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@300;400;500&display=swap">
-  <link href="css/styles.min.css?v=53" rel="stylesheet" />
+  <link href="css/styles.min.css?v=67" rel="stylesheet" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
   <!-- SEO -->
@@ -51,6 +51,24 @@
       <span class="lang-pt">Voltar ao Índice</span>
       <span class="lang-ja" style="display:none">目次に戻る</span>
     </a>
+    <!-- Toggle do TOC desktop (Ensinamentos deste tema).
+         Aparece só em viewports ≥1280px (CSS). Click alterna a classe
+         html.toc-collapsed e persiste em localStorage. Posicionado
+         depois do "Voltar ao Índice" mas o margin-right:auto desse
+         elemento empurra este botão pro lado direito da header. -->
+    <button type="button" id="tocToggle" class="toc-toggle" aria-label="Mostrar/ocultar ensinamentos deste tema" aria-expanded="true" title="Ensinamentos deste tema">
+      <!-- Ícone "list/index" (Feather/Lucide): três linhas com bullets
+           à esquerda. Os bullets são lines de comprimento zero com
+           stroke-linecap=round, viram pontos arredondados. -->
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="8" y1="6" x2="21" y2="6"/>
+        <line x1="8" y1="12" x2="21" y2="12"/>
+        <line x1="8" y1="18" x2="21" y2="18"/>
+        <line x1="3" y1="6" x2="3.01" y2="6"/>
+        <line x1="3" y1="12" x2="3.01" y2="12"/>
+        <line x1="3" y1="18" x2="3.01" y2="18"/>
+      </svg>
+    </button>
     <div class="header__nav">
       <a href="index.html" style="font-weight:600; opacity:0.7;"><span>⌂ Início</span></a>
       <a href="mioshiec1/index.html"
@@ -85,6 +103,12 @@
     <div class="disciples-sidebar-backdrop" id="disciplesBackdrop"></div>
     <!-- Disciples-only sidebar: hidden until body.disciples-active is set by disciples-reader.js -->
     <aside class="disciples-sidebar-panel" id="readerSidebar" aria-label="Navegação do livro" style="display:none"></aside>
+    <!-- Desktop-only TOC: lista publicações do arquivo atual.
+         Populada por window._updateDesktopToc em nav.js, alimentada pelo
+         reader-render.js (mesmos dados do menu sanduíche em mobile).
+         CSS esconde abaixo de 1280px de viewport — usuários menores
+         continuam usando o menu sanduíche. -->
+    <aside class="publication-toc" id="publicationToc" aria-label="Ensinamentos deste tema" hidden></aside>
     <div class="glass-pane" id="readerContainer">
       <div class="loading-progress" id="loadingProgress" style="display:block;">
         <div class="loading-progress-bar" id="loadingProgressBar"></div>
@@ -131,15 +155,15 @@
     });
   </script>
 
-  <script src="js/toggle.js?v=25" defer></script>
-  <script src="js/nav.js?v=2" defer></script>
+  <script src="js/toggle.js?v=26" defer></script>
+  <script src="js/nav.js?v=17" defer></script>
   <script src="js/theme.js?v=1" defer></script>
-  <script src="js/language.js?v=1" defer></script>
+  <script src="js/language.js?v=2" defer></script>
   <script src="js/typography.js?v=1" defer></script>
-  <script src="js/search.js?v=14" defer></script>
+  <script src="js/search.js?v=19" defer></script>
   <script src="js/marked.min.js" defer></script>
   <script src="js/reader-content.js?v=2" defer></script>
-  <script src="js/reader-render.js?v=6" defer></script>
+  <script src="js/reader-render.js?v=11" defer></script>
   <script src="js/highlights.js?v=4" defer></script>
   <script src="js/content-protection.js?v=6" defer></script>
   <script src="js/translation-report.js?v=1" defer></script>

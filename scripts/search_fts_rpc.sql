@@ -40,9 +40,10 @@ grant execute on function _user_blocks() to authenticated;
 -- ------------------------------------------------------------
 -- Busca principal
 -- ------------------------------------------------------------
--- Drop assinaturas antigas — o param `scope` é novo e Postgres trata
--- assinaturas diferentes como funções distintas.
+-- Drop assinaturas antigas — qualquer mudança na lista de colunas retornadas
+-- ou em params requer DROP antes do CREATE OR REPLACE.
 drop function if exists search_teachings(text, text, int);
+drop function if exists search_teachings(text, text, int, text);
 
 create or replace function search_teachings(
   q text,
@@ -56,6 +57,8 @@ returns table(
   topic_idx int,
   title_pt text,
   title_ja text,
+  nav_title_pt text,
+  nav_title_ja text,
   snippet text,
   rank real
 )
@@ -101,8 +104,13 @@ begin
     matched as (
       select
         t.vol, t.file, t.topic_idx, t.title_pt, t.title_ja,
+        t.nav_title_pt, t.nav_title_ja,
         t.content_ja,
-        ((case when v_scope <> 'content' and t.title_ja   ilike '%' || v_ilike || '%' escape '\' then 1.0 else 0 end) +
+        ((case when v_scope <> 'content' and (
+            t.title_ja      ilike '%' || v_ilike || '%' escape '\'
+            or t.nav_title_ja ilike '%' || v_ilike || '%' escape '\'
+            or t.section_ja   ilike '%' || v_ilike || '%' escape '\'
+          ) then 1.0 else 0 end) +
          (case when v_scope <> 'title'   and t.content_ja ilike '%' || v_ilike || '%' escape '\' then 0.3 else 0 end))::real as r
       from teachings_topics t
       where
@@ -113,7 +121,11 @@ begin
           where b.volume = t.vol and b.files is not null and t.file = any(b.files)
         )
         and (
-          (v_scope <> 'content' and t.title_ja   ilike '%' || v_ilike || '%' escape '\')
+          (v_scope <> 'content' and (
+            t.title_ja      ilike '%' || v_ilike || '%' escape '\'
+            or t.nav_title_ja ilike '%' || v_ilike || '%' escape '\'
+            or t.section_ja   ilike '%' || v_ilike || '%' escape '\'
+          ))
           or
           (v_scope <> 'title'   and t.content_ja ilike '%' || v_ilike || '%' escape '\')
         )
@@ -122,6 +134,7 @@ begin
     )
     select
       m.vol, m.file, m.topic_idx, m.title_pt, m.title_ja,
+      m.nav_title_pt, m.nav_title_ja,
       case
         when v_scope = 'title' then ''
         else substring(
@@ -141,10 +154,13 @@ begin
     matched as (
       select
         t.vol, t.file, t.topic_idx, t.title_pt, t.title_ja,
+        t.nav_title_pt, t.nav_title_ja,
         t.content_pt,
         -- ts_rank_cd usa tsv_pt completo (com setweight) pra ranking — pesos
         -- amplificados (A 5× B) + normalization de tamanho dão ao título
-        -- vantagem decisiva mesmo quando o corpo tem muitos hits.
+        -- vantagem decisiva mesmo quando o corpo tem muitos hits. tsv_pt
+        -- também inclui nav_title_pt (peso A) e section_pt (peso C) — ver
+        -- search_fts_nav_labels.sql.
         ts_rank_cd(v_weights, t.tsv_pt, v_tsq, 33) as r
       from teachings_topics t
       where
@@ -158,7 +174,10 @@ begin
         and t.tsv_pt @@ v_tsq
         and (
           v_scope = 'all'
-          or (v_scope = 'title'   and to_tsvector('pt_unaccent', coalesce(t.title_pt,   '')) @@ v_tsq)
+          or (v_scope = 'title'   and to_tsvector('pt_unaccent',
+                coalesce(t.title_pt, '') || ' ' ||
+                coalesce(t.nav_title_pt, '') || ' ' ||
+                coalesce(t.section_pt, '')) @@ v_tsq)
           or (v_scope = 'content' and to_tsvector('pt_unaccent', coalesce(t.content_pt, '')) @@ v_tsq)
         )
       order by r desc nulls last
@@ -166,6 +185,7 @@ begin
     )
     select
       m.vol, m.file, m.topic_idx, m.title_pt, m.title_ja,
+      m.nav_title_pt, m.nav_title_ja,
       case
         when v_scope = 'title' then ''
         else ts_headline(

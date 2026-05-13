@@ -5411,9 +5411,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const t = data.totals || {};
       const daily = data.daily || [];
       const refs = data.top_referrers || [];
-      const paths = data.top_paths || [];
       const eng = data.engagement || {};
-      const clicks = data.top_clicks || [];
       const items = data.top_items || [];
 
       console.log('[jr-analytics] totals:', t, 'daily.length:', daily.length, 'daily[0..2]:', daily.slice(0, 3));
@@ -5523,12 +5521,6 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-muted);margin-top:3px;"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span></div>
         <p style="font-size:.78rem;color:var(--text-muted);margin:6px 0 0;">Pico: <strong>${hourPeakIdx}h</strong> (${hours[hourPeakIdx]} visitas)</p>`;
 
-      const clicksTbl = clicks.length
-        ? `<table><thead><tr><th>Rótulo</th><th style="text-align:right;">Cliques</th></tr></thead><tbody>${
-            clicks.map(c => `<tr><td class="ell">${esc(c.label)}${c.kind === 'cta' ? ' <span style="font-size:.6rem;color:var(--text-muted);">CTA</span>' : ''}</td><td class="num">${(c.clicks??0).toLocaleString('pt-BR')}</td></tr>`).join('')
-          }</tbody></table>`
-        : '<div class="loading">Nenhum clique rastreado ainda.</div>';
-
       dash.innerHTML = `
         <div class="jr-cards">
           ${card(t.today_visits,'Hoje',t.today_uniques)}
@@ -5546,15 +5538,11 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           <h3>Visitas por dia (últimos ${data.days_back} dias)</h3>
           <canvas id="jr-chart"></canvas>
         </div>
-        <div class="jr-tables" style="margin-bottom:16px;">
+        <div class="jr-tables jr-tables--full" style="margin-bottom:16px;">
           <div class="jr-tbl"><h3>Top ensinamentos</h3>${itemsTbl}</div>
-          <div class="jr-tbl"><h3>Top páginas</h3>${tbl(paths,'path','visits')}</div>
         </div>
         <div class="jr-tables" style="margin-bottom:16px;">
           <div class="jr-tbl"><h3>Top referrers</h3>${tbl(refs,'referrer','visits')}</div>
-          <div class="jr-tbl"><h3>Top cliques</h3>${clicksTbl}</div>
-        </div>
-        <div class="jr-tables" style="margin-bottom:16px;">
           <div class="jr-tbl"><h3>Dispositivos</h3>${deviceTotal > 1 ? deviceBars : '<div class="loading">Sem dados.</div>'}</div>
         </div>
         <div class="jr-tables">
@@ -5627,9 +5615,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const t = data.totals || {};
       const daily = data.daily || [];
       const refs = data.top_referrers || [];
-      const paths = data.top_paths || [];
       const eng = data.engagement || {};
-      const clicks = data.top_clicks || [];
 
       if (genAt) genAt.textContent = `Atualizado em ${new Date(data.generated_at).toLocaleString('pt-BR')}`;
 
@@ -5722,12 +5708,6 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-muted);margin-top:3px;"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span></div>
         <p style="font-size:.78rem;color:var(--text-muted);margin:6px 0 0;">Pico: <strong>${hourPeakIdx}h</strong> (${hours[hourPeakIdx]} visitas)</p>`;
 
-      const clicksTbl = clicks.length
-        ? `<table><thead><tr><th>Rótulo</th><th style="text-align:right;">Cliques</th></tr></thead><tbody>${
-            clicks.map(c => `<tr><td class="ell">${esc(c.label)}${c.kind === 'cta' ? ' <span style="font-size:.6rem;color:var(--text-muted);">CTA</span>' : ''}</td><td class="num">${(c.clicks??0).toLocaleString('pt-BR')}</td></tr>`).join('')
-          }</tbody></table>`
-        : '<div class="loading">Nenhum clique rastreado ainda.</div>';
-
       dash.innerHTML = `
         <div class="lp-cards">
           ${card(t.today_visits,'Hoje',t.today_uniques)}
@@ -5747,10 +5727,6 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         </div>
         <div class="lp-tables" style="margin-bottom:16px;">
           <div class="lp-tbl"><h3>Top referrers</h3>${tbl(refs,'referrer','visits')}</div>
-          <div class="lp-tbl"><h3>Top páginas</h3>${tbl(paths,'path','visits')}</div>
-        </div>
-        <div class="lp-tables" style="margin-bottom:16px;">
-          <div class="lp-tbl"><h3>Top cliques</h3>${clicksTbl}</div>
           <div class="lp-tbl"><h3>Dispositivos</h3>${deviceTotal > 1 ? deviceBars : '<div class="loading">Sem dados.</div>'}</div>
         </div>
         <div class="lp-tables">

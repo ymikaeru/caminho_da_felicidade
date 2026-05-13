@@ -1,0 +1,153 @@
+/* TOC desktop — painel fixo à esquerda no leitor, lista publicações
+   do arquivo atual com a ativa destacada. Em telas <1280px fica
+   escondido (display:none); o menu sanduíche continua servindo. */
+
+.publication-toc {
+  position: fixed;
+  /* Alinha com a borda esquerda dos botões "Voltar" / "Início" do header:
+     header tem padding-left clamp(16px, 2vw, 40px) e o botão tem
+     margin-left: 16px inline. clamp + 16px casa visualmente. */
+  left: calc(clamp(16px, 2vw, 40px) + 16px);
+  top: calc(var(--nav-height, 60px) + 16px);
+  width: 240px;
+  max-height: calc(100vh - var(--nav-height, 60px) - 32px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 14px 0 14px 0;
+  z-index: 50;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: var(--font-ui);
+  transition: transform 0.25s var(--ease), opacity 0.25s var(--ease);
+}
+
+/* Estado escondido — alterna pela classe html.toc-collapsed (setada
+   inline no <head> via localStorage pra evitar flash). Slide-out
+   suave pra esquerda + fade. Pointer-events:none garante que mesmo
+   semi-transparente nada bloqueia clicks. */
+html.toc-collapsed .publication-toc {
+  transform: translateX(calc(-100% - 32px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Só aparece quando o espaço lateral ao conteúdo central (1024px max)
+   permite — abaixo disso o painel sobreporia o texto. */
+@media (min-width: 1280px) {
+  .publication-toc:not([hidden]) {
+    display: flex;
+  }
+}
+
+.publication-toc__heading {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 0 16px 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+  flex-shrink: 0;
+}
+
+.publication-toc__list {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 4px 0;
+  min-height: 0;
+}
+
+.publication-toc__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--text-main);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+.publication-toc__item:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.publication-toc__item.is-active {
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.publication-toc__bullet {
+  flex-shrink: 0;
+  width: 5px;
+  height: 5px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.publication-toc__item.is-active .publication-toc__bullet {
+  opacity: 1;
+}
+
+.publication-toc__text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Botão de toggle no header — só aparece em viewport ≥1280px (mesma
+   regra que mostra o TOC). Inicia oculto via visibility:hidden no
+   <html> — o JS em nav.js move o botão pra dentro de .header__actions
+   e marca o html como toc-ready, aí o botão fica visível. Sem isso o
+   botão aparece brevemente no fluxo errado do header (sob o logo
+   centralizado ou atrás do Voltar ao Índice) durante o load. */
+.toc-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 8px;
+  min-height: 36px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-main);
+  cursor: pointer;
+  visibility: hidden;
+  transition: background 0.18s var(--ease), color 0.18s var(--ease), opacity 0.18s var(--ease);
+}
+
+html.toc-ready .toc-toggle {
+  visibility: visible;
+}
+
+.toc-toggle:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.toc-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.toc-toggle.is-collapsed {
+  opacity: 0.55;
+}
+
+@media (min-width: 1280px) {
+  .toc-toggle {
+    display: inline-flex;
+  }
+}
+

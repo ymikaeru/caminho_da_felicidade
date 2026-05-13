@@ -278,29 +278,42 @@ function _syncSpmLang() {
 
 document.addEventListener('DOMContentLoaded', function _initSearchPreviewModal() {
   const isMobile = window.innerWidth <= 767;
-  const openPubLabel = (localStorage.getItem('site_lang') || 'pt') === 'ja' ? '関連する教え' : 'Ensinamentos Relacionados';
+  const lang = localStorage.getItem('site_lang') || 'pt';
+  const openPubLabel = lang === 'ja' ? '教えを開く' : 'Abrir Ensinamento';
+  const quicklookLabel = lang === 'ja' ? '検索プレビュー' : 'Prévia da busca';
 
   const overlay = document.createElement('div');
   overlay.className = 'search-preview-overlay';
   overlay.id = 'searchPreviewModal';
   overlay.innerHTML =
     '<div class="search-preview-panel" id="searchPreviewPanel">' +
+      // Linha 1: controles/estado \u2014 back \u00e0 esquerda, badge centralizado, close \u00e0 direita.
+      // Cada item flex-1 pra alinhar sim\u00e9trico mesmo com texto de tamanho vari\u00e1vel.
       '<div class="search-preview-header">' +
         '<button class="search-preview-back" id="searchPreviewBack" onclick="closeSearchPreview()">' +
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>' +
           ' Resultados' +
         '</button>' +
-        '<div class="search-preview-title-group">' +
-          '<div class="search-preview-breadcrumb" id="searchPreviewBreadcrumb"></div>' +
-          '<div class="search-preview-title" id="searchPreviewTitle"></div>' +
-        '</div>' +
-        '<button class="btn-zen spm-btn spm-open-pub" id="spmOpenPub" title="' + openPubLabel + '">' + openPubLabel + '</button>' +
+        '<span class="search-preview-badge" id="searchPreviewBadge">' + quicklookLabel + '</span>' +
         '<button class="modal-close-btn search-preview-close" onclick="closeSearchPreview()" aria-label="Fechar preview">\u00d7</button>' +
+      '</div>' +
+      // Linha 2: contexto/conte\u00fado \u2014 breadcrumb pequeno em cima, t\u00edtulo do t\u00f3pico
+      // em destaque embaixo. Centralizado, com truncamento ellipsis se exceder.
+      '<div class="search-preview-context">' +
+        '<div class="search-preview-breadcrumb" id="searchPreviewBreadcrumb"></div>' +
+        '<div class="search-preview-title" id="searchPreviewTitle"></div>' +
       '</div>' +
       '<div class="search-preview-body">' +
         '<div class="search-preview-card" id="searchPreviewCard">' +
           '<div class="search-preview-card-content" id="searchPreviewCardContent"></div>' +
+          '<div class="search-preview-card-fade" aria-hidden="true"></div>' +
         '</div>' +
+      '</div>' +
+      '<div class="search-preview-footer">' +
+        '<button class="search-preview-cta" id="spmOpenPub" title="' + openPubLabel + '">' +
+          '<span>' + openPubLabel + '</span>' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>' +
+        '</button>' +
       '</div>' +
     '</div>';
   document.body.appendChild(overlay);
@@ -316,8 +329,16 @@ document.addEventListener('DOMContentLoaded', function _initSearchPreviewModal()
       const card = document.getElementById('searchPreviewCard');
       const vol = iframe?.dataset.vol || card?.dataset.vol || '';
       const file = iframe?.dataset.file || card?.dataset.file || '';
+      // Abre no MESMO topic_idx que o usuário está previsualizando — o
+      // preview vira um quick look coerente (vê o tópico X, abre no X).
+      // Antes ficava fixo em topic=0, o que pulava pro início da
+      // publicação e confundia.
+      const topicIdx = parseInt(card?.dataset.topic ?? '0', 10) || 0;
       const lang = localStorage.getItem('site_lang') || 'pt';
-      window.location.href = `${getBasePath()}reader.html?vol=${vol}&file=${file}&topic=0${lang === 'ja' ? '&lang=ja' : ''}`;
+      let href = `${getBasePath()}reader.html?vol=${vol}&file=${file}`;
+      if (topicIdx > 0) href += `&topic=${topicIdx}`;
+      if (lang === 'ja') href += `&lang=ja`;
+      window.location.href = href;
     });
   }
 });
@@ -338,10 +359,28 @@ window.openSearchPreview = function (vol, file, search, displayTitle, topicIdx, 
   if (titleEl) titleEl.textContent = displayTitle || '';
   if (breadcrumbEl) breadcrumbEl.textContent = sectionLabel || '';
 
-  if (card) { card.dataset.vol = vol; card.dataset.file = file; }
+  if (card) {
+    card.dataset.vol = vol;
+    card.dataset.file = file;
+    card.dataset.topic = String(topicIdx != null ? topicIdx : 0);
+  }
 
   const renderCardContent = (contentHtml) => {
     if (cardContentEl) cardContentEl.innerHTML = contentHtml;
+    // Detecta overflow real medindo conteúdo vs área disponível do card
+    // (clientHeight menos paddings vertical). Slack de 8px absorve
+    // arredondamentos de line-height. Sem isso o fade aparecia mesmo
+    // quando o texto cabia, cobrindo a última linha e parecendo corte.
+    if (card && cardContentEl) {
+      requestAnimationFrame(() => {
+        const s = getComputedStyle(card);
+        const padTop = parseFloat(s.paddingTop) || 0;
+        const padBottom = parseFloat(s.paddingBottom) || 0;
+        const available = card.clientHeight - padTop - padBottom;
+        const overflow = cardContentEl.scrollHeight > available + 8;
+        card.classList.toggle('has-overflow', overflow);
+      });
+    }
   };
 
   const _applyHighlight = (text) => {
@@ -763,7 +802,16 @@ async function performSearch(query) {
   // Antes esse valor era lido só pra ENABLE/disable, mas nunca chegava
   // no servidor — a busca sempre cobria título+conteúdo. Bug histórico.
   const scopeNode = document.querySelector('input[name="searchFilter"]:checked');
-  const scope = scopeNode ? scopeNode.value : 'all';
+  let scope = scopeNode ? scopeNode.value : 'all';
+
+  // Perf clamp para JA curto: ILIKE com <3 chars não consegue usar o GIN
+  // trigram e cai em seq scan. Em content_ja (texto longo) isso explode
+  // o P95/P99. Title_ja é curto — seq scan ali é barato. Forçamos title-
+  // only quando o user não pediu content explicitamente, preservando os
+  // termos doutrinários de 2 chars (浄霊, 救い, 真理...) com latência ok.
+  if (activeLang === 'ja' && q.length < 3 && scope !== 'content') {
+    scope = 'title';
+  }
 
   const _t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {
@@ -862,8 +910,17 @@ function _styleSnippet(rawSnippet, activeLang, highlightRegex) {
 }
 
 function _renderResultItem(r, basePath, highlightRegex, q, activeLang) {
-  // Shape vindo da RPC: { vol, file, topic_idx, title_pt, title_ja, snippet, rank }
-  const displayTitle = (activeLang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '');
+  // Shape vindo da RPC: { vol, file, topic_idx, title_pt, title_ja,
+  //                       nav_title_pt, nav_title_ja, snippet, rank }
+  // nav_title_* vem do site_data/section_map.js (rótulo curado do card no
+  // index.html) e está populado APENAS em rows topic_idx=0. Quando difere
+  // do título doutrinário, exibimos como título principal — é o termo que
+  // o usuário reconhece da navegação e provavelmente o que ele buscou.
+  const doctrinalTitle = (activeLang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '');
+  const navTitle = (activeLang === 'ja' && r.nav_title_ja) ? r.nav_title_ja : (r.nav_title_pt || '');
+  const hasDistinctNav = navTitle && _norm(navTitle) !== _norm(doctrinalTitle);
+  const displayTitle = hasDistinctNav ? navTitle : doctrinalTitle;
+  const subTitle = hasDistinctNav ? doctrinalTitle : '';
   const topicIdx = r.topic_idx != null ? r.topic_idx : 0;
   const vol = r.vol;
   const file = r.file;
@@ -891,6 +948,10 @@ function _renderResultItem(r, basePath, highlightRegex, q, activeLang) {
   if (topicIdx > 0) href += `&topic=${topicIdx}`;
   if (activeLang === 'ja') href += `&lang=ja`;
 
+  const subTitleHtml = subTitle
+    ? `<div class="search-result-subtitle" style="font-size:0.85rem;color:var(--text-muted);font-style:italic;margin-bottom:4px;">${escHtml(subTitle)}</div>`
+    : '';
+
   return `<li><a href="${href}"
       class="search-result-item"
       data-vol="${escHtml(vol)}"
@@ -901,6 +962,7 @@ function _renderResultItem(r, basePath, highlightRegex, q, activeLang) {
       data-topic="${topicIdx}">
       ${sectionHtml}
       <div class="search-result-title">${escHtml(displayTitle)}</div>
+      ${subTitleHtml}
       <div class="search-result-context">${styledSnippet}</div>
     </a></li>`;
 }

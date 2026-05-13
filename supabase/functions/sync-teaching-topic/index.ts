@@ -120,6 +120,14 @@ serve(async (req) => {
     const sourceTs = rec.updated_at || null;
     const enriched = rows.map((r: any) => ({ ...r, source_updated_at: sourceTs }));
 
+    // Nota: nav_title_pt/ja e section_pt/ja são gravados apenas pelo seeder
+    // (seed_teachings_topics.mjs) a partir de site_data/section_map.js.
+    // O upsert daqui NÃO inclui essas colunas, então o ON CONFLICT preserva
+    // os valores existentes em updates. Em INSERTs novos (arquivo criado via
+    // Storage sem passar pelo seeder), ficam NULL até a próxima rodada do
+    // seeder — aceitável dado que a navegação canônica também não conhece
+    // arquivos não-curados ainda.
+
     // Upsert primeiro (sem gap): atualiza topics existentes e insere novos.
     for (let i = 0; i < enriched.length; i += BATCH_SIZE) {
       const { error } = await supabase

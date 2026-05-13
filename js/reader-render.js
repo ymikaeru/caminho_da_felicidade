@@ -386,11 +386,31 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
                 if (extractedTitle.length > 60) extractedTitle = extractedTitle.substring(0, 57) + '…';
                 return { value: `#topic-${i}`, text: `"${extractedTitle}"` };
             });
-            window._updateMobileNavTopics(lang === 'ja' ? '刊行物：テーマ' : 'Publicações deste ensinamento', opts);
+            const tocLabel = lang === 'ja' ? 'このテーマの教え' : 'Ensinamentos deste tema';
+            window._updateMobileNavTopics(tocLabel, opts);
+
+            // Espelha no TOC desktop. Calcula o tópico atual a partir
+            // de ?topic=N (default 0) pra destacar a linha ativa.
+            if (typeof window._updateDesktopToc === 'function') {
+                const topicParam = new URLSearchParams(window.location.search).get('topic');
+                const currentIdx = topicParam ? parseInt(topicParam, 10) : 0;
+                const currentHref = `#topic-${Number.isFinite(currentIdx) ? currentIdx : 0}`;
+                window._updateDesktopToc(tocLabel, opts, currentHref);
+                // Liga o scroll spy depois do TOC renderizado. A função
+                // tear down qualquer observer anterior (re-renderizações
+                // ao trocar idioma/arquivo não vazam listener).
+                if (typeof window._attachTocScrollSpy === 'function') {
+                    requestAnimationFrame(() => window._attachTocScrollSpy());
+                }
+            }
         } else {
             window._updateMobileNavTopics('', []);
+            if (typeof window._updateDesktopToc === 'function') {
+                window._updateDesktopToc('', []);
+            }
         }
     }
+
 
     // --- Shared gate/scroll helpers ---
     const _revealGate = () => {

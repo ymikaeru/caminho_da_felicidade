@@ -13,6 +13,23 @@
 -- similarity penaliza muito o tamanho extra. word_similarity acha a
 -- melhor janela do título que casa com a query — robusto pra typos
 -- curtos contra títulos longos do tipo "Ensinamento de Meishu-Sama:...".
+--
+-- Perf: o caminho PT precisa de unaccent (caso "purificacao" → "Purificação"),
+-- mas unaccent() default é STABLE — Postgres não indexa STABLE. f_unaccent é
+-- um wrapper IMMUTABLE pra poder ser usado em expressão de índice GIN trigram.
+-- O operador <% (word similarity) acionado contra o índice transforma o que
+-- antes era seq scan da tabela inteira em lookup indexado.
+
+-- Wrapper IMMUTABLE de unaccent — pré-requisito do índice trigram em title_pt.
+create or replace function f_unaccent(text)
+returns text language sql immutable parallel safe as
+$$ select public.unaccent('public.unaccent'::regdictionary, $1) $$;
+
+-- Índice trigram em title_pt (unaccented) — acelera suggest_teachings.
+-- O título JA já tem idx_tt_title_ja_trgm no schema base.
+create index if not exists idx_tt_title_pt_unaccent_trgm
+  on teachings_topics using gin (f_unaccent(title_pt) gin_trgm_ops);
+
 create or replace function suggest_teachings(
   q text,
   lang text default 'pt'
@@ -25,37 +42,77 @@ returns table(
   title_ja text,
   similarity real
 )
-language sql stable security invoker
+language plpgsql stable security invoker
+-- Configura o threshold do operador <% para 0.5 dentro da função.
+-- Tem que casar com o WHERE sim > 0.5 abaixo: <% filtra via índice GIN
+-- com este threshold, depois recomputamos pra ranquear/expor.
+set pg_trgm.word_similarity_threshold = 0.5
 as $func$
-  with
-  q_clean as (
-    select coalesce(trim(q), '') as raw
-  ),
-  blocks as (select volume, files from _user_blocks()),
-  fully_blocked as (select volume from blocks where files is null),
-  scored as (
-    select
-      t.vol, t.file, t.topic_idx, t.title_pt, t.title_ja,
-      case
-        when lang = 'ja' then word_similarity((select raw from q_clean), coalesce(t.title_ja, ''))
-        else word_similarity(unaccent((select raw from q_clean)), unaccent(coalesce(t.title_pt, '')))
-      end as sim
-    from teachings_topics t
-    where
-      t.vol not in (select volume from fully_blocked)
-      and not exists (
-        select 1 from blocks b
-        where b.volume = t.vol
-          and b.files is not null
-          and t.file = any(b.files)
+declare
+  v_raw text := coalesce(trim(q), '');
+  v_raw_unacc text := f_unaccent(v_raw);
+begin
+  if length(v_raw) < 3 then
+    return;
+  end if;
+
+  if lang = 'ja' then
+    return query
+    with
+      blocks as (select volume, files from _user_blocks()),
+      fully_blocked as (select volume from blocks where files is null),
+      scored as (
+        select
+          t.vol, t.file, t.topic_idx, t.title_pt, t.title_ja,
+          word_similarity(v_raw, t.title_ja) as sim
+        from teachings_topics t
+        where
+          t.title_ja is not null
+          -- <% usa idx_tt_title_ja_trgm para pré-filtrar candidatos.
+          and v_raw <% t.title_ja
+          and t.vol not in (select volume from fully_blocked)
+          and not exists (
+            select 1 from blocks b
+            where b.volume = t.vol
+              and b.files is not null
+              and t.file = any(b.files)
+          )
       )
-      and length((select raw from q_clean)) >= 3
-  )
-  select vol, file, topic_idx, title_pt, title_ja, sim as similarity
-  from scored
-  where sim > 0.5
-  order by sim desc
-  limit 3;
+    select s.vol, s.file, s.topic_idx, s.title_pt, s.title_ja, s.sim
+    from scored s
+    where s.sim > 0.5
+    order by s.sim desc
+    limit 3;
+  else
+    return query
+    with
+      blocks as (select volume, files from _user_blocks()),
+      fully_blocked as (select volume from blocks where files is null),
+      scored as (
+        select
+          t.vol, t.file, t.topic_idx, t.title_pt, t.title_ja,
+          word_similarity(v_raw_unacc, f_unaccent(t.title_pt)) as sim
+        from teachings_topics t
+        where
+          t.title_pt is not null
+          -- <% usa idx_tt_title_pt_unaccent_trgm. A expressão à direita TEM
+          -- que casar com a expressão indexada (f_unaccent(title_pt)).
+          and v_raw_unacc <% f_unaccent(t.title_pt)
+          and t.vol not in (select volume from fully_blocked)
+          and not exists (
+            select 1 from blocks b
+            where b.volume = t.vol
+              and b.files is not null
+              and t.file = any(b.files)
+          )
+      )
+    select s.vol, s.file, s.topic_idx, s.title_pt, s.title_ja, s.sim
+    from scored s
+    where s.sim > 0.5
+    order by s.sim desc
+    limit 3;
+  end if;
+end;
 $func$;
 
 revoke all on function suggest_teachings(text, text) from public;

@@ -43,6 +43,21 @@ export async function saveReadingPosition(volume, file, topicIndex, totalTopics,
     .upsert(baseRow, { onConflict: 'user_id,volume,file' });
 }
 
+// High-water mark do scroll por ensinamento (0–100). Só sobe.
+export async function updateMaxScrollPct(volume, file, pct) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return;
+  const p = Math.max(0, Math.min(100, Math.round(Number(pct) || 0)));
+  if (p <= 0) return;
+  const { error } = await supabase.rpc('update_max_scroll_pct', {
+    p_volume: volume, p_file: file, p_pct: p
+  });
+  // Silencioso se a migração ainda não rodou (coluna/RPC ausentes).
+  if (error && !/(update_max_scroll_pct|max_scroll_pct)/i.test(error.message || '')) {
+    console.warn('[sync] updateMaxScrollPct:', error.message);
+  }
+}
+
 export async function loadReadingPositions() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return [];

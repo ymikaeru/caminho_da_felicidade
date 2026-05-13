@@ -2341,6 +2341,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           <div class="user-avatar">${initial}</div>
           <div class="user-info">
             <div class="user-name">${nameEsc}
+              <button class="reset-btn" onclick="event.stopPropagation(); openUserDetail('${idEsc}')" title="Ver progresso de leitura">📊 detalhes</button>
               <button class="reset-btn" onclick="event.stopPropagation(); resetPassword('${idEsc}', '${emailEsc}')" title="Resetar senha">🔑 reset</button>
             </div>
             <div class="user-email">${emailDisplay}</div>
@@ -2383,10 +2384,10 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           .order('created_at', { ascending: false })
           .limit(50),
         supabase.from('reading_positions')
-          .select('volume, file, progress_pct, updated_at')
+          .select('volume, file, progress_pct, time_spent_seconds, max_scroll_pct, updated_at')
           .eq('user_id', userId)
           .order('updated_at', { ascending: false })
-          .limit(20),
+          .limit(50),
         supabase.from('synced_favorites')
           .select('volume, file, topic_title, created_at')
           .eq('user_id', userId)
@@ -2418,23 +2419,42 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       `;
 
       if (positions && positions.length > 0) {
-        html += `<h4 style="margin:16px 0 8px; font-size:0.85rem;">Progresso de Leitura</h4>`;
-        html += `<table class="data-table"><thead><tr><th>Volume</th><th>Ensinamento</th><th>Progresso</th></tr></thead><tbody>`;
-        positions.forEach(p => {
-          html += `<tr><td>${VOL_SHORT[p.volume] || p.volume}</td><td style="font-size:0.82rem;" title="${_escHtml(p.file || '')}">${_escHtml(getFileTitle(p.volume, p.file))}</td><td>${p.progress_pct}%</td></tr>`;
+        const fmtDur = (s) => {
+          const n = Number(s) || 0;
+          if (n < 60) return `${n}s`;
+          const m = Math.round(n / 60);
+          if (m < 60) return `${m} min`;
+          return `${Math.floor(m / 60)}h ${m % 60}min`;
+        };
+        // "Dificuldade" = ficou bastante tempo mas leu pouco do texto.
+        // Usa max_scroll_pct (high-water mark de scroll), não progress_pct
+        // (este é por tópicos navegados — ruidoso). Régua: ≥10 min ativo e
+        // <40% scrollado. Score = min/(scrollPct+1).
+        const scored = positions.map(p => {
+          const sec = Number(p.time_spent_seconds) || 0;
+          const scrollPct = Number(p.max_scroll_pct) || 0;
+          const topicPct = Number(p.progress_pct) || 0;
+          const struggling = sec >= 10 * 60 && scrollPct < 40;
+          const score = (sec / 60) / (scrollPct + 1);
+          return { ...p, _sec: sec, _scrollPct: scrollPct, _topicPct: topicPct, _struggling: struggling, _score: score };
+        }).sort((a, b) => b._score - a._score);
+
+        const strugglingCount = scored.filter(p => p._struggling).length;
+        const note = strugglingCount > 0
+          ? `<span style="color:#c0392b; font-weight:600;"> — ${strugglingCount} com possível dificuldade</span>`
+          : '';
+        html += `<h4 style="margin:16px 0 8px; font-size:0.85rem;">Progresso de Leitura${note}</h4>`;
+        html += `<p style="font-size:0.75rem; color:var(--text-muted); margin:0 0 8px;">"Leu" = scroll máximo (quanto do texto foi exposto). "Tópicos" = navegação. Linhas em vermelho: ≥10 min com &lt;40% de scroll.</p>`;
+        html += `<table class="data-table"><thead><tr><th>Volume</th><th>Ensinamento</th><th title="Scroll máximo no texto">Leu</th><th title="Tópicos navegados (não confiável p/ artigos curtos)">Tópicos</th><th>Tempo</th><th>Última leitura</th></tr></thead><tbody>`;
+        scored.forEach(p => {
+          const rowStyle = p._struggling ? ' style="background:rgba(192,57,43,0.08);"' : '';
+          const readStyle = p._struggling ? ' style="color:#c0392b; font-weight:600;"' : '';
+          const last = p.updated_at ? new Date(p.updated_at).toLocaleDateString('pt-BR') : '—';
+          html += `<tr${rowStyle}><td>${VOL_SHORT[p.volume] || p.volume}</td><td style="font-size:0.82rem;" title="${_escHtml(p.file || '')}">${_escHtml(getFileTitle(p.volume, p.file))}</td><td${readStyle}>${p._scrollPct}%</td><td style="color:var(--text-muted);">${p._topicPct}%</td><td>${fmtDur(p._sec)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${last}</td></tr>`;
         });
         html += `</tbody></table>`;
       }
 
-      if (logs && logs.length > 0) {
-        html += `<h4 style="margin:16px 0 8px; font-size:0.85rem;">Atividade Recente</h4>`;
-        html += `<table class="data-table"><thead><tr><th>Ação</th><th>Volume</th><th>Data</th></tr></thead><tbody>`;
-        logs.slice(0, 15).forEach(l => {
-          const d = new Date(l.created_at).toLocaleDateString('pt-BR');
-          html += `<tr><td>${l.action}</td><td>${VOL_SHORT[l.volume] || l.volume}</td><td style="font-size:0.8rem; color:var(--text-muted);">${d}</td></tr>`;
-        });
-        html += `</tbody></table>`;
-      }
 
       document.getElementById('modal-user-content').innerHTML = html;
       document.getElementById('user-detail-modal').classList.add('open');

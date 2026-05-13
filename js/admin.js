@@ -5835,18 +5835,39 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         container.innerHTML = `<div class="msg err">Erro: ${_dupEsc(error.message)}</div>`;
         return;
       }
-      const pairs = data || [];
-      summary.textContent = `${pairs.length} par${pairs.length === 1 ? '' : 'es'} ≥ ${threshold.toFixed(2)} (dispensados ocultos)`;
+      window._dupPairsAll = data || [];
+      window._dupThreshold = threshold;
+      renderDuplicates();
+    };
 
-      // Atualiza badge no botão do tab
+    window.renderDuplicates = function() {
+      const container = document.getElementById('duplicates-container');
+      const summary = document.getElementById('duplicates-summary');
+      if (!container) return;
+
+      const all = window._dupPairsAll || [];
+      const threshold = window._dupThreshold ?? 0.95;
+      const sameFileOnly = !!document.getElementById('dup-same-file-only')?.checked;
+      const pairs = sameFileOnly
+        ? all.filter(p => p.vol_a === p.vol_b && p.file_a === p.file_b)
+        : all;
+
+      const filterNote = sameFileOnly ? ' · só mesmo arquivo' : '';
+      summary.textContent = `${pairs.length} par${pairs.length === 1 ? '' : 'es'} ≥ ${threshold.toFixed(2)}${filterNote} (dispensados ocultos)`;
+
+      // Badge sempre reflete o total (sem o filtro) pra ficar estável.
       const badge = document.getElementById('duplicatesTabBadge');
       if (badge) {
-        badge.textContent = String(pairs.length);
-        badge.classList.toggle('empty', pairs.length === 0);
+        badge.textContent = String(all.length);
+        badge.classList.toggle('empty', all.length === 0);
       }
 
       if (pairs.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem; padding:20px;">Nenhum par neste threshold. Tente reduzir ou rodar "Recalcular".</p>';
+        const msg = sameFileOnly
+          ? 'Nenhum par intra-arquivo neste threshold. Desmarque o toggle ou reduza o threshold.'
+          : 'Nenhum par neste threshold. Tente reduzir ou rodar "Recalcular".';
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem; padding:20px;">${msg}</p>`;
+        window._dupPairs = pairs;
         return;
       }
 
@@ -5862,13 +5883,15 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           </thead>
           <tbody>
             ${pairs.map((p, i) => {
+              const sameFile = p.vol_a === p.vol_b && p.file_a === p.file_b;
               const navA = `${VOL_SHORT[p.vol_a] || p.vol_a} · ${_dupEsc(p.file_a)}#${p.topic_idx_a}`;
               const navB = `${VOL_SHORT[p.vol_b] || p.vol_b} · ${_dupEsc(p.file_b)}#${p.topic_idx_b}`;
               const warnA = p.file_topic_count_a > 2 ? ` <span title="arquivo tem ${p.file_topic_count_a} tópicos — apagar inteiro perderia outros" style="color:var(--text-muted); font-size:0.7rem;">(${p.file_topic_count_a})</span>` : '';
               const warnB = p.file_topic_count_b > 2 ? ` <span title="arquivo tem ${p.file_topic_count_b} tópicos — apagar inteiro perderia outros" style="color:var(--text-muted); font-size:0.7rem;">(${p.file_topic_count_b})</span>` : '';
+              const sameFileBadge = sameFile ? ` <span title="par dentro do mesmo arquivo" style="color:var(--accent); font-size:0.65rem; font-weight:600; padding:1px 5px; border:1px solid var(--accent); border-radius:3px; vertical-align:middle;">MESMO ARQUIVO</span>` : '';
               return `
                 <tr data-pair-idx="${i}">
-                  <td style="font-variant-numeric:tabular-nums; font-weight:600; color:var(--accent);">${(p.similarity).toFixed(3)}</td>
+                  <td style="font-variant-numeric:tabular-nums; font-weight:600; color:var(--accent);">${(p.similarity).toFixed(3)}${sameFileBadge}</td>
                   <td>
                     <div style="font-weight:500;">${_dupEsc(p.title_pt_a || '(sem título)')}</div>
                     <div style="font-size:0.72rem; color:var(--text-muted);">${navA}${warnA}</div>

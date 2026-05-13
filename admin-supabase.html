@@ -1183,6 +1183,10 @@
                   <input type="range" id="dup-threshold" min="85" max="99" value="95" step="1" style="vertical-align:middle;" oninput="document.getElementById('dup-threshold-val').textContent='≥ 0.'+this.value">
                   <span id="dup-threshold-val" style="min-width:38px; display:inline-block; font-variant-numeric:tabular-nums;">≥ 0.95</span>
                 </label>
+                <label style="font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; gap:6px; cursor:pointer;" title="Mostra apenas pares dentro do mesmo arquivo — redundância interna.">
+                  <input type="checkbox" id="dup-same-file-only" onchange="renderDuplicates()" style="cursor:pointer;">
+                  Só mesmo arquivo
+                </label>
                 <button class="btn-secondary" onclick="loadDuplicates()" style="font-size:0.8rem;">Aplicar</button>
                 <button class="btn-secondary" onclick="recomputeDuplicates()" id="dup-recompute-btn" style="font-size:0.8rem;" title="Repopula a tabela de candidatos varrendo todos os 17k embeddings. ~20 min.">↻ Recalcular</button>
               </div>

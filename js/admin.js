@@ -5902,25 +5902,31 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         // (--bg, --surface, --border, --text, --text-muted, --accent).
         const style = document.createElement('style');
         style.textContent = `
+          /* Cores fixas dentro do modal pra leitura confortável independente
+             de tema light/dark — admin precisa de contraste alto pra
+             comparar textos lado a lado. */
           .dup-modal-overlay { position:fixed; inset:0; z-index:5000; background:rgba(0,0,0,0.78); display:flex; align-items:center; justify-content:center; padding:24px; backdrop-filter:blur(3px); }
-          .dup-modal-card { background:var(--bg); border:1px solid var(--border); border-radius:14px; max-width:1280px; width:100%; max-height:94vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,0.45); }
-          .dup-modal-header { padding:18px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:var(--surface, rgba(255,255,255,0.02)); }
-          .dup-modal-header h2 { margin:0; font-size:0.78rem; font-weight:600; letter-spacing:1.4px; text-transform:uppercase; color:var(--text-muted); }
-          .dup-sim-badge { font-size:1.4rem; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; line-height:1; }
-          .dup-sim-label { font-size:0.7rem; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; }
-          .dup-modal-body { flex:1; overflow:hidden; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:0; min-height:0; }
-          .dup-side { display:flex; flex-direction:column; min-height:0; padding:22px 24px; }
-          .dup-side + .dup-side { border-left:1px solid var(--border); }
-          .dup-side-label { font-size:0.7rem; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
-          .dup-side h3 { margin:0 0 10px; font-size:1.15rem; line-height:1.35; font-weight:600; color:var(--text); }
+          .dup-modal-card { background:#ffffff; color:#1a1a1a; border:1px solid #e2e2e2; border-radius:14px; max-width:1280px; width:100%; max-height:94vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,0.45); }
+          .dup-modal-header { padding:18px 24px; border-bottom:1px solid #e2e2e2; display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:#f7f7f5; }
+          .dup-modal-header h2 { margin:0; font-size:0.78rem; font-weight:600; letter-spacing:1.4px; text-transform:uppercase; color:#6a6a6a; }
+          .dup-sim-badge { font-size:1.4rem; font-weight:700; color:#b8860b; font-variant-numeric:tabular-nums; line-height:1; }
+          .dup-sim-label { font-size:0.7rem; color:#6a6a6a; letter-spacing:1px; text-transform:uppercase; }
+          .dup-modal-body { flex:1; overflow:hidden; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:0; min-height:0; background:#ffffff; }
+          .dup-side { display:flex; flex-direction:column; min-height:0; padding:22px 24px; background:#ffffff; }
+          .dup-side + .dup-side { border-left:1px solid #e2e2e2; }
+          .dup-side-label { font-size:0.7rem; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:#b8860b; margin-bottom:10px; }
+          .dup-side h3 { margin:0 0 10px; font-size:1.15rem; line-height:1.35; font-weight:600; color:#1a1a1a; }
           .dup-side-chips { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
-          .dup-chip { font-size:0.7rem; padding:3px 10px; border-radius:999px; background:var(--surface, rgba(255,255,255,0.05)); color:var(--text-muted); border:1px solid var(--border); font-variant-numeric:tabular-nums; }
-          .dup-chip--link { cursor:pointer; transition:all 0.15s; text-decoration:none; color:var(--accent); border-color:var(--accent); }
-          .dup-chip--link:hover { background:var(--accent); color:white; }
-          .dup-content-box { font-size:0.95rem; line-height:1.72; white-space:pre-wrap; color:var(--text); background:var(--surface, rgba(0,0,0,0.04)); padding:18px 20px; border-radius:10px; border:1px solid var(--border); overflow:auto; flex:1; min-height:340px; font-family:'Crimson Pro', Georgia, serif; }
-          .dup-modal-footer { padding:14px 24px; border-top:1px solid var(--border); display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; background:var(--surface, rgba(255,255,255,0.02)); }
-          .dup-modal-footer .hint { font-size:0.75rem; color:var(--text-muted); }
-          .dup-modal-footer button { padding:9px 18px; font-size:0.85rem; border-radius:8px; }
+          .dup-chip { font-size:0.7rem; padding:3px 10px; border-radius:999px; background:#f3f3f0; color:#555; border:1px solid #dcdcdc; font-variant-numeric:tabular-nums; }
+          .dup-chip--link { cursor:pointer; transition:all 0.15s; text-decoration:none; color:#b8860b; border-color:#b8860b; background:#ffffff; }
+          .dup-chip--link:hover { background:#b8860b; color:#ffffff; }
+          .dup-content-box { font-size:0.95rem; line-height:1.72; white-space:pre-wrap; color:#222222; background:#fafaf7; padding:18px 20px; border-radius:10px; border:1px solid #e2e2e2; overflow:auto; flex:1; min-height:340px; font-family:'Crimson Pro', Georgia, serif; }
+          .dup-modal-footer { padding:14px 24px; border-top:1px solid #e2e2e2; display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; background:#f7f7f5; }
+          .dup-modal-footer .hint { font-size:0.75rem; color:#6a6a6a; }
+          .dup-modal-footer button { padding:9px 18px; font-size:0.85rem; border-radius:8px; background:#ffffff; color:#1a1a1a; border:1px solid #cccccc; cursor:pointer; transition:all 0.15s; }
+          .dup-modal-footer button:hover { background:#f0f0f0; border-color:#999; }
+          .dup-modal-header button { background:#ffffff; color:#1a1a1a; border:1px solid #cccccc; cursor:pointer; transition:all 0.15s; border-radius:6px; }
+          .dup-modal-header button:hover { background:#f0f0f0; }
           @media (max-width: 900px) {
             .dup-modal-body { grid-template-columns:1fr; overflow:auto; }
             .dup-side + .dup-side { border-left:none; border-top:1px solid var(--border); }

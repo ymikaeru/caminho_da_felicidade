@@ -845,6 +845,7 @@
                 <div class="admin-tab" onclick="switchTab('destaques')">⭐ Destaques</div>
                 <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty" id="reportsTabBadge">0</span></div>
                 <div class="admin-tab" onclick="switchTab('findreplace')">🔎 Buscar &amp; Substituir</div>
+                <div class="admin-tab" onclick="switchTab('duplicates')">📑 Duplicatas <span class="tab-badge empty" id="duplicatesTabBadge">0</span></div>
                 <div class="admin-tab" onclick="switchTab('logs')">📋 Logs</div>
               </div>
             </div>
@@ -1167,6 +1168,27 @@
             </div>
 
             <div id="fr-results-container"></div>
+          </div>
+
+          <!-- Duplicates Tab -->
+          <div class="tab-content" id="tab-duplicates">
+            <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Tópicos Duplicados</h2>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Pares com alta similaridade semântica via embeddings. Dispensar limpa pares "intencionalmente distintos".</p>
+              </div>
+              <div style="margin-left:auto; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <label style="font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; gap:8px;">
+                  Threshold
+                  <input type="range" id="dup-threshold" min="85" max="99" value="95" step="1" style="vertical-align:middle;" oninput="document.getElementById('dup-threshold-val').textContent='≥ 0.'+this.value">
+                  <span id="dup-threshold-val" style="min-width:38px; display:inline-block; font-variant-numeric:tabular-nums;">≥ 0.95</span>
+                </label>
+                <button class="btn-secondary" onclick="loadDuplicates()" style="font-size:0.8rem;">Aplicar</button>
+                <button class="btn-secondary" onclick="recomputeDuplicates()" id="dup-recompute-btn" style="font-size:0.8rem;" title="Repopula a tabela de candidatos varrendo todos os 17k embeddings. ~20 min.">↻ Recalcular</button>
+              </div>
+            </div>
+            <div id="duplicates-summary" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;"></div>
+            <div id="duplicates-container"><div class="loading">Clique em "Aplicar" pra carregar.</div></div>
           </div>
 
           <!-- Logs Tab -->
@@ -1616,7 +1638,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=7"></script>
+  <script type="module" src="js/admin.js?v=10"></script>
 
 </body>
 </html>

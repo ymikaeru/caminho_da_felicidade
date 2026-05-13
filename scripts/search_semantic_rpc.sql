@@ -11,13 +11,19 @@
 -- ============================================================
 
 drop function if exists search_teachings_hybrid(text, vector, text, int, text);
+drop function if exists search_teachings_hybrid(text, vector, text, int, text, boolean);
 
 create or replace function search_teachings_hybrid(
   q text,
   q_embedding vector(1024),
   lang text default 'pt',
   max_results int default 50,
-  scope text default 'all'
+  scope text default 'all',
+  -- use_fts=false: pula o caminho FTS, candidatos vêm 100% do vetor.
+  -- Usado pelo Edge Function pra queries conceituais (4+ palavras), onde
+  -- FTS tende a injetar ruído lexical (matches por overlap de tokens em
+  -- contextos tematicamente distantes).
+  use_fts boolean default true
 )
 returns table(
   vol text,
@@ -29,6 +35,11 @@ returns table(
   nav_title_ja text,
   snippet text,
   rank real,
+  -- section_pt/ja: rótulo da seção (ex.: "Johrei para animais"). Dá ao
+  -- reranker o contexto de assunto, deprioritizando matches lexicais em
+  -- seções tematicamente distantes da query.
+  section_pt text,
+  section_ja text,
   -- content_excerpt: prefixo do conteúdo (até 1500 chars) que a Edge Function
   -- envia pro Voyage reranker. Não é retornado pro frontend; Edge Function
   -- remove esse campo antes do response final. Tamanho calibrado pra ficar
@@ -83,7 +94,8 @@ begin
       ts_rank_cd(v_weights, v.tsv_pt, v_tsq, 33) as r,
       row_number() over (order by ts_rank_cd(v_weights, v.tsv_pt, v_tsq, 33) desc) as rnk
     from visible v
-    where lang <> 'ja'
+    where use_fts
+      and lang <> 'ja'
       and v.tsv_pt @@ v_tsq
       and (
         v_scope = 'all'
@@ -114,7 +126,8 @@ begin
          (case when v_scope <> 'title' and v.content_ja ilike '%' || v_ilike || '%' escape '\' then 0.3 else 0 end)) desc
       ) as rnk
     from visible v
-    where lang = 'ja'
+    where use_fts
+      and lang = 'ja'
       and (
         (v_scope <> 'content' and (
           v.title_ja      ilike '%' || v_ilike || '%' escape '\'
@@ -175,7 +188,12 @@ begin
   )
   select
     t.vol, t.file, t.topic_idx, t.title_pt, t.title_ja,
-    t.nav_title_pt, t.nav_title_ja,
+    -- nav_title/section são populados APENAS na row topic_idx=0 (file-level).
+    -- Outros topics do mesmo arquivo precisam puxar via join — sem isso o
+    -- reranker fica sem contexto temático em ~91% dos topics e não consegue
+    -- diferenciar "Johrei para animais" de "Sobre a saúde", por exemplo.
+    coalesce(t.nav_title_pt, t0.nav_title_pt) as nav_title_pt,
+    coalesce(t.nav_title_ja, t0.nav_title_ja) as nav_title_ja,
     case
       when v_scope = 'title' then ''
       when lang = 'ja' then substring(
@@ -191,6 +209,8 @@ begin
       )
     end as snippet,
     r.score as rank,
+    coalesce(t.section_pt, t0.section_pt) as section_pt,
+    coalesce(t.section_ja, t0.section_ja) as section_ja,
     -- Excerpt pro reranker. Usa content do idioma da query; cai pro outro
     -- se o nativo for null (alguns topics têm só PT ou só JA).
     substring(
@@ -204,12 +224,14 @@ begin
     ) as content_excerpt
   from ranked r
   join teachings_topics t using (vol, file, topic_idx)
+  left join teachings_topics t0
+    on t0.vol = t.vol and t0.file = t.file and t0.topic_idx = 0
   order by r.score desc;
 end;
 $$;
 
-revoke all on function search_teachings_hybrid(text, vector, text, int, text) from public;
-grant execute on function search_teachings_hybrid(text, vector, text, int, text) to authenticated;
+revoke all on function search_teachings_hybrid(text, vector, text, int, text, boolean) from public;
+grant execute on function search_teachings_hybrid(text, vector, text, int, text, boolean) to authenticated;
 
 -- Sanity:
 -- select * from search_teachings_hybrid('johrei', null, 'pt', 5);  -- FTS-only path

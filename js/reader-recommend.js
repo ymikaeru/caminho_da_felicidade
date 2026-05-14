@@ -77,7 +77,7 @@
     _modal.id = 'recommendPickerModal';
     _modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:10000;';
     _modal.innerHTML = `
-      <div style="background:var(--surface, #fff); color:var(--text-main, #000); width:min(900px, 94vw); height:min(1080px, 96vh); max-height:96vh; border-radius:10px; padding:24px; box-shadow:0 12px 40px rgba(0,0,0,0.25); display:flex; flex-direction:column; gap:14px;">
+      <div style="background:var(--surface, #fff); color:var(--text-main, #000); width:min(900px, 94vw); height:min(1080px, 96vh); border-radius:10px; padding:24px; box-shadow:0 12px 40px rgba(0,0,0,0.25); display:flex; flex-direction:column; gap:14px;">
         <div style="display:flex; align-items:center; gap:12px;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"/>
@@ -120,11 +120,10 @@
     document.getElementById('recPickerCancel').onclick = _close;
     document.getElementById('recPickerSubmit').onclick = _submit;
     document.getElementById('recPickerSelectAll').onclick = _selectAllVisible;
-    document.getElementById('recPickerUserSearch').oninput = () => { _renderUserList(); _updateSelectionUi(); };
+    document.getElementById('recPickerUserSearch').oninput = _refresh;
     document.getElementById('recPickerClearSel').onclick = () => {
       _selectedUserIds.clear();
-      _renderUserList();
-      _updateSelectionUi();
+      _refresh();
     };
     _modal.addEventListener('click', e => { if (e.target === _modal) _close(); });
     document.addEventListener('keydown', e => {
@@ -134,7 +133,7 @@
 
   async function _loadUsers() {
     if (_users.length > 0) return; // cache for this session
-    const supa = window.supabase || window._supabaseClient;
+    const supa = _supaClient();
     if (!supa) return;
     const { data, error } = await supa.rpc('admin_get_users');
     if (error) {
@@ -153,15 +152,24 @@
     );
   }
 
-  function _renderUserList() {
+  // Re-render lista + atualizar contadores. Compartilha o array filtrado
+  // pra não rodar o `filter` 3x quando o usuário clica num checkbox.
+  function _refresh() {
+    const filtered = _filteredUsers();
+    _renderUserList(filtered);
+    _updateSelectionUi(filtered);
+  }
+
+  function _renderUserList(filtered) {
     const container = document.getElementById('recPickerUserList');
     if (!container) return;
-    const filtered = _filteredUsers();
+    const prevScroll = container.scrollTop;
+    if (!filtered) filtered = _filteredUsers();
     if (filtered.length === 0) {
       container.innerHTML = '<div style="grid-column:1/-1; padding:14px; color:var(--text-muted); font-size:0.85rem; text-align:center;">Nenhum usuário.</div>';
       return;
     }
-    container.innerHTML = filtered.slice(0, 400).map((u, i) => {
+    const html = filtered.slice(0, 400).map((u, i) => {
       const isSel = _selectedUserIds.has(u.id);
       const bg = isSel ? 'background:var(--accent-soft, rgba(184,134,11,0.15)); border-left:3px solid var(--accent);' : 'border-left:3px solid transparent;';
       const isLastCol = (i % _cols) === (_cols - 1);
@@ -179,6 +187,8 @@
         </div>
       `;
     }).join('');
+    container.innerHTML = html;
+    container.scrollTop = prevScroll;
   }
 
   // Marca todos os usuários visíveis (respeita o filtro). Se todos os
@@ -192,11 +202,11 @@
     } else {
       visible.forEach(u => _selectedUserIds.add(u.id));
     }
-    _renderUserList();
-    _updateSelectionUi();
+    _renderUserList(visible);
+    _updateSelectionUi(visible);
   }
 
-  function _updateSelectionUi() {
+  function _updateSelectionUi(filtered) {
     const n = _selectedUserIds.size;
     const count = document.getElementById('recPickerSelCount');
     const clear = document.getElementById('recPickerClearSel');
@@ -209,7 +219,7 @@
       submit.textContent = n > 1 ? `Recomendar (${n})` : 'Recomendar';
     }
     if (selAll) {
-      const visible = _filteredUsers();
+      const visible = filtered || _filteredUsers();
       const allVisibleSelected = visible.length > 0 && visible.every(u => _selectedUserIds.has(u.id));
       selAll.textContent = allVisibleSelected ? 'Desmarcar todos' : 'Selecionar todos';
     }
@@ -238,7 +248,7 @@
     document.getElementById('recPickerUserList').innerHTML = '<div style="grid-column:1/-1; padding:14px; color:var(--text-muted); font-size:0.85rem;">Carregando usuários...</div>';
     await _loadUsers();
     _applyLayout();
-    _renderUserList();
+    _refresh();
     document.getElementById('recPickerUserSearch').focus();
   }
 
@@ -281,6 +291,7 @@
     const supa = _supaClient();
     if (!supa) return;
     const ids = Array.from(_selectedUserIds);
+    if (ids.length >= 10 && !confirm(`Recomendar pra ${ids.length} usuários? Cada um receberá uma cópia e não dá pra desfazer em massa.`)) return;
     const btn = document.getElementById('recPickerSubmit');
     const selAllBtn = document.getElementById('recPickerSelectAll');
     const msg = document.getElementById('recPickerMsg');
@@ -310,22 +321,24 @@
         ok++;
       }
     }
-    if (firstError && ok === 0) {
-      msg.innerHTML = `<span style="color:#c00;">Erro: ${_esc(firstError.message)}</span>`;
+    if (firstError) {
+      // Falha total ou parcial: não fechar automaticamente. Admin precisa
+      // ver o que aconteceu pra decidir se reenvia.
+      const fails = ids.length - ok;
+      const prefix = ok === 0 ? '' : `Enviado pra ${ok} de ${ids.length}. `;
+      msg.innerHTML = `<span style="color:#c00;">${prefix}${fails} falharam: ${_esc(firstError.message)}</span>`;
       btn.disabled = false;
       selAllBtn.disabled = false;
       return;
     }
-    const suffix = firstError ? ` (${ids.length - ok} falharam)` : '';
-    msg.innerHTML = `<span style="color:#0a7;">✓ Enviado pra ${ok} usuário${ok === 1 ? '' : 's'}${suffix}.</span>`;
+    msg.innerHTML = `<span style="color:#0a7;">✓ Enviado pra ${ok} usuário${ok === 1 ? '' : 's'}.</span>`;
     setTimeout(_close, 1100);
   }
 
   window.recPickerToggleUser = function(uid) {
     if (_selectedUserIds.has(uid)) _selectedUserIds.delete(uid);
     else _selectedUserIds.add(uid);
-    _renderUserList();
-    _updateSelectionUi();
+    _refresh();
   };
 
   window.openRecommendPicker = _open;

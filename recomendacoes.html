@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <script>(function(){var m=localStorage.getItem('site_mode')||'light';var t=localStorage.getItem('theme')||'light';var d=document.documentElement;d.setAttribute('data-mode',m);d.setAttribute('data-theme',t);var c={'dark:light':'#1A1A1A','dark:quiet':'#2D2D2F','dark:paper':'#2A2824','dark:bold':'#000','dark:calm':'#3B3326','dark:focus':'#000','light:light':'#F2F2F0','light:quiet':'#404043','light:paper':'#EFE8D6','light:bold':'#FFF','light:calm':'#DFCDAE','light:focus':'#FFF'};var bg=c[m+':'+t]||(m==='dark'?'#121212':'#F2F2F0');d.style.backgroundColor=bg})();</script>
+    <meta charset="UTF-8">
+    <title>Central de Recomendações - Caminho da Felicidade</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&display=swap">
+    <link rel="stylesheet" href="css/styles.min.css?v=72">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <style>
+        .rec-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 16px;
+        }
+        @media (max-width: 600px) {
+            .rec-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+        }
+        .rec-title {
+            font-size: 2rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            font-family: "Outfit", sans-serif;
+        }
+        .rec-desc {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 1rem;
+        }
+        .rec-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .rec-tab {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            font-family: "Outfit", sans-serif;
+            padding: 12px 18px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .rec-tab:hover { color: var(--text-main); }
+        .rec-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        .rec-tab-count {
+            background: var(--border);
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            padding: 2px 7px;
+            border-radius: 9px;
+            font-weight: 600;
+        }
+        .rec-tab.active .rec-tab-count {
+            background: var(--accent);
+            color: #fff;
+        }
+        .rec-card {
+            display: flex;
+            gap: 16px;
+            padding: 18px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .rec-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+        }
+        .rec-card.archived {
+            background: transparent;
+            border-style: dashed;
+            opacity: 0.75;
+        }
+        .rec-card-body { flex: 1; min-width: 0; }
+        .rec-card-title {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--text-main);
+            font-family: 'Crimson Pro', serif;
+            line-height: 1.4;
+            margin: 0 0 6px 0;
+        }
+        .rec-card-title a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .rec-card-title a:hover {
+            color: var(--accent);
+        }
+        .rec-card-meta {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-family: "Outfit", sans-serif;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .rec-card-meta .dot { opacity: 0.4; }
+        .rec-card-note {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: var(--bg-color);
+            border-left: 3px solid var(--accent);
+            border-radius: 4px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            font-style: italic;
+            line-height: 1.5;
+        }
+        .rec-card.archived .rec-card-note {
+            border-left-color: var(--border);
+        }
+        .rec-card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .rec-action-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-family: "Outfit", sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .rec-action-btn:hover {
+            color: var(--text-main);
+            border-color: var(--accent);
+        }
+        .rec-action-btn[disabled] { opacity: 0.5; cursor: default; }
+        .rec-action-btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .rec-action-btn.primary:hover {
+            opacity: 0.9;
+        }
+        .rec-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-family: "Outfit", sans-serif;
+        }
+        .rec-empty svg {
+            opacity: 0.4;
+            margin-bottom: 16px;
+        }
+        .rec-empty-title {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+        .rec-empty-desc { font-size: 0.9rem; }
+        .rec-tag {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: rgba(150,150,150,0.18);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+
+    <script src="js/toggle.js?v=31" defer></script>
+    <script src="js/nav.js?v=26" defer></script>
+    <script src="js/theme.js?v=1" defer></script>
+    <script src="js/language.js?v=2" defer></script>
+    <script src="js/typography.js?v=1" defer></script>
+    <script src="js/search.js?v=19" defer></script>
+    <script src="js/recommendations.js?v=10" defer></script>
+    <script src="js/recomendacoes-page.js?v=1" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('site_lang') || 'pt';
+            if (typeof setLanguage === 'function') setLanguage(savedLang);
+        });
+    </script>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Ir para o conteúdo</a>
+    <div id="page-gate"
+        style="position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;z-index:4999;background:#f5f3ee;background:var(--bg-color,#f5f3ee)">
+    </div>
+    <header class="header">
+        <a href="index.html" class="header__logo">
+            <svg width="28" height="28" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Emblema da Comunidade Messiânica Universal"><circle cx="100" cy="100" r="98" fill="#b8860b"/><circle cx="100" cy="100" r="92" fill="#fff"/><rect x="80" y="8" width="40" height="184" fill="#006400"/><rect x="8" y="80" width="184" height="40" fill="#006400"/><circle cx="100" cy="100" r="42" fill="#cc0000"/><circle cx="100" cy="100" r="28" fill="#b8860b"/></svg>
+        </a>
+        <a href="index.html" class="btn-zen" style="text-decoration:none; margin-left:16px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg><span class="lang-pt">Início</span><span class="lang-ja" style="display:none">ホーム</span></a>
+        <div class="header__nav">
+            <a href="index.html" style="font-weight:600; opacity:0.7;"><span>⌂ Início</span></a>
+            <a href="mioshiec1/index.html"><span>Vol 1</span></a>
+            <a href="mioshiec2/index.html"><span>Vol 2</span></a>
+            <a href="mioshiec3/index.html"><span>Vol 3</span></a>
+            <a href="mioshiec4/index.html"><span>Vol 4</span></a>
+        </div>
+    </header>
+
+    <main class="main" id="main-content">
+        <div class="content-wrapper" style="max-width: 900px; margin: 0 auto;">
+            <div class="glass-pane" style="padding: 40px 32px; margin-top: 24px;">
+                <div class="rec-header">
+                    <div>
+                        <h1 class="rec-title lang-pt">Recomendações para Estudo</h1>
+                        <h1 class="rec-title lang-ja" style="display:none">学習のおすすめ</h1>
+                        <p class="rec-desc lang-pt">Ensinamentos indicados pra você. Arquive os que já estudou; pode desarquivar se quiser revisitar.</p>
+                        <p class="rec-desc lang-ja" style="display:none">あなたへのおすすめ。学び終えたものはアーカイブできます。</p>
+                    </div>
+                </div>
+
+                <div class="rec-tabs" role="tablist">
+                    <button class="rec-tab active" data-rec-tab="active" role="tab">
+                        <span class="lang-pt">Ativas</span>
+                        <span class="lang-ja" style="display:none">アクティブ</span>
+                        <span class="rec-tab-count" id="rec-count-active">0</span>
+                    </button>
+                    <button class="rec-tab" data-rec-tab="archived" role="tab">
+                        <span class="lang-pt">Arquivadas</span>
+                        <span class="lang-ja" style="display:none">アーカイブ済み</span>
+                        <span class="rec-tab-count" id="rec-count-archived">0</span>
+                    </button>
+                </div>
+
+                <div id="rec-page-container">
+                    <div class="rec-empty">Carregando...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="importmap">
+    {"imports":{"@supabase/supabase-js":"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"}}</script>
+    <script type="module">
+      import * as cloudSync from './js/sync.js?v=5';
+      window._cloudSync = cloudSync;
+    </script>
+    <script type="module" src="js/login.js?v=7"></script>
+    <script src="js/access.js?v=5"></script>
+    <script src="js/modals.js?v=3"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            buildSearchModal(); buildHistoryModal(); buildFavoritesModal(); buildHighlightsModal(); buildRecommendationsModal();
+            if (typeof revealPage === 'function') revealPage();
+            if (typeof initRecommendations === 'function') initRecommendations();
+            if (typeof initRecomendacoesPage === 'function') initRecomendacoesPage();
+        });
+    </script>
+</body>
+</html>

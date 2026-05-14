@@ -1044,22 +1044,48 @@
         }
 
         // Diff antes/depois — aparece em corrected/verified quando temos pt_after.
-        // "Antes" = selected_text (a marcação do usuário, fonte exata de verdade).
-        // "Depois" = pt_after (conteúdo do parágrafo corrigido, capturado no save).
+        // "Antes" prefere pt_before (parágrafo completo capturado no save) com
+        // o selected_text grifado dentro pra dar contexto. Fallback é o
+        // selected_text puro se pt_before ainda não foi capturado.
+        // "Depois" = pt_after (conteúdo do parágrafo corrigido).
         let diffHtml = '';
         const showDiff = (state === 'corrected' || state === 'verified') && r.pt_after;
         if (showDiff) {
-          const before = r.selected_text || '';
-          const after = _stripHtmlText(r.pt_after);
+          const beforeRaw = r.pt_before ? _stripHtmlText(r.pt_before) : (r.selected_text || '');
+          const afterRaw = _stripHtmlText(r.pt_after);
+          // Se temos parágrafo completo + selected_text, grifa o trecho dentro
+          // do parágrafo pra reviewer ver exatamente onde estava o problema.
+          let beforeHtml = _escHtml(beforeRaw);
+          if (r.pt_before && r.selected_text) {
+            const needle = r.selected_text.replace(/\s+/g, ' ').trim();
+            if (needle) {
+              const re = new RegExp(
+                needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'),
+                'g'
+              );
+              const matches = [...beforeRaw.matchAll(re)];
+              if (matches.length > 0) {
+                let out = '';
+                let lastEnd = 0;
+                for (const m of matches) {
+                  out += _escHtml(beforeRaw.slice(lastEnd, m.index));
+                  out += `<mark class="diff-needle">${_escHtml(m[0])}</mark>`;
+                  lastEnd = m.index + m[0].length;
+                }
+                out += _escHtml(beforeRaw.slice(lastEnd));
+                beforeHtml = out;
+              }
+            }
+          }
           diffHtml = `
             <div class="report-diff">
               <div class="diff-side diff-before">
-                <div class="diff-label">📄 Trecho reportado</div>
-                <div class="diff-text">${_escHtml(before)}</div>
+                <div class="diff-label">📄 Trecho original${r.pt_before ? ' (parágrafo completo)' : ''}</div>
+                <div class="diff-text">${beforeHtml}</div>
               </div>
               <div class="diff-side diff-after">
                 <div class="diff-label">✅ Versão corrigida</div>
-                <div class="diff-text">${_escHtml(after)}</div>
+                <div class="diff-text">${_escHtml(afterRaw)}</div>
               </div>
             </div>`;
         }
@@ -1853,7 +1879,11 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
     let _currentEditReportId = null;    // se editor foi aberto a partir de um report
     // Snapshot do innerHTML de cada segmento PT no momento de abrir o editor.
     // Usado pra computar diff no save e identificar qual parágrafo mudou.
-    let _editorPtSnapshot = new Map(); // Map<data-path, innerHTML>
+    let _editorPtSnapshot = new Map(); // Map<composite-key, innerHTML>
+    // Chave composta do segmento que contém o selected_text do report (identificado
+    // na abertura do editor por substring match contra o snapshot original).
+    // Usar essa chave no save é mais confiável que adivinhar pelo diff.
+    let _currentReportSegmentKey = null;
 
     window.openEditorFromReport = function(reportId) {
       const r = (_allReports || []).find(x => x.id === reportId);
@@ -1869,6 +1899,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       _currentReportHighlight = reportHighlight && reportHighlight.text ? reportHighlight : null;
       _currentEditReportId = reportHighlight && reportHighlight.reportId ? reportHighlight.reportId : null;
       _editorPtSnapshot = new Map();
+      _currentReportSegmentKey = null;
 
       const modal = document.getElementById('editor-modal');
       const textarea = document.getElementById('editor-textarea');
@@ -1907,13 +1938,41 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
             // Múltiplos segmentos do mesmo tópico compartilham data-path (por
             // design do saveEditor), então usamos data-path + data-seg-idx
             // do .editor-seg-row pai como chave única.
+            // Aproveita o loop pra identificar qual segmento contém o
+            // selected_text do report (substring match em texto normalizado),
+            // gravando a chave em _currentReportSegmentKey pra uso no save.
             if (_currentEditReportId) {
               _editorPtSnapshot = new Map();
+              _currentReportSegmentKey = null;
+              const needle = (_currentReportHighlight?.text || '')
+                .replace(/\s+/g, ' ').trim().toLowerCase();
               document.querySelectorAll('#editor-structured-body .editor-seg-content').forEach(el => {
                 const path = el.getAttribute('data-path');
                 const segIdx = el.closest('.editor-seg-row')?.getAttribute('data-seg-idx');
-                if (path && segIdx != null) _editorPtSnapshot.set(`${path}::${segIdx}`, el.innerHTML);
+                if (path == null || segIdx == null) return;
+                const key = `${path}::${segIdx}`;
+                _editorPtSnapshot.set(key, el.innerHTML);
+                if (needle && !_currentReportSegmentKey) {
+                  const segText = _stripHtmlText(el.innerHTML)
+                    .replace(/\s+/g, ' ').trim().toLowerCase();
+                  if (segText.includes(needle)) _currentReportSegmentKey = key;
+                }
               });
+              // Fallback: se substring match falhou (pontuação diferente), tenta
+              // achar por scoring de tokens distintivos do needle (palavras ≥4).
+              if (needle && !_currentReportSegmentKey) {
+                const tokens = needle.split(/[\s,.\-()"'\[\]「」『』〈〉【】、。]+/)
+                  .filter(w => w.length >= 4);
+                let bestKey = null, bestScore = 0;
+                _editorPtSnapshot.forEach((html, key) => {
+                  const text = _stripHtmlText(html).toLowerCase();
+                  const score = tokens.reduce((a, t) => a + (text.includes(t) ? 1 : 0), 0);
+                  if (score > bestScore) { bestScore = score; bestKey = key; }
+                });
+                if (bestScore >= Math.max(2, Math.floor(tokens.length / 3))) {
+                  _currentReportSegmentKey = bestKey;
+                }
+              }
             }
             if (_currentReportHighlight) {
               hint.innerHTML = '🖍️ <strong>Trecho reportado destacado em amarelo.</strong> Edite apenas a caixa da direita (Português).';
@@ -2183,78 +2242,50 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       _currentReportHighlight = null;
       _currentEditReportId = null;
       _editorPtSnapshot = new Map();
+      _currentReportSegmentKey = null;
     };
 
-    // Identifica qual(is) segmento(s) PT mudaram entre snapshot e DOM atual,
-    // escolhe o mais provável de ser "o parágrafo da correção" (priorizando
-    // o que contém o selected_text reportado), e atualiza o report no banco
-    // com pt_before/pt_after + status='corrected'.
+    // Usa _currentReportSegmentKey (identificado no openEditor) pra pegar o
+    // parágrafo exato que o usuário reportou. Compara snapshot vs current
+    // (sanitizado, sem <mark> de highlight) — se mudou, grava pt_before/pt_after
+    // e auto-marca como Corrigido.
     async function _captureCorrectionDiff() {
       const reportId = _currentEditReportId;
-      if (!reportId) return;
+      if (!reportId || !_currentReportSegmentKey) return;
 
       const report = (_allReports || []).find(r => r.id === reportId);
       if (!report) return;
 
-      // Coleta segmentos que mudaram — usa data-path + data-seg-idx como
-      // chave (mesma chave do snapshot pra parear corretamente).
-      const changes = [];
+      // Acha o segmento atual no DOM por chave composta
+      let currentEl = null;
       document.querySelectorAll('#editor-structured-body .editor-seg-content').forEach(el => {
         const path = el.getAttribute('data-path');
         const segIdx = el.closest('.editor-seg-row')?.getAttribute('data-seg-idx');
-        if (!path || segIdx == null) return;
-        const key = `${path}::${segIdx}`;
-        const before = _editorPtSnapshot.get(key);
-        const after = el.innerHTML;
-        if (before == null) return;
-        if (before !== after) {
-          changes.push({ key, before, after });
+        if (path != null && segIdx != null && `${path}::${segIdx}` === _currentReportSegmentKey) {
+          currentEl = el;
         }
       });
+      if (!currentEl) return;
 
-      if (changes.length === 0) return; // nada mudou — não toca no report
+      const beforeRaw = _editorPtSnapshot.get(_currentReportSegmentKey);
+      const afterRaw  = currentEl.innerHTML;
+      if (beforeRaw == null) return;
 
-      // Escolhe o segmento mais provável usando scoring de tokens.
-      // Match estrito por substring (includes) falha quando o admin re-traduz
-      // múltiplos parágrafos de uma vez e há diferenças mínimas de pontuação
-      // entre selected_text e o texto real do segmento. Token scoring é
-      // resiliente a essas variações: cada palavra distintiva (≥4 chars) do
-      // selected_text vira um token; o segmento com mais matches vence.
-      const norm = (s) => _stripHtmlText(s).replace(/\s+/g, ' ').trim().toLowerCase();
-      const needleTokens = (report.selected_text || '')
-        .toLowerCase()
-        .split(/[\s,.\-()"'\[\]「」『』〈〉【】、。]+/)
-        .filter(w => w.length >= 4);
-
-      let chosen = null;
-      let bestScore = 0;
-      if (needleTokens.length > 0) {
-        // Prioriza match no "antes" (snapshot original do segmento)
-        for (const c of changes) {
-          const text = norm(c.before);
-          const score = needleTokens.reduce((acc, t) => acc + (text.includes(t) ? 1 : 0), 0);
-          if (score > bestScore) { bestScore = score; chosen = c; }
-        }
-        // Se nada bateu no "antes" (admin substituiu o trecho inteiro), tenta "depois"
-        if (!chosen) {
-          for (const c of changes) {
-            const text = norm(c.after);
-            const score = needleTokens.reduce((acc, t) => acc + (text.includes(t) ? 1 : 0), 0);
-            if (score > bestScore) { bestScore = score; chosen = c; }
-          }
-        }
-      }
-      if (!chosen) chosen = changes[0]; // fallback final: primeiro alterado
+      // Sanitiza ambos pra comparação justa — strip <mark> (highlight do report)
+      // e <span> que o browser injeta em contenteditable.
+      const beforeSan = _sanitizeSegHtml(beforeRaw);
+      const afterSan  = _sanitizeSegHtml(afterRaw);
+      if (beforeSan === afterSan) return; // admin abriu e fechou sem editar
 
       const now = new Date().toISOString();
       const update = {
         status: 'corrected',
         corrected_by: _myUid,
         corrected_at: now,
-        pt_after: chosen.after
+        pt_after: afterSan
       };
-      // Preserva pt_before original — só seta se ainda for null (primeira correção)
-      if (!report.pt_before) update.pt_before = chosen.before;
+      // Preserva pt_before original em re-edições (só seta se ainda for null)
+      if (!report.pt_before) update.pt_before = beforeSan;
 
       const { error } = await supabase
         .from('translation_reports')
@@ -2266,7 +2297,6 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         return;
       }
 
-      // Atualiza estado local + re-render se a aba Reports tiver sido carregada
       Object.assign(report, update);
       if (_reportsLoaded) _renderReports();
     }

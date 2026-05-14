@@ -9,7 +9,7 @@
   <style>
     /* Override global content-wrapper / glass-pane caps for the admin page (desktop only) */
     @media (min-width: 1025px) {
-      main.main > .content-wrapper { max-width: min(1250px, calc(100vw - 48px)) !important; }
+      main.main > .content-wrapper { max-width: min(1400px, calc(100vw - 48px)) !important; }
       main.main > .content-wrapper > .glass-pane { padding: 32px !important; }
     }
     .admin-wrap { max-width: 100%; margin: 0 auto; padding: 40px 0 120px; }
@@ -523,6 +523,14 @@
     .diff-text {
       font-size: 0.85rem; line-height: 1.55; color: var(--text);
       white-space: pre-wrap; word-break: break-word;
+    }
+    /* Grifa o selected_text dentro do parágrafo "Antes" pra reviewer
+       localizar visualmente o trecho exato que o usuário reportou. */
+    mark.diff-needle {
+      background: #fff3a1; color: var(--text);
+      padding: 1px 3px; border-radius: 3px;
+      box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.45);
+      font-weight: 500;
     }
     .report-status-chip {
       display: inline-flex; align-items: center; gap: 6px;

@@ -312,20 +312,6 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         let favs = [];
         try { favs = JSON.parse(localStorage.getItem('savedFavorites') || '[]'); } catch (e) { }
         const pageFavs = favs.filter(f => f.vol === volId && f.file === filename);
-        const count = pageFavs.length;
-        const hasFavs = count > 0;
-        const favLang = { pt: { saved: 'Salvo', save: 'Salvar' }, ja: { saved: '保存済み', save: '保存' } }[lang] || { saved: 'Salvo', save: 'Salvar' };
-        [document.getElementById('favoriteBtn'), document.getElementById('mobileFavoriteBtn')].forEach(btn => {
-            if (!btn) return;
-            btn.title = hasFavs ? favLang.saved : favLang.save;
-            btn.classList.toggle('active', hasFavs);
-            const svg = btn.querySelector('svg');
-            if (svg) svg.setAttribute('fill', hasFavs ? 'currentColor' : 'none');
-            let badge = btn.querySelector('.fav-badge');
-            if (!badge) { badge = document.createElement('span'); badge.className = 'fav-badge'; btn.appendChild(badge); }
-            badge.textContent = count > 0 ? count : '';
-            badge.classList.toggle('visible', count > 0);
-        });
         const savedSet = new Set(pageFavs.map(f => f.topic || 0));
         const totalTopics = window._currentTotalTopics || 1;
         for (let i = 0; i < totalTopics; i++) {

@@ -71,13 +71,13 @@ function _loadSectionMaps() {
   if (!window.SECTION_MAP && !document.getElementById('sectionMapScript')) {
     const script = document.createElement('script');
     script.id = 'sectionMapScript';
-    script.src = `${basePath}site_data/section_map.js`;
+    script.src = `${basePath}site_data/section_map.js?v=1`;
     document.head.appendChild(script);
   }
   if (!window.GLOBAL_INDEX_TITLES && !document.getElementById('globalIndexTitlesScript')) {
     const script = document.createElement('script');
     script.id = 'globalIndexTitlesScript';
-    script.src = `${basePath}site_data/global_index_titles.js`;
+    script.src = `${basePath}site_data/global_index_titles.js?v=1`;
     document.head.appendChild(script);
   }
 }

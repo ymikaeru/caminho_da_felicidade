@@ -10,9 +10,13 @@
 // ============================================================
 
 (function () {
+  // Layout: 2 colunas por padrão; vira 3 (e modal alarga) se a lista
+  // for grande o suficiente pra encher a coluna no desktop.
+  const THREE_COL_THRESHOLD = 36;
   let _modal = null;
   let _users = [];
-  let _selectedUserId = null;
+  let _selectedUserIds = new Set();
+  let _cols = 2;
 
   function _esc(s) {
     return String(s ?? '')
@@ -73,7 +77,7 @@
     _modal.id = 'recommendPickerModal';
     _modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:10000;';
     _modal.innerHTML = `
-      <div style="background:var(--surface, #fff); color:var(--text-main, #000); width:min(520px, 92vw); max-height:88vh; border-radius:10px; padding:22px; box-shadow:0 12px 40px rgba(0,0,0,0.25); display:flex; flex-direction:column; gap:14px;">
+      <div style="background:var(--surface, #fff); color:var(--text-main, #000); width:min(900px, 94vw); height:min(1080px, 96vh); max-height:96vh; border-radius:10px; padding:24px; box-shadow:0 12px 40px rgba(0,0,0,0.25); display:flex; flex-direction:column; gap:14px;">
         <div style="display:flex; align-items:center; gap:12px;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"/>
@@ -86,10 +90,14 @@
           <button id="recPickerClose" aria-label="Fechar" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-muted); line-height:1; padding:0 4px;">&times;</button>
         </div>
         <input type="text" id="recPickerUserSearch" placeholder="Buscar usuário por nome ou email..." style="padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:5px; background:var(--bg, #fff); color:inherit; box-sizing:border-box;">
-        <div id="recPickerUserList" style="max-height:200px; overflow-y:auto; border:1px solid var(--border); border-radius:5px;"></div>
+        <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
+          <span id="recPickerSelCount">Nenhum selecionado</span>
+          <button id="recPickerClearSel" type="button" style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer; padding:0; text-decoration:underline;" hidden>Limpar seleção</button>
+        </div>
+        <div id="recPickerUserList" style="flex:1; min-height:200px; overflow-y:auto; border:1px solid var(--border); border-radius:5px; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); align-content:start;"></div>
         <textarea id="recPickerNote" rows="2" placeholder="Nota opcional (ex.: 'pra refletir esta semana')" style="padding:8px 12px; font-size:0.85rem; border:1px solid var(--border); border-radius:5px; resize:vertical; font-family:inherit; background:var(--bg, #fff); color:inherit; box-sizing:border-box;"></textarea>
         <div style="display:flex; align-items:center; gap:10px;">
-          <label style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">Auto-apagar:</label>
+          <label style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">Auto-arquivar:</label>
           <select id="recPickerExpires" style="flex:1; padding:6px 10px; font-size:0.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg, #fff); color:inherit; box-sizing:border-box;">
             <option value="">Sem prazo</option>
             <option value="7">Em 7 dias</option>
@@ -101,7 +109,7 @@
         <div id="recPickerMsg" style="font-size:0.82rem; min-height:1.2em;"></div>
         <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
           <button id="recPickerCancel" style="padding:7px 16px; font-size:0.85rem; background:none; border:1px solid var(--border); border-radius:5px; cursor:pointer; color:inherit;">Cancelar</button>
-          <button id="recPickerSubmitAll" style="padding:7px 16px; font-size:0.85rem; background:none; border:1px solid var(--accent); color:var(--accent); border-radius:5px; cursor:pointer; font-weight:600;" title="Envia este ensinamento pra TODOS os usuários cadastrados agora">📢 Para todos</button>
+          <button id="recPickerSelectAll" type="button" style="padding:7px 16px; font-size:0.85rem; background:none; border:1px solid var(--accent); color:var(--accent); border-radius:5px; cursor:pointer; font-weight:600;" title="Marca todos os usuários da lista (respeita o filtro de busca)">Selecionar todos</button>
           <button id="recPickerSubmit" style="padding:7px 18px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:5px; cursor:pointer; font-weight:600;" disabled>Recomendar</button>
         </div>
       </div>
@@ -111,8 +119,13 @@
     document.getElementById('recPickerClose').onclick = _close;
     document.getElementById('recPickerCancel').onclick = _close;
     document.getElementById('recPickerSubmit').onclick = _submit;
-    document.getElementById('recPickerSubmitAll').onclick = _submitAll;
-    document.getElementById('recPickerUserSearch').oninput = _renderUserList;
+    document.getElementById('recPickerSelectAll').onclick = _selectAllVisible;
+    document.getElementById('recPickerUserSearch').oninput = () => { _renderUserList(); _updateSelectionUi(); };
+    document.getElementById('recPickerClearSel').onclick = () => {
+      _selectedUserIds.clear();
+      _renderUserList();
+      _updateSelectionUi();
+    };
     _modal.addEventListener('click', e => { if (e.target === _modal) _close(); });
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && _modal && _modal.style.display !== 'none') _close();
@@ -131,34 +144,81 @@
     _users = data || [];
   }
 
-  function _renderUserList() {
-    const container = document.getElementById('recPickerUserList');
-    if (!container) return;
+  function _filteredUsers() {
     const q = (document.getElementById('recPickerUserSearch')?.value || '').toLowerCase();
-    const filtered = _users.filter(u =>
+    if (!q) return _users.slice();
+    return _users.filter(u =>
       (u.display_name || '').toLowerCase().includes(q) ||
       (u.email || '').toLowerCase().includes(q)
     );
+  }
+
+  function _renderUserList() {
+    const container = document.getElementById('recPickerUserList');
+    if (!container) return;
+    const filtered = _filteredUsers();
     if (filtered.length === 0) {
-      container.innerHTML = '<div style="padding:14px; color:var(--text-muted); font-size:0.85rem; text-align:center;">Nenhum usuário.</div>';
+      container.innerHTML = '<div style="grid-column:1/-1; padding:14px; color:var(--text-muted); font-size:0.85rem; text-align:center;">Nenhum usuário.</div>';
       return;
     }
-    container.innerHTML = filtered.slice(0, 50).map(u => {
-      const isSel = _selectedUserId === u.id;
-      const bg = isSel ? 'background:var(--accent-soft, rgba(184,134,11,0.15)); border-left:3px solid var(--accent);' : '';
+    container.innerHTML = filtered.slice(0, 400).map((u, i) => {
+      const isSel = _selectedUserIds.has(u.id);
+      const bg = isSel ? 'background:var(--accent-soft, rgba(184,134,11,0.15)); border-left:3px solid var(--accent);' : 'border-left:3px solid transparent;';
+      const isLastCol = (i % _cols) === (_cols - 1);
+      const borderRight = isLastCol ? '' : 'border-right:1px solid var(--border);';
+      const check = isSel
+        ? '<span style="display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:4px; background:var(--accent); color:#fff; font-size:0.75rem; flex-shrink:0;">✓</span>'
+        : '<span style="display:inline-block; width:18px; height:18px; border-radius:4px; border:1.5px solid var(--border); flex-shrink:0;"></span>';
       return `
-        <div onclick="recPickerSelectUser('${_esc(u.id)}')" style="padding:8px 12px; cursor:pointer; border-bottom:1px solid var(--border); ${bg}">
-          <div style="font-size:0.86rem; font-weight:500;">${_esc(u.display_name || 'Sem nome')}</div>
-          <div style="font-size:0.72rem; color:var(--text-muted);">${_esc(u.email || '—')}</div>
+        <div onclick="recPickerToggleUser('${_esc(u.id)}')" style="padding:8px 12px; cursor:pointer; border-bottom:1px solid var(--border); ${borderRight} display:flex; align-items:center; gap:10px; min-width:0; ${bg}">
+          ${check}
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:0.86rem; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_esc(u.display_name || 'Sem nome')}</div>
+            <div style="font-size:0.72rem; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_esc(u.email || '—')}</div>
+          </div>
         </div>
       `;
     }).join('');
   }
 
+  // Marca todos os usuários visíveis (respeita o filtro). Se todos os
+  // visíveis já estavam marcados, desmarca esses — vira toggle.
+  function _selectAllVisible() {
+    const visible = _filteredUsers();
+    if (visible.length === 0) return;
+    const allSelected = visible.every(u => _selectedUserIds.has(u.id));
+    if (allSelected) {
+      visible.forEach(u => _selectedUserIds.delete(u.id));
+    } else {
+      visible.forEach(u => _selectedUserIds.add(u.id));
+    }
+    _renderUserList();
+    _updateSelectionUi();
+  }
+
+  function _updateSelectionUi() {
+    const n = _selectedUserIds.size;
+    const count = document.getElementById('recPickerSelCount');
+    const clear = document.getElementById('recPickerClearSel');
+    const submit = document.getElementById('recPickerSubmit');
+    const selAll = document.getElementById('recPickerSelectAll');
+    if (count) count.textContent = n === 0 ? 'Nenhum selecionado' : (n === 1 ? '1 usuário selecionado' : `${n} usuários selecionados`);
+    if (clear) clear.hidden = n === 0;
+    if (submit) {
+      submit.disabled = n === 0;
+      submit.textContent = n > 1 ? `Recomendar (${n})` : 'Recomendar';
+    }
+    if (selAll) {
+      const visible = _filteredUsers();
+      const allVisibleSelected = visible.length > 0 && visible.every(u => _selectedUserIds.has(u.id));
+      selAll.textContent = allVisibleSelected ? 'Desmarcar todos' : 'Selecionar todos';
+    }
+  }
+
   async function _open() {
     if (typeof isAdminUser === 'function' && !isAdminUser()) return;
     _build();
-    _selectedUserId = null;
+    _selectedUserIds.clear();
     const meta = _currentTeachingMeta();
     if (!meta.vol || !meta.file) {
       alert('Não consegui identificar o ensinamento atual. Esta página tem vol e file na URL?');
@@ -173,20 +233,34 @@
     document.getElementById('recPickerNote').value = '';
     document.getElementById('recPickerExpires').value = '';
     document.getElementById('recPickerMsg').textContent = '';
-    document.getElementById('recPickerSubmit').disabled = true;
-    document.getElementById('recPickerSubmitAll').disabled = false;
+    _updateSelectionUi();
     _modal.style.display = 'flex';
-    document.getElementById('recPickerUserList').innerHTML = '<div style="padding:14px; color:var(--text-muted); font-size:0.85rem;">Carregando usuários...</div>';
+    document.getElementById('recPickerUserList').innerHTML = '<div style="grid-column:1/-1; padding:14px; color:var(--text-muted); font-size:0.85rem;">Carregando usuários...</div>';
     await _loadUsers();
+    _applyLayout();
     _renderUserList();
     document.getElementById('recPickerUserSearch').focus();
+  }
+
+  // Decide 2 vs 3 colunas (e largura do modal) com base no total de
+  // usuários. Roda só ao abrir; não muda quando o usuário filtra.
+  function _applyLayout() {
+    _cols = _users.length > THREE_COL_THRESHOLD ? 3 : 2;
+    const sheet = _modal && _modal.firstElementChild;
+    const list = document.getElementById('recPickerUserList');
+    if (sheet) {
+      sheet.style.width = _cols === 3 ? 'min(1180px, 96vw)' : 'min(900px, 94vw)';
+    }
+    if (list) {
+      list.style.gridTemplateColumns = `repeat(${_cols}, minmax(0, 1fr))`;
+    }
   }
 
   function _close() {
     if (_modal) _modal.style.display = 'none';
   }
 
-  // Converte o select "Auto-apagar" em ISO timestamp ou null.
+  // Converte o select "Auto-arquivar" em ISO timestamp ou null.
   function _expiresIso() {
     const days = parseInt(document.getElementById('recPickerExpires')?.value || '0', 10);
     if (!days || days <= 0) return null;
@@ -203,73 +277,55 @@
   }
 
   async function _submit() {
-    if (!_selectedUserId) return;
+    if (_selectedUserIds.size === 0) return;
     const supa = _supaClient();
     if (!supa) return;
+    const ids = Array.from(_selectedUserIds);
     const btn = document.getElementById('recPickerSubmit');
+    const selAllBtn = document.getElementById('recPickerSelectAll');
     const msg = document.getElementById('recPickerMsg');
     btn.disabled = true;
-    msg.textContent = 'Enviando...';
+    selAllBtn.disabled = true;
     msg.style.color = 'var(--text-muted)';
-    const note = document.getElementById('recPickerNote').value.trim();
-    const { error } = await supa.rpc('admin_create_recommendation', {
-      p_user_id: _selectedUserId,
-      p_vol: _modal.dataset.vol,
-      p_file: _modal.dataset.file,
-      p_topic_idx: parseInt(_modal.dataset.topicIdx, 10) || 0,
-      p_note: note || null,
-      p_expires_at: _expiresIso(),
-    });
-    if (error) {
-      msg.innerHTML = `<span style="color:#c00;">Erro: ${_esc(error.message)}</span>`;
-      btn.disabled = false;
-      return;
-    }
-    msg.innerHTML = '<span style="color:#0a7;">✓ Recomendação enviada.</span>';
-    setTimeout(_close, 900);
-  }
-
-  async function _submitAll() {
-    const supa = _supaClient();
-    if (!supa) return;
     const note = document.getElementById('recPickerNote').value.trim();
     const exp = _expiresIso();
-    const expSel = document.getElementById('recPickerExpires');
-    const expLabel = exp
-      ? ' (auto-apaga ' + expSel.options[expSel.selectedIndex].textContent.toLowerCase() + ')'
-      : '';
-    const teaching = document.getElementById('recPickerTeaching').textContent.split(' · ')[0];
-    if (!confirm(`Recomendar "${teaching}" pra TODOS os usuários cadastrados${expLabel}?\n\nCada usuário receberá uma cópia. Não dá pra desfazer em massa.`)) {
-      return;
+    const vol = _modal.dataset.vol;
+    const file = _modal.dataset.file;
+    const topicIdx = parseInt(_modal.dataset.topicIdx, 10) || 0;
+    let ok = 0;
+    let firstError = null;
+    for (let i = 0; i < ids.length; i++) {
+      msg.textContent = `Enviando ${i + 1}/${ids.length}...`;
+      const { error } = await supa.rpc('admin_create_recommendation', {
+        p_user_id: ids[i],
+        p_vol: vol,
+        p_file: file,
+        p_topic_idx: topicIdx,
+        p_note: note || null,
+        p_expires_at: exp,
+      });
+      if (error) {
+        if (!firstError) firstError = error;
+      } else {
+        ok++;
+      }
     }
-    const btn = document.getElementById('recPickerSubmitAll');
-    const submitBtn = document.getElementById('recPickerSubmit');
-    const msg = document.getElementById('recPickerMsg');
-    btn.disabled = true;
-    submitBtn.disabled = true;
-    msg.textContent = 'Enviando pra todos...';
-    msg.style.color = 'var(--text-muted)';
-    const { data, error } = await supa.rpc('admin_create_recommendation_all', {
-      p_vol: _modal.dataset.vol,
-      p_file: _modal.dataset.file,
-      p_topic_idx: parseInt(_modal.dataset.topicIdx, 10) || 0,
-      p_note: note || null,
-      p_expires_at: exp,
-    });
-    if (error) {
-      msg.innerHTML = `<span style="color:#c00;">Erro: ${_esc(error.message)}</span>`;
+    if (firstError && ok === 0) {
+      msg.innerHTML = `<span style="color:#c00;">Erro: ${_esc(firstError.message)}</span>`;
       btn.disabled = false;
-      submitBtn.disabled = !_selectedUserId;
+      selAllBtn.disabled = false;
       return;
     }
-    msg.innerHTML = `<span style="color:#0a7;">✓ Enviado pra ${data} usuário${data === 1 ? '' : 's'}.</span>`;
-    setTimeout(_close, 1200);
+    const suffix = firstError ? ` (${ids.length - ok} falharam)` : '';
+    msg.innerHTML = `<span style="color:#0a7;">✓ Enviado pra ${ok} usuário${ok === 1 ? '' : 's'}${suffix}.</span>`;
+    setTimeout(_close, 1100);
   }
 
-  window.recPickerSelectUser = function(uid) {
-    _selectedUserId = uid;
+  window.recPickerToggleUser = function(uid) {
+    if (_selectedUserIds.has(uid)) _selectedUserIds.delete(uid);
+    else _selectedUserIds.add(uid);
     _renderUserList();
-    document.getElementById('recPickerSubmit').disabled = false;
+    _updateSelectionUi();
   };
 
   window.openRecommendPicker = _open;

@@ -1209,7 +1209,7 @@
               <!-- Coluna esquerda: seletor de usuário -->
               <div>
                 <input type="text" id="rec-user-search" placeholder="Buscar usuário..." style="width:100%; padding:8px 10px; font-size:0.85rem; margin-bottom:10px; box-sizing:border-box;" oninput="renderRecUserList()">
-                <div id="rec-user-list" style="max-height:520px; overflow-y:auto; border:1px solid var(--border); border-radius:6px;"><div class="loading" style="padding:16px;">Carregando...</div></div>
+                <div id="rec-user-list" style="height:calc(100vh - 260px); min-height:520px; overflow-y:auto; border:1px solid var(--border); border-radius:6px;"><div class="loading" style="padding:16px;">Carregando...</div></div>
               </div>
               <!-- Coluna direita: gestão das recs do usuário selecionado -->
               <div>
@@ -1229,7 +1229,7 @@
                     <div id="rec-teaching-picked" style="display:none; padding:8px 10px; background:var(--accent-soft, rgba(184,134,11,0.1)); border:1px solid var(--accent); border-radius:4px; font-size:0.8rem; margin-bottom:10px;"></div>
                     <textarea id="rec-note" placeholder="Nota opcional (ex.: 'pra refletir sobre paciência esta semana')" rows="2" style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box; font-family:inherit; resize:vertical; margin-bottom:10px;"></textarea>
                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-                      <label style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">Auto-apagar:</label>
+                      <label style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">Auto-arquivar:</label>
                       <select id="rec-expires" style="flex:1; padding:6px 10px; font-size:0.82rem; box-sizing:border-box;">
                         <option value="">Sem prazo</option>
                         <option value="7">Em 7 dias</option>

@@ -280,7 +280,7 @@ function renderFavorites() {
   }).join('');
 }
 
-window.removeFavoriteFromModal = function (volId, filename, topicIdx) {
+window.removeFavoriteFromModal = async function (volId, filename, topicIdx) {
   let favorites = JSON.parse(localStorage.getItem('savedFavorites') || '[]');
   if (topicIdx !== undefined && topicIdx !== null) {
     favorites = favorites.filter(f => !(f.vol === volId && f.file === filename && (f.topic || 0) === topicIdx));
@@ -289,6 +289,14 @@ window.removeFavoriteFromModal = function (volId, filename, topicIdx) {
   }
   try { localStorage.setItem('savedFavorites', JSON.stringify(favorites)); } catch (e) { }
   renderFavorites();
+
+  if (window._cloudSync?.removeFavorite) {
+    try {
+      await window._cloudSync.removeFavorite(volId, filename, topicIdx ?? 0);
+    } catch (e) {
+      console.warn('cloud favorite delete failed:', e);
+    }
+  }
 
   if (window.location.pathname.includes('reader.html')) {
     const params = new URLSearchParams(window.location.search);

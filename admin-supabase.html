@@ -524,6 +524,14 @@
       font-size: 0.85rem; line-height: 1.55; color: var(--text);
       white-space: pre-wrap; word-break: break-word;
     }
+    /* Grifa o selected_text dentro do parágrafo "Antes" pra reviewer
+       localizar visualmente o trecho exato que o usuário reportou. */
+    mark.diff-needle {
+      background: #fff3a1; color: var(--text);
+      padding: 1px 3px; border-radius: 3px;
+      box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.45);
+      font-weight: 500;
+    }
     .report-status-chip {
       display: inline-flex; align-items: center; gap: 6px;
       font-size: 0.72rem; font-weight: 600;

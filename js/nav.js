@@ -84,6 +84,12 @@ function _initMobileNav() {
 
         <div class="mobile-nav-section-label" id="mobileNavLabelActions">${t.actions}</div>
 
+        <button class="mobile-nav-link" id="mobileNavLinkRecommendations" style="display:none; position:relative;" onclick="if(typeof openRecommendations==='function'){closeMobileNav(); openRecommendations();}">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <span class="link-text">${t.recommendations || 'Recomendações'}</span>
+          <span class="rec-badge" style="display:none; margin-left:auto; min-width:18px; height:18px; padding:0 5px; background:var(--accent); color:#fff; border-radius:9px; font-size:0.7rem; font-weight:700; align-items:center; justify-content:center; line-height:1;">0</span>
+        </button>
+
         <button class="mobile-nav-link" onclick="openHistory(); closeMobileNav();" id="mobileNavLinkHistory">
           <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span class="link-text">${t.history}</span>

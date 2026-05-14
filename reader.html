@@ -142,7 +142,8 @@
     window._readTimeTracker = { start: startTracking, stop: stopTracking };
   </script>
   <script type="module" src="js/login.js?v=7"></script>
-  <script src="js/modals.js?v=1"></script>
+  <script src="js/modals.js?v=2"></script>
+  <script src="js/recommendations.js?v=1" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       if (isLimitedUser()) {
@@ -153,7 +154,9 @@
       buildHistoryModal();
       buildFavoritesModal();
       buildHighlightsModal();
+      buildRecommendationsModal();
       if (typeof revealPage === 'function') revealPage();
+      if (typeof initRecommendations === 'function') initRecommendations();
     });
   </script>
 

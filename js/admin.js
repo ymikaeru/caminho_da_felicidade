@@ -917,7 +917,7 @@
 
       const { data, error } = await supabase
         .from('translation_reports')
-        .select('id, vol, file, topic_id, lang, selected_text, description, created_at, status, user_id')
+        .select('id, vol, file, topic_id, lang, selected_text, description, created_at, status, user_id, corrected_by, corrected_at, verified_by, verified_at, pt_before, pt_after')
         .order('created_at', { ascending: false })
         .limit(500);
 
@@ -955,26 +955,33 @@
       const summary = document.getElementById('reportsSummary');
       const reports = _allReports;
 
-      const pending  = reports.filter(r => r.status !== 'verified');
-      const verified = reports.filter(r => r.status === 'verified');
+      const pending   = reports.filter(r => !r.status || r.status === 'pending');
+      const corrected = reports.filter(r => r.status === 'corrected');
+      const verified  = reports.filter(r => r.status === 'verified');
+      const needsAttention = pending.length + corrected.length;
 
-      // ── Badge: only pending count ──────────────────────────────────
+      // ── Badge: pending + corrected (tudo que ainda precisa atenção) ──
       const badge = document.getElementById('reportsTabBadge');
       if (badge) {
-        badge.textContent = pending.length;
-        badge.classList.toggle('empty', pending.length === 0);
+        badge.textContent = needsAttention;
+        badge.classList.toggle('empty', needsAttention === 0);
       }
 
       // ── Summary cards ──────────────────────────────────────────────
-      const uniqueFiles = new Set(pending.map(r => `${r.vol}/${r.file}`)).size;
+      const open = [...pending, ...corrected];
+      const uniqueFiles = new Set(open.map(r => `${r.vol}/${r.file}`)).size;
       const volCounts = {};
-      pending.forEach(r => { volCounts[r.vol] = (volCounts[r.vol] || 0) + 1; });
+      open.forEach(r => { volCounts[r.vol] = (volCounts[r.vol] || 0) + 1; });
       const topVol = Object.entries(volCounts).sort((a, b) => b[1] - a[1])[0];
 
       summary.innerHTML = `
         <div class="report-summary-item">
-          <div class="val">${pending.length}</div>
+          <div class="val" style="color:#ff3b30">${pending.length}</div>
           <div class="lbl">Pendentes</div>
+        </div>
+        <div class="report-summary-item">
+          <div class="val" style="color:#ffb800">${corrected.length}</div>
+          <div class="lbl">Aguardando arquivamento</div>
         </div>
         <div class="report-summary-item">
           <div class="val">${uniqueFiles}</div>
@@ -986,12 +993,13 @@
         </div>
         <div class="report-summary-item">
           <div class="val" style="color:#34c759">${verified.length}</div>
-          <div class="lbl">Verificados</div>
+          <div class="lbl">Arquivados</div>
         </div>
       `;
 
       // ── Build report card HTML ──────────────────────────────────────
-      function buildCard(r, isPending) {
+      // state: 'pending' | 'corrected' | 'verified'
+      function buildCard(r, state) {
         const date = new Date(r.created_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
         const escapedText = r.selected_text?.replace(/</g, '&lt;').replace(/>/g, '&gt;') || '';
         const escapedDesc = r.description?.replace(/</g, '&lt;').replace(/>/g, '&gt;') || '';
@@ -1004,18 +1012,60 @@
           if (u) userName = u.display_name || u.email || 'Usuário';
         }
 
-        const verifyBtn = isPending
-          ? `<button class="report-verify-btn" onclick="verifyReport('${r.id}', this)" title="Marcar como verificado">
-               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-               Verificado
-             </button>`
-          : `<span class="report-verified-tag">✓ Verificado</span>`;
+        const adminName = (uid) => {
+          if (!uid) return 'admin';
+          const u = allUsers.find(x => x.id === uid);
+          return u?.display_name || u?.email || 'admin';
+        };
+        const shortDate = (iso) => {
+          if (!iso) return '';
+          return new Date(iso).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        };
 
         const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
         const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Sugerir correção pontual via Claude AI">✨ Sugerir IA</button>`;
+        const correctBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.15); color:#1f8a3f; border-color:rgba(52,199,89,0.4);" onclick="markCorrected('${r.id}', this)" title="Marcar correção como aplicada — aguarda revisão para arquivar">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Corrigido
+          </button>`;
+        const archiveBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.15); color:#1f8a3f; border-color:rgba(52,199,89,0.4);" onclick="archiveReport('${r.id}', this)" title="Arquivar — correção revisada e confirmada">
+            📦 Arquivar
+          </button>`;
+
+        let actions = '';
+        let chip = '';
+        if (state === 'pending') {
+          actions = `${editBtn}${aiBtn}${correctBtn}`;
+        } else if (state === 'corrected') {
+          actions = `${editBtn}${archiveBtn}`;
+          chip = `<span class="report-status-chip status-corrected" title="Aguardando arquivamento por outro admin">🟡 Corrigido por ${_escHtml(adminName(r.corrected_by))} · ${shortDate(r.corrected_at)}</span>`;
+        } else { // verified
+          chip = `<span class="report-status-chip status-archived">📦 Arquivado por ${_escHtml(adminName(r.verified_by))} · ${shortDate(r.verified_at)}</span>`;
+        }
+
+        // Diff antes/depois — aparece em corrected/verified quando temos pt_after.
+        // "Antes" = selected_text (a marcação do usuário, fonte exata de verdade).
+        // "Depois" = pt_after (conteúdo do parágrafo corrigido, capturado no save).
+        let diffHtml = '';
+        const showDiff = (state === 'corrected' || state === 'verified') && r.pt_after;
+        if (showDiff) {
+          const before = r.selected_text || '';
+          const after = _stripHtmlText(r.pt_after);
+          diffHtml = `
+            <div class="report-diff">
+              <div class="diff-side diff-before">
+                <div class="diff-label">📄 Trecho reportado</div>
+                <div class="diff-text">${_escHtml(before)}</div>
+              </div>
+              <div class="diff-side diff-after">
+                <div class="diff-label">✅ Versão corrigida</div>
+                <div class="diff-text">${_escHtml(after)}</div>
+              </div>
+            </div>`;
+        }
 
         return `
-          <div class="report-card" id="report-card-${r.id}">
+          <div class="report-card state-${state}" id="report-card-${r.id}">
             <div class="report-header">
               <span class="report-vol">${VOL_SHORT[r.vol] || r.vol}</span>
               <span class="report-file" title="${_escHtml(r.file || '')}">${_escHtml(fileLabel)}</span>
@@ -1025,14 +1075,13 @@
                 ${userName}
               </span>
               <span class="report-date">${date}</span>
-              <div class="report-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-                ${editBtn}
-                ${aiBtn}
-                ${verifyBtn}
-              </div>
+              ${actions ? `<div class="report-actions" style="display:flex; gap:8px; flex-wrap:wrap;">${actions}</div>` : ''}
             </div>
-            <div class="report-text"><mark class="report-selected">${escapedText}</mark></div>
+            ${chip ? `<div class="report-chip-row">${chip}</div>` : ''}
+            ${showDiff ? '' : `<div class="report-text"><mark class="report-selected">${escapedText}</mark></div>`}
             ${escapedDesc ? `<div class="report-description">${escapedDesc}</div>` : ''}
+            ${diffHtml}
+            <div class="report-ai-panel" id="report-ai-panel-${r.id}" style="display:none; margin-top:12px; padding:12px; border:1px solid rgba(99,102,241,0.3); border-radius:8px; background:rgba(99,102,241,0.04);"></div>
             <div class="rn-thread">
               <div class="rn-label">💬 Notas internas</div>
               <div id="rn-thread-${r.id}">${_buildNotesThread(r.id)}</div>
@@ -1046,59 +1095,71 @@
           </div>`;
       }
 
-      // ── Pending section ────────────────────────────────────────────
-      let html = '';
-
-      if (pending.length === 0) {
-        html += '<div class="report-empty">✅ Todos os reportes foram verificados.</div>';
-      } else {
+      // Helper: agrupa por volume e renderiza com header
+      function renderGroup(list, state, headerPrefix, opts = {}) {
         const byVol = {};
-        pending.forEach(r => {
+        list.forEach(r => {
           if (!byVol[r.vol]) byVol[r.vol] = [];
           byVol[r.vol].push(r);
         });
-
-        html += '<div class="report-list" id="pendingList">';
+        let out = '';
         for (const vol of ['mioshiec1','mioshiec2','mioshiec3','mioshiec4']) {
           const group = byVol[vol];
           if (!group || group.length === 0) continue;
           const volName = VOLUMES.find(v => v.key === vol)?.name || vol;
-          html += `<div class="report-group-label">⚠ ${volName} — ${group.length} reporte${group.length !== 1 ? 's' : ''}</div>`;
-          group.forEach(r => { html += buildCard(r, true); });
+          out += `<div class="report-group-label" style="${opts.labelStyle || ''}">${headerPrefix} ${volName} — ${group.length}</div>`;
+          group.forEach(r => { out += buildCard(r, state); });
         }
+        return out;
+      }
+
+      let html = '';
+
+      // ── Pendentes ──────────────────────────────────────────────────
+      if (pending.length > 0) {
+        html += '<div class="report-list" id="pendingList">';
+        html += renderGroup(pending, 'pending', '⚠');
         html += '</div>';
       }
 
-      // ── Verified collapsible section ───────────────────────────────
+      // ── Corrigidos (aguardando arquivamento) ───────────────────────
+      // Envolvidos num container tracejado pra separar visualmente dos
+      // pendentes. Volume aparece no chip V1/V2/... dentro de cada card,
+      // então omitimos o sub-label por volume aqui (evita header duplicado).
+      if (corrected.length > 0) {
+        html += `
+          <div class="report-section-corrected" id="correctedSection">
+            <div class="report-section-corrected-header">
+              🟡 Aguardando arquivamento
+              <span class="pill">${corrected.length} ${corrected.length === 1 ? 'reporte' : 'reportes'}</span>
+            </div>
+            <div class="report-list">
+              ${corrected.map(r => buildCard(r, 'corrected')).join('')}
+            </div>
+          </div>`;
+      }
+
+      if (pending.length === 0 && corrected.length === 0) {
+        html += '<div class="report-empty">✅ Nenhum reporte pendente ou aguardando arquivamento.</div>';
+      }
+
+      // ── Arquivados (histórico colapsável) ──────────────────────────
       if (verified.length > 0) {
         html += `
-          <div class="report-verified-section" id="verifiedSection">
+          <div class="report-verified-section" id="verifiedSection" style="margin-top:24px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
               <button class="report-verify-btn" id="verifiedToggle" onclick="toggleVerifiedSection()" style="gap:6px;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="verifiedToggleIcon" style="transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
-                Histórico de Verificados <span style="opacity:0.6; font-weight:400;">(${verified.length})</span>
+                Histórico de Arquivados <span style="opacity:0.6; font-weight:400;">(${verified.length})</span>
               </button>
-              <button class="report-verify-btn" style="background:rgba(255,59,48,0.1); color:#ff3b30; border-color:rgba(255,59,48,0.2); padding:6px 12px; font-size:0.75rem;" onclick="clearVerifiedHistory(this)" title="Apagar todos os relatórios verificados">
+              <button class="report-verify-btn" style="background:rgba(255,59,48,0.1); color:#ff3b30; border-color:rgba(255,59,48,0.2); padding:6px 12px; font-size:0.75rem;" onclick="clearVerifiedHistory(this)" title="Apagar todos os relatórios arquivados">
                 ✕ Limpar Histórico
               </button>
             </div>
             <div class="report-verified-body" id="verifiedBody" style="display:none">
-              <div class="report-list">`;
-
-        const byVolV = {};
-        verified.forEach(r => {
-          if (!byVolV[r.vol]) byVolV[r.vol] = [];
-          byVolV[r.vol].push(r);
-        });
-        for (const vol of ['mioshiec1','mioshiec2','mioshiec3','mioshiec4']) {
-          const group = byVolV[vol];
-          if (!group || group.length === 0) continue;
-          const volName = VOLUMES.find(v => v.key === vol)?.name || vol;
-          html += `<div class="report-group-label" style="opacity:0.6">✓ ${volName} — ${group.length}</div>`;
-          group.forEach(r => { html += buildCard(r, false); });
-        }
-
-        html += `      </div>
+              <div class="report-list">
+                ${renderGroup(verified, 'verified', '📦', { labelStyle: 'opacity:0.6' })}
+              </div>
             </div>
           </div>`;
       }
@@ -1115,25 +1176,58 @@
       if (icon) icon.style.transform = open ? '' : 'rotate(180deg)';
     };
 
-    window.verifyReport = async function(id, btnEl) {
+    // Pendente → Corrigido (correção aplicada, aguarda revisão de outro admin)
+    window.markCorrected = async function(id, btnEl) {
       if (btnEl) { btnEl.disabled = true; btnEl.textContent = '...'; }
 
+      const now = new Date().toISOString();
       const { error } = await supabase
         .from('translation_reports')
-        .update({ status: 'verified' })
+        .update({ status: 'corrected', corrected_by: _myUid, corrected_at: now })
         .eq('id', id);
 
       if (error) {
-        console.error('[admin] verifyReport failed:', error.message);
-        if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Verificado'; }
+        console.error('[admin] markCorrected failed:', error.message);
+        if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Corrigir'; }
         return;
       }
 
-      // Update local state and re-render without full reload
       const idx = _allReports.findIndex(r => r.id === id);
-      if (idx !== -1) _allReports[idx].status = 'verified';
+      if (idx !== -1) {
+        _allReports[idx].status = 'corrected';
+        _allReports[idx].corrected_by = _myUid;
+        _allReports[idx].corrected_at = now;
+      }
       _renderReports();
     };
+
+    // Corrigido → Arquivado (revisão confirmada, sai da fila ativa)
+    window.archiveReport = async function(id, btnEl) {
+      if (btnEl) { btnEl.disabled = true; btnEl.textContent = '...'; }
+
+      const now = new Date().toISOString();
+      const { error } = await supabase
+        .from('translation_reports')
+        .update({ status: 'verified', verified_by: _myUid, verified_at: now })
+        .eq('id', id);
+
+      if (error) {
+        console.error('[admin] archiveReport failed:', error.message);
+        if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Arquivar'; }
+        return;
+      }
+
+      const idx = _allReports.findIndex(r => r.id === id);
+      if (idx !== -1) {
+        _allReports[idx].status = 'verified';
+        _allReports[idx].verified_by = _myUid;
+        _allReports[idx].verified_at = now;
+      }
+      _renderReports();
+    };
+
+    // Compat: alias antigo (caso algum onclick remanescente chame)
+    window.verifyReport = window.archiveReport;
 
     function _buildNotesThread(reportId) {
       const notes = _reportNotes[reportId] || [];
@@ -1295,6 +1389,15 @@ ESTILO GERAL:
 - Linhas em branco onde o JP tem linha em branco
 - Pergunta-resposta: cada turno é um parágrafo separado`;
 
+    // Nome reservado pra aba do claude.ai — reusa a mesma janela entre cliques
+    // em vez de empilhar abas novas a cada "Sugerir IA".
+    const CLAUDE_TAB_NAME = 'claude-ai-correction';
+
+    // Painel atualmente aguardando paste da resposta do Claude. Setado pelos
+    // fluxos suggestTranslationWithAI / _editorRetranslateSegment; consumido
+    // pelo handler de focus pra auto-preencher quando o admin volta da aba.
+    let _activeAIPanel = null; // { type: 'report'|'segment', textarea: HTMLElement, reportId?: string }
+
     window.suggestTranslationWithAI = async function(reportId) {
       const r = _allReports.find(x => x.id === reportId);
       if (!r) return;
@@ -1379,9 +1482,137 @@ Responda **exatamente** neste formato:
         document.body.removeChild(ta);
       }
 
-      window.open('https://claude.ai/new', '_blank');
+      window.open('https://claude.ai/new', CLAUDE_TAB_NAME);
 
-      // Toast de confirmação
+      // Expande painel inline pra paste da resposta direto no card
+      const panel = document.getElementById(`report-ai-panel-${reportId}`);
+      if (panel) {
+        panel.style.display = 'block';
+        panel.innerHTML = `
+          <div style="font-size:0.72rem; font-weight:600; color:#6366f1; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">✨ Sugestão da IA</div>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px; line-height:1.5;">
+            1) Prompt copiado e claude.ai aberto. Cole com Ctrl+V e envie.<br>
+            2) Copie a resposta completa do Claude e cole abaixo (ou apenas volte aqui — colamos automaticamente).
+          </div>
+          <textarea class="report-ai-paste" placeholder="Cole aqui a resposta completa do Claude (incluindo 📄 Trecho atual e ✅ Correção sugerida)..."
+            style="width:100%; box-sizing:border-box; min-height:100px; padding:8px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.85rem; font-family:inherit; resize:vertical;"></textarea>
+          <div style="display:flex; gap:8px; margin-top:8px; align-items:center;">
+            <button onclick="_reportParseAISuggestion('${reportId}')" style="padding:6px 14px; background:#6366f1; color:#fff; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">Comparar</button>
+            <button onclick="_reportDiscardAIPanel('${reportId}')" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">Cancelar</button>
+          </div>
+        `;
+        const paste = panel.querySelector('.report-ai-paste');
+        if (paste) {
+          setTimeout(() => paste.focus(), 100);
+          _activeAIPanel = { type: 'report', textarea: paste, reportId };
+        }
+      }
+    };
+
+    // Parser da resposta do Claude no formato do report card (📄 / ✅).
+    // Extrai "trecho atual" e "correção sugerida", mostra diff lado-a-lado,
+    // e oferece botões pra copiar correção ou abrir editor.
+    window._reportParseAISuggestion = function(reportId) {
+      const panel = document.getElementById(`report-ai-panel-${reportId}`);
+      if (!panel) return;
+      const paste = panel.querySelector('.report-ai-paste');
+      if (!paste) return;
+      const raw = (paste.value || '').trim();
+      if (!raw) return;
+
+      // Extrai trecho atual (entre 📄 e o próximo marcador) e correção (entre ✅ e o próximo).
+      const cleanQuotes = (s) => (s || '').replace(/^["']\s*|\s*["']$/g, '').replace(/^\*+\s*|\s*\*+$/g, '').trim();
+      const currentMatch = raw.match(/📄[^\n]*\n+([\s\S]*?)(?=\n\s*\*?\*?\s*✅|\n\s*\*?\*?\s*💡|\n\s*\*?\*?\s*🔍|$)/);
+      const suggestMatch = raw.match(/✅[^\n]*\n+([\s\S]*?)(?=\n\s*\*?\*?\s*💡|\n\s*\*?\*?\s*🔍|$)/);
+      const justifyMatch = raw.match(/💡[^\n]*\n+([\s\S]*?)$/);
+
+      const ptCurrent = cleanQuotes(currentMatch?.[1]);
+      const ptSuggest = cleanQuotes(suggestMatch?.[1]);
+      const justify = cleanQuotes(justifyMatch?.[1]);
+
+      if (!ptCurrent && !ptSuggest) {
+        // Não conseguiu parsear — mostra raw num bloco simples
+        panel.innerHTML = `
+          <div style="font-size:0.72rem; font-weight:600; color:#ff9500; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">⚠ Resposta não estruturada</div>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">Não encontrei os marcadores 📄/✅ esperados. Veja a resposta crua:</div>
+          <div style="padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px; font-size:0.82rem; line-height:1.55; white-space:pre-wrap; max-height:300px; overflow-y:auto;">${_escHtml(raw)}</div>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button onclick="_reportDiscardAIPanel('${reportId}')" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">Fechar</button>
+          </div>
+        `;
+        return;
+      }
+
+      _activeAIPanel = null;
+      panel.innerHTML = `
+        <div style="font-size:0.72rem; font-weight:600; color:#6366f1; text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px;">✨ Sugestão da IA</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px; font-weight:600;">📄 Trecho atual (PT)</div>
+            <div style="padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px; font-size:0.85rem; line-height:1.55; min-height:60px; white-space:pre-wrap;">${_escHtml(ptCurrent || '(não detectado)')}</div>
+          </div>
+          <div>
+            <div style="font-size:0.7rem; color:#6366f1; margin-bottom:4px; font-weight:600;">✅ Correção sugerida (PT)</div>
+            <div class="report-ai-new" contenteditable="true" style="padding:8px 10px; background:rgba(99,102,241,0.04); border:1px solid rgba(99,102,241,0.4); border-radius:6px; font-size:0.85rem; line-height:1.55; min-height:60px; white-space:pre-wrap; color:var(--text);">${_escHtml(ptSuggest || '')}</div>
+          </div>
+        </div>
+        ${justify ? `<div style="margin-top:10px; padding:8px 10px; background:var(--surface); border-left:3px solid #6366f1; border-radius:4px; font-size:0.8rem; line-height:1.5; color:var(--text-muted);"><b>💡 Justificativa:</b> ${_escHtml(justify)}</div>` : ''}
+        <div style="display:flex; gap:8px; margin-top:10px; align-items:center; flex-wrap:wrap;">
+          <button onclick="_reportCopySuggestion('${reportId}', this)" style="padding:6px 14px; background:#34c759; color:#fff; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">📋 Copiar correção</button>
+          <button onclick="openEditorFromReport('${reportId}')" style="padding:6px 14px; background:rgba(255,160,0,0.15); color:var(--text); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">📝 Abrir editor</button>
+          <button onclick="_reportDiscardAIPanel('${reportId}')" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">Fechar</button>
+          <span style="font-size:0.72rem; color:var(--text-muted);">Edite a correção antes de copiar, se quiser</span>
+        </div>
+      `;
+    };
+
+    window._reportCopySuggestion = async function(reportId, btnEl) {
+      const panel = document.getElementById(`report-ai-panel-${reportId}`);
+      const newEl = panel?.querySelector('.report-ai-new');
+      if (!newEl) return;
+      const text = (newEl.textContent || '').trim();
+      if (!text) return;
+      try { await navigator.clipboard.writeText(text); }
+      catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      const orig = btnEl.innerHTML;
+      btnEl.innerHTML = '✓ Copiado';
+      setTimeout(() => { btnEl.innerHTML = orig; }, 1500);
+    };
+
+    window._reportDiscardAIPanel = function(reportId) {
+      const panel = document.getElementById(`report-ai-panel-${reportId}`);
+      if (!panel) return;
+      panel.style.display = 'none';
+      panel.innerHTML = '';
+      if (_activeAIPanel && _activeAIPanel.reportId === reportId) _activeAIPanel = null;
+    };
+
+    // ── Auto-paste: quando o admin volta da aba do claude.ai, tenta ler
+    // o clipboard e preencher o painel ativo automaticamente se a resposta
+    // tiver os marcadores esperados. Falha silenciosa se permissão negada.
+    let _lastAutoPasted = '';
+    window.addEventListener('focus', async () => {
+      if (!_activeAIPanel || !_activeAIPanel.textarea) return;
+      const ta = _activeAIPanel.textarea;
+      if (!ta.isConnected || ta.value.trim()) return; // já tem conteúdo
+      let text = '';
+      try { text = await navigator.clipboard.readText(); } catch (e) { return; }
+      if (!text || text === _lastAutoPasted) return;
+      // Só auto-cola se parecer resposta do Claude (tem marcadores nossos)
+      const looksLikeReply = /(📜|📄|✅|🔍)/.test(text) && text.length > 50;
+      if (!looksLikeReply) return;
+      // E NÃO é o próprio prompt que copiamos (que tem TRANSLATION_GUIDELINES)
+      if (/TRANSLATION_GUIDELINES|GLOSSÁRIO MANDATÓRIO/.test(text)) return;
+      ta.value = text;
+      _lastAutoPasted = text;
+      // Toast discreto
       let toast = document.getElementById('ai-toast');
       if (!toast) {
         toast = document.createElement('div');
@@ -1389,10 +1620,10 @@ Responda **exatamente** neste formato:
         toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#6366f1;color:#fff;padding:10px 20px;border-radius:10px;font-size:0.85rem;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.2);transition:opacity 0.3s;';
         document.body.appendChild(toast);
       }
-      toast.textContent = '✨ Prompt copiado! Cole no Claude com Ctrl+V e pressione Enter.';
+      toast.textContent = '📋 Resposta do Claude colada automaticamente. Clique "Comparar".';
       toast.style.opacity = '1';
-      setTimeout(() => { toast.style.opacity = '0'; }, 4000);
-    };
+      setTimeout(() => { toast.style.opacity = '0'; }, 3500);
+    });
 
     // ─── Retradução de parágrafo individual (dentro do editor) ───
     // Fluxo: clica 🔄 IA → abre Claude + expande painel inline → admin
@@ -1474,7 +1705,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         document.body.removeChild(ta);
       }
 
-      window.open('https://claude.ai/new', '_blank');
+      window.open('https://claude.ai/new', CLAUDE_TAB_NAME);
 
       // Expande painel pra paste da resposta
       panel.style.display = 'block';
@@ -1492,7 +1723,10 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         </div>
       `;
       const paste = panel.querySelector('.seg-ai-paste');
-      if (paste) setTimeout(() => paste.focus(), 100);
+      if (paste) {
+        setTimeout(() => paste.focus(), 100);
+        _activeAIPanel = { type: 'segment', textarea: paste };
+      }
     };
 
     // Extrai o parágrafo retraduzido da resposta colada (entre 📜 e 🔍 ou fim)
@@ -1505,6 +1739,8 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
 
       const raw = paste.value.trim();
       if (!raw) return;
+
+      if (_activeAIPanel && _activeAIPanel.type === 'segment') _activeAIPanel = null;
 
       // Tenta extrair o trecho entre "📜 Parágrafo retraduzido:" e "🔍 Mudanças"
       // Se falhar, usa o raw todo (limpando markdown comum).
@@ -1558,6 +1794,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       if (!panel) return;
       panel.style.display = 'none';
       panel.innerHTML = '';
+      if (_activeAIPanel && _activeAIPanel.type === 'segment') _activeAIPanel = null;
     };
 
     window.clearVerifiedHistory = async function(btnEl) {
@@ -1573,11 +1810,11 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       }
 
       if (!count || count === 0) {
-        alert('Não há relatórios verificados para apagar.');
+        alert('Não há relatórios arquivados para apagar.');
         return;
       }
 
-      if (!confirm(`Tem certeza? Isso apagará PERMANENTEMENTE ${count} relatório(s) verificado(s) do banco de dados.\n\nEsta ação não pode ser desfeita.`)) return;
+      if (!confirm(`Tem certeza? Isso apagará PERMANENTEMENTE ${count} relatório(s) arquivado(s) do banco de dados.\n\nEsta ação não pode ser desfeita.`)) return;
 
       const originalText = btnEl.innerHTML;
       btnEl.disabled = true;
@@ -1613,11 +1850,15 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
     let _currentEditFile = null;
     let _currentEditJson = null;
     let _currentReportHighlight = null; // { text, lang }
+    let _currentEditReportId = null;    // se editor foi aberto a partir de um report
+    // Snapshot do innerHTML de cada segmento PT no momento de abrir o editor.
+    // Usado pra computar diff no save e identificar qual parágrafo mudou.
+    let _editorPtSnapshot = new Map(); // Map<data-path, innerHTML>
 
     window.openEditorFromReport = function(reportId) {
       const r = (_allReports || []).find(x => x.id === reportId);
       if (!r) return;
-      openEditor(r.vol, r.file, { text: r.selected_text, lang: r.lang });
+      openEditor(r.vol, r.file, { text: r.selected_text, lang: r.lang, reportId });
     };
 
     window.openEditor = async function(vol, file, reportHighlight = null) {
@@ -1626,6 +1867,8 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       _currentEditFile = file.endsWith('.json') ? file : file + '.json';
       _currentEditJson = null;
       _currentReportHighlight = reportHighlight && reportHighlight.text ? reportHighlight : null;
+      _currentEditReportId = reportHighlight && reportHighlight.reportId ? reportHighlight.reportId : null;
+      _editorPtSnapshot = new Map();
 
       const modal = document.getElementById('editor-modal');
       const textarea = document.getElementById('editor-textarea');
@@ -1659,6 +1902,19 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           if (_currentEditJson.themes) {
             structuredBody.style.display = 'flex';
             renderStructuredEditor(_currentEditJson);
+            // Snapshot do conteúdo PT logo após renderizar — usado pra diff
+            // no save quando o editor foi aberto a partir de um report.
+            // Múltiplos segmentos do mesmo tópico compartilham data-path (por
+            // design do saveEditor), então usamos data-path + data-seg-idx
+            // do .editor-seg-row pai como chave única.
+            if (_currentEditReportId) {
+              _editorPtSnapshot = new Map();
+              document.querySelectorAll('#editor-structured-body .editor-seg-content').forEach(el => {
+                const path = el.getAttribute('data-path');
+                const segIdx = el.closest('.editor-seg-row')?.getAttribute('data-seg-idx');
+                if (path && segIdx != null) _editorPtSnapshot.set(`${path}::${segIdx}`, el.innerHTML);
+              });
+            }
             if (_currentReportHighlight) {
               hint.innerHTML = '🖍️ <strong>Trecho reportado destacado em amarelo.</strong> Edite apenas a caixa da direita (Português).';
               setTimeout(() => _highlightReportedPassage(_currentReportHighlight), 50);
@@ -1925,7 +2181,103 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       _currentEditFile = null;
       _currentEditJson = null;
       _currentReportHighlight = null;
+      _currentEditReportId = null;
+      _editorPtSnapshot = new Map();
     };
+
+    // Identifica qual(is) segmento(s) PT mudaram entre snapshot e DOM atual,
+    // escolhe o mais provável de ser "o parágrafo da correção" (priorizando
+    // o que contém o selected_text reportado), e atualiza o report no banco
+    // com pt_before/pt_after + status='corrected'.
+    async function _captureCorrectionDiff() {
+      const reportId = _currentEditReportId;
+      if (!reportId) return;
+
+      const report = (_allReports || []).find(r => r.id === reportId);
+      if (!report) return;
+
+      // Coleta segmentos que mudaram — usa data-path + data-seg-idx como
+      // chave (mesma chave do snapshot pra parear corretamente).
+      const changes = [];
+      document.querySelectorAll('#editor-structured-body .editor-seg-content').forEach(el => {
+        const path = el.getAttribute('data-path');
+        const segIdx = el.closest('.editor-seg-row')?.getAttribute('data-seg-idx');
+        if (!path || segIdx == null) return;
+        const key = `${path}::${segIdx}`;
+        const before = _editorPtSnapshot.get(key);
+        const after = el.innerHTML;
+        if (before == null) return;
+        if (before !== after) {
+          changes.push({ key, before, after });
+        }
+      });
+
+      if (changes.length === 0) return; // nada mudou — não toca no report
+
+      // Escolhe o segmento mais provável usando scoring de tokens.
+      // Match estrito por substring (includes) falha quando o admin re-traduz
+      // múltiplos parágrafos de uma vez e há diferenças mínimas de pontuação
+      // entre selected_text e o texto real do segmento. Token scoring é
+      // resiliente a essas variações: cada palavra distintiva (≥4 chars) do
+      // selected_text vira um token; o segmento com mais matches vence.
+      const norm = (s) => _stripHtmlText(s).replace(/\s+/g, ' ').trim().toLowerCase();
+      const needleTokens = (report.selected_text || '')
+        .toLowerCase()
+        .split(/[\s,.\-()"'\[\]「」『』〈〉【】、。]+/)
+        .filter(w => w.length >= 4);
+
+      let chosen = null;
+      let bestScore = 0;
+      if (needleTokens.length > 0) {
+        // Prioriza match no "antes" (snapshot original do segmento)
+        for (const c of changes) {
+          const text = norm(c.before);
+          const score = needleTokens.reduce((acc, t) => acc + (text.includes(t) ? 1 : 0), 0);
+          if (score > bestScore) { bestScore = score; chosen = c; }
+        }
+        // Se nada bateu no "antes" (admin substituiu o trecho inteiro), tenta "depois"
+        if (!chosen) {
+          for (const c of changes) {
+            const text = norm(c.after);
+            const score = needleTokens.reduce((acc, t) => acc + (text.includes(t) ? 1 : 0), 0);
+            if (score > bestScore) { bestScore = score; chosen = c; }
+          }
+        }
+      }
+      if (!chosen) chosen = changes[0]; // fallback final: primeiro alterado
+
+      const now = new Date().toISOString();
+      const update = {
+        status: 'corrected',
+        corrected_by: _myUid,
+        corrected_at: now,
+        pt_after: chosen.after
+      };
+      // Preserva pt_before original — só seta se ainda for null (primeira correção)
+      if (!report.pt_before) update.pt_before = chosen.before;
+
+      const { error } = await supabase
+        .from('translation_reports')
+        .update(update)
+        .eq('id', reportId);
+
+      if (error) {
+        console.error('[admin] capture diff update failed:', error.message);
+        return;
+      }
+
+      // Atualiza estado local + re-render se a aba Reports tiver sido carregada
+      Object.assign(report, update);
+      if (_reportsLoaded) _renderReports();
+    }
+
+    // Strip de tags HTML pra texto puro (usado pra normalizar diff).
+    function _stripHtmlText(html) {
+      if (!html) return '';
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      return div.textContent || '';
+    }
 
     window.saveEditor = async function() {
       const textarea = document.getElementById('editor-textarea');
@@ -1991,6 +2343,13 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           .upload(`${_currentEditVol}/${_currentEditFile}`, blob, { upsert: true, contentType: 'application/json', cacheControl: '0' });
 
         if (error) throw error;
+
+        // Se editor foi aberto a partir de um report, detecta qual segmento
+        // mudou, salva pt_before/pt_after no report e auto-marca como Corrigido.
+        if (_currentEditReportId && _editorPtSnapshot.size > 0) {
+          try { await _captureCorrectionDiff(); }
+          catch (e) { console.warn('[admin] capture diff failed:', e); }
+        }
 
         msg.textContent = 'Arquivo salvo/atualizado com sucesso! 🎉';
         msg.className = 'msg ok';

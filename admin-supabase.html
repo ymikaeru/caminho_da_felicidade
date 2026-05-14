@@ -460,8 +460,84 @@
     .report-card {
       padding: 16px 18px; border: 1px solid var(--border); border-radius: 10px;
       background: var(--surface); transition: background 0.15s;
+      border-left-width: 3px;
     }
     .report-card:hover { background: var(--hover, rgba(255,255,255,0.04)); }
+    .report-card.state-pending   { border-left-width: 4px; border-left-color: #ff3b30; }
+    .report-card.state-corrected {
+      background: rgba(255,184,0,0.06);
+      border-top-color: rgba(255,184,0,0.25);
+      border-right-color: rgba(255,184,0,0.25);
+      border-bottom-color: rgba(255,184,0,0.25);
+      border-left-width: 4px;
+      border-left-color: #ffb800;
+    }
+    .report-card.state-corrected:hover { background: rgba(255,184,0,0.10); }
+    .report-card.state-verified  { border-left-color: #34c759; opacity: 0.78; }
+    .report-card.state-verified:hover { opacity: 1; }
+
+    /* Container envolvendo a seção "Aguardando arquivamento" — separa
+       visualmente dos pendentes pra evitar confusão. */
+    .report-section-corrected {
+      margin-top: 28px;
+      padding: 18px 18px 8px;
+      border: 1px dashed rgba(255,184,0,0.35);
+      border-radius: 14px;
+      background: rgba(255,184,0,0.025);
+    }
+    .report-section-corrected-header {
+      font-size: 0.85rem; font-weight: 700;
+      color: #b07700; text-transform: uppercase; letter-spacing: 0.12em;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .report-section-corrected-header .pill {
+      font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;
+      background: rgba(255,184,0,0.2); color: #8a5d00;
+      letter-spacing: 0.04em;
+    }
+
+    .report-chip-row { margin-bottom: 8px; }
+
+    /* Diff antes/depois — aparece em cards "Corrigido" e "Arquivado" quando
+       há snapshot do parágrafo antes/depois da correção. */
+    .report-diff {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-top: 10px; margin-bottom: 4px;
+    }
+    @media (max-width: 700px) {
+      .report-diff { grid-template-columns: 1fr; }
+    }
+    .diff-side {
+      padding: 10px 12px; border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .diff-before { border-left: 3px solid #ff9500; }
+    .diff-after  { border-left: 3px solid #34c759; background: rgba(52,199,89,0.04); }
+    .diff-label {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; margin-bottom: 6px;
+    }
+    .diff-before .diff-label { color: #b8731a; }
+    .diff-after  .diff-label { color: #1f8a3f; }
+    .diff-text {
+      font-size: 0.85rem; line-height: 1.55; color: var(--text);
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .report-status-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.72rem; font-weight: 600;
+      padding: 3px 9px; border-radius: 12px;
+      letter-spacing: 0.02em;
+    }
+    .report-status-chip.status-corrected {
+      background: rgba(255,184,0,0.12); color: #b07700;
+      border: 1px solid rgba(255,184,0,0.3);
+    }
+    .report-status-chip.status-archived {
+      background: rgba(52,199,89,0.10); color: #1f8a3f;
+      border: 1px solid rgba(52,199,89,0.25);
+    }
     .report-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
     .report-vol {
       font-size: 0.7rem; font-weight: 700; padding: 2px 8px;

@@ -213,6 +213,27 @@ function _initMobileNav() {
   });
   headerActions.insertBefore(highlightBtn, favBtn);
 
+  // Admin-only: botão "Recomendar este" no header do reader. Aparece
+  // ao lado dos botões de favorito/destaque, só pra admin. Click abre
+  // modal com user picker + nota. Definido em js/reader-recommend.js.
+  if (isReaderPage && typeof isAdminUser === 'function' && isAdminUser()) {
+    const recBtn = document.createElement('button');
+    recBtn.className = 'mobile-fav-btn';
+    recBtn.id = 'headerRecommendBtn';
+    recBtn.setAttribute('aria-label', 'Recomendar este ensinamento');
+    recBtn.setAttribute('title', 'Recomendar este ensinamento');
+    recBtn.style.color = 'var(--accent)';
+    recBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+    </svg>`;
+    recBtn.addEventListener('click', () => {
+      if (typeof openRecommendPicker === 'function') openRecommendPicker();
+    });
+    headerActions.insertBefore(recBtn, highlightBtn);
+  }
+
   if (isReaderPage) {
     const printBtn = document.createElement('button');
     printBtn.className = 'mobile-fav-btn header-only-desktop';

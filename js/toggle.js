@@ -35,7 +35,7 @@ const MENU_TEXTS = {
     volumeTopics: 'Capítulos deste Volume'
   },
   ja: {
-    title: '御教えカレッジ',
+    title: '幸福の道',
     close: 'メニューを閉じる',
     navigation: 'ナビゲーション',
     actions: 'ツール',

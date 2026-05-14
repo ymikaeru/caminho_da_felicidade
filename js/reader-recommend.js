@@ -298,40 +298,26 @@
     btn.disabled = true;
     selAllBtn.disabled = true;
     msg.style.color = 'var(--text-muted)';
+    msg.textContent = `Enviando pra ${ids.length} usuário${ids.length === 1 ? '' : 's'}...`;
     const note = document.getElementById('recPickerNote').value.trim();
-    const exp = _expiresIso();
-    const vol = _modal.dataset.vol;
-    const file = _modal.dataset.file;
-    const topicIdx = parseInt(_modal.dataset.topicIdx, 10) || 0;
-    let ok = 0;
-    let firstError = null;
-    for (let i = 0; i < ids.length; i++) {
-      msg.textContent = `Enviando ${i + 1}/${ids.length}...`;
-      const { error } = await supa.rpc('admin_create_recommendation', {
-        p_user_id: ids[i],
-        p_vol: vol,
-        p_file: file,
-        p_topic_idx: topicIdx,
-        p_note: note || null,
-        p_expires_at: exp,
-      });
-      if (error) {
-        if (!firstError) firstError = error;
-      } else {
-        ok++;
-      }
-    }
-    if (firstError) {
-      // Falha total ou parcial: não fechar automaticamente. Admin precisa
-      // ver o que aconteceu pra decidir se reenvia.
-      const fails = ids.length - ok;
-      const prefix = ok === 0 ? '' : `Enviado pra ${ok} de ${ids.length}. `;
-      msg.innerHTML = `<span style="color:#c00;">${prefix}${fails} falharam: ${_esc(firstError.message)}</span>`;
+    const { data, error } = await supa.rpc('admin_create_recommendations_bulk', {
+      p_user_ids: ids,
+      p_vol: _modal.dataset.vol,
+      p_file: _modal.dataset.file,
+      p_topic_idx: parseInt(_modal.dataset.topicIdx, 10) || 0,
+      p_note: note || null,
+      p_expires_at: _expiresIso(),
+    });
+    if (error) {
+      msg.innerHTML = `<span style="color:#c00;">Erro: ${_esc(error.message)}</span>`;
       btn.disabled = false;
       selAllBtn.disabled = false;
       return;
     }
-    msg.innerHTML = `<span style="color:#0a7;">✓ Enviado pra ${ok} usuário${ok === 1 ? '' : 's'}.</span>`;
+    const created = typeof data === 'number' ? data : ids.length;
+    const skipped = ids.length - created;
+    const suffix = skipped > 0 ? ` (${skipped} ignorados — usuário(s) não encontrado(s))` : '';
+    msg.innerHTML = `<span style="color:#0a7;">✓ Enviado pra ${created} usuário${created === 1 ? '' : 's'}${suffix}.</span>`;
     setTimeout(_close, 1100);
   }
 

@@ -84,10 +84,12 @@ function _initMobileNav() {
 
         <div class="mobile-nav-section-label" id="mobileNavLabelActions">${t.actions}</div>
 
-        <button class="mobile-nav-link" id="mobileNavLinkRecommendations" style="display:none; position:relative;" onclick="if(typeof openRecommendations==='function'){closeMobileNav(); openRecommendations();}">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          <span class="link-text">${t.recommendations || 'Recomendações'}</span>
-          <span class="rec-badge" style="display:none; margin-left:auto; min-width:18px; height:18px; padding:0 5px; background:var(--accent); color:#fff; border-radius:9px; font-size:0.7rem; font-weight:700; align-items:center; justify-content:center; line-height:1;">0</span>
+        <!-- Ordem crescente por largura do texto pra efeito de escadinha:
+             Salvos (6) → Histórico (9) → Central de Destaques (20) →
+             Central de Recomendações (24 — só aparece se user tem recs). -->
+        <button class="mobile-nav-link" onclick="openFavorites(); closeMobileNav();" id="mobileNavLinkFavorites">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <span class="link-text">${t.saved}</span>
         </button>
 
         <button class="mobile-nav-link" onclick="openHistory(); closeMobileNav();" id="mobileNavLinkHistory">
@@ -95,24 +97,15 @@ function _initMobileNav() {
           <span class="link-text">${t.history}</span>
         </button>
 
-        <button class="mobile-nav-link" onclick="openFavorites(); closeMobileNav();" id="mobileNavLinkFavorites">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          <span class="link-text">${t.saved}</span>
-        </button>
-
         <button class="mobile-nav-link" onclick="window.location.href=(window.location.pathname.includes('/mioshiec') ? '../' : '') + 'destaques.html';" id="mobileNavLinkHighlights">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
           <span class="link-text">${t.highlights || 'Central de Destaques'}</span>
         </button>
 
-        <button class="mobile-nav-link" onclick="toggleLanguage(); closeMobileNav();" id="mobileNavLinkLang">
-          <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          <span class="link-text">${t.lang}</span>
-        </button>
-
-        <button class="mobile-nav-link" onclick="toggleTheme(); closeMobileNav();" id="mobileNavLinkTheme">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          <span class="link-text">${t.theme}</span>
+        <button class="mobile-nav-link" id="mobileNavLinkRecommendations" style="position:relative;" onclick="closeMobileNav(); window.location.href = (window.location.pathname.includes('/mioshiec') ? '../' : '') + 'recomendacoes.html';">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span class="link-text">${t.recommendations || 'Central de Recomendações'}</span>
+          <span class="rec-badge" style="display:none; margin-left:auto; min-width:18px; height:18px; padding:0 5px; background:var(--accent); color:#fff; border-radius:9px; font-size:0.7rem; font-weight:700; align-items:center; justify-content:center; line-height:1;">0</span>
         </button>
 
         ${window.location.pathname.includes('reader.html') ? `
@@ -127,6 +120,17 @@ function _initMobileNav() {
 
         <div class="mobile-nav-divider"></div>
         <div class="mobile-nav-section-label" id="mobileNavLabelFont">${t.fontSize}</div>
+
+        <button class="mobile-nav-link" onclick="toggleTheme(); closeMobileNav();" id="mobileNavLinkTheme">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span class="link-text">${t.theme}</span>
+        </button>
+
+        <button class="mobile-nav-link" onclick="toggleLanguage(); closeMobileNav();" id="mobileNavLinkLang">
+          <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span class="link-text">${t.lang}</span>
+        </button>
+
         <div class="mobile-font-row">
           <button class="mobile-font-btn" id="mobileFontDown" onclick="changeFontSize(-1)">A-</button>
           <button class="mobile-font-btn" id="mobileFontUp" onclick="changeFontSize(1)">A+</button>
@@ -182,6 +186,31 @@ function _initMobileNav() {
     headerActions.insertBefore(searchBtn, hamburgerBtn);
   }
 
+  // Botão "Recomendações" — envelope no header, visível em todas as
+  // páginas. _reveal() em recommendations.js liga display:flex quando
+  // o usuário tem ≥1 rec ativa. Posicionado antes da busca (à esquerda
+  // dela), com badge de não-vistas.
+  const recHeaderBtn = document.createElement('button');
+  recHeaderBtn.className = 'mobile-fav-btn';
+  recHeaderBtn.id = 'headerRecommendationsBtn';
+  recHeaderBtn.setAttribute('aria-label', 'Recomendações para Estudo');
+  recHeaderBtn.setAttribute('title', 'Recomendações para Estudo');
+  recHeaderBtn.style.cssText = 'display:none; position:relative;';
+  recHeaderBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+    <polyline points="22,6 12,13 2,6"/>
+  </svg>
+  <span class="rec-badge" style="display:none; position:absolute; top:2px; right:2px; min-width:16px; height:16px; padding:0 4px; background:var(--accent); color:#fff; border-radius:8px; font-size:0.62rem; font-weight:700; align-items:center; justify-content:center; line-height:1; box-sizing:border-box;">0</span>`;
+  recHeaderBtn.addEventListener('click', () => {
+    if (typeof openRecommendations === 'function') openRecommendations();
+  });
+  if (searchBtn) {
+    headerActions.insertBefore(recHeaderBtn, searchBtn);
+  } else {
+    headerActions.insertBefore(recHeaderBtn, hamburgerBtn);
+  }
+
   const favBtn = document.createElement('button');
   favBtn.className = 'mobile-fav-btn';
   favBtn.id = 'mobileFavoriteBtn';
@@ -223,10 +252,12 @@ function _initMobileNav() {
     recBtn.setAttribute('aria-label', 'Recomendar este ensinamento');
     recBtn.setAttribute('title', 'Recomendar este ensinamento');
     recBtn.style.color = 'var(--accent)';
+    // Ícone "send" (avião de papel Feather/Lucide) — combina com o
+    // envelope do usuário e comunica claramente "enviar" essa rec.
     recBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      <line x1="22" y1="2" x2="11" y2="13"/>
+      <polygon points="22 2 15 22 11 13 2 9 22 2"/>
     </svg>`;
     recBtn.addEventListener('click', () => {
       if (typeof openRecommendPicker === 'function') openRecommendPicker();

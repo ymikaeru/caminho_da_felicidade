@@ -50,13 +50,20 @@
     const vol = params.get('vol') || '';
     const file = params.get('file') || '';
     const topic_idx = _currentTopicIdx();
-    // Título: tenta o do <h1> da página, ou do tópico ativo.
+    // Título: tenta o do tópico ativo (h2/h3 dentro de .topic-content),
+    // depois h1 da página, depois document.title como fallback.
     const topics = document.querySelectorAll('.topic-content');
     const active = topics[topic_idx];
-    const title = (active?.querySelector('.topic-title, h2, h3')?.textContent
-                || document.querySelector('.topic-content h1, h1')?.textContent
-                || document.title)
-                ?.trim();
+    let title = active?.querySelector('h2, h3, .topic-title')?.textContent
+             || document.querySelector('.topic-content h1, .glass-pane h1, h1')?.textContent
+             || document.title || '';
+    // Limpa prefixos/sufixos típicos do <title> da página.
+    title = String(title)
+      .replace(/\s*-\s*Caminho da Felicidade\s*$/i, '')
+      .replace(/^Meishu-Sama:\s*/i, '')
+      .replace(/^Ensinamento de Meishu-Sama:\s*/i, '')
+      .replace(/^Palestra de Meishu-Sama:\s*/i, '')
+      .trim();
     return { vol, file, topic_idx, title };
   }
 
@@ -68,7 +75,10 @@
     _modal.innerHTML = `
       <div style="background:var(--surface, #fff); color:var(--text-main, #000); width:min(520px, 92vw); max-height:88vh; border-radius:10px; padding:22px; box-shadow:0 12px 40px rgba(0,0,0,0.25); display:flex; flex-direction:column; gap:14px;">
         <div style="display:flex; align-items:center; gap:12px;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
           <div style="flex:1;">
             <div style="font-size:1.05rem; font-weight:600;">Recomendar este ensinamento</div>
             <div id="recPickerTeaching" style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;"></div>
@@ -76,11 +86,22 @@
           <button id="recPickerClose" aria-label="Fechar" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-muted); line-height:1; padding:0 4px;">&times;</button>
         </div>
         <input type="text" id="recPickerUserSearch" placeholder="Buscar usuário por nome ou email..." style="padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:5px; background:var(--bg, #fff); color:inherit; box-sizing:border-box;">
-        <div id="recPickerUserList" style="max-height:240px; overflow-y:auto; border:1px solid var(--border); border-radius:5px;"></div>
+        <div id="recPickerUserList" style="max-height:200px; overflow-y:auto; border:1px solid var(--border); border-radius:5px;"></div>
         <textarea id="recPickerNote" rows="2" placeholder="Nota opcional (ex.: 'pra refletir esta semana')" style="padding:8px 12px; font-size:0.85rem; border:1px solid var(--border); border-radius:5px; resize:vertical; font-family:inherit; background:var(--bg, #fff); color:inherit; box-sizing:border-box;"></textarea>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <label style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">Auto-apagar:</label>
+          <select id="recPickerExpires" style="flex:1; padding:6px 10px; font-size:0.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg, #fff); color:inherit; box-sizing:border-box;">
+            <option value="">Sem prazo</option>
+            <option value="7">Em 7 dias</option>
+            <option value="15">Em 15 dias</option>
+            <option value="30">Em 30 dias</option>
+            <option value="90">Em 90 dias</option>
+          </select>
+        </div>
         <div id="recPickerMsg" style="font-size:0.82rem; min-height:1.2em;"></div>
-        <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
           <button id="recPickerCancel" style="padding:7px 16px; font-size:0.85rem; background:none; border:1px solid var(--border); border-radius:5px; cursor:pointer; color:inherit;">Cancelar</button>
+          <button id="recPickerSubmitAll" style="padding:7px 16px; font-size:0.85rem; background:none; border:1px solid var(--accent); color:var(--accent); border-radius:5px; cursor:pointer; font-weight:600;" title="Envia este ensinamento pra TODOS os usuários cadastrados agora">📢 Para todos</button>
           <button id="recPickerSubmit" style="padding:7px 18px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:5px; cursor:pointer; font-weight:600;" disabled>Recomendar</button>
         </div>
       </div>
@@ -90,6 +111,7 @@
     document.getElementById('recPickerClose').onclick = _close;
     document.getElementById('recPickerCancel').onclick = _close;
     document.getElementById('recPickerSubmit').onclick = _submit;
+    document.getElementById('recPickerSubmitAll').onclick = _submitAll;
     document.getElementById('recPickerUserSearch').oninput = _renderUserList;
     _modal.addEventListener('click', e => { if (e.target === _modal) _close(); });
     document.addEventListener('keydown', e => {
@@ -149,8 +171,10 @@
       `${meta.title ? meta.title + ' · ' : ''}${meta.vol} · ${meta.file}#${meta.topic_idx}`;
     document.getElementById('recPickerUserSearch').value = '';
     document.getElementById('recPickerNote').value = '';
+    document.getElementById('recPickerExpires').value = '';
     document.getElementById('recPickerMsg').textContent = '';
     document.getElementById('recPickerSubmit').disabled = true;
+    document.getElementById('recPickerSubmitAll').disabled = false;
     _modal.style.display = 'flex';
     document.getElementById('recPickerUserList').innerHTML = '<div style="padding:14px; color:var(--text-muted); font-size:0.85rem;">Carregando usuários...</div>';
     await _loadUsers();
@@ -162,9 +186,25 @@
     if (_modal) _modal.style.display = 'none';
   }
 
+  // Converte o select "Auto-apagar" em ISO timestamp ou null.
+  function _expiresIso() {
+    const days = parseInt(document.getElementById('recPickerExpires')?.value || '0', 10);
+    if (!days || days <= 0) return null;
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString();
+  }
+
+  function _supaClient() {
+    return (window.supabaseAuth && window.supabaseAuth.supabase)
+        || window._supabaseClient
+        || window.supabase
+        || null;
+  }
+
   async function _submit() {
     if (!_selectedUserId) return;
-    const supa = window.supabase || window._supabaseClient;
+    const supa = _supaClient();
     if (!supa) return;
     const btn = document.getElementById('recPickerSubmit');
     const msg = document.getElementById('recPickerMsg');
@@ -178,6 +218,7 @@
       p_file: _modal.dataset.file,
       p_topic_idx: parseInt(_modal.dataset.topicIdx, 10) || 0,
       p_note: note || null,
+      p_expires_at: _expiresIso(),
     });
     if (error) {
       msg.innerHTML = `<span style="color:#c00;">Erro: ${_esc(error.message)}</span>`;
@@ -186,6 +227,43 @@
     }
     msg.innerHTML = '<span style="color:#0a7;">✓ Recomendação enviada.</span>';
     setTimeout(_close, 900);
+  }
+
+  async function _submitAll() {
+    const supa = _supaClient();
+    if (!supa) return;
+    const note = document.getElementById('recPickerNote').value.trim();
+    const exp = _expiresIso();
+    const expSel = document.getElementById('recPickerExpires');
+    const expLabel = exp
+      ? ' (auto-apaga ' + expSel.options[expSel.selectedIndex].textContent.toLowerCase() + ')'
+      : '';
+    const teaching = document.getElementById('recPickerTeaching').textContent.split(' · ')[0];
+    if (!confirm(`Recomendar "${teaching}" pra TODOS os usuários cadastrados${expLabel}?\n\nCada usuário receberá uma cópia. Não dá pra desfazer em massa.`)) {
+      return;
+    }
+    const btn = document.getElementById('recPickerSubmitAll');
+    const submitBtn = document.getElementById('recPickerSubmit');
+    const msg = document.getElementById('recPickerMsg');
+    btn.disabled = true;
+    submitBtn.disabled = true;
+    msg.textContent = 'Enviando pra todos...';
+    msg.style.color = 'var(--text-muted)';
+    const { data, error } = await supa.rpc('admin_create_recommendation_all', {
+      p_vol: _modal.dataset.vol,
+      p_file: _modal.dataset.file,
+      p_topic_idx: parseInt(_modal.dataset.topicIdx, 10) || 0,
+      p_note: note || null,
+      p_expires_at: exp,
+    });
+    if (error) {
+      msg.innerHTML = `<span style="color:#c00;">Erro: ${_esc(error.message)}</span>`;
+      btn.disabled = false;
+      submitBtn.disabled = !_selectedUserId;
+      return;
+    }
+    msg.innerHTML = `<span style="color:#0a7;">✓ Enviado pra ${data} usuário${data === 1 ? '' : 's'}.</span>`;
+    setTimeout(_close, 1200);
   }
 
   window.recPickerSelectUser = function(uid) {

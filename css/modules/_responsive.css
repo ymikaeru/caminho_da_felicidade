@@ -73,11 +73,22 @@
     transform: translateY(-50%);
   }
 
+  /* Highlight button removido do header mobile — fica acessível só via
+     menu sanduíche em telas pequenas. Em desktop continua no
+     header__actions normalmente. */
   #mobileHighlightBtn {
-    position: absolute;
-    left: 56px;
-    top: 50%;
-    transform: translateY(-50%);
+    display: none !important;
+  }
+
+  /* Envelope (Recomendações) ocupa o espaço onde estava o highlight,
+     direto ao lado direito da lupa de busca. Usa !important pra
+     sobrescrever o inline `position:relative` que o nav.js seta pra
+     posicionar o badge (em desktop o button continua relativo). */
+  #headerRecommendationsBtn {
+    position: absolute !important;
+    left: 56px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
   }
 
   .topic-list {

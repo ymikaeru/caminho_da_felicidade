@@ -108,6 +108,9 @@ function buildFavoritesModal() {
 function buildRecommendationsModal() {
   const lang = localStorage.getItem('site_lang') || 'pt';
   const title = lang === 'ja' ? '学習のおすすめ' : 'Recomendações para Estudo';
+  const manageLabel = lang === 'ja' ? 'すべて管理 →' : 'Gerenciar todas →';
+  // Caminho relativo pra recomendacoes.html — sob /mioshiec*/ precisa ../
+  const basePath = window.location.pathname.includes('/mioshiec') ? '../' : '';
 
   const el = document.createElement('div');
   el.className = 'search-modal-overlay';
@@ -122,6 +125,9 @@ function buildRecommendationsModal() {
         '<h2 id="recommendationsModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
       '</div>' +
       '<ul class="search-results" id="recommendationsResults" aria-live="polite"></ul>' +
+      '<div style="padding: 14px 18px; border-top: 1px solid var(--border); text-align: right;">' +
+        '<a href="' + basePath + 'recomendacoes.html" style="font-size: 0.85rem; color: var(--accent); text-decoration: none; font-weight: 500;">' + manageLabel + '</a>' +
+      '</div>' +
     '</div>';
   document.body.appendChild(el);
 }

@@ -6127,7 +6127,12 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       document.getElementById('rec-detail').style.display = 'block';
       document.getElementById('rec-detail-name').textContent = u.display_name || 'Sem nome';
       document.getElementById('rec-detail-email').textContent = u.email || '—';
-      recClearForm();
+      // Mantém ensinamento já picado quando troca de usuário — admin
+      // pode estar recomendando o mesmo pra vários. Só habilita o
+      // "Recomendar" se houver ensinamento + user (esse).
+      if (_recPickedTeaching) {
+        document.getElementById('rec-create-btn').disabled = false;
+      }
       renderRecUserList();
       recLoadList();
     };
@@ -6148,23 +6153,56 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         container.innerHTML = '<div style="padding:16px; color:var(--text-muted); font-size:0.85rem; text-align:center;">Nenhuma recomendação ativa.</div>';
         return;
       }
+      // Estados:
+      //   - ativa: archived_at null + expires_at null/futuro
+      //   - arquivada pelo usuário: archived_at populado
+      //   - expirada: expires_at no passado
+      // Ativas e inativas (arquivadas+expiradas) recebem tratamento
+      // visual distinto. Admin não recebe notificação — só vê histórico.
+      const now = new Date();
       container.innerHTML = '<div style="display:flex; flex-direction:column; gap:8px;">' + recs.map(r => {
         const title = r.title_pt || '(sem título)';
+        const expired = r.expires_at && new Date(r.expires_at) <= now;
+        const archived = !!r.archived_at;
+        const inactive = expired || archived;
+
         const seenLabel = r.seen_at
           ? `vista em ${new Date(r.seen_at).toLocaleDateString('pt-BR')}`
           : 'não vista';
         const seenColor = r.seen_at ? 'var(--text-muted)' : 'var(--accent)';
         const noteHtml = r.note ? `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px; font-style:italic;">"${_escHtml(r.note)}"</div>` : '';
         const created = new Date(r.created_at).toLocaleDateString('pt-BR');
+
+        let stateTag = '';
+        if (archived) {
+          const archDate = new Date(r.archived_at).toLocaleDateString('pt-BR');
+          stateTag = ` <span title="Usuário arquivou em ${archDate}" style="display:inline-block; font-size:0.65rem; font-weight:600; padding:1px 6px; border-radius:3px; background:rgba(150,150,150,0.18); color:var(--text-muted); margin-left:6px;">📁 arquivada por usuário</span>`;
+        } else if (expired) {
+          const expDate = new Date(r.expires_at).toLocaleDateString('pt-BR');
+          stateTag = ` <span title="Prazo expirou em ${expDate}" style="display:inline-block; font-size:0.65rem; font-weight:600; padding:1px 6px; border-radius:3px; background:rgba(150,150,150,0.18); color:var(--text-muted); margin-left:6px;">⏱ expirada</span>`;
+        }
+
+        let expiresHtml = '';
+        if (r.expires_at && !expired && !archived) {
+          const daysLeft = Math.ceil((new Date(r.expires_at) - now) / 86400000);
+          const lbl = daysLeft === 1 ? 'expira amanhã' : `expira em ${daysLeft} dias`;
+          const c = daysLeft <= 3 ? '#c80' : 'var(--text-muted)';
+          expiresHtml = ` · <span style="color:${c};">⏱ ${lbl}</span>`;
+        }
+
+        const cardStyle = inactive
+          ? 'padding:10px 12px; background:transparent; border:1px dashed var(--border); border-radius:5px; opacity:0.7;'
+          : 'padding:10px 12px; background:var(--surface, var(--bg)); border:1px solid var(--border); border-radius:5px;';
+
         return `
-          <div style="padding:10px 12px; background:var(--surface, var(--bg)); border:1px solid var(--border); border-radius:5px;">
+          <div style="${cardStyle}">
             <div style="display:flex; align-items:flex-start; gap:8px;">
               <div style="flex:1;">
-                <div style="font-size:0.88rem; font-weight:500;">${_escHtml(title)}</div>
-                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${VOL_SHORT[r.vol] || r.vol} · ${_escHtml(r.file)}#${r.topic_idx} · criado ${created} · <span style="color:${seenColor};">${seenLabel}</span></div>
+                <div style="font-size:0.88rem; font-weight:500;">${_escHtml(title)}${stateTag}</div>
+                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${VOL_SHORT[r.vol] || r.vol} · ${_escHtml(r.file)}#${r.topic_idx} · criado ${created} · <span style="color:${seenColor};">${seenLabel}</span>${expiresHtml}</div>
                 ${noteHtml}
               </div>
-              <button onclick="recDelete('${_escHtml(r.id)}')" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer;" title="Apagar">✕</button>
+              <button onclick="recDelete('${_escHtml(r.id)}')" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer;" title="Apagar permanentemente">✕</button>
             </div>
           </div>
         `;
@@ -6217,7 +6255,10 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       picked.style.display = 'block';
       document.getElementById('rec-teaching-suggestions').style.display = 'none';
       document.getElementById('rec-teaching-search').value = '';
-      document.getElementById('rec-create-btn').disabled = false;
+      // "Recomendar" precisa de user selecionado + ensinamento.
+      // "Para todos" só precisa do ensinamento.
+      document.getElementById('rec-create-btn').disabled = !_recSelectedUser;
+      document.getElementById('rec-create-all-btn').disabled = false;
     };
 
     window.recClearForm = function() {
@@ -6228,11 +6269,23 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       if (sug) { sug.style.display = 'none'; sug.innerHTML = ''; }
       const search = document.getElementById('rec-teaching-search');
       if (search) search.value = '';
-      const note = document.getElementById('rec-note');
-      if (note) note.value = '';
+      const note = document.getElementById('rec-note').value = '';
+      const expires = document.getElementById('rec-expires');
+      if (expires) expires.value = '';
       const btn = document.getElementById('rec-create-btn');
       if (btn) btn.disabled = true;
+      const btnAll = document.getElementById('rec-create-all-btn');
+      if (btnAll) btnAll.disabled = true;
     };
+
+    // Lê o select de prazo e devolve uma timestamp ISO ou null.
+    function _recExpiresIso() {
+      const days = parseInt(document.getElementById('rec-expires')?.value || '0', 10);
+      if (!days || days <= 0) return null;
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      return d.toISOString();
+    }
 
     window.recCreate = async function() {
       if (!_recSelectedUser || !_recPickedTeaching) return;
@@ -6245,6 +6298,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         p_file: _recPickedTeaching.file,
         p_topic_idx: _recPickedTeaching.topic_idx,
         p_note: note || null,
+        p_expires_at: _recExpiresIso(),
       });
       if (error) {
         alert('Erro: ' + error.message);
@@ -6253,6 +6307,37 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       }
       recClearForm();
       recLoadList();
+    };
+
+    window.recCreateAll = async function() {
+      if (!_recPickedTeaching) return;
+      const note = document.getElementById('rec-note').value.trim();
+      const exp = _recExpiresIso();
+      const expLabel = exp
+        ? ' (auto-apaga em ' + (document.getElementById('rec-expires').options[document.getElementById('rec-expires').selectedIndex].textContent.toLowerCase()) + ')'
+        : '';
+      const msg = `Recomendar "${_recPickedTeaching.title_pt}" pra TODOS os usuários cadastrados${expLabel}?\n\nCada usuário receberá uma cópia. Não dá pra desfazer em massa.`;
+      if (!confirm(msg)) return;
+      const btn = document.getElementById('rec-create-all-btn');
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = 'Enviando...';
+      const { data, error } = await supabase.rpc('admin_create_recommendation_all', {
+        p_vol: _recPickedTeaching.vol,
+        p_file: _recPickedTeaching.file,
+        p_topic_idx: _recPickedTeaching.topic_idx,
+        p_note: note || null,
+        p_expires_at: exp,
+      });
+      btn.textContent = orig;
+      if (error) {
+        alert('Erro: ' + error.message);
+        btn.disabled = false;
+        return;
+      }
+      alert(`Enviado pra ${data} usuário${data === 1 ? '' : 's'}.`);
+      recClearForm();
+      if (_recSelectedUser) recLoadList();
     };
 
     window.recDelete = async function(recId) {

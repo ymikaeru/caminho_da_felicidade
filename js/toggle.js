@@ -13,7 +13,7 @@ const MENU_TEXTS = {
     navigation: 'Navegação',
     actions: 'Ferramentas',
     history: 'Histórico',
-    saved: 'Salvos',
+    saved: 'Ensinamentos Salvos',
     notes: 'Anotações',
     highlights: 'Central de Destaques',
     recommendations: 'Central de Recomendações',
@@ -40,7 +40,7 @@ const MENU_TEXTS = {
     navigation: 'ナビゲーション',
     actions: 'ツール',
     history: '履歴',
-    saved: 'お気に入り',
+    saved: '保存した教え',
     notes: 'メモ',
     highlights: 'ハイライト',
     recommendations: 'おすすめセンター',
@@ -298,22 +298,7 @@ window.removeFavoriteFromModal = async function (volId, filename, topicIdx) {
     }
   }
 
-  if (window.location.pathname.includes('reader.html')) {
-    const params = new URLSearchParams(window.location.search);
-    const currentVol = params.get('vol');
-    const currentFile = params.get('file');
-    if (currentVol === volId && currentFile === filename) {
-      const remaining = favorites.filter(f => f.vol === volId && f.file === filename);
-      if (remaining.length === 0) {
-        const btn = document.getElementById('favoriteBtn');
-        if (btn) {
-          btn.classList.remove('active');
-          const svg = btn.querySelector('svg');
-          if (svg) svg.setAttribute('fill', 'none');
-        }
-      }
-    }
-  }
+  if (typeof window.updateFavIndicators === 'function') window.updateFavIndicators();
 };
 
 // --- DOM Initialization and Shared Listeners ---

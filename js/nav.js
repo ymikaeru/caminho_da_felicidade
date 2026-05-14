@@ -84,17 +84,14 @@ function _initMobileNav() {
 
         <div class="mobile-nav-section-label" id="mobileNavLabelActions">${t.actions}</div>
 
-        <!-- Ordem crescente por largura do texto pra efeito de escadinha:
-             Salvos (6) → Histórico (9) → Central de Destaques (20) →
-             Central de Recomendações (24 — só aparece se user tem recs). -->
-        <button class="mobile-nav-link" onclick="openFavorites(); closeMobileNav();" id="mobileNavLinkFavorites">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          <span class="link-text">${t.saved}</span>
-        </button>
-
         <button class="mobile-nav-link" onclick="openHistory(); closeMobileNav();" id="mobileNavLinkHistory">
           <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span class="link-text">${t.history}</span>
+        </button>
+
+        <button class="mobile-nav-link" onclick="openFavorites(); closeMobileNav();" id="mobileNavLinkFavorites">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <span class="link-text">${t.saved}</span>
         </button>
 
         <button class="mobile-nav-link" onclick="window.location.href=(window.location.pathname.includes('/mioshiec') ? '../' : '') + 'destaques.html';" id="mobileNavLinkHighlights">
@@ -211,20 +208,6 @@ function _initMobileNav() {
     headerActions.insertBefore(recHeaderBtn, hamburgerBtn);
   }
 
-  const favBtn = document.createElement('button');
-  favBtn.className = 'mobile-fav-btn';
-  favBtn.id = 'mobileFavoriteBtn';
-  favBtn.setAttribute('aria-label', 'Favoritar');
-  favBtn.style.display = window.location.pathname.includes('reader.html') ? 'flex' : 'none';
-  favBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-  </svg>`;
-  favBtn.addEventListener('click', () => {
-    if (typeof toggleFavorite === 'function') toggleFavorite();
-  });
-  headerActions.insertBefore(favBtn, searchBtn);
-
   const highlightBtn = document.createElement('button');
   highlightBtn.className = 'mobile-fav-btn';
   highlightBtn.id = 'mobileHighlightBtn';
@@ -240,7 +223,7 @@ function _initMobileNav() {
   highlightBtn.addEventListener('click', () => {
     if (typeof openHighlights === 'function') openHighlights();
   });
-  headerActions.insertBefore(highlightBtn, favBtn);
+  headerActions.insertBefore(highlightBtn, searchBtn);
 
   // Admin-only: botão "Recomendar este" no header do reader. Aparece
   // ao lado dos botões de favorito/destaque, só pra admin. Click abre

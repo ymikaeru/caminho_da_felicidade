@@ -6314,7 +6314,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const note = document.getElementById('rec-note').value.trim();
       const exp = _recExpiresIso();
       const expLabel = exp
-        ? ' (auto-apaga em ' + (document.getElementById('rec-expires').options[document.getElementById('rec-expires').selectedIndex].textContent.toLowerCase()) + ')'
+        ? ' (auto-arquiva em ' + (document.getElementById('rec-expires').options[document.getElementById('rec-expires').selectedIndex].textContent.toLowerCase()) + ')'
         : '';
       const msg = `Recomendar "${_recPickedTeaching.title_pt}" pra TODOS os usuários cadastrados${expLabel}?\n\nCada usuário receberá uma cópia. Não dá pra desfazer em massa.`;
       if (!confirm(msg)) return;

@@ -4,6 +4,34 @@
 //             window._readerContainer, window._genericRegex (set by reader.js)
 // ============================================================
 
+// Formata um título com aspas em "Prefix: Título". Sem aspas, retorna o
+// texto como está (com pequenas normalizações). O bug que isso evita:
+// antes a lógica usava /^([^:]+)/ pra capturar o prefix, que quando o
+// título não tinha ':' capturava a string inteira (inclusive as aspas)
+// e o template final ': title' duplicava o título.
+function _formatQuotedTitle(rawTitle) {
+    let t = rawTitle;
+    const quoteMatch = t.match(/[""]([^""]+)[""]/);
+    if (!quoteMatch) {
+        return t.replace(/\s+-\s+/, ': ').replace(/\s+:/, ':');
+    }
+    // Acha o primeiro separador (:, -, ou abertura das aspas) e usa
+    // tudo antes dele como prefix.
+    const quotePos = t.indexOf(quoteMatch[0]);
+    const colonPos = t.indexOf(':');
+    const dashPos = t.indexOf(' - ');
+    const sepIdx = Math.min(
+        colonPos >= 0 ? colonPos : Infinity,
+        dashPos >= 0 ? dashPos : Infinity,
+        quotePos
+    );
+    let prefix = (sepIdx === Infinity ? '' : t.slice(0, sepIdx))
+        .replace(/\*/g, '').replace(/[:\-]+$/, '').trim();
+    return (prefix && prefix.toLowerCase() !== quoteMatch[1].toLowerCase())
+        ? `${prefix}: ${quoteMatch[1]}`
+        : quoteMatch[1];
+}
+
 function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicTitle, hlScroll) {
     const container = window._readerContainer;
     const genericRegex = window._genericRegex;
@@ -136,16 +164,7 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             const _insideTag = _openB > _closeB || _openF > _closeF;
 
             if (!_insideTag && pureTitle.length > 3 && pureTitle.length < 250 && !pureTitle.includes('。') && !pureTitle.includes('. ')) {
-                const quoteMatch = pureTitle.match(/[""]([^""]+)[""]/);
-                if (quoteMatch) {
-                    const prefixMatch = pureTitle.match(/^([^:]+)/);
-                    let prefix = prefixMatch ? prefixMatch[1].trim() : '';
-                    if (!pureTitle.includes(':') && pureTitle.includes(' - ')) prefix = pureTitle.split(' - ')[0].trim();
-                    prefix = prefix.replace(/\*/g, '');
-                    pureTitle = (prefix && prefix.toLowerCase() !== quoteMatch[1].toLowerCase()) ? `${prefix}: ${quoteMatch[1]}` : quoteMatch[1];
-                } else {
-                    pureTitle = pureTitle.replace(/\s+-\s+/, ': ').replace(/\s+:/, ':');
-                }
+                pureTitle = _formatQuotedTitle(pureTitle);
                 const pt0 = pureTitle.replace(/^\*\*|\*\*$/g, '');
                 headerHTML = `<b><font size="+2">${pt0.charAt(0).toUpperCase() + pt0.slice(1)}</font></b><br/>(${dateText})<br/><br/>`;
                 rawContent = rawContent.substring(headerMatch[0].length).replace(/^([\s\n]*<br\s*\/?>[\s\n]*)+/gi, '');
@@ -168,17 +187,7 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
                 const cTitle = activeTitle.replace(/<[^>]+>/g, '').replace(/[\u3000\s\d\W]/g, '').toLowerCase();
                 const cStart = rawContent.substring(0, 500).replace(/<[^>]+>/g, '').replace(/[\u3000\s\d\W]/g, '').toLowerCase();
                 if (cTitle.length > 5 && !cStart.includes(cTitle)) {
-                    let pureTitle = activeTitle;
-                    const quoteMatch = pureTitle.match(/[""]([^""]+)[""]/);
-                    if (quoteMatch) {
-                        const prefixMatch = pureTitle.match(/^([^:]+)/);
-                        let prefix = prefixMatch ? prefixMatch[1].trim() : '';
-                        if (!pureTitle.includes(':') && pureTitle.includes(' - ')) prefix = pureTitle.split(' - ')[0].trim();
-                        prefix = prefix.replace(/\*/g, '');
-                        pureTitle = (prefix && prefix.toLowerCase() !== quoteMatch[1].toLowerCase()) ? `${prefix}: ${quoteMatch[1]}` : quoteMatch[1];
-                    } else {
-                        pureTitle = pureTitle.replace(/\s+-\s+/, ': ').replace(/\s+:/, ':');
-                    }
+                    let pureTitle = _formatQuotedTitle(activeTitle);
                     const displayDate = topicData.date && topicData.date !== 'Unknown' ? `<br/>\n(${topicData.date})` : '';
                     const pt1 = pureTitle.replace(/^\*\*|\*\*$/g, '');
                     headerHTML = `<b><font size="+2">${pt1.charAt(0).toUpperCase() + pt1.slice(1)}</font></b>${displayDate}<br/><br/>`;

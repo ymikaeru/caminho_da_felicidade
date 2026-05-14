@@ -87,18 +87,20 @@ html.toc-collapsed .publication-toc {
   font-weight: 600;
 }
 
-.publication-toc__bullet {
+.publication-toc__number {
   flex-shrink: 0;
-  width: 5px;
-  height: 5px;
-  margin-top: 8px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.5;
+  min-width: 22px;
+  margin-top: 1px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  text-align: right;
+  line-height: 1.4;
 }
 
-.publication-toc__item.is-active .publication-toc__bullet {
-  opacity: 1;
+.publication-toc__item.is-active .publication-toc__number {
+  color: var(--accent);
 }
 
 .publication-toc__text {

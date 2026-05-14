@@ -1224,7 +1224,7 @@
                     <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Nova recomendação</div>
                     <div style="position:relative; margin-bottom:10px;">
                       <input type="text" id="rec-teaching-search" placeholder="Buscar ensinamento por título..." style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box;" autocomplete="off" oninput="recDebounceTeachingSearch()">
-                      <div id="rec-teaching-suggestions" style="position:absolute; top:100%; left:0; right:0; background:var(--bg); border:1px solid var(--border); border-radius:0 0 6px 6px; max-height:240px; overflow-y:auto; display:none; z-index:10;"></div>
+                      <div id="rec-teaching-suggestions" style="position:absolute; top:100%; left:0; right:0; background:var(--surface, #fff); border:1px solid var(--border); border-top:none; border-radius:0 0 6px 6px; max-height:240px; overflow-y:auto; display:none; z-index:100; box-shadow:0 6px 18px rgba(0,0,0,0.12);"></div>
                     </div>
                     <div id="rec-teaching-picked" style="display:none; padding:8px 10px; background:var(--accent-soft, rgba(184,134,11,0.1)); border:1px solid var(--accent); border-radius:4px; font-size:0.8rem; margin-bottom:10px;"></div>
                     <textarea id="rec-note" placeholder="Nota opcional (ex.: 'pra refletir sobre paciência esta semana')" rows="2" style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box; font-family:inherit; resize:vertical; margin-bottom:10px;"></textarea>

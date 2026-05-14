@@ -105,6 +105,27 @@ function buildFavoritesModal() {
   document.body.appendChild(el);
 }
 
+function buildRecommendationsModal() {
+  const lang = localStorage.getItem('site_lang') || 'pt';
+  const title = lang === 'ja' ? '学習のおすすめ' : 'Recomendações para Estudo';
+
+  const el = document.createElement('div');
+  el.className = 'search-modal-overlay';
+  el.id = 'recommendationsModal';
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-modal', 'true');
+  el.setAttribute('aria-labelledby', 'recommendationsModalTitle');
+  el.innerHTML =
+    '<div class="search-modal">' +
+      '<button class="modal-close-btn" onclick="closeRecommendations()">&times;</button>' +
+      '<div class="search-header">' +
+        '<h2 id="recommendationsModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
+      '</div>' +
+      '<ul class="search-results" id="recommendationsResults" aria-live="polite"></ul>' +
+    '</div>';
+  document.body.appendChild(el);
+}
+
 function buildHighlightsModal() {
   const lang = localStorage.getItem('site_lang') || 'pt';
   const title = lang === 'ja' ? 'ハイライト一覧' : 'Meus Destaques';
@@ -130,3 +151,4 @@ window.buildSearchModal = buildSearchModal;
 window.buildHistoryModal = buildHistoryModal;
 window.buildFavoritesModal = buildFavoritesModal;
 window.buildHighlightsModal = buildHighlightsModal;
+window.buildRecommendationsModal = buildRecommendationsModal;

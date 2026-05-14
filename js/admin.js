@@ -559,7 +559,7 @@
     window.switchTab = function(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-search': 6, 'users': 7, 'destaques': 8, 'reports': 9, 'findreplace': 10, 'duplicates': 11, 'logs': 12, 'analytics-johrei': 13, 'essencia-guia': 14 }[tab];
+      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-search': 6, 'users': 7, 'destaques': 8, 'reports': 9, 'findreplace': 10, 'duplicates': 11, 'recommendations': 12, 'logs': 13, 'analytics-johrei': 14, 'essencia-guia': 15 }[tab];
       document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'analytics') {
@@ -576,6 +576,7 @@
       if (tab === 'access') loadAccessInfo();
       if (tab === 'logs') loadAdminLogs();
       if (tab === 'duplicates') loadDuplicates();
+      if (tab === 'recommendations') loadRecommendationsTab();
       if (tab === 'analytics-johrei') loadJohreiAnalytics();
       if (tab === 'analytics-landing') loadLandingAnalytics();
       if (tab === 'analytics-disciples') loadDisciplesAnalytics();
@@ -6067,5 +6068,207 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       alert(`Recalculado. ${data} pares inseridos.`);
       loadDuplicates();
     };
+
+    // ============================================================
+    // Recommendations Tab — gestão de recomendações de estudo por
+    // usuário. Reaproveita allUsers (carregado pela aba Usuários) e
+    // a RPC suggest_teachings (também usada pelo "Você quis dizer"
+    // da busca pública) pra picker de ensinamento.
+    // ============================================================
+    let _recSelectedUser = null;     // {id, display_name, email}
+    let _recPickedTeaching = null;   // {vol, file, topic_idx, title_pt, title_ja}
+    let _recTeachingSearchTimer = null;
+
+    window.loadRecommendationsTab = async function() {
+      // Garante que a lista de usuários esteja carregada (a aba Usuários
+      // popula allUsers; se admin abrir Recomendações primeiro, refazemos).
+      if (!Array.isArray(allUsers) || allUsers.length === 0) {
+        const { data, error } = await supabase.rpc('admin_get_users');
+        if (error) {
+          document.getElementById('rec-user-list').innerHTML = `<div class="msg err" style="margin:12px;">Erro: ${_escHtml(error.message)}</div>`;
+          return;
+        }
+        allUsers = data || [];
+      }
+      renderRecUserList();
+    };
+
+    window.renderRecUserList = function() {
+      const container = document.getElementById('rec-user-list');
+      if (!container) return;
+      const query = (document.getElementById('rec-user-search')?.value || '').toLowerCase();
+      const filtered = (allUsers || []).filter(u =>
+        (u.display_name || '').toLowerCase().includes(query) ||
+        (u.email || '').toLowerCase().includes(query)
+      );
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="padding:16px; color:var(--text-muted); font-size:0.85rem;">Nenhum usuário encontrado.</div>';
+        return;
+      }
+      container.innerHTML = filtered.map(u => {
+        const idEsc = _escHtml(u.id);
+        const nameEsc = _escHtml(u.display_name || 'Sem nome');
+        const emailEsc = _escHtml(u.email || '—');
+        const active = _recSelectedUser && _recSelectedUser.id === u.id ? ' style="background:var(--accent-soft, rgba(184,134,11,0.12)); border-left:3px solid var(--accent);"' : '';
+        return `
+          <div onclick="recSelectUser('${idEsc}')" style="padding:10px 12px; cursor:pointer; border-bottom:1px solid var(--border);"${active}>
+            <div style="font-size:0.88rem; font-weight:500;">${nameEsc}</div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">${emailEsc}</div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    window.recSelectUser = function(userId) {
+      const u = (allUsers || []).find(x => x.id === userId);
+      if (!u) return;
+      _recSelectedUser = u;
+      document.getElementById('rec-detail-empty').style.display = 'none';
+      document.getElementById('rec-detail').style.display = 'block';
+      document.getElementById('rec-detail-name').textContent = u.display_name || 'Sem nome';
+      document.getElementById('rec-detail-email').textContent = u.email || '—';
+      recClearForm();
+      renderRecUserList();
+      recLoadList();
+    };
+
+    async function recLoadList() {
+      const container = document.getElementById('rec-list');
+      if (!_recSelectedUser) return;
+      container.innerHTML = '<div class="loading" style="padding:16px;">Carregando...</div>';
+      const { data, error } = await supabase.rpc('admin_get_user_recommendations', {
+        p_user_id: _recSelectedUser.id,
+      });
+      if (error) {
+        container.innerHTML = `<div class="msg err">Erro: ${_escHtml(error.message)}</div>`;
+        return;
+      }
+      const recs = data || [];
+      if (recs.length === 0) {
+        container.innerHTML = '<div style="padding:16px; color:var(--text-muted); font-size:0.85rem; text-align:center;">Nenhuma recomendação ativa.</div>';
+        return;
+      }
+      container.innerHTML = '<div style="display:flex; flex-direction:column; gap:8px;">' + recs.map(r => {
+        const title = r.title_pt || '(sem título)';
+        const seenLabel = r.seen_at
+          ? `vista em ${new Date(r.seen_at).toLocaleDateString('pt-BR')}`
+          : 'não vista';
+        const seenColor = r.seen_at ? 'var(--text-muted)' : 'var(--accent)';
+        const noteHtml = r.note ? `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px; font-style:italic;">"${_escHtml(r.note)}"</div>` : '';
+        const created = new Date(r.created_at).toLocaleDateString('pt-BR');
+        return `
+          <div style="padding:10px 12px; background:var(--surface, var(--bg)); border:1px solid var(--border); border-radius:5px;">
+            <div style="display:flex; align-items:flex-start; gap:8px;">
+              <div style="flex:1;">
+                <div style="font-size:0.88rem; font-weight:500;">${_escHtml(title)}</div>
+                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${VOL_SHORT[r.vol] || r.vol} · ${_escHtml(r.file)}#${r.topic_idx} · criado ${created} · <span style="color:${seenColor};">${seenLabel}</span></div>
+                ${noteHtml}
+              </div>
+              <button onclick="recDelete('${_escHtml(r.id)}')" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer;" title="Apagar">✕</button>
+            </div>
+          </div>
+        `;
+      }).join('') + '</div>';
+    }
+
+    window.recDebounceTeachingSearch = function() {
+      clearTimeout(_recTeachingSearchTimer);
+      _recTeachingSearchTimer = setTimeout(recRunTeachingSearch, 220);
+    };
+
+    async function recRunTeachingSearch() {
+      const q = (document.getElementById('rec-teaching-search')?.value || '').trim();
+      const sug = document.getElementById('rec-teaching-suggestions');
+      if (q.length < 2) {
+        sug.style.display = 'none';
+        sug.innerHTML = '';
+        return;
+      }
+      const { data, error } = await supabase.rpc('suggest_teachings', { q, lang: 'pt' });
+      if (error || !data || data.length === 0) {
+        sug.innerHTML = '<div style="padding:10px 12px; color:var(--text-muted); font-size:0.8rem;">Nenhum resultado.</div>';
+        sug.style.display = 'block';
+        return;
+      }
+      sug.innerHTML = data.map(s => {
+        const title = s.title_pt || '(sem título)';
+        const idx = s.topic_idx != null ? s.topic_idx : 0;
+        // Encoded payload pra evitar problemas de quote.
+        const payload = encodeURIComponent(JSON.stringify({
+          vol: s.vol, file: s.file, topic_idx: idx,
+          title_pt: title, title_ja: s.title_ja || '',
+        }));
+        return `
+          <div onclick="recPickTeaching('${payload}')" style="padding:8px 12px; cursor:pointer; border-bottom:1px solid var(--border); font-size:0.83rem;" onmouseover="this.style.background='var(--accent-soft, rgba(184,134,11,0.08))'" onmouseout="this.style.background=''">
+            <div>${_escHtml(title)}</div>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${VOL_SHORT[s.vol] || s.vol} · ${_escHtml(s.file)}#${idx}</div>
+          </div>
+        `;
+      }).join('');
+      sug.style.display = 'block';
+    }
+
+    window.recPickTeaching = function(payload) {
+      try {
+        _recPickedTeaching = JSON.parse(decodeURIComponent(payload));
+      } catch (e) { return; }
+      const picked = document.getElementById('rec-teaching-picked');
+      picked.innerHTML = `<strong>${_escHtml(_recPickedTeaching.title_pt)}</strong> <span style="color:var(--text-muted);">(${VOL_SHORT[_recPickedTeaching.vol] || _recPickedTeaching.vol} · ${_escHtml(_recPickedTeaching.file)}#${_recPickedTeaching.topic_idx})</span>`;
+      picked.style.display = 'block';
+      document.getElementById('rec-teaching-suggestions').style.display = 'none';
+      document.getElementById('rec-teaching-search').value = '';
+      document.getElementById('rec-create-btn').disabled = false;
+    };
+
+    window.recClearForm = function() {
+      _recPickedTeaching = null;
+      const picked = document.getElementById('rec-teaching-picked');
+      if (picked) { picked.style.display = 'none'; picked.innerHTML = ''; }
+      const sug = document.getElementById('rec-teaching-suggestions');
+      if (sug) { sug.style.display = 'none'; sug.innerHTML = ''; }
+      const search = document.getElementById('rec-teaching-search');
+      if (search) search.value = '';
+      const note = document.getElementById('rec-note');
+      if (note) note.value = '';
+      const btn = document.getElementById('rec-create-btn');
+      if (btn) btn.disabled = true;
+    };
+
+    window.recCreate = async function() {
+      if (!_recSelectedUser || !_recPickedTeaching) return;
+      const note = document.getElementById('rec-note').value.trim();
+      const btn = document.getElementById('rec-create-btn');
+      btn.disabled = true;
+      const { error } = await supabase.rpc('admin_create_recommendation', {
+        p_user_id: _recSelectedUser.id,
+        p_vol: _recPickedTeaching.vol,
+        p_file: _recPickedTeaching.file,
+        p_topic_idx: _recPickedTeaching.topic_idx,
+        p_note: note || null,
+      });
+      if (error) {
+        alert('Erro: ' + error.message);
+        btn.disabled = false;
+        return;
+      }
+      recClearForm();
+      recLoadList();
+    };
+
+    window.recDelete = async function(recId) {
+      if (!confirm('Apagar esta recomendação?')) return;
+      const { error } = await supabase.rpc('admin_delete_recommendation', { p_id: recId });
+      if (error) { alert('Erro: ' + error.message); return; }
+      recLoadList();
+    };
+
+    // Fecha o dropdown de sugestões ao clicar fora.
+    document.addEventListener('click', (e) => {
+      const sug = document.getElementById('rec-teaching-suggestions');
+      const search = document.getElementById('rec-teaching-search');
+      if (!sug || !search) return;
+      if (sug.contains(e.target) || search.contains(e.target)) return;
+      sug.style.display = 'none';
+    });
 
     checkAdmin();

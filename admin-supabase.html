@@ -846,6 +846,7 @@
                 <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty" id="reportsTabBadge">0</span></div>
                 <div class="admin-tab" onclick="switchTab('findreplace')">🔎 Buscar &amp; Substituir</div>
                 <div class="admin-tab" onclick="switchTab('duplicates')">📑 Duplicatas <span class="tab-badge empty" id="duplicatesTabBadge">0</span></div>
+                <div class="admin-tab" onclick="switchTab('recommendations')">📖 Recomendações</div>
                 <div class="admin-tab" onclick="switchTab('logs')">📋 Logs</div>
               </div>
             </div>
@@ -1193,6 +1194,50 @@
             </div>
             <div id="duplicates-summary" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;"></div>
             <div id="duplicates-container"><div class="loading">Clique em "Aplicar" pra carregar.</div></div>
+          </div>
+
+          <!-- Recommendations Tab — admin cria recomendações de estudo
+               por usuário. Layout: lado esquerdo lista usuários (reusa
+               busca da aba Usuários), lado direito mostra/cria recs do
+               usuário selecionado. -->
+          <div class="tab-content" id="tab-recommendations">
+            <div style="margin-bottom:20px;">
+              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Recomendações para Estudo</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Indique ensinamentos a usuários individuais com uma nota opcional. O usuário vê um botão na home e no menu apenas se tiver recomendações.</p>
+            </div>
+            <div style="display:grid; grid-template-columns:minmax(260px, 320px) 1fr; gap:24px; align-items:start;">
+              <!-- Coluna esquerda: seletor de usuário -->
+              <div>
+                <input type="text" id="rec-user-search" placeholder="Buscar usuário..." style="width:100%; padding:8px 10px; font-size:0.85rem; margin-bottom:10px; box-sizing:border-box;" oninput="renderRecUserList()">
+                <div id="rec-user-list" style="max-height:520px; overflow-y:auto; border:1px solid var(--border); border-radius:6px;"><div class="loading" style="padding:16px;">Carregando...</div></div>
+              </div>
+              <!-- Coluna direita: gestão das recs do usuário selecionado -->
+              <div>
+                <div id="rec-detail-empty" style="padding:40px 20px; text-align:center; color:var(--text-muted); font-size:0.9rem; border:1px dashed var(--border); border-radius:6px;">Selecione um usuário à esquerda.</div>
+                <div id="rec-detail" style="display:none;">
+                  <div style="margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+                    <div style="font-size:0.95rem; font-weight:600;" id="rec-detail-name">—</div>
+                    <div style="font-size:0.78rem; color:var(--text-muted);" id="rec-detail-email">—</div>
+                  </div>
+                  <!-- Form: novo ensinamento -->
+                  <div style="background:var(--surface, var(--bg)); border:1px solid var(--border); border-radius:6px; padding:14px; margin-bottom:18px;">
+                    <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Nova recomendação</div>
+                    <div style="position:relative; margin-bottom:10px;">
+                      <input type="text" id="rec-teaching-search" placeholder="Buscar ensinamento por título..." style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box;" autocomplete="off" oninput="recDebounceTeachingSearch()">
+                      <div id="rec-teaching-suggestions" style="position:absolute; top:100%; left:0; right:0; background:var(--bg); border:1px solid var(--border); border-radius:0 0 6px 6px; max-height:240px; overflow-y:auto; display:none; z-index:10;"></div>
+                    </div>
+                    <div id="rec-teaching-picked" style="display:none; padding:8px 10px; background:var(--accent-soft, rgba(184,134,11,0.1)); border:1px solid var(--accent); border-radius:4px; font-size:0.8rem; margin-bottom:10px;"></div>
+                    <textarea id="rec-note" placeholder="Nota opcional (ex.: 'pra refletir sobre paciência esta semana')" rows="2" style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box; font-family:inherit; resize:vertical; margin-bottom:10px;"></textarea>
+                    <div style="display:flex; gap:8px;">
+                      <button class="btn-primary" onclick="recCreate()" id="rec-create-btn" style="font-size:0.82rem; padding:6px 16px;" disabled>Recomendar</button>
+                      <button class="btn-secondary" onclick="recClearForm()" style="font-size:0.82rem; padding:6px 16px;">Limpar</button>
+                    </div>
+                  </div>
+                  <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Recomendações ativas</div>
+                  <div id="rec-list"><div class="loading" style="padding:16px;">Carregando...</div></div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Logs Tab -->

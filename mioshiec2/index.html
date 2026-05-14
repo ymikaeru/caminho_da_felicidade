@@ -3718,8 +3718,10 @@
     </script>
     <script type="module" src="../js/login.js?v=7"></script>
     <script src="../js/access.js?v=5"></script>
+    <script src="../js/modals.js?v=2"></script>
+    <script src="../js/recommendations.js?v=1" defer></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => { initVolumeFilter('mioshiec2'); if (typeof revealPage === 'function') revealPage(); });
+        document.addEventListener('DOMContentLoaded', () => { initVolumeFilter('mioshiec2'); buildRecommendationsModal(); if (typeof revealPage === 'function') revealPage(); if (typeof initRecommendations === 'function') initRecommendations(); });
     </script>
     <script>document.addEventListener("DOMContentLoaded", function () { document.querySelectorAll(".topic-card__title .lang-pt").forEach(function (e) { if (e.innerHTML.length > 0) e.innerHTML = e.innerHTML.charAt(0).toUpperCase() + e.innerHTML.slice(1) }); });</script>
 </body>

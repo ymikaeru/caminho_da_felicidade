@@ -110,3 +110,59 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+.topic-save-bar {
+  margin: 14px 0 22px;
+}
+
+.topic-save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+  max-width: 100%;
+}
+
+.topic-save-btn:hover {
+  background: var(--accent-soft, rgba(184, 134, 11, 0.1));
+}
+
+.topic-save-btn:active {
+  transform: scale(0.97);
+}
+
+.topic-save-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.topic-save-btn.active svg {
+  fill: currentColor;
+}
+
+.topic-save-btn .topic-save-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 480px) {
+  .topic-save-btn {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+}
+
+@media print {
+  .topic-save-bar { display: none; }
+}

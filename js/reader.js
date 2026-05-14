@@ -237,11 +237,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = url;
     };
 
-    window.toggleFavorite = async function () {
+    window.toggleFavorite = async function (explicitTopicIndex) {
         const { volId, filename } = getParams();
         let favorites = [];
         try { favorites = JSON.parse(localStorage.getItem('savedFavorites') || '[]'); } catch (e) { }
-        const topicIndex = getVisibleTopicIndex();
+        const topicIndex = Number.isInteger(explicitTopicIndex) ? explicitTopicIndex : getVisibleTopicIndex();
         const title = document.title.replace('Meishu-Sama: ', '').replace(' - Caminho da Felicidade', '');
         const totalTopics = window._currentTotalTopics || 1;
 

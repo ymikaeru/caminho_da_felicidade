@@ -32,6 +32,17 @@ function _formatQuotedTitle(rawTitle) {
         : quoteMatch[1];
 }
 
+function _buildTopicSaveBar(topicIdx, lang) {
+    const l = { pt: { save: 'Salvar esta publicação', saved: 'Publicação salva' }, ja: { save: 'この教えを保存', saved: '保存済み' } }[lang] || { save: 'Salvar esta publicação', saved: 'Publicação salva' };
+    const icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+    return `<div class="topic-save-bar" data-topic-idx="${topicIdx}">` +
+        `<button type="button" class="topic-save-btn" data-topic-idx="${topicIdx}" onclick="window.toggleFavorite(${topicIdx})">` +
+            icon +
+            `<span class="topic-save-label" data-save="${l.save}" data-saved="${l.saved}">${l.save}</span>` +
+        `</button>` +
+    `</div>`;
+}
+
 function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicTitle, hlScroll) {
     const container = window._readerContainer;
     const genericRegex = window._genericRegex;
@@ -222,12 +233,13 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             }
             contentHtml += `<div id="${topicId}" class="topic-content comparison-mode" style="margin-top: ${index > 0 ? '40px' : '0'};">
                 ${headerHTML}
+                ${_buildTopicSaveBar(index, lang)}
                 <div class="comparison-labels"><span>日本語</span><span>Português</span></div>
                 <div class="comparison-grid">${gridHtml}</div>
                 <div class="comparison-interleaved">${interleavedHtml}</div>
             </div>`;
         } else {
-            contentHtml += `<div id="${topicId}" class="topic-content" style="margin-top: ${index > 0 ? '40px' : '0'};">\n${headerHTML}\n${formatted}\n</div>`;
+            contentHtml += `<div id="${topicId}" class="topic-content" style="margin-top: ${index > 0 ? '40px' : '0'};">\n${headerHTML}\n${_buildTopicSaveBar(index, lang)}\n${formatted}\n</div>`;
         }
     });
 
@@ -325,6 +337,16 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
                 if (titleEl) { dot = document.createElement('span'); dot.className = 'saved-topic-dot'; titleEl.appendChild(dot); }
             }
             if (dot) dot.classList.toggle('visible', savedSet.has(i));
+
+            const saveBtn = topicEl.querySelector('.topic-save-btn');
+            if (saveBtn) {
+                const isSaved = savedSet.has(i);
+                saveBtn.classList.toggle('active', isSaved);
+                const labelEl = saveBtn.querySelector('.topic-save-label');
+                if (labelEl) {
+                    labelEl.textContent = isSaved ? labelEl.dataset.saved : labelEl.dataset.save;
+                }
+            }
         }
     };
     window.updateFavIndicators();

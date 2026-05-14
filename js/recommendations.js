@@ -12,7 +12,7 @@
 // ============================================================
 
 (function () {
-  let _recState = { total: 0, unseen: 0, list: null };
+  let _recState = { total: 0, unseen: 0, everReceived: 0, list: null };
 
   function _esc(s) {
     return String(s ?? '')
@@ -109,25 +109,32 @@
       _updateBadge(headerBtn);
     }
 
-    // Item do menu sanduíche — sempre visível (Central de Recomendações
-    // existe mesmo sem recs ativas, pra acessar arquivadas). Só atualiza
-    // o badge de não-vistas.
+    // Item do menu sanduíche — só aparece se o usuário já recebeu
+    // pelo menos uma recomendação na vida (ativa, arquivada ou
+    // expirada). Quem nunca recebeu não vê o item.
     const navBtn = document.getElementById('mobileNavLinkRecommendations');
     if (navBtn) {
+      navBtn.style.display = _recState.everReceived > 0 ? 'flex' : 'none';
       _updateBadge(navBtn);
     }
   }
 
   async function _fetchSummary() {
     const supa = _supa();
-    if (!supa) return { total: 0, unseen: 0 };
+    if (!supa) return { total: 0, unseen: 0, everReceived: 0 };
     try {
       const { data, error } = await supa.rpc('get_my_recommendations_summary');
-      if (error) return { total: 0, unseen: 0 };
+      if (error) return { total: 0, unseen: 0, everReceived: 0 };
       const row = Array.isArray(data) ? (data[0] || {}) : (data || {});
-      return { total: Number(row.total || 0), unseen: Number(row.unseen || 0) };
+      return {
+        total: Number(row.total || 0),
+        unseen: Number(row.unseen || 0),
+        // ever_received pode não existir se a migração v4 ainda não rodou —
+        // fallback pro total nesse caso (mesma lógica do v3).
+        everReceived: Number(row.ever_received ?? row.total ?? 0),
+      };
     } catch (e) {
-      return { total: 0, unseen: 0 };
+      return { total: 0, unseen: 0, everReceived: 0 };
     }
   }
 
@@ -264,6 +271,7 @@
     const summary = await _fetchSummary();
     _recState.total = summary.total;
     _recState.unseen = summary.unseen;
+    _recState.everReceived = summary.everReceived;
     _reveal(summary.total);
   }
 

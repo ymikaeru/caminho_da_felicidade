@@ -430,10 +430,10 @@ window._updateDesktopToc = function (label, optionsList, currentHref) {
   aside.hidden = false;
   const currentLang = localStorage.getItem('site_lang') || 'pt';
   const heading = label || (currentLang === 'ja' ? 'このテーマの教え' : 'Ensinamentos deste tema');
-  const items = optionsList.map(o => {
+  const items = optionsList.map((o, i) => {
     const active = currentHref && o.value === currentHref ? ' is-active' : '';
     return `<a href="${o.value}" class="publication-toc__item${active}">
-      <span class="publication-toc__bullet" aria-hidden="true"></span>
+      <span class="publication-toc__number" aria-hidden="true">${i + 1}</span>
       <span class="publication-toc__text">${o.text}</span>
     </a>`;
   }).join('');

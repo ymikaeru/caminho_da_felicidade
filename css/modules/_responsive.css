@@ -136,6 +136,14 @@
     gap: 4px;
     flex-wrap: wrap;
   }
+  /* No mobile: esconde "Início" e a seção (+ seus separadores adjacentes)
+     pra deixar so "Volume N / Titulo #N" — espaco apertado. */
+  .breadcrumbs .bc-home,
+  .breadcrumbs .bc-home + .bc-sep,
+  .breadcrumbs .bc-section,
+  .breadcrumbs .bc-section + .bc-sep {
+    display: none;
+  }
 
   .reader-toolbar {
     bottom: max(16px, env(safe-area-inset-bottom, 16px));

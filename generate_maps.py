@@ -35,19 +35,26 @@ for vol in vols:
             cm_ja = re.search(r'<span class="lang-ja"[^>]*>(.*?)</span>', card_html, re.DOTALL)
             if cm_pt: title_pt = re.sub(r'\s+', ' ', cm_pt.group(1)).strip()
             if cm_ja: title_ja = re.sub(r'\s+', ' ', cm_ja.group(1)).strip()
-            
+
+            # Numero do card no indice estatico (topic-card__icon). Usado pelo
+            # breadcrumb do reader pra ajudar o usuario a localizar o card.
+            cm_num = re.search(r'<div class="topic-card__icon">\s*([^<]+?)\s*</div>', card_html, re.DOTALL)
+            card_num = cm_num.group(1).strip() if cm_num else ""
+
             section_map[vol][card_file] = {
                 "section": sec_pt,
                 "sectionJa": sec_ja,
                 "pt": title_pt,
-                "ja": title_ja
+                "ja": title_ja,
+                "n": card_num
             }
-            
+
             global_titles[f"{vol}/{card_file}"] = {
                 "pt": title_pt,
                 "ja": title_ja,
                 "section": sec_pt,
-                "sectionJa": sec_ja
+                "sectionJa": sec_ja,
+                "n": card_num
             }
 
 os.makedirs(os.path.join(base_dir, "site_data"), exist_ok=True)

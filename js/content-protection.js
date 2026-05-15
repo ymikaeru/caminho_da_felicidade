@@ -51,6 +51,12 @@
   // Copy / Cut logging (não bloqueia — apenas registra)
   // ----------------------------------------------------------------
 
+  // Dedupe client-side: Ctrl+C repetido sobre a mesma seleção em <5s
+  // gera 1 evento só. Re-cópia da mesma seleção após uma pausa de leitura
+  // (>5s) continua sendo registrada — comportamento intencional pra preservar
+  // o audit trail. Não sobrevive refresh (caso de uso intencional: re-visita).
+  let _lastCopy = { text: '', ts: 0 };
+
   function _onCopy(e) {
     const inProtected = _inProtectedContent(e.target);
     const isAdmin = (typeof isAdminUser === 'function' && isAdminUser());
@@ -58,7 +64,16 @@
     if (!inProtected) return;
     const sel = (window.getSelection && window.getSelection().toString()) || '';
     console.log('[content-protection] seleção:', { length: sel.length, preview: sel.slice(0, 40) });
-    if (!sel.trim()) return;
+    const selTrim = sel.trim();
+    if (!selTrim) return;
+
+    const now = Date.now();
+    if (selTrim === _lastCopy.text && now - _lastCopy.ts < 5000) {
+      console.log('[content-protection] duplicate copy suppressed (<5s)');
+      return;
+    }
+    _lastCopy = { text: selTrim, ts: now };
+
     // Captura o texto copiado (cap em 2000 chars; preserva tamanho original)
     const text = sel.length > 2000 ? sel.slice(0, 2000) + '…' : sel;
     _logAction('copy', { text, length: sel.length, kind: e.type });

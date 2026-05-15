@@ -83,12 +83,14 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     // over GLOBAL_INDEX_TITLES (which may store per-file topic titles)
     let indexTitle = '';
     let sectionName = '';
+    let cardNumber = '';  // numero do card no indice estatico (topic-card__icon)
     try {
         const sectionMap = window.SECTION_MAP || {};
         const volSections = sectionMap[volId] || {};
         const sectObj = volSections[filename];
         if (sectObj) {
             indexTitle = isPt ? sectObj.pt : (sectObj.ja || sectObj.pt);
+            if (sectObj.n) cardNumber = String(sectObj.n);
             // Extract section name from the section key
             for (const [fileKey, secData] of Object.entries(volSections)) {
                 if (fileKey === filename && secData.section) {
@@ -267,18 +269,38 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     const cleanThemeSection = themeSectionName ? themeSectionName.replace(/<br\s*\/?>/gi, ' ') : '';
     const effectiveSection = cleanSectionName || cleanThemeSection;
 
+    // Classes bc-* permitem o CSS mobile esconder o "Início" e a seção
+    // (junto com seus separadores adjacentes via :has(+ ...)), preservando
+    // só "Volume N / Título #N" — ver _reader.css @media (max-width:767px).
     let bcParts = [];
-    bcParts.push(`<a href="index.html">${bl.home}</a>`);
-    bcParts.push(`<a href="${volId}/index.html">${bl.volume} ${volId.slice(-1)}</a>`);
+    bcParts.push(`<a class="bc-home" href="index.html">${bl.home}</a>`);
+    bcParts.push(`<a class="bc-volume" href="${volId}/index.html">${bl.volume} ${volId.slice(-1)}</a>`);
     if (effectiveSection) {
-        bcParts.push(`<a href="${volId}/index.html">${effectiveSection}</a>`);
+        // Link da seção pula direto pro #section-N correspondente no índice
+        // estático — assume que section_map.js está em sync com index.html
+        // (alimentado por generate_maps.py).
+        let sectionAnchor = '';
+        try {
+            const volMap = (window.SECTION_MAP || {})[volId] || {};
+            const seenSecs = [];
+            for (const fk of Object.keys(volMap)) {
+                const s = volMap[fk]?.section;
+                if (s && !seenSecs.includes(s)) seenSecs.push(s);
+            }
+            const idx = seenSecs.indexOf(effectiveSection);
+            if (idx >= 0) sectionAnchor = `#section-${idx}`;
+        } catch (e) { }
+        bcParts.push(`<a class="bc-section" href="${volId}/index.html${sectionAnchor}">${effectiveSection}</a>`);
     }
 
     if (cleanIndexTitle) {
-        bcParts.push(`<span style="color:var(--text-main)">${cleanIndexTitle}</span>`);
+        const numSuffix = cardNumber
+            ? ` <span class="bc-num" style="color:var(--text-muted); font-weight:400;">#${cardNumber}</span>`
+            : '';
+        bcParts.push(`<span class="bc-current" style="color:var(--text-main)">${cleanIndexTitle}${numSuffix}</span>`);
     }
 
-    const breadcrumbsHtml = bcParts.join(' <span>/</span> ');
+    const breadcrumbsHtml = bcParts.join(' <span class="bc-sep">/</span> ');
 
     container.style.opacity = '0';
     container.innerHTML = `

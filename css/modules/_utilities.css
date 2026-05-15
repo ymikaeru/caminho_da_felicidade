@@ -53,11 +53,6 @@
   }
 }
 
-@media (max-width: 600px) {
-  .topic-list .topic-card .topic-card__icon {
-    display: none !important;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   *,

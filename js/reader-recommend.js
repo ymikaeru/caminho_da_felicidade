@@ -50,9 +50,19 @@
   }
 
   function _currentTeachingMeta() {
+    // Reproduz a mesma lógica de reader.js:getParams — favoritos sem topic
+    // navegam via hash (#v3/sol-e-lua) em vez de ?vol=&file=, e o picker
+    // de recomendação precisa funcionar nos dois formatos.
     const params = new URLSearchParams(window.location.search);
-    const vol = params.get('vol') || '';
-    const file = params.get('file') || '';
+    let vol = params.get('vol') || params.get('v') || '';
+    let file = params.get('file') || params.get('f') || '';
+    if (!vol && !file) {
+      const hash = window.location.hash.replace(/^#+/, '');
+      const m = hash.match(/^v(\d+)\/(.+)$/i);
+      if (m) { vol = `mioshiec${m[1]}`; file = m[2]; }
+    }
+    if (vol && !vol.startsWith('mioshiec')) vol = `mioshiec${vol}`;
+    if (file && !file.endsWith('.html')) file += '.html';
     const topic_idx = _currentTopicIdx();
     // Título: tenta o do tópico ativo (h2/h3 dentro de .topic-content),
     // depois h1 da página, depois document.title como fallback.

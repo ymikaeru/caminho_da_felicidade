@@ -213,22 +213,30 @@ revoke all on function admin_search_analytics(int) from public;
 grant execute on function admin_search_analytics(int) to authenticated;
 
 -- ============================================================
--- Dedupe de access_logs no servidor
+-- Dedupe de access_logs no servidor (v2 com metadata)
 -- ============================================================
 -- Substitui o INSERT direto em access_logs por uma RPC que:
 --   - Checa se já existe row com mesmo (user, volume, file, action) nos
---     últimos 60s. Se sim, pula o insert.
+--     últimos 60s. Se sim, pula o insert. EXCETO p_action='copy': cada
+--     cópia é um trecho diferente, então nunca dedupa.
 --   - Insere a row caso contrário.
+--   - Aceita p_metadata jsonb (default null): usado por content-protection.js
+--     pra registrar texto copiado em access_logs.metadata.
 --   - Sempre atualiza user_profiles.last_seen_at (mantém presença).
 --
 -- Por que servidor: o dedupe in-memory do client perde estado em refresh
 -- e em abas separadas. O servidor garante "next records" idempotentes
 -- mesmo com double-fire de popstate, navegação cruzada ou refresh.
 -- ============================================================
+
+-- Remove a versão antiga (3 args) — substituída pela nova com p_metadata default.
+drop function if exists log_access_dedup(text, text, text);
+
 create or replace function log_access_dedup(
   p_volume text,
   p_file text,
-  p_action text default 'view'
+  p_action text default 'view',
+  p_metadata jsonb default null
 )
 returns void
 language plpgsql security definer
@@ -236,22 +244,25 @@ set search_path = public
 as $func$
 declare
   v_user uuid := auth.uid();
-  v_dup boolean;
+  v_dup boolean := false;
 begin
   if v_user is null then return; end if;
 
-  select exists (
-    select 1 from public.access_logs
-    where user_id = v_user
-      and volume = p_volume
-      and file = p_file
-      and action = p_action
-      and created_at >= now() - interval '60 seconds'
-  ) into v_dup;
+  -- Cada evento de 'copy' é um trecho distinto — não dedupa.
+  if p_action <> 'copy' then
+    select exists (
+      select 1 from public.access_logs
+      where user_id = v_user
+        and volume = p_volume
+        and file = p_file
+        and action = p_action
+        and created_at >= now() - interval '60 seconds'
+    ) into v_dup;
+  end if;
 
   if not v_dup then
-    insert into public.access_logs (user_id, volume, file, action)
-    values (v_user, p_volume, p_file, p_action);
+    insert into public.access_logs (user_id, volume, file, action, metadata)
+    values (v_user, p_volume, p_file, p_action, p_metadata);
   end if;
 
   -- Sempre atualiza presença, mesmo no caso dedupado.
@@ -259,8 +270,8 @@ begin
 end;
 $func$;
 
-revoke all on function log_access_dedup(text, text, text) from public;
-grant execute on function log_access_dedup(text, text, text) to authenticated;
+revoke all on function log_access_dedup(text, text, text, jsonb) from public;
+grant execute on function log_access_dedup(text, text, text, jsonb) to authenticated;
 
 -- ============================================================
 -- Posição de leitura granular por parágrafo

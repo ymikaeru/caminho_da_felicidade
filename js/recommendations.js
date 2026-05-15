@@ -164,6 +164,15 @@
     return window.location.pathname.includes('/mioshiec') ? '../' : '';
   }
 
+  // Walter Fujii prefere ser referido como "Reverendo Walter" nas
+  // recomendações exibidas ao usuário. Outros admins (ex: Michael
+  // Yamada) aparecem pelo próprio display_name.
+  function _displayRecommender(rawName) {
+    const name = String(rawName || '').trim();
+    if (name === 'Walter Fujii') return 'Reverendo Walter';
+    return name;
+  }
+
   function _renderList(list) {
     const ul = document.getElementById('recommendationsResults');
     if (!ul) return;
@@ -188,12 +197,25 @@
       const dateStr = r.created_at
         ? new Date(r.created_at).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'pt-BR')
         : '';
+      const recommender = _displayRecommender(r.created_by_name);
+      let expHtml = '';
+      if (r.expires_at) {
+        const daysLeft = Math.ceil((new Date(r.expires_at) - new Date()) / 86400000);
+        if (daysLeft > 0) {
+          const expLbl = daysLeft === 1
+            ? (lang === 'ja' ? '明日に自動アーカイブ' : 'será arquivado amanhã')
+            : (lang === 'ja' ? `${daysLeft}日後に自動アーカイブ` : `será arquivado em ${daysLeft} dias`);
+          const c = daysLeft <= 3 ? 'color:#c80;' : '';
+          expHtml = ` <span style="opacity:0.4;">·</span> <span style="${c}">⏱ ${_esc(expLbl)}</span>`;
+        }
+      }
+      const metaPrefix = recommender ? `${_esc(recommender)} <span style="opacity:0.4;">·</span> ` : '';
       const archiveLabel = lang === 'ja' ? 'アーカイブ' : 'Arquivar';
       return `
         <li style="position:relative;">
           <a href="${href}" style="display:block; padding:14px 100px 14px 16px; text-decoration:none; color:inherit; border-bottom:1px solid var(--border);">
             <div style="font-size:0.95rem; font-weight:500; color:var(--text-main);">${_esc(title)}</div>
-            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">${_esc(dateStr)}</div>
+            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
             ${noteHtml}
           </a>
           <button type="button" data-rec-id="${_esc(r.id)}" aria-label="${archiveLabel}" title="${archiveLabel}" class="rec-archive-btn" style="position:absolute; top:12px; right:10px; background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; border-radius:4px; cursor:pointer; font-size:0.72rem; line-height:1; display:inline-flex; align-items:center; gap:5px; font-family:inherit;">

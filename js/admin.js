@@ -3670,18 +3670,33 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const logs = (logsRes.data || []).filter(r => !_adminIds.has(r.user_id));
       const positions = (posRes.data || []).filter(r => !_adminIds.has(r.user_id));
 
-      const uniqueClicks = new Set(logs.map(r => `${r.user_id}|${r.volume}|${r.file}`)).size;
+      const clickedPairs = new Set(logs.map(r => `${r.user_id}|${r.volume}|${r.file}`));
+      const uniqueClicks = clickedPairs.size;
 
       if (uniqueClicks === 0) {
         container.innerHTML = '<div class="loading">Sem cliques no período.</div>';
         return;
       }
 
-      const started = positions.filter(r => (r.time_spent_seconds || 0) > 0).length;
-      const real    = positions.filter(r => (r.time_spent_seconds || 0) >= 60).length;
-      const deep    = positions.filter(r => (r.time_spent_seconds || 0) >= 180).length;
+      // Indexa o tempo cumulativo por par (user × artigo) para cruzar com os
+      // cliques. Se o mesmo par aparece em mais de um row (não deveria, mas
+      // por segurança), fica com o maior tempo.
+      const timeByPair = new Map();
+      for (const r of positions) {
+        const key = `${r.user_id}|${r.volume}|${r.file}`;
+        const t = r.time_spent_seconds || 0;
+        if (t > (timeByPair.get(key) || 0)) timeByPair.set(key, t);
+      }
 
-      const bounce = Math.max(0, Math.round((1 - real / uniqueClicks) * 100));
+      let started = 0, real = 0, deep = 0;
+      for (const key of clickedPairs) {
+        const t = timeByPair.get(key) || 0;
+        if (t > 0)   started++;
+        if (t >= 60) real++;
+        if (t >= 180) deep++;
+      }
+
+      const bounce = Math.round((1 - real / uniqueClicks) * 100);
       const bounceColor = bounce > 80 ? '#ef4444' : bounce > 60 ? '#f59e0b' : '#10b981';
 
       const steps = [
@@ -3735,6 +3750,27 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const highlights = (hlRes.data || []).filter(r => !_adminIds.has(r.user_id));
       const favs = (favRes.data || []).filter(r => !_adminIds.has(r.user_id));
 
+      // Nome por user_id para tooltip de hover por segmento. allUsers vem do
+      // loadUsers() (RPC admin_get_users que junta auth.users + user_profiles),
+      // então tem display_name + email reais. Se loadUsers ainda não rodou ou
+      // algum id estiver órfão, cai pro fetch direto em user_profiles.
+      const nameById = {};
+      (Array.isArray(allUsers) ? allUsers : []).forEach(u => {
+        nameById[u.id] = u.display_name || u.email || null;
+      });
+      const activeIds = Array.from(new Set([
+        ...logs.map(r => r.user_id),
+        ...positions.map(r => r.user_id),
+      ]));
+      const missing = activeIds.filter(id => !nameById[id]);
+      if (missing.length) {
+        const { data: profs } = await supabase
+          .from('user_profiles')
+          .select('id, display_name')
+          .in('id', missing);
+        (profs || []).forEach(p => { nameById[p.id] = p.display_name || null; });
+      }
+
       if (logs.length === 0) {
         container.innerHTML = '<div class="loading">Sem atividade no período.</div>';
         return;
@@ -3781,10 +3817,17 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         </p>
         <div class="stats-grid" style="margin-bottom:18px;">
           ${defs.map(d => {
-            const count = segments[d.key].length;
+            const ids = segments[d.key];
+            const count = ids.length;
             const pct = total > 0 ? Math.round(count / total * 100) : 0;
+            const names = ids
+              .map(uid => nameById[uid] || 'Usuário sem nome')
+              .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+            const tip = count === 0
+              ? `${d.label}: ninguém no período`
+              : `${d.label} (${count}):\n• ${names.join('\n• ')}`;
             return `
-              <div class="stat-card" style="border-top:3px solid ${d.color};">
+              <div class="stat-card" style="border-top:3px solid ${d.color}; cursor:help;" title="${_escHtml(tip)}">
                 <div class="stat-value" style="color:${d.color};">${d.emoji} ${count}</div>
                 <div class="stat-label">${d.label} <span style="opacity:0.6;">(${pct}%)</span></div>
                 <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">${d.desc}</div>
@@ -6558,10 +6601,16 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         const archived = !!r.archived_at;
         const inactive = expired || archived;
 
+        // "vista" = abriu o modal de recs (mark_recommendations_seen).
+        // "lida"  = acessou o reader do ensinamento depois da criação
+        //          da rec (cruzamento com access_logs no RPC v6).
         const seenLabel = r.seen_at
           ? `vista em ${new Date(r.seen_at).toLocaleDateString('pt-BR')}`
           : 'não vista';
         const seenColor = r.seen_at ? 'var(--text-muted)' : 'var(--accent)';
+        const readHtml = r.read_at
+          ? ` <span style="opacity:0.4;">·</span> <span style="color:#2c8a3e;" title="Acessou o ensinamento em ${new Date(r.read_at).toLocaleString('pt-BR')}">📖 lida em ${new Date(r.read_at).toLocaleDateString('pt-BR')}</span>`
+          : '';
         const noteHtml = r.note ? `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px; font-style:italic;">"${_escHtml(r.note)}"</div>` : '';
         const created = new Date(r.created_at).toLocaleDateString('pt-BR');
 
@@ -6591,7 +6640,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
             <div style="display:flex; align-items:flex-start; gap:8px;">
               <div style="flex:1;">
                 <div style="font-size:0.88rem; font-weight:500;">${_escHtml(title)}${stateTag}</div>
-                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${VOL_SHORT[r.vol] || r.vol} · ${_escHtml(r.file)}#${r.topic_idx} · criado ${created} · <span style="color:${seenColor};">${seenLabel}</span>${expiresHtml}</div>
+                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${VOL_SHORT[r.vol] || r.vol} · ${_escHtml(r.file)}#${r.topic_idx} · criado ${created} · <span style="color:${seenColor};">${seenLabel}</span>${readHtml}${expiresHtml}</div>
                 ${noteHtml}
               </div>
               <button onclick="recDelete('${_escHtml(r.id)}')" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer;" title="Apagar permanentemente">✕</button>

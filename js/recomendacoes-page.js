@@ -61,6 +61,15 @@
     return new Date(iso).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'pt-BR');
   }
 
+  // Walter Fujii prefere ser referido como "Reverendo Walter" nas
+  // recomendações exibidas ao usuário. Outros admins (ex: Michael
+  // Yamada) aparecem pelo próprio display_name.
+  function _displayRecommender(rawName) {
+    const name = String(rawName || '').trim();
+    if (name === 'Walter Fujii') return 'Reverendo Walter';
+    return name;
+  }
+
   function _renderCards(list, archived) {
     const lang = localStorage.getItem('site_lang') || 'pt';
     if (!list || list.length === 0) {
@@ -89,6 +98,7 @@
       if (lang === 'ja') href += '&lang=ja';
 
       const createdStr = _formatDate(r.created_at, lang);
+      const recommender = _displayRecommender(r.created_by_name);
       let metaExtra = '';
       if (archived) {
         const archStr = _formatDate(r.archived_at, lang);
@@ -98,8 +108,8 @@
         const daysLeft = Math.ceil((new Date(r.expires_at) - new Date()) / 86400000);
         if (daysLeft > 0) {
           const expLbl = daysLeft === 1
-            ? (lang === 'ja' ? '明日まで' : 'expira amanhã')
-            : (lang === 'ja' ? `あと${daysLeft}日` : `expira em ${daysLeft} dias`);
+            ? (lang === 'ja' ? '明日に自動アーカイブ' : 'será arquivado amanhã')
+            : (lang === 'ja' ? `${daysLeft}日後に自動アーカイブ` : `será arquivado em ${daysLeft} dias`);
           const c = daysLeft <= 3 ? 'color:#c80;' : '';
           metaExtra = `<span class="dot">·</span><span style="${c}">⏱ ${_esc(expLbl)}</span>`;
         }
@@ -127,6 +137,7 @@
           <div class="rec-card-body">
             <h2 class="rec-card-title"><a href="${href}">${_esc(title)}</a></h2>
             <div class="rec-card-meta">
+              ${recommender ? `<span>${_esc(recommender)}</span><span class="dot">·</span>` : ''}
               <span>${_esc(createdStr)}</span>
               ${metaExtra}
             </div>

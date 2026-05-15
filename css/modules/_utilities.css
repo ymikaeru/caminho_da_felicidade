@@ -54,8 +54,23 @@
 }
 
 @media (max-width: 600px) {
+  /* No mobile, em vez da bolinha 28px (que espremia o titulo), o numero
+     vai pro canto direito do card como referencia discreta tipo "numero
+     de pagina" — titulo ganha espaco pleno e o numero ainda permite
+     localizar o ensinamento no indice ao rolar. */
   .topic-list .topic-card .topic-card__icon {
-    display: none !important;
+    order: 99;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    width: auto;
+    min-width: 0;
+    opacity: 0.6;
+    letter-spacing: 0;
+  }
+  .topic-list .topic-card .topic-card__title {
+    flex: 1;
   }
 }
 

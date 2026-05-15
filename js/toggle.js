@@ -133,11 +133,16 @@ function _filterAccessible(items) {
   if (typeof isLimitedUser !== 'function' || !isLimitedUser()) return items;
   const config = typeof getAccessConfig === 'function' ? getAccessConfig() : null;
   if (!config) return items;
+  // Semântica BLACKLIST (alinhada com js/access.js initVolumeFilter):
+  //   volConfig undefined → sem restrição, exibir
+  //   volConfig === 'all' → volume inteiro bloqueado, esconder
+  //   volConfig é array   → arquivos listados estão bloqueados, esconder se IN array
   return items.filter(item => {
     const volConfig = config[item.vol];
-    if (volConfig === 'all') return true;
-    if (Array.isArray(volConfig)) return volConfig.includes(item.file);
-    return false;
+    if (volConfig == null) return true;
+    if (volConfig === 'all') return false;
+    if (Array.isArray(volConfig)) return !volConfig.includes(item.file);
+    return true;
   });
 }
 

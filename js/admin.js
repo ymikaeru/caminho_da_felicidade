@@ -2826,9 +2826,12 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           const scrollPct = Number(p.max_scroll_pct) || 0;
           const topicPct = Number(p.progress_pct) || 0;
           const struggling = sec >= 10 * 60 && scrollPct < 40;
-          const score = (sec / 60) / (scrollPct + 1);
-          return { ...p, _sec: sec, _scrollPct: scrollPct, _topicPct: topicPct, _struggling: struggling, _score: score };
-        }).sort((a, b) => b._score - a._score);
+          return { ...p, _sec: sec, _scrollPct: scrollPct, _topicPct: topicPct, _struggling: struggling };
+        }).sort((a, b) => {
+          const ta = a.updated_at ? new Date(a.updated_at).getTime() : 0;
+          const tb = b.updated_at ? new Date(b.updated_at).getTime() : 0;
+          return tb - ta;
+        });
 
         const strugglingCount = scored.filter(p => p._struggling).length;
         const note = strugglingCount > 0

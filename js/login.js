@@ -281,17 +281,21 @@ window.supabaseAuth = {
     return Array.isArray(perm) && perm.includes(file);
   },
   getPermissions: () => userPermissions,
-  logAccess: async (volume, file, action = 'view') => {
+  logAccess: async (volume, file, action = 'view', metadata = null) => {
     if (!supabaseSession) return;
     // Server-side dedupe via RPC: pula o INSERT se já existe um log com
     // mesmo (user, volume, file, action) nos últimos 60s. A RPC sempre
     // atualiza last_seen_at independente do dedupe. Sobrevive a refresh
     // de página e abas separadas (in-memory dedupe não cobre).
-    const { error } = await supabase.rpc('log_access_dedup', {
-      p_volume: volume,
-      p_file: file,
-      p_action: action
-    });
+    // metadata: só inclui no payload quando não-nulo. PostgREST resolve o
+    // overload da RPC pelo número de args nomeados — 3 args usa a versão
+    // antiga (sem metadata), 4 args exige a versão nova (CREATE OR REPLACE
+    // FUNCTION log_access_dedup(text, text, text, jsonb)). Assim deploy
+    // do cliente NÃO depende da RPC nova estar aplicada (view/print
+    // continuam funcionando) — só copies precisam da RPC atualizada.
+    const params = { p_volume: volume, p_file: file, p_action: action };
+    if (metadata != null) params.p_metadata = metadata;
+    const { error } = await supabase.rpc('log_access_dedup', params);
     if (error) console.warn('[logAccess] Falha ao registrar acesso:', error.message);
   }
 };

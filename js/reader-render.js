@@ -271,7 +271,21 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     bcParts.push(`<a href="index.html">${bl.home}</a>`);
     bcParts.push(`<a href="${volId}/index.html">${bl.volume} ${volId.slice(-1)}</a>`);
     if (effectiveSection) {
-        bcParts.push(`<a href="${volId}/index.html">${effectiveSection}</a>`);
+        // Link da seção pula direto pro #section-N correspondente no índice
+        // estático — assume que section_map.js está em sync com index.html
+        // (alimentado por generate_maps.py).
+        let sectionAnchor = '';
+        try {
+            const volMap = (window.SECTION_MAP || {})[volId] || {};
+            const seenSecs = [];
+            for (const fk of Object.keys(volMap)) {
+                const s = volMap[fk]?.section;
+                if (s && !seenSecs.includes(s)) seenSecs.push(s);
+            }
+            const idx = seenSecs.indexOf(effectiveSection);
+            if (idx >= 0) sectionAnchor = `#section-${idx}`;
+        } catch (e) { }
+        bcParts.push(`<a href="${volId}/index.html${sectionAnchor}">${effectiveSection}</a>`);
     }
 
     if (cleanIndexTitle) {

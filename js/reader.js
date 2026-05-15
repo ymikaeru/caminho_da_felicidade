@@ -270,12 +270,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         try { localStorage.setItem('savedFavorites', JSON.stringify(favorites)); } catch (e) { }
 
-        // Sync to cloud
+        // Sync to cloud — falhas (rede, sessão expirada, RLS) NÃO podem
+        // bloquear o feedback de UI. O usuário precisa ver o tooltip e o
+        // botão mudar mesmo se o sync falhar; localStorage já salvou e o
+        // syncLocalStorageToCloud reconcilia depois.
         if (window._cloudSync) {
-            if (isSaved) {
-                await window._cloudSync.removeFavorite(volId, filename, topicIndex);
-            } else {
-                await window._cloudSync.saveFavorite(volId, filename, topicIndex, topicTitle, snippet, totalTopics);
+            try {
+                if (isSaved) {
+                    await window._cloudSync.removeFavorite(volId, filename, topicIndex);
+                } else {
+                    await window._cloudSync.saveFavorite(volId, filename, topicIndex, topicTitle, snippet, totalTopics);
+                }
+            } catch (e) {
+                console.warn('[favorites] cloud sync failed, salvo apenas local:', e);
             }
         }
 
@@ -285,14 +292,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const tooltip = document.getElementById('saveTooltip');
         if (tooltip) {
-            const statusText = { pt: { saved: 'salvo', removed: 'removido' }, ja: { saved: '保存済み', removed: '削除済み' } }[lang] || { saved: 'salvo', removed: 'removido' };
+            const statusText = {
+                pt: { saved: '✓ Salvo em Ensinamentos Salvos (no menu)', removed: '✕ Removido de Ensinamentos Salvos' },
+                ja: { saved: '✓「保存した教え」に追加しました（メニュー）', removed: '✕「保存した教え」から削除しました' }
+            }[lang] || { saved: '✓ Salvo em Ensinamentos Salvos (no menu)', removed: '✕ Removido de Ensinamentos Salvos' };
             const rawTitle = topicTitle || title;
             const cleanTitle = rawTitle.replace(/^(Ensinamento|Orientação|Palestra) de (Meishu-Sama|Moisés)\s*[-:]\s*/i, '').replace(/^["'](.*?)["']$/, '$1').trim();
             document.getElementById('saveTooltipTitle').textContent = cleanTitle;
             document.getElementById('saveTooltipStatus').textContent = isSaved ? statusText.removed : statusText.saved;
             tooltip.classList.add('show');
             clearTimeout(window._saveTooltipTimer);
-            window._saveTooltipTimer = setTimeout(() => tooltip.classList.remove('show'), 1800);
+            window._saveTooltipTimer = setTimeout(() => tooltip.classList.remove('show'), 2800);
         }
     };
 

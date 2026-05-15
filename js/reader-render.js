@@ -83,12 +83,14 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     // over GLOBAL_INDEX_TITLES (which may store per-file topic titles)
     let indexTitle = '';
     let sectionName = '';
+    let cardNumber = '';  // numero do card no indice estatico (topic-card__icon)
     try {
         const sectionMap = window.SECTION_MAP || {};
         const volSections = sectionMap[volId] || {};
         const sectObj = volSections[filename];
         if (sectObj) {
             indexTitle = isPt ? sectObj.pt : (sectObj.ja || sectObj.pt);
+            if (sectObj.n) cardNumber = String(sectObj.n);
             // Extract section name from the section key
             for (const [fileKey, secData] of Object.entries(volSections)) {
                 if (fileKey === filename && secData.section) {
@@ -289,7 +291,10 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     }
 
     if (cleanIndexTitle) {
-        bcParts.push(`<span style="color:var(--text-main)">${cleanIndexTitle}</span>`);
+        const numSuffix = cardNumber
+            ? ` <span style="color:var(--text-muted); font-weight:400;">#${cardNumber}</span>`
+            : '';
+        bcParts.push(`<span style="color:var(--text-main)">${cleanIndexTitle}${numSuffix}</span>`);
     }
 
     const breadcrumbsHtml = bcParts.join(' <span>/</span> ');

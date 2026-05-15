@@ -269,9 +269,12 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     const cleanThemeSection = themeSectionName ? themeSectionName.replace(/<br\s*\/?>/gi, ' ') : '';
     const effectiveSection = cleanSectionName || cleanThemeSection;
 
+    // Classes bc-* permitem o CSS mobile esconder o "Início" e a seção
+    // (junto com seus separadores adjacentes via :has(+ ...)), preservando
+    // só "Volume N / Título #N" — ver _reader.css @media (max-width:767px).
     let bcParts = [];
-    bcParts.push(`<a href="index.html">${bl.home}</a>`);
-    bcParts.push(`<a href="${volId}/index.html">${bl.volume} ${volId.slice(-1)}</a>`);
+    bcParts.push(`<a class="bc-home" href="index.html">${bl.home}</a>`);
+    bcParts.push(`<a class="bc-volume" href="${volId}/index.html">${bl.volume} ${volId.slice(-1)}</a>`);
     if (effectiveSection) {
         // Link da seção pula direto pro #section-N correspondente no índice
         // estático — assume que section_map.js está em sync com index.html
@@ -287,17 +290,17 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             const idx = seenSecs.indexOf(effectiveSection);
             if (idx >= 0) sectionAnchor = `#section-${idx}`;
         } catch (e) { }
-        bcParts.push(`<a href="${volId}/index.html${sectionAnchor}">${effectiveSection}</a>`);
+        bcParts.push(`<a class="bc-section" href="${volId}/index.html${sectionAnchor}">${effectiveSection}</a>`);
     }
 
     if (cleanIndexTitle) {
         const numSuffix = cardNumber
-            ? ` <span style="color:var(--text-muted); font-weight:400;">#${cardNumber}</span>`
+            ? ` <span class="bc-num" style="color:var(--text-muted); font-weight:400;">#${cardNumber}</span>`
             : '';
-        bcParts.push(`<span style="color:var(--text-main)">${cleanIndexTitle}${numSuffix}</span>`);
+        bcParts.push(`<span class="bc-current" style="color:var(--text-main)">${cleanIndexTitle}${numSuffix}</span>`);
     }
 
-    const breadcrumbsHtml = bcParts.join(' <span>/</span> ');
+    const breadcrumbsHtml = bcParts.join(' <span class="bc-sep">/</span> ');
 
     container.style.opacity = '0';
     container.innerHTML = `

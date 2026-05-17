@@ -5850,9 +5850,30 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const since = new Date(Date.now() - days * 86400000).toISOString();
 
       // Fetch RPC and extra raw data in parallel
-      const [rpcRes, rawRes] = await Promise.all([
+      const [rpcRes, rawRes, cmOpensRes, cmHeartbeatsRes, cmAudioRes] = await Promise.all([
         supabase.rpc('admin_get_site_analytics', { p_site: 'johrei', days_back: days }),
-        supabase.from('site_events').select('props,created_at').eq('site','johrei').eq('event_type','pageview').gte('created_at', since)
+        supabase.from('site_events').select('props,created_at').eq('site','johrei').eq('event_type','pageview').gte('created_at', since),
+        // Culto Mensal: aberturas. Fetcha todos os cta de johrei e
+        // filtra client-side por props.label — evita depender da sintaxe
+        // de JSON path do PostgREST, que varia entre versões.
+        supabase.from('site_events')
+          .select('anon_id,session_id,props')
+          .eq('site','johrei')
+          .eq('event_type','cta')
+          .gte('created_at', since),
+        // Culto Mensal: heartbeats enquanto o modal estava aberto (dwell time)
+        supabase.from('site_events')
+          .select('session_id,props')
+          .eq('site','johrei')
+          .eq('event_type','heartbeat')
+          .ilike('path','%modal=culto-mensal%')
+          .gte('created_at', since),
+        // Culto Mensal: eventos de áudio (play/pause/ended)
+        supabase.from('site_events')
+          .select('event_type,session_id,anon_id,props,created_at')
+          .eq('site','johrei')
+          .in('event_type', ['audio_play','audio_pause','audio_ended'])
+          .gte('created_at', since)
       ]);
 
       if (rpcRes.error) {
@@ -5902,6 +5923,65 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const topLangs = Object.entries(langMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
       const langTotal = topLangs.reduce((s, e) => s + e[1], 0) || 1;
       const hourMax = Math.max(...hours, 1);
+
+      // ── Culto Mensal aggregates ─────────────────────────────────
+      // Filtra opens client-side por props.label (todos os cta vieram).
+      const cmOpens = (cmOpensRes.data || []).filter(r => (r.props || {}).label === 'culto_mensal_open');
+      const cmHeartbeats = cmHeartbeatsRes.data || [];
+      const cmAudio = cmAudioRes.data || [];
+
+      console.log('[jr-culto-mensal]', {
+        opens: cmOpens.length,
+        ctaTotal: (cmOpensRes.data || []).length,
+        heartbeats: cmHeartbeats.length,
+        audio: cmAudio.length,
+        errs: {
+          opens: cmOpensRes.error?.message,
+          hb: cmHeartbeatsRes.error?.message,
+          audio: cmAudioRes.error?.message
+        }
+      });
+
+      const cmOpenCount = cmOpens.length;
+      const cmOpenUniques = new Set(cmOpens.map(r => r.anon_id)).size;
+
+      // Dwell time: soma delta_seconds dos heartbeats no path do modal.
+      // Por sessão (anon pode ter várias sessões); média é por sessão lida.
+      const cmDwellBySession = {};
+      cmHeartbeats.forEach(r => {
+        const sec = Number((r.props || {}).delta_seconds) || 0;
+        if (sec <= 0) return;
+        cmDwellBySession[r.session_id] = (cmDwellBySession[r.session_id] || 0) + sec;
+      });
+      const cmSessionsRead = Object.keys(cmDwellBySession).length;
+      const cmTotalDwell = Object.values(cmDwellBySession).reduce((a, b) => a + b, 0);
+      const cmAvgDwell = cmSessionsRead ? cmTotalDwell / cmSessionsRead : 0;
+
+      // Áudio: tocaram = sessões com pelo menos um audio_play.
+      // Escuta máxima por sessão = maior total_played_seconds visto em
+      // audio_pause/audio_ended. audio_play não traz total_played.
+      const cmPlayedBySession = {};
+      const cmPlaySessions = new Set();
+      const cmPlayAnons = new Set();
+      let cmCompletedCount = 0;
+      cmAudio.forEach(r => {
+        if (r.event_type === 'audio_play') {
+          cmPlaySessions.add(r.session_id);
+          cmPlayAnons.add(r.anon_id);
+          return;
+        }
+        const total = Number((r.props || {}).total_played_seconds) || 0;
+        const prev = cmPlayedBySession[r.session_id] || 0;
+        if (total > prev) cmPlayedBySession[r.session_id] = total;
+        if (r.event_type === 'audio_ended') cmCompletedCount++;
+      });
+      const cmAudioSessions = cmPlaySessions.size;
+      const cmAvgListenedSec = cmAudioSessions
+        ? Object.values(cmPlayedBySession).reduce((a, b) => a + b, 0) / cmAudioSessions
+        : 0;
+      // duration_seconds vem nos eventos; usamos o mais comum/qualquer válido
+      const cmDuration = (cmAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
+      const cmAvgListenedPct = cmDuration ? Math.round((cmAvgListenedSec / cmDuration) * 100) : null;
 
       // ── Helpers ─────────────────────────────────────────────────
       const esc = s => String(s ?? '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
@@ -5978,6 +6058,26 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-muted);margin-top:3px;"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span></div>
         <p style="font-size:.78rem;color:var(--text-muted);margin:6px 0 0;">Pico: <strong>${hourPeakIdx}h</strong> (${hours[hourPeakIdx]} visitas)</p>`;
 
+      // Bloco de Culto Mensal: sempre renderiza (mesmo zerado) pra ficar
+      // explícito que o tracking está ativo e que estamos esperando dados.
+      const cmHasData = cmOpenCount > 0 || cmAudioSessions > 0 || cmSessionsRead > 0;
+      const cmBlock = `
+        <div class="jr-chart-wrap" style="margin-bottom:24px;">
+          <h3>📖 Orientação do Culto Mensal (${data.days_back}d)</h3>
+          <div class="jr-cards" style="margin-bottom:0;">
+            ${card(cmOpenCount, 'Aberturas', cmOpenUniques)}
+            ${engCard(cmAvgDwell > 0 ? fmtTime(cmAvgDwell) : '—', 'Permanência média')}
+            ${engCard(cmAudioSessions, 'Sessões que ouviram')}
+            ${engCard(cmAvgListenedSec > 0 ? fmtTime(cmAvgListenedSec) : '—',
+              'Escuta média' + (cmAvgListenedPct != null && cmAvgListenedPct > 0 ? ` (${cmAvgListenedPct}%)` : ''))}
+          </div>
+          <p style="font-size:.72rem;color:var(--text-muted);margin:14px 0 0;">
+            ${cmHasData
+              ? `Permanência captada via heartbeats (granularidade ~30s, leituras curtas podem não aparecer). Escuta média = média do total ouvido por sessão que apertou play.${cmCompletedCount > 0 ? ` <strong>${cmCompletedCount}</strong> escuta(s) completa(s).` : ''}`
+              : 'Sem dados ainda no período selecionado. Confirme que o tracking foi deployado em <code>guia_johrei</code> e que alguém abriu o modal.'}
+          </p>
+        </div>`;
+
       dash.innerHTML = `
         <div class="jr-cards">
           ${card(t.today_visits,'Hoje',t.today_uniques)}
@@ -5991,6 +6091,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           ${engCard(eng.bounce_rate_pct, 'Bounce rate', '%')}
           ${engCard(t.period_sessions, `Sessões (${data.days_back}d)`)}
         </div>
+        ${cmBlock}
         <div class="jr-chart-wrap">
           <h3>Visitas por dia (últimos ${data.days_back} dias)</h3>
           <canvas id="jr-chart"></canvas>

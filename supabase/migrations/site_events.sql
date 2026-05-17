@@ -21,7 +21,10 @@ CREATE TABLE IF NOT EXISTS public.site_events (
   CONSTRAINT site_events_site_check
     CHECK (site IN ('landing', 'johrei')),
   CONSTRAINT site_events_event_type_check
-    CHECK (event_type IN ('pageview', 'heartbeat', 'scroll', 'click', 'cta', 'search', 'section'))
+    CHECK (event_type IN (
+      'pageview', 'heartbeat', 'scroll', 'click', 'cta', 'search', 'section',
+      'audio_play', 'audio_pause', 'audio_ended'
+    ))
 );
 
 CREATE INDEX IF NOT EXISTS site_events_site_created_idx

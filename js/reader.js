@@ -504,16 +504,4 @@ document.addEventListener('DOMContentLoaded', () => {
         saveReadingPosition();
     });
 
-    // Swipe navigation (mobile)
-    let _touchStartX = 0, _touchStartY = 0;
-    document.addEventListener('touchstart', e => { _touchStartX = e.changedTouches[0].clientX; _touchStartY = e.changedTouches[0].clientY; }, { passive: true });
-    document.addEventListener('touchend', e => {
-        if (!window._swipeNav) return;
-        const dx = e.changedTouches[0].clientX - _touchStartX;
-        const dy = e.changedTouches[0].clientY - _touchStartY;
-        if (Math.abs(dx) < 80 || Math.abs(dy) > 60) return;
-        const { vol, prev, next } = window._swipeNav;
-        if (dx > 0 && prev) window.navigateToReader(vol, prev);
-        else if (dx < 0 && next) window.navigateToReader(vol, next);
-    }, { passive: true });
 });

@@ -77,8 +77,6 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     const prevFile = currentIndex > 0 ? allFiles[currentIndex - 1] : null;
     const nextFile = currentIndex < allFiles.length - 1 ? allFiles[currentIndex + 1] : null;
 
-    window._swipeNav = { vol: volId, prev: prevFile, next: nextFile };
-
     // Title resolution — prioritize SECTION_MAP (correct section names)
     // over GLOBAL_INDEX_TITLES (which may store per-file topic titles)
     let indexTitle = '';

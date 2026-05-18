@@ -203,8 +203,15 @@
       'ashita-no-ijitsu-wo-ikiru': 'Ashita No Ijitsu Wo Ikiru'
     };
 
+    // Arquivos especiais (prefácios etc.) que não estão em section_map.js
+    const SPECIAL_FILE_TITLES = {
+      'mioshiec1/zyobun.html': 'Prefácio — O Objetivo da Fundação da Igreja'
+    };
+
     function getFileTitle(volume, file) {
       if (volume === 'disciples') return DISCIPLES_BOOK_TITLES[file] || file;
+      const special = SPECIAL_FILE_TITLES[`${volume}/${file}`];
+      if (special) return special;
       const cats = volumeCategories?.[volume];
       if (cats) {
         for (const arr of Object.values(cats)) {

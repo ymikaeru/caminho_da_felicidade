@@ -313,23 +313,15 @@ export async function syncLocalStorageToCloud() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return;
 
-  // Sync favorites
-  try {
-    const localFavs = JSON.parse(localStorage.getItem('savedFavorites') || '[]');
-    if (localFavs.length > 0) {
-      const cloudFavs = await loadFavorites();
-      const cloudKeys = new Set(cloudFavs.map(f => `${f.volume}:${f.file}:${f.topic_index}`));
-
-      for (const f of localFavs) {
-        const key = `${f.vol}:${f.file}:${f.topic || 0}`;
-        if (!cloudKeys.has(key)) {
-          await saveFavorite(f.vol, f.file, f.topic || 0, f.topicTitle || '', f.snippet || '', f.totalTopics || 1);
-        }
-      }
-    }
-  } catch (e) {
-    console.warn('Failed to sync favorites to cloud:', e);
-  }
+  // Sync favorites — DESABILITADO INTENCIONALMENTE.
+  //
+  // Antes: favoritos do localStorage eram empurrados pra cloud no próximo
+  // login. Problema: quando admin removia favoritos de um usuário pelo
+  // painel, eles voltavam no próximo login dele (porque o local ainda tinha
+  // e o cloud não — bulk push os ressuscitava).
+  //
+  // Favoritos criados online já vão direto pro cloud via _cloudSync.saveFavorite
+  // em reader.js (linha 282). Mesma estratégia adotada para highlights abaixo.
 
   // Sync highlights — DESABILITADO INTENCIONALMENTE.
   //

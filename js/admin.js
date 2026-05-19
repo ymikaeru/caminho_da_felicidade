@@ -566,7 +566,7 @@
     window.switchTab = function(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-search': 6, 'users': 7, 'destaques': 8, 'reports': 9, 'findreplace': 10, 'duplicates': 11, 'recommendations': 12, 'logs': 13, 'analytics-johrei': 14, 'essencia-guia': 15 }[tab];
+      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-search': 6, 'destaques': 7, 'recommendations': 8, 'reports': 9, 'users': 10, 'findreplace': 11, 'duplicates': 12, 'logs': 13, 'analytics-johrei': 14, 'essencia-guia': 15 }[tab];
       document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'analytics') {

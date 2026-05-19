@@ -40,10 +40,13 @@
     .tab-group {
       display: flex; flex-direction: column; flex-shrink: 0;
     }
+    .tab-group[data-section="caminho"] + .tab-group[data-section="caminho"] {
+      margin-left: 40px;
+    }
     .tab-group-label {
-      font-size: 0.6rem; font-weight: 700; letter-spacing: .12em;
-      text-transform: uppercase; color: var(--accent); opacity: .65;
-      padding: 0 4px 5px; white-space: nowrap;
+      font-size: 0.62rem; font-weight: 500; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--text-muted);
+      padding: 0 14px 8px; white-space: nowrap;
     }
     .tab-group-tabs {
       display: flex; flex-direction: row;
@@ -921,16 +924,27 @@
               </div>
             </div>
             <div class="tab-group" data-section="caminho">
+              <div class="tab-group-label">Análise</div>
               <div class="tab-group-tabs">
-                <div class="admin-tab" onclick="switchTab('analytics')">📊 Analytics</div>
-                <div class="admin-tab" onclick="switchTab('analytics-disciples')">📊 Analytics Discípulos</div>
+                <div class="admin-tab" onclick="switchTab('analytics')">📊 Geral</div>
+                <div class="admin-tab" onclick="switchTab('analytics-disciples')">📊 Discípulos</div>
                 <div class="admin-tab" onclick="switchTab('analytics-search')">🔎 Buscas</div>
-                <div class="admin-tab active" onclick="switchTab('users')">👤 Usuários</div>
                 <div class="admin-tab" onclick="switchTab('destaques')">⭐ Destaques</div>
-                <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty" id="reportsTabBadge">0</span></div>
-                <div class="admin-tab" onclick="switchTab('findreplace')">🔎 Buscar &amp; Substituir</div>
-                <div class="admin-tab" onclick="switchTab('duplicates')">📑 Duplicatas <span class="tab-badge empty" id="duplicatesTabBadge">0</span></div>
+              </div>
+            </div>
+            <div class="tab-group" data-section="caminho">
+              <div class="tab-group-label">Curadoria</div>
+              <div class="tab-group-tabs">
                 <div class="admin-tab" onclick="switchTab('recommendations')">📤 Recomendações</div>
+                <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty" id="reportsTabBadge">0</span></div>
+              </div>
+            </div>
+            <div class="tab-group" data-section="caminho">
+              <div class="tab-group-label">Admin</div>
+              <div class="tab-group-tabs">
+                <div class="admin-tab active" onclick="switchTab('users')">👤 Usuários</div>
+                <div class="admin-tab" onclick="switchTab('findreplace')">✏️ Buscar &amp; Substituir</div>
+                <div class="admin-tab" onclick="switchTab('duplicates')">📑 Duplicatas <span class="tab-badge empty" id="duplicatesTabBadge">0</span></div>
                 <div class="admin-tab" onclick="switchTab('logs')">📋 Logs</div>
               </div>
             </div>
@@ -1782,7 +1796,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=10"></script>
+  <script type="module" src="js/admin.js?v=12"></script>
 
 </body>
 </html>

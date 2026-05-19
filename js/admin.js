@@ -5766,23 +5766,40 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
             <span style="font-size:.78rem; color:var(--text-muted); min-width:36px; text-align:right;">${w}%</span>
           </div>`;
         };
+        const SUSPICIOUS_MIN_PER_CHAP = 3;
+        const SUSPICIOUS_MIN_PROGRESS = 25;
+        const fmtMinPerChap = mpc => {
+          if (!isFinite(mpc) || mpc <= 0) return '—';
+          if (mpc < 1) return `${Math.round(mpc * 60)}s`;
+          return `${mpc < 10 ? mpc.toFixed(1) : Math.round(mpc)} min`;
+        };
+        let suspiciousCount = 0;
+        const progressBodyRows = progressRows.map(p => {
+          const tot = p.total_topics || 0;
+          const idx = (p.topic_index ?? 0);
+          const chap = tot > 0 ? `${idx + 1} de ${tot}` : '—';
+          const pct = (tot > 0) ? ((idx + 1) / tot) * 100 : (p.progress_pct || 0);
+          const secs = p.time_spent_seconds || 0;
+          const chaptersOpened = idx + 1;
+          const minPerChap = chaptersOpened > 0 ? (secs / 60) / chaptersOpened : 0;
+          const isSuspicious = pct >= SUSPICIOUS_MIN_PROGRESS && minPerChap > 0 && minPerChap < SUSPICIOUS_MIN_PER_CHAP;
+          if (isSuspicious) suspiciousCount++;
+          const rowStyle = isSuspicious ? ' style="background:rgba(192, 57, 43, 0.08);"' : '';
+          const warn = isSuspicious ? `<span title="Menos de ${SUSPICIOUS_MIN_PER_CHAP} min por capítulo — possível click-through" style="color:#c0392b; margin-right:4px;">⚠️</span>` : '';
+          const mpcCellStyle = isSuspicious ? 'font-size:.78rem; color:#c0392b; font-weight:600;' : 'font-size:.78rem; color:var(--text-muted);';
+          return `<tr${rowStyle}>
+            <td>${warn}${_escHtml(nameMap[p.user_id] || 'Desconhecido')}</td>
+            <td>${_escHtml(bookTitle(p.file))}</td>
+            <td style="font-size:.82rem; color:var(--text-muted);">${chap}</td>
+            <td>${progressBar(pct)}</td>
+            <td class="num">${fmtSecs(secs)}</td>
+            <td class="num" style="${mpcCellStyle}">${fmtMinPerChap(minPerChap)}</td>
+            <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(p.updated_at)}</td>
+          </tr>`;
+        }).join('');
+        const progressNote = `<p style="font-size:.75rem; color:var(--text-muted); margin:0 0 8px;">"Min/cap" = tempo total ÷ capítulos navegados. ⚠️ Linhas em vermelho: ≥${SUSPICIOUS_MIN_PROGRESS}% de progresso com menos de ${SUSPICIOUS_MIN_PER_CHAP} min por capítulo — possível click-through sem leitura efetiva${suspiciousCount ? ` (${suspiciousCount} caso${suspiciousCount > 1 ? 's' : ''})` : ''}.</p>`;
         const progressHtml = progressRows.length
-          ? `<table><thead><tr><th>Usuário</th><th>Livro</th><th>Capítulo</th><th>Progresso</th><th style="text-align:right;">Tempo</th><th>Última leitura</th></tr></thead><tbody>${
-              progressRows.map(p => {
-                const tot = p.total_topics || 0;
-                const idx = (p.topic_index ?? 0);
-                const chap = tot > 0 ? `${idx + 1} de ${tot}` : '—';
-                const pct = (tot > 0) ? ((idx + 1) / tot) * 100 : (p.progress_pct || 0);
-                return `<tr>
-                  <td>${_escHtml(nameMap[p.user_id] || 'Desconhecido')}</td>
-                  <td>${_escHtml(bookTitle(p.file))}</td>
-                  <td style="font-size:.82rem; color:var(--text-muted);">${chap}</td>
-                  <td>${progressBar(pct)}</td>
-                  <td class="num">${fmtSecs(p.time_spent_seconds || 0)}</td>
-                  <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(p.updated_at)}</td>
-                </tr>`;
-              }).join('')
-            }</tbody></table>`
+          ? progressNote + `<table><thead><tr><th>Usuário</th><th>Livro</th><th>Capítulo</th><th>Progresso</th><th style="text-align:right;">Tempo</th><th style="text-align:right;" title="Tempo total ÷ capítulos navegados">Min/cap</th><th>Última leitura</th></tr></thead><tbody>${progressBodyRows}</tbody></table>`
           : '<div class="loading">Sem progresso registrado ainda.</div>';
 
         dash.innerHTML = `

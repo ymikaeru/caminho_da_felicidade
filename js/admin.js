@@ -426,6 +426,136 @@
       }
     };
 
+    // ── Salvos (favoritos) ──
+    let _favCountByUser = null; // Map<userId, number>
+
+    async function _loadFavoriteCounts() {
+      if (_favCountByUser) return _favCountByUser;
+      const counts = new Map();
+      try {
+        const { data, error } = await supabase.from('synced_favorites').select('user_id');
+        if (error) throw error;
+        (data || []).forEach(f => counts.set(f.user_id, (counts.get(f.user_id) || 0) + 1));
+      } catch (e) {
+        console.warn('[_loadFavoriteCounts] falhou:', e.message);
+      }
+      _favCountByUser = counts;
+      return counts;
+    }
+
+    async function initSavedTab() {
+      await _loadFavoriteCounts();
+      const q = (document.getElementById('sv-user-search')?.value || '').toLowerCase();
+      const filtered = q
+        ? allUsers.filter(u => (u.display_name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q))
+        : allUsers;
+      renderSavedUserList(filtered);
+    }
+
+    window.filterSavedUsers = function() {
+      const q = document.getElementById('sv-user-search').value.toLowerCase();
+      const filtered = allUsers.filter(u =>
+        (u.display_name || '').toLowerCase().includes(q) ||
+        (u.email || '').toLowerCase().includes(q)
+      );
+      renderSavedUserList(filtered);
+    };
+
+    function renderSavedUserList(users) {
+      const container = document.getElementById('sv-user-list');
+      if (!users || users.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding:8px 0;">Nenhum usuário encontrado.</div>';
+        return;
+      }
+      const counts = _favCountByUser || new Map();
+      const withCounts = users.map(u => ({ u, count: counts.get(u.id) || 0 }));
+      withCounts.sort((a, b) => b.count - a.count);
+
+      container.innerHTML = withCounts.map(({ u, count }) => {
+        const active = count > 0;
+        const badge = `<span title="${count} salvo${count !== 1 ? 's' : ''}" style="flex-shrink:0; display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; background:${active ? 'rgba(184,134,11,0.14)' : 'rgba(120,120,120,0.10)'}; color:${active ? 'var(--accent)' : 'var(--text-muted)'}; font-size:0.78rem; font-weight:700;">🔖 ${count}</span>`;
+        return `
+        <div class="user-row" onclick="loadUserSaved('${u.id}', '${_escHtml(u.display_name || u.email || 'Usuário')}')">
+          <div class="user-avatar">${(u.display_name || u.email || '?')[0].toUpperCase()}</div>
+          <div class="user-info">
+            <div class="user-name">${_escHtml(u.display_name || '')}</div>
+            <div class="user-email">${_escHtml(u.email || '')}</div>
+          </div>
+          <div class="user-meta" style="flex-shrink:0; font-size:0.75rem; color:var(--text-muted); margin-left:auto;">${_escHtml(u.role || 'user')}</div>
+          ${badge}
+        </div>`;
+      }).join('');
+    }
+
+    window.loadUserSaved = async function(userId, userName) {
+      const container = document.getElementById('sv-results-container');
+      const header = document.getElementById('sv-results-header');
+      document.getElementById('sv-selected-name').textContent = userName;
+      document.getElementById('sv-total-count').textContent = '';
+      header.style.display = 'flex';
+      container.innerHTML = '<div class="loading">Carregando artigos salvos...</div>';
+      header.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      if (!volumeCategories || Object.keys(volumeCategories).length === 0) {
+        try { await loadVolumeFiles(); } catch (e) { console.warn('loadVolumeFiles falhou:', e); }
+      }
+
+      const { data, error } = await supabase
+        .from('synced_favorites')
+        .select('volume, file, topic_index, topic_title, snippet, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        container.innerHTML = `<div class="msg err">Erro ao carregar: ${_escHtml(error.message)}</div>`;
+        return;
+      }
+
+      const favorites = data || [];
+      document.getElementById('sv-total-count').textContent = `${favorites.length} salvo${favorites.length !== 1 ? 's' : ''}`;
+
+      if (favorites.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-muted); font-size:0.9rem; padding:20px 0;">Nenhum artigo salvo por este usuário.</div>';
+        return;
+      }
+
+      // Agrupar por volume + arquivo
+      const grouped = new Map();
+      favorites.forEach(f => {
+        const key = `${f.volume}__${f.file}`;
+        if (!grouped.has(key)) grouped.set(key, { volume: f.volume, file: f.file, items: [] });
+        grouped.get(key).items.push(f);
+      });
+
+      let html = '';
+      for (const [, group] of grouped.entries()) {
+        const volLabel = VOL_SHORT[group.volume] || group.volume;
+        const fileLabel = getFileTitle(group.volume, group.file);
+        html += `
+          <div style="margin-bottom:28px;">
+            <div style="font-weight:600; color:var(--accent); font-size:0.88rem; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px;" title="${_escHtml(group.file)}">
+              <span style="background:rgba(184,134,11,0.12); border-radius:6px; padding:2px 8px; font-size:0.72rem; font-weight:700;">${_escHtml(volLabel)}</span>
+              ${_escHtml(fileLabel)}
+              <span style="font-weight:400; color:var(--text-muted); font-size:0.78rem; margin-left:auto;">${group.items.length} salvo${group.items.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              ${group.items.map(f => {
+                const date = f.created_at ? new Date(f.created_at).toLocaleDateString('pt-BR') : '';
+                return `
+                  <div style="padding:10px 14px; background:var(--surface); border-radius:8px; border:1px solid var(--border);">
+                    ${f.topic_title ? `<div style="font-size:0.82rem; color:var(--text); font-weight:600; margin-bottom:4px;">${_escHtml(f.topic_title)}</div>` : ''}
+                    ${f.snippet ? `<div style="font-size:0.85rem; line-height:1.55; color:var(--text-muted);">${_escHtml(f.snippet)}</div>` : ''}
+                    ${date ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-top:8px; font-family:'Outfit',sans-serif;">${date}</div>` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+    };
+
     // Remove TODAS as cores/fontes inline do HTML legado dos ensinamentos
     // (font color, bgcolor, color: nos style=""). Garante que o modal renderize
     // tudo no tema padrão, sem depender de overrides CSS frágeis.
@@ -566,7 +696,7 @@
     window.switchTab = function(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-search': 6, 'destaques': 7, 'recommendations': 8, 'reports': 9, 'users': 10, 'findreplace': 11, 'duplicates': 12, 'logs': 13, 'analytics-johrei': 14, 'essencia-guia': 15 }[tab];
+      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-search': 6, 'destaques': 7, 'saved': 8, 'recommendations': 9, 'reports': 10, 'users': 11, 'findreplace': 12, 'duplicates': 13, 'logs': 14, 'analytics-johrei': 15, 'essencia-guia': 16 }[tab];
       document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'analytics') {
@@ -578,6 +708,7 @@
       }
       if (tab === 'reports') loadReports();
       if (tab === 'destaques') initHlTab();
+      if (tab === 'saved') initSavedTab();
       if (tab === 'calendar') loadCalendarEvents();
       if (tab === 'announcements') loadAnnouncements();
       if (tab === 'access') loadAccessInfo();

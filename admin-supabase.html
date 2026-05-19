@@ -930,6 +930,7 @@
                 <div class="admin-tab" onclick="switchTab('analytics-disciples')">📊 Discípulos</div>
                 <div class="admin-tab" onclick="switchTab('analytics-search')">🔎 Buscas</div>
                 <div class="admin-tab" onclick="switchTab('destaques')">⭐ Destaques</div>
+                <div class="admin-tab" onclick="switchTab('saved')">🔖 Salvos</div>
               </div>
             </div>
             <div class="tab-group" data-section="caminho">
@@ -1211,6 +1212,27 @@
               </div>
             </div>
             <div id="hl-results-container" style="flex:1; min-height: 45vh;"></div>
+          </div>
+
+          <!-- Salvos Tab -->
+          <div class="tab-content" id="tab-saved">
+            <div style="margin-bottom:24px;">
+              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Artigos Salvos pelos Usuários</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Veja todos os artigos que um usuário salvou nos favoritos.</p>
+            </div>
+            <div style="display:flex; gap:10px; margin-bottom:12px;">
+              <input type="text" id="sv-user-search" placeholder="Buscar usuário por nome ou email..."
+                     oninput="filterSavedUsers()"
+                     style="flex:1; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; box-sizing:border-box;">
+            </div>
+            <div id="sv-user-list" style="display:flex; flex-direction:column; gap:6px; margin-bottom:24px;"></div>
+            <div id="sv-results-header" style="display:none; align-items:center; margin-bottom:16px; gap:10px;">
+              <div style="flex:1;">
+                <span style="font-size:0.9rem; font-weight:600;" id="sv-selected-name"></span>
+                <span style="font-size:0.8rem; color:var(--text-muted); margin-left:8px;" id="sv-total-count"></span>
+              </div>
+            </div>
+            <div id="sv-results-container" style="flex:1; min-height: 45vh;"></div>
           </div>
 
           <!-- Reports Tab -->
@@ -1796,7 +1818,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=12"></script>
+  <script type="module" src="js/admin.js?v=13"></script>
 
 </body>
 </html>

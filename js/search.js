@@ -825,6 +825,23 @@ async function performSearch(query) {
       });
       if (edgeError) throw edgeError;
       data = edgeData?.data ?? [];
+      // Breakdown de latência: o servidor reporta tempo por fase (embed,
+      // RPC híbrido, rerank); o cliente sabe o total ida+volta. Diferença
+      // = rede + cold start da edge function.
+      if (edgeData?.timings) {
+        const t = edgeData.timings;
+        const total_client = Math.round((typeof performance !== 'undefined' && performance.now) ? performance.now() - _t0 : Date.now() - _t0);
+        const network_overhead = Math.max(0, total_client - (t.total_ms || 0));
+        console.log(
+          `[search] "${q}" → ${data.length} resultados\n` +
+          `  total cliente : ${total_client}ms\n` +
+          `  total servidor: ${t.total_ms || 0}ms\n` +
+          `  embed (Voyage): ${t.embed_ms || 0}ms\n` +
+          `  RPC híbrido   : ${t.rpc_ms || 0}ms\n` +
+          `  rerank (Voyage): ${t.rerank_ms ?? '—'}ms${t.rerank_docs ? ` (${t.rerank_docs} docs)` : ''}\n` +
+          `  rede + edge   : ~${network_overhead}ms  ${network_overhead > 2000 ? '⚠ provável cold start' : ''}`
+        );
+      }
     } catch (edgeErr) {
       console.warn('search-semantic indisponível, fallback FTS:', edgeErr?.message || edgeErr);
       const r = await supabase.rpc('search_teachings', {

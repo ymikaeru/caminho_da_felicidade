@@ -118,6 +118,13 @@ serve(async (req) => {
     return new Response('Method not allowed', { status: 405, headers: corsHeaders });
   }
 
+  // Instrumentação: timing por fase (embed, RPC híbrido, rerank). Devolvido
+  // no payload pra o cliente logar no console e debugar gargalos sem mexer
+  // no schema. Tempos em ms (arredondados).
+  const _tStart = performance.now();
+  const timings: Record<string, number> = {};
+  const ms = (from: number) => Math.round(performance.now() - from);
+
   // Forward JWT do usuário — RPC é security invoker e usa auth.uid() em
   // _user_blocks() pra filtrar permissões.
   const authHeader = req.headers.get('Authorization') || '';
@@ -155,7 +162,9 @@ serve(async (req) => {
     }
   );
 
+  const _tEmbed = performance.now();
   const embedding = await embedQuery(q);
+  timings.embed_ms = ms(_tEmbed);
   const q_embedding = embedding ? '[' + embedding.join(',') + ']' : null;
 
   // Heurística: queries de 4+ palavras são conceituais ("como cuidar de
@@ -172,13 +181,17 @@ serve(async (req) => {
   const word_count = q.split(/\s+/).filter(Boolean).length;
   const use_fts = !(embedding && word_count >= 4);
 
+  const _tRpc = performance.now();
   const { data, error } = await supabase.rpc('search_teachings_hybrid', {
     q, q_embedding, lang, max_results, scope, use_fts,
   });
+  timings.rpc_ms = ms(_tRpc);
 
   if (error) {
     console.error('search_teachings_hybrid error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    timings.total_ms = ms(_tStart);
+    console.log(`[search] ERROR q="${q}" timings=${JSON.stringify(timings)}`);
+    return new Response(JSON.stringify({ error: error.message, timings }), {
       status: 500, headers: { ...corsHeaders, 'content-type': 'application/json' },
     });
   }
@@ -208,7 +221,10 @@ serve(async (req) => {
         .join(' — ');
       return `${header}\n\n${excerpt}`.trim();
     });
+    const _tRerank = performance.now();
     const scores = await rerankCandidates(q, docs);
+    timings.rerank_ms = ms(_tRerank);
+    timings.rerank_docs = slice.length;
     if (scores && scores.length === slice.length) {
       // Reordena slice pelos scores; mantém a "cauda" (resultados além
       // do cap) na ordem original do RRF, ao final. Anexa rerank_score
@@ -232,8 +248,11 @@ serve(async (req) => {
     return rest;
   });
 
+  timings.total_ms = ms(_tStart);
+  console.log(`[search] q="${q}" lang=${lang} sem=${embedding != null} rerank=${reranked} n=${out.length} timings=${JSON.stringify(timings)}`);
+
   return new Response(
-    JSON.stringify({ data: out, semantic: embedding != null, reranked, use_fts }),
+    JSON.stringify({ data: out, semantic: embedding != null, reranked, use_fts, timings }),
     { status: 200, headers: { ...corsHeaders, 'content-type': 'application/json' } }
   );
 });

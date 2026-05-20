@@ -17,6 +17,12 @@ supabase/.temp/
 # Espelho local do Storage para edição em massa (storage-pull / push)
 .local-edits/
 
+# Backups do banco — contêm dados sensíveis, nunca commitar
+backups/
+*.sql.gz
+*.sql.zip
+backup-*.sql
+
 .env.local
 ComandosUteis
 .cli-latest

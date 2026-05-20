@@ -32,6 +32,44 @@ const VOYAGE_RERANK_MODEL = 'rerank-2.5';
 const VOYAGE_TIMEOUT_MS = 4000;
 const RERANK_INPUT_CAP = 50; // máx docs por chamada de rerank
 
+// Cache em memória dos aliases (search_aliases). Edge Function reusa
+// memória entre invocações enquanto o container está warm — economiza um
+// SELECT por busca. TTL evita que mudanças no Studio levem muito tempo
+// pra propagar.
+const ALIAS_CACHE_TTL_MS = 60_000;
+let aliasCache: { map: Map<string, string>; loadedAt: number } | null = null;
+
+async function loadAliases(supabase: any): Promise<Map<string, string>> {
+  const now = Date.now();
+  if (aliasCache && (now - aliasCache.loadedAt) < ALIAS_CACHE_TTL_MS) {
+    return aliasCache.map;
+  }
+  try {
+    const { data, error } = await supabase
+      .from('search_aliases')
+      .select('alias, canonical');
+    if (error) throw error;
+    const map = new Map<string, string>();
+    for (const row of (data ?? [])) {
+      map.set(String(row.alias).toLowerCase(), String(row.canonical));
+    }
+    aliasCache = { map, loadedAt: now };
+    return map;
+  } catch (e) {
+    console.warn('[aliases] load failed, usando cache antigo ou vazio:', (e as Error).message);
+    return aliasCache?.map ?? new Map();
+  }
+}
+
+// Substituição word-level case-insensitive. Preserva whitespace original.
+function expandQueryWithAliases(q: string, aliases: Map<string, string>): string {
+  if (aliases.size === 0) return q;
+  return q.replace(/\S+/g, (token) => {
+    const lowered = token.toLowerCase();
+    return aliases.get(lowered) ?? token;
+  });
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -162,9 +200,37 @@ serve(async (req) => {
     }
   );
 
-  const _tEmbed = performance.now();
-  const embedding = await embedQuery(q);
-  timings.embed_ms = ms(_tEmbed);
+  // Aliases + embed em PARALELO — são duas chamadas de I/O independentes
+  // (aliases vai pro Postgres, embed vai pra Voyage API). Sequencial elas
+  // somavam ~1500ms cold; paralelo paga só max(aliases, embed) = ~1250ms.
+  //
+  // Pegadinha: o embed precisa do `q` ANTES da expansão pra rodar em
+  // paralelo, mas a expansão SÓ acontece quando aliases voltar. Solução:
+  // chuta o embed com o `q` original; se houver alias hit, refaz o embed
+  // com o canônico (raro o suficiente pra não importar — só queries com
+  // typo conhecido).
+  const _tParallel = performance.now();
+  const q_original = q;
+  const [aliases, embeddingInitial] = await Promise.all([
+    loadAliases(supabase),
+    embedQuery(q_original),
+  ]);
+  timings.aliases_ms = ms(_tParallel);
+  timings.embed_ms = ms(_tParallel); // mesmo wallclock dos dois
+
+  const q_expanded = expandQueryWithAliases(q_original, aliases);
+  let embedding = embeddingInitial;
+  if (q_expanded !== q_original) {
+    console.log(`[search] alias: "${q_original}" → "${q_expanded}"`);
+    timings.alias_hit = 1;
+    // Re-embed com a forma canônica — a forma com typo gera vetor diferente
+    // (Voyage encoda chars literais). Custo extra: 1 chamada Voyage.
+    const _tReEmbed = performance.now();
+    const reEmbed = await embedQuery(q_expanded);
+    timings.embed_ms_re = ms(_tReEmbed);
+    if (reEmbed) embedding = reEmbed;
+  }
+  const q_use = q_expanded;
   const q_embedding = embedding ? '[' + embedding.join(',') + ']' : null;
 
   // Heurística: queries de 4+ palavras são conceituais ("como cuidar de
@@ -178,19 +244,19 @@ serve(async (req) => {
   // palavras) continuam usando FTS, onde matches lexicais geralmente
   // são doutrinariamente importantes (termos como "Johrei", "Daijo",
   // "Princípio do Johrei").
-  const word_count = q.split(/\s+/).filter(Boolean).length;
+  const word_count = q_use.split(/\s+/).filter(Boolean).length;
   const use_fts = !(embedding && word_count >= 4);
 
   const _tRpc = performance.now();
   const { data, error } = await supabase.rpc('search_teachings_hybrid', {
-    q, q_embedding, lang, max_results, scope, use_fts,
+    q: q_use, q_embedding, lang, max_results, scope, use_fts,
   });
   timings.rpc_ms = ms(_tRpc);
 
   if (error) {
     console.error('search_teachings_hybrid error:', error);
     timings.total_ms = ms(_tStart);
-    console.log(`[search] ERROR q="${q}" timings=${JSON.stringify(timings)}`);
+    console.log(`[search] ERROR q_in="${q_original}" q_use="${q_use}" timings=${JSON.stringify(timings)}`);
     return new Response(JSON.stringify({ error: error.message, timings }), {
       status: 500, headers: { ...corsHeaders, 'content-type': 'application/json' },
     });
@@ -222,7 +288,7 @@ serve(async (req) => {
       return `${header}\n\n${excerpt}`.trim();
     });
     const _tRerank = performance.now();
-    const scores = await rerankCandidates(q, docs);
+    const scores = await rerankCandidates(q_use, docs);
     timings.rerank_ms = ms(_tRerank);
     timings.rerank_docs = slice.length;
     if (scores && scores.length === slice.length) {
@@ -249,10 +315,20 @@ serve(async (req) => {
   });
 
   timings.total_ms = ms(_tStart);
-  console.log(`[search] q="${q}" lang=${lang} sem=${embedding != null} rerank=${reranked} n=${out.length} timings=${JSON.stringify(timings)}`);
+  console.log(`[search] q_in="${q_original}"${q_use !== q_original ? ` q_use="${q_use}"` : ''} lang=${lang} sem=${embedding != null} rerank=${reranked} n=${out.length} timings=${JSON.stringify(timings)}`);
 
   return new Response(
-    JSON.stringify({ data: out, semantic: embedding != null, reranked, use_fts, timings }),
+    JSON.stringify({
+      data: out,
+      semantic: embedding != null,
+      reranked,
+      use_fts,
+      timings,
+      // Devolve a query expandida só se foi diferente do input —
+      // cliente loga "alias hit" no console pra debug sem precisar
+      // ir ao Dashboard ver Function Logs.
+      ...(q_use !== q_original ? { q_expanded: q_use } : {}),
+    }),
     { status: 200, headers: { ...corsHeaders, 'content-type': 'application/json' } }
   );
 });

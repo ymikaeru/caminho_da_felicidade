@@ -33,6 +33,10 @@ let searchTimeout = null;
 let _allResults = [];
 let _displayedCount = 0;
 let _currentQuery = '';
+// Sequence ID: cada performSearch incrementa, e o handler de resposta só
+// renderiza se o seq ainda for o último — descarta respostas de buscas
+// que o usuário já abandonou (typeahead burst).
+let _searchSeq = 0;
 const RESULTS_PER_PAGE = 10;
 const MAX_RESULTS = 50;
 let _focusedIndex = -1;
@@ -506,7 +510,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchingMsg = currentLang === 'ja' ? '検索中...' : 'Buscando...';
     if (resultsEl) resultsEl.innerHTML = `<li class="search-loading"><span class="search-spinner"></span>${searchingMsg}</li>`;
 
-    const delay = query.trim().length <= 3 ? 500 : 200;
+    // Debounce mais generoso: cada keystroke reseta o timer e só dispara
+    // quando o user pausa. Antes (200ms longas / 500ms curtas) era apertado
+    // demais — digitando "miroku" rápido disparava 4-6 buscas. Como a RPC
+    // agora custa ~600ms, mesmo com cancel de stale ainda gera trabalho
+    // desnecessário no servidor.
+    const delay = query.trim().length <= 3 ? 600 : 350;
     searchTimeout = setTimeout(() => {
       performSearch(query);
     }, delay);
@@ -766,6 +775,7 @@ function _shouldTriggerDidYouMean(results, activeLang) {
 }
 
 async function performSearch(query) {
+  const _mySeq = ++_searchSeq;
   const resultsEl = document.getElementById('searchResults');
   const activeLang = localStorage.getItem('site_lang') || 'pt';
 
@@ -832,11 +842,13 @@ async function performSearch(query) {
         const t = edgeData.timings;
         const total_client = Math.round((typeof performance !== 'undefined' && performance.now) ? performance.now() - _t0 : Date.now() - _t0);
         const network_overhead = Math.max(0, total_client - (t.total_ms || 0));
+        const aliasLine = edgeData.q_expanded ? ` → "${edgeData.q_expanded}" (alias)` : '';
         console.log(
-          `[search] "${q}" → ${data.length} resultados\n` +
+          `[search] "${q}"${aliasLine} → ${data.length} resultados\n` +
           `  total cliente : ${total_client}ms\n` +
           `  total servidor: ${t.total_ms || 0}ms\n` +
-          `  embed (Voyage): ${t.embed_ms || 0}ms\n` +
+          `  aliases       : ${t.aliases_ms ?? 0}ms${edgeData.q_expanded ? ' ✓' : ''}\n` +
+          `  embed (Voyage): ${t.embed_ms || 0}ms${t.embed_ms_re ? ` (+${t.embed_ms_re}ms re-embed do canônico)` : ''}\n` +
           `  RPC híbrido   : ${t.rpc_ms || 0}ms\n` +
           `  rerank (Voyage): ${t.rerank_ms ?? '—'}ms${t.rerank_docs ? ` (${t.rerank_docs} docs)` : ''}\n` +
           `  rede + edge   : ~${network_overhead}ms  ${network_overhead > 2000 ? '⚠ provável cold start' : ''}`
@@ -850,6 +862,11 @@ async function performSearch(query) {
       data = r.data; error = r.error;
     }
     const _latencyMs = ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - _t0;
+
+    // Stale check: se o usuário digitou mais durante o request, outra busca
+    // já foi disparada — descarta esta sem tocar no DOM. Sem isso, a resposta
+    // antiga sobrescreveria a nova (race condition de typeahead).
+    if (_mySeq !== _searchSeq) return;
 
     if (error) {
       console.error('search RPC error:', error);

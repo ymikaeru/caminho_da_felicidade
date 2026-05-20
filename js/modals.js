@@ -21,7 +21,12 @@ function buildSearchModal() {
   const contentLabel = lang === 'ja' ? '内容のみ' : 'Só Conteúdo';
   const exactLabel = lang === 'ja' ? '完全一致' : 'Palavra exata';
   const exactTitle = lang === 'ja' ? '単語全体のみを検索' : 'Busca somente palavras inteiras. Ex: \'luz\' não encontrará \'reluz\'';
+  const literalLabel = lang === 'ja' ? 'リテラル検索' : 'Texto literal';
+  const literalTitle = lang === 'ja' ? '部分一致のみで検索（FTS・意味検索を無効化）' : 'Busca apenas por substring exata (sem FTS nem busca semântica). Útil para termos em japonês ou trechos exatos.';
+  const advancedLabel = lang === 'ja' ? '詳細検索' : 'Avançada';
   const suggestionsLabel = lang === 'ja' ? 'おすすめ' : 'Sugestões';
+
+  const advancedOpen = localStorage.getItem('search_advanced_open') === 'true';
 
   const el = document.createElement('div');
   el.className = 'search-modal-overlay';
@@ -39,13 +44,28 @@ function buildSearchModal() {
             '<span id="searchClearText">' + clearText + '</span>' +
           '</button>' +
         '</div>' +
-        '<div class="search-filters">' +
+        '<div class="search-advanced-row">' +
+          '<button type="button" id="searchAdvancedToggle" class="search-advanced-btn" aria-expanded="' + (advancedOpen ? 'true' : 'false') + '" aria-controls="searchAdvancedPanel">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+              '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>' +
+            '</svg>' +
+            '<span>' + advancedLabel + '</span>' +
+            '<svg class="search-advanced-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+              '<polyline points="6 9 12 15 18 9"></polyline>' +
+            '</svg>' +
+          '</button>' +
+        '</div>' +
+        '<div id="searchAdvancedPanel" class="search-filters search-advanced-panel' + (advancedOpen ? ' is-open' : '') + '">' +
           '<label class="filter-label"><input type="radio" name="searchFilter" value="all" checked> ' + allLabel + '</label>' +
           '<label class="filter-label"><input type="radio" name="searchFilter" value="title"> ' + titleLabel + '</label>' +
           '<label class="filter-label"><input type="radio" name="searchFilter" value="content"> ' + contentLabel + '</label>' +
-          '<label class="filter-label" style="margin-left:auto; gap:8px;" title="' + exactTitle + '">' +
-            '<input type="checkbox" id="searchExactToggle" style="accent-color:var(--accent); cursor:pointer;">' +
+          '<label class="filter-label filter-label--toggle" title="' + exactTitle + '">' +
+            '<input type="checkbox" id="searchExactToggle">' +
             '<span id="searchExactLabel">' + exactLabel + '</span>' +
+          '</label>' +
+          '<label class="filter-label filter-label--toggle" title="' + literalTitle + '">' +
+            '<input type="checkbox" id="searchLiteralToggle">' +
+            '<span id="searchLiteralLabel">' + literalLabel + '</span>' +
           '</label>' +
         '</div>' +
       '</div>' +

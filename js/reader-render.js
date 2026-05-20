@@ -245,20 +245,6 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
 
     const bl = { pt: { home: 'Início', volume: 'Volume' }, ja: { home: 'トップ', volume: '巻' } }[lang] || { home: 'Início', volume: 'Volume' };
 
-    const isMobile = window.innerWidth <= 767;
-    const urlParamsForRender = new URLSearchParams(window.location.search);
-    const topicParamForRender = urlParamsForRender.get('topic');
-    const hasSearchQuery = searchQuery && searchQuery.trim();
-    const openPubLabel = lang === 'ja' ? '関連する教え' : 'Ensinamentos Relacionados';
-    const openPubHtml = (isMobile && hasSearchQuery && topicParamForRender)
-        ? `<div class="related-teachings-bar"><button class="btn-zen btn-open-pub" onclick="window.openFullPublication()">📖 ${openPubLabel}</button></div>`
-        : '';
-
-    // Mobile search mode: add class to simplify header
-    if (isMobile && hasSearchQuery && topicParamForRender) {
-        document.body.classList.add('reader-search-mode');
-    }
-
     const specificTitle = isPt ? ptSpecificTitle : jaSpecificTitle;
 
     const cleanIndexTitle = indexTitle ? indexTitle.replace(/<br\s*\/?>/gi, ' ') : '';
@@ -305,7 +291,6 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         <nav class="breadcrumbs">
             ${breadcrumbsHtml}
         </nav>
-        ${openPubHtml}
         <div class="reader-container">
             ${contentHtml}
             ${navFooter}
@@ -314,16 +299,6 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         container.style.transition = 'opacity 0.3s ease';
         container.style.opacity = '1';
     }));
-
-    // Mobile: hide all topics except the searched one
-    if (isMobile && topicParamForRender) {
-        const targetIdx = parseInt(topicParamForRender, 10);
-        if (targetIdx > 0) {
-            container.querySelectorAll('.topic-content').forEach((el, i) => {
-                if (i !== targetIdx) el.style.display = 'none';
-            });
-        }
-    }
 
     container.classList.toggle('comparison-active', localStorage.getItem('reader_comparison') === 'true');
 
@@ -480,8 +455,37 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     const topicIdx = topicIdxParam !== null ? parseInt(topicIdxParam, 10) : null;
     const highlightIdParam = _urlParams.get('highlight');
 
+    // Scroll-to-mark helper: aterrissa em cima da palavra buscada
+    // e dispara o pulse via classe CSS (animation pulse de 1.6s).
+    const _scrollToMark = (mark) => {
+        setTimeout(() => {
+            const HEADER_H = document.querySelector('.header')?.offsetHeight || 80;
+            mark.style.scrollMarginTop = `${HEADER_H + 40}px`;
+            mark.scrollIntoView({ behavior: 'instant', block: 'center' });
+            _revealGate();
+            mark.classList.add('search-target-pulse');
+            setTimeout(() => mark.classList.remove('search-target-pulse'), 1700);
+        }, 80);
+    };
+
     if (topicIdx !== null && topicIdx > 0) {
-        _scrollToTopicAndReveal(document.getElementById(`topic-${topicIdx}`));
+        // Quando vem da busca, prefere scroll direto pra primeira marca
+        // dentro do tópico — usuário aterrissa em cima da palavra encontrada
+        // ao invés do início do tópico. Sem search, scroll no tópico normal.
+        const topicEl = document.getElementById(`topic-${topicIdx}`);
+        const firstMark = searchQuery ? topicEl?.querySelector('mark.search-highlight') : null;
+        if (firstMark) _scrollToMark(firstMark);
+        else _scrollToTopicAndReveal(topicEl);
+    }
+    // 1b. Sem topic param (ou topic=0) mas com busca — ainda rola pra marca
+    //     se houver alguma. Cobre o caso de match literal em topic=0.
+    else if (searchQuery && (topicIdx === null || topicIdx === 0)) {
+        const firstMark = container.querySelector('mark.search-highlight');
+        if (firstMark) {
+            _scrollToMark(firstMark);
+        } else {
+            _revealGate();
+        }
     }
     // 2. Legacy topic_title scroll (old saved links — kept for backwards compat)
     else if (searchTopicTitle && topicsFound.length > 1) {

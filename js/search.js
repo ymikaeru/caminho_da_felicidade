@@ -234,7 +234,10 @@ window.openSearch = function () {
   }
 }
 
-window.closeSearch = function (preserveQuery = false) {
+// preserveQuery default = true: fechar o modal NÃO deve limpar input nem
+// resultados. Reabrir mostra exatamente o que estava antes — sem refazer
+// a busca. Pra limpar de verdade, usuário usa o botão "Apagar" (clearSearch).
+window.closeSearch = function (preserveQuery = true) {
   const modal = document.getElementById('searchModal');
   if (!modal) return;
   modal.classList.remove('active');
@@ -338,8 +341,10 @@ document.addEventListener('DOMContentLoaded', function _initSearchPreviewModal()
       // Antes ficava fixo em topic=0, o que pulava pro início da
       // publicação e confundia.
       const topicIdx = parseInt(card?.dataset.topic ?? '0', 10) || 0;
+      const query = card?.dataset.query || '';
       const lang = localStorage.getItem('site_lang') || 'pt';
       let href = `${getBasePath()}reader.html?vol=${vol}&file=${file}`;
+      if (query) href += `&search=${encodeURIComponent(query)}`;
       if (topicIdx > 0) href += `&topic=${topicIdx}`;
       if (lang === 'ja') href += `&lang=ja`;
       window.location.href = href;
@@ -367,6 +372,11 @@ window.openSearchPreview = function (vol, file, search, displayTitle, topicIdx, 
     card.dataset.vol = vol;
     card.dataset.file = file;
     card.dataset.topic = String(topicIdx != null ? topicIdx : 0);
+    // Guardamos a query no card pra que o botão "Abrir Ensinamento"
+    // monte a URL com &search=, permitindo highlight + scroll pra marca
+    // no reader. Sem isto, abrir do preview ia pro tópico sem rolar
+    // pra palavra — usuário ficava perdido em ensinamentos longos.
+    card.dataset.query = search || '';
   }
 
   const renderCardContent = (contentHtml) => {
@@ -482,12 +492,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target.id === 'searchModal') closeSearch();
   });
 
-  // Restore search query from sessionStorage (will re-search on open for correct handlers)
+  // Restore search query + results HTML from sessionStorage. Sem a parte
+  // do HTML, voltar pra index após abrir um ensinamento disparava re-busca
+  // automaticamente (input com valor + resultados vazios). Restaurando o
+  // HTML, a busca anterior aparece intacta e o openSearch não precisa
+  // chamar performSearch.
   const savedQuery = sessionStorage.getItem('searchQuery');
+  const savedResultsHtml = sessionStorage.getItem('searchResultsHtml');
   if (savedQuery && searchInput) {
     searchInput.value = savedQuery;
     const clearBtn = document.getElementById('searchClear');
     if (clearBtn) clearBtn.style.display = 'flex';
+    if (savedResultsHtml) {
+      const resultsEl = document.getElementById('searchResults');
+      if (resultsEl) {
+        resultsEl.innerHTML = savedResultsHtml;
+        // Reconstrói _allResults vazio: loadMoreResults vai precisar do
+        // server de novo (perda aceitável vs. serializar 50 objetos).
+        // O essencial — items clicáveis com data-attrs — está no HTML.
+      }
+    }
   }
 
   const triggerSearch = () => {
@@ -536,6 +560,29 @@ document.addEventListener('DOMContentLoaded', () => {
     exactToggle.addEventListener('change', () => {
       try { localStorage.setItem('search_exact', exactToggle.checked); } catch (e) { }
       if (searchInput && searchInput.value.trim().length >= 2) performSearch(searchInput.value);
+    });
+  }
+
+  // Literal substring toggle — ILIKE puro nos campos PT+JA, sem FTS/semântico.
+  // Resolve o caso de termos JA (kanji) que o tokenizer pt_unaccent não acha.
+  const literalToggle = document.getElementById('searchLiteralToggle');
+  if (literalToggle) {
+    literalToggle.checked = localStorage.getItem('search_literal') === 'true';
+    literalToggle.addEventListener('change', () => {
+      try { localStorage.setItem('search_literal', literalToggle.checked); } catch (e) { }
+      if (searchInput && searchInput.value.trim().length >= 2) performSearch(searchInput.value);
+    });
+  }
+
+  // Advanced panel toggle — esconde os filtros atrás de um botão pra reduzir
+  // ruído visual no modal de busca. Estado persistido em localStorage.
+  const advBtn = document.getElementById('searchAdvancedToggle');
+  const advPanel = document.getElementById('searchAdvancedPanel');
+  if (advBtn && advPanel) {
+    advBtn.addEventListener('click', () => {
+      const isOpen = advPanel.classList.toggle('is-open');
+      advBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      try { localStorage.setItem('search_advanced_open', isOpen); } catch (e) { }
     });
   }
 
@@ -590,19 +637,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── #1: XSS fix — event delegation instead of inline onclick per result ──
   const resultsContainer = document.getElementById('searchResults');
   if (resultsContainer) {
-    resultsContainer.addEventListener('click', (e) => {
-      const a = e.target.closest('.search-result-item');
-      if (!a) return;
-      e.preventDefault();
-      openSearchPreview(
-        a.dataset.vol,
-        a.dataset.file,
-        a.dataset.query,
-        a.dataset.title,
-        a.dataset.topic != null ? parseInt(a.dataset.topic, 10) : null,
-        a.dataset.section || ''
-      );
-    });
+    // Clicar num resultado segue o <a href> nativo direto pro reader.
+    // O reader já cuida de highlight + auto-scroll pra marca, então o
+    // preview modal vira etapa extra desnecessária. (Preview ainda existe
+    // como função window.openSearchPreview pra possível reuso futuro.)
   }
 
   // Chips do empty-state: clicar preenche o input + dispara a busca.
@@ -800,7 +838,11 @@ async function performSearch(query) {
 
   const exactToggle = document.getElementById('searchExactToggle');
   const useExactMatch = exactToggle ? exactToggle.checked : false;
-  const serverQuery = _translateQuery(q, useExactMatch);
+  const literalToggle = document.getElementById('searchLiteralToggle');
+  const useLiteralMode = literalToggle ? literalToggle.checked : false;
+  // Em modo literal usamos a query crua (ILIKE puro). Caso contrário,
+  // traduzimos para sintaxe websearch_to_tsquery (com aspas se exact).
+  const serverQuery = useLiteralMode ? q : _translateQuery(q, useExactMatch);
 
   if (!serverQuery) {
     const invalidMsg = activeLang === 'ja' ? '有効な検索ワードを入力してください...' : 'Digite termos de busca válidos...';
@@ -825,10 +867,21 @@ async function performSearch(query) {
 
   const _t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {
+    let data = null, error = null;
+
+    if (useLiteralMode) {
+      // Modo literal: ILIKE puro em PT+JA via RPC dedicada. Sem FTS,
+      // sem embedding, sem rerank. Resolve termos em kanji/kana que
+      // o pt_unaccent não tokeniza, e queries de substring exata.
+      const r = await supabase.rpc('search_teachings_literal', {
+        q: serverQuery, lang: activeLang, max_results: MAX_RESULTS, scope,
+      });
+      data = r.data; error = r.error;
+      console.log(`[search literal] "${q}" → ${(data || []).length} resultados`);
+    } else {
     // Tenta a Edge Function de busca híbrida (FTS + embedding semântico).
     // Se falhar (Voyage down, função não deployada, etc.), cai pro RPC
     // FTS-only — preserva o caminho antigo como rede de segurança.
-    let data = null, error = null;
     try {
       const { data: edgeData, error: edgeError } = await supabase.functions.invoke('search-semantic', {
         body: { q: serverQuery, lang: activeLang, max_results: MAX_RESULTS, scope },
@@ -861,6 +914,7 @@ async function performSearch(query) {
       });
       data = r.data; error = r.error;
     }
+    } // end of else (non-literal path)
     const _latencyMs = ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - _t0;
 
     // Stale check: se o usuário digitou mais durante o request, outra busca

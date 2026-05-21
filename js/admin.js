@@ -5767,6 +5767,8 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       if (!dash) return;
       dash.innerHTML = '<div class="loading">Carregando dados…</div>';
 
+      await _loadAdminIds();
+
       const since = new Date(Date.now() - days * 86400000).toISOString();
 
       try {
@@ -6043,6 +6045,8 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const days = parseInt(document.getElementById('pa-range')?.value || '30', 10);
       if (!dash) return;
       dash.innerHTML = '<div class="loading">Carregando dados…</div>';
+
+      await _loadAdminIds();
 
       const since = new Date(Date.now() - days * 86400000).toISOString();
 

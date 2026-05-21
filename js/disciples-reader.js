@@ -61,6 +61,16 @@
     }
   }
 
+  // Marca o body com `disciples-overview-mode` quando estamos na lista
+  // de obras (sem capítulo carregado). CSS em _disciples.css usa essa
+  // classe pra esconder controles do reader (A-/A+/Aa/Índice/Destaques)
+  // que só fazem sentido lendo capítulo. Funciona mesmo quando os botões
+  // são injetados depois (initMobileSidebarToggle usa rAF), porque é
+  // aplicado via CSS na hora do paint.
+  function _setOverviewMode(isOverview) {
+    document.body.classList.toggle('disciples-overview-mode', !!isOverview);
+  }
+
   function renderMd(md) {
     if (!md) return '';
     if (typeof marked !== 'undefined' && marked.parse) return marked.parse(md);
@@ -256,12 +266,85 @@
       }
     } catch {}
 
-    const cardsHtml = _disciplesIndex.books.map(book => {
+    // Render inicial sem contagem de capítulos (placeholder), depois
+    // popula com os números reais quando os fetches terminam. Evita
+    // bloquear a renderização da overview esperando os 2 livros completos.
+    const buildCard = (book, stats) => {
       const url = `reader.html?pub=disciples&book=${encodeURIComponent(book.id)}`;
-      return `<a href="${url}" class="disciples-book-card"><div class="disciples-book-cover"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="disciples-book-info"><h2 class="disciples-book-title">${esc(book.title)}</h2>${book.author ? `<div class="disciples-book-author">${esc(book.author)}</div>` : ''}${book.titleJa ? `<div class="disciples-book-title-ja">${esc(book.titleJa)}</div>` : ''}<p class="disciples-book-desc">${esc(book.description || '')}</p></div></a>`;
-    }).join('');
+      const chaptersLabel = isPt ? (stats && stats.chapters === 1 ? 'capítulo' : 'capítulos') : '章';
+      const sectionsLabel = isPt ? (stats && stats.sections === 1 ? 'seção' : 'seções') : '節';
+      const ctaLabel = isPt ? 'Ler' : '読む';
+      const statsHtml = stats
+        ? `<span class="disciples-card-stat"><strong>${stats.chapters}</strong> ${chaptersLabel}</span>
+           ${stats.sections > stats.chapters ? `<span class="disciples-card-stat-sep">·</span><span class="disciples-card-stat"><strong>${stats.sections}</strong> ${sectionsLabel}</span>` : ''}`
+        : `<span class="disciples-card-stat disciples-card-stat--placeholder">···</span>`;
+      return `<a href="${url}" class="disciples-book-card" data-book-id="${esc(book.id)}">
+        <div class="disciples-book-cover" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            <line x1="9" y1="7" x2="16" y2="7"/>
+            <line x1="9" y1="11" x2="16" y2="11"/>
+          </svg>
+        </div>
+        <div class="disciples-book-info">
+          <div class="disciples-book-head">
+            ${book.titleJa ? `<div class="disciples-book-title-ja">${esc(book.titleJa)}</div>` : ''}
+            <h2 class="disciples-book-title">${esc(book.title)}</h2>
+            ${book.author ? `<div class="disciples-book-author">${esc(book.author)}</div>` : ''}
+          </div>
+          <p class="disciples-book-desc">${esc(book.description || '')}</p>
+          <div class="disciples-book-foot">
+            <div class="disciples-book-stats" data-stats="${esc(book.id)}">${statsHtml}</div>
+            <span class="disciples-book-cta">
+              ${ctaLabel}
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>`;
+    };
 
-    container.innerHTML = `<div class="reader-content disciples-overview"><div class="disciples-overview-header"><h1>${isPt ? 'Publicações de Discípulos' : '弟子の著作'}</h1><p class="disciples-overview-desc">${isPt ? 'Livros e coletâneas dos discípulos de Meishu-Sama' : 'メイシュ様の弟子たちの著作'}</p></div>${continueBannerHtml}<div class="disciples-book-grid">${cardsHtml}</div></div>`;
+    const cachedCounts = (() => {
+      try { return JSON.parse(localStorage.getItem('disciples_book_counts') || '{}'); } catch { return {}; }
+    })();
+    const cardsHtml = _disciplesIndex.books.map(b => buildCard(b, cachedCounts[b.id])).join('');
+
+    container.innerHTML = `<div class="reader-content disciples-overview"><div class="disciples-overview-header"><span class="disciples-overview-kicker">${isPt ? 'Acervo Complementar' : '補足の蔵書'}</span><h1>${isPt ? 'Publicações de Discípulos' : '弟子の著作'}</h1><p class="disciples-overview-desc">${isPt ? 'Livros e coletâneas dos discípulos de Meishu-Sama' : 'メイシュ様の弟子たちの著作'}</p></div>${continueBannerHtml}<div class="disciples-book-grid">${cardsHtml}</div></div>`;
+
+    // Pré-fetch em paralelo dos livros completos só pra obter contagem
+    // de capítulos/partes. Cacheia em localStorage pra próximos loads
+    // terem render instantâneo. Não bloqueia a primeira pintura.
+    (async () => {
+      const fresh = {};
+      const countAllSections = (nodes) => {
+        let n = 0;
+        for (const node of nodes) {
+          n++;
+          if (node.children && node.children.length) n += countAllSections(node.children);
+        }
+        return n;
+      };
+      await Promise.all(_disciplesIndex.books.map(async (b) => {
+        try {
+          const full = await fetchBookJson(b.file);
+          const sections = full.sections || [];
+          const flat = flattenDiscChapters(sections);
+          fresh[b.id] = { chapters: flat.length, sections: countAllSections(sections) };
+        } catch (_) {}
+      }));
+      try { localStorage.setItem('disciples_book_counts', JSON.stringify(fresh)); } catch (_) {}
+      // Re-render apenas o footer dos cards (sem refazer o grid)
+      for (const id in fresh) {
+        const slot = document.querySelector(`.disciples-book-stats[data-stats="${CSS.escape(id)}"]`);
+        if (!slot) continue;
+        const s = fresh[id];
+        const chaptersLabel = isPt ? (s.chapters === 1 ? 'capítulo' : 'capítulos') : '章';
+        const sectionsLabel = isPt ? (s.sections === 1 ? 'seção' : 'seções') : '節';
+        slot.innerHTML = `<span class="disciples-card-stat"><strong>${s.chapters}</strong> ${chaptersLabel}</span>
+                          ${s.sections > s.chapters ? `<span class="disciples-card-stat-sep">·</span><span class="disciples-card-stat"><strong>${s.sections}</strong> ${sectionsLabel}</span>` : ''}`;
+      }
+    })();
 
     document.title = (isPt ? 'Publicações de Discípulos' : '弟子の著作') + ' | Caminho da Felicidade';
     setBackButton('home');
@@ -270,6 +353,7 @@
     // Leaving any specific book — stop the read-time heartbeat
     _currentDisciplesBook = null;
     try { window._readTimeTracker?.stop?.(); } catch (_) {}
+    _setOverviewMode(true);
   }
 
   // ── Render specific book ──
@@ -283,6 +367,7 @@
     setBackButton('books');
     renderCurrentDiscChapter();
     renderDisciplesSidebar(book.id);
+    _setOverviewMode(false);
 
     // Log book open + start read-time tracking + sync chapter progress (admin analytics)
     try { window.supabaseAuth?.logAccess?.('disciples', book.id, 'view')?.catch?.(() => {}); } catch (_) {}

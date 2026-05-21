@@ -53,6 +53,7 @@ function setLanguage(lang, triggerRender = true) {
     updateLabel('mobileNavLabelNav', t.navigation);
     updateLabel('mobileNavLabelActions', t.actions);
     updateLabel('mobileNavLabelFont', t.fontSize);
+    updateLabel('mobileNavLabelPoetry', t.poetry || 'Obras Poéticas');
     updateLabel('mobileNavLabelComplementary', t.complementary || 'Acervo Complementar');
     updateLink('mobileNavLinkHistory', t.history);
     updateLink('mobileNavLinkFavorites', t.saved);

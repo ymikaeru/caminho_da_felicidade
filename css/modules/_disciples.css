@@ -91,97 +91,214 @@
 
 /* Reader — overview */
 .disciples-overview {
-  padding: 2rem 1rem;
-  max-width: 900px;
+  padding: 32px 24px 80px;
+  max-width: 920px;
   margin: 0 auto;
 }
 
 .disciples-overview-header {
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 48px;
+}
+
+.disciples-overview-kicker {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  margin-bottom: 12px;
 }
 
 .disciples-overview-header h1 {
   font-family: var(--font-serif);
-  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-size: clamp(26px, 5vw, 38px);
+  font-weight: 600;
   color: var(--text-main);
-  margin: 0 0 0.5rem;
+  margin: 0 0 14px;
+  line-height: 1.2;
 }
 
 .disciples-overview-desc {
   color: var(--text-muted);
-  font-size: 0.95rem;
-  margin: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(15px, 2vw, 17px);
+  line-height: 1.6;
+  margin: 0 auto;
+  max-width: 560px;
 }
 
 .disciples-book-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 24px;
 }
 
 .disciples-book-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 1.25rem;
-  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 24px;
+  padding: 32px 28px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   text-decoration: none;
   color: inherit;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease), transform 0.2s var(--ease);
+  min-height: 260px;
 }
 
 .disciples-book-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-premium);
+}
+
+.disciples-book-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent);
 }
 
 .disciples-book-cover {
-  flex-shrink: 0;
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(184,134,11,0.1), rgba(184,134,11,0.05));
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-mid);
   border-radius: var(--radius-sm);
   color: var(--accent);
+  align-self: start;
 }
 
 .disciples-book-info {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
 }
 
-.disciples-book-title {
-  font-family: var(--font-serif);
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-main);
-  margin: 0 0 0.15rem;
-}
-
-.disciples-book-author {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin: 0 0 0.25rem;
+.disciples-book-head {
+  margin-bottom: 14px;
 }
 
 .disciples-book-title-ja {
   font-family: 'Noto Serif JP', serif;
-  font-size: 0.85rem;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  margin: 0 0 8px;
+}
+
+.disciples-book-title {
+  font-family: var(--font-serif);
+  font-size: clamp(20px, 2.4vw, 24px);
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 6px;
+  line-height: 1.25;
+  letter-spacing: 0.005em;
+}
+
+.disciples-book-author {
+  font-family: var(--font-ui);
+  font-size: 13px;
   color: var(--text-muted);
-  margin: 0 0 0.5rem;
+  margin: 0;
+  letter-spacing: 0.02em;
 }
 
 .disciples-book-desc {
-  font-size: 0.9rem;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.65;
   color: var(--text-main);
-  opacity: 0.85;
-  margin: 0;
-  line-height: 1.5;
+  margin: 0 0 24px;
+  flex: 1;
+}
+
+.disciples-book-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.disciples-book-stats {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.disciples-card-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.disciples-card-stat strong {
+  font-weight: 600;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+}
+
+.disciples-card-stat-sep {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.disciples-card-stat--placeholder {
+  color: var(--text-muted);
+  opacity: 0.5;
+  letter-spacing: 0.2em;
+}
+
+.disciples-book-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--text-main);
+  transition: color 0.15s;
+}
+
+.disciples-book-card:hover .disciples-book-cta {
+  color: var(--accent);
+}
+
+.disciples-book-cta svg {
+  transition: transform 0.2s var(--ease);
+}
+
+.disciples-book-card:hover .disciples-book-cta svg {
+  transform: translateX(4px);
+}
+
+@media (max-width: 600px) {
+  .disciples-overview { padding: 24px 16px 60px; }
+  .disciples-book-card {
+    padding: 24px 22px;
+    grid-template-columns: 48px 1fr;
+    gap: 18px;
+    min-height: 0;
+  }
+  .disciples-book-cover { width: 48px; height: 62px; }
+  .disciples-book-desc { font-size: 14px; }
 }
 
 /* Reader — book reading view */
@@ -901,4 +1018,18 @@ body.disciples-sidebar-collapsed .disciples-sb-collapse-toggle svg {
   /* Mobile: collapse não se aplica; sidebar é drawer */
   .disciples-sb-collapse-toggle { display: none !important; }
   .disciples-sb-rail { display: none !important; }
+}
+
+/* ─── Overview mode: esconde controles do reader na lista de obras ──
+   Os botões A-/A+/Aa, Índice, Destaques e o tocToggle só fazem sentido
+   lendo um capítulo. No /reader.html?pub=disciples (sem book=), são
+   ruído visual. _setOverviewMode() em disciples-reader.js liga essa
+   classe. */
+body.disciples-overview-mode #mobileHighlightBtn,
+body.disciples-overview-mode #discFontDecBtn,
+body.disciples-overview-mode #discFontIncBtn,
+body.disciples-overview-mode #discThemeToggle,
+body.disciples-overview-mode #discSidebarToggle,
+body.disciples-overview-mode #tocToggle {
+  display: none !important;
 }

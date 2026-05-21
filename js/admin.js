@@ -2163,8 +2163,8 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           const pathPrefix = `${tIdx}-${pIdx}`;
 
           // Extrai o header do título (onde fica a publicação antes da quebra real)
-          const jaSegs = jaContent.split(/<br\s*\/?>/i);
-          const ptSegs = ptContent.split(/<br\s*\/?>/i);
+          const jaSegs = jaContent.split(/<br\s*\/?>/i).map(_cleanSoftBreakArtifacts);
+          const ptSegs = ptContent.split(/<br\s*\/?>/i).map(_cleanSoftBreakArtifacts);
           const maxLen = Math.max(jaSegs.length, ptSegs.length);
 
           let segmentsHtml = '';
@@ -2372,6 +2372,20 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       }
       return wrapped;
     }
+
+    // Limpa artefatos deixados pela versão antiga do soft-break (ZWSPs
+     // como guardião de trailing <br> e múltiplos <br data-soft> consecutivos
+     // acumulados quando o usuário pressionava Shift+Enter sucessivas vezes).
+     // Aplica ao abrir o editor — ao salvar de novo o JSON sai limpo.
+     function _cleanSoftBreakArtifacts(html) {
+       if (!html) return html;
+       return html
+         // U+200B (ZWSP), U+200C (ZWNJ), U+200D (ZWJ), U+FEFF (BOM)
+         .replace(/[​-‍﻿]/g, '')
+         // Sequências de <br data-soft> (com ou sem atributos extras) colapsam
+         // num único <br data-soft="1">. Preserva o atributo no resultado.
+         .replace(/(<br[^>]*data-soft[^>]*>)(?:\s*<br[^>]*data-soft[^>]*>)+/gi, '$1');
+     }
 
     function _sanitizeSegHtml(html) {
       const tmp = document.createElement('div');

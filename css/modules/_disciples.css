@@ -1033,3 +1033,16 @@ body.disciples-overview-mode #discSidebarToggle,
 body.disciples-overview-mode #tocToggle {
   display: none !important;
 }
+
+/* ─── Sempre escondidos em qualquer página de discípulos ──
+   - Índice (discSidebarToggle): abre sidebar de capítulos, mas está
+     quebrado/redundante com o botão "Obras".
+   - Cartinha (headerRecommendationsBtn): envelope de recomendações,
+     não se aplica a obras de discípulos.
+   - tocToggle: é do reader tradicional dos volumes, não funciona
+     com a estrutura de seções dos livros de discípulos. */
+body.disciples-active #discSidebarToggle,
+body.disciples-active #headerRecommendationsBtn,
+body.disciples-active #tocToggle {
+  display: none !important;
+}

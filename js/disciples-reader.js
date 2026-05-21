@@ -94,30 +94,53 @@
   }
 
   // ── Chapter flattening & persistence ──
-  // Pagina o livro em "páginas" = todo nó da árvore que tem `content`
-  // direto. Anexa _ancestors em cada um pra renderizar breadcrumb. Em
-  // Ashita isso gera ~110 páginas curtas; em Keigyou ~250. Combinado
-  // com a TOC lateral, a navegação fica muito mais granular do que
-  // os 4/25 capítulos top-level anteriores.
+  // Pagina por "parent-of-leaves" com 3 casos:
+  // (a) Nó tem filhos diretos com content → vira página agrupando os
+  //     filhos. Ex: "3. Servindo ao Grande Mestre" mostra os 11
+  //     tópicos seguidos numa página.
+  // (b) Nó tem content próprio MAS nenhum descendente com content
+  //     → folha pura, vira página individual. Ex: "Prefácio".
+  // (c) Nó tem content próprio E descendentes mais fundos com content
+  //     → emite página só com a intro do nó (children zerados), depois
+  //     desce nos filhos pra cada um virar sua própria página. Evita
+  //     que a intro do Cap 2 absorva 7 subcapítulos numa página única.
   function flattenDiscChapters(sections) {
-    const chapters = [];
-    const walk = (nodes, ancestors) => {
+    const hasContentDeep = (nodes) => {
       for (const n of nodes) {
-        const hasOwnContent = !!(n.content && String(n.content).trim());
-        if (hasOwnContent) {
-          chapters.push(Object.assign({}, n, { _ancestors: ancestors.slice() }));
-        }
-        if (n.children && n.children.length) {
-          walk(n.children, ancestors.concat([n]));
-        }
+        if (n.content && String(n.content).trim()) return true;
+        if (n.children && n.children.length && hasContentDeep(n.children)) return true;
       }
+      return false;
     };
-    walk(sections, []);
-    if (chapters.length === 0) {
-      // Fallback defensivo se nenhum nó tem content: usa top-level.
-      return sections.slice();
-    }
-    return chapters;
+    const pages = [];
+    const walk = (node, ancestors) => {
+      const children = node.children || [];
+      const hasOwn = !!(node.content && String(node.content).trim());
+      const hasContentChild = children.some(c => c.content && String(c.content).trim());
+
+      if (hasContentChild) {
+        // (a) Agrupa filhos junto.
+        pages.push(Object.assign({}, node, { _ancestors: ancestors.slice() }));
+        return;
+      }
+      if (hasOwn) {
+        const deeperContent = children.length && hasContentDeep(children);
+        if (!deeperContent) {
+          // (b) Folha pura.
+          pages.push(Object.assign({}, node, { _ancestors: ancestors.slice() }));
+          return;
+        }
+        // (c) Intro própria + desce.
+        pages.push(Object.assign({}, node, { _ancestors: ancestors.slice(), children: [] }));
+        for (const c of children) walk(c, ancestors.concat([node]));
+        return;
+      }
+      // Wrapper puro — desce.
+      for (const c of children) walk(c, ancestors.concat([node]));
+    };
+    for (const s of sections) walk(s, []);
+    if (pages.length === 0) return sections.slice();
+    return pages;
   }
 
   function saveDiscChapterPos(bookId, idx) {
@@ -419,9 +442,9 @@
       if (level === 3) return 'disciples-section disciples-section--child';
       return `disciples-section disciples-section--deep disciples-section--depth-${level}`;
     }
-    // Renderiza APENAS o nó da página atual (não desce nos filhos —
-    // cada filho com conteúdo é sua própria página). Breadcrumb com os
-    // ancestrais dá contexto sem repetir o texto.
+    // Renderiza o nó da página E seus descendentes recursivamente —
+    // os subtópicos (level 3) aparecem juntos dentro do subcapítulo
+    // (level 2), separados por seus próprios títulos.
     function renderSection(section) {
       const tag = headingTag(section.level);
       const cls = sectionClass(section.level);
@@ -429,10 +452,14 @@
       let contentHtml = section.content ? renderMd(section.content) : '';
       if (section.content) contentHtml = addPersonNameIds(contentHtml, section.content);
       contentHtml = makePersonParagraphsCollapsible(contentHtml);
-      if (section.level === 1) {
-        return `<div class="${cls}" id="sec-${section.id}"><${tag}>${esc(title)}</${tag}>${contentHtml ? `<div class="disciples-section-content">${contentHtml}</div>` : ''}</div>`;
+      let childrenHtml = '';
+      if (section.children?.length) {
+        for (const c of section.children) childrenHtml += renderSection(c);
       }
-      return `<section class="${cls}" id="sec-${section.id}"><${tag} class="disciples-section-title">${esc(title)}</${tag}>${contentHtml ? `<div class="disciples-section-content">${contentHtml}</div>` : ''}</section>`;
+      if (section.level === 1) {
+        return `<div class="${cls}" id="sec-${section.id}"><${tag}>${esc(title)}</${tag}>${contentHtml ? `<div class="disciples-section-content">${contentHtml}</div>` : ''}${childrenHtml}</div>`;
+      }
+      return `<section class="${cls}" id="sec-${section.id}"><${tag} class="disciples-section-title">${esc(title)}</${tag}>${contentHtml ? `<div class="disciples-section-content">${contentHtml}</div>` : ''}${childrenHtml}</section>`;
     }
 
     // Breadcrumb: capítulo > subcapítulo > [trecho atual]. Mostra apenas

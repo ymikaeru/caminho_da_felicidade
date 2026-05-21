@@ -1034,6 +1034,14 @@ body.disciples-overview-mode #tocToggle {
   display: none !important;
 }
 
+/* Na home das obras (overview), a sidebar lateral fica escondida.
+   Ela só faz sentido lendo um livro (TOC de capítulos). Sobrescreve
+   o default desktop=aberta. */
+body.disciples-overview-mode .disciples-sidebar-panel {
+  transform: translateX(100%) !important;
+  box-shadow: none !important;
+}
+
 /* ─── Sempre escondidos em qualquer página de discípulos ──
    - Cartinha (headerRecommendationsBtn): envelope de recomendações,
      não se aplica a obras de discípulos.

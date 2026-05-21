@@ -911,7 +911,19 @@
 
     const titleEl = document.getElementById('highlightsModalTitle');
     if (titleEl) {
-      titleEl.textContent = lang === 'ja' ? 'この教えのハイライト' : 'Destaques deste Ensinamento';
+      // Em obra de discípulo, mostra o nome do livro no título do modal.
+      const isDisc = _isDisciplesMode();
+      const activeBook = isDisc ? (window._disciplesActiveBook || null) : null;
+      if (activeBook) {
+        const bookTitle = lang === 'ja'
+          ? (activeBook.titleJa || activeBook.title)
+          : activeBook.title;
+        titleEl.textContent = lang === 'ja'
+          ? `${bookTitle} のハイライト`
+          : `Destaques em ${bookTitle}`;
+      } else {
+        titleEl.textContent = lang === 'ja' ? 'この教えのハイライト' : 'Destaques deste Ensinamento';
+      }
     }
 
     const resultsEl = document.getElementById('highlightsResults');
@@ -935,7 +947,11 @@
         </li>`;
       };
 
-      resultsEl.innerHTML = pageHighlights.map(h => renderItem(h, false)).join('');
+      // Em obra de discípulos os highlights são agrupados por livro inteiro
+      // (não por capítulo), então mostramos o título da seção em cada item
+      // pra dar contexto de onde foi grifado.
+      const showSectionContext = _isDisciplesMode();
+      resultsEl.innerHTML = pageHighlights.map(h => renderItem(h, showSectionContext)).join('');
 
       resultsEl.querySelectorAll('.highlight-item').forEach(item => {
         item.addEventListener('click', (e) => {

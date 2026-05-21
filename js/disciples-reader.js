@@ -352,6 +352,7 @@
 
     // Leaving any specific book — stop the read-time heartbeat
     _currentDisciplesBook = null;
+    window._disciplesActiveBook = null;
     try { window._readTimeTracker?.stop?.(); } catch (_) {}
     _setOverviewMode(true);
   }
@@ -359,6 +360,14 @@
   // ── Render specific book ──
   function renderDisciplesBook(book) {
     _currentDisciplesBook = book;
+    // Expõe pro highlights.js poder mostrar "Destaques em <livro>"
+    // e contexto de seção em cada item.
+    window._disciplesActiveBook = {
+      id: book.id,
+      title: book.title,
+      titleJa: book.titleJa,
+      author: book.author,
+    };
     _flatChapters = flattenDiscChapters(book.sections || []);
     _currentChapterIndex = loadDiscChapterPos(book.id);
     if (_currentChapterIndex >= _flatChapters.length) _currentChapterIndex = 0;

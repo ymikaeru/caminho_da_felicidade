@@ -306,7 +306,63 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     initReader();
-    window.addEventListener('popstate', () => initReader());
+    // Chrome moderno dispara popstate em clicks de hash-anchor (#topic-N),
+    // não só em back/forward real. Sem este guard, cada click no TOC
+    // re-chamava initReader → re-renderizava → re-scrollava pro ?topic=
+    // antigo (cancelando a navegação do usuário). Só re-inicia quando
+    // vol/file de fato mudou — back/forward entre ensinamentos.
+    let _lastInitKey = null;
+    function _currentInitKey() {
+        const p = new URLSearchParams(window.location.search);
+        return `${p.get('vol') || ''}|${p.get('file') || ''}`;
+    }
+    _lastInitKey = _currentInitKey();
+    window.addEventListener('popstate', () => {
+        const k = _currentInitKey();
+        if (k !== _lastInitKey) {
+            _lastInitKey = k;
+            initReader();
+        }
+    });
+
+    // Quando o usuário navega entre tópicos via hash (menu sanduíche,
+    // TOC desktop, ou link interno tipo #topic-N), sincroniza o ?topic=
+    // na URL com o novo tópico. Sem isso, recomendações com ?topic=4
+    // deixavam o param "preso" em 4 mesmo após user clicar em outro
+    // tópico — refresh/share voltavam ao tópico recomendado, e código
+    // que relê ?topic= ficaria desatualizado.
+    //
+    // CRÍTICO: history.replaceState CANCELA o scroll-to-anchor que o
+    // browser dispara nativamente ao mudar de hash. Sem o re-scroll
+    // explícito abaixo, a página fica congelada no tópico anterior
+    // (URL atualiza mas viewport não se move).
+    window.addEventListener('hashchange', () => {
+        const m = window.location.hash.match(/^#topic-(\d+)$/);
+        if (!m) return;
+        const newTopic = m[1];
+        const url = new URL(window.location.href);
+        if (url.searchParams.get('topic') !== newTopic) {
+            url.searchParams.set('topic', newTopic);
+            try {
+                window.history.replaceState(window.history.state, '', url.toString());
+            } catch (e) { /* ignore */ }
+            // Refaz o scroll que o browser ia fazer (cancelado pelo replaceState).
+            // Defer com requestAnimationFrame pra esperar layouts pendentes
+            // (ex: closeMobileNav remove body.overflow=hidden e dispara reflow
+            // que pode cancelar smooth scrolls em curso). Usa 'instant' por
+            // robustez — smooth aqui é frequentemente interrompido.
+            const target = document.getElementById(`topic-${newTopic}`);
+            if (target) {
+                const HEADER_H = document.querySelector('.header')?.offsetHeight || 80;
+                target.style.scrollMarginTop = `${HEADER_H + 12}px`;
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        target.scrollIntoView({ behavior: 'instant', block: 'start' });
+                    });
+                });
+            }
+        }
+    });
 
     function showResumeReadingButton(topicIdx, paragraphIdx) {
         const existing = document.getElementById('resume-reading-btn');

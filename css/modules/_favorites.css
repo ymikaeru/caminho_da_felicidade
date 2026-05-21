@@ -60,24 +60,24 @@
 
 .topic-save-bar {
   margin: 14px 0 22px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .topic-save-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   background: transparent;
   border: 1.5px solid var(--accent);
-  border-radius: 999px;
+  border-radius: 8px;
   color: var(--accent);
-  font-family: inherit;
-  font-size: 0.9rem;
-  font-weight: 500;
-  line-height: 1.2;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
-  max-width: 100%;
 }
 
 .topic-save-btn:hover {
@@ -85,7 +85,7 @@
 }
 
 .topic-save-btn:active {
-  transform: scale(0.97);
+  transform: scale(0.95);
 }
 
 .topic-save-btn.active {
@@ -97,17 +97,10 @@
   fill: currentColor;
 }
 
+/* Label antiga foi escondida — botões agora são icon-only com title=tooltip.
+   data-save / data-saved no span continuam pra retrocompat. de JS antigo. */
 .topic-save-btn .topic-save-label {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@media (max-width: 480px) {
-  .topic-save-btn {
-    padding: 8px 14px;
-    font-size: 0.85rem;
-  }
+  display: none;
 }
 
 @media print {

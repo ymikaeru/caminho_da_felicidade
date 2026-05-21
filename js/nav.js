@@ -105,6 +105,11 @@ function _initMobileNav() {
           <span class="rec-badge" style="display:none; margin-left:auto; min-width:18px; height:18px; padding:0 5px; background:var(--accent); color:#fff; border-radius:9px; font-size:0.7rem; font-weight:700; align-items:center; justify-content:center; line-height:1;">0</span>
         </button>
 
+        <button class="mobile-nav-link" id="mobileNavLinkPlaylists" style="display:none;" onclick="closeMobileNav(); if (typeof openPlaylistManager === 'function') openPlaylistManager();">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <span class="link-text">Minhas playlists</span>
+        </button>
+
         ${window.location.pathname.includes('reader.html') ? `
         <button class="mobile-nav-link" onclick="toggleComparison(); closeMobileNav();" id="mobileNavLinkComparison">
           <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
@@ -145,6 +150,12 @@ function _initMobileNav() {
     </div>`;
 
   document.body.appendChild(mobileNavOverlay);
+
+  // Mostra "Minhas playlists" só pra admin.
+  if (typeof isAdminUser === 'function' && isAdminUser()) {
+    const plLink = document.getElementById('mobileNavLinkPlaylists');
+    if (plLink) plLink.style.display = '';
+  }
 
   hamburgerBtn.addEventListener('click', () => {
     const titleEl = document.getElementById('mobileMenuTitle');
@@ -225,28 +236,9 @@ function _initMobileNav() {
   });
   headerActions.insertBefore(highlightBtn, searchBtn);
 
-  // Admin-only: botão "Recomendar este" no header do reader. Aparece
-  // ao lado dos botões de favorito/destaque, só pra admin. Click abre
-  // modal com user picker + nota. Definido em js/reader-recommend.js.
-  if (isReaderPage && typeof isAdminUser === 'function' && isAdminUser()) {
-    const recBtn = document.createElement('button');
-    recBtn.className = 'mobile-fav-btn';
-    recBtn.id = 'headerRecommendBtn';
-    recBtn.setAttribute('aria-label', 'Recomendar este ensinamento');
-    recBtn.setAttribute('title', 'Recomendar este ensinamento');
-    recBtn.style.color = 'var(--accent)';
-    // Ícone "send" (avião de papel Feather/Lucide) — combina com o
-    // envelope do usuário e comunica claramente "enviar" essa rec.
-    recBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="22" y1="2" x2="11" y2="13"/>
-      <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-    </svg>`;
-    recBtn.addEventListener('click', () => {
-      if (typeof openRecommendPicker === 'function') openRecommendPicker();
-    });
-    headerActions.insertBefore(recBtn, highlightBtn);
-  }
+  // Botão "Recomendar este" foi MOVIDO do header pra abaixo de cada título
+  // (em js/reader-render.js _buildTopicSaveBar). Desambigua qual ensinamento
+  // está sendo recomendado em páginas com múltiplos tópicos.
 
   if (isReaderPage) {
     const printBtn = document.createElement('button');

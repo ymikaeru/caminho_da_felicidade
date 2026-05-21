@@ -123,9 +123,14 @@
   flex-shrink: 0;
 }
 
-.search-preview-header .search-preview-back:hover {
+.search-preview-header .search-preview-back:hover:not(:disabled) {
   color: var(--accent);
   background: var(--accent-soft);
+}
+
+.search-preview-header .search-preview-back:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .search-preview-breadcrumb {
@@ -232,6 +237,14 @@
   color: var(--text-main);
   line-height: 1.7;
   font-family: var(--font-serif);
+}
+
+.search-preview-card-content p {
+  margin: 0 0 14px;
+}
+
+.search-preview-card-content p:last-child {
+  margin-bottom: 0;
 }
 
 .search-preview-footer {

@@ -167,6 +167,78 @@ export async function generateFromSelection(volume, files, title) {
   await generateBooklet(teachings, title);
 }
 
+// Gera apostila a partir de uma lista heterogênea de itens (vol + file +
+// topic_idx) — ex: itens de uma playlist do admin, possivelmente com
+// volumes misturados e tópicos específicos.
+//
+// items shape: [{ vol, file, topic_idx, title_pt? }, ...]
+// title: nome da playlist/apostila (vai pra capa).
+//
+// Mantém a ORDEM da lista (curadoria do admin). Cacheia download por
+// vol+file pra evitar refetch quando 2 itens vêm do mesmo arquivo.
+export async function generateFromPlaylistItems(items, title) {
+  if (!items || items.length === 0) {
+    alert('Playlist vazia.');
+    return;
+  }
+
+  const fileCache = new Map();
+  const teachings = [];
+
+  for (const it of items) {
+    const cacheKey = `${it.vol}/${it.file}`;
+    if (!fileCache.has(cacheKey)) {
+      try {
+        const fileWithJson = it.file.endsWith('.json') ? it.file : `${it.file}.json`;
+        const json = await fetchTeaching(it.vol, fileWithJson);
+        fileCache.set(cacheKey, json);
+      } catch (e) {
+        console.warn(`[pdf-booklet] skip ${it.vol}/${it.file}:`, e);
+        fileCache.set(cacheKey, null);
+        continue;
+      }
+    }
+    const fullJson = fileCache.get(cacheKey);
+    if (!fullJson) continue;
+
+    // Schema real: { themes: [{ topics: [...] }] }. Achata em lista plana
+    // pra indexar pelo topic_idx (que é índice global no arquivo).
+    const topics = [];
+    if (Array.isArray(fullJson.themes)) {
+      for (const th of fullJson.themes) {
+        if (Array.isArray(th.topics)) for (const t of th.topics) topics.push(t);
+      }
+    } else if (Array.isArray(fullJson.topics)) {
+      for (const t of fullJson.topics) topics.push(t);
+    }
+    const topicIdx = (typeof it.topic_idx === 'number') ? it.topic_idx : 0;
+    const topic = topics[topicIdx];
+    if (!topic) continue;
+
+    // Título do item: prefere title_pt do RPC (já enriquecido por
+    // teachings_topics); fallback pro topic ou pro arquivo.
+    const itemTitle = it.title_pt
+      || stripHTML(topic.title_ptbr || topic.title_pt || topic.title || '')
+      || fullJson.title
+      || it.file;
+
+    // Suprime título do tópico no inner loop pra evitar duplicação
+    // (o título do "teaching" já cobre).
+    const cleanTopic = { ...topic, title_ptbr: '', title_pt: '', title: '', title_ja: '' };
+    teachings.push({
+      file: it.file,
+      json: { title: itemTitle, topics: [cleanTopic] },
+    });
+  }
+
+  if (teachings.length === 0) {
+    alert('Nenhum ensinamento válido pra gerar.');
+    return;
+  }
+
+  await generateBooklet(teachings, title);
+}
+
 export async function generateFromCurrentVolume(volume, title) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) { alert('Faça login primeiro.'); return; }

@@ -70,27 +70,8 @@
     return name;
   }
 
-  function _renderCards(list, archived) {
-    const lang = localStorage.getItem('site_lang') || 'pt';
-    if (!list || list.length === 0) {
-      const empty = archived
-        ? { title: lang === 'ja' ? 'アーカイブはまだありません。' : 'Nada arquivado ainda.',
-            desc: lang === 'ja' ? 'アーカイブしたおすすめがここに表示されます。' : 'Recomendações que você arquivar aparecem aqui.' }
-        : { title: lang === 'ja' ? 'おすすめはありません。' : 'Nenhuma recomendação ativa.',
-            desc: lang === 'ja' ? '新しいおすすめが届いたらここに表示されます。' : 'Novas recomendações do administrador aparecem aqui.' };
-      return `
-        <div class="rec-empty">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-            <polyline points="22,6 12,13 2,6"/>
-          </svg>
-          <div class="rec-empty-title">${_esc(empty.title)}</div>
-          <div class="rec-empty-desc">${_esc(empty.desc)}</div>
-        </div>
-      `;
-    }
-    const base = _basePathForReader();
-    return list.map(r => {
+  // Renderiza UM card (sem header de grupo). Retorna HTML string.
+  function _renderOneCard(r, archived, lang, base) {
       const title = (lang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '(sem título)');
       const idx = r.topic_idx != null ? r.topic_idx : 0;
       let href = `${base}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
@@ -132,10 +113,13 @@
 
       const cardCls = archived ? 'rec-card archived' : 'rec-card';
 
+      // Título agora abre um preview modal em vez de navegar pro reader
+      // direto. Evita conflito popstate/scroll do reader quando user
+      // tenta trocar tópico. CTA do modal abre o reader completo.
       return `
         <article class="${cardCls}">
           <div class="rec-card-body">
-            <h2 class="rec-card-title"><a href="${href}">${_esc(title)}</a></h2>
+            <h2 class="rec-card-title"><a href="${href}" class="rec-card-link" data-rec-id="${_esc(r.id)}" data-vol="${_esc(r.vol)}" data-file="${_esc(r.file)}" data-topic="${idx}" data-title-pt="${_esc(r.title_pt || '')}" data-title-ja="${_esc(r.title_ja || '')}">${_esc(title)}</a></h2>
             <div class="rec-card-meta">
               ${recommender ? `<span>${_esc(recommender)}</span><span class="dot">·</span>` : ''}
               <span>${_esc(createdStr)}</span>
@@ -148,7 +132,87 @@
           </div>
         </article>
       `;
+  }
+
+  // Renderiza a lista de cards, agrupando por source_collection_id quando
+  // disponível. Recomendações sem playlist origem caem em "Avulsas" (no
+  // rodapé) — ou sem cabeçalho de grupo se TODAS forem soltas.
+  function _renderCards(list, archived) {
+    const lang = localStorage.getItem('site_lang') || 'pt';
+    if (!list || list.length === 0) {
+      const empty = archived
+        ? { title: lang === 'ja' ? 'アーカイブはまだありません。' : 'Nada arquivado ainda.',
+            desc: lang === 'ja' ? 'アーカイブしたおすすめがここに表示されます。' : 'Recomendações que você arquivar aparecem aqui.' }
+        : { title: lang === 'ja' ? 'おすすめはありません。' : 'Nenhuma recomendação ativa.',
+            desc: lang === 'ja' ? '新しいおすすめが届いたらここに表示されます。' : 'Novas recomendações do administrador aparecem aqui.' };
+      return `
+        <div class="rec-empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+          <div class="rec-empty-title">${_esc(empty.title)}</div>
+          <div class="rec-empty-desc">${_esc(empty.desc)}</div>
+        </div>
+      `;
+    }
+    const base = _basePathForReader();
+    // Particiona: grupos (com source_collection_id) preservando ordem de
+    // chegada da playlist; soltas (sem source) vão pra um array separado.
+    const groups = new Map();     // id → { name, items[] }
+    const loose = [];
+    list.forEach(r => {
+      const cid = r.source_collection_id;
+      if (cid) {
+        if (!groups.has(cid)) {
+          groups.set(cid, { name: r.source_collection_name || '(sem nome)', items: [] });
+        }
+        groups.get(cid).items.push(r);
+      } else {
+        loose.push(r);
+      }
+    });
+
+    // Caso 1: nada agrupado → renderiza como antes, sem cabeçalhos.
+    if (groups.size === 0) {
+      return loose.map(r => _renderOneCard(r, archived, lang, base)).join('');
+    }
+
+    // Caso 2: tem grupos → renderiza cada um como <details open>, soltas
+    // no rodapé sob "📥 Outras" se existirem.
+    const groupHtml = Array.from(groups.entries()).map(([cid, g]) => {
+      const looseLbl = lang === 'ja' ? '件' : (g.items.length === 1 ? 'ensinamento' : 'ensinamentos');
+      const cards = g.items.map(r => _renderOneCard(r, archived, lang, base)).join('');
+      return `
+        <details class="rec-group" open data-coll="${_esc(cid)}">
+          <summary class="rec-group-header">
+            <span class="rec-group-icon">📂</span>
+            <span class="rec-group-name">${_esc(g.name)}</span>
+            <span class="rec-group-count">${g.items.length} ${looseLbl}</span>
+            <span class="rec-group-chevron" aria-hidden="true">▾</span>
+          </summary>
+          <div class="rec-group-body">${cards}</div>
+        </details>
+      `;
     }).join('');
+
+    let looseHtml = '';
+    if (loose.length > 0) {
+      const othersLbl = lang === 'ja' ? 'その他' : 'Outras';
+      const cards = loose.map(r => _renderOneCard(r, archived, lang, base)).join('');
+      looseHtml = `
+        <details class="rec-group rec-group-loose" open>
+          <summary class="rec-group-header">
+            <span class="rec-group-icon">📥</span>
+            <span class="rec-group-name">${_esc(othersLbl)}</span>
+            <span class="rec-group-count">${loose.length}</span>
+            <span class="rec-group-chevron" aria-hidden="true">▾</span>
+          </summary>
+          <div class="rec-group-body">${cards}</div>
+        </details>
+      `;
+    }
+    return groupHtml + looseHtml;
   }
 
   function _render() {
@@ -186,6 +250,214 @@
     await _refresh();
   }
 
+  // ============================================================
+  // PREVIEW MODAL — mesmo padrão do preview da playlist (admin).
+  // Click num card abre o tópico aqui em vez de navegar pro reader.
+  // Evita o bug de popstate vs ?topic= no reader (Chrome dispara
+  // popstate em hash-anchor clicks, fazendo o reader re-renderizar
+  // e cancelar a navegação manual do usuário).
+  // ============================================================
+  let _previewModal = null;
+  let _previewIdx = 0;
+  let _previewItems = [];   // array de {vol, file, topic_idx, title_pt, title_ja, href}
+
+  function _supaClient() {
+    return (window.supabaseAuth && window.supabaseAuth.supabase)
+        || window._supabaseClient
+        || window.supabase
+        || null;
+  }
+
+  function _flattenTopics(json) {
+    const out = [];
+    if (Array.isArray(json?.themes)) {
+      for (const th of json.themes) {
+        if (Array.isArray(th?.topics)) for (const t of th.topics) out.push(t);
+      }
+    } else if (Array.isArray(json?.topics)) {
+      for (const t of json.topics) out.push(t);
+    }
+    return out;
+  }
+
+  function _buildPreviewModal() {
+    if (_previewModal) return;
+    _previewModal = document.createElement('div');
+    _previewModal.className = 'search-preview-overlay';
+    _previewModal.id = 'recPreviewOverlay';
+    _previewModal.innerHTML = `
+      <style id="recPreviewStyles">
+        #recPreviewContent {
+          font-family: 'Crimson Pro', Georgia, 'Times New Roman', serif;
+          font-size: 1.04rem;
+          line-height: 1.75;
+          color: var(--text-main);
+        }
+        #recPreviewContent > p { margin: 0 0 14px; }
+        #recPreviewContent > p:last-child { margin-bottom: 0; }
+        #recPreviewContent b { font-weight: 600; }
+        #recPreviewContent i { font-style: italic; }
+        #recPreviewContent font { color: inherit !important; }
+        #recPreviewContent font[size="+2"] {
+          display: block;
+          font-size: 1.2rem;
+          line-height: 1.3;
+          margin: 0 0 8px;
+          font-weight: 700;
+        }
+        #recPreviewContent font[size="+1"] {
+          font-weight: 600;
+          font-style: italic;
+          color: var(--accent) !important;
+        }
+        /* <p> só com label (Pergunta/Resposta) vira mini-heading */
+        #recPreviewContent p:has(> b > font[size="+1"]):not(:has(> :not(b))) {
+          margin: 22px 0 6px;
+          font-size: 0.95rem;
+        }
+        /* Esconde o título-legacy duplicado no início (modal header
+           já mostra o título). Mantém o "(Publicado em...)" inline
+           que vem depois. */
+        #recPreviewContent > p:first-child > b:first-child:has(> font[size="+2"]) {
+          display: none;
+        }
+        #recPreviewContent hr {
+          border: none;
+          border-top: 1px solid var(--border);
+          margin: 22px 0;
+        }
+        #recPreviewOverlay .search-preview-title {
+          font-family: 'Crimson Pro', Georgia, serif;
+        }
+      </style>
+      <div class="search-preview-panel">
+        <div class="search-preview-header">
+          <button class="search-preview-back" id="recPreviewPrev" title="Anterior" aria-label="Recomendação anterior">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <span>Anterior</span>
+          </button>
+          <span class="search-preview-badge">Recomendado para você</span>
+          <div style="justify-self:end; display:flex; align-items:center; gap:8px;">
+            <button id="recPreviewNext" type="button" title="Próximo" aria-label="Próxima recomendação" style="background:none; border:1px solid var(--border); border-radius:6px; cursor:pointer; padding:4px 10px; color:inherit; font-size:0.82rem; display:inline-flex; align-items:center; gap:4px;">
+              <span>Próximo</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <button class="modal-close-btn search-preview-close" id="recPreviewClose" aria-label="Fechar" style="position:static;">&times;</button>
+          </div>
+        </div>
+        <div class="search-preview-context">
+          <div class="search-preview-breadcrumb" id="recPreviewRef"></div>
+          <div class="search-preview-title" id="recPreviewTitle"></div>
+        </div>
+        <div class="search-preview-body">
+          <div class="search-preview-card" id="recPreviewCard">
+            <div class="search-preview-card-content" id="recPreviewContent"></div>
+            <div class="search-preview-card-fade" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="search-preview-footer">
+          <button class="search-preview-cta" id="recPreviewOpen" title="Abrir página completa">
+            <span>Abrir página completa do ensinamento</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(_previewModal);
+    document.getElementById('recPreviewClose').onclick = _closePreview;
+    document.getElementById('recPreviewPrev').onclick = () => _previewNav(-1);
+    document.getElementById('recPreviewNext').onclick = () => _previewNav(+1);
+    document.getElementById('recPreviewOpen').onclick = _previewOpenFull;
+    _previewModal.addEventListener('click', e => { if (e.target === _previewModal) _closePreview(); });
+    document.addEventListener('keydown', e => {
+      if (!_previewModal || !_previewModal.classList.contains('active')) return;
+      if (e.key === 'Escape') _closePreview();
+      else if (e.key === 'ArrowLeft') _previewNav(-1);
+      else if (e.key === 'ArrowRight') _previewNav(+1);
+    });
+  }
+
+  function _closePreview() {
+    if (_previewModal) _previewModal.classList.remove('active');
+  }
+
+  function _previewNav(delta) {
+    const next = _previewIdx + delta;
+    if (next < 0 || next >= _previewItems.length) return;
+    _previewIdx = next;
+    _renderPreviewItem();
+  }
+
+  function _previewOpenFull() {
+    const it = _previewItems[_previewIdx];
+    if (!it || !it.href) return;
+    window.location.href = it.href;
+  }
+
+  async function _openPreview(items, startIdx) {
+    _previewItems = items;
+    _previewIdx = startIdx || 0;
+    _buildPreviewModal();
+    _previewModal.classList.add('active');
+    await _renderPreviewItem();
+  }
+
+  async function _renderPreviewItem() {
+    const it = _previewItems[_previewIdx];
+    if (!it) return;
+    const lang = localStorage.getItem('site_lang') || 'pt';
+    const refEl = document.getElementById('recPreviewRef');
+    const titleEl = document.getElementById('recPreviewTitle');
+    const contentEl = document.getElementById('recPreviewContent');
+    const cardEl = document.getElementById('recPreviewCard');
+    const prevBtn = document.getElementById('recPreviewPrev');
+    const nextBtn = document.getElementById('recPreviewNext');
+
+    const title = (lang === 'ja' && it.title_ja) ? it.title_ja : (it.title_pt || '(sem título)');
+    refEl.textContent = `${it.vol} · ${it.file}${typeof it.topic_idx === 'number' ? '#' + it.topic_idx : ''}   ·   ${_previewIdx + 1}/${_previewItems.length}`;
+    titleEl.textContent = title;
+    contentEl.innerHTML = '<p style="padding:2rem;text-align:center;color:var(--text-muted);">Carregando…</p>';
+    prevBtn.disabled = _previewIdx === 0;
+    nextBtn.disabled = _previewIdx === _previewItems.length - 1;
+
+    const supa = _supaClient();
+    if (!supa) {
+      contentEl.innerHTML = '<p style="padding:2rem;text-align:center;color:#c00;">Cliente Supabase indisponível.</p>';
+      return;
+    }
+    try {
+      const fileWithJson = it.file.endsWith('.json') ? it.file : `${it.file}.json`;
+      const { data, error } = await supa.storage.from('teachings').download(`${it.vol}/${fileWithJson}`);
+      if (error) throw error;
+      const json = JSON.parse(await data.text());
+      const topics = _flattenTopics(json);
+      const topic = topics[it.topic_idx || 0];
+      if (!topic) throw new Error('Tópico não encontrado');
+      const rawContent = lang === 'ja'
+        ? (topic.content_ja || topic.content || '')
+        : (topic.content_ptbr || topic.content_pt || topic.content || '');
+      // Preserva <b>, <i>, <font> (cores e tamanhos). Transforma só
+      // <br><br> em quebra de parágrafo; <br> solto vira espaço.
+      const formatted = String(rawContent)
+        .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '</p><p>')
+        .replace(/<br\s*\/?>/gi, ' ');
+      contentEl.innerHTML = `<p>${formatted}</p>`;
+      requestAnimationFrame(() => {
+        if (cardEl && contentEl) {
+          const s = getComputedStyle(cardEl);
+          const padTop = parseFloat(s.paddingTop) || 0;
+          const padBottom = parseFloat(s.paddingBottom) || 0;
+          const available = cardEl.clientHeight - padTop - padBottom;
+          const overflow = contentEl.scrollHeight > available + 8;
+          cardEl.classList.toggle('has-overflow', overflow);
+        }
+        if (contentEl) contentEl.scrollTop = 0;
+      });
+    } catch (e) {
+      contentEl.innerHTML = `<p style="padding:2rem;text-align:center;color:#c00;">Erro: ${_esc(e.message || String(e))}</p>`;
+    }
+  }
+
   async function init() {
     const container = document.getElementById('rec-page-container');
     if (!container) return;
@@ -196,17 +468,35 @@
         _render();
       });
     });
-    // Action buttons (delegated)
+    // Click delegado: action buttons OU card link (abre preview modal)
     container.addEventListener('click', async (e) => {
       const btn = e.target.closest?.('.rec-action-btn');
-      if (!btn) return;
-      e.preventDefault();
-      const action = btn.dataset.action;
-      const id = btn.dataset.recId;
-      if (!action || !id) return;
-      btn.disabled = true;
-      if (action === 'archive') await _archive(id);
-      else if (action === 'unarchive') await _unarchive(id);
+      if (btn) {
+        e.preventDefault();
+        const action = btn.dataset.action;
+        const id = btn.dataset.recId;
+        if (!action || !id) return;
+        btn.disabled = true;
+        if (action === 'archive') await _archive(id);
+        else if (action === 'unarchive') await _unarchive(id);
+        return;
+      }
+      const link = e.target.closest?.('.rec-card-link');
+      if (link) {
+        e.preventDefault();
+        // Constrói lista de itens da aba atual pra navegação prev/next.
+        const list = (_currentTab === 'archived' ? _archived : _active);
+        const items = list.map(r => {
+          const idx = r.topic_idx != null ? r.topic_idx : 0;
+          const lang = localStorage.getItem('site_lang') || 'pt';
+          let href = `${_basePathForReader()}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
+          if (idx > 0) href += `&topic=${idx}`;
+          if (lang === 'ja') href += '&lang=ja';
+          return { vol: r.vol, file: r.file, topic_idx: idx, title_pt: r.title_pt, title_ja: r.title_ja, href };
+        });
+        const startIdx = items.findIndex(it => it.vol === link.dataset.vol && it.file === link.dataset.file && it.topic_idx === parseInt(link.dataset.topic, 10));
+        await _openPreview(items, startIdx >= 0 ? startIdx : 0);
+      }
     });
     await _refresh();
   }

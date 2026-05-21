@@ -35,11 +35,31 @@ function _formatQuotedTitle(rawTitle) {
 function _buildTopicSaveBar(topicIdx, lang) {
     const l = { pt: { save: 'Salvar esta publicação', saved: 'Publicação salva' }, ja: { save: 'この教えを保存', saved: '保存済み' } }[lang] || { save: 'Salvar esta publicação', saved: 'Publicação salva' };
     const icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+
+    // Botões admin: "Adicionar à playlist" + "Recomendar este ensinamento".
+    // Ambos passam topic_idx explícito pros pickers — desambigua qual
+    // ensinamento está sendo agido em páginas com múltiplos tópicos.
+    let adminBtns = '';
+    if (typeof isAdminUser === 'function' && isAdminUser()) {
+        const plLabel = lang === 'ja' ? 'プレイリストに追加' : 'Adicionar à playlist';
+        const plIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
+        const recLabel = lang === 'ja' ? 'この教えを推薦' : 'Recomendar este ensinamento';
+        const recIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+        adminBtns =
+            `<button type="button" class="topic-save-btn topic-playlist-btn" data-topic-idx="${topicIdx}" title="${plLabel}" aria-label="${plLabel}" onclick="if (typeof openPlaylistAddPicker === 'function') openPlaylistAddPicker(${topicIdx});">` +
+                plIcon +
+            `</button>` +
+            `<button type="button" class="topic-save-btn topic-recommend-btn" data-topic-idx="${topicIdx}" title="${recLabel}" aria-label="${recLabel}" onclick="if (typeof openRecommendPicker === 'function') openRecommendPicker(${topicIdx});">` +
+                recIcon +
+            `</button>`;
+    }
+
     return `<div class="topic-save-bar" data-topic-idx="${topicIdx}">` +
-        `<button type="button" class="topic-save-btn" data-topic-idx="${topicIdx}" onclick="window.toggleFavorite(${topicIdx})">` +
+        `<button type="button" class="topic-save-btn" data-topic-idx="${topicIdx}" title="${l.save}" aria-label="${l.save}" onclick="window.toggleFavorite(${topicIdx})">` +
             icon +
             `<span class="topic-save-label" data-save="${l.save}" data-saved="${l.saved}">${l.save}</span>` +
         `</button>` +
+        adminBtns +
     `</div>`;
 }
 

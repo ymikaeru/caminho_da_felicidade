@@ -64,19 +64,36 @@
     if (vol && !vol.startsWith('mioshiec')) vol = `mioshiec${vol}`;
     if (file && !file.endsWith('.html')) file += '.html';
     const topic_idx = _currentTopicIdx();
-    // Título: tenta o do tópico ativo (h2/h3 dentro de .topic-content),
-    // depois h1 da página, depois document.title como fallback.
-    const topics = document.querySelectorAll('.topic-content');
-    const active = topics[topic_idx];
-    let title = active?.querySelector('h2, h3, .topic-title')?.textContent
-             || document.querySelector('.topic-content h1, .glass-pane h1, h1')?.textContent
-             || document.title || '';
-    // Limpa prefixos/sufixos típicos do <title> da página.
+    // Título: prioridade pelo window._currentTopics (dados estruturados
+    // do JSON, vem com title_ptbr/title_pt). Cai pro <b><font size="+2">
+    // dentro do tópico (formato legacy do conteúdo) ou h2/h3 como
+    // último fallback, e por fim document.title.
+    let title = '';
+    const lang = localStorage.getItem('site_lang') || 'pt';
+    const struct = (window._currentTopics || [])[topic_idx];
+    if (struct) {
+      title = lang === 'ja'
+        ? (struct.title_ja || struct.title || '')
+        : (struct.title_ptbr || struct.title_pt || struct.title || '');
+    }
+    if (!title) {
+      const topics = document.querySelectorAll('.topic-content');
+      const active = topics[topic_idx];
+      // Formato real do conteúdo usa <b><font size="+2">...</font></b>
+      const fontTitle = active?.querySelector('b > font[size="+2"], font[size="+2"]');
+      title = fontTitle?.textContent
+            || active?.querySelector('h2, h3, .topic-title')?.textContent
+            || document.querySelector('.topic-content h1, .glass-pane h1, h1')?.textContent
+            || document.title || '';
+    }
+    // Limpa quotes externas e prefixos típicos.
     title = String(title)
       .replace(/\s*-\s*Caminho da Felicidade\s*$/i, '')
       .replace(/^Meishu-Sama:\s*/i, '')
-      .replace(/^Ensinamento de Meishu-Sama:\s*/i, '')
-      .replace(/^Palestra de Meishu-Sama:\s*/i, '')
+      .replace(/^Ensinamento de (Meishu-Sama|Moisés)\s*[:\-]?\s*/i, '')
+      .replace(/^Palestra de (Meishu-Sama|Moisés)\s*[:\-]?\s*/i, '')
+      .replace(/^Orientação de (Meishu-Sama|Moisés)\s*[:\-]?\s*/i, '')
+      .replace(/^["「『＂"](.*)["」』＂"]$/, '$1')
       .trim();
     return { vol, file, topic_idx, title };
   }
@@ -93,9 +110,10 @@
             <line x1="22" y1="2" x2="11" y2="13"/>
             <polygon points="22 2 15 22 11 13 2 9 22 2"/>
           </svg>
-          <div style="flex:1;">
-            <div style="font-size:1.05rem; font-weight:600;">Recomendar este ensinamento</div>
-            <div id="recPickerTeaching" style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;"></div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; font-weight:600;">Recomendar este ensinamento</div>
+            <div id="recPickerTeachingTitle" style="font-size:1.05rem; font-weight:600; margin-top:3px; line-height:1.3; color:var(--text-main); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;"></div>
+            <div id="recPickerTeaching" style="font-size:0.72rem; color:var(--text-muted); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
           </div>
           <button id="recPickerClose" aria-label="Fechar" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-muted); line-height:1; padding:0 4px;">&times;</button>
         </div>
@@ -235,11 +253,16 @@
     }
   }
 
-  async function _open() {
+  async function _open(explicitTopicIdx) {
     if (typeof isAdminUser === 'function' && !isAdminUser()) return;
     _build();
     _selectedUserIds.clear();
     const meta = _currentTeachingMeta();
+    // Quando passado (ex: botão abaixo de um título específico), sobrepõe
+    // a detecção por scroll — desambigua em páginas com múltiplos tópicos.
+    if (typeof explicitTopicIdx === 'number' && !isNaN(explicitTopicIdx)) {
+      meta.topic_idx = explicitTopicIdx;
+    }
     if (!meta.vol || !meta.file) {
       alert('Não consegui identificar o ensinamento atual. Esta página tem vol e file na URL?');
       return;
@@ -247,8 +270,9 @@
     _modal.dataset.vol = meta.vol;
     _modal.dataset.file = meta.file;
     _modal.dataset.topicIdx = String(meta.topic_idx);
+    document.getElementById('recPickerTeachingTitle').textContent = meta.title || '(sem título)';
     document.getElementById('recPickerTeaching').textContent =
-      `${meta.title ? meta.title + ' · ' : ''}${meta.vol} · ${meta.file}#${meta.topic_idx}`;
+      `${meta.vol} · ${meta.file}#${meta.topic_idx}`;
     document.getElementById('recPickerUserSearch').value = '';
     document.getElementById('recPickerNote').value = '';
     document.getElementById('recPickerExpires').value = '';

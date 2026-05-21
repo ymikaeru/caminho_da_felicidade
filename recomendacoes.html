@@ -76,6 +76,75 @@
             background: var(--accent);
             color: #fff;
         }
+        /* Grupo de recomendações vindas de uma mesma playlist (admin) */
+        .rec-group {
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface);
+            overflow: hidden;
+        }
+        .rec-group[open] {
+            background: var(--surface);
+        }
+        .rec-group-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            cursor: pointer;
+            user-select: none;
+            list-style: none;
+            font-family: "Outfit", sans-serif;
+            border-bottom: 1px solid transparent;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .rec-group-header::-webkit-details-marker { display: none; }
+        .rec-group[open] .rec-group-header {
+            border-bottom-color: var(--border);
+        }
+        .rec-group-header:hover {
+            background: rgba(184, 134, 11, 0.05);
+        }
+        .rec-group-icon {
+            font-size: 1.1rem;
+        }
+        .rec-group-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-main);
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .rec-group-count {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .rec-group-chevron {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+        .rec-group[open] .rec-group-chevron {
+            transform: rotate(180deg);
+        }
+        .rec-group-body {
+            padding: 14px 14px 4px;
+        }
+        .rec-group-body .rec-card {
+            margin-bottom: 10px;
+        }
+        .rec-group-body .rec-card:last-child {
+            margin-bottom: 6px;
+        }
+        .rec-group-loose .rec-group-header {
+            opacity: 0.85;
+        }
+
         .rec-card {
             display: flex;
             gap: 16px;
@@ -200,13 +269,13 @@
     </style>
 
     <script src="js/toggle.js?v=33" defer></script>
-    <script src="js/nav.js?v=30" defer></script>
+    <script src="js/nav.js?v=33" defer></script>
     <script src="js/theme.js?v=1" defer></script>
     <script src="js/language.js?v=2" defer></script>
     <script src="js/typography.js?v=1" defer></script>
     <script src="js/search.js?v=20" defer></script>
     <script src="js/recommendations.js?v=13" defer></script>
-    <script src="js/recomendacoes-page.js?v=4" defer></script>
+    <script src="js/recomendacoes-page.js?v=8" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';

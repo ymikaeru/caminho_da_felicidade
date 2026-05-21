@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@300;400;500&display=swap">
-  <link href="css/styles.min.css?v=76" rel="stylesheet" />
+  <link href="css/styles.min.css?v=77" rel="stylesheet" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
   <!-- SEO -->
@@ -87,6 +87,51 @@
   </header>
   <script>if (window.self !== window.top) document.documentElement.classList.add('in-iframe');</script>
   <script>
+    // Modo "embed=playlist" — usado pelo preview da playlist do admin
+    // (js/playlists.js _mgrRenderReaderItem). Esconde a barra de ações
+    // abaixo do título e mostra SÓ o tópico focado (?topic=N), pra dar
+    // foco no artigo dentro do modal de gerenciamento.
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('embed') !== 'playlist') return;
+      document.documentElement.classList.add('embed-playlist');
+      var focusIdx = parseInt(params.get('topic') || '0', 10);
+      var s = document.createElement('style');
+      s.textContent = ''
+        // Esconde todo o "chrome" do reader pra dar foco só no artigo:
+        // botões de ação, breadcrumb, nav footer (Anterior/Próximo) e o
+        // botão flutuante "Continuar leitura".
+        + '.embed-playlist .topic-save-bar,'
+        + '.embed-playlist .breadcrumbs,'
+        + '.embed-playlist .breadcrumb-trail,'
+        + '.embed-playlist nav.breadcrumb,'
+        + '.embed-playlist .reader-nav-footer,'
+        + '.embed-playlist #resume-reading-btn,'
+        + '.embed-playlist #reading-progress { display: none !important; }'
+        // Mostra só o tópico focado da playlist.
+        + '.embed-playlist .topic-content { display: none; }'
+        + '.embed-playlist .topic-content.embed-focus { display: block !important; }'
+        // Reader.main tem padding 60px 40px que cria um vazio no topo
+        // do modal. Reduz pra começar o conteúdo logo no topo.
+        + '.embed-playlist .reader-body .main { padding: 16px 32px !important; }'
+        + '.embed-playlist .reader-body #readerContainer { padding: 0 !important; box-shadow: none !important; background: transparent !important; }';
+      (document.head || document.documentElement).appendChild(s);
+      var obs = new MutationObserver(function () {
+        var topics = document.querySelectorAll('.topic-content');
+        if (topics.length === 0) return;
+        var foundFocus = false;
+        topics.forEach(function (el) {
+          var m = (el.id || '').match(/^topic-(\d+)$/);
+          var idx = m ? parseInt(m[1], 10) : -1;
+          if (idx === focusIdx) { el.classList.add('embed-focus'); foundFocus = true; }
+        });
+        if (!foundFocus && topics[0]) topics[0].classList.add('embed-focus');
+        obs.disconnect();
+      });
+      obs.observe(document.documentElement, { childList: true, subtree: true });
+    })();
+  </script>
+  <script>
     (function(){
       if (!window.SECTION_MAP) {
         var s = document.createElement('script');
@@ -141,10 +186,12 @@
     import { startTracking, stopTracking } from './js/read-time-tracker.js';
     window._readTimeTracker = { start: startTracking, stop: stopTracking };
   </script>
+  <script type="module" src="js/pdf-booklet-bridge.js?v=2"></script>
   <script type="module" src="js/login.js?v=8"></script>
   <script src="js/modals.js?v=3"></script>
   <script src="js/recommendations.js?v=13" defer></script>
-  <script src="js/reader-recommend.js?v=3" defer></script>
+  <script src="js/reader-recommend.js?v=6" defer></script>
+  <script src="js/playlists.js?v=20" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       if (isLimitedUser()) {
@@ -162,18 +209,18 @@
   </script>
 
   <script src="js/toggle.js?v=33" defer></script>
-  <script src="js/nav.js?v=30" defer></script>
+  <script src="js/nav.js?v=33" defer></script>
   <script src="js/theme.js?v=1" defer></script>
   <script src="js/language.js?v=2" defer></script>
   <script src="js/typography.js?v=1" defer></script>
   <script src="js/search.js?v=20" defer></script>
   <script src="js/marked.min.js" defer></script>
   <script src="js/reader-content.js?v=2" defer></script>
-  <script src="js/reader-render.js?v=16" defer></script>
+  <script src="js/reader-render.js?v=18" defer></script>
   <script src="js/highlights.js?v=4" defer></script>
   <script src="js/content-protection.js?v=7" defer></script>
   <script src="js/translation-report.js?v=1" defer></script>
-  <script src="js/reader.js?v=18" defer></script>
+  <script src="js/reader.js?v=22" defer></script>
   <script src="js/disciples-reader.js?v=10" defer></script>
   <script>document.addEventListener('DOMContentLoaded', () => { if (typeof initFontSize === 'function') initFontSize(); if (typeof initHighlights === 'function') initHighlights(); });</script>
 

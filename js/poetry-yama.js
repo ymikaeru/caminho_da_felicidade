@@ -76,7 +76,6 @@
         const idx = parseInt(btn.dataset.idx, 10);
         _activeSectionIdx = idx < 0 ? null : idx;
         _render();
-        // Mobile: fecha sidebar após clicar
         const sb = $('#yamaSidebar');
         if (sb) sb.classList.remove('is-open');
         window.scrollTo({ top: 0, behavior: 'smooth' });

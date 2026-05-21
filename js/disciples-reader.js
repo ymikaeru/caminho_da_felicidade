@@ -318,29 +318,18 @@
         ? `<span class="disciples-card-stat"><strong>${stats.chapters}</strong> ${chaptersLabel}</span>
            ${stats.sections > stats.chapters ? `<span class="disciples-card-stat-sep">·</span><span class="disciples-card-stat"><strong>${stats.sections}</strong> ${sectionsLabel}</span>` : ''}`
         : `<span class="disciples-card-stat disciples-card-stat--placeholder">···</span>`;
+      const kickerText = book.kickerLabel || book.author;
       return `<a href="${url}" class="disciples-book-card" data-book-id="${esc(book.id)}">
-        <div class="disciples-book-cover" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            <line x1="9" y1="7" x2="16" y2="7"/>
-            <line x1="9" y1="11" x2="16" y2="11"/>
-          </svg>
-        </div>
-        <div class="disciples-book-info">
-          <div class="disciples-book-head">
-            ${book.titleJa ? `<div class="disciples-book-title-ja">${esc(book.titleJa)}</div>` : ''}
-            <h2 class="disciples-book-title">${esc(book.title)}</h2>
-            ${book.author ? `<div class="disciples-book-author">${esc(book.author)}</div>` : ''}
-          </div>
-          <p class="disciples-book-desc">${esc(book.description || '')}</p>
-          <div class="disciples-book-foot">
-            <div class="disciples-book-stats" data-stats="${esc(book.id)}">${statsHtml}</div>
-            <span class="disciples-book-cta">
-              ${ctaLabel}
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </span>
-          </div>
+        ${kickerText ? `<div class="disciples-book-kicker">${esc(kickerText)}</div>` : ''}
+        ${book.titleJa ? `<div class="disciples-book-title-ja">${esc(book.titleJa)}</div>` : ''}
+        <h2 class="disciples-book-title">${esc(book.title)}</h2>
+        <p class="disciples-book-desc">${esc(book.description || '')}</p>
+        <div class="disciples-book-foot">
+          <div class="disciples-book-stats" data-stats="${esc(book.id)}">${statsHtml}</div>
+          <span class="disciples-book-cta">
+            ${ctaLabel}
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
         </div>
       </a>`;
     };

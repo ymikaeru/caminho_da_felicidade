@@ -798,7 +798,7 @@
     #tab-analytics-landing td.num { text-align:right; color:var(--accent); font-weight:600; }
     #tab-analytics-landing td.ell { max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-    #tab-analytics-disciples .dc-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+    #tab-analytics-disciples .dc-cards, #tab-analytics-poetry .dc-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
     #tab-analytics-disciples .dc-card { padding:18px; border:1px solid var(--border); border-radius:12px; background:var(--surface); }
     #tab-analytics-disciples .dc-card .v { font-size:1.7rem; font-weight:700; color:var(--accent); line-height:1; }
     #tab-analytics-disciples .dc-card .s { font-size:.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.14em; margin-top:6px; }
@@ -820,6 +820,29 @@
     #tab-analytics-disciples .dc-book-card { display:flex; flex-direction:column; }
     #tab-analytics-disciples .dc-book-stats { display:flex; gap:18px; flex-wrap:wrap; margin-top:8px; }
     #tab-analytics-disciples .dc-book-stats > div .v { font-size:1.3rem; }
+
+    /* Poetry analytics — reusa visual da aba de Discípulos */
+    #tab-analytics-poetry .dc-card { padding:18px; border:1px solid var(--border); border-radius:12px; background:var(--surface); }
+    #tab-analytics-poetry .dc-card .v { font-size:1.7rem; font-weight:700; color:var(--accent); line-height:1; }
+    #tab-analytics-poetry .dc-card .s { font-size:.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.14em; margin-top:6px; }
+    #tab-analytics-poetry .dc-card .u { font-size:.75rem; color:var(--text-muted); margin-top:4px; }
+    #tab-analytics-poetry .dc-chart-wrap { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:24px; }
+    #tab-analytics-poetry .dc-chart-wrap h3 { font-size:.78rem; text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted); margin:0 0 14px; font-weight:600; }
+    #tab-analytics-poetry canvas { max-width:100%; height:260px !important; }
+    #tab-analytics-poetry .dc-tables { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media (max-width:900px) { #tab-analytics-poetry .dc-tables { grid-template-columns:1fr; } }
+    #tab-analytics-poetry .dc-tbl { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; }
+    #tab-analytics-poetry .dc-tbl h3 { font-size:.78rem; text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted); margin:0 0 12px; font-weight:600; }
+    #tab-analytics-poetry table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    #tab-analytics-poetry th { text-align:left; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); padding:6px 12px 6px 0; border-bottom:1px solid var(--border); font-weight:500; }
+    #tab-analytics-poetry td { padding:8px 12px 8px 0; border-bottom:1px solid var(--border); }
+    #tab-analytics-poetry th:last-child,
+    #tab-analytics-poetry td:last-child { padding-right:0; }
+    #tab-analytics-poetry tr:last-child td { border-bottom:none; }
+    #tab-analytics-poetry td.num { text-align:right; color:var(--accent); font-weight:600; }
+    #tab-analytics-poetry .dc-book-card { display:flex; flex-direction:column; }
+    #tab-analytics-poetry .dc-book-stats { display:flex; gap:18px; flex-wrap:wrap; margin-top:8px; }
+    #tab-analytics-poetry .dc-book-stats > div .v { font-size:1.3rem; }
 
     /* Admin PIN gate */
     .admin-pin-modal {
@@ -928,6 +951,7 @@
               <div class="tab-group-tabs">
                 <div class="admin-tab" onclick="switchTab('analytics')">📊 Geral</div>
                 <div class="admin-tab" onclick="switchTab('analytics-disciples')">📊 Discípulos</div>
+                <div class="admin-tab" onclick="switchTab('analytics-poetry')">📜 Poesia</div>
                 <div class="admin-tab" onclick="switchTab('analytics-search')">🔎 Buscas</div>
                 <div class="admin-tab" onclick="switchTab('destaques')">⭐ Destaques</div>
                 <div class="admin-tab" onclick="switchTab('saved')">🔖 Salvos</div>
@@ -1414,6 +1438,27 @@
             <div id="dc-dashboard"><div class="loading">Carregando dados…</div></div>
           </div>
 
+          <!-- Poetry Analytics Tab -->
+          <div class="tab-content" id="tab-analytics-poetry">
+            <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Analytics — Poesia</h2>
+                <p id="pa-gen-at" style="font-size:0.85rem; color:var(--text-muted); margin:0;">Carregando…</p>
+              </div>
+              <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <label style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
+                <select id="pa-range" onchange="loadPoetryAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
+                  <option value="7">7 dias</option>
+                  <option value="30" selected>30 dias</option>
+                  <option value="90">90 dias</option>
+                  <option value="365">1 ano</option>
+                </select>
+                <button onclick="loadPoetryAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻ Atualizar</button>
+              </div>
+            </div>
+            <div id="pa-dashboard"><div class="loading">Carregando dados…</div></div>
+          </div>
+
           <!-- Search Analytics Tab -->
           <div class="tab-content" id="tab-analytics-search">
             <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
@@ -1818,7 +1863,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=13"></script>
+  <script type="module" src="js/admin.js?v=14"></script>
 
 </body>
 </html>

@@ -178,6 +178,34 @@
 .poetry-sidebar__section::-webkit-scrollbar { width: 4px; }
 .poetry-sidebar__section::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
+.poetry-sidebar__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 20px 18px;
+  padding: 4px 0;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.poetry-sidebar__back:hover {
+  color: var(--accent);
+}
+
+.poetry-sidebar__back svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .poetry-sidebar__header {
   padding: 0 20px 18px;
   margin-bottom: 14px;
@@ -439,7 +467,7 @@
 /* Main reading column — sem cartão branco; tom de papel unificado com a sidebar.
    Conteúdo interno respira numa medida editorial centralizada. */
 .poetry-main {
-  padding: calc(var(--nav-height) + 28px) clamp(24px, 4vw, 64px) 96px;
+  padding: calc(var(--nav-height) + 12px) clamp(24px, 4vw, 64px) 96px;
   min-width: 0;
   width: 100%;
   background: transparent;

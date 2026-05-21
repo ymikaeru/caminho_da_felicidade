@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;600;700&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,200..600,30..100;1,9..144,300..500,30..100&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
-    <link rel="stylesheet" href="css/styles.min.css?v=90">
+    <link rel="stylesheet" href="css/styles.min.css?v=93">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <script src="js/toggle.js?v=34" defer></script>
@@ -51,6 +51,11 @@
     <main class="main" id="main-content" style="padding:0;">
         <div class="poetry-page">
             <aside class="poetry-sidebar" id="waraiSidebar" aria-label="Navegação por tema">
+                <a href="poesia.html" class="poetry-sidebar__back">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+                    <span class="lang-pt">Obras poéticas</span>
+                    <span class="lang-ja" style="display:none">詩集一覧</span>
+                </a>
                 <div class="poetry-sidebar__header">
                     <span class="poetry-sidebar__kicker">
                         <span class="lang-pt">Kanku</span><span class="lang-ja" style="display:none">寒句</span>
@@ -104,12 +109,6 @@
             </aside>
 
             <section class="poetry-main">
-                <a href="poesia.html" class="poetry-main__back">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-                    <span class="lang-pt">Obras poéticas</span>
-                    <span class="lang-ja" style="display:none">詩集一覧</span>
-                </a>
-
                 <button class="poetry-sidebar-toggle" id="waraiSidebarToggle" type="button">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <line x1="3" y1="6" x2="21" y2="6"/>
@@ -134,16 +133,48 @@
     <script type="importmap">
     {"imports":{"@supabase/supabase-js":"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"}}</script>
     <script type="module" src="js/login.js?v=8"></script>
+    <script type="module">
+        import { startTracking, stopTracking } from './js/read-time-tracker.js';
+        window._readTimeTracker = { start: startTracking, stop: stopTracking };
+    </script>
     <script src="js/access.js?v=5"></script>
     <script src="js/modals.js?v=3"></script>
     <script src="js/playlists.js?v=21" defer></script>
     <script src="js/poetry-fontsize.js?v=1" defer></script>
-    <script src="js/poetry-warai.js?v=10" defer></script>
+    <script src="js/poetry-warai.js?v=14" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             buildSearchModal(); buildHistoryModal(); buildFavoritesModal();
             if (typeof revealPage === 'function') revealPage();
         });
+
+        // Analytics: aguarda sessão Supabase real antes de chamar logAccess
+        // (logAccess retorna silenciosamente se a sessão ainda não foi populada
+        // pelo módulo login.js — checar só window.supabaseAuth.logAccess não basta).
+        (function () {
+            const POEM_VOL = 'poetry', POEM_FILE = 'warai-no-izumi';
+            let _tries = 0;
+            const _tryLog = async () => {
+                _tries++;
+                const supa = window.supabaseAuth?.supabase;
+                if (supa) {
+                    try {
+                        const { data } = await supa.auth.getSession();
+                        if (data?.session) {
+                            window.supabaseAuth.logAccess(POEM_VOL, POEM_FILE, 'view')?.catch?.(() => {});
+                            window._readTimeTracker?.start?.(POEM_VOL, POEM_FILE);
+                            return;
+                        }
+                    } catch (_) {}
+                }
+                if (_tries < 40) setTimeout(_tryLog, 300);
+            };
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', _tryLog);
+            } else {
+                _tryLog();
+            }
+        })();
     </script>
 </body>
 

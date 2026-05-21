@@ -43,7 +43,8 @@ export async function storageFetch(path) {
       headers: {
         Authorization: `Bearer ${session.access_token}`,
         apikey: SUPABASE_CONFIG.anonKey
-      }
+      },
+      cache: 'no-store'
     });
     if (!res.ok) throw new Error(`Storage download failed: ${res.status}`);
     data = await res.json();

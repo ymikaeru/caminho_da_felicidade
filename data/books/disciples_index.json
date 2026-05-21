@@ -5,6 +5,7 @@
       "title": "Keigyou",
       "titleJa": "景仰",
       "author": "Comitê de Compilação da Biografia do Fundador",
+      "kickerLabel": "Biografia do Fundador",
       "file": "keigyou.json",
       "description": "Registros de palavras e atos de Meishu-Sama compilados em comemoração ao trigésimo aniversário da fundação da Sekaikyuseikyou.",
       "cover": null
@@ -14,6 +15,7 @@
       "title": "Ashita No Ijitsu Wo Ikiru",
       "titleJa": "明日の医術を生きる",
       "author": "Eitaro Ogawa",
+      "kickerLabel": "Memórias · Eitaro Ogawa",
       "file": "ashita-no-ijitsu.json",
       "description": "Memórias de Eitaro Ogawa sobre seu encontro com Meishu-Sama, a cura da tuberculose e os anos de serviço dedicado à Obra Divina.",
       "cover": null

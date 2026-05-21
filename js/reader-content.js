@@ -3,10 +3,24 @@
 // No DOM or state dependencies — safe to call from anywhere.
 // ============================================================
 
+// Limpa artefatos da versão antiga do soft-break no admin editor:
+// - U+200B/200C/200D/FEFF (zero-width spaces que eram usadas como
+//   "guardião" de trailing <br>)
+// - múltiplos <br data-soft> consecutivos (acumulados quando o usuário
+//   pressionava Shift+Enter várias vezes)
+// Aplicada no reader para que conteúdo já salvo renderize compacto
+// sem precisar reabrir+salvar cada relatório.
+function _cleanSoftBreakArtifacts(html) {
+    if (!html) return html;
+    return html
+        .replace(/[​-‍﻿]/g, '')
+        .replace(/(<br[^>]*data-soft[^>]*>)(?:\s*<br[^>]*data-soft[^>]*>)+/gi, '$1');
+}
+
 function _normalizeContent(rawContent) {
     const DBLBR = '\x01DBLBR\x01';
     const SGLBR = '\x03SGLBR\x03';
-    let norm = rawContent
+    let norm = _cleanSoftBreakArtifacts(rawContent)
         // 1) After closing </b>/<font> tags (any combo), <br> followed by non-tag text → single break
         .replace(/((?:<\/(?:b|strong|font)>\s*)+)<br\s*\/?>\s*(?=[^<])/gi, '$1' + SGLBR)
         // 2) <br> between closing tags and opening <b> or <font> → paragraph break (new section)

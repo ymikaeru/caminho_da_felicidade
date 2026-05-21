@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <script>(function(){var m=localStorage.getItem('site_mode')||'light';var t=localStorage.getItem('theme')||'light';var d=document.documentElement;d.setAttribute('data-mode',m);d.setAttribute('data-theme',t);var c={'dark:light':'#1A1A1A','dark:quiet':'#2D2D2F','dark:paper':'#2A2824','dark:bold':'#000','dark:calm':'#3B3326','dark:focus':'#000','light:light':'#F2F2F0','light:quiet':'#404043','light:paper':'#EFE8D6','light:bold':'#FFF','light:calm':'#DFCDAE','light:focus':'#FFF'};var bg=c[m+':'+t]||(m==='dark'?'#121212':'#F2F2F0');d.style.backgroundColor=bg})();</script>
+    <meta charset="UTF-8">
+    <title>Poesia — Caminho da Felicidade</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Obras poéticas de Meishu-Sama: Yama to Mizu (tanka clássicos) e Warai no Izumi (poemas humorísticos).">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="css/styles.min.css?v=77">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <script src="js/toggle.js?v=33" defer></script>
+    <script src="js/nav.js?v=33" defer></script>
+    <script src="js/theme.js?v=1" defer></script>
+    <script src="js/language.js?v=2" defer></script>
+    <script src="js/typography.js?v=1" defer></script>
+    <script src="js/search.js?v=20" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('site_lang') || 'pt';
+            if (typeof setLanguage === 'function') setLanguage(savedLang);
+        });
+    </script>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Ir para o conteúdo</a>
+    <div id="page-gate"
+        style="position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;z-index:4999;background:#f5f3ee;background:var(--bg-color,#f5f3ee)">
+    </div>
+    <header class="header">
+        <a href="index.html" class="header__logo">
+            <svg width="28" height="28" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Emblema da Comunidade Messiânica Universal"><circle cx="100" cy="100" r="98" fill="#b8860b"/><circle cx="100" cy="100" r="92" fill="#fff"/><rect x="80" y="8" width="40" height="184" fill="#006400"/><rect x="8" y="80" width="184" height="40" fill="#006400"/><circle cx="100" cy="100" r="42" fill="#cc0000"/><circle cx="100" cy="100" r="28" fill="#b8860b"/></svg>
+        </a>
+        <span class="header__site-name lang-pt">Caminho da Felicidade</span>
+        <span class="header__site-name lang-ja" style="display:none;">幸福の道</span>
+        <div class="header__nav">
+            <a href="index.html"><span>⌂ <span class="lang-pt">Início</span><span class="lang-ja" style="display:none">ホーム</span></span></a>
+            <a href="mioshiec1/index.html"><span>Vol 1</span></a>
+            <a href="mioshiec2/index.html"><span>Vol 2</span></a>
+            <a href="mioshiec3/index.html"><span>Vol 3</span></a>
+            <a href="mioshiec4/index.html"><span>Vol 4</span></a>
+        </div>
+    </header>
+
+    <main class="main" id="main-content">
+        <div class="poetry-hub">
+            <div style="text-align:center; margin-bottom: 8px;">
+                <div class="poetry-feature__kicker" style="margin-bottom:18px;">
+                    <span class="lang-pt">Obras Poéticas</span>
+                    <span class="lang-ja" style="display:none">詩 集</span>
+                </div>
+                <h1 class="index-title" style="margin-bottom:0;">
+                    <span class="lang-pt">Poesia de Meishu-Sama</span>
+                    <span class="lang-ja" style="display:none">明主様御詩歌</span>
+                </h1>
+            </div>
+            <p class="poetry-hub__lede">
+                <span class="lang-pt">Duas coletâneas escritas pelo próprio Meishu-Sama — uma de tanka clássicos sobre a natureza e o sagrado, outra de versos humorísticos sobre o mundo cotidiano.</span>
+                <span class="lang-ja" style="display:none">明主様御自身による二つの詩歌集 — 自然と聖なるものを詠んだ古典的な短歌と、世俗を笑う庶民的な詩集。</span>
+            </p>
+
+            <div class="poetry-hub__grid">
+                <a href="yama-to-mizu.html" class="poetry-feature">
+                    <div class="poetry-feature__kicker">
+                        <span class="lang-pt">Tanka · 1.236 poemas</span>
+                        <span class="lang-ja" style="display:none">短歌・1,236首</span>
+                    </div>
+                    <div class="poetry-feature__jp">山と水</div>
+                    <div class="poetry-feature__pt">
+                        <span class="lang-pt">Yama to Mizu — Montanha e Água</span>
+                        <span class="lang-ja" style="display:none">やまとみず</span>
+                    </div>
+                    <p class="poetry-feature__desc">
+                        <span class="lang-pt">Coletânea de tanka composta entre 1931 e 1935 sob o pseudônimo Akimaro. Observações poéticas sobre as estações, paisagens, e a sutileza da Natureza, organizadas em 256 seções temáticas.</span>
+                        <span class="lang-ja" style="display:none">昭和六年から十年の間に秋麿の雅号で詠まれた短歌集。四季・風物・自然の機微を、256の題目にまとめた一巻。</span>
+                    </p>
+                    <div class="poetry-feature__meta">
+                        <span><span class="lang-pt">256 seções temáticas</span><span class="lang-ja" style="display:none">256 主題</span></span>
+                        <span class="poetry-feature__cta">
+                            <span class="lang-pt">Ler</span><span class="lang-ja" style="display:none">読む</span>
+                            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+                <a href="warai-no-izumi.html" class="poetry-feature">
+                    <div class="poetry-feature__kicker">
+                        <span class="lang-pt">Kanku · 1.063 poemas</span>
+                        <span class="lang-ja" style="display:none">寒句・1,063首</span>
+                    </div>
+                    <div class="poetry-feature__jp">笑いの泉</div>
+                    <div class="poetry-feature__pt">
+                        <span class="lang-pt">Warai no Izumi — Fonte de Risos</span>
+                        <span class="lang-ja" style="display:none">わらいのいずみ</span>
+                    </div>
+                    <p class="poetry-feature__desc">
+                        <span class="lang-pt">Coletânea de versos humorísticos sobre a vida cotidiana — carteiras vazias, amores tolos, vaidades — escritos por Meishu-Sama e discípulos sob pseudônimos brincalhões, num registro leve e popular.</span>
+                        <span class="lang-ja" style="display:none">日常を題材にした滑稽な詩集。明主様と御弟子たちが戯号で詠んだ、世相と人情への軽妙な眼差し。</span>
+                    </p>
+                    <div class="poetry-feature__meta">
+                        <span><span class="lang-pt">Categorias · humor</span><span class="lang-ja" style="display:none">分類・雰囲気</span></span>
+                        <span class="poetry-feature__cta">
+                            <span class="lang-pt">Ler</span><span class="lang-ja" style="display:none">読む</span>
+                            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script type="importmap">
+    {"imports":{"@supabase/supabase-js":"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"}}</script>
+    <script type="module" src="js/login.js?v=8"></script>
+    <script src="js/access.js?v=5"></script>
+    <script src="js/modals.js?v=3"></script>
+    <script src="js/playlists.js?v=21" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            buildSearchModal(); buildHistoryModal(); buildFavoritesModal();
+            if (typeof revealPage === 'function') revealPage();
+        });
+    </script>
+</body>
+
+</html>

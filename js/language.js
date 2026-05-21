@@ -53,10 +53,13 @@ function setLanguage(lang, triggerRender = true) {
     updateLabel('mobileNavLabelNav', t.navigation);
     updateLabel('mobileNavLabelActions', t.actions);
     updateLabel('mobileNavLabelFont', t.fontSize);
+    updateLabel('mobileNavLabelComplementary', t.complementary || 'Acervo Complementar');
     updateLink('mobileNavLinkHistory', t.history);
     updateLink('mobileNavLinkFavorites', t.saved);
     updateLink('mobileNavLinkLang', t.lang);
     updateLink('mobileNavLinkTheme', t.theme);
+    updateLink('mobileNavLinkPoetry', t.poetry || 'Obras Poéticas');
+    updateLink('mobileNavLinkDisciples', t.disciples || 'Publicações de Discípulos');
 
     const closeBtn = document.getElementById('mobileNavClose');
     if (closeBtn) closeBtn.setAttribute('aria-label', t.close);

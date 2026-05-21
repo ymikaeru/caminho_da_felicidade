@@ -121,6 +121,19 @@ function _initMobileNav() {
         </button>` : ''}
 
         <div class="mobile-nav-divider"></div>
+        <div class="mobile-nav-section-label" id="mobileNavLabelComplementary">${t.complementary || 'Acervo Complementar'}</div>
+
+        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}poesia.html" id="mobileNavLinkPoetry">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+          <span class="link-text">${t.poetry || 'Obras Poéticas'}</span>
+        </a>
+
+        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}reader.html?pub=disciples" id="mobileNavLinkDisciples">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="link-text">${t.disciples || 'Publicações de Discípulos'}</span>
+        </a>
+
+        <div class="mobile-nav-divider"></div>
         <div class="mobile-nav-section-label" id="mobileNavLabelFont">${t.fontSize}</div>
 
         <button class="mobile-nav-link" onclick="toggleTheme(); closeMobileNav();" id="mobileNavLinkTheme">

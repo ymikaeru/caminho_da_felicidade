@@ -32,7 +32,10 @@ const MENU_TEXTS = {
     boldText: 'Texto em Negrito',
     comparison: 'Comparação 日本語／PT',
     print: 'Imprimir ensinamento',
-    volumeTopics: 'Capítulos deste Volume'
+    volumeTopics: 'Capítulos deste Volume',
+    complementary: 'Acervo Complementar',
+    poetry: 'Obras Poéticas',
+    disciples: 'Publicações de Discípulos'
   },
   ja: {
     title: '幸福の道',
@@ -59,7 +62,10 @@ const MENU_TEXTS = {
     boldText: '太字テキスト',
     comparison: '比較モード 日本語／PT',
     print: '教えを印刷',
-    volumeTopics: 'この巻の章'
+    volumeTopics: 'この巻の章',
+    complementary: '補足の蔵書',
+    poetry: '詩 集',
+    disciples: '弟子達の刊行物'
   }
 };
 

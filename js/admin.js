@@ -1151,6 +1151,11 @@
         const escapedDesc = r.description?.replace(/</g, '&lt;').replace(/>/g, '&gt;') || '';
         const fileLabel = r.file ? getFileTitle(r.vol, r.file) : '—';
         const langLabel = r.lang === 'ja' ? '🇯🇵 Japonês' : '🇧🇷 Português';
+        // Índice do tópico (topic_id pode vir como "topic-3" ou "3"). Útil pra
+        // cross-reference rápida com o que aparece em data-p-idx no reader.
+        const topicIdx = r.topic_id != null
+          ? (String(r.topic_id).match(/\d+/)?.[0] ?? '')
+          : '';
 
         let userName = 'Usuário Desconhecido';
         if (r.user_id) {
@@ -1241,6 +1246,7 @@
             <div class="report-header">
               <span class="report-vol">${VOL_SHORT[r.vol] || r.vol}</span>
               <span class="report-file" title="${_escHtml(r.file || '')}">${_escHtml(fileLabel)}</span>
+              ${topicIdx !== '' ? `<span class="report-topic-idx" title="Índice do tópico (data-p-idx)">#${topicIdx}</span>` : ''}
               <span class="report-lang">${langLabel}</span>
               <span class="report-user">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>

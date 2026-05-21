@@ -1035,14 +1035,55 @@ body.disciples-overview-mode #tocToggle {
 }
 
 /* ─── Sempre escondidos em qualquer página de discípulos ──
-   - Índice (discSidebarToggle): abre sidebar de capítulos, mas está
-     quebrado/redundante com o botão "Obras".
    - Cartinha (headerRecommendationsBtn): envelope de recomendações,
      não se aplica a obras de discípulos.
    - tocToggle: é do reader tradicional dos volumes, não funciona
-     com a estrutura de seções dos livros de discípulos. */
-body.disciples-active #discSidebarToggle,
+     com a estrutura de seções dos livros de discípulos.
+   O discSidebarToggle ("Índice") fica visível só no modo livro
+   (a regra `disciples-overview-mode` mais acima já o esconde no
+   overview, onde não há capítulos pra navegar). */
 body.disciples-active #headerRecommendationsBtn,
 body.disciples-active #tocToggle {
   display: none !important;
+}
+
+/* ─── Breadcrumb na página de leitura (granular pagination) ────
+   Mostra o caminho hierárquico do trecho atual:
+   Capítulo 1 › 7. O Advento do Messias › [trecho corrente] */
+.disciples-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 18px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.disciples-breadcrumb__crumb {
+  color: var(--text-muted);
+}
+
+.disciples-breadcrumb__crumb:last-of-type {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.disciples-breadcrumb__sep {
+  opacity: 0.5;
+  margin: 0 2px;
+}
+
+@media (max-width: 600px) {
+  .disciples-breadcrumb {
+    font-size: 11px;
+    gap: 4px;
+    padding: 8px 0;
+    margin-bottom: 14px;
+  }
 }

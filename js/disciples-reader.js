@@ -16,8 +16,16 @@
   window._disciplesMode = isDisciplesMode;
   if (!isDisciplesMode) return;
   // Mark body so CSS can apply disciples-mode layout (sidebar, padding)
+  // Default: desktop abre a sidebar (TOC do livro), mobile inicia fechada
+  // pra dar foco no texto. Preferência do usuário (toggle manual) persiste.
   const _initialCollapsed = (() => {
-    try { return localStorage.getItem('disciples_sidebar_collapsed') === '1'; } catch (_) { return false; }
+    try {
+      const saved = localStorage.getItem('disciples_sidebar_collapsed');
+      if (saved === '1') return true;
+      if (saved === '0') return false;
+      // Sem preferência salva: mobile = collapsed, desktop = aberto
+      return window.matchMedia('(max-width: 900px)').matches;
+    } catch (_) { return false; }
   })();
   const _markBody = () => {
     document.body.classList.add('disciples-active');
@@ -86,19 +94,28 @@
   }
 
   // ── Chapter flattening & persistence ──
+  // Pagina o livro em "páginas" = todo nó da árvore que tem `content`
+  // direto. Anexa _ancestors em cada um pra renderizar breadcrumb. Em
+  // Ashita isso gera ~110 páginas curtas; em Keigyou ~250. Combinado
+  // com a TOC lateral, a navegação fica muito mais granular do que
+  // os 4/25 capítulos top-level anteriores.
   function flattenDiscChapters(sections) {
     const chapters = [];
-    for (const s of sections) {
-      if (s.level === 1 || s.level === 2) chapters.push(s);
-    }
-    if (chapters.length === 0) {
-      const walk = (nodes) => {
-        for (const n of nodes) {
-          if (n.level === 3) chapters.push(n);
-          if (n.children?.length) walk(n.children);
+    const walk = (nodes, ancestors) => {
+      for (const n of nodes) {
+        const hasOwnContent = !!(n.content && String(n.content).trim());
+        if (hasOwnContent) {
+          chapters.push(Object.assign({}, n, { _ancestors: ancestors.slice() }));
         }
-      };
-      walk(sections);
+        if (n.children && n.children.length) {
+          walk(n.children, ancestors.concat([n]));
+        }
+      }
+    };
+    walk(sections, []);
+    if (chapters.length === 0) {
+      // Fallback defensivo se nenhum nó tem content: usa top-level.
+      return sections.slice();
     }
     return chapters;
   }
@@ -402,27 +419,36 @@
       if (level === 3) return 'disciples-section disciples-section--child';
       return `disciples-section disciples-section--deep disciples-section--depth-${level}`;
     }
+    // Renderiza APENAS o nó da página atual (não desce nos filhos —
+    // cada filho com conteúdo é sua própria página). Breadcrumb com os
+    // ancestrais dá contexto sem repetir o texto.
     function renderSection(section) {
       const tag = headingTag(section.level);
       const cls = sectionClass(section.level);
-      const title = section.title.replace(/\*{1,3}/g, '').replace(/\\\./g, '');
+      const title = (section.title || '').replace(/\*{1,3}/g, '').replace(/\\\./g, '');
       let contentHtml = section.content ? renderMd(section.content) : '';
       if (section.content) contentHtml = addPersonNameIds(contentHtml, section.content);
       contentHtml = makePersonParagraphsCollapsible(contentHtml);
-      let childrenHtml = '';
-      if (section.children?.length) {
-        for (const c of section.children) childrenHtml += renderSection(c);
-      }
-      const authorHtml = (section.level === 1 && book.author) ? `<div class="disciples-section-author">${esc(book.author)}</div>` : '';
       if (section.level === 1) {
-        return `<div class="${cls}" id="sec-${section.id}"><${tag}>${esc(title)}</${tag}>${authorHtml}${contentHtml ? `<div class="disciples-section-content">${contentHtml}</div>` : ''}${childrenHtml}</div>`;
+        return `<div class="${cls}" id="sec-${section.id}"><${tag}>${esc(title)}</${tag}>${contentHtml ? `<div class="disciples-section-content">${contentHtml}</div>` : ''}</div>`;
       }
-      return `<section class="${cls}" id="sec-${section.id}"><${tag} class="disciples-section-title">${esc(title)}</${tag}>${contentHtml ? `<div class="disciples-section-content">${contentHtml}</div>` : ''}${childrenHtml}</section>`;
+      return `<section class="${cls}" id="sec-${section.id}"><${tag} class="disciples-section-title">${esc(title)}</${tag}>${contentHtml ? `<div class="disciples-section-content">${contentHtml}</div>` : ''}</section>`;
     }
 
-    const chapterNavHtml = `<div class="disciples-chapter-nav"><button class="disciples-chapter-nav-btn" onclick="_disciplesNav(${_currentChapterIndex - 1})" ${!hasPrev ? 'disabled' : ''} title="${isPt ? 'Capítulo anterior' : '前のチャプター'}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>${isPt ? 'Anterior' : '前へ'}</span></button><div class="disciples-chapter-nav-info"><span class="disciples-chapter-nav-current">${_currentChapterIndex + 1}</span> / ${total}</div><button class="disciples-chapter-nav-btn" onclick="_disciplesNav(${_currentChapterIndex + 1})" ${!hasNext ? 'disabled' : ''} title="${isPt ? 'Próximo capítulo' : '次のチャプター'}"><span>${isPt ? 'Próximo' : '次へ'}</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></div>`;
+    // Breadcrumb: capítulo > subcapítulo > [trecho atual]. Mostra apenas
+    // os ancestrais — o próprio título do nó vem dentro de renderSection.
+    const ancestors = chapter._ancestors || [];
+    const breadcrumbHtml = ancestors.length
+      ? `<nav class="disciples-breadcrumb" aria-label="${isPt ? 'Localização' : '現在地'}">${ancestors.map((a, i) => {
+          const t = (a.title || '').replace(/\*{1,3}/g, '').replace(/\\\./g, '');
+          const sep = i < ancestors.length - 1 ? '<span class="disciples-breadcrumb__sep" aria-hidden="true">›</span>' : '';
+          return `<span class="disciples-breadcrumb__crumb">${esc(t)}</span>${sep}`;
+        }).join('')}</nav>`
+      : '';
 
-    container.innerHTML = `<div class="reader-content disciples-book-content"><div class="disciples-book-header"><h1>${esc(book.title)}</h1>${book.author ? `<div class="disciples-book-author-header">${esc(book.author)}</div>` : ''}<a class="disciples-back-link" href="reader.html?pub=disciples"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>${isPt ? 'Publicações dos Discípulos' : '弟子たちの著作一覧'}</a></div>${chapterNavHtml}<div class="disciples-book-body">${renderSection(chapter)}</div>${chapterNavHtml}</div>`;
+    const chapterNavHtml = `<div class="disciples-chapter-nav"><button class="disciples-chapter-nav-btn" onclick="_disciplesNav(${_currentChapterIndex - 1})" ${!hasPrev ? 'disabled' : ''} title="${isPt ? 'Trecho anterior' : '前のチャプター'}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>${isPt ? 'Anterior' : '前へ'}</span></button><div class="disciples-chapter-nav-info"><span class="disciples-chapter-nav-current">${_currentChapterIndex + 1}</span> / ${total}</div><button class="disciples-chapter-nav-btn" onclick="_disciplesNav(${_currentChapterIndex + 1})" ${!hasNext ? 'disabled' : ''} title="${isPt ? 'Próximo trecho' : '次のチャプター'}"><span>${isPt ? 'Próximo' : '次へ'}</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></div>`;
+
+    container.innerHTML = `<div class="reader-content disciples-book-content"><div class="disciples-book-header"><h1>${esc(book.title)}</h1>${book.author ? `<div class="disciples-book-author-header">${esc(book.author)}</div>` : ''}<a class="disciples-back-link" href="reader.html?pub=disciples"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>${isPt ? 'Publicações dos Discípulos' : '弟子たちの著作一覧'}</a></div>${breadcrumbHtml}${chapterNavHtml}<div class="disciples-book-body">${renderSection(chapter)}</div>${chapterNavHtml}</div>`;
 
     updateDiscSidebarActiveState();
 
@@ -687,12 +713,11 @@
   }
 
   // ── Desktop sidebar collapse toggle ──
+  // Salva '1' (fechado) ou '0' (aberto) explicitamente pra respeitar a
+  // preferência sobre o default (desktop=aberto, mobile=fechado).
   window._disciplesToggleCollapse = function () {
     const isCollapsed = document.body.classList.toggle('disciples-sidebar-collapsed');
-    try {
-      if (isCollapsed) localStorage.setItem('disciples_sidebar_collapsed', '1');
-      else localStorage.removeItem('disciples_sidebar_collapsed');
-    } catch (_) { /* storage unavailable */ }
+    try { localStorage.setItem('disciples_sidebar_collapsed', isCollapsed ? '1' : '0'); } catch (_) {}
   };
 
   // ── Sidebar toggle: drawer on mobile, slide-in/out on desktop ──
@@ -703,10 +728,7 @@
     if (isDesktop) {
       const willCollapse = !body.classList.contains('disciples-sidebar-collapsed');
       body.classList.toggle('disciples-sidebar-collapsed', willCollapse);
-      try {
-        if (willCollapse) localStorage.setItem('disciples_sidebar_collapsed', '1');
-        else localStorage.removeItem('disciples_sidebar_collapsed');
-      } catch (_) {}
+      try { localStorage.setItem('disciples_sidebar_collapsed', willCollapse ? '1' : '0'); } catch (_) {}
       if (btn) btn.setAttribute('aria-expanded', willCollapse ? 'false' : 'true');
       return;
     }

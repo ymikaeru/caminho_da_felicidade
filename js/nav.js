@@ -121,32 +121,6 @@ function _initMobileNav() {
         </button>` : ''}
 
         <div class="mobile-nav-divider"></div>
-        <div class="mobile-nav-section-label" id="mobileNavLabelPoetry">${t.poetry || 'Obras Poéticas'}</div>
-
-        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}yama-to-mizu.html" id="mobileNavLinkYama">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 20l5-9 4 6 3-4 6 7H3z"/><circle cx="17" cy="6" r="2"/></svg>
-          <span class="link-text"><span class="lang-pt">Yama to Mizu</span><span class="lang-ja" style="display:none">山と水</span></span>
-        </a>
-
-        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}warai-no-izumi.html" id="mobileNavLinkWarai">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-          <span class="link-text"><span class="lang-pt">Warai no Izumi</span><span class="lang-ja" style="display:none">笑いの泉</span></span>
-        </a>
-
-        <div class="mobile-nav-divider"></div>
-        <div class="mobile-nav-section-label" id="mobileNavLabelComplementary">${t.complementary || 'Acervo Complementar'}</div>
-
-        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}reader.html?pub=disciples&book=keigyou" id="mobileNavLinkKeigyou">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          <span class="link-text"><span class="lang-pt">Keigyou</span><span class="lang-ja" style="display:none">景 仰</span></span>
-        </a>
-
-        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}reader.html?pub=disciples&book=ashita-no-ijitsu-wo-ikiru" id="mobileNavLinkAshita">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          <span class="link-text"><span class="lang-pt">Ashita no Ijitsu wo Ikiru</span><span class="lang-ja" style="display:none">明日の医術を生きる</span></span>
-        </a>
-
-        <div class="mobile-nav-divider"></div>
         <div class="mobile-nav-section-label" id="mobileNavLabelFont">${t.fontSize}</div>
 
         <button class="mobile-nav-link" onclick="toggleTheme(); closeMobileNav();" id="mobileNavLinkTheme">
@@ -171,6 +145,32 @@ function _initMobileNav() {
         </div>
 
         <div id="mobileDynamicTopics"></div>
+
+        <div class="mobile-nav-divider"></div>
+        <div class="mobile-nav-section-label" id="mobileNavLabelPoetry">${t.poetry || 'Obras Poéticas'}</div>
+
+        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}yama-to-mizu.html" id="mobileNavLinkYama">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 20l5-9 4 6 3-4 6 7H3z"/><circle cx="17" cy="6" r="2"/></svg>
+          <span class="link-text"><span class="lang-pt">Yama to Mizu</span><span class="lang-ja" style="display:none">山と水</span></span>
+        </a>
+
+        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}warai-no-izumi.html" id="mobileNavLinkWarai">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span class="link-text"><span class="lang-pt">Warai no Izumi</span><span class="lang-ja" style="display:none">笑いの泉</span></span>
+        </a>
+
+        <div class="mobile-nav-divider"></div>
+        <div class="mobile-nav-section-label" id="mobileNavLabelComplementary">${t.complementary || 'Acervo Complementar'}</div>
+
+        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}reader.html?pub=disciples&book=keigyou" id="mobileNavLinkKeigyou">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span class="link-text"><span class="lang-pt">Keigyou</span><span class="lang-ja" style="display:none">景 仰</span></span>
+        </a>
+
+        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}reader.html?pub=disciples&book=ashita-no-ijitsu-wo-ikiru" id="mobileNavLinkAshita">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span class="link-text"><span class="lang-pt">Ashita no Ijitsu wo Ikiru</span><span class="lang-ja" style="display:none">明日の医術を生きる</span></span>
+        </a>
 
       </div>
     </div>`;

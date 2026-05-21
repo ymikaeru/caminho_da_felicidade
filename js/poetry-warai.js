@@ -11,6 +11,37 @@
   const DATA_URL = 'data/poetry/warai_no_izumi.json';
   const PAGE_SIZE = 60;
 
+  // Romanização + glosa em PT-BR para os 24 títulos temáticos.
+  // Mantemos o nome japonês em romaji (sem traduzir nomes próprios/onomatopeias)
+  // e oferecemos uma glosa curta como apoio de leitura.
+  const THEME_GLOSS = {
+    '空財布':            { romaji: 'Kara-saifu',         pt: 'carteira vazia' },
+    'ウツフ':            { romaji: 'Utsufu',             pt: 'risadinha' },
+    'なさけない':        { romaji: 'Nasakenai',          pt: 'lamentável' },
+    '無精者':            { romaji: 'Bushōmono',          pt: 'preguiçoso' },
+    'アンボンタン':      { romaji: 'Anpontan',           pt: 'tonto' },
+    '泡くつて':          { romaji: 'Awakutte',           pt: 'em pânico' },
+    '笑わせやがらア':    { romaji: 'Warawase-yagara',    pt: 'me faz rir, ora!' },
+    'ケチンボウ':        { romaji: 'Kechinbō',           pt: 'pão-duro' },
+    'ケツの穴':          { romaji: 'Ketsu-no-ana',       pt: 'fiofó' },
+    'びくびくと':        { romaji: 'Bikubiku-to',        pt: 'tremendo de medo' },
+    'ワシヤツライ':      { romaji: 'Washi ya tsurai',    pt: 'pra mim é duro' },
+    '此野郎':            { romaji: 'Kono-yarō',          pt: 'seu desgraçado' },
+    '変な奴':            { romaji: 'Henna-yatsu',        pt: 'sujeito estranho' },
+    'ずるい奴':          { romaji: 'Zurui-yatsu',        pt: 'sujeito malandro' },
+    'そそつかしい':      { romaji: 'Sosokkashii',        pt: 'atrapalhado' },
+    '朴念人':            { romaji: 'Bokunenjin',         pt: 'cabeça-dura' },
+    'コソコソと':        { romaji: 'Kosokoso-to',        pt: 'às escondidas' },
+    'チヱツ':            { romaji: 'Chetsu',             pt: 'tch!' },
+    '助けてくれー':      { romaji: 'Tasukete-kurē',      pt: 'socorro!' },
+    'ペツチヤンコ':      { romaji: 'Pecchanko',          pt: 'esmagado' },
+    'お豪〔偉〕う厶（ござ）いますよ': { romaji: 'O-erau gozaimasu yo', pt: 'que magnífico!' },
+    'テツヘツヘツヽヽ':  { romaji: 'Tetsu-hetsu-hetsu',  pt: 'he he he' },
+    'コン畜生':          { romaji: 'Kono-chikushō',      pt: 'maldito!' },
+    'ダー':              { romaji: 'Dā',                 pt: 'ah!' },
+  };
+  const _gloss = (jp) => THEME_GLOSS[jp] || { romaji: jp, pt: '' };
+
   let _poems = [];
   let _byTheme = new Map();    // title -> [poem]
   let _activeTheme = null;     // null = all
@@ -78,12 +109,18 @@
         <span class="poetry-filter-btn__count">${_poems.length}</span>
       </button>
     `;
-    const items = themes.map(([t, arr]) => `
-      <button class="poetry-filter-btn ${_activeTheme === t ? 'is-active' : ''}" data-theme="${_esc(t)}">
-        <span class="poetry-filter-btn__jp">${_esc(t)}</span>
+    const items = themes.map(([t, arr]) => {
+      const g = _gloss(t);
+      return `
+      <button class="poetry-filter-btn ${_activeTheme === t ? 'is-active' : ''}" data-theme="${_esc(t)}" title="${_esc(t)} — ${_esc(g.pt)}">
+        <span class="poetry-filter-btn__main">
+          <span class="lang-pt">${_esc(g.romaji)}</span>
+          <span class="lang-ja poetry-filter-btn__jp" style="display:none">${_esc(t)}</span>
+        </span>
+        ${g.pt ? `<span class="poetry-filter-btn__hint lang-pt">${_esc(g.pt)}</span>` : ''}
         <span class="poetry-filter-btn__count">${arr.length}</span>
       </button>
-    `).join('');
+    `;}).join('');
     list.innerHTML = allBtn + items;
     list.querySelectorAll('.poetry-filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -112,11 +149,20 @@
     const penname = p.author_penname
       ? `<span class="poetry-card__tag">${_esc(p.author_penname)}</span>`
       : '';
+    let titleHtml = '';
+    if (p.title) {
+      const g = _gloss(p.title);
+      titleHtml = `<span class="poetry-card__title" title="${_esc(p.title)} — ${_esc(g.pt)}">
+        <span class="lang-pt">${_highlight(g.romaji, _query)}</span>
+        <span class="lang-ja" style="display:none">${_highlight(p.title, _query)}</span>
+      </span>`;
+    }
     return `
       <article class="poetry-card">
+        <span class="poetry-card__num" aria-hidden="true">${_esc(num)}</span>
         <div class="poetry-card__head">
-          <span class="poetry-card__num">№ ${_esc(num)}</span>
-          ${p.title ? `<span class="poetry-card__title">${_highlight(p.title, _query)}</span>` : ''}
+          <span class="poetry-card__num-label">№ ${_esc(num)}</span>
+          ${titleHtml}
           ${penname}
         </div>
         <div class="poetry-card__original">${_highlight(p.original, _query)}</div>
@@ -141,13 +187,20 @@
 
     // Header com o tema atual (se filtrado)
     if (_activeTheme) {
+      const g = _gloss(_activeTheme);
       html += `
         <header class="poetry-section-heading">
           <div class="poetry-section-heading__kicker">
             <span class="lang-pt">Tema</span><span class="lang-ja" style="display:none">題</span>
           </div>
-          <h2 class="poetry-section-heading__title">${_esc(_activeTheme)}</h2>
-          <div class="poetry-section-heading__pt">${list.length} <span class="lang-pt">versos sobre este tema</span><span class="lang-ja" style="display:none">句</span></div>
+          <h2 class="poetry-section-heading__title">
+            <span class="lang-pt">${_esc(g.romaji)}</span>
+            <span class="lang-ja" style="display:none">${_esc(_activeTheme)}</span>
+          </h2>
+          <div class="poetry-section-heading__pt">
+            <span class="lang-pt">${g.pt ? _esc(g.pt) + ' · ' : ''}${list.length} versos sobre este tema</span>
+            <span class="lang-ja" style="display:none">${_esc(_activeTheme)} · ${list.length} 句</span>
+          </div>
           <div class="poetry-section-heading__rule"></div>
         </header>
       `;

@@ -62,8 +62,11 @@
       </button>
     `;
     const items = _sections.map((s, i) => `
-      <button class="poetry-filter-btn ${_activeSectionIdx === i ? 'is-active' : ''}" data-idx="${i}">
-        <span class="poetry-filter-btn__jp">${_esc(s.title_jp)}</span>
+      <button class="poetry-filter-btn ${_activeSectionIdx === i ? 'is-active' : ''}" data-idx="${i}" title="${_esc(s.title_jp)} — ${_esc(s.title_pt)}">
+        <span class="poetry-filter-btn__main">
+          <span class="lang-pt">${_esc(s.title_pt || s.title_jp)}</span>
+          <span class="lang-ja poetry-filter-btn__jp" style="display:none">${_esc(s.title_jp)}</span>
+        </span>
         <span class="poetry-filter-btn__count">${s.poems.length}</span>
       </button>
     `).join('');
@@ -110,8 +113,9 @@
     const reading = p.reading ? `<div class="poetry-card__reading">${_highlight(p.reading, _query)}</div>` : '';
     return `
       <article class="poetry-card">
+        <span class="poetry-card__num" aria-hidden="true">${_esc(num)}</span>
         <div class="poetry-card__head">
-          <span class="poetry-card__num">№ ${_esc(num)}</span>
+          <span class="poetry-card__num-label">№ ${_esc(num)}</span>
           ${title}
         </div>
         <div class="poetry-card__original">${_highlight(p.original, _query)}</div>
@@ -129,8 +133,14 @@
         <div class="poetry-section-heading__kicker">
           <span class="lang-pt">Seção</span><span class="lang-ja" style="display:none">題目</span>
         </div>
-        <h2 class="poetry-section-heading__title">${_esc(sec.title_jp)}</h2>
-        <div class="poetry-section-heading__pt">${_esc(sec.title_pt)}</div>
+        <h2 class="poetry-section-heading__title">
+          <span class="lang-pt">${_esc(sec.title_pt || sec.title_jp)}</span>
+          <span class="lang-ja" style="display:none">${_esc(sec.title_jp)}</span>
+        </h2>
+        <div class="poetry-section-heading__pt">
+          <span class="lang-pt">${_esc(sec.title_jp)}</span>
+          <span class="lang-ja" style="display:none">${_esc(sec.title_pt)}</span>
+        </div>
         <div class="poetry-section-heading__rule"></div>
       </header>
       <div class="poetry-list">

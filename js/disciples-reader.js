@@ -478,6 +478,9 @@
     container.innerHTML = `<div class="reader-content disciples-book-content"><div class="disciples-book-header"><h1>${esc(book.title)}</h1>${book.author ? `<div class="disciples-book-author-header">${esc(book.author)}</div>` : ''}<a class="disciples-back-link" href="reader.html?pub=disciples"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>${isPt ? 'Publicações dos Discípulos' : '弟子たちの著作一覧'}</a></div>${breadcrumbHtml}${chapterNavHtml}<div class="disciples-book-body">${renderSection(chapter)}</div>${chapterNavHtml}</div>`;
 
     updateDiscSidebarActiveState();
+    // Re-observa os sections recém-renderizados pro scroll spy
+    // continuar atualizando a sidebar conforme o usuário rola.
+    setupScrollSpy();
 
     // Re-apply user highlights to the freshly rendered chapter
     try { window.applyHighlightsOnPage?.(); } catch (_) {}
@@ -605,43 +608,10 @@
       });
     });
 
-    // Scroll spy
-    const allLinks = Array.from(sidebar.querySelectorAll('.disciples-sb-leaf, [data-scroll]'));
-    const contentSections = Array.from(document.querySelectorAll('.disciples-section[id], .disciples-part-divider[id]'));
-    if (allLinks.length && contentSections.length) {
-      let ticking = false;
-      const setActive = (id) => {
-        allLinks.forEach(link => {
-          const href = (link.getAttribute('href') || '').replace('#', '');
-          const ds = link.getAttribute('data-scroll') || '';
-          const linkId = href || ds;
-          const was = link.classList.contains('active');
-          const is = linkId === id;
-          if (was !== is) {
-            link.classList.toggle('active', is);
-            if (is) {
-              // Auto-expand parent <details> so the active link is reachable visually
-              let parent = link.closest('details');
-              while (parent) { parent.open = true; parent = parent.parentElement?.closest('details'); }
-              if (!ticking) {
-                ticking = true;
-                requestAnimationFrame(() => {
-                  try { link.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
-                  catch (_) { /* older browsers */ }
-                  ticking = false;
-                });
-              }
-            }
-          }
-        });
-      };
-      if (contentSections[0]?.id) setActive(contentSections[0].id);
-      const obs = new IntersectionObserver((entries) => {
-        const visible = entries.filter(e => e.isIntersecting);
-        if (visible.length) setActive(visible[0].target.id);
-      }, { rootMargin: '-12% 0px -55% 0px', threshold: 0 });
-      contentSections.forEach(s => obs.observe(s));
-    }
+    // Scroll spy: extraído pra setupScrollSpy() pra ser refeito a cada
+    // troca de página (renderCurrentDiscChapter substitui o conteúdo,
+    // então o observer antigo perde a referência dos sections).
+    setupScrollSpy();
 
     // Scroll position persistence
     let scrollTick = false;
@@ -668,6 +638,53 @@
     }, { passive: true });
 
     restoreDiscReadingPosition(bookId);
+  }
+
+  // ── Scroll spy: destaca o link da sidebar conforme rola o conteúdo
+  // Re-setup necessário a cada navegação de capítulo, porque renderCurrentDiscChapter
+  // substitui innerHTML e os <section id> antigos somem do DOM.
+  let _scrollSpyObserver = null;
+  function setupScrollSpy() {
+    const sidebar = document.getElementById('readerSidebar');
+    if (!sidebar) return;
+    if (_scrollSpyObserver) {
+      try { _scrollSpyObserver.disconnect(); } catch (_) {}
+      _scrollSpyObserver = null;
+    }
+    const allLinks = Array.from(sidebar.querySelectorAll('.disciples-sb-leaf, [data-scroll]'));
+    const contentSections = Array.from(document.querySelectorAll('.disciples-section[id], .disciples-part-divider[id]'));
+    if (!allLinks.length || !contentSections.length) return;
+    let ticking = false;
+    const setActive = (id) => {
+      allLinks.forEach(link => {
+        const href = (link.getAttribute('href') || '').replace('#', '');
+        const ds = link.getAttribute('data-scroll') || '';
+        const linkId = href || ds;
+        const was = link.classList.contains('active');
+        const is = linkId === id;
+        if (was !== is) {
+          link.classList.toggle('active', is);
+          if (is) {
+            let parent = link.closest('details');
+            while (parent) { parent.open = true; parent = parent.parentElement?.closest('details'); }
+            if (!ticking) {
+              ticking = true;
+              requestAnimationFrame(() => {
+                try { link.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+                catch (_) {}
+                ticking = false;
+              });
+            }
+          }
+        }
+      });
+    };
+    if (contentSections[0]?.id) setActive(contentSections[0].id);
+    _scrollSpyObserver = new IntersectionObserver((entries) => {
+      const visible = entries.filter(e => e.isIntersecting);
+      if (visible.length) setActive(visible[0].target.id);
+    }, { rootMargin: '-12% 0px -55% 0px', threshold: 0 });
+    contentSections.forEach(s => _scrollSpyObserver.observe(s));
   }
 
   function updateDiscSidebarActiveState() {

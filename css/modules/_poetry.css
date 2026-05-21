@@ -146,8 +146,10 @@
 
 .poetry-page {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 300px minmax(0, 1fr);
   gap: 0;
+  align-items: start;
+  width: 100%;
   min-height: calc(100vh - var(--nav-height));
   margin-top: 0;
 }
@@ -155,6 +157,7 @@
 .poetry-sidebar {
   position: sticky;
   top: var(--nav-height);
+  align-self: start;
   height: calc(100vh - var(--nav-height));
   overflow-y: auto;
   border-right: 1px solid var(--border);
@@ -242,6 +245,55 @@
   stroke-linejoin: round;
 }
 
+.poetry-sidebar__fontsize {
+  padding: 0 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.poetry-sidebar__fontsize-label {
+  flex: 1;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.btn-poetry-fontsize {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+  line-height: 1;
+}
+
+.btn-poetry-fontsize:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.btn-poetry-fontsize:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-poetry-fontsize--small { font-size: 11px; }
+.btn-poetry-fontsize--large { font-size: 15px; }
+
 .poetry-sidebar__search {
   padding: 0 20px 18px;
   border-bottom: 1px solid var(--border);
@@ -311,12 +363,14 @@
 }
 
 .poetry-filter-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  column-gap: 8px;
+  row-gap: 1px;
   width: 100%;
   text-align: left;
-  padding: 7px 10px;
+  padding: 8px 10px;
   border: none;
   border-radius: var(--radius-sm);
   background: none;
@@ -325,6 +379,20 @@
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.12s var(--ease);
+}
+
+.poetry-filter-btn__main {
+  font-weight: 500;
+  color: inherit;
+}
+
+.poetry-filter-btn__hint {
+  grid-column: 1 / 2;
+  font-size: 10.5px;
+  font-style: italic;
+  color: var(--text-muted);
+  opacity: 0.75;
+  letter-spacing: 0.01em;
 }
 
 .poetry-filter-btn:hover {
@@ -370,11 +438,13 @@
 
 /* Main reading column */
 .poetry-main {
-  padding: 32px 48px 80px;
+  padding: calc(var(--nav-height) + 28px) clamp(32px, 5vw, 64px) 96px;
   min-width: 0;
-  max-width: 980px;
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
+  background: var(--surface);
+  min-height: calc(100vh - var(--nav-height));
 }
 
 .poetry-main__back {
@@ -513,7 +583,7 @@
 
 .poetry-card__original {
   font-family: 'Noto Serif JP', serif;
-  font-size: clamp(18px, 2.6vw, 22px);
+  font-size: calc(clamp(18px, 2.6vw, 22px) * var(--poetry-scale, 1));
   font-weight: 600;
   line-height: 1.9;
   letter-spacing: 0.06em;
@@ -523,7 +593,7 @@
 
 .poetry-card__reading {
   font-family: var(--font-serif);
-  font-size: 14px;
+  font-size: calc(14px * var(--poetry-scale, 1));
   font-style: italic;
   color: var(--text-muted);
   line-height: 1.6;
@@ -532,7 +602,7 @@
 
 .poetry-card__translation {
   font-family: var(--font-serif);
-  font-size: 16px;
+  font-size: calc(16px * var(--poetry-scale, 1));
   line-height: 1.65;
   color: var(--text-main);
   border-left: 2px solid var(--accent-soft);

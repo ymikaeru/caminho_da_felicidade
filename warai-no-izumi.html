@@ -10,8 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="css/styles.min.css?v=77">
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;600;700&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,200..600,30..100;1,9..144,300..500,30..100&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
+    <link rel="stylesheet" href="css/styles.min.css?v=81">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <script src="js/toggle.js?v=34" defer></script>
@@ -75,6 +75,14 @@
                     </button>
                 </div>
 
+                <div class="poetry-sidebar__fontsize">
+                    <span class="poetry-sidebar__fontsize-label">
+                        <span class="lang-pt">Tamanho</span><span class="lang-ja" style="display:none">字</span>
+                    </span>
+                    <button class="btn-poetry-fontsize btn-poetry-fontsize--small" id="waraiFontDec" type="button" aria-label="Diminuir fonte">A−</button>
+                    <button class="btn-poetry-fontsize btn-poetry-fontsize--large" id="waraiFontInc" type="button" aria-label="Aumentar fonte">A+</button>
+                </div>
+
                 <div class="poetry-sidebar__search">
                     <div class="poetry-searchbox">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -129,7 +137,8 @@
     <script src="js/access.js?v=5"></script>
     <script src="js/modals.js?v=3"></script>
     <script src="js/playlists.js?v=21" defer></script>
-    <script src="js/poetry-warai.js?v=1" defer></script>
+    <script src="js/poetry-fontsize.js?v=1" defer></script>
+    <script src="js/poetry-warai.js?v=4" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             buildSearchModal(); buildHistoryModal(); buildFavoritesModal();

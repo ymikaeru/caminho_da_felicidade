@@ -2374,17 +2374,16 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
     }
 
     // Limpa artefatos deixados pela versão antiga do soft-break (ZWSPs
-     // como guardião de trailing <br> e múltiplos <br data-soft> consecutivos
-     // acumulados quando o usuário pressionava Shift+Enter sucessivas vezes).
-     // Aplica ao abrir o editor — ao salvar de novo o JSON sai limpo.
+     // como guardião de trailing <br>). Sequências de 3+ <br data-soft>
+     // colapsam para no máximo 2 — preserva o duplo Shift+Enter intencional
+     // pra criar linha em branco, mas limpa acumulações acidentais antigas.
      function _cleanSoftBreakArtifacts(html) {
        if (!html) return html;
        return html
          // U+200B (ZWSP), U+200C (ZWNJ), U+200D (ZWJ), U+FEFF (BOM)
          .replace(/[​-‍﻿]/g, '')
-         // Sequências de <br data-soft> (com ou sem atributos extras) colapsam
-         // num único <br data-soft="1">. Preserva o atributo no resultado.
-         .replace(/(<br[^>]*data-soft[^>]*>)(?:\s*<br[^>]*data-soft[^>]*>)+/gi, '$1');
+         // 3+ <br data-soft> consecutivos colapsam pra 2 (mantém blank line).
+         .replace(/(<br[^>]*data-soft[^>]*>\s*<br[^>]*data-soft[^>]*>)(?:\s*<br[^>]*data-soft[^>]*>)+/gi, '$1');
      }
 
     function _sanitizeSegHtml(html) {

@@ -6,15 +6,15 @@
 // Limpa artefatos da versão antiga do soft-break no admin editor:
 // - U+200B/200C/200D/FEFF (zero-width spaces que eram usadas como
 //   "guardião" de trailing <br>)
-// - múltiplos <br data-soft> consecutivos (acumulados quando o usuário
-//   pressionava Shift+Enter várias vezes)
-// Aplicada no reader para que conteúdo já salvo renderize compacto
-// sem precisar reabrir+salvar cada relatório.
+// - sequências de 3+ <br data-soft> colapsam para no máximo 2.
+//   Isso preserva a intenção do usuário de criar uma linha em branco
+//   com Shift+Enter duplo (2 brs = 1 blank line), mas limpa as 3-4
+//   brs acidentais herdadas do código bugado antigo.
 function _cleanSoftBreakArtifacts(html) {
     if (!html) return html;
     return html
         .replace(/[​-‍﻿]/g, '')
-        .replace(/(<br[^>]*data-soft[^>]*>)(?:\s*<br[^>]*data-soft[^>]*>)+/gi, '$1');
+        .replace(/(<br[^>]*data-soft[^>]*>\s*<br[^>]*data-soft[^>]*>)(?:\s*<br[^>]*data-soft[^>]*>)+/gi, '$1');
 }
 
 function _normalizeContent(rawContent) {

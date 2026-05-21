@@ -1327,10 +1327,10 @@ ${entries.map(e => `<section class="teaching">${e.content}</section>`).join('\n'
     if (!_msFooter) {
       _msFooter = document.createElement('div');
       _msFooter.id = 'msFooter';
-      _msFooter.style.cssText = 'position:fixed; bottom:0; left:0; right:0; background:var(--surface, #fff); color:var(--text-main); border-top:1px solid var(--border); padding:12px 20px; display:flex; align-items:center; gap:12px; z-index:9998; box-shadow:0 -4px 18px rgba(0,0,0,0.10);';
+      _msFooter.style.cssText = 'position:fixed; bottom:0; left:0; right:0; background:var(--surface, #fff); color:var(--text-main); border-top:1px solid var(--border); padding:12px 20px; display:flex; align-items:center; gap:12px; z-index:100000; box-shadow:0 -4px 18px rgba(0,0,0,0.10);';
       _msFooter.innerHTML = `
-        <span id="msFooterCount" style="font-size:0.88rem;">Nenhum selecionado</span>
-        <button id="msFooterClear" type="button" style="margin-left:auto; padding:6px 12px; font-size:0.82rem; background:none; border:1px solid var(--border); color:inherit; border-radius:6px; cursor:pointer;" hidden>Limpar</button>
+        <span id="msFooterCount" style="font-size:0.88rem; margin-right:auto;">Nenhum selecionado</span>
+        <button id="msFooterClear" type="button" style="padding:6px 12px; font-size:0.82rem; background:none; border:1px solid var(--border); color:inherit; border-radius:6px; cursor:pointer;" hidden>Limpar</button>
         <button id="msFooterAdd" type="button" style="padding:7px 16px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;" disabled>📂 Adicionar à playlist</button>
       `;
       document.body.appendChild(_msFooter);
@@ -1363,7 +1363,7 @@ ${entries.map(e => `<section class="teaching">${e.content}</section>`).join('\n'
     if (_msAddModal) return;
     _msAddModal = document.createElement('div');
     _msAddModal.id = 'msAddModal';
-    _msAddModal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.55); display:none; align-items:center; justify-content:center; z-index:10002;';
+    _msAddModal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.55); display:none; align-items:center; justify-content:center; z-index:100001;';
     _msAddModal.innerHTML = `
       <div style="background:var(--surface, #fff); color:var(--text-main, #000); width:min(520px, 94vw); max-height:88vh; border-radius:10px; padding:22px; box-shadow:0 12px 40px rgba(0,0,0,0.3); display:flex; flex-direction:column; gap:14px;">
         <div style="display:flex; align-items:center; gap:12px;">

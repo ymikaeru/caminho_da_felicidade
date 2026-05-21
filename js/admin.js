@@ -2201,32 +2201,27 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
 
       container.innerHTML = html;
 
-      // Enter "puro" continua bloqueado (br nu = separador de segmento, romperia
-      // o alinhamento JA↔PT). Shift+Enter insere uma quebra de linha "soft"
-      // (<br data-soft="1">) — sobrevive ao sanitizador e o regex de split em
-      // segmentos (/<br\s*\/?>/i) não casa com br que tem atributo.
+      // Enter puro bloqueado (br nu = separador de segmento, romperia o
+      // alinhamento JA↔PT). Shift+Enter: deixa o browser inserir <br>
+      // naturalmente (comportamento padrão de contenteditable) e depois
+      // carimba data-soft="1" pra que o regex de split (/<br\s*\/?>/i) não
+      // capture esses brs como separadores. Mais robusto que Range API
+      // manual: evita ZWSP guardião e quirks de "trailing br" automático.
       // Paste sempre como texto puro pra evitar estilos inline.
       container.querySelectorAll('.seg-editable').forEach(div => {
         div.addEventListener('keydown', e => {
           if (e.key !== 'Enter') return;
-          e.preventDefault();
-          if (!e.shiftKey) return; // Enter puro: nada acontece
-          const sel = window.getSelection();
-          if (!sel || !sel.rangeCount) return;
-          const range = sel.getRangeAt(0);
-          range.deleteContents();
-          const br = document.createElement('br');
-          br.setAttribute('data-soft', '1');
-          range.insertNode(br);
-          // Garante que a quebra renderize mesmo se for o último filho:
-          // browsers só desenham <br> no final do bloco se houver um nó
-          // de texto depois. Insere um text node vazio como guardião.
-          const tail = document.createTextNode('​');
-          br.parentNode.insertBefore(tail, br.nextSibling);
-          range.setStart(tail, 1);
-          range.setEnd(tail, 1);
-          sel.removeAllRanges();
-          sel.addRange(range);
+          if (!e.shiftKey) {
+            // Enter puro: bloqueado.
+            e.preventDefault();
+            return;
+          }
+          // Shift+Enter: deixa o default rolar; o microtask depois marca.
+          queueMicrotask(() => {
+            div.querySelectorAll('br:not([data-soft])').forEach(br => {
+              br.setAttribute('data-soft', '1');
+            });
+          });
         });
         div.addEventListener('paste', e => {
           e.preventDefault();

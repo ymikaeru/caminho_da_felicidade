@@ -113,9 +113,8 @@
     const reading = p.reading ? `<div class="poetry-card__reading">${_highlight(p.reading, _query)}</div>` : '';
     return `
       <article class="poetry-card">
-        <span class="poetry-card__num" aria-hidden="true">${_esc(num)}</span>
         <div class="poetry-card__head">
-          <span class="poetry-card__num-label">№ ${_esc(num)}</span>
+          <span class="poetry-card__num">№ ${_esc(num)}</span>
           ${title}
         </div>
         <div class="poetry-card__original">${_highlight(p.original, _query)}</div>

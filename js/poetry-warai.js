@@ -8,7 +8,7 @@
 (function () {
   'use strict';
 
-  const DATA_URL = 'data/poetry/warai_no_izumi.json';
+  const DATA_URL = 'data/poetry/warai_no_izumi.json?v=4';
   const PAGE_SIZE = 60;
 
   // Romanização + glosa em PT-BR para os 24 títulos temáticos.
@@ -111,13 +111,13 @@
     `;
     const items = themes.map(([t, arr]) => {
       const g = _gloss(t);
+      const ptCap = g.pt ? g.pt.charAt(0).toUpperCase() + g.pt.slice(1) : g.romaji;
       return `
-      <button class="poetry-filter-btn ${_activeTheme === t ? 'is-active' : ''}" data-theme="${_esc(t)}" title="${_esc(t)} — ${_esc(g.pt)}">
+      <button class="poetry-filter-btn ${_activeTheme === t ? 'is-active' : ''}" data-theme="${_esc(t)}" title="${_esc(t)} — ${_esc(g.romaji)}">
         <span class="poetry-filter-btn__main">
-          <span class="lang-pt">${_esc(g.romaji)}</span>
+          <span class="lang-pt">${_esc(ptCap)}</span>
           <span class="lang-ja poetry-filter-btn__jp" style="display:none">${_esc(t)}</span>
         </span>
-        ${g.pt ? `<span class="poetry-filter-btn__hint lang-pt">${_esc(g.pt)}</span>` : ''}
         <span class="poetry-filter-btn__count">${arr.length}</span>
       </button>
     `;}).join('');
@@ -152,20 +152,21 @@
     let titleHtml = '';
     if (p.title) {
       const g = _gloss(p.title);
-      titleHtml = `<span class="poetry-card__title" title="${_esc(p.title)} — ${_esc(g.pt)}">
-        <span class="lang-pt">${_highlight(g.romaji, _query)}</span>
+      const ptCap = g.pt ? g.pt.charAt(0).toUpperCase() + g.pt.slice(1) : g.romaji;
+      titleHtml = `<span class="poetry-card__title" title="${_esc(p.title)} — ${_esc(g.romaji)}">
+        <span class="lang-pt">${_highlight(ptCap, _query)}</span>
         <span class="lang-ja" style="display:none">${_highlight(p.title, _query)}</span>
       </span>`;
     }
     return `
       <article class="poetry-card">
-        <span class="poetry-card__num" aria-hidden="true">${_esc(num)}</span>
         <div class="poetry-card__head">
-          <span class="poetry-card__num-label">№ ${_esc(num)}</span>
+          <span class="poetry-card__num">№ ${_esc(num)}</span>
           ${titleHtml}
           ${penname}
         </div>
         <div class="poetry-card__original">${_highlight(p.original, _query)}</div>
+        ${p.reading ? `<div class="poetry-card__reading">${_highlight(p.reading, _query)}</div>` : ''}
         ${p.translation_pt ? `<div class="poetry-card__translation">${_highlight(p.translation_pt, _query)}</div>` : ''}
       </article>
     `;
@@ -188,17 +189,18 @@
     // Header com o tema atual (se filtrado)
     if (_activeTheme) {
       const g = _gloss(_activeTheme);
+      const ptCap = g.pt ? g.pt.charAt(0).toUpperCase() + g.pt.slice(1) : g.romaji;
       html += `
         <header class="poetry-section-heading">
           <div class="poetry-section-heading__kicker">
             <span class="lang-pt">Tema</span><span class="lang-ja" style="display:none">題</span>
           </div>
           <h2 class="poetry-section-heading__title">
-            <span class="lang-pt">${_esc(g.romaji)}</span>
+            <span class="lang-pt">${_esc(ptCap)}</span>
             <span class="lang-ja" style="display:none">${_esc(_activeTheme)}</span>
           </h2>
           <div class="poetry-section-heading__pt">
-            <span class="lang-pt">${g.pt ? _esc(g.pt) + ' · ' : ''}${list.length} versos sobre este tema</span>
+            <span class="lang-pt">${_esc(g.romaji)} · ${list.length} versos sobre este tema</span>
             <span class="lang-ja" style="display:none">${_esc(_activeTheme)} · ${list.length} 句</span>
           </div>
           <div class="poetry-section-heading__rule"></div>

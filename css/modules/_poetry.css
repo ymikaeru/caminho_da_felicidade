@@ -154,21 +154,29 @@
   margin-top: 0;
 }
 
+/* Sidebar sticky em viewport-altura; cromo (header, busca, tamanho) sempre visível,
+   só a lista de temas/seções rola internamente quando excede o espaço. */
 .poetry-sidebar {
   position: sticky;
   top: var(--nav-height);
   align-self: start;
+  display: flex;
+  flex-direction: column;
   height: calc(100vh - var(--nav-height));
-  overflow-y: auto;
   border-right: 1px solid var(--border);
-  padding: 28px 0 40px;
+  padding: 28px 0 24px;
   background: var(--bg-color);
+}
+
+.poetry-sidebar__section {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
-
-.poetry-sidebar::-webkit-scrollbar { width: 4px; }
-.poetry-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.poetry-sidebar__section::-webkit-scrollbar { width: 4px; }
+.poetry-sidebar__section::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 .poetry-sidebar__header {
   padding: 0 20px 18px;
@@ -343,6 +351,7 @@
 .poetry-sidebar__section {
   padding: 0 12px;
   margin-bottom: 4px;
+  /* flex+overflow comportment is defined acima, na block .poetry-sidebar */
 }
 
 .poetry-sidebar__label {
@@ -367,10 +376,10 @@
   grid-template-columns: 1fr auto;
   align-items: baseline;
   column-gap: 8px;
-  row-gap: 1px;
+  row-gap: 0;
   width: 100%;
   text-align: left;
-  padding: 8px 10px;
+  padding: 5px 10px;
   border: none;
   border-radius: var(--radius-sm);
   background: none;
@@ -384,15 +393,6 @@
 .poetry-filter-btn__main {
   font-weight: 500;
   color: inherit;
-}
-
-.poetry-filter-btn__hint {
-  grid-column: 1 / 2;
-  font-size: 10.5px;
-  font-style: italic;
-  color: var(--text-muted);
-  opacity: 0.75;
-  letter-spacing: 0.01em;
 }
 
 .poetry-filter-btn:hover {
@@ -436,15 +436,26 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Main reading column */
+/* Main reading column — sem cartão branco; tom de papel unificado com a sidebar.
+   Conteúdo interno respira numa medida editorial centralizada. */
 .poetry-main {
-  padding: calc(var(--nav-height) + 28px) clamp(32px, 5vw, 64px) 96px;
+  padding: calc(var(--nav-height) + 28px) clamp(24px, 4vw, 64px) 96px;
   min-width: 0;
-  max-width: 1200px;
   width: 100%;
-  margin: 0 auto;
-  background: var(--surface);
+  background: transparent;
   min-height: calc(100vh - var(--nav-height));
+}
+
+.poetry-main__back,
+.poetry-main .poetry-section-heading,
+.poetry-main .poetry-list,
+.poetry-main .poetry-preface,
+.poetry-main .poetry-load-more,
+.poetry-main > .poetry-empty,
+.poetry-main > .poetry-loading {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .poetry-main__back {
@@ -515,10 +526,10 @@
   margin-top: 14px;
 }
 
-/* Poem list (grid of cards) */
+/* Poem list — uma coluna editorial, ritmo vertical respirado */
 .poetry-list {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0;
 }
 
@@ -526,22 +537,20 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 14px;
-  padding: 28px 0;
+  padding: 32px 18px;
+  margin: 0;
   border-bottom: 1px solid var(--border);
   cursor: pointer;
-  transition: background 0.15s var(--ease);
-  margin: 0 -16px;
-  padding-left: 16px;
-  padding-right: 16px;
+  transition: background 0.18s var(--ease);
   border-radius: var(--radius-sm);
-}
-
-.poetry-card:hover {
-  background: var(--accent-soft);
 }
 
 .poetry-card:last-child {
   border-bottom: none;
+}
+
+.poetry-card:hover {
+  background: var(--accent-soft);
 }
 
 .poetry-card__head {
@@ -748,6 +757,13 @@
 }
 
 /* ─── Responsive ─────────────────────────────────────────────── */
+
+/* Em telas largas, espelha a sidebar com uma coluna fantasma à direita.
+   Resultado: o conteúdo principal fica geometricamente centrado em
+   relação ao viewport (e ao emblema central do header). */
+@media (min-width: 1280px) {
+  .poetry-page { grid-template-columns: 300px minmax(0, 1fr) 300px; }
+}
 
 @media (max-width: 1024px) {
   .poetry-page { grid-template-columns: 240px 1fr; }

@@ -2208,26 +2208,29 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       container.innerHTML = html;
 
       // Enter puro bloqueado (br nu = separador de segmento, romperia o
-      // alinhamento JA↔PT). Shift+Enter: deixa o browser inserir <br>
-      // naturalmente (comportamento padrão de contenteditable) e depois
-      // carimba data-soft="1" pra que o regex de split (/<br\s*\/?>/i) não
-      // capture esses brs como separadores. Mais robusto que Range API
-      // manual: evita ZWSP guardião e quirks de "trailing br" automático.
+      // alinhamento JA↔PT). Shift+Enter insere <br data-soft="1"> via
+      // Range API — garante 1 BR por tecla pressionada (versão anterior
+      // que delegava ao browser perdia o segundo BR em algumas engines
+      // quando o usuário apertava Shift+Enter duas vezes em sequência).
       // Paste sempre como texto puro pra evitar estilos inline.
       container.querySelectorAll('.seg-editable').forEach(div => {
         div.addEventListener('keydown', e => {
           if (e.key !== 'Enter') return;
-          if (!e.shiftKey) {
-            // Enter puro: bloqueado.
-            e.preventDefault();
-            return;
-          }
-          // Shift+Enter: deixa o default rolar; o microtask depois marca.
-          queueMicrotask(() => {
-            div.querySelectorAll('br:not([data-soft])').forEach(br => {
-              br.setAttribute('data-soft', '1');
-            });
-          });
+          e.preventDefault();
+          if (!e.shiftKey) return; // Enter puro: nada.
+          const sel = window.getSelection();
+          if (!sel || !sel.rangeCount) return;
+          const range = sel.getRangeAt(0);
+          // Garante que o range está dentro do div editável atual
+          if (!div.contains(range.commonAncestorContainer)) return;
+          range.deleteContents();
+          const br = document.createElement('br');
+          br.setAttribute('data-soft', '1');
+          range.insertNode(br);
+          range.setStartAfter(br);
+          range.setEndAfter(br);
+          sel.removeAllRanges();
+          sel.addRange(range);
         });
         div.addEventListener('paste', e => {
           e.preventDefault();

@@ -78,6 +78,7 @@ function renderNotebook() {
             if (h.vol && h.file) {
                 articleUrl = `reader.html?vol=${encodeURIComponent(h.vol)}&file=${encodeURIComponent(h.file)}`;
                 if (h.topicIndex !== undefined && h.topicIndex !== '') articleUrl += `&topic=${h.topicIndex}`;
+                if (h.id) articleUrl += `&highlight=${encodeURIComponent(h.id)}&hl_scroll=1`;
             }
 
             const shortTitle = _esc(_truncate(h.topicTitle || (lang === 'ja' ? 'その他' : 'Outros'), 40));
@@ -162,6 +163,7 @@ function openHighlightDetail(id) {
     if (h.vol && h.file) {
         articleUrl = `reader.html?vol=${encodeURIComponent(h.vol)}&file=${encodeURIComponent(h.file)}`;
         if (h.topicIndex !== undefined && h.topicIndex !== '') articleUrl += `&topic=${h.topicIndex}`;
+        if (h.id) articleUrl += `&highlight=${encodeURIComponent(h.id)}&hl_scroll=1`;
     }
     document.getElementById('detailOpenBtn').href = articleUrl;
     document.getElementById('detailAccent').style.background = bgColor;

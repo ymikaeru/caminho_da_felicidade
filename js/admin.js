@@ -1183,14 +1183,19 @@
             📦 Arquivar
           </button>`;
 
+        const previewText = _stripHtmlText(r.pt_after || r.selected_text || '');
+        const previewUrl = `reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}${topicIdx ? `&topic=${topicIdx}` : ''}&search=${encodeURIComponent(previewText)}`;
+        const previewBtn = `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open('${previewUrl}', '_blank')" title="Abrir artigo no leitor focando neste trecho">👁️ Preview</button>`;
+
         let actions = '';
         let chip = '';
         if (state === 'pending') {
-          actions = `${editBtn}${aiBtn}${correctBtn}`;
+          actions = `${previewBtn}${editBtn}${aiBtn}${correctBtn}`;
         } else if (state === 'corrected') {
-          actions = `${editBtn}${archiveBtn}`;
+          actions = `${previewBtn}${editBtn}${archiveBtn}`;
           chip = `<span class="report-status-chip status-corrected" title="Aguardando arquivamento por outro admin">🟡 Corrigido por ${_escHtml(adminName(r.corrected_by))} · ${shortDate(r.corrected_at)}</span>`;
         } else { // verified
+          actions = `${previewBtn}`;
           chip = `<span class="report-status-chip status-archived">📦 Arquivado por ${_escHtml(adminName(r.verified_by))} · ${shortDate(r.verified_at)}</span>`;
         }
 

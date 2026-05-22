@@ -158,12 +158,15 @@
         <span class="lang-ja" style="display:none">${_highlight(p.title, _query)}</span>
       </span>`;
     }
+    const topicId = p.id || `waraino_${num}`;
+    const hlBtn = window._poetryHighlights ? window._poetryHighlights.renderCardButton() : '';
     return `
-      <article class="poetry-card">
+      <article class="poetry-card" data-poem-topic-id="${_esc(topicId)}" data-poem-index="${p.num}">
         <div class="poetry-card__head">
           <span class="poetry-card__num">№ ${_esc(num)}</span>
           ${titleHtml}
           ${penname}
+          ${hlBtn}
         </div>
         <div class="poetry-card__original">${_highlight(p.original, _query)}</div>
         ${p.reading ? `<div class="poetry-card__reading">${_highlight(p.reading, _query)}</div>` : ''}
@@ -233,6 +236,11 @@
 
     const lang = localStorage.getItem('site_lang') || 'pt';
     if (typeof setLanguage === 'function') setLanguage(lang, false);
+
+    // Reaplica destaques de poemas (borda + comentário) após cada render
+    if (window._poetryHighlights) {
+      window._poetryHighlights.applyToCards('warai-no-izumi', '#waraiList .poetry-card');
+    }
   }
 
   function _onSearch(value) {
@@ -266,6 +274,22 @@
     if (sb) sb.classList.toggle('is-open');
   }
 
+  function _findPoem(topicId) {
+    return _poems.find(p => (p.id || `waraino_${String(p.num).padStart(4, '0')}`) === topicId) || null;
+  }
+
+  function _scrollToPoemCard(topicId, flash) {
+    const card = document.querySelector(`#waraiList .poetry-card[data-poem-topic-id="${topicId}"]`);
+    if (!card) return false;
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (flash) {
+      card.style.transition = 'background 0.5s';
+      card.style.background = 'var(--accent-mid)';
+      setTimeout(() => { card.style.background = ''; }, 1800);
+    }
+    return true;
+  }
+
   function _wire() {
     const search = $('#waraiSearch');
     if (search) search.addEventListener('input', e => _onSearch(e.target.value));
@@ -273,13 +297,61 @@
     if (rand) rand.addEventListener('click', _randomPoem);
     const toggle = $('#waraiSidebarToggle');
     if (toggle) toggle.addEventListener('click', _toggleSidebar);
+
+    if (window._poetryHighlights) {
+      const list = $('#waraiList');
+      if (list) {
+        window._poetryHighlights.wireCardButtons({
+          container: list,
+          file: 'warai-no-izumi',
+          getMeta: (topicId) => {
+            const p = _findPoem(topicId);
+            if (!p) return null;
+            const g = _gloss(p.title || '');
+            const ptCap = g.pt ? g.pt.charAt(0).toUpperCase() + g.pt.slice(1) : g.romaji;
+            const num = String(p.num).padStart(4, '0');
+            const tema = ptCap || p.title || '';
+            return {
+              topicIndex: p.num,
+              topicTitle: tema ? `${tema} · № ${num}` : `№ ${num}`,
+              text: (p.original || '') + (p.translation_pt ? '\n' + p.translation_pt : '')
+            };
+          },
+          onChange: () => {
+            window._poetryHighlights.applyToCards('warai-no-izumi', '#waraiList .poetry-card');
+          }
+        });
+      }
+    }
   }
 
   async function init() {
     try {
       await _load();
       _wire();
+      const params = new URLSearchParams(window.location.search);
+      const poemParam = params.get('poem');
+      if (poemParam) {
+        const p = _findPoem(poemParam);
+        if (p) {
+          _activeTheme = p.title || null;
+          const list = _currentList();
+          const idx = list.indexOf(p);
+          if (idx >= 0 && idx >= _visible) {
+            _visible = Math.ceil((idx + 1) / PAGE_SIZE) * PAGE_SIZE;
+          }
+        }
+      }
       _render();
+      if (poemParam) {
+        setTimeout(() => {
+          window._poetryHighlights?.applyToCards('warai-no-izumi', '#waraiList .poetry-card');
+          _scrollToPoemCard(poemParam, params.get('hl_scroll') === '1');
+        }, 200);
+      }
+      setTimeout(() => {
+        window._poetryHighlights?.applyToCards('warai-no-izumi', '#waraiList .poetry-card');
+      }, 1200);
     } catch (err) {
       console.error('[poetry-warai]', err);
       const main = $('#waraiList');

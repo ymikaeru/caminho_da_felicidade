@@ -298,14 +298,14 @@
         }
     </style>
 
-    <script src="js/toggle.js?v=34" defer></script>
-    <script src="js/nav.js?v=36" defer></script>
+    <script src="js/toggle.js?v=35" defer></script>
+    <script src="js/nav.js?v=38" defer></script>
     <script src="js/theme.js?v=1" defer></script>
     <script src="js/language.js?v=4" defer></script>
     <script src="js/typography.js?v=1" defer></script>
     <script src="js/search.js?v=20" defer></script>
     <script src="js/highlights.js?v=6" defer></script>
-    <script src="js/destaques-page.js?v=3" defer></script>
+    <script src="js/destaques-page.js?v=4" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';
@@ -343,11 +343,18 @@
                         <p class="notebook-desc lang-pt">Todos os seus destaques e anotações reunidos.</p>
                         <p class="notebook-desc lang-ja" style="display:none">すべてのハイライトとメモ。</p>
                     </div>
-                    <button class="btn-export" onclick="typeof exportHighlightsTXT === 'function' ? exportHighlightsTXT() : null">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                        <span class="lang-pt">Exportar TXT</span>
-                        <span class="lang-ja" style="display:none">TXTをエクスポート</span>
-                    </button>
+                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <a href="poemas-salvos.html" class="btn-export" style="background: transparent; color: var(--accent); border: 1px solid var(--accent);">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span class="lang-pt">Poemas salvos</span>
+                            <span class="lang-ja" style="display:none">保存した詩</span>
+                        </a>
+                        <button class="btn-export" onclick="typeof exportHighlightsTXT === 'function' ? exportHighlightsTXT() : null">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            <span class="lang-pt">Exportar TXT</span>
+                            <span class="lang-ja" style="display:none">TXTをエクスポート</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div id="notebook-container">

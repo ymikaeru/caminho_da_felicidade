@@ -611,11 +611,19 @@
   display: inline-block;
   font-family: 'Noto Serif JP', serif;
   font-size: 10px;
-  color: var(--accent);
-  background: var(--accent-soft);
-  padding: 2px 8px;
-  border-radius: 999px;
+  font-style: italic;
+  color: var(--text-muted);
+  background: none;
+  padding: 0;
   letter-spacing: 0.04em;
+}
+
+/* Separador "·" antes do penname pra dar contexto sem fundo */
+.poetry-card__tag::before {
+  content: '· ';
+  color: var(--text-muted);
+  opacity: 0.5;
+  margin-right: 2px;
 }
 
 .poetry-card__original {
@@ -647,6 +655,62 @@
   font-style: italic;
   white-space: pre-line;
 }
+
+/* ─── Bookmark de poema (pill no header, ao lado do penname) ──── */
+
+/* Card salvo recebe uma barra lateral fina em accent à esquerda. */
+.poetry-card[data-poem-saved="1"] {
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/* Bookmark redondo (pill) no fim da linha do header — formato distinto
+   do penname (que é quadrado) pra não competir visualmente. */
+.poetry-card__bookmark {
+  margin-left: auto;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 4px 10px;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.18s var(--ease), color 0.18s var(--ease),
+              border-color 0.18s var(--ease), transform 0.15s var(--ease);
+}
+
+.poetry-card__bookmark:hover,
+.poetry-card__bookmark:focus-visible {
+  background: var(--accent-mid);
+  border-color: var(--accent);
+}
+
+.poetry-card__bookmark:active {
+  transform: scale(0.94);
+}
+
+.poetry-card__bookmark.is-saved {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.poetry-card__bookmark.is-saved svg path {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.poetry-card__bookmark svg {
+  display: block;
+  width: 12px;
+  height: 12px;
+  transition: fill 0.18s var(--ease);
+}
+
+.poetry-card__bookmark-label { display: none; }
 
 /* Preface block (Yama to Mizu only) */
 .poetry-preface {

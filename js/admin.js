@@ -256,7 +256,12 @@
       }
 
       const highlights = data || [];
-      document.getElementById('hl-total-count').textContent = `${highlights.length} destaque${highlights.length !== 1 ? 's' : ''}`;
+      const poemCount = highlights.filter(h => h.volume === 'poetry').length;
+      const hlCount = highlights.length - poemCount;
+      const parts = [];
+      if (hlCount > 0) parts.push(`${hlCount} destaque${hlCount !== 1 ? 's' : ''}`);
+      if (poemCount > 0) parts.push(`${poemCount} poema${poemCount !== 1 ? 's' : ''} salvo${poemCount !== 1 ? 's' : ''}`);
+      document.getElementById('hl-total-count').textContent = parts.join(' · ') || '0 destaques';
 
       if (highlights.length === 0) {
         container.innerHTML = '<div style="color:var(--text-muted); font-size:0.9rem; padding:20px 0;">Nenhum destaque encontrado para este usuário.</div>';
@@ -284,17 +289,39 @@
       for (const [, group] of grouped.entries()) {
         const volLabel = VOL_SHORT[group.volume] || group.volume;
         const fileLabel = getFileTitle(group.volume, group.file);
+        const isPoetry = group.volume === 'poetry';
+        const itemNoun = isPoetry
+          ? (group.items.length === 1 ? 'poema salvo' : 'poemas salvos')
+          : (group.items.length === 1 ? 'destaque' : 'destaques');
         html += `
           <div style="margin-bottom:28px;">
             <div style="font-weight:600; color:var(--accent); font-size:0.88rem; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px;" title="${_escHtml(group.file)}">
               <span style="background:rgba(184,134,11,0.12); border-radius:6px; padding:2px 8px; font-size:0.72rem; font-weight:700;">${_escHtml(volLabel)}</span>
               ${_escHtml(fileLabel)}
-              <span style="font-weight:400; color:var(--text-muted); font-size:0.78rem; margin-left:auto;">${group.items.length} destaque${group.items.length !== 1 ? 's' : ''}</span>
+              <span style="font-weight:400; color:var(--text-muted); font-size:0.78rem; margin-left:auto;">${group.items.length} ${itemNoun}</span>
             </div>
             <div style="display:flex; flex-direction:column; gap:10px;">
               ${group.items.map(h => {
-                const bg = colorMap[h.color] || '#fff3a1';
                 const date = new Date(h.updated_at).toLocaleDateString('pt-BR');
+                if (isPoetry) {
+                  // Poemas salvos não têm cor (sempre yellow fixo) nem comentário;
+                  // mostra o número/seção e o texto do poema (original + tradução).
+                  const lines = (h.text || '').split(/\n+/);
+                  const orig = lines[0] || '';
+                  const trans = lines.slice(1).join(' ').trim();
+                  return `
+                    <div class="hl-card" data-hl-idx="${h._idx}" onclick="openHighlightInContext(${h._idx})" title="Clique para ver na coletânea" style="cursor:pointer; padding:10px 14px; background:var(--surface); border-radius:8px; border:1px solid var(--border); border-left:3px solid var(--accent); transition:transform 0.12s ease, box-shadow 0.12s ease, opacity 0.25s ease;">
+                      ${h.topic_title ? `<div style="font-size:0.73rem; color:var(--text-muted); margin-bottom:6px; font-family:'Outfit',sans-serif; letter-spacing:0.04em;">${_escHtml(h.topic_title)}</div>` : ''}
+                      ${orig ? `<div style="font-family:'Noto Serif JP',serif; font-size:0.95rem; line-height:1.7; color:var(--text); white-space:pre-line;">${_escHtml(orig)}</div>` : ''}
+                      ${trans ? `<div style="font-family:'Crimson Pro',serif; font-style:italic; font-size:0.85rem; line-height:1.55; color:var(--text-muted); margin-top:4px;">${_escHtml(trans)}</div>` : ''}
+                      <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
+                        <span style="font-size:0.7rem; color:var(--text-muted); font-family:'Outfit',sans-serif;">${date}</span>
+                        <button class="hl-delete-btn" onclick="event.stopPropagation(); deleteHighlightAt(${h._idx})" title="Apagar este poema salvo" style="margin-left:auto; padding:3px 9px; border:1px solid rgba(255,59,48,0.3); background:rgba(255,59,48,0.06); color:#ff3b30; border-radius:6px; font-size:0.72rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif;">🗑 Apagar</button>
+                      </div>
+                    </div>
+                  `;
+                }
+                const bg = colorMap[h.color] || '#fff3a1';
                 return `
                   <div class="hl-card" data-hl-idx="${h._idx}" onclick="openHighlightInContext(${h._idx})" title="Clique para ver no contexto" style="cursor:pointer; border-left:4px solid ${bg}; padding:10px 14px; background:var(--surface); border-radius:0 8px 8px 0; border:1px solid var(--border); border-left-color:${bg}; transition:transform 0.12s ease, box-shadow 0.12s ease, opacity 0.25s ease;">
                     ${h.topic_title ? `<div style="font-size:0.73rem; color:var(--text-muted); margin-bottom:4px; font-family:'Outfit',sans-serif;">${_escHtml(h.topic_title)}</div>` : ''}
@@ -6057,7 +6084,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const since = new Date(Date.now() - days * 86400000).toISOString();
 
       try {
-        const [logsRes, posRes] = await Promise.all([
+        const [logsRes, posRes, savedRes] = await Promise.all([
           supabase.from('access_logs')
             .select('user_id, file, action, created_at')
             .eq('volume', 'poetry')
@@ -6066,7 +6093,13 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
             .limit(5000),
           supabase.from('reading_positions')
             .select('user_id, file, time_spent_seconds, updated_at')
+            .eq('volume', 'poetry'),
+          // Poemas salvos: agrega all-time (não filtra por período — salvar
+          // é uma intenção persistente, não um sinal de atividade recente).
+          supabase.from('user_highlights')
+            .select('user_id, file, topic_id, topic_title, text, updated_at')
             .eq('volume', 'poetry')
+            .limit(10000),
         ]);
 
         if (logsRes.error || posRes.error) {
@@ -6074,9 +6107,11 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           dash.innerHTML = `<div class="loading" style="color:#e05252;">Erro: ${_escHtml(e.message)}</div>`;
           return;
         }
+        if (savedRes.error) console.warn('[pa-analytics] saved highlights:', savedRes.error.message);
 
         const logs = (logsRes.data || []).filter(l => !_adminIds.has(l.user_id));
         const positions = (posRes.data || []).filter(p => !_adminIds.has(p.user_id));
+        const savedHl = (savedRes.data || []).filter(h => !_adminIds.has(h.user_id));
 
         if (genAt) genAt.textContent = `Atualizado em ${new Date().toLocaleString('pt-BR')}`;
 
@@ -6211,23 +6246,132 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
             }</tbody></table>`
           : '<div class="loading">Sem aberturas no período.</div>';
 
+        // ── Poemas Salvos: ranking + stats ─────────────────────────
+        // Agrega all-time por (file, topic_id), conta usuários distintos.
+        const savedTotal = savedHl.length;
+        const savedUsers = new Set(savedHl.map(h => h.user_id)).size;
+        const poemMap = new Map();
+        for (const h of savedHl) {
+          const key = `${h.file}__${h.topic_id || '__null'}`;
+          let p = poemMap.get(key);
+          if (!p) {
+            p = {
+              file: h.file,
+              topic_id: h.topic_id,
+              topic_title: h.topic_title || '',
+              text: h.text || '',
+              users: new Set(),
+              latestAt: null,
+            };
+            poemMap.set(key, p);
+          }
+          p.users.add(h.user_id);
+          if (!p.latestAt || h.updated_at > p.latestAt) p.latestAt = h.updated_at;
+          // Mantém topic_title/text mais ricos caso varie entre versões
+          if (!p.topic_title && h.topic_title) p.topic_title = h.topic_title;
+          if (!p.text && h.text) p.text = h.text;
+        }
+        const topSaved = [...poemMap.values()]
+          .sort((a, b) => b.users.size - a.users.size || (b.latestAt || '').localeCompare(a.latestAt || ''))
+          .slice(0, 25);
+
+        const _previewText = (t, max) => {
+          const first = (t || '').split(/\n+/)[0] || '';
+          if (first.length <= max) return first;
+          return first.slice(0, max) + '…';
+        };
+
+        const topSavedHtml = topSaved.length
+          ? `<table><thead><tr><th style="width:6%;">#</th><th>Poema</th><th>Obra</th><th style="text-align:right;">Salvos</th></tr></thead><tbody>${
+              topSaved.map((p, i) => {
+                const w = workTitle(p.file);
+                const collShort = p.file === 'yama-to-mizu' ? 'Yama' : p.file === 'warai-no-izumi' ? 'Warai' : (p.file || '—');
+                const title = p.topic_title || _previewText(p.text, 50) || (p.topic_id || '—');
+                return `<tr>
+                  <td style="color:var(--text-muted);">${i + 1}</td>
+                  <td style="font-size:.82rem;" title="${_escHtml(_previewText(p.text, 120))}">${_escHtml(title)}</td>
+                  <td style="font-size:.78rem; color:var(--text-muted);" title="${_escHtml(w)}">${_escHtml(collShort)}</td>
+                  <td class="num">${p.users.size}</td>
+                </tr>`;
+              }).join('')
+            }</tbody></table>`
+          : '<div class="loading">Nenhum poema salvo ainda.</div>';
+
+        // Top usuários que mais salvaram
+        const saverMap = new Map();
+        for (const h of savedHl) {
+          let s = saverMap.get(h.user_id);
+          if (!s) { s = { user_id: h.user_id, count: 0, files: new Set(), lastAt: null }; saverMap.set(h.user_id, s); }
+          s.count++;
+          if (h.file) s.files.add(h.file);
+          if (!s.lastAt || h.updated_at > s.lastAt) s.lastAt = h.updated_at;
+        }
+        const topSavers = [...saverMap.values()]
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 15);
+
+        // Carrega nomes faltantes (savers que não apareceram em logs/positions)
+        const missingNames = topSavers.map(s => s.user_id).filter(id => !nameMap[id]);
+        if (missingNames.length) {
+          try {
+            const { data: extra } = await supabase
+              .from('user_profiles').select('id, display_name').in('id', missingNames);
+            (extra || []).forEach(p => { nameMap[p.id] = p.display_name || 'Sem nome'; });
+          } catch (_) {}
+        }
+
+        const topSaversHtml = topSavers.length
+          ? `<table><thead><tr><th>Usuário</th><th style="text-align:right;">Poemas</th><th>Obras</th><th>Último</th></tr></thead><tbody>${
+              topSavers.map(s => `<tr>
+                <td>${_escHtml(nameMap[s.user_id] || 'Desconhecido')}</td>
+                <td class="num">${s.count}</td>
+                <td style="font-size:.78rem;">${[...s.files].map(f => f === 'yama-to-mizu' ? 'Yama' : f === 'warai-no-izumi' ? 'Warai' : f).join(', ')}</td>
+                <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(s.lastAt)}</td>
+              </tr>`).join('')
+            }</tbody></table>`
+          : '<div class="loading">Ninguém salvou poemas ainda.</div>';
+
         dash.innerHTML = `
-          <div class="dc-cards">
-            ${card(totalOpens, `Aberturas (${days} dias)`)}
-            ${card(uniqueReaders, 'Leitores únicos')}
-            ${card(fmtSecs(totalSeconds), 'Tempo total lido')}
-            ${card(fmtDate(lastActivity), 'Última atividade')}
+          <div class="dc-section">
+            <h3 class="dc-section-title">Engajamento de leitura · últimos ${days} dias</h3>
+            <div class="dc-cards">
+              ${card(totalOpens, 'Aberturas')}
+              ${card(uniqueReaders, 'Leitores únicos')}
+              ${card(fmtSecs(totalSeconds), 'Tempo total lido')}
+              ${card(fmtDate(lastActivity), 'Última atividade')}
+            </div>
+            <div class="dc-chart-wrap">
+              <h3>Aberturas por dia</h3>
+              <canvas id="pa-chart"></canvas>
+            </div>
           </div>
-          <div class="dc-cards">
-            ${[...allWorkIds].map(workCardHtml).join('')}
+
+          <div class="dc-section">
+            <h3 class="dc-section-title">Por obra · acumulado</h3>
+            <div class="dc-cards">
+              ${[...allWorkIds].map(workCardHtml).join('')}
+            </div>
           </div>
-          <div class="dc-chart-wrap">
-            <h3>Aberturas por dia (últimos ${days} dias)</h3>
-            <canvas id="pa-chart"></canvas>
+
+          <div class="dc-section">
+            <h3 class="dc-section-title">Poemas salvos · acumulado</h3>
+            <div class="dc-cards">
+              ${card(savedTotal, 'Total salvo')}
+              ${card(savedUsers, 'Usuários que salvaram')}
+              ${card(poemMap.size, 'Poemas distintos')}
+            </div>
+            <div class="dc-tables">
+              <div class="dc-tbl"><h3>Poemas mais salvos (top 25)</h3>${topSavedHtml}</div>
+              <div class="dc-tbl"><h3>Usuários que mais salvam (top 15)</h3>${topSaversHtml}</div>
+            </div>
           </div>
-          <div class="dc-tables">
-            <div class="dc-tbl"><h3>Top leitores (por tempo)</h3>${topReadersHtml}</div>
-            <div class="dc-tbl"><h3>Atividade recente</h3>${recentHtml}</div>
+
+          <div class="dc-section">
+            <h3 class="dc-section-title">Atividade dos leitores</h3>
+            <div class="dc-tables">
+              <div class="dc-tbl"><h3>Top leitores (por tempo)</h3>${topReadersHtml}</div>
+              <div class="dc-tbl"><h3>Atividade recente</h3>${recentHtml}</div>
+            </div>
           </div>
         `;
 
@@ -6279,7 +6423,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const since = new Date(Date.now() - days * 86400000).toISOString();
 
       // Fetch RPC and extra raw data in parallel
-      const [rpcRes, rawRes, cmOpensRes, cmHeartbeatsRes, cmAudioRes] = await Promise.all([
+      const [rpcRes, rawRes, cmOpensRes, cmHeartbeatsRes, cmAudioRes, essShownRes, essSuppRes, essSkippedRes] = await Promise.all([
         supabase.rpc('admin_get_site_analytics', { p_site: 'johrei', days_back: days }),
         supabase.from('site_events').select('props,created_at').eq('site','johrei').eq('event_type','pageview').gte('created_at', since),
         // Culto Mensal: aberturas. Fetcha todos os cta de johrei e
@@ -6302,6 +6446,24 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           .select('event_type,session_id,anon_id,props,created_at')
           .eq('site','johrei')
           .in('event_type', ['audio_play','audio_pause','audio_ended'])
+          .gte('created_at', since),
+        // Essência: modal de boas-vindas exibido
+        supabase.from('site_events')
+          .select('anon_id,props')
+          .eq('site','johrei')
+          .eq('event_type','essencia_shown')
+          .gte('created_at', since),
+        // Essência: usuário marcou "não exibir mais"
+        supabase.from('site_events')
+          .select('anon_id,props')
+          .eq('site','johrei')
+          .eq('event_type','essencia_suppressed')
+          .gte('created_at', since),
+        // Essência: visita chegou com modal já suprimido (não exibiu)
+        supabase.from('site_events')
+          .select('anon_id,props')
+          .eq('site','johrei')
+          .eq('event_type','essencia_skipped')
           .gte('created_at', since)
       ]);
 
@@ -6507,6 +6669,38 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           </p>
         </div>`;
 
+      // ── Essência (modal de boas-vindas) aggregates ──────────────
+      const essShown = essShownRes.data || [];
+      const essSupp = essSuppRes.data || [];
+      const essSkipped = essSkippedRes.data || [];
+      const essShownCount = essShown.length;
+      const essShownUniques = new Set(essShown.map(r => r.anon_id)).size;
+      const essSuppCount = essSupp.length;
+      const essSuppUniques = new Set(essSupp.map(r => r.anon_id)).size;
+      const essSkippedCount = essSkipped.length;
+      const essSkippedUniques = new Set(essSkipped.map(r => r.anon_id)).size;
+      const essSuppRate = essShownCount > 0
+        ? Math.round((essSuppCount / essShownCount) * 100)
+        : null;
+
+      const essHasData = essShownCount > 0 || essSuppCount > 0 || essSkippedCount > 0;
+      const essBlock = `
+        <div class="jr-chart-wrap" style="margin-bottom:24px;">
+          <h3>🪷 Essência — Modal de Boas-vindas (${data.days_back}d)</h3>
+          <div class="jr-cards" style="margin-bottom:0;">
+            ${card(essShownCount, 'Exibições', essShownUniques)}
+            ${card(essSkippedCount, 'Já ocultaram', essSkippedUniques)}
+            ${engCard(essSuppCount, '"Não mostrar mais"')}
+            ${engCard(essSuppUniques, 'Únicos que suprimiram')}
+            ${engCard(essSuppRate != null ? essSuppRate + '%' : '—', 'Taxa de supressão')}
+          </div>
+          <p style="font-size:.72rem;color:var(--text-muted);margin:14px 0 0;">
+            ${essHasData
+              ? 'Exibições = vezes que o modal apareceu. Já ocultaram = visitas que chegaram com o modal previamente suprimido. Supressão = quantas vezes o checkbox "Não exibir nas próximas visitas" foi marcado ao fechar.'
+              : 'Sem dados ainda. Os eventos <code>essencia_shown</code>, <code>essencia_skipped</code> e <code>essencia_suppressed</code> aparecem quando o modal é exibido/oculto/suprimido no guia_johrei.'}
+          </p>
+        </div>`;
+
       dash.innerHTML = `
         <div class="jr-cards">
           ${card(t.today_visits,'Hoje',t.today_uniques)}
@@ -6521,6 +6715,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           ${engCard(t.period_sessions, `Sessões (${data.days_back}d)`)}
         </div>
         ${cmBlock}
+        ${essBlock}
         <div class="jr-chart-wrap">
           <h3>Visitas por dia (últimos ${data.days_back} dias)</h3>
           <canvas id="jr-chart"></canvas>

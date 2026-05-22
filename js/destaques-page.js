@@ -37,6 +37,11 @@ function renderNotebook() {
         dataList = hStorage ? JSON.parse(hStorage) : [];
     }
 
+    // Poemas salvos têm UI dedicada em poemas-salvos.html — não aparecem
+    // misturados aqui pra não inflar a lista de quem já tem muitos destaques
+    // de ensinamento.
+    dataList = (dataList || []).filter(h => h.vol !== 'poetry');
+
     if (!dataList || dataList.length === 0) {
         container.innerHTML = `<div class="notebook-empty">${noHighlights}</div>`;
         return;
@@ -46,10 +51,10 @@ function renderNotebook() {
     dataList.forEach(h => {
         const key = `${h.vol}_${h.file}`;
         if (!grouped.has(key)) {
-            grouped.set(key, { 
-                title: h.topicTitle || (lang === 'ja' ? 'その他' : 'Outros'), 
+            grouped.set(key, {
+                title: h.topicTitle || (lang === 'ja' ? 'その他' : 'Outros'),
                 volInfo: h.vol ? h.vol.toUpperCase() : '',
-                items: [] 
+                items: []
             });
         }
         grouped.get(key).items.push(h);
@@ -221,6 +226,7 @@ window.openNotebookEdit = function(id) {
 
 window.exportHighlightsTXT = function() {
     let dataList = typeof window._HighlightsApi !== 'undefined' ? window._HighlightsApi.getAll() : [];
+    dataList = (dataList || []).filter(h => h.vol !== 'poetry');
     if (dataList.length === 0) return;
 
     // Grouping

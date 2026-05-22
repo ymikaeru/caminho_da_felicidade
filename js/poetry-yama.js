@@ -110,11 +110,14 @@
     const num = p.number != null ? String(p.number).padStart(3, '0') : '';
     const title = p.title ? `<span class="poetry-card__title">${_highlight(p.title, _query)}</span>` : '';
     const reading = p.reading ? `<div class="poetry-card__reading">${_highlight(p.reading, _query)}</div>` : '';
+    const topicId = `yama_n${p.number}`;
+    const hlBtn = window._poetryHighlights ? window._poetryHighlights.renderCardButton() : '';
     return `
-      <article class="poetry-card">
+      <article class="poetry-card" data-poem-topic-id="${_esc(topicId)}" data-poem-index="${p.number}">
         <div class="poetry-card__head">
           <span class="poetry-card__num">№ ${_esc(num)}</span>
           ${title}
+          ${hlBtn}
         </div>
         <div class="poetry-card__original">${_highlight(p.original, _query)}</div>
         ${reading}
@@ -177,6 +180,12 @@
     // Re-aplica lang após render
     const lang = localStorage.getItem('site_lang') || 'pt';
     if (typeof setLanguage === 'function') setLanguage(lang, false);
+
+    // Re-aplica visual dos destaques de poemas (borda + comentário) — o
+    // _render() reescreve innerHTML, então precisamos rehidratar a cada vez.
+    if (window._poetryHighlights) {
+      window._poetryHighlights.applyToCards('yama-to-mizu', '#yamaList .poetry-card');
+    }
   }
 
   function _onSearch(value) {
@@ -210,6 +219,32 @@
     if (sb) sb.classList.toggle('is-open');
   }
 
+  function _findPoemLocation(topicId) {
+    // topicId pattern: yama_n{number}
+    const m = String(topicId || '').match(/^yama_n(\d+)$/);
+    if (!m) return null;
+    const number = parseInt(m[1], 10);
+    for (let i = 0; i < _sections.length; i++) {
+      const arr = _sections[i].poems;
+      for (let j = 0; j < arr.length; j++) {
+        if (arr[j].number === number) return { sectionIdx: i, poemIdx: j, poem: arr[j], section: _sections[i] };
+      }
+    }
+    return null;
+  }
+
+  function _scrollToPoemCard(topicId, flash) {
+    const card = document.querySelector(`#yamaList .poetry-card[data-poem-topic-id="${topicId}"]`);
+    if (!card) return false;
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (flash) {
+      card.style.transition = 'background 0.5s';
+      card.style.background = 'var(--accent-mid)';
+      setTimeout(() => { card.style.background = ''; }, 1800);
+    }
+    return true;
+  }
+
   function _wire() {
     const search = $('#yamaSearch');
     if (search) search.addEventListener('input', e => _onSearch(e.target.value));
@@ -217,13 +252,58 @@
     if (rand) rand.addEventListener('click', _randomPoem);
     const toggle = $('#yamaSidebarToggle');
     if (toggle) toggle.addEventListener('click', _toggleSidebar);
+
+    if (window._poetryHighlights) {
+      const list = $('#yamaList');
+      if (list) {
+        window._poetryHighlights.wireCardButtons({
+          container: list,
+          file: 'yama-to-mizu',
+          getMeta: (topicId, cardEl) => {
+            const loc = _findPoemLocation(topicId);
+            if (!loc) return null;
+            const sectionTitle = loc.section.title_pt || loc.section.title_jp || '';
+            const num = String(loc.poem.number).padStart(3, '0');
+            return {
+              topicIndex: loc.poem.number,
+              topicTitle: `${sectionTitle} · № ${num}`,
+              text: (loc.poem.original || '') + (loc.poem.translation ? '\n' + loc.poem.translation : '')
+            };
+          },
+          onChange: () => {
+            window._poetryHighlights.applyToCards('yama-to-mizu', '#yamaList .poetry-card');
+          }
+        });
+      }
+    }
   }
 
   async function init() {
     try {
       await _load();
       _wire();
+      // Deep-link: ?poem=yama_n123&hl_scroll=1
+      const params = new URLSearchParams(window.location.search);
+      const poemParam = params.get('poem');
+      if (poemParam) {
+        const loc = _findPoemLocation(poemParam);
+        if (loc) {
+          _activeSectionIdx = loc.sectionIdx;
+          _showPreface = false;
+        }
+      }
       _render();
+      if (poemParam) {
+        setTimeout(() => {
+          window._poetryHighlights?.applyToCards('yama-to-mizu', '#yamaList .poetry-card');
+          _scrollToPoemCard(poemParam, params.get('hl_scroll') === '1');
+        }, 200);
+      }
+      // pullCloudToLocal() roda async no login.js — re-aplica depois de 1.2s
+      // pra cobrir destaques criados em outro device que chegaram tarde.
+      setTimeout(() => {
+        window._poetryHighlights?.applyToCards('yama-to-mizu', '#yamaList .poetry-card');
+      }, 1200);
     } catch (err) {
       console.error('[poetry-yama]', err);
       const main = $('#yamaList');

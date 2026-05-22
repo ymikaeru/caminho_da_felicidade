@@ -205,77 +205,70 @@
       const topicEl = document.getElementById(topicId);
       if (!topicEl) continue;
 
-      const ranges = _buildHighlightRanges(topicEl, byTopic[topicId]);
+      // Collect all text nodes ONCE, then apply all highlights for this topic.
+      // We iterate highlights in reverse-document-order so that wrapping a
+      // later node doesn't shift offsets for earlier ones.
+      const textNodes = _collectTextNodes(topicEl);
+      if (textNodes.length === 0) continue;
+      const totalChars = textNodes[textNodes.length - 1].endChar;
 
-      ranges.forEach(({ range, highlight }) => {
-        const colorClass = `highlight-${highlight.color}`;
-        const existing = document.querySelector(`mark.user-highlight[data-highlight-id="${highlight.id}"]`);
-        if (existing) {
-          existing.remove();
-        }
+      // Build per-highlight segment lists (each segment = one text-node slice)
+      const hlSegments = [];
+      byTopic[topicId].forEach(h => {
+        if (h.startChar < 0 || h.endChar < 0 || h.startChar >= h.endChar || h.endChar > totalChars + 1) return;
+        const existing = document.querySelector(`mark.user-highlight[data-highlight-id="${h.id}"]`);
+        if (existing) existing.remove();
 
-        const mark = document.createElement('mark');
-        mark.className = `user-highlight ${colorClass}`;
-        mark.dataset.highlightId = highlight.id;
-        if (highlight.comment) mark.title = highlight.comment;
-
-        try {
-          range.surroundContents(mark);
-          mark.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            _showCommentPopup(highlight, mark);
-          });
-        } catch (e) {
-          // Cross-node selections: split text nodes and wrap each segment
-          const startNode = range.startContainer;
-          const endNode = range.endContainer;
-          if (startNode === endNode) {
-            _applyWithSplit(startNode, range.startOffset, range.endOffset, highlight);
-          } else {
-            // Multi-node: wrap each node's portion individually
-            const startMark = mark.cloneNode(true);
-            const endMark = mark.cloneNode(true);
-            try {
-              const startRange = new Range();
-              startRange.setStart(startNode, range.startOffset);
-              startRange.setEnd(startNode, startNode.textContent.length);
-              startRange.surroundContents(startMark);
-              startMark.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                _showCommentPopup(highlight, startMark);
-              });
-            } catch (e2) {}
-            try {
-              const endRange = new Range();
-              endRange.setStart(endNode, 0);
-              endRange.setEnd(endNode, range.endOffset);
-              endRange.surroundContents(endMark);
-              endMark.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                _showCommentPopup(highlight, endMark);
-              });
-            } catch (e2) {}
-            // Middle nodes: wrap entirely
-            try {
-              const middleRange = new Range();
-              middleRange.setStartAfter(startNode);
-              middleRange.setEndBefore(endNode);
-              if (middleRange.toString().trim()) {
-                const midMark = mark.cloneNode(true);
-                middleRange.surroundContents(midMark);
-                midMark.addEventListener('click', (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  _showCommentPopup(highlight, midMark);
-                });
-              }
-            } catch (e2) {}
+        const segs = [];
+        for (const tn of textNodes) {
+          const overlapStart = Math.max(tn.startChar, h.startChar);
+          const overlapEnd = Math.min(tn.endChar, h.endChar);
+          if (overlapStart < overlapEnd) {
+            segs.push({
+              node: tn.node,
+              offsetStart: overlapStart - tn.startChar,
+              offsetEnd: overlapEnd - tn.startChar,
+            });
           }
         }
+        if (segs.length > 0) hlSegments.push({ highlight: h, segs });
       });
+
+      // Apply in reverse order so earlier node offsets stay valid
+      hlSegments.reverse();
+      for (const { highlight, segs } of hlSegments) {
+        // Wrap each text-node segment individually — never crosses element
+        // boundaries, so surroundContents always succeeds.
+        const isFirst = { value: true };
+        for (let i = segs.length - 1; i >= 0; i--) {
+          const seg = segs[i];
+          try {
+            const r = document.createRange();
+            r.setStart(seg.node, seg.offsetStart);
+            r.setEnd(seg.node, seg.offsetEnd);
+            const mark = document.createElement('mark');
+            mark.className = `user-highlight highlight-${highlight.color}`;
+            // Only the first mark gets the data-highlight-id (for scroll-to queries)
+            if (isFirst.value) {
+              mark.dataset.highlightId = highlight.id;
+              isFirst.value = false;
+            } else {
+              mark.dataset.highlightGroup = highlight.id;
+            }
+            if (highlight.comment) mark.title = highlight.comment;
+            r.surroundContents(mark);
+            mark.addEventListener('click', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const h = _highlights.find(x => x.id === highlight.id);
+              if (h) _showCommentPopup(h, mark);
+            });
+          } catch (e) {
+            // Absolute fallback: split the text node manually
+            _applyWithSplit(seg.node, seg.offsetStart, seg.offsetEnd, highlight);
+          }
+        }
+      }
     }
   }
 
@@ -718,20 +711,21 @@
 
     const totalChars = textNodes[textNodes.length - 1].endChar;
 
-    highlights.forEach(h => {
+    // Process highlights in reverse so wrapping later nodes doesn't
+    // invalidate offsets of earlier ones.
+    const sorted = [...highlights].reverse();
+    sorted.forEach(h => {
       const startChar = h.startChar;
       const endChar = h.endChar;
 
       if (startChar < 0 || endChar < 0 || startChar >= endChar || endChar > totalChars + 1) return;
 
-      const ranges = [];
-
+      const segs = [];
       for (const tn of textNodes) {
         const overlapStart = Math.max(tn.startChar, startChar);
         const overlapEnd = Math.min(tn.endChar, endChar);
-
         if (overlapStart < overlapEnd) {
-          ranges.push({
+          segs.push({
             node: tn.node,
             offsetStart: overlapStart - tn.startChar,
             offsetEnd: overlapEnd - tn.startChar,
@@ -739,18 +733,29 @@
         }
       }
 
-      if (ranges.length === 0) return;
+      if (segs.length === 0) return;
 
-      try {
-        const domRange = document.createRange();
-        domRange.setStart(ranges[0].node, ranges[0].offsetStart);
-        domRange.setEnd(ranges[ranges.length - 1].node, ranges[ranges.length - 1].offsetEnd);
-        const mark = _createMarkEl(h);
-        domRange.surroundContents(mark);
-      } catch (e) {
-        ranges.forEach(r => {
-          _applyWithSplit(r.node, r.offsetStart, r.offsetEnd, h);
-        });
+      // Wrap each segment individually (reverse order to preserve offsets)
+      let isFirst = true;
+      for (let i = segs.length - 1; i >= 0; i--) {
+        const seg = segs[i];
+        try {
+          const r = document.createRange();
+          r.setStart(seg.node, seg.offsetStart);
+          r.setEnd(seg.node, seg.offsetEnd);
+          const mark = _createMarkEl(h);
+          if (isFirst) {
+            isFirst = false;
+          } else {
+            // Secondary marks: use group attr instead of id to avoid
+            // duplicate data-highlight-id in the DOM
+            delete mark.dataset.highlightId;
+            mark.dataset.highlightGroup = h.id;
+          }
+          r.surroundContents(mark);
+        } catch (e) {
+          _applyWithSplit(seg.node, seg.offsetStart, seg.offsetEnd, h);
+        }
       }
     });
   }

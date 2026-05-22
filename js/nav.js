@@ -111,10 +111,6 @@ function _initMobileNav() {
         </button>
 
         ${window.location.pathname.includes('reader.html') ? `
-        <button class="mobile-nav-link" onclick="toggleComparison(); closeMobileNav();" id="mobileNavLinkComparison">
-          <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
-          <span class="link-text">${t.comparison}</span>
-        </button>
         <button class="mobile-nav-link" onclick="closeMobileNav(); printCurrentTeaching();" id="mobileNavLinkPrint">
           <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           <span class="link-text">${t.print || 'Imprimir'}</span>
@@ -132,6 +128,12 @@ function _initMobileNav() {
           <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           <span class="link-text">${t.lang}</span>
         </button>
+
+        ${window.location.pathname.includes('reader.html') ? `
+        <button class="mobile-nav-link" onclick="toggleComparison(); closeMobileNav();" id="mobileNavLinkComparison">
+          <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+          <span class="link-text">${t.comparison}</span>
+        </button>` : ''}
 
         <div class="mobile-font-row">
           <button class="mobile-font-btn" id="mobileFontDown" onclick="changeFontSize(-1)">A-</button>

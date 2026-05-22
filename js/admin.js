@@ -1183,9 +1183,10 @@
             📦 Arquivar
           </button>`;
 
-        const previewText = _stripHtmlText(r.pt_after || r.selected_text || '');
-        const previewUrl = `reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}${topicIdx ? `&topic=${topicIdx}` : ''}&search=${encodeURIComponent(previewText)}`;
-        const previewBtn = `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open('${previewUrl}', '_blank')" title="Abrir artigo no leitor focando neste trecho">👁️ Preview</button>`;
+        const previewRaw = _stripHtmlText(r.pt_after || r.selected_text || '');
+        const previewSnippet = previewRaw.replace(/\s+/g, ' ').trim().slice(0, 80);
+        const previewUrl = `reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}${topicIdx ? `&topic=${topicIdx}` : ''}&preview=${encodeURIComponent(previewSnippet)}`;
+        const previewBtn = `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open('${previewUrl.replace(/'/g, "\\'")}', '_blank')" title="Abrir artigo no leitor focando neste trecho">👁️ Preview</button>`;
 
         let actions = '';
         let chip = '';

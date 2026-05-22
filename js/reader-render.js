@@ -552,6 +552,46 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         _revealGate();
     }
 
+    // --- Admin preview: scroll to paragraph containing preview text (no persistent highlights) ---
+    const _previewSnippet = _urlParams.get('preview');
+    if (_previewSnippet) {
+        const needle = _previewSnippet.replace(/\s+/g, ' ').trim().toLowerCase();
+        if (needle.length > 5) {
+            // Find the first <p> (or block element) whose text contains the snippet
+            let targetEl = null;
+            const allBlocks = container.querySelectorAll('.topic-content p, .topic-content li, .topic-content blockquote');
+            for (const el of allBlocks) {
+                const elText = (el.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+                if (elText.includes(needle)) {
+                    targetEl = el;
+                    break;
+                }
+            }
+            if (targetEl) {
+                setTimeout(() => {
+                    const HEADER_H = document.querySelector('.header')?.offsetHeight || 80;
+                    targetEl.style.scrollMarginTop = `${HEADER_H + 12}px`;
+                    targetEl.scrollIntoView({ behavior: 'instant', block: 'center' });
+                    _revealGate();
+                    // Brief golden flash — visible but non-intrusive
+                    targetEl.style.transition = 'background-color 0.4s ease, outline-color 0.4s ease';
+                    targetEl.style.backgroundColor = 'rgba(var(--accent-rgb, 180,130,20), 0.12)';
+                    targetEl.style.outline = '2px solid rgba(var(--accent-rgb, 180,130,20), 0.4)';
+                    targetEl.style.outlineOffset = '4px';
+                    targetEl.style.borderRadius = '4px';
+                    setTimeout(() => {
+                        targetEl.style.backgroundColor = '';
+                        targetEl.style.outline = '';
+                        targetEl.style.outlineOffset = '';
+                        targetEl.style.borderRadius = '';
+                    }, 3000);
+                }, 120);
+            } else {
+                _revealGate();
+            }
+        }
+    }
+
     // --- Apply user highlights after content is rendered (skip in comparison mode) ---
     const comparisonMode = localStorage.getItem('reader_comparison') === 'true';
     if (typeof window.applyHighlightsOnPage === 'function' && !comparisonMode) {

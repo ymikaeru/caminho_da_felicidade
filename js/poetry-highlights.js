@@ -191,6 +191,9 @@
         if (typeof onChange === 'function') onChange();
       } finally {
         delete btn.dataset.busy;
+        // Em touch, o foco/active gruda no botão depois do tap e fica
+        // visualmente solto — sem hover-out pra limpar. Tira o foco.
+        try { btn.blur(); } catch (e) {}
       }
     });
   }
@@ -203,4 +206,22 @@
     findFor: _findFor,
     findAllForFile: _findAllForFile,
   };
+
+  // Bottom-sheet modal do sidebar no mobile: fecha quando o usuário toca
+  // no backdrop (qualquer área fora do .poetry-sidebar e fora do toggle).
+  // O backdrop visual é puro CSS via body:has(.poetry-sidebar.is-open)::before
+  // — esse listener só fornece o handler de "tap fora".
+  document.addEventListener('click', (e) => {
+    const open = document.querySelector('.poetry-sidebar.is-open');
+    if (!open) return;
+    if (open.contains(e.target)) return;
+    if (e.target.closest('.poetry-sidebar-toggle')) return;
+    open.classList.remove('is-open');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const open = document.querySelector('.poetry-sidebar.is-open');
+    if (open) open.classList.remove('is-open');
+  });
 })();

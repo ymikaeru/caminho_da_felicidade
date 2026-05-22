@@ -28,7 +28,10 @@
 
 .poetry-hub__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  /* min(360px, 100%) impede que a coluna mínima estoure o viewport
+     no mobile — embaixo de 360px de largura útil o grid colapsa pra
+     uma coluna automaticamente. */
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
   gap: 24px;
 }
 
@@ -577,8 +580,10 @@
   border-bottom: none;
 }
 
-.poetry-card:hover {
-  background: var(--accent-soft);
+@media (hover: hover) {
+  .poetry-card:hover {
+    background: var(--accent-soft);
+  }
 }
 
 .poetry-card__head {
@@ -663,50 +668,51 @@
   box-shadow: inset 2px 0 0 var(--accent);
 }
 
-/* Bookmark redondo (pill) no fim da linha do header — formato distinto
-   do penname (que é quadrado) pra não competir visualmente. */
+/* Nordic: o bookmark é apenas o ícone. Sem pill, sem fundo, sem borda.
+   O glifo carrega o estado (outline = não-salvo, fill = salvo). */
 .poetry-card__bookmark {
   margin-left: auto;
   align-self: center;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent);
-  background: var(--accent-soft);
-  border: 1px solid transparent;
-  border-radius: 999px;
-  padding: 4px 10px;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  padding: 8px;
+  margin-right: -8px;
   cursor: pointer;
   line-height: 1;
-  transition: background 0.18s var(--ease), color 0.18s var(--ease),
-              border-color 0.18s var(--ease), transform 0.15s var(--ease);
+  opacity: 0.5;
+  transition: opacity 0.18s var(--ease), color 0.18s var(--ease);
 }
 
-.poetry-card__bookmark:hover,
-.poetry-card__bookmark:focus-visible {
-  background: var(--accent-mid);
-  border-color: var(--accent);
-}
-
-.poetry-card__bookmark:active {
-  transform: scale(0.94);
+@media (hover: hover) {
+  .poetry-card__bookmark:hover {
+    opacity: 1;
+    color: var(--accent);
+  }
+  .poetry-card__bookmark:focus-visible {
+    opacity: 1;
+    color: var(--accent);
+    outline: 1px dotted var(--accent);
+    outline-offset: 2px;
+  }
 }
 
 .poetry-card__bookmark.is-saved {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+  opacity: 1;
+  color: var(--accent);
 }
 
 .poetry-card__bookmark.is-saved svg path {
   fill: currentColor;
-  stroke: currentColor;
 }
 
 .poetry-card__bookmark svg {
   display: block;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   transition: fill 0.18s var(--ease);
 }
 
@@ -865,21 +871,66 @@
 @media (max-width: 768px) {
   .poetry-page { grid-template-columns: 1fr; }
 
+  /* No mobile o sidebar é um bottom-sheet modal: deita fora da tela e
+     desliza de baixo quando .is-open. Casamento visual com .theme-modal. */
   .poetry-sidebar {
-    position: static;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    z-index: 99999;
     height: auto;
-    max-height: 0;
-    overflow: hidden;
-    padding: 0;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    transition: max-height 0.3s var(--ease), padding 0.3s var(--ease);
+    max-height: 85vh;
+    background: var(--surface);
+    border: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
+    padding: 16px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    transform: translateY(100%);
+    visibility: hidden;
+    transition: transform 0.28s var(--ease), visibility 0.28s var(--ease);
   }
 
   .poetry-sidebar.is-open {
-    max-height: 70vh;
-    overflow-y: auto;
-    padding: 20px 0;
+    transform: translateY(0);
+    visibility: visible;
+  }
+
+  /* "Handle" no topo do bottom-sheet, padrão mobile */
+  .poetry-sidebar::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    margin: 0 auto 14px;
+    flex-shrink: 0;
+  }
+
+  /* Backdrop com leve blur quando o sheet abre */
+  body:has(.poetry-sidebar.is-open)::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 99998;
+    animation: poetry-sidebar-backdrop-in 0.28s var(--ease);
+  }
+
+  /* Trava o scroll do body enquanto o sheet está aberto */
+  body:has(.poetry-sidebar.is-open) {
+    overflow: hidden;
+  }
+
+  @keyframes poetry-sidebar-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   .poetry-sidebar-toggle {
@@ -887,7 +938,11 @@
   }
 
   .poetry-main {
-    padding: 0 20px 60px;
+    /* O <main> dessas páginas tem style="padding:0" inline pra acomodar
+       o sidebar desktop. No mobile o sidebar colapsa pra cima e o
+       toggle "Seções" ficaria atrás do header fixo (60px) — então
+       restauramos o top-padding aqui. */
+    padding: 72px 20px 60px;
     max-width: 100%;
   }
 
@@ -896,7 +951,23 @@
   .poetry-card__translation { font-size: 15px; }
   .poetry-preface { padding: 22px 20px; }
 
-  .poetry-feature { padding: 28px 22px 22px; min-height: 0; }
+  .poetry-feature { padding: 24px 20px 20px; min-height: 0; }
+  .poetry-feature__desc { font-size: 14px; margin-bottom: 20px; }
+  .poetry-feature__pt { font-size: 16px; margin-bottom: 18px; }
+  .poetry-feature__kicker { margin-bottom: 14px; }
+
+  /* Mobile: padding/margem maior pra hit area ≥44px (recomendação
+     Apple/Material), mantendo o ícone do mesmo tamanho visual. */
+  .poetry-card__bookmark {
+    padding: 14px;
+    margin-right: -14px;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .poetry-card__bookmark svg {
+    width: 17px;
+    height: 17px;
+  }
 }
 
 @media (max-width: 480px) {

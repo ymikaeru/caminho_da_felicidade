@@ -58,7 +58,9 @@
             font-size: 0.92rem;
             transition: background 0.15s;
         }
-        .poems-page-actions a:hover { background: var(--accent-soft); }
+        @media (hover: hover) {
+            .poems-page-actions a:hover { background: var(--accent-soft); }
+        }
 
         .poems-empty {
             text-align: center;
@@ -111,7 +113,9 @@
             padding: 6px 12px;
             transition: color 0.15s, border-color 0.15s;
         }
-        .poems-group__open:hover { color: var(--accent); border-color: var(--accent); }
+        @media (hover: hover) {
+            .poems-group__open:hover { color: var(--accent); border-color: var(--accent); }
+        }
 
         .poems-list {
             display: grid;
@@ -133,9 +137,11 @@
             gap: 10px;
             transition: transform 0.15s, box-shadow 0.15s;
         }
-        .poems-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        @media (hover: hover) {
+            .poems-item:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            }
         }
         .poems-item__head {
             display: flex;
@@ -175,26 +181,51 @@
             text-decoration: none;
             font-weight: 500;
         }
-        .poems-item__open:hover { text-decoration: underline; }
+        @media (hover: hover) {
+            .poems-item__open:hover { text-decoration: underline; }
+        }
         .poems-item__remove {
             background: none;
             border: 1px solid var(--border);
             color: #c0392b;
             cursor: pointer;
-            font-size: 0.75rem;
-            padding: 4px 10px;
-            border-radius: 5px;
+            font-size: 0.85rem;
+            padding: 8px 14px;
+            border-radius: 6px;
             font-family: inherit;
+            font-weight: 500;
+            min-height: 36px;
             transition: background 0.15s, border-color 0.15s;
         }
-        .poems-item__remove:hover {
-            background: rgba(192, 57, 43, 0.1);
-            border-color: #c0392b;
+        @media (hover: hover) {
+            .poems-item__remove:hover {
+                background: rgba(192, 57, 43, 0.1);
+                border-color: #c0392b;
+            }
+            [data-mode="dark"] .poems-item__remove:hover {
+                background: rgba(255, 119, 102, 0.12);
+                border-color: #ff7766;
+            }
         }
         [data-mode="dark"] .poems-item__remove { color: #ff7766; }
-        [data-mode="dark"] .poems-item__remove:hover {
-            background: rgba(255, 119, 102, 0.12);
-            border-color: #ff7766;
+
+        @media (max-width: 600px) {
+            /* Garante ≥44px de altura no botão de remover no mobile. */
+            .poems-item__remove {
+                font-size: 0.9rem;
+                padding: 10px 16px;
+                min-height: 44px;
+            }
+            .poems-item__open {
+                font-size: 0.95rem;
+                padding: 8px 4px;
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+            }
+            .poems-item__actions {
+                gap: 8px;
+            }
         }
     </style>
 
@@ -242,17 +273,6 @@
                         <h1 class="poems-page-title lang-ja" style="display:none">保存した詩</h1>
                         <p class="poems-page-desc lang-pt">Sua coletânea pessoal de tanka e kanku.</p>
                         <p class="poems-page-desc lang-ja" style="display:none">あなたの個人的な短歌・寒句のコレクション。</p>
-                    </div>
-                    <div class="poems-page-actions">
-                        <a href="poesia.html">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                            <span class="lang-pt">Poesia</span>
-                            <span class="lang-ja" style="display:none">詩集</span>
-                        </a>
-                        <a href="destaques.html">
-                            <span class="lang-pt">Central de Destaques</span>
-                            <span class="lang-ja" style="display:none">ハイライトセンター</span>
-                        </a>
                     </div>
                 </div>
 

@@ -970,7 +970,13 @@
   }
 }
 
+@media (max-width: 1024px) {
+  /* No mobile o .main fica com padding:0 (de _responsive.css), então o
+     hub precisa compensar o header fixo (60px) no próprio top-padding. */
+  .poetry-hub { padding: calc(var(--nav-height, 60px) + 24px) 24px 60px; }
+}
+
 @media (max-width: 480px) {
-  .poetry-hub { padding: 16px 16px 60px; }
+  .poetry-hub { padding: calc(var(--nav-height, 60px) + 16px) 16px 60px; }
   .poetry-hub__grid { gap: 16px; }
 }

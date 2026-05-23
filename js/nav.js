@@ -179,9 +179,15 @@ function _initMobileNav() {
           <span class="link-text">${t.comparison}</span>
         </button>` : ''}
 
+        <!-- A-/A+ ativam o modo "peek": o backdrop (blur + dim) some,
+             mas o painel lateral permanece — assim o usuário vê o efeito
+             no conteúdo e pode clicar várias vezes pra ajustar.
+             Em páginas de poesia, poetry-fontsize.js também escuta esses
+             botões e ajusta --poetry-scale (substituiu os botões que
+             ficavam na sidebar das obras poéticas). -->
         <div class="mobile-font-row">
-          <button class="mobile-font-btn" id="mobileFontDown" onclick="changeFontSize(-1)">A-</button>
-          <button class="mobile-font-btn" id="mobileFontUp" onclick="changeFontSize(1)">A+</button>
+          <button class="mobile-font-btn" id="mobileFontDown" onclick="changeFontSize(-1); _peekMobileNav();">A-</button>
+          <button class="mobile-font-btn" id="mobileFontUp" onclick="changeFontSize(1); _peekMobileNav();">A+</button>
         </div>
 
         <div class="mobile-nav-divider"></div>
@@ -432,8 +438,19 @@ window.openMobileNav = function () {
 
 window.closeMobileNav = function () {
   const overlay = document.getElementById('mobileNavOverlay');
-  if (overlay) overlay.classList.remove('open');
+  if (overlay) {
+    overlay.classList.remove('open');
+    overlay.classList.remove('peeking');
+  }
   document.body.style.overflow = '';
+};
+
+// "Peek" — esconde o backdrop (blur + dim) mantendo só o painel lateral
+// visível, pro usuário ver o efeito do A-/A+ no conteúdo atrás. Ativado
+// no clique do A-/A+ e limpo quando o menu é fechado.
+window._peekMobileNav = function () {
+  const overlay = document.getElementById('mobileNavOverlay');
+  if (overlay) overlay.classList.add('peeking');
 };
 
 window._updateMobileNavTopics = function (label, optionsList) {

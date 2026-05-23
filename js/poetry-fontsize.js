@@ -23,11 +23,14 @@
 
     const atMin = idx === 0;
     const atMax = idx === STEPS.length - 1;
-    ['waraiFontDec', 'yamaFontDec'].forEach(id => {
+    // mobileFontDown/Up são os botões A-/A+ do menu sanduíche, agora
+    // também controlando a escala da poesia (substituem os botões
+    // dedicados que existiam nas sidebars de yama/warai).
+    ['waraiFontDec', 'yamaFontDec', 'mobileFontDown'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.disabled = atMin;
     });
-    ['waraiFontInc', 'yamaFontInc'].forEach(id => {
+    ['waraiFontInc', 'yamaFontInc', 'mobileFontUp'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.disabled = atMax;
     });
@@ -49,6 +52,11 @@
     bind('waraiFontInc', +1);
     bind('yamaFontDec', -1);
     bind('yamaFontInc', +1);
+    // Botões A-/A+ do menu sanduíche também escalam a poesia.
+    // O changeFontSize() chamado em paralelo mexe em --reader-font-size,
+    // que não é usado por estas páginas — sem efeito colateral.
+    bind('mobileFontDown', -1);
+    bind('mobileFontUp', +1);
   }
 
   // Apply persisted scale immediately to avoid flash
@@ -57,9 +65,13 @@
     if (!isNaN(saved)) document.documentElement.style.setProperty('--poetry-scale', String(saved));
   } catch (e) {}
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', _wire);
-  } else {
+  // Sempre adia pro DOMContentLoaded a menos que ele já tenha disparado.
+  // Em scripts defer, readyState fica 'interactive' (não 'loading'), então
+  // o else rodaria _wire() imediatamente — mas mobileFontDown/Up só são
+  // criados depois, no listener DCL do toggle.js (_initMobileNav).
+  if (document.readyState === 'complete') {
     _wire();
+  } else {
+    document.addEventListener('DOMContentLoaded', _wire);
   }
 })();

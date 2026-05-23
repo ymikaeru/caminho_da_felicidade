@@ -159,6 +159,14 @@
   opacity: 1;
 }
 
+/* Modo "peek": A-/A+ clicado dentro do menu — esconde o backdrop pro
+   usuário ver o efeito da mudança de tamanho no texto atrás. O painel
+   lateral continua visível pra ele ajustar mais. Limpo no closeMobileNav. */
+.mobile-nav-overlay.peeking .mobile-nav-backdrop {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .mobile-nav-panel {
   position: absolute;
   top: 0;

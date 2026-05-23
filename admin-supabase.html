@@ -360,6 +360,17 @@
       #tab-access .add-user-form input {
         padding: 10px 12px !important;
       }
+      /* Aba Recomendações: 2 colunas (lista | detalhes) viram 1 coluna
+         empilhada. Lista de usuários limitada a 260px de altura pro
+         painel de detalhes caber logo embaixo sem precisar scrollar
+         o documento inteiro pra chegar nele. */
+      .rec-layout-grid {
+        grid-template-columns: 1fr !important;
+      }
+      #rec-user-list {
+        height: 260px !important;
+        min-height: 0 !important;
+      }
     }
 
     /* Line chart (SVG-based) */
@@ -1358,7 +1369,7 @@
               <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Recomendações para Estudo</h2>
               <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Indique ensinamentos a usuários individuais com uma nota opcional. O usuário vê um botão na home e no menu apenas se tiver recomendações.</p>
             </div>
-            <div style="display:grid; grid-template-columns:minmax(260px, 320px) 1fr; gap:24px; align-items:start;">
+            <div class="rec-layout-grid" style="display:grid; grid-template-columns:minmax(260px, 320px) 1fr; gap:24px; align-items:start;">
               <!-- Coluna esquerda: seletor de usuário -->
               <div>
                 <input type="text" id="rec-user-search" placeholder="Buscar usuário..." style="width:100%; padding:8px 10px; font-size:0.85rem; margin-bottom:10px; box-sizing:border-box;" oninput="renderRecUserList()">

@@ -6423,7 +6423,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const since = new Date(Date.now() - days * 86400000).toISOString();
 
       // Fetch RPC and extra raw data in parallel
-      const [rpcRes, rawRes, cmOpensRes, cmHeartbeatsRes, cmAudioRes, essShownRes, essSuppRes, essSkippedRes] = await Promise.all([
+      const [rpcRes, rawRes, cmOpensRes, cmHeartbeatsRes, cmAudioRes, essShownRes, essSuppRes, essSkippedRes, apostilaPrintRes] = await Promise.all([
         supabase.rpc('admin_get_site_analytics', { p_site: 'johrei', days_back: days }),
         supabase.from('site_events').select('props,created_at').eq('site','johrei').eq('event_type','pageview').gte('created_at', since),
         // Culto Mensal: aberturas. Fetcha todos os cta de johrei e
@@ -6464,6 +6464,12 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           .select('anon_id,props')
           .eq('site','johrei')
           .eq('event_type','essencia_skipped')
+          .gte('created_at', since),
+        // Apostila: impressões
+        supabase.from('site_events')
+          .select('anon_id,props,created_at')
+          .eq('site','johrei')
+          .eq('event_type','apostila_print')
           .gte('created_at', since)
       ]);
 
@@ -6479,7 +6485,10 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
       const raw = rawRes.data || [];
       const t = data.totals || {};
       const daily = data.daily || [];
-      const refs = data.top_referrers || [];
+      const refs = (data.top_referrers || []).filter(r => {
+        const ref = (r.referrer || '').toLowerCase();
+        return !ref.startsWith('localhost') && !ref.startsWith('127.') && !ref.startsWith('0.0.0.0');
+      });
       const eng = data.engagement || {};
       const items = data.top_items || [];
 
@@ -6649,6 +6658,37 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-muted);margin-top:3px;"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span></div>
         <p style="font-size:.78rem;color:var(--text-muted);margin:6px 0 0;">Pico: <strong>${hourPeakIdx}h</strong> (${hours[hourPeakIdx]} visitas)</p>`;
 
+      // ── Apostila (impressões) ─────────────────────────────────
+      const apRows = apostilaPrintRes.data || [];
+      const apPrintCount = apRows.length;
+      const apUniques = new Set(apRows.map(r => r.anon_id)).size;
+      const apTotalArticles = apRows.reduce((s, r) => s + (r.props?.items_count || 0), 0);
+      const apArticleFreq = {};
+      apRows.forEach(r => {
+        const ids = (r.props?.items || '').split(',').filter(Boolean);
+        ids.forEach(id => { apArticleFreq[id] = (apArticleFreq[id] || 0) + 1; });
+      });
+      const apTopArticles = Object.entries(apArticleFreq).sort((a, b) => b[1] - a[1]).slice(0, 10);
+      const apTopRows = apTopArticles.map(([id, n]) => {
+        const slug = id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        return `<tr><td class="ell" title="${esc(id)}">${esc(slug)}</td><td class="num">${n}</td></tr>`;
+      }).join('') || '<tr><td colspan="2" style="color:var(--text-muted);">Sem dados ainda.</td></tr>';
+      const apBlock = `
+        <div class="jr-chart-wrap" style="margin-bottom:24px;">
+          <h3>🖨️ Apostila — Impressões (${data.days_back}d)</h3>
+          <div class="jr-cards" style="margin-bottom:0;">
+            ${card(apPrintCount, 'Impressões', apUniques)}
+            ${engCard(apTotalArticles, 'Artigos impressos')}
+            ${engCard(apPrintCount > 0 ? (apTotalArticles / apPrintCount).toFixed(1) : '—', 'Artigos / impressão')}
+          </div>
+          <div style="margin-top:16px;">
+            <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+              <thead><tr><th style="text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);padding:6px 12px 6px 0;border-bottom:1px solid var(--border);font-weight:500;">Artigo</th><th style="text-align:right;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);padding:6px 0 6px 0;border-bottom:1px solid var(--border);font-weight:500;">Vezes</th></tr></thead>
+              <tbody>${apTopRows}</tbody>
+            </table>
+          </div>
+        </div>`;
+
       // Bloco de Culto Mensal: sempre renderiza (mesmo zerado) pra ficar
       // explícito que o tracking está ativo e que estamos esperando dados.
       const cmHasData = cmOpenCount > 0 || cmAudioSessions > 0 || cmSessionsRead > 0;
@@ -6716,6 +6756,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
         </div>
         ${cmBlock}
         ${essBlock}
+        ${apBlock}
         <div class="jr-chart-wrap">
           <h3>Visitas por dia (últimos ${data.days_back} dias)</h3>
           <canvas id="jr-chart"></canvas>

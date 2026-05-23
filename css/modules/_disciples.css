@@ -133,7 +133,9 @@
 
 .disciples-book-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  /* min(360px, 100%) — abaixo de 360px o grid colapsa em uma coluna
+     sem estourar o viewport (mesmo padrão do .poetry-hub__grid). */
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
   gap: 24px;
 }
 
@@ -175,12 +177,14 @@
 
 .disciples-book-title-ja {
   font-family: 'Noto Serif JP', serif;
-  font-size: clamp(22px, 2.6vw, 30px);
+  /* Mesma escala dos cards de poesia (.poetry-feature__jp) — JP é
+     o peso tipográfico principal do cartão. */
+  font-size: clamp(28px, 4vw, 38px);
   font-weight: 700;
   line-height: 1.2;
   color: var(--text-main);
   margin: 0 0 6px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 .disciples-book-title {
@@ -931,12 +935,29 @@ body.disciples-active .main {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .disciples-book-card {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
+  /* Cards mantêm o padding generoso do desktop — mesma filosofia
+     dos cards de poesia. Sem center-align: footer space-between só
+     funciona left-aligned. */
   .disciples-book-content { padding: 1.5rem 1rem 3rem; }
+}
+
+@media (max-width: 600px) {
+  .disciples-overview-header { margin-bottom: 28px; }
+  /* Banner "Continue lendo" empilha vertical no mobile pra
+     o título do livro caber sem truncar. */
+  .continue-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 12px 16px 14px;
+  }
+  .continue-banner__item { width: 100%; }
+  .continue-banner__title { white-space: normal; }
+  .continue-banner__dismiss {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+  }
 }
 
 /* ==========================================================

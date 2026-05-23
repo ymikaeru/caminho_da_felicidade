@@ -36,7 +36,9 @@ const MENU_TEXTS = {
     volumeTopics: 'Capítulos deste Volume',
     complementary: 'Acervo Complementar',
     poetry: 'Obras Poéticas',
-    disciples: 'Publicações de Discípulos'
+    disciples: 'Publicações de Discípulos',
+    meishuSama: 'Meishu-Sama',
+    discipulos: 'Discípulos'
   },
   ja: {
     title: '幸福の道',
@@ -67,7 +69,9 @@ const MENU_TEXTS = {
     volumeTopics: 'この巻の章',
     complementary: '補足の蔵書',
     poetry: '詩 集',
-    disciples: '弟子達の刊行物'
+    disciples: '弟子達の刊行物',
+    meishuSama: '明主様',
+    discipulos: '弟子達'
   }
 };
 

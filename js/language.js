@@ -50,11 +50,12 @@ function setLanguage(lang, triggerRender = true) {
     };
 
     updateLabel('mobileMenuTitle', t.title);
-    updateLabel('mobileNavLabelNav', t.navigation);
+    // mobileNavLabelNav agora abriga toda a obra de Meishu-Sama
+    // (volumes + poesia). mobileNavLabelComplementary virou "Discípulos".
+    updateLabel('mobileNavLabelNav', t.meishuSama || 'Meishu-Sama');
     updateLabel('mobileNavLabelActions', t.actions);
     updateLabel('mobileNavLabelFont', t.fontSize);
-    updateLabel('mobileNavLabelPoetry', t.poetry || 'Obras Poéticas');
-    updateLabel('mobileNavLabelComplementary', t.complementary || 'Acervo Complementar');
+    updateLabel('mobileNavLabelComplementary', t.discipulos || 'Discípulos');
     updateLink('mobileNavLinkHistory', t.history);
     updateLink('mobileNavLinkFavorites', t.saved);
     updateLink('mobileNavLinkLang', t.lang);
@@ -68,20 +69,42 @@ function setLanguage(lang, triggerRender = true) {
     const mobileLinksContainer = document.getElementById('mobileNavLinks');
     if (mobileLinksContainer) {
       const desktopNav = document.querySelector('.header__nav');
-      const navLinks = desktopNav ? Array.from(desktopNav.querySelectorAll('a')) : [];
+      // Filtro: o link "Poesia" do desktop nav duplica a seção "Obras
+      // Poéticas" do mobile menu — esconder pra não aparecer em NAVEGAÇÃO.
+      const navLinks = desktopNav
+        ? Array.from(desktopNav.querySelectorAll('a')).filter(a => !/\bpoesia\.html(?:[?#]|$)/.test(a.getAttribute('href') || ''))
+        : [];
       const linksHtml = navLinks.map(a => {
-        let text = a.textContent.trim();
+        // Bug: a.textContent inclui o conteúdo do <span class="lang-ja"
+        // style="display:none"> também — display:none não afeta textContent.
+        // Em PT, o JA passa direto. Pega o span específico quando existir.
+        const ptSpan = a.querySelector('.lang-pt');
+        const jaSpan = a.querySelector('.lang-ja');
+        const rawText = a.textContent.trim();
+        const volMatch = (a.getAttribute('href') || '').match(/mioshiec(\d+)/);
+        let text;
         if (lang === 'ja') {
-          if (text.includes('Início') || text.includes('⌂')) text = 'トップ';
-          else if (text.includes('Vol 1') || a.href.includes('mioshiec1')) text = '巻 1';
-          else if (text.includes('Vol 2') || a.href.includes('mioshiec2')) text = '巻 2';
-          else if (text.includes('Vol 3') || a.href.includes('mioshiec3')) text = '巻 3';
-          else if (text.includes('Vol 4') || a.href.includes('mioshiec4')) text = '巻 4';
+          if (jaSpan) text = jaSpan.textContent.trim();
+          else if (volMatch) text = '巻 ' + volMatch[1];
+          else if (rawText.includes('Início') || rawText.includes('⌂')) text = 'トップ';
+          else text = rawText;
+        } else {
+          if (ptSpan) {
+            const prefix = rawText.startsWith('⌂') ? '⌂ ' : '';
+            text = (prefix + ptSpan.textContent.trim()).trim();
+          } else {
+            text = rawText;
+          }
         }
-        const icon = a.href.includes('index.html') && a.textContent.trim().startsWith('⌂')
+        const icon = a.href.includes('index.html') && rawText.startsWith('⌂')
           ? `<svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`
           : `<svg class="nav-icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`;
-        return `<a href="${a.href}" class="mobile-nav-link">${icon}${text}</a>`;
+        const SUBT = (window.VOL_SUBTITLES && window.VOL_SUBTITLES[lang]) || (window.VOL_SUBTITLES && window.VOL_SUBTITLES.pt) || {};
+        const subtitle = volMatch ? SUBT[volMatch[1]] : null;
+        const labelHtml = subtitle
+          ? `<span class="mobile-nav-link__title"><span>${text}</span><span class="mobile-nav-link__subtitle">${subtitle}</span></span>`
+          : text;
+        return `<a href="${a.href}" class="mobile-nav-link">${icon}${labelHtml}</a>`;
       }).join('');
       mobileLinksContainer.innerHTML = linksHtml;
     }

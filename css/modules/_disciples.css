@@ -177,9 +177,8 @@
 
 .disciples-book-title-ja {
   font-family: 'Noto Serif JP', serif;
-  /* Mesma escala dos cards de poesia (.poetry-feature__jp) — JP é
-     o peso tipográfico principal do cartão. */
-  font-size: clamp(28px, 4vw, 38px);
+  /* Mesma escala dos cards de poesia (.poetry-feature__jp). */
+  font-size: clamp(24px, 3vw, 30px);
   font-weight: 700;
   line-height: 1.2;
   color: var(--text-main);

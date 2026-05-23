@@ -205,7 +205,7 @@
     };
 
     const POETRY_BOOK_TITLES = {
-      'warai-no-izumi': '笑いの泉 — Warai no Izumi',
+      'warai-no-izumi': '笑の泉 — Warai no Izumi',
       'yama-to-mizu':   '山と水 — Yama to Mizu'
     };
 

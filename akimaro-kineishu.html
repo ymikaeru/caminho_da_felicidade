@@ -1,17 +1,17 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
     <script>(function(){var m=localStorage.getItem('site_mode')||'light';var t=localStorage.getItem('theme')||'light';var d=document.documentElement;d.setAttribute('data-mode',m);d.setAttribute('data-theme',t);var c={'dark:light':'#1A1A1A','dark:quiet':'#2D2D2F','dark:paper':'#2A2824','dark:bold':'#000','dark:calm':'#3B3326','dark:focus':'#000','light:light':'#F2F2F0','light:quiet':'#404043','light:paper':'#EFE8D6','light:bold':'#FFF','light:calm':'#DFCDAE','light:focus':'#FFF'};var bg=c[m+':'+t]||(m==='dark'?'#121212':'#F2F2F0');d.style.backgroundColor=bg})();</script>
     <meta charset="UTF-8">
-    <title>Warai no Izumi — Caminho da Felicidade</title>
+    <title>Akimaro Kin'eishū — Caminho da Felicidade</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="笑の泉 — Coletânea de 1.063 versos humorísticos escritos por Meishu-Sama e discípulos sob pseudônimos.">
+    <meta name="description" content="明麿近詠集 — Coletânea de 486 tanka publicada em 1949 sob o pseudônimo Higashiyama Akimaro (Meishu-Sama). 99 poemas traduzidos.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;600;700&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,200..600,30..100;1,9..144,300..500,30..100&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
-    <link rel="stylesheet" href="css/styles.min.css?v=102">
+    <link rel="stylesheet" href="css/styles.min.css?v=110">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <script src="js/toggle.js?v=36" defer></script>
@@ -24,8 +24,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';
             if (typeof setLanguage === 'function') setLanguage(savedLang);
-            // Modais do header (busca, histórico, favoritos) precisam ser
-            // construídos no DOM antes dos botões funcionarem.
             if (typeof buildSearchModal === 'function') buildSearchModal();
             if (typeof buildHistoryModal === 'function') buildHistoryModal();
             if (typeof buildFavoritesModal === 'function') buildFavoritesModal();
@@ -56,7 +54,7 @@
 
     <main class="main" id="main-content" style="padding:0;">
         <div class="poetry-page">
-            <aside class="poetry-sidebar" id="waraiSidebar" aria-label="Navegação por tema">
+            <aside class="poetry-sidebar" id="akimaroSidebar" aria-label="Navegação por seção">
                 <a href="poesia.html" class="poetry-sidebar__back">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
                     <span class="lang-pt">Obras poéticas</span>
@@ -64,17 +62,17 @@
                 </a>
                 <div class="poetry-sidebar__header">
                     <span class="poetry-sidebar__kicker">
-                        <span class="lang-pt">Kanku</span><span class="lang-ja" style="display:none">寒句</span>
+                        <span class="lang-pt">Tanka</span><span class="lang-ja" style="display:none">短歌</span>
                     </span>
-                    <h2 class="poetry-sidebar__title">笑の泉</h2>
+                    <h2 class="poetry-sidebar__title">明麿近詠集</h2>
                     <div class="poetry-sidebar__subtitle">
-                        <span class="lang-pt">Warai no Izumi</span>
-                        <span class="lang-ja" style="display:none">わらいのいずみ</span>
+                        <span class="lang-pt">Akimaro Kin'eishū</span>
+                        <span class="lang-ja" style="display:none">あきまろきんえいしゅう</span>
                     </div>
                 </div>
 
                 <div class="poetry-sidebar__action">
-                    <button class="btn-poetry-random" id="waraiRandom" type="button">
+                    <button class="btn-poetry-random" id="akimaroRandom" type="button">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <polyline points="16 3 21 3 21 8"/>
                             <line x1="4" y1="20" x2="21" y2="3"/>
@@ -96,32 +94,32 @@
                             <circle cx="11" cy="11" r="8"/>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                         </svg>
-                        <input type="search" id="waraiSearch" placeholder="Buscar verso..." aria-label="Buscar versos">
+                        <input type="search" id="akimaroSearch" placeholder="Buscar poema..." aria-label="Buscar poemas">
                     </div>
                 </div>
 
                 <div class="poetry-sidebar__section">
                     <div class="poetry-sidebar__label">
-                        <span class="lang-pt">Temas</span><span class="lang-ja" style="display:none">題</span>
+                        <span class="lang-pt">Seções</span><span class="lang-ja" style="display:none">題 目</span>
                     </div>
-                    <div class="poetry-filter-list" id="waraiThemeList"></div>
+                    <div class="poetry-filter-list" id="akimaroSectionList"></div>
                 </div>
 
-                <div class="poetry-sidebar__stats" id="waraiStats">—</div>
+                <div class="poetry-sidebar__stats" id="akimaroStats">—</div>
             </aside>
 
             <section class="poetry-main">
-                <button class="poetry-sidebar-toggle" id="waraiSidebarToggle" type="button">
+                <button class="poetry-sidebar-toggle" id="akimaroSidebarToggle" type="button">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <line x1="3" y1="6" x2="21" y2="6"/>
                         <line x1="3" y1="12" x2="21" y2="12"/>
                         <line x1="3" y1="18" x2="21" y2="18"/>
                     </svg>
-                    <span class="lang-pt">Temas</span>
-                    <span class="lang-ja" style="display:none">題</span>
+                    <span class="lang-pt">Seções</span>
+                    <span class="lang-ja" style="display:none">題 目</span>
                 </button>
 
-                <div id="waraiList">
+                <div id="akimaroList">
                     <div class="poetry-loading">
                         <div class="poetry-loading__spinner"></div>
                         <span class="lang-pt">Carregando…</span>
@@ -153,7 +151,7 @@
     <script src="js/playlists.js?v=21" defer></script>
     <script src="js/poetry-fontsize.js?v=3" defer></script>
     <script src="js/poetry-highlights.js?v=4" defer></script>
-    <script src="js/poetry-warai.js?v=21" defer></script>
+    <script src="js/poetry-akimaro.js?v=4" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             buildSearchModal(); buildHistoryModal(); buildFavoritesModal();
@@ -161,10 +159,8 @@
         });
 
         // Analytics: aguarda sessão Supabase real antes de chamar logAccess
-        // (logAccess retorna silenciosamente se a sessão ainda não foi populada
-        // pelo módulo login.js — checar só window.supabaseAuth.logAccess não basta).
         (function () {
-            const POEM_VOL = 'poetry', POEM_FILE = 'warai-no-izumi';
+            const POEM_VOL = 'poetry', POEM_FILE = 'akimaro-kineishu';
             let _tries = 0;
             const _tryLog = async () => {
                 _tries++;

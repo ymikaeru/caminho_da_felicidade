@@ -15,7 +15,7 @@ const COLLECTIONS = {
   },
   'warai-no-izumi': {
     titlePt: 'Warai no Izumi',
-    titleJa: '笑いの泉',
+    titleJa: '笑の泉',
     subtitlePt: 'Versos humorísticos',
     subtitleJa: '寒句',
     page: 'warai-no-izumi.html',

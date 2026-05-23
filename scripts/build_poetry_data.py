@@ -77,14 +77,51 @@ def clean_yamato():
     print(f"yama_to_mizu.json: {len(out_sections)} secoes, {total_poems} poemas -> {out_path}")
 
 
+# Preface/edition do Warai no Izumi — hardcoded aqui porque o source
+# (new_mioshie_zenshu/waraino_poems.json) é só a lista de versos. Se for
+# editar, mexer aqui — o leitor poetry-warai.js depende destas chaves.
+WARAINO_PREFACE = {
+    "title_pt": "Prefácio",
+    "title_jp": "はしがき",
+    "content_jp": [
+        "今日本の社会、否日本人に最も必要なものは、何であるかといふと、それは笑であらう事は、心あるものの等しく唱へる処である。見よ、税金苦、食糧難、住宅難、物価高、金詰り、犯罪激増、病気の氾濫等々、宛然（さながら）地獄図絵といつてもいい。又昔から笑う門には福来ると言われる通り、近頃のように湿つぽい陰気な此娑婆では、好い事など来そうもない。故に斯んな陰欝な空気は元気よく笑の爆発で、一遍に吹つ飛ばして了う事だ。という訳で、此著を刊行する事になつたのである。読者諸君よ、一読大いに笑え！　三読羽目をはづせ。笑つて笑つて！　笑い抜いて！　天国を造るべきだ。笑いは天国の花と言うじやないか。",
+        "之は私が廿数年前、冠句の宗匠をしていた頃、笑冠句の会を作り、沢山の集句の中から選んだもので、それを又今度再選し筆を加えたものであるから、何れの句も珠玉のみといつてよかろう。",
+        "昭和二十五年十月",
+        "編　者　識"
+    ],
+    "content_pt": [
+        "Aquilo que hoje é mais necessário à sociedade japonesa — ou melhor, ao próprio povo japonês — é, no entender unânime de todos os que têm coração, o riso. Vejam: a aflição dos impostos, a escassez de alimentos, a falta de moradia, a carestia, o aperto financeiro, o aumento desenfreado da criminalidade, a multiplicação das doenças, e tantos outros males — em verdade, este mundo se assemelha a um quadro do inferno. E como diz o antigo provérbio, «à casa que ri, vem a fortuna» (笑う門には福来る); ora, neste mundo umedecido e melancólico em que vivemos, não parece que coisas boas estejam por vir. Por isso, tal atmosfera sombria deve ser dissipada de uma só vez, com a vigorosa explosão do riso. Foi por essa razão que decidi publicar esta obra. Caros leitores: leiam-na uma vez e riam muito! Leiam-na três vezes e percam toda a compostura! Riam, riam! Riam até o fim! E construam, assim, o Paraíso — pois não se diz que o riso é a flor do Paraíso?",
+        "Estes versos foram colhidos há mais de vinte anos, no tempo em que eu era mestre de Kanku (冠句) e organizei o Círculo dos Kanku Humorísticos (笑冠句), entre as numerosas coletâneas que então reunimos. Agora, novamente selecionados e com retoques desta pena, posso afirmar que todos eles são puras gemas.",
+        "Outubro do 25º ano da Era Showa (outubro de 1950). — Pelo Editor (編者識)"
+    ]
+}
+
+WARAINO_EDITION = {
+    "title_jp": "笑の泉",
+    "title_romaji": "Warai no Izumi",
+    "subtitle_jp": "笑冠沓句集",
+    "subtitle_romaji": "Shōkantō Kushū",
+    "subtitle_pt": "Coletânea de Kanku Humorísticos (冠沓 — abertura e fecho fixos)",
+    "attribution_jp": "岡田自観師の御歌集",
+    "attribution_pt": "Coletânea Poética do Mestre Okada Mokichi (Meishu-Sama)",
+    "publication_date_jp": "昭和26年1月30日",
+    "publication_date_pt": "30 de janeiro de 1951",
+    "total_in_original": 1093,
+    "translated_here": 1063,
+    "compiler_jp": "明烏阿呆",
+    "compiler_romaji": "Akegarasu Aho",
+    "compiler_label_pt": "Selecionador (選者)"
+}
+
+
 def copy_waraino():
     with open(os.path.join(SRC, "waraino_poems.json"), encoding="utf-8") as f:
         src = json.load(f)
 
     # Trim to needed fields only.
-    out = []
+    poems = []
     for p in src:
-        out.append({
+        poems.append({
             "id": p.get("id"),
             "num": p.get("num"),
             "title": p.get("title", ""),
@@ -96,10 +133,16 @@ def copy_waraino():
             "mood": p.get("mood", ""),
         })
 
+    out = {
+        "preface": WARAINO_PREFACE,
+        "edition": dict(WARAINO_EDITION, translated_here=len(poems)),
+        "poems": poems,
+    }
+
     out_path = os.path.join(DST, "warai_no_izumi.json")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    print(f"warai_no_izumi.json: {len(out)} poemas -> {out_path}")
+    print(f"warai_no_izumi.json: {len(poems)} poemas -> {out_path}")
 
 
 if __name__ == "__main__":

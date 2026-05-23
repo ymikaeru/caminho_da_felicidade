@@ -1,0 +1,5160 @@
+{
+  "preface": {
+    "title_pt": "Prefácio",
+    "title_jp": "序　文",
+    "content_jp": [
+      "この歌集は、昭和十一年より最近までのもので、忙中の間折に触れ時に臨み、出づるがままの感想をものしたものである。故に神歌あり道歌あり舒情歌あり、舒 景歌あり、多感多彩である私が経て来た信仰生活の一面が織込まれているのは勿論で、特に信仰人としては何物か心の糧を見出すであろう。",
+      "この書の数ある歌の中には、深き神秘を含むものもあるが、これは読む人の身魂次第に映るのであるから、一字一句も忽（ゆるが）せにせず心を罩（こ）めて読まれん事である。",
+      "昭和二十四年十月",
+      "熱海の寓居にて",
+      "東　山　明　麿"
+    ],
+    "content_pt": [
+      "Esta coletânea reúne poemas compostos desde o 11º ano da Era Showa (1936) até tempos recentes — frutos de impressões nascidas em meio à correnteza dos compromissos, escritos conforme afloravam, ao sabor do momento e da circunstância. Há cantos sagrados (神歌), cantos do Caminho (道歌), cantos líricos (舒情歌) e cantos descritivos da paisagem (舒景歌); multifacetados, refletindo um lado da vida de fé que percorri. Os que vivem a fé hão de encontrar, nestas páginas, algum alimento para a alma.",
+      "Entre os muitos poemas reunidos neste livro há os que encerram profundo mistério; estes se revelam conforme o espírito de quem os lê. Por isso, peço que sejam lidos sem negligenciar uma só palavra, com o coração inteiro, recolhido em atenção.",
+      "Outubro do 24º ano da Era Showa (outubro de 1949), em Atami, em minha residência. — Higashiyama Akimaro (東山明麿)"
+    ]
+  },
+  "edition": {
+    "publication_date_jp": "昭和24年11月30日",
+    "publication_date_pt": "30 de novembro de 1949",
+    "total_in_original": 486,
+    "translated_here": 99,
+    "author_jp": "東山明麿",
+    "author_romaji": "Higashiyama Akimaro"
+  },
+  "sections": [
+    {
+      "title_pt": "Ano Novo",
+      "title_jp": "元　旦（がんたん）",
+      "title_romaji": "Gantan",
+      "poems": [
+        {
+          "number": 1,
+          "title": "O Despontar Glorioso",
+          "original": "ひむがしの　空あかあかと日輪は　雲をやぶりて昇り初めける",
+          "reading": "Hingashi no / sora aka-aka to / nichirin wa / kumo o yaburite / nobori somekeru",
+          "reading_hira": "ひんがしの　そらあかあかとにちりんは　くもをやぶりてのぼりそめける",
+          "translation": "No céu do leste, em rubro intenso e vivo, O Disco Solar rompe as nuvens densas E inicia, majestoso, a sua ascensão.",
+          "date": "S11. 1. 1"
+        },
+        {
+          "number": 2,
+          "title": "A Luz da Transição",
+          "original": "夜の終り　いよいよ近み大いなる　光は今し昇らんとすも",
+          "reading": "Yo no owari / iyoiyo chikami / oinaru / hikari wa imashi / noboran to su mo",
+          "reading_hira": "よのおわり　いよいよちかみおおいなる　ひかりはいましのぼらんとすも",
+          "translation": "O fim da noite aproxima-se derradeiro; Eis que a Grande Luz, em sua magnitude, Está prestes a despontar neste exato agora.",
+          "date": "S11. 1. 1"
+        },
+        {
+          "number": 3,
+          "title": "O Fuji em Chamas",
+          "original": "富士の雪　茜にそめて日輪は　今しみ空に輝き初めける",
+          "reading": "Fuji no yuki / akane ni somete / nichirin wa / ima shi misora ni / kagayaki somekeru",
+          "reading_hira": "ふじのゆき　あかねにそめてにちりんは　いましみそらにかがやきそめける",
+          "translation": "Tingindo de carmesim a neve do Fuji, O Sol agora, no alto do firmamento, Começa a irradiar o seu brilho.",
+          "date": "S11. 1. 1"
+        },
+        {
+          "number": 4,
+          "title": "A Face da Donzela",
+          "original": "大富士の　雪くれないに日は染めぬ　はじらう乙女の面わにも似て",
+          "reading": "Oofuji no / yuki kurenai ni / hi wa somenu / hajirau otome no / omowa nimo nite",
+          "reading_hira": "おおふじの　ゆきくれないにひはそめぬ　はじらうおとめのおもわにもにて",
+          "translation": "A neve do Grande Fuji, o Sol a tinge de rosado; Assemelha-se, em sua pureza, À face de uma donzela que, tímida, cora.",
+          "date": "S11. 1. 1"
+        }
+      ]
+    },
+    {
+      "title_pt": "A Chegada da Primavera",
+      "title_jp": "春の訪れ",
+      "title_romaji": "Haru no Otozure",
+      "poems": [
+        {
+          "number": 5,
+          "title": "A Promessa nos Campos Secos",
+          "original": "枯野原　照す陽射しに春みえて　何とはなしにのどけさの今日",
+          "reading": "Karenohara / terasu hizashi ni / haru miete / nanto wanashi ni / nodokesa no kyo",
+          "reading_hira": "かれのはら　てらすひざしにはるみえて　なんとはなしにのどけさのきょう",
+          "translation": "Nos raios de sol que banham a campina seca, Vislumbro a primavera oculta; Quão sereno e aprazível é o dia de hoje.",
+          "date": "S11. 2.13"
+        },
+        {
+          "number": 6,
+          "title": "O Murmúrio do Regato",
+          "original": "浅けれど　春は見えけり小溝川　水のせせらぎかそかながらも",
+          "reading": "Asakeredo / haru wa miekeri / komizogawa / mizu no seseragi / kasoka nagara mo",
+          "reading_hira": "あさけれど　はるはみえけりこみぞがわ　みずのせせらぎかそかながらも",
+          "translation": "Ainda é cedo, mas a primavera se revela; No pequeno regato da vala, O murmúrio da água, embora sutil, já canta.",
+          "date": "S11. 2.13"
+        },
+        {
+          "number": 7,
+          "title": "Vestígios de Neve",
+          "original": "春来ぬる　畑に残んの雪あれど　冷たからなくうすらかぎらふ",
+          "reading": "Haru kinuru / hatake ni nokon no / yuki aredo / tsumetakaranaku / usura kagirau",
+          "reading_hira": "はるきぬる　はたけにのこんのゆきあれど　つめたからなくうすらかぎらう",
+          "translation": "A primavera chegou; Ainda há restos de neve na lavoura, Mas o frio se foi, e uma tênue bruma tremula.",
+          "date": "S11. 2.13"
+        },
+        {
+          "number": 8,
+          "title": "A Luz de Fevereiro",
+          "original": "如月の　末ともなれば春めきて　冬枯林真陽に明るき",
+          "reading": "Kisaragi no / sue to mo nareba / harumekite / fuyugare bayashi / mahiru ni akaruki",
+          "reading_hira": "きさらぎの　すえともなればはるめきて　ふゆかればやしまひにあかるき",
+          "translation": "Ao findar de Fevereiro, o ar primaveril se insinua; E o bosque, ainda seco pelo inverno, Resplandece sob a claridade do sol verdadeiro.",
+          "date": "S11. 2.13"
+        },
+        {
+          "number": 9,
+          "title": "A Cor da Terra",
+          "original": "田舎道　通りすがりに眼につくは　土のなだりに春にじむ色",
+          "reading": "Inakamichi / torisugari ni / me ni tsuku wa / tsuchi no nadari ni / haru nijimu iro",
+          "reading_hira": "いなかみち　とおりすがりにめにつくは　つちのなだりにはるにじむいろ",
+          "translation": "Pela estrada rural, ao passar, meus olhos notam: No barranco de terra nua, A cor da primavera começa a transbordar.",
+          "date": "S11. 2.13"
+        },
+        {
+          "number": 10,
+          "title": "O Pessegueiro em Espera",
+          "original": "見はるかす　枯桃林うすらにも　かぎろひ見えぬ春近むるや",
+          "reading": "Miharukasu / karemomo bayashi / usura nimo / kagiroi mienu / haru chikamuru ya",
+          "reading_hira": "みはるかす　かれももばやしうすらにも　かぎろいみえぬはるちかむるや",
+          "translation": "Ao longe, avisto o pomar de pessegueiros secos; Uma leve névoa trêmula os envolve... Ah, é a primavera que se aproxima!",
+          "date": "S11. 2.13"
+        },
+        {
+          "number": 11,
+          "title": "Ordem Natural",
+          "original": "春の日の　のどかな光に生々し　麦の穂立のととのひ見えて",
+          "reading": "Haru no hi no / nodoka na hikari ni / seiseishi / mugi no hodachi no / totonoi miete",
+          "reading_hira": "はるのひの　のどかなひかりにせいせいし　むぎのほだちのととのいみえて",
+          "translation": "Sob a luz serena do dia de primavera, tudo vivifica; Vejo as espigas de trigo erguerem-se, Alinhando-se em perfeita harmonia.",
+          "date": "S11. 3.29"
+        },
+        {
+          "number": 12,
+          "title": "O Caminho Verdejante",
+          "original": "日々通ふ　野辺の道芝青ずみて　畑の春もひろごりにける",
+          "reading": "Hibi kayou / nobe no michishiba / aozumite / hatake no haru mo / hirogori ni keru",
+          "reading_hira": "ひびかよう　のべのみちしばあおずみて　はたけのはるもひろごりにける",
+          "translation": "No caminho do campo por onde passo dia após dia, A relva da beira da estrada torna-se verdejante; E a primavera se alastra por toda a plantação.",
+          "date": "S11. 3.29"
+        },
+        {
+          "number": 13,
+          "title": "A Chuva Inquieta",
+          "original": "音立てて　春雨ならぬ雨音に　心みだるる日もすがらなる",
+          "reading": "Oto tatete / harusame naranu / amaoto ni / kokoro midaruru / himosugara naru",
+          "reading_hira": "おとたてて　はるさめならぬあまおとに　こころみだるるひもすがらなる",
+          "translation": "Com grande estrondo, não parece chuva de primavera; Ao ouvir este ruído intenso, Meu coração se agita durante todo o dia.",
+          "date": "S11. 3.29"
+        },
+        {
+          "number": 14,
+          "title": "Melancolia de Maio",
+          "original": "五月雨と　思ふばかりに音たつる　春雨の日のうつとうしけれ",
+          "reading": "Samidare to / omou bakarini / oto tatsuru / harusame no hi no / uttoushiki kere",
+          "reading_hira": "さみだれと　おもうばかりにおとたつる　はるさめのひのうっとうしけれ",
+          "translation": "Ressoa forte, como se fosse a chuva da estação das ameixas; Quão melancólico e pesado É este dia de chuva primaveril.",
+          "date": "S11. 3.29"
+        },
+        {
+          "number": 15,
+          "title": "Folhas Novas e Antigas",
+          "original": "ゆづり葉の　緑清々し朝晴れの　五月の空の下をくぎろひ",
+          "reading": "Yuzuriha no / midori sugasugashi / asabare no / satsuki no sora no / shita o kugiroi",
+          "reading_hira": "ゆずりはの　みどりすがすがしあさばれの　さつきのそらのしたをくぎろい",
+          "translation": "O verde da Yuzuriha é puro e refrescante; Sob o céu claro da manhã de Maio, Caminho envolto na bruma radiante.",
+          "date": "S11. 3.29"
+        },
+        {
+          "number": 16,
+          "title": "O Auge do Dente-de-Leão",
+          "original": "たんぽぽは　今盛りなりしかすがに　春は庭辺に深まりにつつ",
+          "reading": "Tanpopo wa / ima sakari nari / shikasugani / haru wa niwabe ni / fukamari ni tsutsu",
+          "reading_hira": "たんぽぽは　いまさかりなりしかすがに　はるはにわべにふかまりにつつ",
+          "translation": "Os dentes-de-leão estão agora no auge de seu vigor; E assim, de forma inegável, A primavera se aprofunda nos cantos do jardim.",
+          "date": "S11. 3.29"
+        }
+      ]
+    },
+    {
+      "title_pt": "A Verdade",
+      "title_jp": "真　理",
+      "title_romaji": "Shinri",
+      "poems": [
+        {
+          "number": 17,
+          "title": "A Fuga da Verdade",
+          "original": "善悪を　決めたる刹那真理てふ　ものは千里の先に逃げたる",
+          "reading": "Zenaku o / kimetaru setsuna / shinri chou / mono wa senri no / saki ni nigetaru",
+          "reading_hira": "ぜんあくを　きめたるせつなしんりちょう　ものはせんりのさきににげたる",
+          "translation": "No exato instante em que se decide o 'Bem' e o 'Mal', Aquilo a que chamamos Verdade Foge para mil léguas de distância.",
+          "date": "S11. 5.15"
+        },
+        {
+          "number": 18,
+          "title": "A Flor da Irmandade (Sakuya)",
+          "original": "雪霜を　しのぎしのぎて兄の花の　咲やもたらす神の代の春",
+          "reading": "Yukishimo o / shinogi shinogite / konohana no / sakuya motarasu / kami no yo no haru",
+          "reading_hira": "ゆきしもを　しのぎしのぎてこのはなの　さくやもたらすかみのよのはる",
+          "translation": "Suportando e superando a neve e a geada, O desabrochar da Flor Preciosa Traz consigo a Primavera da Era de Deus.",
+          "date": "S11. 5.15"
+        },
+        {
+          "number": 19,
+          "title": "A Nau da Salvação",
+          "original": "常春の　彼岸はろかに見ゆるなり　教の御舟に進み行く身は",
+          "reading": "Tokoharu no / higan haroka ni / miyuru nari / oshie no mifune ni / susumi yuku mi wa",
+          "reading_hira": "とこはるの　ひがんはろかにみゆるなり　おしえのみふねにすすみゆくみは",
+          "translation": "A margem distante da Eterna Primavera já se avista; Pois sigo avançando, seguro, A bordo da Nau Sagrada dos Ensinamentos.",
+          "date": "S11. 5.15"
+        },
+        {
+          "number": 20,
+          "title": "O Mistério de Um Rin",
+          "original": "一厘の　仕組は裏の又うらの　其又裏の裏のうらなり",
+          "reading": "Ichirin no / shigumi wa ura no / mata ura no / sono mata ura no / ura no ura nari",
+          "reading_hira": "いちりんの　しぐみはうらのまたうらの　そのまたうらのうらのうらなり",
+          "translation": "O Mecanismo de Um Rin é o avesso do avesso, E ainda o avesso desse avesso... É o profundo mistério oculto no último avesso.",
+          "date": "S11. 5.15"
+        }
+      ]
+    },
+    {
+      "title_pt": "Este Mundo de Beleza",
+      "title_jp": "美しき此世",
+      "title_romaji": "Utsukushiki Kono Yo",
+      "poems": [
+        {
+          "number": 21,
+          "title": "A Harmonia do Cosmos",
+          "original": "永遠に　大天地の栄ゆるは　諸の動きの狂ひなければ",
+          "reading": "Tokotowa ni / daiametsuchi no / sakayuru wa / moro no ugoki no / kurui nakereba",
+          "reading_hira": "とことはに　おおあめつちのさかゆるは　もものうごきのくるいなければ",
+          "translation": "Eternamente, o vasto Universo prospera e floresce; Pois em seus infinitos movimentos, Não existe um único desvio, nem loucura.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 22,
+          "title": "A Complexidade da Ignorância",
+          "original": "いとやすき　神の真道をよそにして　なやみつづくる人の愚かさ",
+          "reading": "Itoyasuki / kami no mamichi o / yoso ni shite / nayamitsuzukuru / hito no orokasa",
+          "reading_hira": "いとやすき　かみのまみちをよそにして　なやみつづくるひとのおろかさ",
+          "translation": "Tão simples e fácil é o Verdadeiro Caminho de Deus; Contudo, ignorando-o, o ser humano Persiste em sofrer — quão tola é sua ilusão.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 23,
+          "title": "O Retorno ao Lar",
+          "original": "恙なく　一日の業をなしおえて　帰れば楽しく妻子待ちをり",
+          "reading": "Tsutsuganaku / hitohi no waza o / nashioete / kaereba tanoshiku / saishi machiori",
+          "reading_hira": "つつがなく　ひとひのわざをなしおえて　かえればたのしくさいしまちおり",
+          "translation": "Sem infortúnios, cumpro a missão do dia; Ao regressar, encontro a alegria: Minha esposa e filhos esperam por mim.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 24,
+          "title": "A Felicidade Sem Sombra",
+          "original": "天地に　恥じぬ明るき楽しみを　たのしむ人こそ倖せ人なる",
+          "reading": "Ametsuchi ni / hajinu akaruki / tanoshimi o / tanoshimu hito koso / shiawasebito naru",
+          "reading_hira": "あめつちに　はじぬあかるきたのしみを　たのしむひとこそしあわせびとなる",
+          "translation": "Desfrutar de um prazer luminoso e límpido, Do qual não se envergonha perante o Céu e a Terra; Esse, em verdade, é o ser humano feliz.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 25,
+          "title": "A Ceia Sagrada",
+          "original": "睦しく　妻子と語らひ夕餉する　此上なき楽しさある世なりけり",
+          "reading": "Mutsumashiku / saishi to katarai / yuuge suru / koyonaki tanoshisa / aru yo narikeri",
+          "reading_hira": "むつましく　さいしとかたらいゆうげする　こよなきたのしさあるよなりけり",
+          "translation": "Conversar harmoniosamente com a esposa e os filhos, Enquanto partilhamos o jantar... Descobri que neste mundo existe, sim, alegria suprema.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 26,
+          "title": "A Mão de Kannon",
+          "original": "光明の　輝く道へねもごろに　導きたもふ観世音かも",
+          "reading": "Koumyou no / kagayaku michi e / nemogoro ni / michibiki tamou / kanzeon kamo",
+          "reading_hira": "こうみょうの　かがやくみちへねもごろに　みちびきたもうかんぜおんかも",
+          "translation": "Para a estrada onde a Luz resplandece, Com zelo e infinita bondade, É Kannon quem nos guia pela mão.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 27,
+          "title": "A Prosperidade da Prática",
+          "original": "限りなく　栄えゆくらん観音行は　神の定めし真道にありせば",
+          "reading": "Kagirinaku / sakaeyukuran / kannongyou wa / kami no sadameshi / mamichi ni ariseba",
+          "reading_hira": "かぎりなく　さかえゆくらんかんのんぎょうは　かみのさだめしまみちにありせば",
+          "translation": "Sem limites, há de prosperar eternamente A Prática de Kannon (Prática do Amor), Pois ela reside na Verdadeira Vereda traçada por Deus.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 28,
+          "title": "O Sonho da Loucura",
+          "original": "人として　ふむべき道と務むべき　業としあるなり夢な狂ひそ",
+          "reading": "Hito to shite / fumubeki michi to / tsutomubeki / waza to shi aru nari / yume na kurui so",
+          "reading_hira": "ひととして　ふむべきみちとつとむべき　わざとしあるなりゆめなくるいそ",
+          "translation": "Como ser humano, há um caminho a trilhar E um dever a cumprir; isso é a existência. Jamais te desvies, nem mesmo em sonhos.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 29,
+          "title": "A Engenharia da Prosperidade",
+          "original": "善き事を　重ね明るく日を送る　人は果なく栄えゆくなり",
+          "reading": "Yoki koto o / kasane akaruku / hi o okuru / hito wa hatenaku / sakaeyuku nari",
+          "reading_hira": "よきことを　かさねあかるくひをおくる　ひとははてなくさかえゆくなり",
+          "translation": "Empilhando boas ações, uma sobre a outra, E vivendo dias luminosos, Tal pessoa prosperará sem fim.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 30,
+          "title": "O Propósito da Criação",
+          "original": "安らけく　楽しく生くる人の世と　主の大神は造られしなる",
+          "reading": "Yasurakeku / tanoshiku ikuru / hito no yo to / su no ookami wa / tsukurareshi naru",
+          "reading_hira": "やすらけく　たのしくいくるひとのよと　すのおおかみはつくられしなる",
+          "translation": "Para que vivêssemos em paz e alegria, Foi com este propósito que o Senhor Deus Criou o mundo dos homens.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 31,
+          "title": "A Luz Sem Barreiras",
+          "original": "目に見えぬ　無碍の光明間くばりつ　世を浄めますうづの御仏",
+          "reading": "Me ni mienu / muge no koumyou / makubaritsu / yo o kiyomemasu / uzu no mihotoke",
+          "reading_hira": "めにみえぬ　むげのこうみょうまくばりつ　よをきよめますうづのみほとけ",
+          "translation": "Aos olhos invisível, a Luz Sem Limites Espalha-se por todas as frestas, Purificando o mundo: eis o Precioso Buda.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 32,
+          "title": "A Força da Sabedoria",
+          "original": "いと高き　神の恵まふ智慧こそは　此上なき人の力なりけり",
+          "reading": "Ito takaki / kami no megumau / uchie koso / koyonaki hito no / chikara narikeri",
+          "reading_hira": "いとたかき　かみのめぐもうちえこそは　こよなきひとのちからなりけり",
+          "translation": "A Sabedoria concedida pelo Deus Altíssimo É, de todas as forças, A maior potência que o ser humano pode possuir.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 33,
+          "title": "A Fonte Inesgotável",
+          "original": "滾々と　泉の如く湧きいづる　妙智を賜ふ観音畏し",
+          "reading": "Konkon to / izumi no gotoku / wakiizuru / myouchi o tamou / kannon kashikoshi",
+          "reading_hira": "こんこんと　いずみのごとくわきいづる　みょうちをたまうかんのんかしこし",
+          "translation": "Jorrando copiosamente, como fonte inesgotável, Brota a Maravilhosa Sabedoria; Quão reverente é a graça de Kannon!",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 34,
+          "title": "O Caminho da Prosperidade",
+          "original": "天地と　むだ果もなく栄ゆるは　観音行の道にぞありける",
+          "reading": "Ametsuchi to / muda hate mo naku / sakayuru wa / kannongyou no / michi ni zo arikeru",
+          "reading_hira": "あめつちと　むだはてもなくさかゆるは　かんのんぎょうのみちにぞありける",
+          "translation": "Junto com o Céu e a Terra, prosperar sem desperdícios, Em uma expansão sem fim... Tal é o fruto de quem trilha a Prática de Kannon.",
+          "date": "S11. 5.**"
+        }
+      ]
+    },
+    {
+      "title_pt": "Vila Tamagawa",
+      "title_jp": "玉　川　郷",
+      "title_romaji": "Tamagawa-gō",
+      "poems": [
+        {
+          "number": 35,
+          "title": "O Reflexo Sagrado (Vila Tamagawa)",
+          "original": "白雪を　かつぐ富士ケ嶺清しくも　うつす多摩川又なくよろしも",
+          "reading": "Shirayuki o / katsugu fujigane / sugashiku mo / utsusu tamagawa / matanaku yoroshi mo",
+          "reading_hira": "しらゆきを　かつぐふじがねすがしくも　うつすたまがわまたなくよろしも",
+          "translation": "Carregando o manto de neve branca, o Pico do Fuji Reflete-se, límpido e puro, Nas águas do Rio Tamagawa — visão sem igual!",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 36,
+          "title": "Saudade da Terra Pura",
+          "original": "富士ケ嶺を　はろかに眺め玉川の　清き流をなつかしむ郷",
+          "reading": "Fujigane o / haroka ni nagame / tamagawa no / kiyoki nagare o / natsukashimu sato",
+          "reading_hira": "ふじがねを　はろかにながめたまがわの　きよきながれをなつかしむさと",
+          "translation": "Contemplando ao longe o Pico do Fuji, E o fluir cristalino do Rio Tamagawa... Ah, esta é a vila que minha alma ama e recorda.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 37,
+          "title": "Sinfonia da Natureza",
+          "original": "月雪に　花に鳥の音虫の声　あかぬ眺めの玉川の里",
+          "reading": "Tsuki yuki ni / hana ni tori no ne / mushi no koe / akanu nagame no / tamagawa no sato",
+          "reading_hira": "つきゆきに　はなにとりのねむしのこえ　あかぬながめのたまがわのさと",
+          "translation": "Lua e Neve, Flores, o canto dos pássaros e a voz dos insetos; Uma paisagem da qual jamais me canso: Eis a Vila Tamagawa.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 38,
+          "title": "A Descida da Grande Luz",
+          "original": "大光明　如来此土に天降りなば　天ケ下にはさやる曲なし",
+          "reading": "Daikoumyou / nyorai konodo ni / amorinaba / amegashita niwa / sayaru maga nashi",
+          "reading_hira": "だいこうみょう　にょらいこのどにあもりなば　あめがしたにはさやるまがなし",
+          "translation": "Se o Grande Tathagata da Luz Descer finalmente a esta Terra, Sob os céus, mal algum poderá obstruir o Caminho.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 39,
+          "title": "O Jardim do Destino",
+          "original": "住みつきて　四季の眺めに事かかじ　神の定めし苑にしあれば",
+          "reading": "Sumitsukite / shiki no nagame ni / koto kakaji / kami no sadameshi / sono ni shi areba",
+          "reading_hira": "すみつきて　しきのながめにことかかじ　かみのさだめしそのにしあれば",
+          "translation": "Aqui me estabeleço, e nada falta à vista das quatro estações; Pois este é, verdadeiramente, O Jardim predestinado pelo próprio Deus.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 40,
+          "title": "O Destino da Flor",
+          "original": "途の辺に　咲く花にさえ運命あり　床に活けらるものもありせば",
+          "reading": "Michinobe ni / saku hana ni sae / sadame ari / toko ni ikeraru / mono mo ariseba",
+          "reading_hira": "みちのべに　さくはなにさえさだめあり　とこにいけらるものもありせば",
+          "translation": "Até mesmo a flor que desabrocha à beira da estrada tem seu destino; Pois há aquelas escolhidas Para serem vivificadas no vaso da alcova nobre.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 41,
+          "title": "Frutos da Eternidade",
+          "original": "花ちれど　実はみのるらん天地は　栄え果てなきものにしあれば",
+          "reading": "Hana chiredo / mi wa minoruran / ametsuchi wa / sakae hatenaki / mono ni shi areba",
+          "reading_hira": "はなちれど　みはみのるらんあめつちは　さかえはてなきものにしあれば",
+          "translation": "Embora as flores caiam, os frutos hão de amadurecer; Pois o Céu e a Terra são entidades De prosperidade eterna e inesgotável.",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 42,
+          "title": "O Messias Dourado",
+          "original": "金色の　光まばゆくかがやいて　雲より降るメシヤ観音",
+          "reading": "Konjiki no / hikari mabayuku / kagayaite / kumo yori kudaru / meshiya kannon",
+          "reading_hira": "こんじきの　ひかりまばゆくかがやいて　くもよりくだるめしやかんのん",
+          "translation": "Banhado em Luz Dourada, de brilho ofuscante, Resplandecendo gloriosamente... Das nuvens desce: o Messias Kannon!",
+          "date": "S11. 5.**"
+        },
+        {
+          "number": 43,
+          "title": "Cegueira e Surdez",
+          "original": "汝が眼　盲にありや汝が耳は　木耳なりや道きらふとは",
+          "reading": "Naga manako / meshii ni ariya / naga mimi wa / kikurage nariya / michi kirau to wa",
+          "reading_hira": "ながまなこ　めしいにありやながみみは　きくらげなりやみちきらうとは",
+          "translation": "Serão teus olhos cegos? Serão tuas ouvidos meros fungos de orelha-de-pau? Para que possas, assim, odiar o Caminho da Verdade...",
+          "date": "S15.12.23"
+        }
+      ]
+    },
+    {
+      "title_pt": "Poemas Avulsos",
+      "title_jp": "※全集未収録",
+      "title_romaji": "Zenshū Mishūroku",
+      "poems": [
+        {
+          "number": 44,
+          "title": "O Mundo Invertido",
+          "original": "善き事を　悪しとみらるる世にありて　何をかせんや懐手すも",
+          "reading": "Yoki koto o / ashi to miraruru / yo ni arite / nani o kasenya / futokoro-de sumo",
+          "reading_hira": "よきことを　あしとみらるるよにありて　なにをかせんやふところですも",
+          "translation": "Neste mundo onde o Bem é visto como Mal, Que se pode fazer? Resta-me apenas cruzar os braços e observar.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 45,
+          "title": "O Caminho de Espinhos",
+          "original": "世の為に　竭す真人は何時の世も　茨の道をくぐるものにや",
+          "reading": "Yo no tame ni / tsukusu mabito wa / itsu no yo mo / ibara no michi o / kuguru mono niya",
+          "reading_hira": "よのために　つくすまびとはいつのよも　いばらのみちをくぐるものにや",
+          "translation": "O Homem Verdadeiro que se dedica ao bem do mundo, Em qualquer era que seja, Parece fadado a cruzar veredas de espinhos.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 46,
+          "title": "O Fim da Esperteza",
+          "original": "逆しらの　世の続かめや御光の　輝き初むれば釐さるならん",
+          "reading": "Sakashira no / yo no tsuzuka meya / mihikari no / kagayaki somureba / tadasaru naran",
+          "reading_hira": "さかしらの　よのつづかめやみひかりの　かがやきそむればたださるならん",
+          "translation": "Poderá durar este mundo de lógica invertida? Jamais! Quando a Sagrada Luz começar a brilhar, Tudo será retificado e posto em ordem.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 47,
+          "title": "O Ultimato",
+          "original": "世の終り　近む気配の犇々と　身に迫るなり世人目覚めよ",
+          "reading": "Yo no owari / chikamu kehai no / hishihishi to / mi ni semaru nari / yobito mezameyo",
+          "reading_hira": "よのおわり　ちかむけはいのひしひしと　みにせまるなりよびとめざめよ",
+          "translation": "Os sinais do Fim dos Tempos aproximam-se; Sinto a pressão intensa a esmagar-me a carne... Despertai, ó povo do mundo!",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 48,
+          "title": "O Remédio Proibido",
+          "original": "如何ならん　病きとても癒す術　もてど施すよしなき世にもや",
+          "reading": "Ikanaran / itatsuki totemo / iyasu sube / motedo hodokosu / yoshi naki yo ni moya",
+          "reading_hira": "いかならん　いたつきとてもいやすすべ　もてどほどこすよしなきよにもや",
+          "translation": "Por mais grave que seja a enfermidade, possuo a arte de curá-la; Contudo, vivo num mundo Onde não há meios de aplicá-la livremente.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 49,
+          "title": "O Enigma do Avatar",
+          "original": "奇びなる　わが運命かも神仏　人かあらずか解くよしもなき",
+          "reading": "Kushibinaru / waga sadame kamo / kamihotoke / hito ka arazu ka / toku yoshi mo naki",
+          "reading_hira": "くしびなる　わがさだめかもかみほとけ　ひとかあらずかとくよしもなき",
+          "translation": "Misterioso e estranho é o meu destino... Serei Deus? Buda? Ou serei homem? Não há como explicar.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 50,
+          "title": "Desafio às Eras Passadas",
+          "original": "基督も　釈迦も再び生れ来よ　汝と吾との力試さん",
+          "reading": "Kirisuto mo / Shaka mo futatabi / umarekoyo / nare to ware to no / chikara tamesan",
+          "reading_hira": "きりすとも　しゃかもふたたびうまれこよ　なれとわれとのちからためさん",
+          "translation": "Ó Cristo, ó Buda Shakyamuni, renascei mais uma vez! Pois desejo testar a vossa força Em comparação com a minha.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 51,
+          "title": "Flexibilidade Divina",
+          "original": "或時は　菩薩ともなり或時は　如来ともなり世人救はん",
+          "reading": "Aru toki wa / bosatsu tomo nari / aru toki wa / nyorai tomo nari / yobito sukuwan",
+          "reading_hira": "あるときは　ぼさつともなりあるときは　にょらいともなりよびとすくわん",
+          "translation": "Por vezes torno-me Bodhisattva; Outras vezes, manifesto-me como Tathagata; Tudo para salvar o povo do mundo.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 52,
+          "title": "O Observador Silencioso",
+          "original": "超人の　力隠して荒みゆく　此現世を静かに視護る",
+          "reading": "Choujin no / chikara kakushite / susamiyuku / kono utsushiyo o / shizuka ni mimamoru",
+          "reading_hira": "ちょうじんの　ちからかくしてすさみゆく　このうつしよをしずかにみまもる",
+          "translation": "Ocultando meus poderes sobre-humanos, Observo e protejo, em silêncio, Este mundo que se torna cada vez mais selvagem.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 53,
+          "title": "As Dores do Parto Planetário",
+          "original": "新しき　世ぞ生まんとし国悩み　人は喘ぎて尽くるを知らず",
+          "reading": "Atarashiki / yo zo uman to shi / kuni nayami / hito wa aegite / tsukuru o shirazu",
+          "reading_hira": "あたらしき　よぞうまんとしくになやみ　ひとはあえぎてつくるをしらず",
+          "translation": "Um Novo Mundo está prestes a nascer! Por isso as nações agonizam e o povo ofega, Sem saber que o velho tempo se esgota.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 54,
+          "title": "A Luz na Borda do Abismo",
+          "original": "世の終　来らんとして御救の　光は静かに昇り初めけり",
+          "reading": "Yo no owari / kitaran to shite / misukui no / hikari wa shizuka ni / nobori somekeru",
+          "reading_hira": "よのおわり　きたらんとしてみすくいの　ひかりはしずかにのぼりそめけり",
+          "translation": "Quando o Fim dos Tempos estava para chegar, A Luz da Sagrada Salvação, Silenciosa e solene, começou a ascender.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 55,
+          "title": "A Palidez do Medo",
+          "original": "人々は　色を失ひ物は悉　滅びんとして救主降らん",
+          "reading": "Hitobito wa / iro o ushinai / mono wa kotogotoku / horobin to shite / meshiya kudaran",
+          "reading_hira": "ひとびとは　いろをうしないものはみな　ほろびんとしてめしやくだらん",
+          "translation": "As pessoas perdem a cor de suas faces; E quando todas as coisas estiverem à beira da ruína, O Messias descerá.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 56,
+          "title": "A Glória nas Nuvens",
+          "original": "栄光の　雲に暉き億兆の　歓呼の声に降るキリスト",
+          "reading": "Eikou no / kumo ni kagayaki / okuchou no / kanko no koe ni / kudaru kirisuto",
+          "reading_hira": "えいこうの　くもにかがやきもろもろの　かんこのこえにくだるきりすと",
+          "translation": "Resplandecendo em Nuvens de Glória, E ao som do júbilo de bilhões de vozes, Desce o Cristo vitorioso.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 57,
+          "title": "O Fruto do Pessegueiro (Vitória)",
+          "original": "曲神に　勝つ時は来ぬ桃の実の　玉はわが掌に今入らんとすも",
+          "reading": "Magakami ni / katsu toki wa kinu / momo no mi no / tama wa waga te ni / ima hairan to su mo",
+          "reading_hira": "まがかみに　かつときはきぬもものみの　たまはわがてにいまはいらんとすも",
+          "translation": "Chegou a hora de vencer o Deus Maligno! O fruto do Pêssego Divino, a Joia Preciosa, Está prestes a cair, agora, em minhas mãos.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 58,
+          "title": "A Espada Divina",
+          "original": "大神の　佩かせ給ひし此剣　仇なす醜草打伐り払はん",
+          "reading": "Ookami no / hakasetamaishi / kono tsurugi / adanasu shikogusa / uchikiriharawan",
+          "reading_hira": "おおかみの　はかせたまいしこのつるぎ　あだなすしこぐさうちきりはらわん",
+          "translation": "Esta Espada Sagrada que o Grande Deus me cingiu... Com ela, as ervas daninhas que causam mal Eu cortarei e ceifarei por completo!",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 59,
+          "title": "A Joia dos Desejos (Cintamani)",
+          "original": "如意の珠　揮はん時ぞ迫るらし　此現し世の状をしみれば",
+          "reading": "Nyoi no tama / furuwan toki zo / semaru rashi / kono utsushiyo no / sama o shimireba",
+          "reading_hira": "にょいのたま　ふるわんときぞせまるらし　このうつしよのさまをしみれば",
+          "translation": "Ao observar o estado deplorável deste mundo, Sinto que se aproxima o momento De brandir a Joia dos Desejos (Nyoi-no-Tama).",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 60,
+          "title": "A Consciência da Diferença",
+          "original": "越方を　振さけみれば世の常の　人とあまりにちがふ吾はも",
+          "reading": "Koshikata o / furisakemireba / yo no tsune no / hito to amarini / chigau ware wa mo",
+          "reading_hira": "こしかたを　ふりさけみればよのつねの　ひととあまりにちがうわれはも",
+          "translation": "Ao olhar para trás, para o caminho percorrido, Percebo quão imensamente diferente sou Das pessoas comuns deste mundo.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 61,
+          "title": "O Fim da Escalada",
+          "original": "幾千度　山坂越えてやうやくに　安けき路に来し心地すも",
+          "reading": "Ikuchitabi / yamasaka koete / youyaku ni / yasukeki michi ni / kishi kokochi sumo",
+          "reading_hira": "いくちたび　やまさかこえてようやくに　やすけきみちにきしここちすも",
+          "translation": "Milhares de vezes cruzei montanhas e ladeiras íngremes; E agora, finalmente, Sinto que cheguei à estrada plana da paz.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 62,
+          "title": "A Fonte da Esperança",
+          "original": "行手には　光明見えて胸ぬちに　希望の泉み湧き出づるなり",
+          "reading": "Yukute niwa / koumyou miete / mune nuchi ni / kibou no izumi / wakiizuru nari",
+          "reading_hira": "ゆくてには　こうみょうみえてむねぬちに　きぼうのいずみわきいづるなり",
+          "translation": "À minha frente, avisto a Luz resplandecente; E no fundo do meu peito, A fonte da esperança brota inesgotável.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 63,
+          "title": "A Impaciência Sagrada",
+          "original": "此力　嗚呼此力打揮ふ　時の来つるのもどかしきかな",
+          "reading": "Kono chikara / aa kono chikara / uchifuruu / toki no kitsuru no / modokashiki kana",
+          "reading_hira": "このちから　ああこのちからうちふるう　ときのきつるのもどかしきかな",
+          "translation": "Esta força... Ah, esta força incomensurável! Quão impaciente e frustrante é a espera Pelo momento exato de brandi-la!",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 64,
+          "title": "O Dragão Oculto",
+          "original": "蛟龍も　時を得ざれば地の底に　潜み隠るる外なかりけり",
+          "reading": "Kouryū mo / toki o ezareba / chi no soko ni / hisomi kakururu / hoka nakarikeri",
+          "reading_hira": "こうりゅうも　ときをえざればちのそこに　ひそみかくるるほかなかりけり",
+          "translation": "Até mesmo o Dragão da Chuva, se não for o seu tempo, Não tem outra escolha Senão ocultar-se, quieto, nas profundezas da terra.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 65,
+          "title": "A Rendição dos Demônios",
+          "original": "面白し　あゝ面白し鬼ケ島の　服ふ時の近まるらしも",
+          "reading": "Omoshiroshi / aa omoshiroshi / onigashima / matsurou toki no / chikamaru rashimo",
+          "reading_hira": "おもしろし　ああおもしろしおにがしまの　まつろうときのちかまるらしも",
+          "translation": "Interessante... Ah, deveras interessante! Parece que se aproxima a hora Em que a Ilha dos Demônios se renderá.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 66,
+          "title": "O Mundo Daltônico",
+          "original": "白きものを　黒と見黒きを白とみる　世の逆しらを正さでおかめや",
+          "reading": "Shiroki mono o / kuro to mi kuroki o / shiro to miru / yo no sakashira o / tadasade okameya",
+          "reading_hira": "しろきものを　くろとみくろきをしろとみる　よのさかしらをたださでおかめや",
+          "translation": "Vendo o branco como negro, e o negro como branco... Como poderia eu deixar sem correção A arrogância intelectual deste mundo invertido?",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 67,
+          "title": "Além das Oito Marés",
+          "original": "嵐吹く　潮の八潮路越えに来つ　彼岸みゆるぞ楽しかりける",
+          "reading": "Arashi fuku / shio no yashioji / koe ni kitsu / higan miyuru zo / tanoshikari keru",
+          "reading_hira": "あらしふく　しおのやしおぢこえにきつ　ひがんみゆるぞたのしかりける",
+          "translation": "Atravessei as oito rotas de marés açoitadas pela tempestade; E agora, avistar a Outra Margem... Ah, que alegria suprema!",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 68,
+          "title": "A Expansão da Cura",
+          "original": "人の病　医しの術を世の病　医しの術に拡げんとする吾",
+          "reading": "Hito no yamai / iyashi no sube o / yo no yamai / iyashi no sube ni / hirogen to suru ware",
+          "reading_hira": "ひとのやまい　いやしのすべをよのやまい　いやしのすべにひろげんとするわれ",
+          "translation": "A arte de curar a doença do indivíduo... Eu agora a expando e transformo Na Arte de Curar a Doença do Mundo.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 69,
+          "title": "A Paz Divina",
+          "original": "国と国　人と人との涯もなき　争ひ止むるは神の外なき",
+          "reading": "Kuni to kuni / hito to hito to no / hate mo naki / isakai tomuru wa / kami no hoka naki",
+          "reading_hira": "くにとくに　ひととひととのはてもなき　いさかいとむるはかみのほかなき",
+          "translation": "Entre nação e nação, entre homem e homem... Para deter este conflito sem fim, Não há outro recurso senão Deus.",
+          "date": "S15.12.23"
+        },
+        {
+          "number": 70,
+          "title": "Fumaça na Costa",
+          "original": "海近く　小村ありけむその朝　起きいでみれば煙ほの見ゆ",
+          "reading": "Umi chikaku / komura ariken / sono ashita / okiidemireba / kemuri ho no miyu",
+          "reading_hira": "うみちかく　こむらありけんそのあした　おきいでみればけむりほのみゆ",
+          "translation": "Perto do mar, deve haver uma pequena vila... Pois nesta manhã, ao olhar o horizonte, Avisto a fumaça subindo, tênue e distante.",
+          "date": "S16. 1. 1"
+        },
+        {
+          "number": 71,
+          "title": "Silhuetas ao Amanhecer",
+          "original": "ほのぼのと　海辺は明けぬ山かげに　賤が伏屋の五つ六つ見え",
+          "reading": "Honobono to / umibe wa akenu / yamakage ni / shizu ga fuseya no / itsutsu mutsu mie",
+          "reading_hira": "ほのぼのと　うみべはあけぬやまかげに　しづがふし〔せ〕やのいつつむつみえ",
+          "translation": "Vagamente, a orla marítima começa a clarear; E na sombra da montanha, revelam-se Cinco ou seis humildes choupanas.",
+          "date": "S16. 1. 1"
+        },
+        {
+          "number": 72,
+          "title": "Bandeiras ao Sol Nascente",
+          "original": "初日の出　昇るにつれて海ちかき　小家小家に旗などみゆも",
+          "reading": "Hatsuhinode / noboru ni tsurete / umi chikaki / sasaya sasaya ni / hata nado miyu mo",
+          "reading_hira": "はつひので　のぼるにつれてうみちかき　ささやささやにはたなどみゆも",
+          "translation": "À medida que o Primeiro Sol do Ano se eleva, Nas pequenas casas próximas ao mar, Começam a aparecer bandeiras tremulando.",
+          "date": "S16. 1. 1"
+        },
+        {
+          "number": 73,
+          "title": "A Partida dos Barcos",
+          "original": "ひむがしの　空明りしぬ漁りびと　舟出すらしく岸にうごめく",
+          "reading": "Hingashi no / sora akarishinu / isaribito / fune dasu rashiku / kishi ni ugomeku",
+          "reading_hira": "ひんがしの　そらあかりしぬいさりびと　ふねだすらしくきしにうごめく",
+          "translation": "O céu do leste já se iluminou por completo; Os pescadores, preparando-se para lançar os barcos, Começam a movimentar-se na praia.",
+          "date": "S16. 1. 1"
+        },
+        {
+          "number": 74,
+          "title": "A Vista da Passagem",
+          "original": "朝まだき　峠下れば海ちかき　村の家々けむり立つなり",
+          "reading": "Asamadaki / touge kudareba / umi chikaki / mura no ieie / kemuri tatsu nari",
+          "reading_hira": "あさまだき　とうげくだればうみちかき　むらのいえいえけむりたつなり",
+          "translation": "Ainda é cedo na manhã; ao descer a passagem da montanha, Vejo, na vila próxima ao mar, A fumaça subindo de cada lar.",
+          "date": "S16. 1. 1"
+        },
+        {
+          "number": 75,
+          "title": "O Prenúncio do Novo Mundo",
+          "original": "禍は　いよいよ滋く国々の　民喘ぐなり新つ世幾し",
+          "reading": "Wazawai wa / iyoiyo shigeku / kuniguni no / tami aegunari / aratsuyo chikashi",
+          "reading_hira": "わざわいは　いよいよしげくくにぐにの　たみあえぐなりさらつよちかし",
+          "translation": "As calamidades tornam-se cada vez mais densas; Enquanto os povos das nações ofegam em dor, O Novo Mundo está próximo!",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 76,
+          "title": "A Necessidade do Super-Homem",
+          "original": "超人の　力に依らで如何にして　くづれゆく世を支え得べきや",
+          "reading": "Choujin no / chikara ni yorade / ikanishite / kuzureyuku yo o / sasae ubekiya",
+          "reading_hira": "ちょうじんの　ちからによらでいかにして　くずれゆくよをささえうべきや",
+          "translation": "Sem depender de uma Força Sobre-Humana, Como seria possível sustentar Este mundo que desmorona a cada instante?",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 77,
+          "title": "A Montanha Sagrada e o Esquecimento",
+          "original": "久方の　雲井に聳ゆる富士ケ嶺の　けだかき姿に世をぞ忘るる",
+          "reading": "Hisakata no / kumoi ni soyuru / fujigane no / kedakaki sugata ni / yo o zo wasururu",
+          "reading_hira": "ひさかたの　くもいにそびゆるふじがねの　けだかきすがたによをぞわするる",
+          "translation": "Elevando-se até as moradas das nuvens eternas, A nobre figura do Monte Fuji Faz-me esquecer as turbulências do mundo.",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 78,
+          "title": "Luz na Escuridão Total",
+          "original": "奴羽玉の　暗世にあれど行手には　光明輝く吾等にぞある",
+          "reading": "Nubatama no / yamiyo ni aredo / yukute niwa / koumyou kagayaku / warera ni zo aru",
+          "reading_hira": "ぬばたまの　やみよにあれどゆくてには　こうみょうかがやくわれらにぞある",
+          "translation": "Embora estejamos imersos na noite escura como o breu, Para nós, que seguimos em frente, A Luz resplandece no caminho.",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 79,
+          "title": "A Paz da Proteção",
+          "original": "大いなる　神の恵を受く身には　如何ならん世の来ぬとて泰けし",
+          "reading": "Ooinaru / kami no megumi o / uku mi niwa / ikanaran yo no / kinu tote yasukeshi",
+          "reading_hira": "おおいなる　かみのめぐみをうくみには　いかならんよのきぬとてやすけし",
+          "translation": "Para aquele que recebe a Grande Graça de Deus, Não importa que tipo de mundo venha a surgir; Seu coração permanece em paz absoluta.",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 80,
+          "title": "Ovos Empilhados",
+          "original": "累卵の　危き世とはなりにける　神に祈らで如何にとやなん",
+          "reading": "Ruiran no / ayauki yo towa / narinikeru / kami ni inorade / ikani to yanan",
+          "reading_hira": "るいらんの　あやうきよとはなりにける　かみにいのらでいかにとやなん",
+          "translation": "O mundo tornou-se tão frágil quanto uma pilha de ovos prestes a ruir; Sem orar a Deus, Como esperam os homens sobreviver?",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 81,
+          "title": "A Alegria da Justiça",
+          "original": "曲津世の　滅ぶにつれて真なる　人の暉く時のうれしさ",
+          "reading": "Magatsuyo no / horobu ni tsurete / makoto naru / hito no kagayaku / toki no ureshisa",
+          "reading_hira": "まがつよの　ほろぶにつれてまことなる　ひとのかがやくときのうれしさ",
+          "translation": "À medida que o Mundo do Mal perece e se desfaz, Os homens de sinceridade começam a brilhar; Ah, que alegria ver chegar este tempo!",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 82,
+          "title": "O Salvador Supremo",
+          "original": "基督や　釈迦にも優る救主　天降らざりせば世は如何ならめ",
+          "reading": "Kirisuto ya / Shaka nimo masaru / sukuinushi / amorazariseba / yo wa ikanarame",
+          "reading_hira": "きりすとや　しゃかにもまさるすくいぬし　あもらざりせばよはいかならめ",
+          "translation": "Um Salvador que supera a Cristo e a Buda... Se Ele não descesse agora dos Céus, O que seria deste mundo?",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 83,
+          "title": "A Limpeza Global",
+          "original": "地の上の　万の禍ひ拭ひ去り　天国建つる時ぞ待たるる",
+          "reading": "Chi no ue no / yorozu no wazawai / nuguisari / tengoku tatsuru / toki zo mataruru",
+          "reading_hira": "ちのうえの　よろずのわざわいぬぐいさり　てんごくたつるときぞまたるる",
+          "translation": "Varrer e limpar todas as miríades de calamidades da face da Terra, Para então erguer o Paraíso... Eis o momento pelo qual tanto esperamos!",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 84,
+          "title": "O Fim dos Inimigos",
+          "original": "地の上の　仇は滅びて新しき　正しき御代の生るるうれしさ",
+          "reading": "Chi no ue no / ada wa horobite / atarashiki / tadashiki miyo no / aruru ureshisa",
+          "reading_hira": "ちのうえの　あだはほろびてあたらしき　ただしきみよのあるるうれしさ",
+          "translation": "Os inimigos da Terra perecerão, E um Novo e Correto Reino nascerá; Quão imensa é esta alegria!",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 85,
+          "title": "O Grande Ritual de Purificação",
+          "original": "果もなき　此土の上の禍ひは　神の禊の業にぞありける",
+          "reading": "Hate mo naki / konodo no ue no / wazawai wa / kami no misogi no / waza ni zo arikeru",
+          "reading_hira": "はてもなき　このどのうえのわざわいは　かみのみそぎのわざにぞありける",
+          "translation": "As calamidades sem fim que assolam esta terra... Sabei que são, na verdade, O Ritual de Purificação (Misogi) realizado por Deus.",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 86,
+          "title": "A Construção Concreta",
+          "original": "待ち佗びし　天国楽土は吾等住む　此地の上に打ち樹つるなり",
+          "reading": "Machiwabishi / tengoku rakudo wa / warera sumu / kono chi no ue ni / uchitatsuru nari",
+          "reading_hira": "まちわびし　てんごくらくどはわれらすむ　このちのうえにうちたつるなり",
+          "translation": "O Paraíso de Delícias, pelo qual tanto ansiávamos, É aqui, nesta terra onde habitamos, Que nós o construiremos agora.",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 87,
+          "title": "O Refúgio na Arte",
+          "original": "嵐吹く　世を他所にして風月を　友とし我は閑かに生きなん",
+          "reading": "Arashi fuku / yo o yoso ni shite / fuugetsu o / tomo to shi ware wa / shizuka ni ikinan",
+          "reading_hira": "あらしふく　よをよそにしてふうげつを　ともとしわれはしずかにいきなん",
+          "translation": "Enquanto a tempestade ruge, deixo o mundo de lado; Tendo o Vento e a Lua como amigos, Viverei em serenidade e quietude.",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 88,
+          "title": "O Pincel e o Fuji",
+          "original": "この日ごろ　絵筆にいそしみ飽く時は　はろかな富士を眺めつ足らふ",
+          "reading": "Kono higoro / efude ni isoshimi / aku toki wa / haroka na fuji o / nagametsu tarau",
+          "reading_hira": "このひごろ　えふでにいそしみあくときは　はろかなふじをながめつたらう",
+          "translation": "Nestes dias, dedico-me ao pincel da pintura; E quando me canso, Contemplo o distante Fuji e sinto-me pleno.",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 89,
+          "title": "A Coragem da Verdade",
+          "original": "弥固き　真の道を歩む身は　如何ならん世のくるも懼れじ",
+          "reading": "Iya kataki / makoto no michi o / ayumu mi wa / ikanaran yo no / kuru mo osoreji",
+          "reading_hira": "いやかたき　まことのみちをあゆむみは　いかならんよのくるもおそれじ",
+          "translation": "Aquele que caminha pela Vereda da Verdade, sólida e firme, Não importa que tipo de mundo venha a surgir, Jamais sentirá temor.",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 90,
+          "title": "A Janela da Serenidade",
+          "original": "描くひま　窓の外見れば玉川の　流れ清けく富士はろかなる",
+          "reading": "Egaku hima / mado no to mireba / tamagawa no / nagare kiyokeku / fuji haroka naru",
+          "reading_hira": "えがくひま　まどのとみればたまがわの　ながれきよけくふじははろかなる",
+          "translation": "Nos intervalos da pintura, olho pela janela: O Rio Tamagawa flui cristalino E o Monte Fuji repousa, majestoso, ao longe.",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 91,
+          "title": "A Mudança de Rota",
+          "original": "世の病　医せとてもや大神は　我歩む道換へ給ひける",
+          "reading": "Yo no yamai / iyase totemo ya / ookami wa / ware ayumu michi / kae tamaikeru",
+          "reading_hira": "よのやまい　いやせとてもやおおかみは　わがあゆむみちかえたまいける",
+          "translation": "Para curar a Doença do Mundo... Foi por isso, sim, que o Grande Deus Alterou completamente o caminho que eu trilhava.",
+          "date": "S16. 1.22"
+        },
+        {
+          "number": 92,
+          "title": "Lavagem da Alma",
+          "original": "富士ケ嶺の　白雪多摩の真清水に　心洗へとや神の御むねの",
+          "reading": "Fujigane no / shirayuki tama no / mashimizu ni / kokoro arae toya / kami no mimune no",
+          "reading_hira": "ふじがねの　しらゆきたまのましみずに　こころあらえとやかみのみむねの",
+          "translation": "Na neve branca do Pico do Fuji e na água pura do Tama... 'Lava o teu coração!' Eis a Vontade de Deus que ali se revela.",
+          "date": "S16. 1.22"
+        }
+      ]
+    },
+    {
+      "title_pt": "Peregrinação a Moto-Ise (no Hotel Biwako)",
+      "title_jp": "元伊勢に詣でて　　（於琵琶湖ホテル）",
+      "title_romaji": "Moto-Ise ni Mōdete",
+      "poems": [
+        {
+          "number": 93,
+          "title": "Oração em Moto-Ise",
+          "original": "天照す　国安かれと今日はしも　伊勢の神宮に祈りけるかな",
+          "reading": "Amaterasu / kuni yasukare to / kyou wa shimo / ise no mimiya ni / inorikeru kana",
+          "reading_hira": "あまてらす　くにやすかれときょうはしも　いせのみみやにいのりけるかな",
+          "translation": "Ó Amaterasu! Que a nação tenha paz! Com este único desejo, hoje, Oro fervorosamente no Santuário de Ise.",
+          "date": "S16. 5.23"
+        },
+        {
+          "number": 94,
+          "title": "Saudade da Era dos Deuses",
+          "original": "あこがれの　元伊勢に来て上つ代の　畏き事の思いづるかも",
+          "reading": "Akogare no / motoise ni kite / kamitsuyo no / kashikoki koto no / omoizuru kamo",
+          "reading_hira": "あこがれの　もといせにきてかみつよの　かしこきことのおもいづるかも",
+          "translation": "Ao chegar a Moto-Ise, terra de minhas saudades, As memórias da sagrada Era dos Deuses Afloram com reverência em meu ser.",
+          "date": "S16. 5.23"
+        },
+        {
+          "number": 95,
+          "title": "Exorcismo Nacional",
+          "original": "曲神の　さやる国原鎮めさせ　玉へと祈りぬ伊勢の神宮に",
+          "reading": "Magakami no / sayaru kunibara / shizumesase / tamae to inorinu / ise no mimiya ni",
+          "reading_hira": "まがかみの　さやるくにばらしずめさせ　たまえといのりぬいせのみみやに",
+          "translation": "Os Deuses Malignos obstruem os campos da nação; 'Ó Deus, apaziguai-os e subjugai-os!' Assim orei no Santuário de Ise.",
+          "date": "S16. 5.23"
+        },
+        {
+          "number": 96,
+          "title": "O Pedido de Luz",
+          "original": "奴羽玉の　暗を晴らして明けき　世となさしめよ伊勢の大神",
+          "reading": "Nubatama no / yami o harashite / akirakeki / yo to nasashimeyo / ise no ookami",
+          "reading_hira": "ぬばたまの　やみをはらしてあきらけき　よとなさしめよいせのおおかみ",
+          "translation": "Dissipai estas trevas profundas como a noite! E fazei surgir um Mundo Claro e Luminoso... Ó Grande Deus de Ise!",
+          "date": "S16. 5.23"
+        },
+        {
+          "number": 97,
+          "title": "Outono em Hakone",
+          "original": "函嶺の　紅葉賞でんと此朝　門を出づれば秋空高し",
+          "reading": "Kanrei no / momiji medento / kono ashita / kado o izureba / akizora takashi",
+          "reading_hira": "かんれいの　もみじめでんとこのあした　かどをいづればあきぞらたかし",
+          "translation": "Para apreciar as folhas rubras de Hakone, Saí pelo portão nesta manhã; Ah, quão alto e límpido está o céu de outono!",
+          "date": "S16.10.**"
+        },
+        {
+          "number": 98,
+          "title": "O Vasto Musashino",
+          "original": "晴澄みし　秋空くぎり山並は　武蔵野の末果てなにみゆも",
+          "reading": "Haresumishi / akizora kugiri / yamanami wa / musashino no sue / hatena ni miyu mo",
+          "reading_hira": "はれすみし　あきぞらくぎりやまなみは　むさしののすえはてなにみゆも",
+          "translation": "Sob o céu de outono, límpido e sereno, O recorte das montanhas se desenha; E a planície de Musashino estende-se até o fim do olhar.",
+          "date": "S16.10.**"
+        },
+        {
+          "number": 99,
+          "title": "O Templo Antigo",
+          "original": "遊行寺に　車を止め詣づれば　閑寂にして伽藍古りける",
+          "reading": "Yugyouji ni / kuruma o todome / mouzureba / kanjaku ni shite / garan furikeru",
+          "reading_hira": "ゆぎょうじに　くるまをとどめもうづれば　かんじゃくにしてがらんふりける",
+          "translation": "Parei o carro no Templo Yugyouji para orar; Em profundo silêncio e solidão, As antigas edificações repousam no tempo.",
+          "date": "S16.10.**"
+        },
+        {
+          "number": 100,
+          "title": "",
+          "original": "藤沢や　辻堂あたり松並木　つづかひ昔の旅を偲びぬ",
+          "reading": "ふじさわや　つじどうあたりまつなみき　つづかいむかしのたびをしのびぬ",
+          "reading_hira": "ふじさわや　つじどうあたりまつなみき　つづかいむかしのたびをしのびぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S16.10.**"
+        },
+        {
+          "number": 101,
+          "title": "",
+          "original": "秋なれや　鴫立沢に西行の　あはれとどめぬ今の世にまで",
+          "reading": "あきなれや　しぎたつさわにさいぎょうの　あわれとどめぬいまのよにまで",
+          "reading_hira": "あきなれや　しぎたつさわにさいぎょうの　あわれとどめぬいまのよにまで",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S16.10.**"
+        },
+        {
+          "number": 102,
+          "title": "",
+          "original": "平塚や　大磯越えて松の間に　はやみえそめぬ箱根の山々",
+          "reading": "ひらつかや　おおいそこえてまつのまに　はやみえそめぬはこねのやまやま",
+          "reading_hira": "ひらつかや　おおいそこえてまつのまに　はやみえそめぬはこねのやまやま",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S16.10.**"
+        },
+        {
+          "number": 103,
+          "title": "",
+          "original": "漁船　三つ四つ浮いて小田原の　海は秋日の下に静けし",
+          "reading": "いさりぶね　みつよつういておだわらの　うみはあきひのもとにしずけし",
+          "reading_hira": "いさりぶね　みつよつういておだわらの　うみはあきひのもとにしずけし",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S16.10.**"
+        },
+        {
+          "number": 104,
+          "title": "",
+          "original": "熱海なる　大野屋の宿の四階の　おばしまに太平洋を久に眺めぬ",
+          "reading": "あたみなる　おおのやのやどのよんかいの　おばしまにたいへいようをひさにながめぬ",
+          "reading_hira": "あたみなる　おおのやのやどのよんかいの　おばしまにたいへいようをひさにながめぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S16.10.**"
+        },
+        {
+          "number": 105,
+          "title": "",
+          "original": "十国峠　車の窓ゆのぞきみれば　真鶴あたりの海絵のごとし",
+          "reading": "じゅっこくとうげ　くるまのまどゆのぞきみれば　まなづるあたりのうみえのごとし",
+          "reading_hira": "じゅっこくとうげ　くるまのまどゆのぞきみれば　まなづるあたりのうみえのごとし",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S16.10.**"
+        },
+        {
+          "number": 106,
+          "title": "",
+          "original": "爽やかな　秋の山気を心ゆく　ばかり吸ひつつ今日を足らいぬ",
+          "reading": "さわやかな　あきのさんきをこころゆく　ばかりすいつつきょうをたらいぬ",
+          "reading_hira": "さわやかな　あきのさんきをこころゆく　ばかりすいつつきょうをたらいぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S16.10.**"
+        },
+        {
+          "number": 107,
+          "title": "",
+          "original": "秋浅く　紅葉には未だ早けれど　珍らしき花わが眼をうばう",
+          "reading": "あきあさく　もみじにはまだはやけれど　めずらしきはなわがめをうばう",
+          "reading_hira": "あきあさく　もみじにはまだはやけれど　めずらしきはなわがめをうばう",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S16.10.**"
+        },
+        {
+          "number": 108,
+          "title": "",
+          "original": "老杉の　昼尚暗き径抜けて　箱根神社に詣でけるかな",
+          "reading": "ろうさんの　ひるなおくらきみちぬけて　はこねじんじゃにもうでけるかな",
+          "reading_hira": "ろうさんの　ひるなおくらきみちぬけて　はこねじんじゃにもうでけるかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S16.10.**"
+        },
+        {
+          "number": 109,
+          "title": "",
+          "original": "神山や　駒ケ嶽など紅葉浅く　温泉の町いまだ秋ひそかなり",
+          "reading": "かみやまや　こまがたけなどもみじあさく　ゆのまちいまだあきひそかなり",
+          "reading_hira": "かみやまや　こまがたけなどもみじあさく　ゆのまちいまだあきひそかなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S16.10.**"
+        }
+      ]
+    },
+    {
+      "title_pt": "Início da Primavera",
+      "title_jp": "立　　春",
+      "title_romaji": "Risshun",
+      "poems": [
+        {
+          "number": 110,
+          "title": "",
+          "original": "ほのぼのと　明けゆく朝の静もりを　一片二片桜花散る",
+          "reading": "ほのぼのと　あけゆくあさのしずもりを　ひとひらふたひらさくらばなちる",
+          "reading_hira": "ほのぼのと　あけゆくあさのしずもりを　ひとひらふたひらさくらばなちる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17. 4.10"
+        },
+        {
+          "number": 111,
+          "title": "",
+          "original": "邪は滅び　正は栄ゆる足御代の　来つる喜びひたに待つなり",
+          "reading": "じゃはほろび　せいはさかゆるたるみよの　きつるよろこびひたにまつなり",
+          "reading_hira": "じゃはほろび　せいはさかゆるたるみよの　きつるよろこびひたにまつなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17. 4.10"
+        },
+        {
+          "number": 112,
+          "title": "",
+          "original": "超人の　力秘しつ人の為　世の為揮う時ぞ待たるる",
+          "reading": "ちょうじんの　ちからかくしつひとのため　よのためふるうときぞまたるる",
+          "reading_hira": "ちょうじんの　ちからかくしつひとのため　よのためふるうときぞまたるる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17. 4.10"
+        },
+        {
+          "number": 113,
+          "title": "",
+          "original": "大いなる　使命に生くる吾にして　月にあくがれ花をぞ楽しむ",
+          "reading": "おおいなる　しめいにいくるわれにして　つきにあくがれはなをぞたのしむ",
+          "reading_hira": "おおいなる　しめいにいくるわれにして　つきにあくがれはなをぞたのしむ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17. 4.10"
+        },
+        {
+          "number": 114,
+          "title": "",
+          "original": "晴耕雨描　春深みゆく此日比　庭造りなど楽しむも吾",
+          "reading": "せいこううびょう　はるふかみゆくこのひごろ　にわづくりなどたのしむもわれ",
+          "reading_hira": "せいこううびょう　はるふかみゆくこのひごろ　にわづくりなどたのしむもわれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17. 4.10"
+        },
+        {
+          "number": 115,
+          "title": "",
+          "original": "玉川を　真下に富士の霊峯を　はろかに眺むる吾庵の庭",
+          "reading": "たまがわを　ましたにふじのれいほうを　はろかにながむるわがいおのにわ",
+          "reading_hira": "たまがわを　ましたにふじのれいほうを　はろかにながむるわがいおのにわ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17. 4.10"
+        },
+        {
+          "number": 116,
+          "title": "",
+          "original": "朝やけの　空をうづめて吾庭の　桜は今し咲き盛りをり",
+          "reading": "あさやけの　そらをうずめてわがにわの　さくらはいましさきさかりおり",
+          "reading_hira": "あさやけの　そらをうずめてわがにわの　さくらはいましさきさかりおり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17. 4.10"
+        },
+        {
+          "number": 117,
+          "title": "",
+          "original": "描きつつ　飽くれば庭に降りたちて　花など愛でつさすらひにける",
+          "reading": "えがきつつ　あくればにわにおりたちて　はななどめでつさすらいにける",
+          "reading_hira": "えがきつつ　あくればにわにおりたちて　はななどめでつさすらいにける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17. 4.10"
+        },
+        {
+          "number": 118,
+          "title": "",
+          "original": "吾庭の　眺めの好きを知りにける　去年をちこちの旅を巡りて",
+          "reading": "わがにわの　ながめのよきをしりにける　こぞおちこちのたびをめぐりて",
+          "reading_hira": "わがにわの　ながめのよきをしりにける　こぞおちこちのたびをめぐりて",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17. 4.10"
+        },
+        {
+          "number": 119,
+          "title": "",
+          "original": "描きつつ　折をり窓の外みれば　桃も桜も今盛りなり",
+          "reading": "えがきつつ　おりおりまどのそとみれば　もももさくらもいまさかりなり",
+          "reading_hira": "えがきつつ　おりおりまどのそとみれば　もももさくらもいまさかりなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17. 4.10"
+        },
+        {
+          "number": 120,
+          "title": "",
+          "original": "見も知らぬ　数かずの人救はるる　話など聞き足らう此宵",
+          "reading": "みもしらぬ　かずかずのひとすくわるる　はなしなどききたらうこのよい",
+          "reading_hira": "みもしらぬ　かずかずのひとすくわるる　はなしなどききたらうこのよい",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17. 4.10"
+        }
+      ]
+    },
+    {
+      "title_pt": "Cantos dos Sessenta Anos",
+      "title_jp": "還暦の歌",
+      "title_romaji": "Kanreki no Uta",
+      "poems": [
+        {
+          "number": 121,
+          "title": "",
+          "original": "本つ暦に　還りし今日ゆわが生命　人の世の為いや尽わめや",
+          "reading": "もとつこよみに　かえりしきょうゆわがいのち　ひとのよのためいやつかわめや",
+          "reading_hira": "もとつこよみに　かえりしきょうゆわがいのち　ひとのよのためいやつかわめや",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 122,
+          "title": "",
+          "original": "魂機張る　心に誓えり救世の為　ひたに尽さむ今日を境に",
+          "reading": "たまきはる　こころにちかえりぐせのため　ひたにつくさんきょうをさかいに",
+          "reading_hira": "たまきはる　こころにちかえりぐせのため　ひたにつくさんきょうをさかいに",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 123,
+          "title": "",
+          "original": "ただならぬ　世とはなりけり大神の　守りある身のなど恐れなん",
+          "reading": "ただならぬ　よとはなりけりおおかみの　まもりあるみのなどおそれなん",
+          "reading_hira": "ただならぬ　よとはなりけりおおかみの　まもりあるみのなどおそれなん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 124,
+          "title": "",
+          "original": "惟神　神のまにまに進まなん　曲の遮ぎる道狭くとも",
+          "reading": "かむながら　かみのまにまにすすまなん　まがのさえぎるみちせまくとも",
+          "reading_hira": "かむながら　かみのまにまにすすまなん　まがのさえぎるみちせまくとも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 125,
+          "title": "",
+          "original": "六十年　振りさけみれば八重葎　茨の道しよくぞ越え来し",
+          "reading": "ろくじゅうねん　ふりさけみればやえむぐら　いばらのみちしよくぞこえきし",
+          "reading_hira": "ろくじゅうねん　ふりさけみればやえむぐら　いばらのみちしよくぞこえきし",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 126,
+          "title": "",
+          "original": "大いなる　使命に生くる我にして　力限りに世ぞ救はなん",
+          "reading": "おおいなる　しめいにいくるわれにして　ちからかぎりによぞすくわなん",
+          "reading_hira": "おおいなる　しめいにいくるわれにして　ちからかぎりによぞすくわなん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 127,
+          "title": "",
+          "original": "病きに　悩める人びと見るなべに　胸の血潮は燃え沸るなり",
+          "reading": "いたつきに　なやめるひとびとみるなべに　むねのちしおはもえたぎるなり",
+          "reading_hira": "いたつきに　なやめるひとびとみるなべに　むねのちしおはもえたぎるなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 128,
+          "title": "",
+          "original": "惟神　今日の吉き日を迎えてゆ　いざ大道を履み出でんかな",
+          "reading": "かむながら　きょうのよきひをむかえてゆ　いざだいどうをむみいでんかな",
+          "reading_hira": "かむながら　きょうのよきひをむかえてゆ　いざだいどうをむみいでんかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 129,
+          "title": "",
+          "original": "悪は滅び　善は栄ゆるあくがれの　正しき御代は生れなんとすも",
+          "reading": "あくはほろび　ぜんはさかゆるあくがれの　ただしきみよはあれなんとすも",
+          "reading_hira": "あくはほろび　ぜんはさかゆるあくがれの　ただしきみよはあれなんとすも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 130,
+          "title": "",
+          "original": "今はしも　六十路の坂を乗り超えて　救世一途の新つの生命よ",
+          "reading": "いまはしも　むそぢのさかをのりこえて　きゅうせいいちずのさらつのいのちよ",
+          "reading_hira": "いまはしも　むそぢのさかをのりこえて　きゅうせいいちずのさらつのいのちよ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 131,
+          "title": "",
+          "original": "曲津神　荐りに荒ぶる此秋ぞ　世界人吾は奮ひ起つなり",
+          "reading": "まがつかみ　しきりにすさぶるこのときぞ　せかいじんわれはふるいたつなり",
+          "reading_hira": "まがつかみ　しきりにすさぶるこのときぞ　せかいじんわれはふるいたつなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 132,
+          "title": "",
+          "original": "争ひと　飢と病の果しなき　世は神のみが力なりけり",
+          "reading": "いさかいと　うえとやまいのはてしなき　よはかみのみがちからなりけり",
+          "reading_hira": "いさかいと　うえとやまいのはてしなき　よはかみのみがちからなりけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 133,
+          "title": "",
+          "original": "麗はしき　美しの御代は生れんとし　生みの悩みの時ぞ今なる",
+          "reading": "うるわしき　うましのみよはあれんとし　うみのなやみのときぞいまなる",
+          "reading_hira": "うるわしき　うましのみよはあれんとし　うみのなやみのときぞいまなる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 134,
+          "title": "",
+          "original": "更生の　よき日迎えてわれは今　希望湧き満ち胸躍るなり",
+          "reading": "こうせいの　よきひむかえてわれはいま　きぼうわきみちむねおどるなり",
+          "reading_hira": "こうせいの　よきひむかえてわれはいま　きぼうわきみちむねおどるなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        },
+        {
+          "number": 135,
+          "title": "",
+          "original": "山や谷　茨の道も踏み分けて　今日の吉き日にめぐりけるわれ",
+          "reading": "やまやたに　いばらのみちもふみわけて　きょうのよきひにめぐりけるわれ",
+          "reading_hira": "やまやたに　いばらのみちもふみわけて　きょうのよきひにめぐりけるわれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S17.1223"
+        }
+      ]
+    },
+    {
+      "title_pt": "Início da Primavera",
+      "title_jp": "立　　春",
+      "title_romaji": "Risshun",
+      "poems": [
+        {
+          "number": 136,
+          "title": "",
+          "original": "今年はも　立つ春の日のいと深き　意義ありなんと私かにおもう",
+          "reading": "ことしはも　たつはるのひのいとふかき　いぎありなんとひそかにおもう",
+          "reading_hira": "ことしはも　たつはるのひのいとふかき　いぎありなんとひそかにおもう",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 137,
+          "title": "",
+          "original": "千早振る　神の御業は乱れたる　道も正しく建て直しまさむ",
+          "reading": "ちはやぶる　かみのみわざはみだれたる　みちもただしくたてなおしまさん",
+          "reading_hira": "ちはやぶる　かみのみわざはみだれたる　みちもただしくたてなおしまさん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 138,
+          "title": "",
+          "original": "常暗の　世は明けぬらむ今年はも　立つ春の今日境ともなり",
+          "reading": "とこやみの　よはあけぬらんことしはも　たつはるのきょうさかいともなり",
+          "reading_hira": "とこやみの　よはあけぬらんことしはも　たつはるのきょうさかいともなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 139,
+          "title": "",
+          "original": "永き夜の　人の生命を打開く　鍵こそ医しの神業なるらむ",
+          "reading": "ながきよの　ひとのいのちをうちひらく　かぎこそいやしのみわざなるらん",
+          "reading_hira": "ながきよの　ひとのいのちをうちひらく　かぎこそいやしのみわざなるらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 140,
+          "title": "",
+          "original": "二つなき　尊き生命誤れる　医しの業にほろぶ小羊",
+          "reading": "ふたつなき　とうときいのちあやまれる　いやしのわざにほろぶこひつじ",
+          "reading_hira": "ふたつなき　とうときいのちあやまれる　いやしのわざにほろぶこひつじ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 141,
+          "title": "",
+          "original": "神の為　尽す尊き生命なり　など病きに罹るべしやは",
+          "reading": "かみのため　つくすとうときいのちなり　などいたつきにかかるべしやは",
+          "reading_hira": "かみのため　つくすとうときいのちなり　などいたつきにかかるべしやは",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 142,
+          "title": "",
+          "original": "尊くも　神より禀けし生命なれば　疎かにすな道をし守りて",
+          "reading": "とうとくも　かみよりうけしいのちなれば　おろそかにすなみちをしまもりて",
+          "reading_hira": "とうとくも　かみよりうけしいのちなれば　おろそかにすなみちをしまもりて",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 143,
+          "title": "",
+          "original": "健かに　人の務を果すこそ　神の恵みに報ゆなりけり",
+          "reading": "すこやかに　ひとのつとめをはたすこそ　かみのめぐみにむくゆなりけり",
+          "reading_hira": "すこやかに　ひとのつとめをはたすこそ　かみのめぐみにむくゆなりけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 144,
+          "title": "",
+          "original": "天ケ下　此土の上に病む人の　なき世造らんわが願ひかも",
+          "reading": "あめがした　このどのうえにやむひとの　なきよつくらんわがねがいかも",
+          "reading_hira": "あめがした　このどのうえにやむひとの　なきよつくらんわがねがいかも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 145,
+          "title": "",
+          "original": "おほけなや　神の守りの渥くして　わが作す業の日日に栄ゆる",
+          "reading": "おおけなや　かみのまもりのあつくして　わがなすわざのひびにさかゆる",
+          "reading_hira": "おおけなや　かみのまもりのあつくして　わがなすわざのひびにさかゆる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 146,
+          "title": "",
+          "original": "夢にだも　想はぬ望み仕遂げなむ　病の悩みなき足御代を",
+          "reading": "ゆめにだも　おもわぬのぞみしとげなむ　やまいのなやみなきたるみよを",
+          "reading_hira": "ゆめにだも　おもわぬのぞみしとげなむ　やまいのなやみなきたるみよを",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 147,
+          "title": "",
+          "original": "誤れる　医しの術に村肝の　生命縮むるあはれ世人よ",
+          "reading": "あやまれる　いやしのすべにむらきもの　いのちちじむるあわれよびとよ",
+          "reading_hira": "あやまれる　いやしのすべにむらきもの　いのちちじむるあわれよびとよ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 148,
+          "title": "",
+          "original": "霊知らぬ　医しの術に二つなき　生命を捨つる常暗の世や",
+          "reading": "たましらぬ　いやしのすべにふたつなき　いのちをすつるとこやみのよや",
+          "reading_hira": "たましらぬ　いやしのすべにふたつなき　いのちをすつるとこやみのよや",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 149,
+          "title": "",
+          "original": "歎てきは　薬の毒を知らずして　生命縮むる人にありける",
+          "reading": "うたてきは　くすりのどくをしらずして　いのちちぢむるひとにありける",
+          "reading_hira": "うたてきは　くすりのどくをしらずして　いのちちぢむるひとにありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 150,
+          "title": "",
+          "original": "病きを　医さんとして病きを　増す薬のむあはれ世の人",
+          "reading": "いたつきを　いやさんとしていたつきを　ますくすりのむあわれよのひと",
+          "reading_hira": "いたつきを　いやさんとしていたつきを　ますくすりのむあわれよのひと",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 151,
+          "title": "",
+          "original": "病なく　貧なく争なき御代を　うち樹てんとして夜日いそしむ",
+          "reading": "やまいなく　ひんなくあらそいなきみよを　うちたてんとしてよるひるいそしむ",
+          "reading_hira": "やまいなく　ひんなくあらそいなきみよを　うちたてんとしてよるひるいそしむ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 152,
+          "title": "",
+          "original": "諸人の　とどかぬ願とあきらめし　病無き世を吾打建つるなり",
+          "reading": "もろびとの　とどかぬねがいとあきらめし　やまいなきよをわれうちたつるなり",
+          "reading_hira": "もろびとの　とどかぬねがいとあきらめし　やまいなきよをわれうちたつるなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 153,
+          "title": "",
+          "original": "銀も　黄金も珠も何かあらむ　生命に勝る宝なければ",
+          "reading": "しろがねも　こがねもたまもなにかあらん　いのちにまさるたからなければ",
+          "reading_hira": "しろがねも　こがねもたまもなにかあらん　いのちにまさるたからなければ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 154,
+          "title": "",
+          "original": "例しなき　新つの御代を樹てんとし　此土浄むる珍の神業",
+          "reading": "ためしなき　さらつのみよをたてんとし　このどきよむるうづのかむわざ",
+          "reading_hira": "ためしなき　さらつのみよをたてんとし　このどきよむるうづのかむわざ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        },
+        {
+          "number": 155,
+          "title": "",
+          "original": "国々の　殃ひいよよふかまりぬ　新つの御代の生るるきざしや",
+          "reading": "くにぐにの　わざわいいよよふかまりぬ　さらつのみよのあるるきざしや",
+          "reading_hira": "くにぐにの　わざわいいよよふかまりぬ　さらつのみよのあるるきざしや",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S18. 2. 5"
+        }
+      ]
+    },
+    {
+      "title_pt": "Início da Primavera e Outros (no Salão Daitōa de Tóquio)",
+      "title_jp": "立春其他　　（於東京大東亜会館発表）",
+      "title_romaji": "Risshun Sonohoka",
+      "poems": [
+        {
+          "number": 156,
+          "title": "",
+          "original": "年毎に　春立ち初むる今日の日を　誠の人たち集せて祝ぐ吾",
+          "reading": "としごとに　はるたちそむるきょうのひを　まことのひとたちよせてほぐわれ",
+          "reading_hira": "としごとに　はるたちそむるきょうのひを　まことのひとたちよせてほぐわれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 157,
+          "title": "",
+          "original": "梓弓　春立ち初むる今年はも　ただならぬ世の迫り来ぬらし",
+          "reading": "あずさゆみ　はるたちそむることしはも　ただならぬよのせまりきぬらし",
+          "reading_hira": "あずさゆみ　はるたちそむることしはも　ただならぬよのせまりきぬらし",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 158,
+          "title": "",
+          "original": "穢れたる　もの悉滅び新しき　美しの御代は生れなんとすも",
+          "reading": "けがれたる　ものみなほろびあたらしき　うましのみよはあれなんとすも",
+          "reading_hira": "けがれたる　ものみなほろびあたらしき　うましのみよはあれなんとすも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 159,
+          "title": "",
+          "original": "戦ひに　飢に病になやむ日の　後に光の世ぞ来つるらむ",
+          "reading": "たたかいに　うえにやまいになやむひの　あとにひかりのよぞきつるらん",
+          "reading_hira": "たたかいに　うえにやまいになやむひの　あとにひかりのよぞきつるらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 160,
+          "title": "",
+          "original": "如何ならん　災迫り来ぬるとて　安けからめや神にある人",
+          "reading": "いかならん　わざわいせまりきぬるとて　やすけからめやかみにあるひと",
+          "reading_hira": "いかならん　わざわいせまりきぬるとて　やすけからめやかみにあるひと",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 161,
+          "title": "",
+          "original": "世の終り　心にきざむ人にして　新つの御代に生きとほすらむ",
+          "reading": "よのおわり　こころにきざむひとにして　さらつのみよにいきとおすらん",
+          "reading_hira": "よのおわり　こころにきざむひとにして　さらつのみよにいきとおすらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 162,
+          "title": "",
+          "original": "千早振　神つ代となり光明の　偏〔遍〕く照らす世ぞ待たれぬる",
+          "reading": "ちはやぶる　かみつよとなりこうみょうの　あまねくてらすよぞまたれぬる",
+          "reading_hira": "ちはやぶる　かみつよとなりこうみょうの　あまねくてらすよぞまたれぬる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 163,
+          "title": "",
+          "original": "曲津神　如何に逸るも眼に見えぬ　神の力に刃向ひ得めや",
+          "reading": "まがつかみ　いかにはやるもめにみえぬ　かみのちからにはむかいえめや",
+          "reading_hira": "まがつかみ　いかにはやるもめにみえぬ　かみのちからにはむかいえめや",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 164,
+          "title": "",
+          "original": "身も霊も　蝕ばむ薬毒知らずして　求むる人を見るぞ悲しき",
+          "reading": "みもたまも　むしばむやくどくしらずして　もとむるひとをみるぞかなしき",
+          "reading_hira": "みもたまも　むしばむやくどくしらずして　もとむるひとをみるぞかなしき",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 165,
+          "title": "",
+          "original": "魂機張る　生命を削るものとしらず　探し求むる盲ぞ哀れ",
+          "reading": "たまきはる　いのちをけずるものとしらず　さがしもとむるめしいぞあわれ",
+          "reading_hira": "たまきはる　いのちをけずるものとしらず　さがしもとむるめしいぞあわれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        }
+      ]
+    },
+    {
+      "title_pt": "Poemas Avulsos",
+      "title_jp": "※全集未収録",
+      "title_romaji": "Zenshū Mishūroku",
+      "poems": [
+        {
+          "number": 166,
+          "title": "",
+          "original": "肉を斬り　骨を削りて血を搾る　医しの業を正したくぞ思ふ",
+          "reading": "にくをきり　ほねをけずりてちをしぼる　いやしのわざをただしたくぞおもう",
+          "reading_hira": "にくをきり　ほねをけずりてちをしぼる　いやしのわざをただしたくぞおもう",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 167,
+          "title": "",
+          "original": "世を救ふ　神のみむねを諾いて　吾成し遂げむ医しの業を",
+          "reading": "よをすくう　かみのみむねをうべないて　われなしとげんいやしのわざを",
+          "reading_hira": "よをすくう　かみのみむねをうべないて　われなしとげんいやしのわざを",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 168,
+          "title": "",
+          "original": "今にして　諸の誤り匡さざれば　人の世やがて危しとぞ思ふ",
+          "reading": "いまにして　もものあやまりたださざれば　ひとのよやがてあやうしとぞおもう",
+          "reading_hira": "いまにして　もものあやまりたださざれば　ひとのよやがてあやうしとぞおもう",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 169,
+          "title": "",
+          "original": "かにかくに　吾もし此土に生れずば　人の此世は如何になりなむ",
+          "reading": "かにかくに　われもしこのどにうまれずば　ひとのこのよはいかになりなん",
+          "reading_hira": "かにかくに　われもしこのどにうまれずば　ひとのこのよはいかになりなん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 170,
+          "title": "",
+          "original": "村肝の　生命の限り戦はん　この世滅ぼす曲のたくみと",
+          "reading": "むらきもの　いのちのかぎりたたかわん　このよほろぼすまがのたくみと",
+          "reading_hira": "むらきもの　いのちのかぎりたたかわん　このよほろぼすまがのたくみと",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 171,
+          "title": "",
+          "original": "時なれや　嗚呼時なれや今はしも　麻邇の力の世にいづるなり",
+          "reading": "ときなれや　ああときなれやいまはしも　まにのちからのよにいづるなり",
+          "reading_hira": "ときなれや　ああときなれやいまはしも　まにのちからのよにいづるなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        },
+        {
+          "number": 172,
+          "title": "",
+          "original": "キリストも　釈迦も遂げざる救世の　大き御業を吾成し遂げん",
+          "reading": "きりすとも　しゃかもとげざるきゅうせいの　おおきみわざをわれなしとげん",
+          "reading_hira": "きりすとも　しゃかもとげざるきゅうせいの　おおきみわざをわれなしとげん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S19. 2. 5"
+        }
+      ]
+    },
+    {
+      "title_pt": "Início da Primavera (no Encontro de Risshun)",
+      "title_jp": "立　春　　（立春大会）",
+      "title_romaji": "Risshun (Risshun Taikai)",
+      "poems": [
+        {
+          "number": 173,
+          "title": "",
+          "original": "ほのぼのと　春立ち初めぬ世を救う　わが神業の行手にも似て",
+          "reading": "ほのぼのと　はるたちそめぬよをすくう　わがかむわざのゆくてにもにて",
+          "reading_hira": "ほのぼのと　はるたちそめぬよをすくう　わがかむわざのゆくてにもにて",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 174,
+          "title": "",
+          "original": "梓弓　春立ち初むる今日はしも　世にも芽出度き日となりぬらむ",
+          "reading": "あずさゆみ　はるたちそむるきょうはしも　よにもめでたきひとなりぬらん",
+          "reading_hira": "あずさゆみ　はるたちそむるきょうはしも　よにもめでたきひとなりぬらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 175,
+          "title": "",
+          "original": "移りゆく　世のたどしさに去年祝ぎし　此日も遠き夢と思ほゆ",
+          "reading": "うつりゆく　よのたどしさにこぞほぎし　このひもとおきゆめとおもほゆ",
+          "reading_hira": "うつりゆく　よのたどしさにこぞほぎし　このひもとおきゆめとおもほゆ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        }
+      ]
+    },
+    {
+      "title_pt": "A Aurora",
+      "title_jp": "黎　明",
+      "title_romaji": "Reimei",
+      "poems": [
+        {
+          "number": 176,
+          "title": "",
+          "original": "諸人の　闇をさ迷う中にありて　光の道を勇みゆく吾ら",
+          "reading": "もろびとの　やみをさまようなかにありて　ひかりのみちをいさみゆくわれら",
+          "reading_hira": "もろびとの　やみをさまようなかにありて　ひかりのみちをいさみゆくわれら",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 177,
+          "title": "",
+          "original": "時めきし　国の司等次つぎに　落ちゆくさまの哀れなりける",
+          "reading": "ときめきし　くにつかさらつぎつぎに　おちゆくさまのあわれなりける",
+          "reading_hira": "ときめきし　くにつかさらつぎつぎに　おちゆくさまのあわれなりける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 178,
+          "title": "",
+          "original": "闇の世は　明けなんとして静けさを　破る響きのさやがしきかも",
+          "reading": "やみのよは　あけなんとしてしずけさを　やぶるひびきのさやがしきかも",
+          "reading_hira": "やみのよは　あけなんとしてしずけさを　やぶるひびきのさやがしきかも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 179,
+          "title": "",
+          "original": "君ケ代は　千代に八千代と謳はれし　固き礎揺ぎ初めける",
+          "reading": "きみがよは　ちよにやちよとうたわれし　かたきいしずえゆらぎそめける",
+          "reading_hira": "きみがよは　ちよにやちよとうたわれし　かたきいしずえゆらぎそめける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 180,
+          "title": "",
+          "original": "久方の　天津御光射し初めて　醜の御魂の隠るるひまなき",
+          "reading": "ひさかたの　あまつみひかりさしそめて　しこのみたまのかくるるひまなき",
+          "reading_hira": "ひさかたの　あまつみひかりさしそめて　しこのみたまのかくるるひまなき",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 181,
+          "title": "",
+          "original": "八十曲津　落ちゆく時となりにけり　美しの御国穢せし咎にて",
+          "reading": "やそまがつ　おちゆくときとなりにけり　うましのみくにけがせしとがにて",
+          "reading_hira": "やそまがつ　おちゆくときとなりにけり　うましのみくにけがせしとがにて",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 182,
+          "title": "",
+          "original": "三千歳の　暗の帳は明け放れ　光明輝やく東海の島",
+          "reading": "みちとせの　やみのとばりはあけはなれ　こうみょうかがやくとうかいのしま",
+          "reading_hira": "みちとせの　やみのとばりはあけはなれ　こうみょうかがやくとうかいのしま",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 183,
+          "title": "",
+          "original": "真心の　力によらで崩れ行く　此日之本を支え得べきや",
+          "reading": "まごころの　ちからによらでくずれゆく　このひのもとをささえうべきや",
+          "reading_hira": "まごころの　ちからによらでくずれゆく　このひのもとをささえうべきや",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 184,
+          "title": "",
+          "original": "曲人の　企みし戦ひ敗れけるは　神の守りの証しにぞある",
+          "reading": "まがびとの　たくみしたたかいやぶれけるは　かみのまもりのあかしにぞある",
+          "reading_hira": "まがびとの　たくみしたたかいやぶれけるは　かみのまもりのあかしにぞある",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 185,
+          "title": "",
+          "original": "曲方は　外国人と思ひしに　あらで誇りし神の国なる",
+          "reading": "まがかたは　とつくにびととおもいしに　あらでほこりしかみのくになる",
+          "reading_hira": "まがかたは　とつくにびととおもいしに　あらでほこりしかみのくになる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 186,
+          "title": "",
+          "original": "栄光の　春到りなばしづしづと　救主の天降る秋ぞ待たるる",
+          "reading": "えいこうの　はるきたりなばしづしづと　メシヤのあもるときぞまたるる",
+          "reading_hira": "えいこうの　はるきたりなばしづしづと　メシヤのあもるときぞまたるる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 187,
+          "title": "",
+          "original": "ハレルヤ　ハレルヤ　輝いて　勝利の都へ天降るキリスト",
+          "reading": "はれるや　はれるや　かがやいて　しょうりのみやこへあもるきりすと",
+          "reading_hira": "はれるや　はれるや　かがやいて　しょうりのみやこへあもるきりすと",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 188,
+          "title": "",
+          "original": "夜の終り　知るや知らずや埒もなき　事にさ迷ふ人のあわれさ",
+          "reading": "よのおわり　しるやしらずやらちもなき　ことにさまようひとのあわれさ",
+          "reading_hira": "よのおわり　しるやしらずやらちもなき　ことにさまようひとのあわれさ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 189,
+          "title": "",
+          "original": "今正に　滅びんとする此国を　救はせ給へ天地の神",
+          "reading": "いままさに　ほろびんとするこのくにを　すくわせたまえあめつちのかみ",
+          "reading_hira": "いままさに　ほろびんとするこのくにを　すくわせたまえあめつちのかみ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 190,
+          "title": "",
+          "original": "夜の終り　はや近めるを知らぬげに　鼻高人の勢ひぞあわれ",
+          "reading": "よのおわり　はやちかめるをしらぬげに　はなたかびとのきおいぞあわれ",
+          "reading_hira": "よのおわり　はやちかめるをしらぬげに　はなたかびとのきおいぞあわれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 191,
+          "title": "",
+          "original": "いすくわし　五十鈴の川の源の　濁り浄むる時となりぬる",
+          "reading": "いすくわし　いすずのかわのみなもとの　にごりきよむるときとなりぬる",
+          "reading_hira": "いすくわし　いすずのかわのみなもとの　にごりきよむるときとなりぬる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 192,
+          "title": "",
+          "original": "長き世を　踏み躙られし野の草も　芽生え初めけり春立ちてより",
+          "reading": "ながきよを　ふみにじられしののくさも　めばえそめけりはるたちてより",
+          "reading_hira": "ながきよを　ふみにじられしののくさも　めばえそめけりはるたちてより",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        },
+        {
+          "number": 193,
+          "title": "",
+          "original": "移り易り　繁きが世にも易らぬは　年の周りて春ぞ立つなる",
+          "reading": "うつりかわり　しげきがよにもかわらぬは　としのめぐりてはるぞたつなる",
+          "reading_hira": "うつりかわり　しげきがよにもかわらぬは　としのめぐりてはるぞたつなる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2. 5"
+        }
+      ]
+    },
+    {
+      "title_pt": "Atami",
+      "title_jp": "熱　海",
+      "title_romaji": "Atami",
+      "poems": [
+        {
+          "number": 194,
+          "title": "",
+          "original": "例しなき　わが神業に比ぶれば　古りし教のいと小さきかな",
+          "reading": "ためしなき　わがかむわざにくらぶれば　ふりしおしえのいとちさきかな",
+          "reading_hira": "ためしなき　わがかむわざにくらぶれば　ふりしおしえのいとちさきかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S20. 2.14"
+        },
+        {
+          "number": 195,
+          "title": "",
+          "original": "古への　聖の道も大神の　光に照され今開かんとすも",
+          "reading": "いにしえの　ひじりのみちもおおかみの　ひかりにてらされいまひらかんとすも",
+          "reading_hira": "いにしえの　ひじりのみちもおおかみの　ひかりにてらされいまひらかんとすも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S20. 2.14"
+        },
+        {
+          "number": 196,
+          "title": "",
+          "original": "真昼間の　光に照され夜のもの　みな滅びゆく状をしるなり",
+          "reading": "まひるまの　ひかりにてらされよるのもの　みなほろびゆくさまをしるなり",
+          "reading_hira": "まひるまの　ひかりにてらされよるのもの　みなほろびゆくさまをしるなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S20. 2.14"
+        },
+        {
+          "number": 197,
+          "title": "",
+          "original": "海山の　眺め好きかな豊かなる　温泉もありて熱海飽かなき",
+          "reading": "うみやまの　ながめよきかなゆたかなる　いでゆもありてあたみあかなき",
+          "reading_hira": "うみやまの　ながめよきかなゆたかなる　いでゆもありてあたみあかなき",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S20. 2.14"
+        },
+        {
+          "number": 198,
+          "title": "",
+          "original": "冬籠る　部屋の玻璃戸に静かなる　伊豆の海原日々眺めゐぬ",
+          "reading": "ふゆごもる　へやのはりどにしずかなる　いずのうなばらひびながめいぬ",
+          "reading_hira": "ふゆごもる　へやのはりどにしずかなる　いずのうなばらひびながめいぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S20. 2.14"
+        },
+        {
+          "number": 199,
+          "title": "",
+          "original": "見はるかす　桃山あたり賑はしく　灯光の見えて熱海好きかな",
+          "reading": "みはるかす　ももやまあたりにぎわしく　ほかげのみえてあたみよきかな",
+          "reading_hira": "みはるかす　ももやまあたりにぎわしく　ほかげのみえてあたみよきかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S20. 2.14"
+        },
+        {
+          "number": 200,
+          "title": "",
+          "original": "山蒼く　海閑かにて二つ三つ　小島の見ゆる熱海に住む幸",
+          "reading": "やまあおく　うみしずかにてふたつみつ　こじまのみゆるあたみにすむさち",
+          "reading_hira": "やまあおく　うみしずかにてふたつみつ　こじまのみゆるあたみにすむさち",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S20. 2.14"
+        },
+        {
+          "number": 201,
+          "title": "",
+          "original": "宛らに　天国と覚ゆ眺めよき　山地ひらきて世人救はん",
+          "reading": "さながらに　てんごくとおぼゆながめよき　さんちひらきてよびとすくわん",
+          "reading_hira": "さながらに　てんごくとおぼゆながめよき　さんちひらきてよびとすくわん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S20. 2.14"
+        }
+      ]
+    },
+    {
+      "title_pt": "Dia Tranquilo",
+      "title_jp": "閑　日",
+      "title_romaji": "Kanjitsu",
+      "poems": [
+        {
+          "number": 202,
+          "title": "",
+          "original": "大いなる　望みに燃ゆる心おさえ　移りゆく世を静に観つるも",
+          "reading": "おおいなる　のぞみにもゆるこころおさへ　うつりゆくよをしずかにみつるも",
+          "reading_hira": "おおいなる　のぞみにもゆるこころおさへ　うつりゆくよをしずかにみつるも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.21"
+        },
+        {
+          "number": 203,
+          "title": "",
+          "original": "一月の　半というに紅梅の　ちらほら見ゆる伊豆の湯の町",
+          "reading": "いちがつの　なかばというにこうばいの　ちらほらみゆるいずのゆのまち",
+          "reading_hira": "いちがつの　なかばというにこうばいの　ちらほらみゆるいずのゆのまち",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.21"
+        },
+        {
+          "number": 204,
+          "title": "",
+          "original": "眺め好き　熱海の里の山並を　回りて足らう此頃のわれ",
+          "reading": "ながめよき　あたみのさとのやまなみを　まわりてたらうこのごろのわれ",
+          "reading_hira": "ながめよき　あたみのさとのやまなみを　まわりてたらうこのごろのわれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.21"
+        },
+        {
+          "number": 205,
+          "title": "",
+          "original": "湖と見ゆる　熱海の海の静けさよ　眺め足らうも春の朝なさ",
+          "reading": "ことみゆる　あたみのうみのしずけさよ　ながめもたらうはるのあさなさ",
+          "reading_hira": "ことみゆる　あたみのうみのしずけさよ　ながめもたらうはるのあさなさ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.21"
+        },
+        {
+          "number": 206,
+          "title": "",
+          "original": "国人の　喘ぎさ迷う世にありて　神の御幸にわが安けかり",
+          "reading": "くにびとの　あえぎさまようよにありて　かみのみゆきにわがやすけかり",
+          "reading_hira": "くにびとの　あえぎさまようよにありて　かみのみゆきにわがやすけかり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.21"
+        },
+        {
+          "number": 207,
+          "title": "",
+          "original": "吹き荒ぶ　嵐を他所に此日比　歌にいそしむ吾にぞありける",
+          "reading": "ふきすさぶ　あらしをよそにこのひごろ　うたにいそしむわれにぞありける",
+          "reading_hira": "ふきすさぶ　あらしをよそにこのひごろ　うたにいそしむわれにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.21"
+        },
+        {
+          "number": 208,
+          "title": "",
+          "original": "冬枯の　寂しき山に白じろと　匂ひぬるかな梅の一本",
+          "reading": "ふゆがれの　さびしきやまにしろじろと　においぬるかなうめのひともと",
+          "reading_hira": "ふゆがれの　さびしきやまにしろじろと　においぬるかなうめのひともと",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.21"
+        },
+        {
+          "number": 209,
+          "title": "",
+          "original": "白じらと　松の木の間に咲き匂ふ　梅に見惚れつしばし佇む",
+          "reading": "しらじらと　まつのきのまにさきにおう　うめにみとれつしばしたたずむ",
+          "reading_hira": "しらじらと　まつのきのまにさきにおう　うめにみとれつしばしたたずむ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.21"
+        },
+        {
+          "number": 210,
+          "title": "",
+          "original": "梓弓　春浅けれど白梅の　在り処訪ねて今日も彷ふ",
+          "reading": "あずさゆみ　はるあさけれどしらうめの　ありどたずねてきょうもさすらう",
+          "reading_hira": "あずさゆみ　はるあさけれどしらうめの　ありどたずねてきょうもさすらう",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.21"
+        },
+        {
+          "number": 211,
+          "title": "",
+          "original": "そぞろゆく　街ところどころ寒桜　咲ける熱海よ一月といふに",
+          "reading": "そぞろゆく　まちところどころかんざくら　さけるあたみよいちがつというに",
+          "reading_hira": "そぞろゆく　まちところどころかんざくら　さけるあたみよいちがつというに",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.21"
+        },
+        {
+          "number": 212,
+          "title": "",
+          "original": "梅林　縫ひつ仰げば朧夜の　月は墨絵を描く庭の面",
+          "reading": "うめばやし　ぬいつあおげばおぽろよの　つきはすみえをえがくにわのも",
+          "reading_hira": "うめばやし　ぬいつあおげばおぽろよの　つきはすみえをえがくにわのも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.22"
+        },
+        {
+          "number": 213,
+          "title": "",
+          "original": "二つ三つ　小島の黒く泛めをり　熱海の宿の月の夜の窓",
+          "reading": "ふたつみつ　こじまのくろくうかめおり　あたみのやどのつきのよのまど",
+          "reading_hira": "ふたつみつ　こじまのくろくうかめおり　あたみのやどのつきのよのまど",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.22"
+        },
+        {
+          "number": 214,
+          "title": "",
+          "original": "待ち望む　此現し世に天国の　生るるを知らぬ世人ぞあわれ",
+          "reading": "まちのぞむ　このうつしよにてんごくの　あるるをしらぬよびとぞあわれ",
+          "reading_hira": "まちのぞむ　このうつしよにてんごくの　あるるをしらぬよびとぞあわれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.22"
+        },
+        {
+          "number": 215,
+          "title": "",
+          "original": "松青く　海紫の前にして　白きは梅かわが部屋の窓",
+          "reading": "まつあおく　うみむらさきのまえにして　しろきはうめかわがへやのまど",
+          "reading_hira": "まつあおく　うみむらさきのまえにして　しろきはうめかわがへやのまど",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.22"
+        },
+        {
+          "number": 216,
+          "title": "",
+          "original": "閑あれば　絵筆に親しみ書などかき　歌にいそしむ此頃のわれ",
+          "reading": "ひまあれば　えふでにしたしみしょなどかき　うたにいそしむこのごろのわれ",
+          "reading_hira": "ひまあれば　えふでにしたしみしょなどかき　うたにいそしむこのごろのわれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 2.23"
+        }
+      ]
+    },
+    {
+      "title_pt": "O Justo e o Iníquo",
+      "title_jp": "正　邪",
+      "title_romaji": "Seija",
+      "poems": [
+        {
+          "number": 217,
+          "title": "",
+          "original": "主義という　言葉は狭き道なれば　進みゆくほど行詰るなり",
+          "reading": "しゅぎという　ことばはせまきみちなれば　すすみゆくほどゆきづまるなり",
+          "reading_hira": "しゅぎという　ことばはせまきみちなれば　すすみゆくほどゆきづまるなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 1"
+        },
+        {
+          "number": 218,
+          "title": "",
+          "original": "百舌雀　いと騒しきかも此国の　田畠荒すな心とどめて",
+          "reading": "もずすずめ　いとさやがしきかもこのくにの　たはたあらすなこころとどめて",
+          "reading_hira": "もずすずめ　いとさやがしきかもこのくにの　たはたあらすなこころとどめて",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 1"
+        },
+        {
+          "number": 219,
+          "title": "",
+          "original": "邪は正に　勝たずと歌いしそのままに　国破れたり忘るるなゆめ",
+          "reading": "じゃはせいに　かたずとうたいしそのままに　くにやぶれたりわするるなゆめ",
+          "reading_hira": "じゃはせいに　かたずとうたいしそのままに　くにやぶれたりわするるなゆめ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 1"
+        },
+        {
+          "number": 220,
+          "title": "",
+          "original": "戦ひに　うち敗れたるは邪まの　企みの果てと知れよ世の人",
+          "reading": "たたかいに　うちやぶれたるはよこしまの　たくみのはてとしれよよのひと",
+          "reading_hira": "たたかいに　うちやぶれたるはよこしまの　たくみのはてとしれよよのひと",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 1"
+        },
+        {
+          "number": 221,
+          "title": "",
+          "original": "軍神　などとう神は世にあらじ　神は平和の権化なればなり",
+          "reading": "いくさがみ　などとうかみはよにあらじ　かみはへいわのごんげなればなり",
+          "reading_hira": "いくさがみ　などとうかみはよにあらじ　かみはへいわのごんげなればなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 1"
+        },
+        {
+          "number": 222,
+          "title": "",
+          "original": "軍神　などとう言葉は曲神の　世を佯はりし名にぞありける",
+          "reading": "いくさがみ　などとうことばまがかみの　よをいつわりしなにぞありける",
+          "reading_hira": "いくさがみ　などとうことばまがかみの　よをいつわりしなにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 1"
+        },
+        {
+          "number": 223,
+          "title": "",
+          "original": "人を殺め　国を傷ふ業こそは 八十枉神の企みにぞある",
+          "reading": "ひとをあやめ　くにをそこなうわざこそは　やそまがかみのたくみにぞある",
+          "reading_hira": "ひとをあやめ　くにをそこなうわざこそは　やそまがかみのたくみにぞある",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 1"
+        },
+        {
+          "number": 224,
+          "title": "",
+          "original": "主の神は 生きとし生けるもの悉に 生命を賜い幸を恵まう",
+          "reading": "すのかみは　いきとしいけるものみなに　いのちをたまいさちをめぐもう",
+          "reading_hira": "すのかみは　いきとしいけるものみなに　いのちをたまいさちをめぐもう",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 1"
+        },
+        {
+          "number": 225,
+          "title": "",
+          "original": "病無く 飢なく戦なき御代を 造るぞ神の御旨なるらん",
+          "reading": "やまいなく　うえなくたたかいなきみよを　つくるぞかみのみむねなるらん",
+          "reading_hira": "やまいなく　うえなくたたかいなきみよを　つくるぞかみのみむねなるらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 1"
+        },
+        {
+          "number": 226,
+          "title": "",
+          "original": "八百万 神はあれども正しきと 邪ま神のある世なりけり",
+          "reading": "やおよろず　かみはあれどもただしきと　よこしまがみのあるよなりけり",
+          "reading_hira": "やおよろず　かみはあれどもただしきと　よこしまがみのあるよなりけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 1"
+        }
+      ]
+    },
+    {
+      "title_pt": "O Amor de Deus",
+      "title_jp": "神　の　愛",
+      "title_romaji": "Kami no Ai",
+      "poems": [
+        {
+          "number": 227,
+          "title": "",
+          "original": "国破れ　あわれ望みを失える　民草の上にも春は来ぬめり",
+          "reading": "くにやぶれ　あわれのぞみをうしなえる　たみぐさのえにもはるはきぬめり",
+          "reading_hira": "くにやぶれ　あわれのぞみをうしなえる　たみぐさのえにもはるはきぬめり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 228,
+          "title": "",
+          "original": "千早振　神の御国と誇らかに　謳いし夢の醒めて儚なき",
+          "reading": "ちはやぶる　かみのみくにとほこらかに　うたいしゆめのさめてはかなき",
+          "reading_hira": "ちはやぶる　かみのみくにとほこらかに　うたいしゆめのさめてはかなき",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 229,
+          "title": "",
+          "original": "夜の終り　迫り来るなり大神の　任さしの御業わが遂げんかも",
+          "reading": "よるのおわり　せまりくるなりおおかみの　よさしのみわざわがとげんかも",
+          "reading_hira": "よるのおわり　せまりくるなりおおかみの　よさしのみわざわがとげんかも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 230,
+          "title": "",
+          "original": "いやはての　審判の日にぞ大神の　愛の御力顕れ出でなん",
+          "reading": "いやはての　さばきのひにぞおおかみの　あいのみちからあらわれいでなん",
+          "reading_hira": "いやはての　さばきのひにぞおおかみの　あいのみちからあらわれいでなん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 231,
+          "title": "",
+          "original": "飢に泣き　寒さに慄う諸人の　糧ともならんわが記きし文",
+          "reading": "うえになき　さむさにおびうもろびとの　かてともならんわがかきしふみ",
+          "reading_hira": "うえになき　さむさにおびうもろびとの　かてともならんわがかきしふみ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 232,
+          "title": "",
+          "original": "常暗の　夜途さ迷ふ世の人の　灯とならむわが説きし書",
+          "reading": "とこやみの　よみちさまようよのひとの　あかりとならんわがときしふみ",
+          "reading_hira": "とこやみの　よみちさまようよのひとの　あかりとならんわがときしふみ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 233,
+          "title": "",
+          "original": "石の上　旧き事ども潰えゆくは　新つ世近む徴しなるらん",
+          "reading": "いそのかみ　ふるきことどもついえゆくは　さらつよちかむしるしなるらん",
+          "reading_hira": "いそのかみ　ふるきことどもついえゆくは　さらつよちかむしるしなるらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 234,
+          "title": "",
+          "original": "基督や　釈迦にも見ざる神業を　行う奇しき我運命かも",
+          "reading": "キリストや　しゃかにもみざるかむわざを　おこなうくしきわがさだめかも",
+          "reading_hira": "キリストや　しゃかにもみざるかむわざを　おこなうくしきわがさだめかも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 235,
+          "title": "",
+          "original": "古えゆ　数多聖者の唱えたる　予言を吾は証さんとすも",
+          "reading": "いにしえゆ　あまたせいじゃのとなえたる　よげんをわれはあかさんとすも",
+          "reading_hira": "いにしえゆ　あまたせいじゃのとなえたる　よげんをわれはあかさんとすも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        }
+      ]
+    },
+    {
+      "title_pt": "O Verdadeiro Espírito Yamato",
+      "title_jp": "真の大和魂",
+      "title_romaji": "Makoto no Yamato-damashii",
+      "poems": [
+        {
+          "number": 236,
+          "title": "",
+          "original": "敷島の　大和心と人問はば　朝日に匂う富士の白雪",
+          "reading": "しきしまの　やまとごころとひととわば　あさひににおうふじのしらゆき",
+          "reading_hira": "しきしまの　やまとごころとひととわば　あさひににおうふじのしらゆき",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 237,
+          "title": "",
+          "original": "東海の　島根に映ゆる富士ケ嶺は　平和の御代の姿とや見ん",
+          "reading": "とうかいの　しまねにはゆるふじがねは　へいわのみよのすがたとやみん",
+          "reading_hira": "とうかいの　しまねにはゆるふじがねは　へいわのみよのすがたとやみん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 238,
+          "title": "",
+          "original": "武士の　唱えし日本魂は　みな偽りのものにぞありける",
+          "reading": "もののふの　となえしやまとだましいは　みないつわりのものにぞありける",
+          "reading_hira": "もののふの　となえしやまとだましいは　みないつわりのものにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 239,
+          "title": "",
+          "original": "天ケ下　悉同胞と思うなり　わが日の本の大和心は",
+          "reading": "あめがした　みなはらからとおもうなり　わがひのもとのやまとごころは",
+          "reading_hira": "あめがした　みなはらからとおもうなり　わがひのもとのやまとごころは",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 240,
+          "title": "",
+          "original": "争ひを　厭い平和を好むこそ　神のつくりし大和魂",
+          "reading": "いさかいを　いといへいわをこのむこそ　かみのつくりしやまとだましい",
+          "reading_hira": "いさかいを　いといへいわをこのむこそ　かみのつくりしやまとだましい",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 241,
+          "title": "",
+          "original": "平けく　世の治るを願ふこそ　神の誠の大和魂",
+          "reading": "たいらけく　よのおさまるをねがうこそ　かみのまことのやまとだましい",
+          "reading_hira": "たいらけく　よのおさまるをねがうこそ　かみのまことのやまとだましい",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        },
+        {
+          "number": 242,
+          "title": "",
+          "original": "物足らぬ　わが日の本の国人よ　物にはあらで誠なりけり",
+          "reading": "ものたらぬ　わがひのもとのくにびとよ　ものにはあらでまことなりけり",
+          "reading_hira": "ものたらぬ　わがひのもとのくにびとよ　ものにはあらでまことなりけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 3"
+        }
+      ]
+    },
+    {
+      "title_pt": "Eu",
+      "title_jp": "吾",
+      "title_romaji": "Ware",
+      "poems": [
+        {
+          "number": 243,
+          "title": "",
+          "original": "六十五年　ふりさけみれば曲神と　非時戦い続け来しかも",
+          "reading": "ろくじゅうごねん　ふりさけみればまがかみと　ときじくたたかいつづけきしかも",
+          "reading_hira": "ろくじゅうごねん　ふりさけみればまがかみと　ときじくたたかいつづけきしかも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 6"
+        },
+        {
+          "number": 244,
+          "title": "",
+          "original": "或時は　熱湯に入り或時は　薄氷踏みし過去の吾かな",
+          "reading": "あるときは　ねっとうにいりあるときは　はくひょうふみしかこのわれかな",
+          "reading_hira": "あるときは　ねっとうにいりあるときは　はくひょうふみしかこのわれかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 6"
+        },
+        {
+          "number": 245,
+          "title": "",
+          "original": "曲神を　言向和しよき神と　改めにつつ吾は来しかな",
+          "reading": "まがかみを　ことむけやわしよきかみと　あらためにつつわれはきしかな",
+          "reading_hira": "まがかみを　ことむけやわしよきかみと　あらためにつつわれはきしかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 6"
+        },
+        {
+          "number": 246,
+          "title": "",
+          "original": "日に月に　弥栄えゆくわが業は　神の御旨に添ふにやあらむ",
+          "reading": "ひにつきに　いやさかえゆくわがわざは　かみのみむねにそうにやあらん",
+          "reading_hira": "ひにつきに　いやさかえゆくわがわざは　かみのみむねにそうにやあらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 6"
+        },
+        {
+          "number": 247,
+          "title": "",
+          "original": "魂機張る　尊き生命賜ひしと　欣ぶ人のいよよ殖えつも",
+          "reading": "たまきはる　とうときいのちたまいしと　よろこぶひとのいよよふえつも",
+          "reading_hira": "たまきはる　とうときいのちたまいしと　よろこぶひとのいよよふえつも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 6"
+        },
+        {
+          "number": 248,
+          "title": "",
+          "original": "定まれる　人の生命を吾はしも　神業をもて侭に換ゆるも",
+          "reading": "さだまれる　ひとのいのちをわれはしも　かむわざをもてままにかゆるも",
+          "reading_hira": "さだまれる　ひとのいのちをわれはしも　かむわざをもてままにかゆるも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 6"
+        },
+        {
+          "number": 249,
+          "title": "",
+          "original": "今はしも　消えなんとする二つなき　魂の緒つなぐわが神業よ",
+          "reading": "いまはしも　きえなんとするふたつなき　たまのおつなぐわがかみわざよ",
+          "reading_hira": "いまはしも　きえなんとするふたつなき　たまのおつなぐわがかみわざよ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 6"
+        },
+        {
+          "number": 250,
+          "title": "",
+          "original": "古ゆ　人の生命はままならぬ　ものとされ来ぬ儚なさの世や",
+          "reading": "いにしへゆ　ひとのいのちはままならぬ　ものとされきぬはかなさのよや",
+          "reading_hira": "いにしへゆ　ひとのいのちはままならぬ　ものとされきぬはかなさのよや",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 6"
+        },
+        {
+          "number": 251,
+          "title": "",
+          "original": "キリストの　奇蹟を今に表はしつ　世人を救ふ人造るわれ",
+          "reading": "きりすとの　きせきをいまにあらわしつ　よびとをすくうひとつくるわれ",
+          "reading_hira": "きりすとの　きせきをいまにあらわしつ　よびとをすくうひとつくるわれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 6"
+        },
+        {
+          "number": 252,
+          "title": "",
+          "original": "魔の淵に　沈まんとする仇人に　幸と歓び与ふ吾はも",
+          "reading": "まのふちに　しずまんとするあだびとに　さちとよろこびあたうわれはも",
+          "reading_hira": "まのふちに　しずまんとするあだびとに　さちとよろこびあたうわれはも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 6"
+        },
+        {
+          "number": 253,
+          "title": "",
+          "original": "奴羽玉の　暗にさ迷ふ諸人を　光明の道に誘ふわが業",
+          "reading": "ぬばたまの　やみにさまようもろびとを　こうみょうのみちにいざのうわがわざ",
+          "reading_hira": "ぬばたまの　やみにさまようもろびとを　こうみょうのみちにいざのうわがわざ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 6"
+        },
+        {
+          "number": 254,
+          "title": "",
+          "original": "村肝の　心の盲を医しつつ　救ひの門に誘ふわれかな",
+          "reading": "むらきもの　こころのめしいをいやしつつ　すくいのかどにいざのうわれかな",
+          "reading_hira": "むらきもの　こころのめしいをいやしつつ　すくいのかどにいざのうわれかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 6"
+        }
+      ]
+    },
+    {
+      "title_pt": "Poemas Avulsos",
+      "title_jp": "※全集未収録",
+      "title_romaji": "Zenshū Mishūroku",
+      "poems": [
+        {
+          "number": 255,
+          "title": "",
+          "original": "過ぎし方　振さけみれば常人と　ちがふ運命の吾にぞありける",
+          "reading": "すぎしかた　ふりさけみればただびとと　ちがうさだめのわれにぞありける",
+          "reading_hira": "すぎしかた　ふりさけみればただびとと　ちがうさだめのわれにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 7"
+        },
+        {
+          "number": 256,
+          "title": "",
+          "original": "世の常の　人の運命とちがうなり　神の恵みのいや深くして",
+          "reading": "よのつねの　ひとのさだめとちがうなり　かみのめぐみのいやふかくして",
+          "reading_hira": "よのつねの　ひとのさだめとちがうなり　かみのめぐみのいやふかくして",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 7"
+        },
+        {
+          "number": 257,
+          "title": "",
+          "original": "いと窄き　主義とう道を作りつつ　進みがてなる人の多かり",
+          "reading": "いとせまき　しゅぎとうみちをつくりつつ　すすみがてなるひとのおおかり",
+          "reading_hira": "いとせまき　しゅぎとうみちをつくりつつ　すすみがてなるひとのおおかり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 7"
+        },
+        {
+          "number": 258,
+          "title": "",
+          "original": "飢に号く　民よそにして争ひに　日もこれ足らぬ哀れ物識り",
+          "reading": "うえになく　たみよそにしてあらそいに　ひもこれたらぬあわれものしり",
+          "reading_hira": "うえになく　たみよそにしてあらそいに　ひもこれたらぬあわれものしり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 7"
+        },
+        {
+          "number": 259,
+          "title": "",
+          "original": "如何ならん　道も容易く進むなり　誠の杖に縋り行きなば",
+          "reading": "いかならん　みちもたやすくすすむなり　まことのつえにすがりゆきなば",
+          "reading_hira": "いかならん　みちもたやすくすすむなり　まことのつえにすがりゆきなば",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 7"
+        },
+        {
+          "number": 260,
+          "title": "",
+          "original": "憂き艱み　滋き世なれど心安く　渡るは誠の杖もてばなり",
+          "reading": "うきなやみ　しげきよなれどこころやすく　わたるはまことのつえもてばなり",
+          "reading_hira": "うきなやみ　しげきよなれどこころやすく　わたるはまことのつえもてばなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 7"
+        },
+        {
+          "number": 261,
+          "title": "",
+          "original": "尊きは　誠なりけり鉄の　巌も通す力なりせば",
+          "reading": "とうときは　まことなりけりくろがねの　いわおもとおすちからなりせば",
+          "reading_hira": "とうときは　まことなりけりくろがねの　いわおもとおすちからなりせば",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3. 7"
+        }
+      ]
+    },
+    {
+      "title_pt": "O Tempo",
+      "title_jp": "時",
+      "title_romaji": "Toki",
+      "poems": [
+        {
+          "number": 262,
+          "title": "",
+          "original": "時めきし　もの今はしも小やかに　生くるを聞きて何か悲しき",
+          "reading": "ときめきし　ものいまはしもささやかに　いくるをききてなにかかなしき",
+          "reading_hira": "ときめきし　ものいまはしもささやかに　いくるをききてなにかかなしき",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.10"
+        },
+        {
+          "number": 263,
+          "title": "",
+          "original": "邪は廃れ　正は栄ゆる日の本の　生るるを待ちし吾にぞありける",
+          "reading": "じゃはすたれ　せいはさかゆるひのもとの　あるるをまちしわれにぞありける",
+          "reading_hira": "じゃはすたれ　せいはさかゆるひのもとの　あるるをまちしわれにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.10"
+        },
+        {
+          "number": 264,
+          "title": "",
+          "original": "時津風　吹き浄めけり長き世の　塵や芥の名残とどめで",
+          "reading": "ときつかぜ　ふききよめけりながきよの　ちりやあくたのなごりとどめで",
+          "reading_hira": "ときつかぜ　ふききよめけりながきよの　ちりやあくたのなごりとどめで",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.10"
+        },
+        {
+          "number": 265,
+          "title": "",
+          "original": "神風は　吹きいでにけり此国に　積りし塵を払はんとして",
+          "reading": "かみかぜは　ふきいでにけりこのくにに　つもりしちりをはらわんとして",
+          "reading_hira": "かみかぜは　ふきいでにけりこのくにに　つもりしちりをはらわんとして",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.10"
+        },
+        {
+          "number": 266,
+          "title": "",
+          "original": "日の本を　浄めんとてか例しなき　大神風は吹きあれにける",
+          "reading": "ひのもとを　きよめんとしてかためしなき　おおかみかぜはふきあれにける",
+          "reading_hira": "ひのもとを　きよめんとしてかためしなき　おおかみかぜはふきあれにける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.10"
+        },
+        {
+          "number": 267,
+          "title": "",
+          "original": "永久に　緑栄ゆる常盤〔磐〕木の　松も倒れぬ神風の吹き",
+          "reading": "とこしへに　みどりさかゆるときわぎの　まつもたおれぬかみかぜのふき",
+          "reading_hira": "とこしへに　みどりさかゆるときわぎの　まつもたおれぬかみかぜのふき",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.10"
+        },
+        {
+          "number": 268,
+          "title": "",
+          "original": "千早振　神の御国を神風の　塵もとどめず吹きぞ浄めよ",
+          "reading": "ちはやぶる　かみのみくにをかみかぜの　ちりもとどめずふきぞきよめよ",
+          "reading_hira": "ちはやぶる　かみのみくにをかみかぜの　ちりもとどめずふきぞきよめよ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.10"
+        },
+        {
+          "number": 269,
+          "title": "",
+          "original": "神風に　吹き捲くられて此国の　醜の草木はみな倒れけり",
+          "reading": "かみかぜに　ふきまくられてこのくにの　しこのくさきはみなたおれけり",
+          "reading_hira": "かみかぜに　ふきまくられてこのくにの　しこのくさきはみなたおれけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.10"
+        }
+      ]
+    },
+    {
+      "title_pt": "A Chegada da Primavera",
+      "title_jp": "春の訪れ",
+      "title_romaji": "Haru no Otozure",
+      "poems": [
+        {
+          "number": 270,
+          "title": "",
+          "original": "両袖に　岬真中に初島や　大島はろけしわが庭に佇てば",
+          "reading": "りょうそでに　みさきまなかにはつしまや　おおしまはろけしわがにわにたてば",
+          "reading_hira": "りょうそでに　みさきまなかにはつしまや　おおしまはろけしわがにわにたてば",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.13"
+        },
+        {
+          "number": 271,
+          "title": "",
+          "original": "杖をひく　野辺の枯草冬ながら　遠山並に薄霞見ゆ",
+          "reading": "つえをひく　のべのかれくさふゆながら　とおやまなみにうすがすみみゆ",
+          "reading_hira": "つえをひく　のべのかれくさふゆながら　とおやまなみにうすがすみみゆ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.13"
+        },
+        {
+          "number": 272,
+          "title": "",
+          "original": "待たれぬる　春は来ぬるか遠近の　山紫に霞立ち初む",
+          "reading": "またれぬる　はるはきぬるかおちこちの　やまむらさきにかすみたちそむ",
+          "reading_hira": "またれぬる　はるはきぬるかおちこちの　やまむらさきにかすみたちそむ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.13"
+        },
+        {
+          "number": 273,
+          "title": "",
+          "original": "松の間に　白じらみゆは白梅か　桜にもやと少時まどいぬ",
+          "reading": "まつのまに　しらじらみゆはしらうめか　さくらにもやとしばしまどいぬ",
+          "reading_hira": "まつのまに　しらじらみゆはしらうめか　さくらにもやとしばしまどいぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.13"
+        }
+      ]
+    },
+    {
+      "title_pt": "Velar a Luz na Poeira do Mundo",
+      "title_jp": "和光同塵",
+      "title_romaji": "Wakō Dōjin",
+      "poems": [
+        {
+          "number": 274,
+          "title": "",
+          "original": "塵に同り　光和めつ静やかに　時待つ吾の身にぞありける",
+          "reading": "ちりにまじり　ひかりなごめつしずやかに　ときまつわれのみにぞありける",
+          "reading_hira": "ちりにまじり　ひかりなごめつしずやかに　ときまつわれのみにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.18"
+        },
+        {
+          "number": 275,
+          "title": "",
+          "original": "名を隠し　力匿して救世の　礎窃かに築く吾はも",
+          "reading": "なをかくし　ちからかくしてきゅうせいの　いしずえひそかにきずくわれはも",
+          "reading_hira": "なをかくし　ちからかくしてきゅうせいの　いしずえひそかにきずくわれはも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.18"
+        },
+        {
+          "number": 276,
+          "title": "",
+          "original": "眼に見えぬ　力を揮ひ世を救ふ　わが神業の奇びなるかも",
+          "reading": "めにみえぬ　ちからをふるいよをすくう　わがかみわざのくしびなるかも",
+          "reading_hira": "めにみえぬ　ちからをふるいよをすくう　わがかみわざのくしびなるかも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.18"
+        },
+        {
+          "number": 277,
+          "title": "",
+          "original": "今はしも　池中に潜む蛟龍の　世に出でなんと時を待ちぬる",
+          "reading": "いまはしも　ちちゅうにひそむこうりゅうの　よにいでなんとときをまちぬる",
+          "reading_hira": "いまはしも　ちちゅうにひそむこうりゅうの　よにいでなんとときをまちぬる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.18"
+        },
+        {
+          "number": 278,
+          "title": "",
+          "original": "天ケ下　治まる世の状眼にうかめ　時待つ吾の楽しかりける",
+          "reading": "あめがした　おさまるよのさまめにうかめ　ときまつわれのたのしかりける",
+          "reading_hira": "あめがした　おさまるよのさまめにうかめ　ときまつわれのたのしかりける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.18"
+        },
+        {
+          "number": 279,
+          "title": "",
+          "original": "理に偏らず　法にも倚らずただ徳に　治まる美代ぞ地上天国",
+          "reading": "りによらず　ほうにもよらずただとくに　おさまるみよぞちじょうてんごく",
+          "reading_hira": "りによらず　ほうにもよらずただとくに　おさまるみよぞちじょうてんごく",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.18"
+        },
+        {
+          "number": 280,
+          "title": "",
+          "original": "春雨の　そぼ降る音を耳にしつ　歌などものし今日も暮れける",
+          "reading": "はるさめの　そぼふるおとをみみにしつ　うたなどものしきょうもくれける",
+          "reading_hira": "はるさめの　そぼふるおとをみみにしつ　うたなどものしきょうもくれける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 3.18"
+        }
+      ]
+    },
+    {
+      "title_pt": "A Obra Divina Preciosa",
+      "title_jp": "珍の神業",
+      "title_romaji": "Uzu no Kamiwaza",
+      "poems": [
+        {
+          "number": 281,
+          "title": "",
+          "original": "わがかける　文字そのままに躍るなり　皆それぞれに魂を入るれば",
+          "reading": "わがかける　もじそのままにおどるなり　みなそれぞれにたまをいるれば",
+          "reading_hira": "わがかける　もじそのままにおどるなり　みなそれぞれにたまをいるれば",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 9. 8"
+        },
+        {
+          "number": 282,
+          "title": "",
+          "original": "一つ一つの　文字の力に世の人の　生命を救う奇しき神業",
+          "reading": "ひとつひとつの　もじのちからによのひとの　いのちをすくうくしきかむわざ",
+          "reading_hira": "ひとつひとつの　もじのちからによのひとの　いのちをすくうくしきかむわざ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 9. 8"
+        }
+      ]
+    },
+    {
+      "title_pt": "A Obra Divina Misteriosa",
+      "title_jp": "奇しき神業",
+      "title_romaji": "Kushiki Kamiwaza",
+      "poems": [
+        {
+          "number": 283,
+          "title": "",
+          "original": "定まれる　人の齢を延すてう　未だなき業を吾は行う",
+          "reading": "さだまれる　ひとのよわいをのばすてう　まだなきわざをわれはおこなう",
+          "reading_hira": "さだまれる　ひとのよわいをのばすてう　まだなきわざをわれはおこなう",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 9.**"
+        },
+        {
+          "number": 284,
+          "title": "",
+          "original": "わが業を　疑ふ人はわが業の　真を知らぬ故にぞありける",
+          "reading": "わがわざを　うたがうひとはわがわざの　まことをしらぬゆえにぞありける",
+          "reading_hira": "わがわざを　うたがうひとはわがわざの　まことをしらぬゆえにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 9.**"
+        },
+        {
+          "number": 285,
+          "title": "",
+          "original": "古ゆ　ためしとてなき奇びさに　わが業疑ふ人もあるなり",
+          "reading": "いにしえゆ　ためしとてなきくしびさに　わがわざうたがうひともあるなり",
+          "reading_hira": "いにしえゆ　ためしとてなきくしびさに　わがわざうたがうひともあるなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 9.**"
+        },
+        {
+          "number": 286,
+          "title": "",
+          "original": "諸人の　願う事ども叶へんと　心を砕く吾にぞありける",
+          "reading": "もろびとの　ねがうことどもかなえんと　こころをくだくわれにぞありける",
+          "reading_hira": "もろびとの　ねがうことどもかなえんと　こころをくだくわれにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 9.**"
+        },
+        {
+          "number": 287,
+          "title": "",
+          "original": "世の人に　幸を与うる幸こそは　何にも弥増す幸とこそ知れ",
+          "reading": "よのひとに　さちをあたうるさちこそは　なににもいやますさちとこそしれ",
+          "reading_hira": "よのひとに　さちをあたうるさちこそは　なににもいやますさちとこそしれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 9.**"
+        },
+        {
+          "number": 288,
+          "title": "",
+          "original": "天国を　此地の上に造るとう　御業の下に生くる吾かな",
+          "reading": "てんごくを　このちのうえにつくるとう　みわざのもとにいくるわれかな",
+          "reading_hira": "てんごくを　このちのうえにつくるとう　みわざのもとにいくるわれかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21. 9.**"
+        }
+      ]
+    },
+    {
+      "title_pt": "Paraíso Terrestre",
+      "title_jp": "地上天国",
+      "title_romaji": "Chijō Tengoku",
+      "poems": [
+        {
+          "number": 289,
+          "title": "",
+          "original": "天国は　近づきにけり世の人よ　吾に来りて眼開けよ",
+          "reading": "てんごくは　ちかづきにけりよのひとよ　われにきたりてまなこひらけよ",
+          "reading_hira": "てんごくは　ちかづきにけりよのひとよ　われにきたりてまなこひらけよ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21.11. 7"
+        },
+        {
+          "number": 290,
+          "title": "",
+          "original": "病無く　物満ち足りて諸人の　歓ぎ喜ぶ地上天国",
+          "reading": "やまいなく　ものみちたりてもろびとの　えらぎよろこぶちじょうてんごく",
+          "reading_hira": "やまいなく　ものみちたりてもろびとの　えらぎよろこぶちじょうてんごく",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21.11. 7"
+        },
+        {
+          "number": 291,
+          "title": "",
+          "original": "花笑い　百鳥歌う春の野の　長閑けき状ぞ地上天国",
+          "reading": "はなわらい　ももとりうたうはるののの　のどけきさまぞちじょうてんごく",
+          "reading_hira": "はなわらい　ももとりうたうはるののの　のどけきさまぞちじょうてんごく",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21.11. 7"
+        },
+        {
+          "number": 292,
+          "title": "",
+          "original": "真善美　完く備はる現し世を　地上天国と吾はいうなり",
+          "reading": "しんぜんび　まったくそなわるうつしよを　ちじょうてんごくとわれはいうなり",
+          "reading_hira": "しんぜんび　まったくそなわるうつしよを　ちじょうてんごくとわれはいうなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S21.11. 7"
+        }
+      ]
+    },
+    {
+      "title_pt": "A Grande Purificação",
+      "title_jp": "大　浄　化",
+      "title_romaji": "Dai-Jōka",
+      "poems": [
+        {
+          "number": 293,
+          "title": "",
+          "original": "人の世の　塵も芥も残りなく　洗ひ浄むる時ぞ来ぬめり",
+          "reading": "ひとのよの　ちりもあくたものこりなく　あらいきよむるときぞきぬめり",
+          "reading_hira": "ひとのよの　ちりもあくたものこりなく　あらいきよむるときぞきぬめり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1. 5"
+        },
+        {
+          "number": 294,
+          "title": "",
+          "original": "珍らしき　地上天国打樹つる　神の御業の大浄化かな",
+          "reading": "めずらしき　ちじょうてんごくうちたつる　かみのみわざのだいじょうかかな",
+          "reading_hira": "めずらしき　ちじょうてんごくうちたつる　かみのみわざのだいじょうかかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1. 5"
+        },
+        {
+          "number": 295,
+          "title": "",
+          "original": "永き世を　積りつもりし罪穢　霊火に今や燃き祓はんとすも",
+          "reading": "ながきよを　つもりつもりしつみけがれ　れいかにいまややきはらわんとすも",
+          "reading_hira": "ながきよを　つもりつもりしつみけがれ　れいかにいまややきはらわんとすも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1. 5"
+        }
+      ]
+    },
+    {
+      "title_pt": "Novo Mundo",
+      "title_jp": "新　世　界",
+      "title_romaji": "Shin Sekai",
+      "poems": [
+        {
+          "number": 296,
+          "title": "",
+          "original": "新しき　世は新しき土の上に　打樹てらるべきものにありなむ",
+          "reading": "あたらしき　よはあたらしきつちのうえに　うちたてらるべきものにありなん",
+          "reading_hira": "あたらしき　よはあたらしきつちのうえに　うちたてらるべきものにありなん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1. 8"
+        },
+        {
+          "number": 297,
+          "title": "",
+          "original": "時めきし　人達次つぎ落ちゆくは　新つ世生るる徴なるらん",
+          "reading": "ときめきし　ひとたちつぎつぎおちゆくは　さらつよあるるしるしなるらん",
+          "reading_hira": "ときめきし　ひとたちつぎつぎおちゆくは　さらつよあるるしるしなるらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1. 8"
+        },
+        {
+          "number": 298,
+          "title": "",
+          "original": "名や地位の　なくも誠のある人の　世に現はるる時となりぬる",
+          "reading": "なやちいの　なくもまことのあるひとの　よにあらわるるときとなりぬる",
+          "reading_hira": "なやちいの　なくもまことのあるひとの　よにあらわるるときとなりぬる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1. 8"
+        },
+        {
+          "number": 299,
+          "title": "",
+          "original": "真の智慧　愛の光に溢れたる　人の世に出る五六七の御代かな",
+          "reading": "まことのちえ　あいのひかりにあふれたる　ひとのよにいづるみろくのみよかな",
+          "reading_hira": "まことのちえ　あいのひかりにあふれたる　ひとのよにいづるみろくのみよかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1. 8"
+        },
+        {
+          "number": 300,
+          "title": "",
+          "original": "裏表　巧みにあしらふえら人の　落ちゆく状のいと哀れなる",
+          "reading": "うらおもて　たくみにあしらうえらびとの　おちゆくさまのいとあわれなる",
+          "reading_hira": "うらおもて　たくみにあしらうえらびとの　おちゆくさまのいとあわれなる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1. 8"
+        },
+        {
+          "number": 301,
+          "title": "",
+          "original": "邪まの　心をかくし美はしく　飾りし人の末路ぞあはれ",
+          "reading": "よこしまの　こころをかくしうるわしく　かざりしひとのまつろぞあわれ",
+          "reading_hira": "よこしまの　こころをかくしうるわしく　かざりしひとのまつろぞあわれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1. 8"
+        },
+        {
+          "number": 302,
+          "title": "",
+          "original": "政り事　正しくなされ諸人の　歓ぎ喜ぶ五六七聖代",
+          "reading": "まつりごと　ただしくなされもろびとの　えらぎよろこぶみろくせいだい",
+          "reading_hira": "まつりごと　ただしくなされもろびとの　えらぎよろこぶみろくせいだい",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1. 8"
+        },
+        {
+          "number": 303,
+          "title": "",
+          "original": "争ひを　好むは獣の性にして　平和を好む人ぞ人なる",
+          "reading": "いさかいを　このむはけもののさがにして　へいわをこのむひとぞひとなる",
+          "reading_hira": "いさかいを　このむはけもののさがにして　へいわをこのむひとぞひとなる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1. 8"
+        },
+        {
+          "number": 304,
+          "title": "",
+          "original": "争ひを　好む獣の性なくし　平和を好む人つくるわれ",
+          "reading": "いさかいを　このむけもののさがなくし　へいわをこのむひとつくるわれ",
+          "reading_hira": "いさかいを　このむけもののさがなくし　へいわをこのむひとつくるわれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1. 8"
+        }
+      ]
+    },
+    {
+      "title_pt": "Sinceridade",
+      "title_jp": "誠",
+      "title_romaji": "Makoto",
+      "poems": [
+        {
+          "number": 305,
+          "title": "",
+          "original": "物足らぬ　悩みの元は諸人の　心に誠の足らねばなりけり",
+          "reading": "ものたらぬ　なやみのもとはもろびとの　こころにまことのたらねばなりけり",
+          "reading_hira": "ものたらぬ　なやみのもとはもろびとの　こころにまことのたらねばなりけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1.19"
+        },
+        {
+          "number": 306,
+          "title": "",
+          "original": "争や　ストの解決もいと易し　誠心に語り合いなば",
+          "reading": "あらそいや　すとのかいけついとやすし　まことごころにかたりあいなば",
+          "reading_hira": "あらそいや　すとのかいけついとやすし　まことごころにかたりあいなば",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1.19"
+        },
+        {
+          "number": 307,
+          "title": "",
+          "original": "新しき　平和日本をうち樹つる　力にこそは誠なりけり",
+          "reading": "あたらしき　へいわにほんをうちたつる　ちからにこそはまことなりけり",
+          "reading_hira": "あたらしき　へいわにほんをうちたつる　ちからにこそはまことなりけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1.19"
+        },
+        {
+          "number": 308,
+          "title": "",
+          "original": "誠なき　人の集いの喧しさ　百舌鳥や雀と等しかりける",
+          "reading": "まことなき　ひとのつどいのかしましさ　もずやすずめとひとしかりける",
+          "reading_hira": "まことなき　ひとのつどいのかしましさ　もずやすずめとひとしかりける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1.19"
+        },
+        {
+          "number": 309,
+          "title": "",
+          "original": "国の悩み　次つぎ起る嘆てさよ　神に背ける尤にありせば",
+          "reading": "くにのなやみ　つぎつぎおこるうたてさよ　かみにそむけるとがにありせば",
+          "reading_hira": "くにのなやみ　つぎつぎおこるうたてさよ　かみにそむけるとがにありせば",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1.19"
+        },
+        {
+          "number": 310,
+          "title": "",
+          "original": "神を恐れ　正しき道を守る人　つくるぞわれの使命なるらん",
+          "reading": "かみをおそれ　ただしきみちをまもるひと　つくるぞわれのしめいなるらん",
+          "reading_hira": "かみをおそれ　ただしきみちをまもるひと　つくるぞわれのしめいなるらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 1.19"
+        }
+      ]
+    },
+    {
+      "title_pt": "A Obra da Cura",
+      "title_jp": "医しの業",
+      "title_romaji": "Iyashi no Waza",
+      "poems": [
+        {
+          "number": 311,
+          "title": "",
+          "original": "わが成せし　医しの業のなかりせば　人の此世は如何になるらめ",
+          "reading": "わがなせし　いやしのわざのなかりせば　ひとのこのよはいかになるらめ",
+          "reading_hira": "わがなせし　いやしのわざのなかりせば　ひとのこのよはいかになるらめ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 2.24"
+        },
+        {
+          "number": 312,
+          "title": "",
+          "original": "金剛石も　黄金の〔も〕玉も何かせむ　命の宝にうち比ぶれば",
+          "reading": "こんごうせきも　こがねの〔も〕たまもなにかせん　いのちのたからにうちくらぶれば",
+          "reading_hira": "こんごうせきも　こがねの〔も〕たまもなにかせん　いのちのたからにうちくらぶれば",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 2.24"
+        },
+        {
+          "number": 313,
+          "title": "",
+          "original": "いたつきの　悩みに遇ふて熟づくと　健かな日の幸をしぞ思う",
+          "reading": "いたつきの　なやみにあうてつくづくと　すこやかなひのさちをしぞおもう",
+          "reading_hira": "いたつきの　なやみにあうてつくづくと　すこやかなひのさちをしぞおもう",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 2.24"
+        }
+      ]
+    },
+    {
+      "title_pt": "Pavilhão Kanzantei",
+      "title_jp": "観　山　亭",
+      "title_romaji": "Kanzantei",
+      "poems": [
+        {
+          "number": 314,
+          "title": "",
+          "original": "足曳の　青垣山の畳なはる　中に建てける観山亭かな",
+          "reading": "あしびきの　あおがきやまのたたなはる　なかにたてけるかんざんていかな",
+          "reading_hira": "あしびきの　あおがきやまのたたなはる　なかにたてけるかんざんていかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 9.15"
+        },
+        {
+          "number": 315,
+          "title": "",
+          "original": "きくやかに　秋空に浮む山並を　朝な夕なに観る新居かな",
+          "reading": "きくやかに　あきぞらにうかむやまなみを　あさなゆうなにみるしんきょかな",
+          "reading_hira": "きくやかに　あきぞらにうかむやまなみを　あさなゆうなにみるしんきょかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 9.15"
+        },
+        {
+          "number": 316,
+          "title": "",
+          "original": "苔ふりし　庭の大石ながめつつ　神代を偲ぶわが庵の外",
+          "reading": "こけふりし　にわのおおいしながめつつ　かみよをしのぶわがいおのそと",
+          "reading_hira": "こけふりし　にわのおおいしながめつつ　かみよをしのぶわがいおのそと",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 9.15"
+        },
+        {
+          "number": 317,
+          "title": "",
+          "original": "聳り立つ　苔むす巌のおごそかさ　秋空高く澄み渡る下",
+          "reading": "そそりたつ　こけむすいわおのおごそかさ　あきぞらたかくすみわたるした",
+          "reading_hira": "そそりたつ　こけむすいわおのおごそかさ　あきぞらたかくすみわたるした",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 9.15"
+        },
+        {
+          "number": 318,
+          "title": "",
+          "original": "秋されど　山の紅葉は色浅く　まなかいの山いと真近なり",
+          "reading": "あきされど　やまのもみじはいろあさく　まなかいのやまいとまじかなり",
+          "reading_hira": "あきされど　やまのもみじはいろあさく　まなかいのやまいとまじかなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 9.15"
+        },
+        {
+          "number": 319,
+          "title": "",
+          "original": "白雲の　去来せわしき夏の山　眺むるひまの楽しかりける",
+          "reading": "しらくもの　ゆききせわしきなつのやま　ながむるひまのたのしかりける",
+          "reading_hira": "しらくもの　ゆききせわしきなつのやま　ながむるひまのたのしかりける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22. 9.15"
+        }
+      ]
+    },
+    {
+      "title_pt": "A Grande Passagem",
+      "title_jp": "大　峠",
+      "title_romaji": "Ō-tōge",
+      "poems": [
+        {
+          "number": 320,
+          "title": "",
+          "original": "地上天国　生れなんとすも信徒よ　身魂磨きを怠るなゆめ",
+          "reading": "ちじょうてんごく　あれなんとすもまめひとよ　みたまみがきをおこたるなゆめ",
+          "reading_hira": "ちじょうてんごく　あれなんとすもまめひとよ　みたまみがきをおこたるなゆめ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22.11. 8"
+        },
+        {
+          "number": 321,
+          "title": "",
+          "original": "幾千歳　積りつもりし塵芥　浄め給えと祈る吾はも",
+          "reading": "いくちとせ　つもりつもりしちりあくた　きよめたまえといのるわれはも",
+          "reading_hira": "いくちとせ　つもりつもりしちりあくた　きよめたまえといのるわれはも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22.11. 8"
+        },
+        {
+          "number": 322,
+          "title": "",
+          "original": "例しなき　此現世の大峠　日に夜に近むを知るや知らずや",
+          "reading": "ためしなき　このうつしよのおおとうげ　ひによにちかむをしるやしらずや",
+          "reading_hira": "ためしなき　このうつしよのおおとうげ　ひによにちかむをしるやしらずや",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S22.11. 8"
+        }
+      ]
+    },
+    {
+      "title_pt": "Ano Novo",
+      "title_jp": "新　年",
+      "title_romaji": "Shinnen",
+      "poems": [
+        {
+          "number": 323,
+          "title": "",
+          "original": "新玉の　年を迎へて身も魂も　いと清しけれ神に在る身は",
+          "reading": "あらたまの　としをむかえてみもたまも　いとすがしけれかみにあるみは",
+          "reading_hira": "あらたまの　としをむかえてみもたまも　いとすがしけれかみにあるみは",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 1. 1"
+        },
+        {
+          "number": 324,
+          "title": "",
+          "original": "常暗の　世を明けく晴さんと　光明如来は出でましにける",
+          "reading": "とこやみの　よをあきらけくはらさんと　こうみょうにょらいはいでましにける",
+          "reading_hira": "とこやみの　よをあきらけくはらさんと　こうみょうにょらいはいでましにける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 1. 1"
+        },
+        {
+          "number": 325,
+          "title": "",
+          "original": "新玉の　年を迎えて思うかな　神の仕組のいと妙なるを",
+          "reading": "あらたまの　としをむかえておもうかな　かみのしぐみのいとたえなるを",
+          "reading_hira": "あらたまの　としをむかえておもうかな　かみのしぐみのいとたえなるを",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 1. 1"
+        },
+        {
+          "number": 326,
+          "title": "",
+          "original": "奴羽玉の　暗路もすみて光明の　道ふみ初むる心地こそすれ",
+          "reading": "ぬばたまの　やみじもすみてこうみょうの　みちふみそむるここちこそすれ",
+          "reading_hira": "ぬばたまの　やみじもすみてこうみょうの　みちふみそむるここちこそすれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 1. 1"
+        },
+        {
+          "number": 327,
+          "title": "",
+          "original": "日月地　三位一体の御力を　具へて出でます五六七大神",
+          "reading": "じつげつち　さんみいったいのみちからを　そなえていでますみろくおおかみ",
+          "reading_hira": "じつげつち　さんみいったいのみちからを　そなえていでますみろくおおかみ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 1. 1"
+        }
+      ]
+    },
+    {
+      "title_pt": "A Proteção Divina",
+      "title_jp": "神　の　守",
+      "title_romaji": "Kami no Mamori",
+      "poems": [
+        {
+          "number": 328,
+          "title": "",
+          "original": "過ぎし方　振さけみれば八重葎　茨の道をよくぞ越え来し",
+          "reading": "すぎしかた　ふりさけみればやえむぐら　いばらのみちをよくぞこえきし",
+          "reading_hira": "すぎしかた　ふりさけみればやえむぐら　いばらのみちをよくぞこえきし",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 1. 1"
+        },
+        {
+          "number": 329,
+          "title": "",
+          "original": "堪え難き　悩み忍びつ今あるは　神の恵の深きにぞある",
+          "reading": "たえがたき　なやみしのびついまあるは　かみのめぐみのふかきにぞある",
+          "reading_hira": "たえがたき　なやみしのびついまあるは　かみのめぐみのふかきにぞある",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 1. 1"
+        },
+        {
+          "number": 330,
+          "title": "",
+          "original": "わが行手　如何に阻むもいと易く　払い来にける妙智力かも",
+          "reading": "わがゆくて　いかにはばむもいとやすく　はらいきにけるみょうちりきかも",
+          "reading_hira": "わがゆくて　いかにはばむもいとやすく　はらいきにけるみょうちりきかも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 1. 1"
+        },
+        {
+          "number": 331,
+          "title": "",
+          "original": "日に月に　いや栄えゆくわが業の　力は誠に出でければなり",
+          "reading": "ひにつきに　いやさかえゆくわがわざの　ちからはまことにいでければなり",
+          "reading_hira": "ひにつきに　いやさかえゆくわがわざの　ちからはまことにいでければなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 1. 1"
+        },
+        {
+          "number": 332,
+          "title": "",
+          "original": "救はれて　歓ぎ喜ぶ信徒の　面見る毎に何も忘れぬ",
+          "reading": "すくわれて　えらぎよろこぶまめひとの　おもみるごとになにもわすれぬ",
+          "reading_hira": "すくわれて　えらぎよろこぶまめひとの　おもみるごとになにもわすれぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 1. 1"
+        },
+        {
+          "number": 333,
+          "title": "",
+          "original": "観世音　菩薩の御心心とし　進む人こそ真の人なる",
+          "reading": "かんぜおん　ぼさつのみこころこころとし　すすむひとこそまことのひとなる",
+          "reading_hira": "かんぜおん　ぼさつのみこころこころとし　すすむひとこそまことのひとなる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 1. 1"
+        },
+        {
+          "number": 334,
+          "title": "",
+          "original": "国挙げて　闇に悩める此日比　救ふは神の光よりなき",
+          "reading": "くにあげて　やみになやめるこのひごろ　すくうはかみのひかりよりなき",
+          "reading_hira": "くにあげて　やみになやめるこのひごろ　すくうはかみのひかりよりなき",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5. 1"
+        },
+        {
+          "number": 335,
+          "title": "",
+          "original": "光明の　遍く照らす世なりせば　塵や汚れのなどあるべしや",
+          "reading": "こうみょうの　あまねくてらすよなりせば　ちりやけがれのなどあるべしや",
+          "reading_hira": "こうみょうの　あまねくてらすよなりせば　ちりやけがれのなどあるべしや",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5. 1"
+        }
+      ]
+    },
+    {
+      "title_pt": "Mundo Alegre",
+      "title_jp": "楽しき世",
+      "title_romaji": "Tanoshiki Yo",
+      "poems": [
+        {
+          "number": 336,
+          "title": "",
+          "original": "惟神　神のまにまに進む身は　憂きの此世も楽しかりけり",
+          "reading": "かむながら　かみのまにまにすすむみは　うきのこのよもたのしかりけり",
+          "reading_hira": "かむながら　かみのまにまにすすむみは　うきのこのよもたのしかりけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.16"
+        },
+        {
+          "number": 337,
+          "title": "",
+          "original": "如何ならむ　苦しみとても消えぬらむ　神の御旨に添ふ身なりせば",
+          "reading": "いかならん　くるしみとてもきえぬらん　かみのみむねにそうみなりせば",
+          "reading_hira": "いかならん　くるしみとてもきえぬらん　かみのみむねにそうみなりせば",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.16"
+        },
+        {
+          "number": 338,
+          "title": "",
+          "original": "ただ神の　大御心に委すなり　弱き力の人の身にあれば",
+          "reading": "ただかみの　おおみこころにまかすなり　よわきちからのひとのみにあれば",
+          "reading_hira": "ただかみの　おおみこころにまかすなり　よわきちからのひとのみにあれば",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.16"
+        },
+        {
+          "number": 339,
+          "title": "",
+          "original": "人の世は　いとも楽しきものぞかし　誰が言いにけむ憂の世なりと",
+          "reading": "ひとのよは　いともたのしきものぞかし　たがいいにけんうきのよなりと",
+          "reading_hira": "ひとのよは　いともたのしきものぞかし　たがいいにけんうきのよなりと",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.16"
+        },
+        {
+          "number": 340,
+          "title": "",
+          "original": "心ぬちに　曇りありせば人の世の　真の楽しみあらじとぞ思ふ",
+          "reading": "こころぬちに　くもりありせばひとのよの　まことのたのしみあらじとぞおもう",
+          "reading_hira": "こころぬちに　くもりありせばひとのよの　まことのたのしみあらじとぞおもう",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.16"
+        },
+        {
+          "number": 341,
+          "title": "",
+          "original": "世の人に　幸あれかしと願ぐ人の　幸こそ真の幸とこそ知れ",
+          "reading": "よのひとに　さちあれかしとねぐひとの　さちこそまことのさちとこそしれ",
+          "reading_hira": "よのひとに　さちあれかしとねぐひとの　さちこそまことのさちとこそしれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.16"
+        },
+        {
+          "number": 342,
+          "title": "",
+          "original": "吾はただ　神の御旨にうち委せ　心安らに進みゆくなり",
+          "reading": "われはただ　かみのみむねにうちまかせ　こころやすらにすすみゆくなり",
+          "reading_hira": "われはただ　かみのみむねにうちまかせ　こころやすらにすすみゆくなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.16"
+        },
+        {
+          "number": 343,
+          "title": "",
+          "original": "曲神の　力の限り障るとも　神を背にする吾ら恐れじ",
+          "reading": "まがかみの　ちからのかぎりさわるとも　かみをせにするわれらおそれじ",
+          "reading_hira": "まがかみの　ちからのかぎりさわるとも　かみをせにするわれらおそれじ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.16"
+        },
+        {
+          "number": 344,
+          "title": "",
+          "original": "曲神を　恐るる勿れ誠もて　時待ちぬれば必ずや勝たなん",
+          "reading": "まがかみを　おそるるなかれまこともて　ときまちぬればかならずやかたなん",
+          "reading_hira": "まがかみを　おそるるなかれまこともて　ときまちぬればかならずやかたなん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.16"
+        },
+        {
+          "number": 345,
+          "title": "",
+          "original": "十全の　神の御護りある身には　など曲神のさやるべしやは",
+          "reading": "じゅうぜんの　かみのみまもりあるみには　などまがかみのさやるべしやは",
+          "reading_hira": "じゅうぜんの　かみのみまもりあるみには　などまがかみのさやるべしやは",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.16"
+        },
+        {
+          "number": 346,
+          "title": "",
+          "original": "えら人と　いはるる勿れ有難き　人といはれむ事を望めよ",
+          "reading": "えらびとと　いわるるなかれありがたき　ひとといわれんことをのぞめよ",
+          "reading_hira": "えらびとと　いわるるなかれありがたき　ひとといわれんことをのぞめよ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.16"
+        },
+        {
+          "number": 347,
+          "title": "",
+          "original": "人の力　いとど弱きを知りてより　心に宿る神の生魂",
+          "reading": "ひとのちから　いとどよわきをしりてより　こころにやどるかみのいくたま",
+          "reading_hira": "ひとのちから　いとどよわきをしりてより　こころにやどるかみのいくたま",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.16"
+        },
+        {
+          "number": 348,
+          "title": "",
+          "original": "六十年　ふりさけみれば高き山　深谷川もよくぞ越え来し",
+          "reading": "ろくじゅうねん　ふりさけみればたかきやま　ふかたにがわもよくぞこえきし",
+          "reading_hira": "ろくじゅうねん　ふりさけみればたかきやま　ふかたにがわもよくぞこえきし",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.13"
+        },
+        {
+          "number": 349,
+          "title": "",
+          "original": "観る人の　心ごころに映るなり　人の此世の善しと悪しとは",
+          "reading": "みるひとの　こころごころにうつるなり　ひとのこのよのよしとあしとは",
+          "reading_hira": "みるひとの　こころごころにうつるなり　ひとのこのよのよしとあしとは",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.13"
+        }
+      ]
+    },
+    {
+      "title_pt": "Primeira Festividade do Sōunryō",
+      "title_jp": "早雲寮初祭",
+      "title_romaji": "Sōunryō Hatsumatsuri",
+      "poems": [
+        {
+          "number": 350,
+          "title": "",
+          "original": "天国の　型作らんとささやかな　宮居造りぬ函嶺の上に",
+          "reading": "てんごくの　かたつくらんとささやかな　みやいつくりぬかんれいのえに",
+          "reading_hira": "てんごくの　かたつくらんとささやかな　みやいつくりぬかんれいのえに",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.**"
+        },
+        {
+          "number": 351,
+          "title": "",
+          "original": "大神の　珍の宮居をうち樹てし　今日の慶び何にかたとえむ",
+          "reading": "おおかみの　うづのみやいをうちたてし　きょうのよろこびなににかたとえん",
+          "reading_hira": "おおかみの　うづのみやいをうちたてし　きょうのよろこびなににかたとえん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.**"
+        },
+        {
+          "number": 352,
+          "title": "",
+          "original": "あな嬉し　下津磐根に宮柱　太敷建てて御神迎えぬ",
+          "reading": "あなうれし　したついわねにみやばしら　ふとしきたててみかみむかえん",
+          "reading_hira": "あなうれし　したついわねにみやばしら　ふとしきたててみかみむかえん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.**"
+        },
+        {
+          "number": 353,
+          "title": "",
+          "original": "時満ちて　神の斎庭の初祭　参来かがやく信徒の面",
+          "reading": "ときみちて　かみのゆにわのはつまつり　まいきかがやくまめひとのおも",
+          "reading_hira": "ときみちて　かみのゆにわのはつまつり　まいきかがやくまめひとのおも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.**"
+        },
+        {
+          "number": 354,
+          "title": "",
+          "original": "形ばかりの　宮居にあれど信徒の　誠の心嘉させ給え",
+          "reading": "かたちばかりの　みやいにあれどまめひとの　まことのこころよみさせたまえ",
+          "reading_hira": "かたちばかりの　みやいにあれどまめひとの　まことのこころよみさせたまえ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.**"
+        },
+        {
+          "number": 355,
+          "title": "",
+          "original": "地上天国　今ぞ肇らむ新しき　神宮の建ちし今日を境に",
+          "reading": "ちじょうてんごく　いまぞはじ〔ま〕らんあたらしき　みみやのたちしきょうをさかいに",
+          "reading_hira": "ちじょうてんごく　いまぞはじ〔ま〕らんあたらしき　みみやのたちしきょうをさかいに",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.**"
+        },
+        {
+          "number": 356,
+          "title": "",
+          "original": "久方の　天津御神は地の上を　浄めむとしてメシヤを下せり",
+          "reading": "ひかかたの　あまつみかみはちのうえを　きよめんとしてめしやをくだせり",
+          "reading_hira": "ひかかたの　あまつみかみはちのうえを　きよめんとしてめしやをくだせり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.**"
+        },
+        {
+          "number": 357,
+          "title": "",
+          "original": "天降りにし　弥勒に在す神御霊　斎き奉りぬ今日の吉き日に",
+          "reading": "あもりにし　みろくにおわすかむみたま　いつきまつりぬきょうのよきひに",
+          "reading_hira": "あもりにし　みろくにおわすかむみたま　いつきまつりぬきょうのよきひに",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.**"
+        },
+        {
+          "number": 358,
+          "title": "",
+          "original": "火と水と　土との経綸ありやかに　眼に映る時は来にける",
+          "reading": "ひとみずと　つちとのしぐみありやかに　まなこにうつるときはきにける",
+          "reading_hira": "ひとみずと　つちとのしぐみありやかに　まなこにうつるときはきにける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.**"
+        },
+        {
+          "number": 359,
+          "title": "",
+          "original": "天が下　病きもなく争ひも　消えてゆたけき世ぞ来つるなり",
+          "reading": "あめがした　いたつきもなくいさかいも　きえてゆたけきよぞきつるなり",
+          "reading_hira": "あめがした　いたつきもなくいさかいも　きえてゆたけきよぞきつるなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.**"
+        },
+        {
+          "number": 360,
+          "title": "",
+          "original": "越方を　顧みすれば奇びなる　われが宿命に想ひ深きも",
+          "reading": "こしかたを　かえりみすればくしびなる　われがすぐせにおもいふかきも",
+          "reading_hira": "こしかたを　かえりみすればくしびなる　われがすぐせにおもいふかきも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 5.**"
+        }
+      ]
+    },
+    {
+      "title_pt": "Jardim Sekirakuen",
+      "title_jp": "石　楽　園",
+      "title_romaji": "Sekirakuen",
+      "poems": [
+        {
+          "number": 361,
+          "title": "",
+          "original": "足曳の　箱根の山の眺めよき　所えらみて小やかな家建てぬ",
+          "reading": "あしびきの　はこねのやまのながめよき　ところえらみてさやかなやたてぬ",
+          "reading_hira": "あしびきの　はこねのやまのながめよき　ところえらみてさやかなやたてぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 9.15"
+        },
+        {
+          "number": 362,
+          "title": "",
+          "original": "わが新居　取巻く巌の沢にして　苔むすさまを朝夕賞づる",
+          "reading": "わがしんきょ　とりまくいわおのさわにして　こけむすさまをあさゆうめづる",
+          "reading_hira": "わがしんきょ　とりまくいわおのさわにして　こけむすさまをあさゆうめづる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 9.15"
+        },
+        {
+          "number": 363,
+          "title": "",
+          "original": "珍らしき　大石小石に彩れる　わが広庭を石楽園と名づけぬ",
+          "reading": "めずらしき　おおいしこいしにいろどれる　わがひろにわをせきらくえんとなづけぬ",
+          "reading_hira": "めずらしき　おおいしこいしにいろどれる　わがひろにわをせきらくえんとなづけぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 9.15"
+        },
+        {
+          "number": 364,
+          "title": "",
+          "original": "永久の　世の礎と巌ケ根の　上に建てけり清しき庵を",
+          "reading": "とこしへの　よのいしずえといはがねの　うえにたてけりすがしきいおりを",
+          "reading_hira": "とこしへの　よのいしずえといはがねの　うえにたてけりすがしきいおりを",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 9.15"
+        },
+        {
+          "number": 365,
+          "title": "",
+          "original": "見遥かす　樹海の涯に和かき　線を描ける明星ケ嶽",
+          "reading": "みはるかす　じゅかいのはてにやわらかき　せんをえがけるみょうじょうがたけ",
+          "reading_hira": "みはるかす　じゅかいのはてにやわらかき　せんをえがけるみょうじょうがたけ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 9.15"
+        },
+        {
+          "number": 366,
+          "title": "",
+          "original": "それぞれの　巌の姿を愛でにつつ　庭をさすらい足らふ吾はも",
+          "reading": "それぞれの　いわおのすがたをめでにつつ　にわをさすらいたらうわれはも",
+          "reading_hira": "それぞれの　いわおのすがたをめでにつつ　にわをさすらいたらうわれはも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 9.15"
+        },
+        {
+          "number": 367,
+          "title": "",
+          "original": "未だ世に　なき珍らしき石庭を　造らんとするわが望みかな",
+          "reading": "いまだよに　なきめずらしきせきていを　つくらんとするわがのぞみかな",
+          "reading_hira": "いまだよに　なきめずらしきせきていを　つくらんとするわがのぞみかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23. 9.15"
+        },
+        {
+          "number": 368,
+          "title": "",
+          "original": "長き世を　仕組み賜いし大神の　刈りとる時のせまりけるかも",
+          "reading": "ながきよを　しくみたまいしおおかみの　かりとるときのせまりけるかも",
+          "reading_hira": "ながきよを　しくみたまいしおおかみの　かりとるときのせまりけるかも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23.10.15"
+        },
+        {
+          "number": 369,
+          "title": "",
+          "original": "苦に喘ぐ　幾万億の人草の　歓喜にえらぐ時ぞ待ちぬる",
+          "reading": "くにあえぐ　いくまんおくのひとぐさの　かんきにえらぐときぞまちぬる",
+          "reading_hira": "くにあえぐ　いくまんおくのひとぐさの　かんきにえらぐときぞまちぬる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23.10.15"
+        },
+        {
+          "number": 370,
+          "title": "",
+          "original": "えらばれし　神の柱のいや集い　地上天国うち樹てんかも",
+          "reading": "えらばれし　かみのはしらのいやつどい　ちじょうてんごくうちたてんかも",
+          "reading_hira": "えらばれし　かみのはしらのいやつどい　ちじょうてんごくうちたてんかも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23.10.15"
+        },
+        {
+          "number": 371,
+          "title": "",
+          "original": "円満具足　完きの世は今はしも　生れんとするなり時足らいみち",
+          "reading": "えんまんぐそく　まったきのよはいまはしも　あれんとするなりときたらいみち",
+          "reading_hira": "えんまんぐそく　まったきのよはいまはしも　あれんとするなりときたらいみち",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23.11. 3"
+        },
+        {
+          "number": 372,
+          "title": "",
+          "original": "天地人　順序正しき足御代を　五六七の御代と吾は曰うなり",
+          "reading": "てんちじん　じゅんじょただしきたるみよを　みろくのみよとわれはいうなり",
+          "reading_hira": "てんちじん　じゅんじょただしきたるみよを　みろくのみよとわれはいうなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S23.11. 3"
+        }
+      ]
+    },
+    {
+      "title_pt": "Início da Primavera",
+      "title_jp": "立　春",
+      "title_romaji": "Risshun",
+      "poems": [
+        {
+          "number": 373,
+          "title": "",
+          "original": "厳しかりし　冬の寒さに帳りして　いと大らかに春は立ちけり",
+          "reading": "きびしかりし　ふゆのさむさにとばりして　いとおおらかにはるはたちけり",
+          "reading_hira": "きびしかりし　ふゆのさむさにとばりして　いとおおらかにはるはたちけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2. 4"
+        },
+        {
+          "number": 374,
+          "title": "",
+          "original": "寒桜　はや散り初めて暖き　湯の町熱海の春は立ちけり",
+          "reading": "かんざくら　はやちりそめてあたたかき　ゆのまちあたみのはるはたちけり",
+          "reading_hira": "かんざくら　はやちりそめてあたたかき　ゆのまちあたみのはるはたちけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2. 4"
+        },
+        {
+          "number": 375,
+          "title": "",
+          "original": "白梅の　梢にあたる日さきにも　それと知らるる春立ちし今日",
+          "reading": "しらうめの　こずえにあたるひさきにも　それとしらるるはるたちしきょう",
+          "reading_hira": "しらうめの　こずえにあたるひさきにも　それとしらるるはるたちしきょう",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2. 4"
+        },
+        {
+          "number": 376,
+          "title": "",
+          "original": "永かりし　冬の寒さも春立ちて　梅咲き匂ふ園をうかめぬ",
+          "reading": "ながかりし　ふゆのさむさもはるたちて　うめさきにおうそのをうかめぬ",
+          "reading_hira": "ながかりし　ふゆのさむさもはるたちて　うめさきにおうそのをうかめぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2. 4"
+        },
+        {
+          "number": 377,
+          "title": "",
+          "original": "冬過ぎて　立つ春の如わが業も　花咲き匂ふ時となりぬる",
+          "reading": "ふゆすぎて　たつはるのごとわがわざも　はなさきにおうときとなりぬる",
+          "reading_hira": "ふゆすぎて　たつはるのごとわがわざも　はなさきにおうときとなりぬる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2. 4"
+        },
+        {
+          "number": 378,
+          "title": "",
+          "original": "梅ケ香の　匂ふ庭辺に吾佇ちて　春立つ今日の思ひ深しも",
+          "reading": "うめがかの　におうにわべにわれたちて　はるたつきょうのおもいふかしも",
+          "reading_hira": "うめがかの　におうにわべにわれたちて　はるたつきょうのおもいふかしも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2. 4"
+        },
+        {
+          "number": 379,
+          "title": "",
+          "original": "梓弓　春立つ今日の嬉しさよ　誠の人達つどふ此宵",
+          "reading": "あずさゆみ　はるたつきょうのうれしさよ　まことのひとたちつどうこのよい",
+          "reading_hira": "あずさゆみ　はるたつきょうのうれしさよ　まことのひとたちつどうこのよい",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2. 4"
+        },
+        {
+          "number": 380,
+          "title": "",
+          "original": "立つ春を　祝ふ此宵電灯の　灯光に映ゆる人々の面",
+          "reading": "たつはるを　いわうこのよいでんとうの　ほかげにはゆるひとびとのおも",
+          "reading_hira": "たつはるを　いわうこのよいでんとうの　ほかげにはゆるひとびとのおも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2. 4"
+        }
+      ]
+    },
+    {
+      "title_pt": "A Descida do Salvador",
+      "title_jp": "救主降臨",
+      "title_romaji": "Kyūshu Kōrin",
+      "poems": [
+        {
+          "number": 381,
+          "title": "",
+          "original": "弥勒の世　見え初むるとも心せよ　曲は隙なく狙ひつめをり",
+          "reading": "みろくのよ　みえそむるともこころせよ　まがはすきなくねらいつめおり",
+          "reading_hira": "みろくのよ　みえそむるともこころせよ　まがはすきなくねらいつめおり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 382,
+          "title": "",
+          "original": "キリストに　サタン釈迦には醍〔提〕婆あり　我にもありぬもろもろの曲",
+          "reading": "きりすとに　さたんしゃかにはだいばあり　われにもありぬもろもろのまが",
+          "reading_hira": "きりすとに　さたんしゃかにはだいばあり　われにもありぬもろもろのまが",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 383,
+          "title": "",
+          "original": "曲神は　如何に障るも怖れまじ　我には神の守りありせば",
+          "reading": "まがかみは　いかにさやるもおそれまじ　われにはかみのまもりありせば",
+          "reading_hira": "まがかみは　いかにさやるもおそれまじ　われにはかみのまもりありせば",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 384,
+          "title": "",
+          "original": "世の人よ　今わが揮ふ力より　上の力はあらじと知れかし",
+          "reading": "よのひとよ　いまわがふるうちからより　うえのちからはあらじとしれかし",
+          "reading_hira": "よのひとよ　いまわがふるうちからより　うえのちからはあらじとしれかし",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 385,
+          "title": "",
+          "original": "現世の　乱れを釐し順序ある　御代打樹てむわが望みかも",
+          "reading": "うつしよの　みだれをただしじゅんじょある　みようちたてんわがのぞみかも",
+          "reading_hira": "うつしよの　みだれをただしじゅんじょある　みようちたてんわがのぞみかも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 386,
+          "title": "",
+          "original": "五六七とは　火水土の順序よき　完きの世をいふにぞありける",
+          "reading": "みろくとは　ひみずつちのじゅんじょよき　まったきのよをいうにぞありける",
+          "reading_hira": "みろくとは　ひみずつちのじゅんじょよき　まったきのよをいうにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 387,
+          "title": "",
+          "original": "わが揮ふ　力は未だ現世に　現れたる事なきものにぞある",
+          "reading": "わがふるう　ちからはいまだうつしよに　あらわれたることなきものにぞある",
+          "reading_hira": "わがふるう　ちからはいまだうつしよに　あらわれたることなきものにぞある",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 388,
+          "title": "",
+          "original": "キリストも　釈迦も孔子もマホメットも　わが現れ出づる時ぞ待たれん",
+          "reading": "きりすとも　しゃかもこうしもまほめっとも　わがあれいづるときぞまたれん",
+          "reading_hira": "きりすとも　しゃかもこうしもまほめっとも　わがあれいづるときぞまたれん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 389,
+          "title": "",
+          "original": "待ち望む　メシヤの力もわが揮ふ　力も同じ力なりけり",
+          "reading": "まちのぞむ　めしやのちからもわがふるう　ちからもおなじちからなりけり",
+          "reading_hira": "まちのぞむ　めしやのちからもわがふるう　ちからもおなじちからなりけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 390,
+          "title": "",
+          "original": "栄光の　雲より降るキリストの　世に知れ渡る時ぞ近みぬ",
+          "reading": "えいこうの　くもよりくだるきりすとの　よにしれわたるときぞちかみぬ",
+          "reading_hira": "えいこうの　くもよりくだるきりすとの　よにしれわたるときぞちかみぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 391,
+          "title": "",
+          "original": "あな尊と　天より降るキリストを　祝ふハレルヤの声ぞいさまし",
+          "reading": "あなとうと　てんよりくだるきりすとを　いわうはれるやのこえぞいさまし",
+          "reading_hira": "あなとうと　てんよりくだるきりすとを　いわうはれるやのこえぞいさまし",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 392,
+          "title": "",
+          "original": "キリストも　釈迦もメシヤも観音も　人の姿の神にぞありける",
+          "reading": "きりすとも　しゃかもめしやもかんのんも　ひとのすがたのかみにぞありける",
+          "reading_hira": "きりすとも　しゃかもめしやもかんのんも　ひとのすがたのかみにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 393,
+          "title": "",
+          "original": "越え難き　此現世の大峠　安く越えなむ神の案内に",
+          "reading": "こえがたき　このうつしよのおおとうげ　やすくこえなんかみのあないに",
+          "reading_hira": "こえがたき　このうつしよのおおとうげ　やすくこえなんかみのあないに",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 394,
+          "title": "",
+          "original": "大いなる　神の力を見するとも　哀れ盲の眼には映らじ",
+          "reading": "おおいなる　かみのちからをみするとも　あわれめしいのめにはうつらじ",
+          "reading_hira": "おおいなる　かみのちからをみするとも　あわれめしいのめにはうつらじ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        }
+      ]
+    },
+    {
+      "title_pt": "Poemas Avulsos",
+      "title_jp": "※全集未収録",
+      "title_romaji": "Zenshū Mishūroku",
+      "poems": [
+        {
+          "number": 395,
+          "title": "",
+          "original": "大神の　深き仕組は諸人の　眼には映らぬものと知れかし",
+          "reading": "おおかみの　ふかきしぐみはもろびとの　めにはうつらぬものとしれかし",
+          "reading_hira": "おおかみの　ふかきしぐみはもろびとの　めにはうつらぬものとしれかし",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 396,
+          "title": "",
+          "original": "大いなる　神の仕組はいと小さき　人の眼になど映らめや",
+          "reading": "おおいなる　かみのしぐみはいとちさき　ひとのまなこになどうつらめや",
+          "reading_hira": "おおいなる　かみのしぐみはいとちさき　ひとのまなこになどうつらめや",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 397,
+          "title": "",
+          "original": "光なり　嗚呼光なり如何ならむ　濃き暗とてもうち霽らすなり",
+          "reading": "ひかりなり　ああひかりなりいかならん　こきやみとてもうちはらすなり",
+          "reading_hira": "ひかりなり　ああひかりなりいかならん　こきやみとてもうちはらすなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        },
+        {
+          "number": 398,
+          "title": "",
+          "original": "いやはてに　天より降るキリストに　世のもろもろは甦るらむ",
+          "reading": "いやはてに　てんよりくだるきりすとに　よのもろもろはよみがえるらん",
+          "reading_hira": "いやはてに　てんよりくだるきりすとに　よのもろもろはよみがえるらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 2.**"
+        }
+      ]
+    },
+    {
+      "title_pt": "Jardim do Paraíso",
+      "title_jp": "天国の苑",
+      "title_romaji": "Tengoku no Sono",
+      "poems": [
+        {
+          "number": 399,
+          "title": "",
+          "original": "天国の　苑の模型を足曳の　箱根の山の上に立てなむ",
+          "reading": "てんごくの　そののもけいをあしびきの　はこねのやまのうえにたてなん",
+          "reading_hira": "てんごくの　そののもけいをあしびきの　はこねのやまのうえにたてなん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.13"
+        },
+        {
+          "number": 400,
+          "title": "",
+          "original": "景色好き　箱根の山の頂に　われ天国の苑を造らん",
+          "reading": "けしきよき　はこねのやまのいただきに　われてんごくのそのをつくらん",
+          "reading_hira": "けしきよき　はこねのやまのいただきに　われてんごくのそのをつくらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.13"
+        },
+        {
+          "number": 401,
+          "title": "",
+          "original": "大神の　深き仕組はいとしるく　箱根熱海の上に知らるる",
+          "reading": "おおかみの　ふかきしぐみはいとしるく　はこねあたみのうえにしらるる",
+          "reading_hira": "おおかみの　ふかきしぐみはいとしるく　はこねあたみのうえにしらるる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.13"
+        },
+        {
+          "number": 402,
+          "title": "",
+          "original": "生ひ茂る　草木の薮を切りひらき　箱根の山に花苑つくりぬ",
+          "reading": "おいしげる　くさきのやぶをきりひらき　はこねのやまにはなぞのつくりぬ",
+          "reading_hira": "おいしげる　くさきのやぶをきりひらき　はこねのやまにはなぞのつくりぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.13"
+        },
+        {
+          "number": 403,
+          "title": "",
+          "original": "苅菰の　乱れたる世をうち拓き　美しの御代を建てなんとすも",
+          "reading": "かりこもの　みだれたるよをうちひらき　うましのみよをたてなんとすも",
+          "reading_hira": "かりこもの　みだれたるよをうちひらき　うましのみよをたてなんとすも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.13"
+        },
+        {
+          "number": 404,
+          "title": "",
+          "original": "野に山に　色とりどりに咲く花は　神の恵まう宝にぞある",
+          "reading": "のにやまに　いろとりどりにさくはなは　かみのめぐまうたからにぞある",
+          "reading_hira": "のにやまに　いろとりどりにさくはなは　かみのめぐまうたからにぞある",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 405,
+          "title": "",
+          "original": "美はしき　花見る毎に意ふかな　神のたくみの妙なる御技を",
+          "reading": "うるわしき　はなみるごとにおもうかな　かみのたくみのたえなるみわざを",
+          "reading_hira": "うるわしき　はなみるごとにおもうかな　かみのたくみのたえなるみわざを",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 406,
+          "title": "",
+          "original": "美はしき　花に憧る人こそは　花にも似たる心もつなり",
+          "reading": "うるわしき　はなにあこがるひとこそは　はなにもにたるこころもつなり",
+          "reading_hira": "うるわしき　はなにあこがるひとこそは　はなにもにたるこころもつなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 407,
+          "title": "",
+          "original": "朝なさを　色とりどりに朝顔の　咲くをしみれば夏を忘れぬ",
+          "reading": "あさなさを　いろとりどりにあさがおの　さくをしみればなつをわすれぬ",
+          "reading_hira": "あさなさを　いろとりどりにあさがおの　さくをしみればなつをわすれぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 408,
+          "title": "",
+          "original": "人の世の　楽しさ知りぬ庭に咲く　椿一枝床に飾りて",
+          "reading": "ひとのよの　たのしさしりぬにわにさく　つばきひとえだとこにかざりて",
+          "reading_hira": "ひとのよの　たのしさしりぬにわにさく　つばきひとえだとこにかざりて",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 409,
+          "title": "",
+          "original": "憂の世も　楽しき御代となりにけり　神の守りのあるを知りてゆ",
+          "reading": "うきのよも　たのしきみよとなりにけり　かみのまもりのあるをしりてゆ",
+          "reading_hira": "うきのよも　たのしきみよとなりにけり　かみのまもりのあるをしりてゆ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        }
+      ]
+    },
+    {
+      "title_pt": "O Poder Divino",
+      "title_jp": "神　の　力",
+      "title_romaji": "Kami no Chikara",
+      "poems": [
+        {
+          "number": 410,
+          "title": "",
+          "original": "誠なり　嗚呼誠なり此国に　欲しきは誠の一字なりけり",
+          "reading": "まことなり　ああまことなりこのくにに　ほしきはまことのいちじなりけり",
+          "reading_hira": "まことなり　ああまことなりこのくにに　ほしきはまことのいちじなりけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 411,
+          "title": "",
+          "original": "何事も　思ひに委せぬ現世に　頼るは神の力のみなり",
+          "reading": "なにごとも　おもいにまかせぬうつしよに　たよるはかみのちからのみなり",
+          "reading_hira": "なにごとも　おもいにまかせぬうつしよに　たよるはかみのちからのみなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 412,
+          "title": "",
+          "original": "観音力　世に現はれて苅菰の　乱れたる世も正さるるならめ",
+          "reading": "かんのんりき　よにあらわれてかりこもの　みだれたるよもたださるるならめ",
+          "reading_hira": "かんのんりき　よにあらわれてかりこもの　みだれたるよもたださるるならめ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 413,
+          "title": "",
+          "original": "眼に見えぬ　神の力のある事を　悟らしめむとて吾努むなり",
+          "reading": "めにみえぬ　かみのちからのあることを　さとらしめんとてわれつとむなり",
+          "reading_hira": "めにみえぬ　かみのちからのあることを　さとらしめんとてわれつとむなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 414,
+          "title": "",
+          "original": "吹き荒ぶ　嵐の外に安かりぬ　神の衣に包まるる身の",
+          "reading": "ふきすさぶ　あらしのそとにやすかりぬ　かみのころもにつつまるるみの",
+          "reading_hira": "ふきすさぶ　あらしのそとにやすかりぬ　かみのころもにつつまるるみの",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        }
+      ]
+    },
+    {
+      "title_pt": "Batismo de Fogo",
+      "title_jp": "火の洗礼",
+      "title_romaji": "Hi no Senrei",
+      "poems": [
+        {
+          "number": 415,
+          "title": "",
+          "original": "ただ神の　大御心に適はむと　努むる人こそ真人なりけり",
+          "reading": "ただかみの　おおみこころにかなわんと　つとむるひとこそまびとなりけり",
+          "reading_hira": "ただかみの　おおみこころにかなわんと　つとむるひとこそまびとなりけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 416,
+          "title": "",
+          "original": "人の罪　咎むる人こそ神よりの　尤めを蒙ぶる人にぞありける",
+          "reading": "ひとのつみ　とがむるひとこそかみよりの　とがめをかかぶるひとにぞありける",
+          "reading_hira": "ひとのつみ　とがむるひとこそかみよりの　とがめをかかぶるひとにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 417,
+          "title": "",
+          "original": "人の世の　苦楽の本は皆己が　手に作るなり心せよみな",
+          "reading": "ひとのよの　くらくのもとはみなおのが　てにつくるなりこころせよみな",
+          "reading_hira": "ひとのよの　くらくのもとはみなおのが　てにつくるなりこころせよみな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 418,
+          "title": "",
+          "original": "諸人よ　心許すな大いなる　神の審判の来らむとする今",
+          "reading": "もろびとよ　こころゆるすなおおいなる　かみのさばきのきたらんとするいま",
+          "reading_hira": "もろびとよ　こころゆるすなおおいなる　かみのさばきのきたらんとするいま",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 419,
+          "title": "",
+          "original": "神は無しと　いと誇らしげに言ふ人の　あわてふためく時ぞ来にける",
+          "reading": "かみはなしと　いとほこらしげにいうひとの　あわてふためくときぞきにける",
+          "reading_hira": "かみはなしと　いとほこらしげにいうひとの　あわてふためくときぞきにける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 420,
+          "title": "",
+          "original": "キリストの　唱えし最後の裁きとは　神の霊火に世ぞ浄むなり",
+          "reading": "きりすとの　となえしさいごのさなきとは　かみのれいかによぞきよむなり",
+          "reading_hira": "きりすとの　となえしさいごのさなきとは　かみのれいかによぞきよむなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 421,
+          "title": "",
+          "original": "世の汚れ　洗ひ浄めて新しき　神の世建つる裁きの業かな",
+          "reading": "よのけがれ　あらいきよめてあたらしき　かみのよたつるさばきのわざかな",
+          "reading_hira": "よのけがれ　あらいきよめてあたらしき　かみのよたつるさばきのわざかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 422,
+          "title": "",
+          "original": "人々よ　悔改めて世の峠　安く越えなむ備へせよかし",
+          "reading": "ひとびとよ　くいあらためてよのとうげ　やすくこえなんそなえせよかし",
+          "reading_hira": "ひとびとよ　くいあらためてよのとうげ　やすくこえなんそなえせよかし",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 423,
+          "title": "",
+          "original": "審判の　日の厳しさよ如何ならむ　曲も鰭伏し悔改むるらむ",
+          "reading": "しんぱんの　ひのきびしさよいかならん　まがもひれふしくいあらたむるらん",
+          "reading_hira": "しんぱんの　ひのきびしさよいかならん　まがもひれふしくいあらたむるらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 424,
+          "title": "",
+          "original": "諸人の　眼を醒す鐘うてど　耳を塞ぎて聞かむともせず",
+          "reading": "もろびとの　まなこをさますかねうてど　みみをふさぎてきかんともせず",
+          "reading_hira": "もろびとの　まなこをさますかねうてど　みみをふさぎてきかんともせず",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 425,
+          "title": "",
+          "original": "浄霊の　名もて行ふわが業は　火の洗霊の事にぞありける",
+          "reading": "じょうれいの　なもておこなうわがわざは　ひのせんれいのことにぞありける",
+          "reading_hira": "じょうれいの　なもておこなうわがわざは　ひのせんれいのことにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        }
+      ]
+    },
+    {
+      "title_pt": "A Luz da Salvação",
+      "title_jp": "救ひの光",
+      "title_romaji": "Sukui no Hikari",
+      "poems": [
+        {
+          "number": 426,
+          "title": "",
+          "original": "奴羽玉の　闇の色濃き世なりとも　晴さでおかむ神の光に",
+          "reading": "ぬばたまの　やみのいろこきよなりとも　はらさでおかんかみのひかりに",
+          "reading_hira": "ぬばたまの　やみのいろこきよなりとも　はらさでおかんかみのひかりに",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 427,
+          "title": "",
+          "original": "光明の　いと美はしく輝やけど　暗にうごめく人には見へまじ",
+          "reading": "こうみょうの　いとうるわしくかがやけど　やみにうごめくひとにはみえまじ",
+          "reading_hira": "こうみょうの　いとうるわしくかがやけど　やみにうごめくひとにはみえまじ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 428,
+          "title": "",
+          "original": "花は咲き　鳥歌へども楽しめぬ　人は御神に背けばなりける",
+          "reading": "はなはさき　とりうたえどもたのしめぬ　ひとはみかみにそむけばなりける",
+          "reading_hira": "はなはさき　とりうたえどもたのしめぬ　ひとはみかみにそむけばなりける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 429,
+          "title": "",
+          "original": "大いなる　救の御手を伸すとも　すがるよしなき盲の多き",
+          "reading": "おおいなる　すくいのみてをのばすとも　すがるよしなきめしいのおおき",
+          "reading_hira": "おおいなる　すくいのみてをのばすとも　すがるよしなきめしいのおおき",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        }
+      ]
+    },
+    {
+      "title_pt": "O Plano Divino",
+      "title_jp": "神の仕組",
+      "title_romaji": "Kami no Shigumi",
+      "poems": [
+        {
+          "number": 430,
+          "title": "",
+          "original": "大神の　深き仕組は如何ならむ　聖といへど知る由もなき",
+          "reading": "おおかみの　ふかきしぐみはいかならん　ひじりといえどしるよしもなき",
+          "reading_hira": "おおかみの　ふかきしぐみはいかならん　ひじりといえどしるよしもなき",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.18"
+        },
+        {
+          "number": 431,
+          "title": "",
+          "original": "人の眼に　なぞ映らむや大神の　仕組の深さはかりしらねば",
+          "reading": "ひとのめに　なぞうつらむやおおかみの　しぐみのふかさはかりしらねば",
+          "reading_hira": "ひとのめに　なぞうつらむやおおかみの　しぐみのふかさはかりしらねば",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.18"
+        },
+        {
+          "number": 432,
+          "title": "",
+          "original": "厭離穢土　清め浄みて新しき　楽しき御代を造る神業",
+          "reading": "おんりえど　きよめきよみてあたらしき　たのしきみよをつくるかむわざ",
+          "reading_hira": "おんりえど　きよめきよみてあたらしき　たのしきみよをつくるかむわざ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.18"
+        },
+        {
+          "number": 433,
+          "title": "",
+          "original": "仏の世は　すみ極まりて例しなき　弥勒の御代は生れなんとすも",
+          "reading": "ぶつのよは　すみきわまりてためしなき　みろくのみよはあれなんとすも",
+          "reading_hira": "ぶつのよは　すみきわまりてためしなき　みろくのみよはあれなんとすも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.18"
+        },
+        {
+          "number": 434,
+          "title": "",
+          "original": "世の終り　来つるも知らで埒もなき　争ひ事に耽ける哀れさ",
+          "reading": "よのおわり　きつるもしらでらちもなき　いさかいごとにふけるあわれさ",
+          "reading_hira": "よのおわり　きつるもしらでらちもなき　いさかいごとにふけるあわれさ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.18"
+        },
+        {
+          "number": 435,
+          "title": "",
+          "original": "花笑ひ　百鳥歌う天国の　苑を此土に移す神業",
+          "reading": "はなわらい　ももとりうたうてんごくの　そのをこのどにうつすかみわざ",
+          "reading_hira": "はなわらい　ももとりうたうてんごくの　そのをこのどにうつすかみわざ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.18"
+        },
+        {
+          "number": 436,
+          "title": "",
+          "original": "眺め好き　熱海の奥に美はしき　花の天国吾造らむとすも",
+          "reading": "ながめよき　あたみのおくにうるわしき　はなのてんごくわれつくらんとすも",
+          "reading_hira": "ながめよき　あたみのおくにうるわしき　はなのてんごくわれつくらんとすも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.18"
+        },
+        {
+          "number": 437,
+          "title": "",
+          "original": "足曳の　山路の蔭に小やかな　名知らぬ花にも心ひかるる",
+          "reading": "あしびきの　やまじのかげにささやかな　なしらぬはなにもこころひかるる",
+          "reading_hira": "あしびきの　やまじのかげにささやかな　なしらぬはなにもこころひかるる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.18"
+        }
+      ]
+    },
+    {
+      "title_pt": "Fora da Tempestade",
+      "title_jp": "嵐　の　外",
+      "title_romaji": "Arashi no Soto",
+      "poems": [
+        {
+          "number": 438,
+          "title": "",
+          "original": "塵芥　つもり積りし世を浄む　強き嵐も吹きぞするなり",
+          "reading": "ちりあくた　つもりつもりしよをきよむ　つよきあらしもふきぞするなり",
+          "reading_hira": "ちりあくた　つもりつもりしよをきよむ　つよきあらしもふきぞするなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 439,
+          "title": "",
+          "original": "大神の　深き仕組はいやはてに　夢にも想はぬこと出づるらん",
+          "reading": "おおかみの　ふかきしぐみはいやはてに　ゆめにもおもわぬこといづるらん",
+          "reading_hira": "おおかみの　ふかきしぐみはいやはてに　ゆめにもおもわぬこといづるらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 440,
+          "title": "",
+          "original": "如何ならむ　嵐吹くとて神にある　身は安けかり大御恵に",
+          "reading": "いかならん　あらしふくとてかみにある　みはやすけかりおおみめぐみに",
+          "reading_hira": "いかならん　あらしふくとてかみにある　みはやすけかりおおみめぐみに",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 441,
+          "title": "",
+          "original": "赤き嵐も　など恐れめや主の神が　描く名画の色とし思えば",
+          "reading": "あかきあらしも　などおそれめやすのかみが　えがくめいがのいろとしおもえば",
+          "reading_hira": "あかきあらしも　などおそれめやすのかみが　えがくめいがのいろとしおもえば",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        },
+        {
+          "number": 442,
+          "title": "",
+          "original": "大神は　色とりどりの絵具もて　地上天国の名画描かむ",
+          "reading": "おおかみは　いろとりどりのえのぐもて　ちじょうてんごくのめいがえがかん",
+          "reading_hira": "おおかみは　いろとりどりのえのぐもて　ちじょうてんごくのめいがえがかん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 5.**"
+        }
+      ]
+    },
+    {
+      "title_pt": "Deus é Perfeito",
+      "title_jp": "神は十全",
+      "title_romaji": "Kami wa Jūzen",
+      "poems": [
+        {
+          "number": 443,
+          "title": "",
+          "original": "待望の　地上天国現るるまで　嵐も吹かむ波も荒れなむ",
+          "reading": "たいぼうの　ちじょうてんごくあるるまで　あらしもふかんなみもあれなん",
+          "reading_hira": "たいぼうの　ちじょうてんごくあるるまで　あらしもふかんなみもあれなん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 444,
+          "title": "",
+          "original": "天国の　産声今や挙げんとし　世は陣痛の悩の中なり",
+          "reading": "てんごくの　うぶごえいまやあげんとし　よはじんつうのなやみのなかなり",
+          "reading_hira": "てんごくの　うぶごえいまやあげんとし　よはじんつうのなやみのなかなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 445,
+          "title": "",
+          "original": "右左　争ふ人等知らぬがに　嬉々と楽しむ神の御子たち",
+          "reading": "みぎひだり　あらそうひとなどしらぬがに　ききとたのしむかみのみこたち",
+          "reading_hira": "みぎひだり　あらそうひとなどしらぬがに　ききとたのしむかみのみこたち",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 446,
+          "title": "",
+          "original": "神在るを　知らぬ世人のあさましさ　心の盲知るよしもなく",
+          "reading": "かみあるを　しらぬよびとのあさましさ　こころのめしいしるよしもなく",
+          "reading_hira": "かみあるを　しらぬよびとのあさましさ　こころのめしいしるよしもなく",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        }
+      ]
+    },
+    {
+      "title_pt": "Poemas Avulsos",
+      "title_jp": "※全集未収録",
+      "title_romaji": "Zenshū Mishūroku",
+      "poems": [
+        {
+          "number": 447,
+          "title": "",
+          "original": "人の力　如何に強くも九分九厘の　瀬戸際に来て覆るなり",
+          "reading": "ひとのちから　いかにつよくもくぶくりんの　せとぎわにきてくつがえるなり",
+          "reading_hira": "ひとのちから　いかにつよくもくぶくりんの　せとぎわにきてくつがえるなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 448,
+          "title": "",
+          "original": "人の力は　九分九厘神の力は十全と　知る人にして救はるるなり",
+          "reading": "ひとのちからは　くぶくりんかみのちからはじゅうぜんと　しるひとにしてすくわるるなり",
+          "reading_hira": "ひとのちからは　くぶくりんかみのちからはじゅうぜんと　しるひとにしてすくわるるなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        }
+      ]
+    },
+    {
+      "title_pt": "Vila Shinsenkyō",
+      "title_jp": "神　仙　郷",
+      "title_romaji": "Shinsenkyō",
+      "poems": [
+        {
+          "number": 449,
+          "title": "",
+          "original": "一木一草　一石なりとこまやかに　心して成りし神仙郷かな",
+          "reading": "いちぼくいっそう　いっせきなりとこまやかに　こころしてなりしんせんきょうかな",
+          "reading_hira": "いちぼくいっそう　いっせきなりとこまやかに　こころしてなりしんせんきょうかな",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 450,
+          "title": "",
+          "original": "美はしき　花にかこまれ海山の　眺め飽かなき神仙郷はも",
+          "reading": "うるわしき　はなにかこまれうみやまの　ながめあかなきしんせんきょうはも",
+          "reading_hira": "うるわしき　はなにかこまれうみやまの　ながめあかなきしんせんきょうはも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 451,
+          "title": "",
+          "original": "誰もまだ　試しとてなき珍の庭　つくりて吾は心足らひし",
+          "reading": "だれもまだ　ためしとてなきうづのにわ　つくりてわれはこころたらいし",
+          "reading_hira": "だれもまだ　ためしとてなきうづのにわ　つくりてわれはこころたらいし",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 452,
+          "title": "",
+          "original": "天然の　風致を生かし人工の　美に彩りて神苑成りぬ",
+          "reading": "てんねんの　ふうちをいかしじんこうの　びにいろどりてしんえんなりぬ",
+          "reading_hira": "てんねんの　ふうちをいかしじんこうの　びにいろどりてしんえんなりぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 453,
+          "title": "",
+          "original": "足曳の　箱根の山の上に広く　花の天国吾造りけり",
+          "reading": "あしびきの　はこねのやまのえにひろく　はなのてんごくわれつくりけり",
+          "reading_hira": "あしびきの　はこねのやまのえにひろく　はなのてんごくわれつくりけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 454,
+          "title": "",
+          "original": "山と水　のみなりし箱根山　われ花そえて天国つくらん",
+          "reading": "やまとみず　のみなりしはこねやま　われはなそえててんごくつくらん",
+          "reading_hira": "やまとみず　のみなりしはこねやま　われはなそえててんごくつくらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 455,
+          "title": "",
+          "original": "梅雨の雨　しとしと降りて神苑の　緑深まりいと静かなり",
+          "reading": "つゆのあめ　しとしとふりてしんえんの　みどりふかまりいとしずかなり",
+          "reading_hira": "つゆのあめ　しとしとふりてしんえんの　みどりふかまりいとしずかなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 456,
+          "title": "",
+          "original": "見遥かす　明星ケ嶽薄絹を　かかぶれる如雨にけぶれる",
+          "reading": "みはるかす　みょうじょうがたけうすぎぬを　かかぶれるごとあめにけぶれる",
+          "reading_hira": "みはるかす　みょうじょうがたけうすぎぬを　かかぶれるごとあめにけぶれる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 457,
+          "title": "",
+          "original": "岩の間に　色とりどりの皐月植え　此世ながらの天国の苑",
+          "reading": "いわのまに　いろとりどりのさつきうえ　このよながらのてんごくのその",
+          "reading_hira": "いわのまに　いろとりどりのさつきうえ　このよながらのてんごくのその",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 458,
+          "title": "",
+          "original": "観る人の　口を揃えてほめたたふ　神仙郷の天国の苑",
+          "reading": "みるひとの　くちをそろえてほめたたう　しんせんきょうのてんごくのその",
+          "reading_hira": "みるひとの　くちをそろえてほめたたう　しんせんきょうのてんごくのその",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 459,
+          "title": "",
+          "original": "天国の　苑は斯くやと思ほえて　われ神仙郷の名をつけにけり",
+          "reading": "てんごくの　そのはかくやとおもおえて　われしんせんきょうのなをつけにけり",
+          "reading_hira": "てんごくの　そのはかくやとおもおえて　われしんせんきょうのなをつけにけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 460,
+          "title": "",
+          "original": "そびえ立つ　大岩の上に仰ぎ見る　観山亭の崇高き姿よ",
+          "reading": "そびえたつ　おおいわのえにあおぎみる　かんざんていのけだかきすがたよ",
+          "reading_hira": "そびえたつ　おおいわのえにあおぎみる　かんざんていのけだかきすがたよ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 461,
+          "title": "",
+          "original": "天国と　見紛ふばかり岩の間に　芝草つづらひ百花咲ける",
+          "reading": "てんごくと　みまがうばかりいわのまに　しばくさつづらいももはなさける",
+          "reading_hira": "てんごくと　みまがうばかりいわのまに　しばくさつづらいももはなさける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 462,
+          "title": "",
+          "original": "いと清き　高山の上の巌の間に　花咲きそろひ天国偲ばゆ",
+          "reading": "いときよき　たかやまのえのいわのまに　はなさきそろいてんごくしのばゆ",
+          "reading_hira": "いときよき　たかやまのえのいわのまに　はなさきそろいてんごくしのばゆ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 463,
+          "title": "",
+          "original": "天国の　花にやあらむ高山の　巌を綴りてさつき咲くなり",
+          "reading": "てんごくの　はなにやあらんたかやまの　いわおをつづりてさつきさくなり",
+          "reading_hira": "てんごくの　はなにやあらんたかやまの　いわおをつづりてさつきさくなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 464,
+          "title": "",
+          "original": "神仙郷　いよいよ成りて函嶺の　名所と成らむ世の知るにつれ",
+          "reading": "しんせんきょう　いよいよなりてかんれいの　めいしょとならんよのしるにつれ",
+          "reading_hira": "しんせんきょう　いよいよなりてかんれいの　めいしょとならんよのしるにつれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        },
+        {
+          "number": 465,
+          "title": "",
+          "original": "関東に　名だたる箱根の山の上に　吾は添えけり珍の名所を",
+          "reading": "かんとうに　なだたるはこねのやまのえに　われはそえけりうづのめいしょを",
+          "reading_hira": "かんとうに　なだたるはこねのやまのえに　われはそえけりうづのめいしょを",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 8.18"
+        }
+      ]
+    },
+    {
+      "title_pt": "O Último Dia",
+      "title_jp": "最後の日",
+      "title_romaji": "Saigo no Hi",
+      "poems": [
+        {
+          "number": 466,
+          "title": "",
+          "original": "ふきすさむ　嵐をよそに天国を　夢に描きつわれはありけり",
+          "reading": "ふきすさむ　あらしをよそにてんごくを　ゆめにえがきつわれはありけり",
+          "reading_hira": "ふきすさむ　あらしをよそにてんごくを　ゆめにえがきつわれはありけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 467,
+          "title": "",
+          "original": "九分九厘の　世を覆えす一厘の　力は如意の玉にぞありける",
+          "reading": "くぶくりんの　よをくつがえすいちりんの　ちからはにょいのたまにぞありける",
+          "reading_hira": "くぶくりんの　よをくつがえすいちりんの　ちからはにょいのたまにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 468,
+          "title": "",
+          "original": "如意の珠　うち揮ひなば如何ならむ　悪魔といえど戦くなるらむ",
+          "reading": "にょいのたま　うちふるいなばいかならん　あくまといえどおののくなるらん",
+          "reading_hira": "にょいのたま　うちふるいなばいかならん　あくまといえどおののくなるらん",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 469,
+          "title": "",
+          "original": "三千歳を　深く隠せし如意の珠　世に現はるる時となりぬる",
+          "reading": "みちとせを　ふかくかくせしにょいのたま　よにあらわるるときとなりぬる",
+          "reading_hira": "みちとせを　ふかくかくせしにょいのたま　よにあらわるるときとなりぬる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 470,
+          "title": "",
+          "original": "神を力に　誠を杖につく人の　などか怖れん赤き嵐も",
+          "reading": "かみをちからに　まことをつえにつくひとの　などかおそれんあかきあらしも",
+          "reading_hira": "かみをちからに　まことをつえにつくひとの　などかおそれんあかきあらしも",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 471,
+          "title": "",
+          "original": "マルクスも　レーニンとてもキリストの　前に鰭伏す時ぞ来ぬらむ",
+          "reading": "まるくすも　れーにんとてもきりすとの　まえにひれふすときぞきぬらむ",
+          "reading_hira": "まるくすも　れーにんとてもきりすとの　まえにひれふすときぞきぬらむ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 472,
+          "title": "",
+          "original": "大神が　描く仕組の絵具なり　色とりどりの主義てうものは",
+          "reading": "おおかみが　えがくしぐみのえのぐなり　いろとりどりのしゅぎてうものは",
+          "reading_hira": "おおかみが　えがくしぐみのえのぐなり　いろとりどりのしゅぎてうものは",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 473,
+          "title": "",
+          "original": "裁かるる　日の迫れるを知らずして　身欲に耽ける人の危ふき",
+          "reading": "さばかるる　ひのせまれるをしらずして　みよくにふけるひとのあやうき",
+          "reading_hira": "さばかるる　ひのせまれるをしらずして　みよくにふけるひとのあやうき",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 474,
+          "title": "",
+          "original": "いやはての　裁きの廷に打曳かれ　悔改むるともせんすべなけれ",
+          "reading": "いやはての　さばきのにわにうちひかれ　くいあらたむるともせんすべなかれ",
+          "reading_hira": "いやはての　さばきのにわにうちひかれ　くいあらたむるともせんすべなかれ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 475,
+          "title": "",
+          "original": "大いなる　裁きの次に来るもの　そは輝ける地上天国",
+          "reading": "おおいなる　さばきのつぎにきたるもの　そはかがやけるちじょうてんごく",
+          "reading_hira": "おおいなる　さばきのつぎにきたるもの　そはかがやけるちじょうてんごく",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 476,
+          "title": "",
+          "original": "天国の　夢はいつしか正夢と　なりて今しも現れなむとする",
+          "reading": "てんごくの　ゆめはいつしかまさゆめと　なりていましもあれなんとする",
+          "reading_hira": "てんごくの　ゆめはいつしかまさゆめと　なりていましもあれなんとする",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 477,
+          "title": "",
+          "original": "生くる人　滅ぶる人を立別くる　裁きの日こそ世の最後なり",
+          "reading": "いくるひと　ほろぶるひとをたてわくる　さばきのひこそよのさいごなり",
+          "reading_hira": "いくるひと　ほろぶるひとをたてわくる　さばきのひこそよのさいごなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 478,
+          "title": "",
+          "original": "世の終り　空事なりとみし人の　あはてふためく時ぞ近みぬ",
+          "reading": "よのおわり　そらごとなりとみしひとの　あわてふためくときぞちかみぬ",
+          "reading_hira": "よのおわり　そらごとなりとみしひとの　あわてふためくときぞちかみぬ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 479,
+          "title": "",
+          "original": "仏滅と　いうも最後の日というも　世の切替の秋をいうなり",
+          "reading": "ぶつめつと　いうもさいごのひというも　よのきりかえのときをいうなり",
+          "reading_hira": "ぶつめつと　いうもさいごのひというも　よのきりかえのときをいうなり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        },
+        {
+          "number": 480,
+          "title": "",
+          "original": "善き人は　喜び悪しき人悔む　審判の日は迫り来ぬらし",
+          "reading": "よきひとは　よろこびあしきひとくやむ　しんぱんのひはせまりきぬらし",
+          "reading_hira": "よきひとは　よろこびあしきひとくやむ　しんぱんのひはせまりきぬらし",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 6.17"
+        }
+      ]
+    },
+    {
+      "title_pt": "O Bem e o Mal",
+      "title_jp": "善　と　悪",
+      "title_romaji": "Zen to Aku",
+      "poems": [
+        {
+          "number": 481,
+          "title": "",
+          "original": "大いなる　幸を賜はる御救いに　眼を閉づる人の哀れさ",
+          "reading": "おおいなる　さちをたまわるみすくいに　まなこをとずるひとのあわれさ",
+          "reading_hira": "おおいなる　さちをたまわるみすくいに　まなこをとずるひとのあわれさ",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 9.20"
+        },
+        {
+          "number": 482,
+          "title": "",
+          "original": "善きものを　善とみ悪しきをあしとみる　眼は正しき眼なりけり",
+          "reading": "よきものを　よしとみあしきをあしとみる　まなこはただしきまなこなりけり",
+          "reading_hira": "よきものを　よしとみあしきをあしとみる　まなこはただしきまなこなりけり",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 9.20"
+        },
+        {
+          "number": 483,
+          "title": "",
+          "original": "善悪の　けぢめも分かぬ眼もつ　盲のはばる世にぞありける",
+          "reading": "ぜんあくの　けじめもわかぬまなこもつ　めしいのはばるよにぞありける",
+          "reading_hira": "ぜんあくの　けじめもわかぬまなこもつ　めしいのはばるよにぞありける",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 9.20"
+        }
+      ]
+    },
+    {
+      "title_pt": "Poemas Avulsos",
+      "title_jp": "※全集未収録",
+      "title_romaji": "Zenshū Mishūroku",
+      "poems": [
+        {
+          "number": 484,
+          "title": "",
+          "original": "人の眼は　佯り得ても神の御眼は　いつはり得ぬを知る人の幸",
+          "reading": "ひとのめは　いつわりえてもかみのみめは　いつわりえぬをしるひとのさち",
+          "reading_hira": "ひとのめは　いつわりえてもかみのみめは　いつわりえぬをしるひとのさち",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 9.20"
+        },
+        {
+          "number": 485,
+          "title": "",
+          "original": "愚なる　人とは悪の種を播き　刈りとるなやみしらぬ人なる",
+          "reading": "おろかなる　ひととはあくのたねをまき　かりとるなやみしらぬひとなる",
+          "reading_hira": "おろかなる　ひととはあくのたねをまき　かりとるなやみしらぬひとなる",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 9.20"
+        },
+        {
+          "number": 486,
+          "title": "",
+          "original": "醜人の　滅ぶる時とはなりにける　神の光のいよよ輝き",
+          "reading": "しこびとの　ほろぶるときとはなりにける　かみのひかりのいよよかがやき",
+          "reading_hira": "しこびとの　ほろぶるときとはなりにける　かみのひかりのいよよかがやき",
+          "translation": "",
+          "translation_pending": true,
+          "date": "S24. 9.20"
+        }
+      ]
+    }
+  ]
+}

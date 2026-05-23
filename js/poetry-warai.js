@@ -1,5 +1,5 @@
 /**
- * poetry-warai.js — leitor de "Warai no Izumi" (笑いの泉).
+ * poetry-warai.js — leitor de "Warai no Izumi" (笑の泉).
  *
  * Carrega data/poetry/warai_no_izumi.json. A coleção tem 24 títulos
  * temáticos (空財布, ウツフ, ケチンボウ...) que viram filtros na sidebar.
@@ -8,7 +8,7 @@
 (function () {
   'use strict';
 
-  const DATA_URL = 'data/poetry/warai_no_izumi.json?v=4';
+  const DATA_URL = 'data/poetry/warai_no_izumi.json?v=5';
   const PAGE_SIZE = 60;
 
   // Romanização + glosa em PT-BR para os 24 títulos temáticos.
@@ -42,11 +42,13 @@
   };
   const _gloss = (jp) => THEME_GLOSS[jp] || { romaji: jp, pt: '' };
 
+  let _data = null;
   let _poems = [];
   let _byTheme = new Map();    // title -> [poem]
   let _activeTheme = null;     // null = all
   let _query = '';
   let _visible = PAGE_SIZE;
+  let _showPreface = true;
 
   const $ = (sel) => document.querySelector(sel);
 
@@ -68,7 +70,8 @@
   async function _load() {
     const res = await fetch(DATA_URL);
     if (!res.ok) throw new Error('Falha ao carregar: ' + res.status);
-    _poems = await res.json();
+    _data = await res.json();
+    _poems = _data.poems;
 
     _byTheme = new Map();
     for (const p of _poems) {
@@ -76,6 +79,47 @@
       if (!_byTheme.has(t)) _byTheme.set(t, []);
       _byTheme.get(t).push(p);
     }
+  }
+
+  function _renderPreface() {
+    const pf = (_data && _data.preface) || {};
+    const ed = (_data && _data.edition) || {};
+    const ptBody = (pf.content_pt || []).map(l => `<p>${_esc(l)}</p>`).join('');
+    const jpBody = (pf.content_jp || []).map(l => `<p>${_esc(l)}</p>`).join('');
+
+    // Linha de edição: data, contagem, atribuição da coletânea (御歌集) e
+    // selecionador (選者) sob pseudônimo — sem forçar identidades.
+    const editionLine = (ed.publication_date_pt && ed.total_in_original)
+      ? `
+        <div class="poetry-preface__edition">
+          <span class="lang-pt">${_esc(ed.attribution_pt || '')}${ed.attribution_pt ? ' · ' : ''}Publicado em ${_esc(ed.publication_date_pt)} · ${ed.total_in_original} versos no original · ${ed.translated_here} traduzidos aqui · ${_esc(ed.compiler_label_pt || 'Selecionador')}: ${_esc(ed.compiler_romaji || '')} (${_esc(ed.compiler_jp || '')})</span>
+          <span class="lang-ja" style="display:none">${_esc(ed.attribution_jp || '')}${ed.attribution_jp ? '・' : ''}${_esc(ed.publication_date_jp)}発行・全${ed.total_in_original}首・本サイト訳出${ed.translated_here}首・選者 ${_esc(ed.compiler_jp || '')}</span>
+        </div>`
+      : '';
+
+    const subtitleLine = (ed.subtitle_jp || ed.subtitle_pt)
+      ? `
+        <div class="poetry-preface__pt-title">
+          <span class="lang-pt">${_esc(ed.subtitle_pt || ed.subtitle_jp)}</span>
+          <span class="lang-ja" style="display:none">${_esc(ed.subtitle_jp || '')}</span>
+        </div>`
+      : '';
+
+    return `
+      <article class="poetry-preface" aria-label="Prefácio">
+        <h2 class="poetry-preface__title">${_esc(pf.title_jp || 'はしがき')}</h2>
+        <div class="poetry-preface__pt-title">
+          <span class="lang-pt">${_esc(pf.title_pt || 'Prefácio')}</span>
+          <span class="lang-ja" style="display:none">${_esc(pf.title_jp || 'はしがき')}</span>
+        </div>
+        ${subtitleLine}
+        <div class="poetry-preface__body">
+          <div class="lang-pt">${ptBody}</div>
+          <div class="lang-ja" style="display:none">${jpBody}</div>
+        </div>
+        ${editionLine}
+      </article>
+    `;
   }
 
   function _matchesQuery(p) {
@@ -189,6 +233,11 @@
     const slice = list.slice(0, _visible);
     let html = '';
 
+    // Prefácio: só na visão "todos os temas" e sem busca ativa.
+    if (_showPreface && !_activeTheme && !_query) {
+      html += _renderPreface();
+    }
+
     // Header com o tema atual (se filtrado)
     if (_activeTheme) {
       const g = _gloss(_activeTheme);
@@ -253,6 +302,7 @@
     const list = _currentList();
     if (!list.length) return;
     const pick = list[Math.floor(Math.random() * list.length)];
+    _showPreface = false;
     // Garante que o poema fique visível
     const idx = list.indexOf(pick);
     if (idx >= _visible) _visible = Math.ceil((idx + 1) / PAGE_SIZE) * PAGE_SIZE;
@@ -335,6 +385,7 @@
         const p = _findPoem(poemParam);
         if (p) {
           _activeTheme = p.title || null;
+          _showPreface = false;
           const list = _currentList();
           const idx = list.indexOf(p);
           if (idx >= 0 && idx >= _visible) {

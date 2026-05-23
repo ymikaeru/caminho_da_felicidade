@@ -643,6 +643,55 @@
   margin-right: 2px;
 }
 
+/* Estado "tradução pendente" — para poemas do Akimaro Kin'eishū que
+   ainda não foram traduzidos. O card mantém original + leitura, mas
+   sai o bloco de tradução e ganha um badge discreto. */
+.poetry-card__tag--pending {
+  color: var(--accent-strong, #9c6a2f);
+  font-weight: 500;
+  font-style: normal;
+  text-transform: uppercase;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.poetry-card--pending {
+  background: var(--bg-quiet, transparent);
+}
+
+.poetry-card--pending .poetry-card__original,
+.poetry-card--pending .poetry-card__reading {
+  opacity: 0.85;
+}
+
+/* Botão "Mostrar mais" usado no modo "todas as seções" (Akimaro). */
+.poetry-loadmore {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0 16px;
+}
+
+.btn-poetry-loadmore {
+  padding: 10px 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.btn-poetry-loadmore:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .poetry-card__original {
   font-family: 'Noto Serif JP', serif;
   font-size: calc(clamp(18px, 2.6vw, 22px) * var(--poetry-scale, 1));

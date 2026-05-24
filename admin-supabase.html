@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Admin — Caminho da Felicidade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/styles.min.css?v=52">
+  <link rel="stylesheet" href="css/styles.min.css?v=53">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <style>
     /* Override global content-wrapper / glass-pane caps for the admin page (desktop only) */
@@ -28,6 +28,27 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     #tab-destaques.active { display: flex; flex-direction: column; min-height: calc(100vh - 240px); }
+
+    /* Aba Poetry Versions — Comparador A/B/C/D */
+    .btn-sm {
+      padding: 6px 12px; font-size: 0.8rem; border-radius: 6px;
+      border: 1px solid var(--border); background: var(--bg-quiet);
+      color: var(--text-main); cursor: pointer; transition: all 0.15s;
+    }
+    .btn-sm:hover { background: var(--bg-hover, var(--bg-quiet)); border-color: var(--accent); }
+    .pv-filter {
+      padding: 6px 14px; font-size: 0.78rem; border-radius: 14px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+      letter-spacing: 0.3px;
+    }
+    .pv-filter:hover { color: var(--text-main); border-color: var(--accent); }
+    .pv-filter.is-active {
+      background: var(--accent); color: var(--surface, #fff);
+      border-color: var(--accent); font-weight: 600;
+    }
+    .pv-version:hover { border-color: var(--text-muted) !important; }
+    .pv-version.is-chosen { box-shadow: 0 0 0 1px currentColor; }
     .hl-card:hover { transform: translateX(2px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     .tab-badge {
       display: inline-flex; align-items: center; justify-content: center;
@@ -982,6 +1003,7 @@
               <div class="tab-group-tabs">
                 <div class="admin-tab" onclick="switchTab('recommendations')">📤 Recomendações</div>
                 <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty" id="reportsTabBadge">0</span></div>
+                <div class="admin-tab" onclick="switchTab('poetry-versions')">🎭 Versões A/B</div>
               </div>
             </div>
             <div class="tab-group" data-section="caminho">
@@ -1364,6 +1386,10 @@
                por usuário. Layout: lado esquerdo lista usuários (reusa
                busca da aba Usuários), lado direito mostra/cria recs do
                usuário selecionado. -->
+          <div class="tab-content" id="tab-poetry-versions">
+            <div id="pv-container"><div class="loading">Selecione a aba para carregar.</div></div>
+          </div>
+
           <div class="tab-content" id="tab-recommendations">
             <div style="margin-bottom:20px;">
               <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Recomendações para Estudo</h2>
@@ -1883,7 +1909,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=43"></script>
+  <script type="module" src="js/admin.js?v=44"></script>
 
 </body>
 </html>

@@ -161,10 +161,12 @@
 
 /* Modo "peek": A-/A+ clicado dentro do menu — esconde o backdrop pro
    usuário ver o efeito da mudança de tamanho no texto atrás. O painel
-   lateral continua visível pra ele ajustar mais. Limpo no closeMobileNav. */
+   lateral continua visível pra ele ajustar mais. Limpo no closeMobileNav.
+   IMPORTANTE: mantém pointer-events:auto pra que o clique fora do painel
+   ainda dispare closeMobileNav — caso contrário o menu trava aberto
+   (overlay parent com pointer-events:auto bloqueia clicks na página). */
 .mobile-nav-overlay.peeking .mobile-nav-backdrop {
   opacity: 0;
-  pointer-events: none;
 }
 
 .mobile-nav-panel {

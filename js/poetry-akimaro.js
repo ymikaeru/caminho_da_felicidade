@@ -68,7 +68,10 @@
 
   function _matchesQuery(p) {
     if (!_query) return true;
-    const q = _query.toLowerCase();
+    const q = _query.toLowerCase().trim();
+    // Query só-dígitos (ex: "1", "001", "486") → match exato por número,
+    // ignorando leading zeros. "1" acha №001 sem puxar 10, 100, 110...
+    if (/^\d+$/.test(q)) return p.number === parseInt(q, 10);
     return (
       (p.original || '').toLowerCase().includes(q) ||
       (p.reading || '').toLowerCase().includes(q) ||

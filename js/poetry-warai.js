@@ -89,11 +89,26 @@
 
     // Linha de edição: data, contagem, atribuição da coletânea (御歌集) e
     // selecionador (選者) sob pseudônimo — sem forçar identidades.
+    const allTranslated = ed.translated_here === ed.total_in_original;
+    const countPt = allTranslated
+      ? `${ed.total_in_original} versos`
+      : `${ed.total_in_original} versos no original · ${ed.translated_here} traduzidos aqui`;
+    const countJp = allTranslated
+      ? `全${ed.total_in_original}首`
+      : `全${ed.total_in_original}首・本サイト訳出${ed.translated_here}首`;
+    const attrPt = ed.attribution_pt ? `${_esc(ed.attribution_pt)} · ` : '';
+    const attrJp = ed.attribution_jp ? `${_esc(ed.attribution_jp)}・` : '';
     const editionLine = (ed.publication_date_pt && ed.total_in_original)
       ? `
         <div class="poetry-preface__edition">
-          <span class="lang-pt">${_esc(ed.attribution_pt || '')}${ed.attribution_pt ? ' · ' : ''}Publicado em ${_esc(ed.publication_date_pt)} · ${ed.total_in_original} versos no original · ${ed.translated_here} traduzidos aqui · ${_esc(ed.compiler_label_pt || 'Selecionador')}: ${_esc(ed.compiler_romaji || '')} (${_esc(ed.compiler_jp || '')})</span>
-          <span class="lang-ja" style="display:none">${_esc(ed.attribution_jp || '')}${ed.attribution_jp ? '・' : ''}${_esc(ed.publication_date_jp)}発行・全${ed.total_in_original}首・本サイト訳出${ed.translated_here}首・選者 ${_esc(ed.compiler_jp || '')}</span>
+          <div class="poetry-preface__edition-line">
+            <span class="lang-pt">${attrPt}Publicado em ${_esc(ed.publication_date_pt)} · ${countPt}</span>
+            <span class="lang-ja" style="display:none">${attrJp}${_esc(ed.publication_date_jp)}発行・${countJp}</span>
+          </div>
+          <div class="poetry-preface__edition-line">
+            <span class="lang-pt">${_esc(ed.compiler_label_pt || 'Selecionador')}: ${_esc(ed.compiler_romaji || '')} (${_esc(ed.compiler_jp || '')})</span>
+            <span class="lang-ja" style="display:none">選者 ${_esc(ed.compiler_jp || '')}</span>
+          </div>
         </div>`
       : '';
 

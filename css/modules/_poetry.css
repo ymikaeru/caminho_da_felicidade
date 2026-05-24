@@ -834,6 +834,24 @@
   margin-right: 4px;
 }
 
+.poetry-preface__edition {
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+  margin-top: 24px;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.poetry-preface__edition-line {
+  margin: 0 0 4px;
+}
+
+.poetry-preface__edition-line:last-child {
+  margin-bottom: 0;
+}
+
 /* Empty + loading */
 .poetry-empty,
 .poetry-loading {

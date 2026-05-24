@@ -105,11 +105,24 @@
     const ed = _data.edition || {};
     const ptBody = (pf.content_pt || []).map(l => `<p>${_esc(l)}</p>`).join('');
     const jpBody = (pf.content_jp || []).map(l => `<p>${_esc(l)}</p>`).join('');
+    const allTranslated = ed.translated_here === ed.total_in_original;
+    const countPt = allTranslated
+      ? `${ed.total_in_original} poemas`
+      : `${ed.total_in_original} poemas no original · ${ed.translated_here} traduzidos aqui`;
+    const countJp = allTranslated
+      ? `全${ed.total_in_original}首`
+      : `全${ed.total_in_original}首・本サイト訳出${ed.translated_here}首`;
     const editionLine = (ed.publication_date_pt && ed.total_in_original)
       ? `
         <div class="poetry-preface__edition">
-          <span class="lang-pt">Publicado em ${_esc(ed.publication_date_pt)} · ${ed.total_in_original} poemas no original · ${ed.translated_here} traduzidos aqui · Pseudônimo poético de Meishu-Sama: ${_esc(ed.author_romaji)} (${_esc(ed.author_jp)})</span>
-          <span class="lang-ja" style="display:none">${_esc(ed.publication_date_jp)}発行・全${ed.total_in_original}首・本サイト訳出${ed.translated_here}首・明主様の雅号 ${_esc(ed.author_jp)}</span>
+          <div class="poetry-preface__edition-line">
+            <span class="lang-pt">Publicado em ${_esc(ed.publication_date_pt)} · ${countPt}</span>
+            <span class="lang-ja" style="display:none">${_esc(ed.publication_date_jp)}発行・${countJp}</span>
+          </div>
+          <div class="poetry-preface__edition-line">
+            <span class="lang-pt">Pseudônimo poético de Meishu-Sama: ${_esc(ed.author_romaji)} (${_esc(ed.author_jp)})</span>
+            <span class="lang-ja" style="display:none">明主様の雅号 ${_esc(ed.author_jp)}</span>
+          </div>
         </div>`
       : '';
     return `

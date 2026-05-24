@@ -449,6 +449,27 @@
   font-weight: 600;
 }
 
+/* Filtro "Por Meishu-Sama" — variante destacada no topo da sidebar.
+   Estado idle já carrega cor accent (pra sinalizar autoridade do mestre);
+   estado is-active vira fundo mais saturado + peso bold, em coerência
+   com o pill --meishu do card. */
+.poetry-filter-btn--meishu {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  margin-bottom: 6px;
+}
+.poetry-filter-btn--meishu:hover {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+.poetry-filter-btn--meishu.is-active {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 38%, transparent);
+  color: var(--accent);
+  font-weight: 700;
+}
+
 .poetry-filter-btn__jp {
   font-family: 'Noto Serif JP', serif;
   font-size: 12px;
@@ -624,23 +645,34 @@
   text-transform: uppercase;
 }
 
+/* Penname pill — discreto e sofisticado:
+   hairline em accent suave + leve fundo translúcido,
+   pra evocar o <strong> verde do rattail.org original
+   sem quebrar a estética nórdica do resto da página. */
 .poetry-card__tag {
   display: inline-block;
   font-family: 'Noto Serif JP', serif;
   font-size: 10px;
-  font-style: italic;
-  color: var(--text-muted);
-  background: none;
-  padding: 0;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  border-radius: 999px;
+  padding: 2px 8px;
   letter-spacing: 0.04em;
+  line-height: 1.4;
+  vertical-align: middle;
 }
 
-/* Separador "·" antes do penname pra dar contexto sem fundo */
-.poetry-card__tag::before {
-  content: '· ';
-  color: var(--text-muted);
-  opacity: 0.5;
-  margin-right: 2px;
+/* Variante "Meishu": "阿　呆" é o único pseudônimo do próprio Meishu-Sama.
+   Diferenciação sutil — mesma família visual do pill normal, porém com
+   fundo levemente mais saturado, borda mais firme e peso 700, evocando
+   um "selo do mestre" sem destoar do resto da página. */
+.poetry-card__tag--meishu {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 38%, transparent);
+  font-weight: 700;
+  cursor: help;
 }
 
 /* Estado "tradução pendente" — para poemas do Akimaro Kin'eishū que

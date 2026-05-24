@@ -42,6 +42,10 @@
   };
   const _gloss = (jp) => THEME_GLOSS[jp] || { romaji: jp, pt: '' };
 
+  // "阿　呆" (Aho, "o tolo") é o único pseudônimo do próprio Meishu-Sama
+  // — os demais pseudônimos são discípulos do Círculo de Kanku que ele coordenava.
+  const MEISHU_PENNAME = '阿　呆';
+
   let _data = null;
   let _poems = [];
   let _byTheme = new Map();    // title -> [poem]
@@ -49,6 +53,8 @@
   let _query = '';
   let _visible = PAGE_SIZE;
   let _showPreface = true;
+  let _meishuOnly = false;     // filtro "só pseudônimo de Meishu-Sama (阿　呆)"
+  let _meishuCount = 0;        // qtd de poemas de 阿　呆, calculada no load
 
   const $ = (sel) => document.querySelector(sel);
 
@@ -74,10 +80,12 @@
     _poems = _data.poems;
 
     _byTheme = new Map();
+    _meishuCount = 0;
     for (const p of _poems) {
       const t = p.title || '(sem título)';
       if (!_byTheme.has(t)) _byTheme.set(t, []);
       _byTheme.get(t).push(p);
+      if (p.author_penname === MEISHU_PENNAME) _meishuCount++;
     }
   }
 
@@ -151,6 +159,7 @@
   function _currentList() {
     let base = _poems;
     if (_activeTheme) base = _byTheme.get(_activeTheme) || [];
+    if (_meishuOnly) base = base.filter(p => p.author_penname === MEISHU_PENNAME);
     if (_query) base = base.filter(_matchesQuery);
     return base;
   }
@@ -168,6 +177,20 @@
         <span class="poetry-filter-btn__count">${_poems.length}</span>
       </button>
     `;
+    // Botão especial "Por Akegarasu Aho" — toggle, composável com tema/busca.
+    // Akegarasu Aho (明烏阿呆) é o pseudônimo poético de Meishu-Sama como
+    // selecionador (選者) do círculo; "阿　呆" (Aho) é a forma curta usada
+    // dentro dos versos.
+    const meishuBtn = `
+      <button class="poetry-filter-btn poetry-filter-btn--meishu ${_meishuOnly ? 'is-active' : ''}" data-meishu="1"
+              title="Akegarasu Aho (明烏阿呆) — pseudônimo poético de Meishu-Sama no Círculo de Kanku; '阿　呆' (Aho) é a forma curta usada nos versos">
+        <span class="poetry-filter-btn__main">
+          <span class="lang-pt">Por Akegarasu Aho</span>
+          <span class="lang-ja poetry-filter-btn__jp" style="display:none">明烏阿呆の句</span>
+        </span>
+        <span class="poetry-filter-btn__count">${_meishuCount}</span>
+      </button>
+    `;
     const items = themes.map(([t, arr]) => {
       const g = _gloss(t);
       const ptCap = g.pt ? g.pt.charAt(0).toUpperCase() + g.pt.slice(1) : g.romaji;
@@ -180,11 +203,16 @@
         <span class="poetry-filter-btn__count">${arr.length}</span>
       </button>
     `;}).join('');
-    list.innerHTML = allBtn + items;
+    list.innerHTML = allBtn + meishuBtn + items;
     list.querySelectorAll('.poetry-filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const t = btn.dataset.theme || '';
-        _activeTheme = t || null;
+        if (btn.dataset.meishu) {
+          // Toggle do filtro "Por Meishu-Sama" — composável com tema/busca
+          _meishuOnly = !_meishuOnly;
+        } else {
+          const t = btn.dataset.theme || '';
+          _activeTheme = t || null;
+        }
         _visible = PAGE_SIZE;
         _render();
         const sb = $('#waraiSidebar');
@@ -203,11 +231,17 @@
     }
   }
 
+  // Marcamos o pseudônimo de Meishu-Sama com modificador no card para
+  // diferenciá-lo sutilmente dos pseudônimos dos discípulos.
   function _renderPoem(p) {
     const num = p.num != null ? String(p.num).padStart(4, '0') : '';
-    const penname = p.author_penname
-      ? `<span class="poetry-card__tag">${_esc(p.author_penname)}</span>`
-      : '';
+    let penname = '';
+    if (p.author_penname) {
+      const isMeishu = p.author_penname === MEISHU_PENNAME;
+      const cls = isMeishu ? 'poetry-card__tag poetry-card__tag--meishu' : 'poetry-card__tag';
+      const tip = isMeishu ? ' title="Forma curta de Akegarasu Aho (明烏阿呆) — pseudônimo poético de Meishu-Sama, selecionador (選者) da coletânea"' : '';
+      penname = `<span class="${cls}"${tip}>${_esc(p.author_penname)}</span>`;
+    }
     let titleHtml = '';
     if (p.title) {
       const g = _gloss(p.title);
@@ -249,8 +283,28 @@
     let html = '';
 
     // Prefácio: só na visão "todos os temas" e sem busca ativa.
-    if (_showPreface && !_activeTheme && !_query) {
+    if (_showPreface && !_activeTheme && !_query && !_meishuOnly) {
       html += _renderPreface();
+    }
+
+    // Header "Por Akegarasu Aho" (quando filtro de autor está ativo e sem tema).
+    if (_meishuOnly && !_activeTheme) {
+      html += `
+        <header class="poetry-section-heading">
+          <div class="poetry-section-heading__kicker">
+            <span class="lang-pt">Por autor</span><span class="lang-ja" style="display:none">作者</span>
+          </div>
+          <h2 class="poetry-section-heading__title">
+            <span class="lang-pt">Akegarasu Aho (明烏阿呆)</span>
+            <span class="lang-ja" style="display:none">明烏阿呆（あけがらす あほう）</span>
+          </h2>
+          <div class="poetry-section-heading__pt">
+            <span class="lang-pt">${list.length} versos sob o pseudônimo poético de Meishu-Sama no Círculo de Kanku — assinados nos cards como "阿　呆" (Aho, forma curta)</span>
+            <span class="lang-ja" style="display:none">明主様が明烏阿呆の名で詠まれた ${list.length} 句（句中の署名は「阿　呆」）</span>
+          </div>
+          <div class="poetry-section-heading__rule"></div>
+        </header>
+      `;
     }
 
     // Header com o tema atual (se filtrado)

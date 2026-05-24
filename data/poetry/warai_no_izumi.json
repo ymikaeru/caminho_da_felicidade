@@ -24,8 +24,10 @@
     "attribution_pt": "Coletânea Poética do Mestre Okada Mokichi (Meishu-Sama)",
     "publication_date_jp": "昭和26年1月30日",
     "publication_date_pt": "30 de janeiro de 1951",
-    "total_in_original": 1093,
+    "total_declared_on_cover": 1093,
+    "total_in_original": 1063,
     "translated_here": 1063,
+    "completeness_note_pt": "A capa da edição impressa de 1951 declara 1093首 (1093 poemas), mas a digitalização disponível (rattail.org/gosanka/waraino.html) contém 1063 entradas — 1033 números únicos mais 30 duplicados nas faixas 670–699 (temas '屁でもかぎやがれ' e 'ぶんなぐれ' sobrepostos). Há ainda lacunas de numeração nas faixas 450–499 e 660–669 herdadas do source original. Esta tradução é fiel à fonte digital acessível; os 30 poemas restantes para fechar 1093 só seriam recuperáveis a partir do livro físico de 1951.",
     "compiler_jp": "明烏阿呆",
     "compiler_romaji": "Akegarasu Aho",
     "compiler_label_pt": "Selecionador (選者)"

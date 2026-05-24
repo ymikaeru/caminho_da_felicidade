@@ -317,25 +317,34 @@ function _renderEditCard(poem) {
 
   const variantsBlock = versions.length === 0 ? '' : `
     <div style="font-size:0.72rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin:14px 0 8px;">
-      Escolha uma das ${versions.length} variantes (ou edite os campos abaixo pra criar nova)
+      Variantes geradas (clique pra copiar pros campos editáveis abaixo)
     </div>
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:8px;">
       ${versions.map(v => {
         const meta = VERSION_LABELS[v.key];
         const isActive = activeVariant === v.key;
         return `
-          <label class="pv-variant" data-num="${num}" data-key="${v.key}" style="display:block; border:2px solid ${isActive ? meta.color : 'var(--border)'}; background:${isActive ? meta.color + '11' : 'var(--bg)'}; border-radius:8px; padding:10px; cursor:pointer; transition:border-color 0.15s, background 0.15s;">
+          <div class="pv-variant" data-num="${num}" data-key="${v.key}" role="button" tabindex="0" style="border:1px solid ${isActive ? meta.color + '88' : 'var(--border)'}; background:${isActive ? meta.color + '0d' : 'var(--bg)'}; border-radius:8px; padding:10px; cursor:pointer; transition:border-color 0.15s, background 0.15s; position:relative;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <span style="font-size:0.65rem; font-weight:700; color:${meta.color}; text-transform:uppercase; letter-spacing:0.5px;">${meta.short}</span>
-              <input type="radio" name="pv-var-${num}" value="${v.key}" ${isActive ? 'checked' : ''} class="pv-variant-radio" data-num="${num}" data-key="${v.key}">
+              <span style="font-size:0.65rem; font-weight:700; color:${meta.color}; text-transform:uppercase; letter-spacing:0.5px;">${meta.short}${isActive ? ' · em uso' : ''}</span>
+              <span style="font-size:0.65rem; color:${meta.color}; opacity:0.7; font-weight:600;">↑ usar</span>
             </div>
             <div style="font-weight:600; font-size:0.82rem; margin-bottom:4px; color:var(--text);">${_escHtml(v.title)}</div>
             <div style="font-size:0.78rem; line-height:1.5; color:var(--text-muted);">${_escHtml(v.translation)}</div>
-          </label>
+          </div>
         `;
       }).join('')}
     </div>
   `;
+
+  // Header informativo dos inputs: deixa explícito que ESTE é o conteúdo
+  // que vai ser publicado, e sinaliza a origem (variante ou edição manual).
+  const originText = activeVariant
+    ? `origem: variante ${VERSION_LABELS[activeVariant].short}`
+    : (dirty ? 'edição personalizada' : 'igual ao publicado');
+  const originColor = activeVariant
+    ? VERSION_LABELS[activeVariant].color
+    : (dirty ? '#ff9500' : 'var(--text-muted)');
 
   return `
     <div class="pv-card" data-num="${num}" style="background:var(--bg-quiet); border:1px solid var(--border); border-left:4px solid ${accent}; border-radius:10px; padding:16px; margin-bottom:14px;">
@@ -362,12 +371,18 @@ function _renderEditCard(poem) {
 
       ${variantsBlock}
 
-      <div style="margin-top:14px; padding-top:14px; border-top:1px dashed var(--border);">
-        <label style="display:block; font-size:0.7rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Título PT (editável)</label>
-        <input class="pv-edit-title" data-num="${num}" type="text" value="${_escHtml(titleNow)}" placeholder="(sem título)" style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text); font-size:0.95rem; font-weight:600; margin-bottom:10px;">
+      <div style="margin-top:16px; padding:12px; background:var(--bg); border:2px solid #34c75944; border-radius:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+          <div style="font-size:0.78rem; font-weight:700; color:#34c759; letter-spacing:0.3px;">
+            ✓ Conteúdo final <span style="color:var(--text-muted); font-weight:500;">— este será publicado</span>
+          </div>
+          <div style="font-size:0.7rem; padding:2px 8px; border-radius:10px; background:${originColor}22; color:${originColor}; font-weight:600;">${originText}</div>
+        </div>
+        <label style="display:block; font-size:0.7rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Título PT</label>
+        <input class="pv-edit-title" data-num="${num}" type="text" value="${_escHtml(titleNow)}" placeholder="(sem título)" style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg-quiet); color:var(--text); font-size:0.95rem; font-weight:600; margin-bottom:10px;">
 
-        <label style="display:block; font-size:0.7rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Tradução PT (editável)</label>
-        <textarea class="pv-edit-trans" data-num="${num}" rows="3" placeholder="(sem tradução)" style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text); font-size:0.9rem; font-family:'Crimson Pro', serif; line-height:1.55; resize:vertical;">${_escHtml(transNow)}</textarea>
+        <label style="display:block; font-size:0.7rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Tradução PT</label>
+        <textarea class="pv-edit-trans" data-num="${num}" rows="3" placeholder="(sem tradução)" style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg-quiet); color:var(--text); font-size:0.9rem; font-family:'Crimson Pro', serif; line-height:1.55; resize:vertical;">${_escHtml(transNow)}</textarea>
       </div>
 
       <div class="pv-ai-panel" id="pv-ai-panel-${num}" style="display:none; margin-top:12px; padding:12px; background:rgba(99,102,241,0.04); border:1px solid rgba(99,102,241,0.2); border-radius:8px;"></div>
@@ -404,21 +419,16 @@ function _wireEditorEvents() {
     });
   });
 
-  // Click em qualquer parte da label da variante → seleciona aquela variante
-  document.querySelectorAll('.pv-variant').forEach(label => {
-    label.addEventListener('click', e => {
-      // Evita double-fire quando o click foi no radio nativo
-      if (e.target.tagName === 'INPUT') return;
-      const num = parseInt(label.dataset.num, 10);
-      const key = label.dataset.key;
-      _useVariant(num, key);
-    });
-  });
-  document.querySelectorAll('.pv-variant-radio').forEach(r => {
-    r.addEventListener('change', e => {
-      const num = parseInt(e.target.dataset.num, 10);
-      const key = e.target.dataset.key;
-      _useVariant(num, key);
+  // Click (ou Enter/Espaço) em qualquer parte do card da variante copia
+  // título+tradução pros inputs editáveis abaixo.
+  document.querySelectorAll('.pv-variant').forEach(card => {
+    const trigger = () => {
+      const num = parseInt(card.dataset.num, 10);
+      _useVariant(num, card.dataset.key);
+    };
+    card.addEventListener('click', trigger);
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trigger(); }
     });
   });
 

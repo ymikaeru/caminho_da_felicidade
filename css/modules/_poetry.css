@@ -516,7 +516,10 @@
 .poetry-main .poetry-preface,
 .poetry-main .poetry-load-more,
 .poetry-main > .poetry-empty,
-.poetry-main > .poetry-loading {
+.poetry-main > .poetry-loading,
+.poetry-main #akimaroList,
+.poetry-main #yamaList,
+.poetry-main #waraiList {
   max-width: 1180px;
   margin-left: auto;
   margin-right: auto;
@@ -549,8 +552,15 @@
   stroke-linejoin: round;
 }
 
+/* Heading de seção em linha — título principal + secundário lado a lado,
+   hairline embaixo. Mais leve que o stacked. Kicker "SEÇÃO" sai.
+   Margem top generosa pra criar break visual claro entre seções. */
 .poetry-section-heading {
-  margin: 32px 0 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 16px;
+  margin: 72px 0 40px;
 }
 
 .poetry-section-heading:first-child {
@@ -558,13 +568,7 @@
 }
 
 .poetry-section-heading__kicker {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--accent);
-  margin-bottom: 8px;
+  display: none;
 }
 
 .poetry-section-heading__title {
@@ -574,7 +578,7 @@
   color: var(--text-main);
   line-height: 1.3;
   letter-spacing: 0.04em;
-  margin: 0 0 4px;
+  margin: 0;
 }
 
 .poetry-section-heading__pt {
@@ -587,6 +591,7 @@
 .poetry-section-heading__rule {
   height: 1px;
   background: var(--border);
+  flex-basis: 100%;
   margin-top: 14px;
 }
 
@@ -597,10 +602,22 @@
   gap: 0;
 }
 
+/* Card de poema — desktop usa 2 colunas (JP+reading | PT), head spanando
+   ambas. O trilho dourado da tradução ancora a coluna direita. Mobile/
+   tablet colapsa pra 1 coluna no override abaixo.
+   position: relative ancora o bookmark absoluto (no mobile a hit area
+   44x44 do bookmark estourava o flex do head e empurrava a poesia pra
+   baixo). */
 .poetry-card {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 40px;
+  row-gap: 14px;
+  grid-template-areas:
+    "head head"
+    "original translation"
+    "reading translation";
   padding: 32px 18px;
   margin: 0;
   border-bottom: 1px solid var(--border);
@@ -608,6 +625,11 @@
   transition: background 0.18s var(--ease);
   border-radius: var(--radius-sm);
 }
+
+.poetry-card__head        { grid-area: head; }
+.poetry-card__original    { grid-area: original; }
+.poetry-card__reading     { grid-area: reading; }
+.poetry-card__translation { grid-area: translation; align-self: start; }
 
 .poetry-card:last-child {
   border-bottom: none;
@@ -625,6 +647,7 @@
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 4px;
+  padding-right: 32px;
 }
 
 .poetry-card__num {
@@ -726,7 +749,7 @@
 
 .poetry-card__original {
   font-family: 'Noto Serif JP', serif;
-  font-size: calc(clamp(18px, 2.6vw, 22px) * var(--poetry-scale, 1));
+  font-size: calc(18px * var(--poetry-scale, 1));
   font-weight: 600;
   line-height: 1.9;
   letter-spacing: 0.06em;
@@ -745,7 +768,7 @@
 
 .poetry-card__translation {
   font-family: var(--font-serif);
-  font-size: calc(16px * var(--poetry-scale, 1));
+  font-size: calc(20px * var(--poetry-scale, 1));
   line-height: 1.65;
   color: var(--text-main);
   border-left: 2px solid var(--accent-soft);
@@ -762,10 +785,13 @@
 }
 
 /* Nordic: o bookmark é apenas o ícone. Sem pill, sem fundo, sem borda.
-   O glifo carrega o estado (outline = não-salvo, fill = salvo). */
+   O glifo carrega o estado (outline = não-salvo, fill = salvo).
+   position: absolute pra não estourar a altura do head em títulos longos
+   (a hit area 44x44 mobile causava wrap pra nova linha do flex). */
 .poetry-card__bookmark {
-  margin-left: auto;
-  align-self: center;
+  position: absolute;
+  top: 24px;
+  right: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -773,7 +799,7 @@
   background: transparent;
   border: none;
   padding: 8px;
-  margin-right: -8px;
+  margin: 0;
   cursor: pointer;
   line-height: 1;
   opacity: 0.5;
@@ -811,38 +837,41 @@
 
 .poetry-card__bookmark-label { display: none; }
 
-/* Preface block (Yama to Mizu only) */
+/* Preface block — card com bg discreto (marfim morno, não branco puro);
+   sobrepõe accent-soft a surface pra adaptar a qualquer tema sem hardcode. */
 .poetry-preface {
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 28px 32px;
+  padding: 32px 40px;
   margin-bottom: 40px;
-  background: var(--surface);
+  background:
+    linear-gradient(var(--accent-soft), var(--accent-soft)),
+    var(--surface);
 }
 
 .poetry-preface__title {
   font-family: 'Noto Serif JP', serif;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--text-main);
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   letter-spacing: 0.04em;
 }
 
 .poetry-preface__pt-title {
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: 14px;
   font-style: italic;
   color: var(--text-muted);
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
 .poetry-preface__body p {
   font-family: var(--font-serif);
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.75;
   color: var(--text-main);
-  margin: 0 0 14px;
+  margin: 0 0 16px;
 }
 
 .poetry-preface__body p:last-child {
@@ -868,10 +897,10 @@
 
 .poetry-preface__edition {
   border-top: 1px solid var(--border);
-  padding-top: 18px;
-  margin-top: 24px;
+  padding-top: 20px;
+  margin-top: 26px;
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
   color: var(--text-muted);
 }
@@ -1057,10 +1086,13 @@
     max-width: 100%;
   }
 
-  .poetry-card { padding: 22px 12px; margin: 0 -12px; }
-  .poetry-card__original { font-size: 18px; line-height: 1.85; }
-  .poetry-card__translation { font-size: 15px; }
-  .poetry-preface { padding: 22px 20px; }
+  .poetry-card {
+    padding: 22px 12px;
+    margin: 0 -12px;
+  }
+  .poetry-card__original { font-size: 15px; line-height: 1.85; }
+  .poetry-card__translation { font-size: 18px; }
+  .poetry-preface { padding: 24px 22px; }
 
   .poetry-feature { padding: 24px 20px 20px; min-height: 0; }
   .poetry-feature__desc { font-size: 14px; margin-bottom: 20px; }
@@ -1070,8 +1102,9 @@
   /* Mobile: padding/margem maior pra hit area ≥44px (recomendação
      Apple/Material), mantendo o ícone do mesmo tamanho visual. */
   .poetry-card__bookmark {
+    top: 8px;
+    right: -2px;
     padding: 14px;
-    margin-right: -14px;
     min-height: 44px;
     min-width: 44px;
   }
@@ -1085,6 +1118,31 @@
   /* No mobile o .main fica com padding:0 (de _responsive.css), então o
      hub precisa compensar o header fixo (60px) no próprio top-padding. */
   .poetry-hub { padding: calc(var(--nav-height, 60px) + 24px) 24px 60px; }
+}
+
+/* Em viewports muito estreitos (≤600px), títulos longos somados ao pill
+   da data + bookmark estouram a largura do head e o pill wrappa pra
+   linha 2 só em alguns cards, deixando heads irregulares (22px vs 54px).
+   Forçar o pill pra linha 2 sempre uniformiza a altura. Acima de 600px
+   tudo cabe naturalmente na linha 1. */
+@media (max-width: 600px) {
+  .poetry-card__tag {
+    flex-basis: 100%;
+  }
+}
+
+/* Layout 2-col só faz sentido quando há espaço pra cada coluna respirar.
+   Em tablet (mesmo com sidebar visível) o conteúdo fica muito apertado,
+   então colapsa pra 1-col. 2-col reaparece em desktop a partir de 1200px. */
+@media (max-width: 1200px) {
+  .poetry-card {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "head"
+      "original"
+      "reading"
+      "translation";
+  }
 }
 
 @media (max-width: 480px) {

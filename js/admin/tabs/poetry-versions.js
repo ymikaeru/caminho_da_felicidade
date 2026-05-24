@@ -39,6 +39,7 @@ REGRAS DE OURO:
   • SEMPRE em romaji (doutrinários: Kannon, Johrei, Komyo, Kototama, Yuzuriha, Aware, Yugen, Izunome, Makoto, Mahikari no Mitama, Tariki, Kannongyo, Myochiriki, Misogi, Wakō Dōjin, Daikomyo Nyorai, Koyokai, Nyorai; geográficos: Fuji, Tamagawa, Hakone, Atami, Ise, Moto-Ise, Tsujidō, Hiratsuka, Odawara, Manazuru, Hakkeien, Kanrei, Komagatake, Kamiyama, Yugyōji, Shinsenkyō, Sekirakuen).
   • SEMPRE traduzir: Kirisuto→Cristo, Shaka→Buda, Hotoke/Mihotoke→Buda/Precioso Buda, Magakami→deuses sombrios (plural minúsculo), Ten/Ame→Céu, Tengoku→Paraíso, Mahito→Homem Verdadeiro.
 - Volição em 1ª pessoa singular: formas -an/-mu/-n com 吾/われ traduzem como "provarei", NUNCA "provemos". 1ª pessoa plural só com われら explícito.
+- Pontuação enxuta — proibido em-dash decorativo: NÃO adicione travessão (—, –, --) onde o japonês não tem pausa explícita. O tanka clássico marca pausas com kireji (や, かな, けり, ぞ, ね, よ) ou com o espaço wide-jp (　) entre as cinco estrofes 5-7-5-7-7. Pra essas pausas, prefira vírgula, ponto-final, ou simplesmente quebra de linha. Travessão SÓ é aceitável quando há kireji dramático real (や/ぞ em pivô semântico) — caso contrário, é vício de tradutor.
 
 CONTEXTO:
 - Pseudônimo do autor: 東山明麿 (Higashiyama Akimaro) — Meishu-Sama em 1949.

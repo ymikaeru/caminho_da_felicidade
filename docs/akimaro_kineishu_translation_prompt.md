@@ -57,6 +57,16 @@ da Lição Espiritual.
   ("provemos") — suaviza o confronto direto. A 1ª pessoa do plural é
   cabível apenas com `われら`/`warera` (nós) explícito.
   Ex: `汝と吾との力試さん` → "**provarei** vossa força contra a minha".
+- **Pontuação enxuta — proibido em-dash decorativo:** NÃO adicione
+  travessão (`—`, `–`, `--`) onde o japonês não tem pausa explícita. O
+  tanka clássico marca pausas com **kireji** (`や`, `かな`, `けり`, `ぞ`,
+  `ね`, `よ`) ou com o espaço wide-jp (`　`) entre as cinco estrofes
+  5-7-5-7-7. Para essas pausas, prefira **vírgula**, **ponto-final** ou
+  simplesmente **quebra de linha**. Travessão SÓ é aceitável quando há
+  kireji dramático real (`や`/`ぞ` em pivô semântico) — fora disso, é
+  vício de tradutor lusófono que precisa ser podado.
+  Ex INCORRETO: "A Noite finda — sua hora aproxima-se enfim;"
+  Ex CORRETO:   "A Noite finda; sua hora aproxima-se enfim,"
 - **Análise Tríade (Obrigatória):** Para cada poema, forneça:
   - 🍃 **Kigo (A Estação e o Clima):** análise sensorial da estação,
     luz, temperatura, paisagem e clima evocados.

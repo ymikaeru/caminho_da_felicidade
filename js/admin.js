@@ -205,8 +205,9 @@
     };
 
     const POETRY_BOOK_TITLES = {
-      'warai-no-izumi': '笑の泉 — Warai no Izumi',
-      'yama-to-mizu':   '山と水 — Yama to Mizu'
+      'warai-no-izumi':   '笑の泉 — Warai no Izumi',
+      'yama-to-mizu':     '山と水 — Yama to Mizu',
+      'akimaro-kineishu': "明麿近詠集 — Akimaro Kin'eishū"
     };
 
     // Arquivos especiais (prefácios etc.) que não estão em section_map.js
@@ -6285,7 +6286,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
           ? `<table><thead><tr><th style="width:6%;">#</th><th>Poema</th><th>Obra</th><th style="text-align:right;">Salvos</th></tr></thead><tbody>${
               topSaved.map((p, i) => {
                 const w = workTitle(p.file);
-                const collShort = p.file === 'yama-to-mizu' ? 'Yama' : p.file === 'warai-no-izumi' ? 'Warai' : (p.file || '—');
+                const collShort = p.file === 'yama-to-mizu' ? 'Yama' : p.file === 'warai-no-izumi' ? 'Warai' : p.file === 'akimaro-kineishu' ? 'Akimaro' : (p.file || '—');
                 const title = p.topic_title || _previewText(p.text, 50) || (p.topic_id || '—');
                 return `<tr>
                   <td style="color:var(--text-muted);">${i + 1}</td>
@@ -6325,7 +6326,7 @@ Retraduza APENAS o parágrafo acima, aplicando TODAS as diretrizes:
               topSavers.map(s => `<tr>
                 <td>${_escHtml(nameMap[s.user_id] || 'Desconhecido')}</td>
                 <td class="num">${s.count}</td>
-                <td style="font-size:.78rem;">${[...s.files].map(f => f === 'yama-to-mizu' ? 'Yama' : f === 'warai-no-izumi' ? 'Warai' : f).join(', ')}</td>
+                <td style="font-size:.78rem;">${[...s.files].map(f => f === 'yama-to-mizu' ? 'Yama' : f === 'warai-no-izumi' ? 'Warai' : f === 'akimaro-kineishu' ? 'Akimaro' : f).join(', ')}</td>
                 <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(s.lastAt)}</td>
               </tr>`).join('')
             }</tbody></table>`

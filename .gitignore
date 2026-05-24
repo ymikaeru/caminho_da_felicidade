@@ -26,4 +26,8 @@ backup-*.sql
 .env.local
 ComandosUteis
 .cli-latest
-supabase/.temp  
+supabase/.temp
+
+# Backups e arquivos temporários gerados pelo translate_akimaro_gemini.py
+*.json.bak
+*.json.tmp

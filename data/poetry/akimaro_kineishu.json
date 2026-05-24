@@ -19,7 +19,7 @@
     "publication_date_jp": "昭和24年11月30日",
     "publication_date_pt": "30 de novembro de 1949",
     "total_in_original": 486,
-    "translated_here": 99,
+    "translated_here": 119,
     "author_jp": "東山明麿",
     "author_romaji": "Higashiyama Akimaro"
   },
@@ -36,7 +36,11 @@
           "reading": "Hingashi no / sora aka-aka to / nichirin wa / kumo o yaburite / nobori somekeru",
           "reading_hira": "ひんがしの　そらあかあかとにちりんは　くもをやぶりてのぼりそめける",
           "translation": "No céu do leste, em rubro intenso e vivo, O Disco Solar rompe as nuvens densas E inicia, majestoso, a sua ascensão.",
-          "date": "S11. 1. 1"
+          "date": "S11. 1. 1",
+          "kigo": "O poema evoca o Hatsuhinode (o primeiro nascer do sol do ano), momento sagrado no inverno japonês. A atmosfera é de frio cortante, contrastado pelo \"aka-aka\" (vermelho intenso) do sol que aquece visualmente a paisagem.",
+          "kototama": "A repetição \"aka-aka\" gera uma vibração de intensidade e calor. O verbo \"yaburite\" (romper/rasgar) traz uma plosiva forte, indicando uma ação vigorosa e imparável da luz contra a escuridão.",
+          "profundidade": "O \"Sol rompendo as nuvens\" é a metáfora central da fé messiânica: o advento da Era do Dia. Meishu-Sama anuncia que a Verdade (Sol) não pede licença, ela rompe as ilusões (nuvens) acumuladas por eras.",
+          "translation_source": "human"
         },
         {
           "number": 2,
@@ -45,7 +49,11 @@
           "reading": "Yo no owari / iyoiyo chikami / oinaru / hikari wa imashi / noboran to su mo",
           "reading_hira": "よのおわり　いよいよちかみおおいなる　ひかりはいましのぼらんとすも",
           "translation": "O fim da noite aproxima-se derradeiro; Eis que a Grande Luz, em sua magnitude, Está prestes a despontar neste exato agora.",
-          "date": "S11. 1. 1"
+          "date": "S11. 1. 1",
+          "kigo": "Temporalidade mística. Situa-se no limiar entre a madrugada escura e a alvorada (inverno espiritual para primavera espiritual).",
+          "kototama": "\"Iyoiyo\" (cada vez mais/finalmente) cria uma tensão de expectativa. \"Oinaru\" (Grande) alonga a pronúncia, conferindo majestade à Luz que chega.",
+          "profundidade": "Profecia direta da Transição das Eras. \"Yo no owari\" não é o fim do mundo, mas o \"Fim da Noite\" (Era das Trevas/Água). A ênfase é na inevitabilidade da ascensão da Luz Divina.",
+          "translation_source": "human"
         },
         {
           "number": 3,
@@ -54,7 +62,11 @@
           "reading": "Fuji no yuki / akane ni somete / nichirin wa / ima shi misora ni / kagayaki somekeru",
           "reading_hira": "ふじのゆき　あかねにそめてにちりんは　いましみそらにかがやきそめける",
           "translation": "Tingindo de carmesim a neve do Fuji, O Sol agora, no alto do firmamento, Começa a irradiar o seu brilho.",
-          "date": "S11. 1. 1"
+          "date": "S11. 1. 1",
+          "kigo": "O fenômeno do Aka-Fuji (Fuji Vermelho) ao amanhecer de inverno. O contraste entre o branco gélido da neve e o vermelho quente da luz (akane) é visualmente impactante.",
+          "kototama": "Os sons \"S\" (Somete, Misora, Somekeru) trazem uma suavidade sibilante, sugerindo que a luz penetra e tinge a montanha de forma silenciosa e sagrada.",
+          "profundidade": "O Monte Fuji representa o \"Naka\" (Centro/Espírito) do Japão e do mundo. Quando o Espírito é iluminado pela Verdade, reflete a glória divina para todo o universo (o firmamento).",
+          "translation_source": "human"
         },
         {
           "number": 4,
@@ -63,7 +75,11 @@
           "reading": "Oofuji no / yuki kurenai ni / hi wa somenu / hajirau otome no / omowa nimo nite",
           "reading_hira": "おおふじの　ゆきくれないにひはそめぬ　はじらうおとめのおもわにもにて",
           "translation": "A neve do Grande Fuji, o Sol a tinge de rosado; Assemelha-se, em sua pureza, À face de uma donzela que, tímida, cora.",
-          "date": "S11. 1. 1"
+          "date": "S11. 1. 1",
+          "kigo": "Amanhecer claro de inverno. A mudança sutil de cor na neve é capturada com delicadeza extrema.",
+          "kototama": "A palavra \"Otome\" (Donzela) e \"Hajirau\" (Envergonhar-se/Corar) suavizam a imponência da montanha, trazendo o aspecto \"Belo\" e terno da natureza.",
+          "profundidade": "A estética de Meishu-Sama une o Grandioso (Fuji) ao Delicado (Donzela). Revela que a Verdade não é apenas poderosa, mas possui uma beleza inocente e pura (Yugen).",
+          "translation_source": "human"
         }
       ]
     },
@@ -79,7 +95,11 @@
           "reading": "Karenohara / terasu hizashi ni / haru miete / nanto wanashi ni / nodokesa no kyo",
           "reading_hira": "かれのはら　てらすひざしにはるみえて　なんとはなしにのどけさのきょう",
           "translation": "Nos raios de sol que banham a campina seca, Vislumbro a primavera oculta; Quão sereno e aprazível é o dia de hoje.",
-          "date": "S11. 2.13"
+          "date": "S11. 2.13",
+          "kigo": "Final do inverno. Visualmente ainda é \"Kareno\" (campo seco/morto), mas a \"sensação\" térmica (luz) já é de primavera.",
+          "kototama": "\"Nodokesa\" (serenidade/calma) carrega o espírito do poema. É uma palavra que relaxa a tensão, transmitindo a paz de espírito do autor.",
+          "profundidade": "A visão do iluminado percebe a Vida (Primavera) mesmo onde a aparência é de Morte (Campo Seco). É a capacidade de sentir a Luz de Deus antes que ela se manifeste na forma física.",
+          "translation_source": "human"
         },
         {
           "number": 6,
@@ -88,7 +108,11 @@
           "reading": "Asakeredo / haru wa miekeri / komizogawa / mizu no seseragi / kasoka nagara mo",
           "reading_hira": "あさけれど　はるはみえけりこみぞがわ　みずのせせらぎかそかながらも",
           "translation": "Ainda é cedo, mas a primavera se revela; No pequeno regato da vala, O murmúrio da água, embora sutil, já canta.",
-          "date": "S11. 2.13"
+          "date": "S11. 2.13",
+          "kigo": "Início da Primavera (Risshun). O gelo derrete e a água volta a fluir, mudando o som da paisagem.",
+          "kototama": "\"Seseragi\" (murmúrio da água) é uma onomatopeia suave e curativa. \"Kasoka\" (tênue/fraco) indica algo que precisa de silêncio interior para ser ouvido.",
+          "profundidade": "As grandes mudanças começam nos detalhes pequenos e invisíveis aos olhos desatentos. A \"água\" (sentimento/espírito) começa a fluir antes que a paisagem externa mude.",
+          "translation_source": "human"
         },
         {
           "number": 7,
@@ -97,7 +121,11 @@
           "reading": "Haru kinuru / hatake ni nokon no / yuki aredo / tsumetakaranaku / usura kagirau",
           "reading_hira": "はるきぬる　はたけにのこんのゆきあれど　つめたからなくうすらかぎらう",
           "translation": "A primavera chegou; Ainda há restos de neve na lavoura, Mas o frio se foi, e uma tênue bruma tremula.",
-          "date": "S11. 2.13"
+          "date": "S11. 2.13",
+          "kigo": "\"Kagirau\" refere-se ao ar tremulando pelo calor que sobe da terra (bruma de calor). Contraste tátil: neve visual, mas sem frio real.",
+          "kototama": "A negação \"Tsumetakaranaku\" (não sendo frio) remove a dureza do inverno. O final \"u\" em \"kagirau\" deixa o som suspenso, como a névoa.",
+          "profundidade": "Transição gradual. O \"Karma\" (neve) ainda pode estar visível na superfície, mas a \"Causa Espiritual\" (frio) já foi dissolvida pela Luz, restando apenas a dissolução final da matéria.",
+          "translation_source": "human"
         },
         {
           "number": 8,
@@ -106,7 +134,11 @@
           "reading": "Kisaragi no / sue to mo nareba / harumekite / fuyugare bayashi / mahiru ni akaruki",
           "reading_hira": "きさらぎの　すえともなればはるめきて　ふゆかればやしまひにあかるき",
           "translation": "Ao findar de Fevereiro, o ar primaveril se insinua; E o bosque, ainda seco pelo inverno, Resplandece sob a claridade do sol verdadeiro.",
-          "date": "S11. 2.13"
+          "date": "S11. 2.13",
+          "kigo": "Fim de Kisaragi (Fevereiro lunar). A luz do sol torna-se \"Mahiru\" (sol a pino/verdadeiro), mudando a qualidade da iluminação sobre as árvores secas.",
+          "kototama": "O contraste entre \"Fuyugare\" (inverno seco/murcho) e \"Akaruki\" (brilhante/claro) dita o ritmo da renovação.",
+          "profundidade": "A luz penetra a matéria morta. Mesmo que a sociedade (o bosque) pareça espiritualmente seca, a Luz da Verdade (Mahiru) já brilha intensamente, preparando o renascimento.",
+          "translation_source": "human"
         },
         {
           "number": 9,
@@ -115,7 +147,11 @@
           "reading": "Inakamichi / torisugari ni / me ni tsuku wa / tsuchi no nadari ni / haru nijimu iro",
           "reading_hira": "いなかみち　とおりすがりにめにつくは　つちのなだりにはるにじむいろ",
           "translation": "Pela estrada rural, ao passar, meus olhos notam: No barranco de terra nua, A cor da primavera começa a transbordar.",
-          "date": "S11. 2.13"
+          "date": "S11. 2.13",
+          "kigo": "A \"cor da primavera\" na terra refere-se ao tom úmido, fértil e quente que o solo adquire antes de brotar, diferente do cinza seco do inverno.",
+          "kototama": "\"Nijimu\" (infiltrar/manchar/transbordar) é a palavra-chave. Sugere uma saturação lenta e inevitável de vida.",
+          "profundidade": "A percepção do divino na base (o solo). A mudança não vem de cima apenas, ela \"emana\" de dentro da matéria que recebeu a Luz. A gratidão por observar a natureza simples.",
+          "translation_source": "human"
         },
         {
           "number": 10,
@@ -124,7 +160,11 @@
           "reading": "Miharukasu / karemomo bayashi / usura nimo / kagiroi mienu / haru chikamuru ya",
           "reading_hira": "みはるかす　かれももばやしうすらにも　かぎろいみえぬはるちかむるや",
           "translation": "Ao longe, avisto o pomar de pessegueiros secos; Uma leve névoa trêmula os envolve... Ah, é a primavera que se aproxima!",
-          "date": "S11. 2.13"
+          "date": "S11. 2.13",
+          "kigo": "A paisagem é vasta (\"Miharukasu\"). A bruma de calor (kagiroi) distorce levemente a visão das árvores secas, sinal de aquecimento.",
+          "kototama": "\"Momo\" (Pêssego) tem som redondo e suave. \"Chikamuru\" (aproximar-se) traz movimento e expectativa ao encerramento do poema.",
+          "profundidade": "O pêssego (Momo) tem profundo significado no Xintoísmo (afastar infortúnios/Izanagi). Ver o pessegueiro prestes a reviver simboliza a purificação do mundo e a proteção divina prestes a florescer.",
+          "translation_source": "human"
         },
         {
           "number": 11,
@@ -133,7 +173,11 @@
           "reading": "Haru no hi no / nodoka na hikari ni / seiseishi / mugi no hodachi no / totonoi miete",
           "reading_hira": "はるのひの　のどかなひかりにせいせいし　むぎのほだちのととのいみえて",
           "translation": "Sob a luz serena do dia de primavera, tudo vivifica; Vejo as espigas de trigo erguerem-se, Alinhando-se em perfeita harmonia.",
-          "date": "S11. 3.29"
+          "date": "S11. 3.29",
+          "kigo": "Plena primavera. A luz é \"nodoka\" (tranquila/aprazível). O termo \"seiseishi\" (vívido/fresco) descreve a força vital que emana da terra.",
+          "kototama": "O som repetido de \"to\" em \"totonoi\" (ordenar/alinhar) sugere a organização rítmica da natureza. Transmite uma sensação de retidão e estrutura.",
+          "profundidade": "A natureza reflete a Ordem Divina. Assim como o trigo se alinha naturalmente sob a luz do sol, a sociedade humana, quando banhada pela Luz da Verdade, encontra sua ordem correta sem esforço forçado.",
+          "translation_source": "human"
         },
         {
           "number": 12,
@@ -142,7 +186,11 @@
           "reading": "Hibi kayou / nobe no michishiba / aozumite / hatake no haru mo / hirogori ni keru",
           "reading_hira": "ひびかよう　のべのみちしばあおずみて　はたけのはるもひろごりにける",
           "translation": "No caminho do campo por onde passo dia após dia, A relva da beira da estrada torna-se verdejante; E a primavera se alastra por toda a plantação.",
-          "date": "S11. 3.29"
+          "date": "S11. 3.29",
+          "kigo": "A transição visível da cor. \"Aozumite\" (tornando-se azul/verde) marca o fim do inverno cinzento.",
+          "kototama": "\"Hirogori\" (alastrar/espalhar) possui uma sonoridade aberta, indicando expansão. O poema flui como uma caminhada diária e constante.",
+          "profundidade": "A constância na observação (\"Hibi kayou\" - passar diariamente) revela o progresso invisível. A Lei de Deus preenche o mundo gradualmente, tal como o verde cobre o campo, sem deixar espaços vazios.",
+          "translation_source": "human"
         },
         {
           "number": 13,
@@ -151,7 +199,11 @@
           "reading": "Oto tatete / harusame naranu / amaoto ni / kokoro midaruru / himosugara naru",
           "reading_hira": "おとたてて　はるさめならぬあまおとに　こころみだるるひもすがらなる",
           "translation": "Com grande estrondo, não parece chuva de primavera; Ao ouvir este ruído intenso, Meu coração se agita durante todo o dia.",
-          "date": "S11. 3.29"
+          "date": "S11. 3.29",
+          "kigo": "Uma chuva de primavera (Harusame) deveria ser suave. Aqui, ela é barulhenta, antecipando tempestades ou instabilidade, quebrando a serenidade esperada da estação.",
+          "kototama": "\"Oto tatete\" (fazendo barulho) e \"Amaoto\" (som da chuva) criam uma cacofonia que perturba o \"Kokoro\" (coração/mente).",
+          "profundidade": "Reflexo da purificação. Quando o clima (ou o mundo espiritual) está turbulento, o coração humano ressoa essa inquietação. É um aviso de que algo fora da ordem natural está ocorrendo.",
+          "translation_source": "human"
         },
         {
           "number": 14,
@@ -160,7 +212,11 @@
           "reading": "Samidare to / omou bakarini / oto tatsuru / harusame no hi no / uttoushiki kere",
           "reading_hira": "さみだれと　おもうばかりにおとたつる　はるさめのひのうっとうしけれ",
           "translation": "Ressoa forte, como se fosse a chuva da estação das ameixas; Quão melancólico e pesado É este dia de chuva primaveril.",
-          "date": "S11. 3.29"
+          "date": "S11. 3.29",
+          "kigo": "Comparação entre \"Harusame\" (chuva leve de primavera) e \"Samidare\" (chuva persistente e pesada do início do verão/maio). O clima é opressivo (\"uttoushiki\").",
+          "kototama": "\"Uttoushiki\" (melancólico/deprimente) é uma palavra densa, com sons u-o-u que pesam na pronúncia, transmitindo a atmosfera abafada.",
+          "profundidade": "A sensibilidade do poeta capta a \"densidade\" das nuvens espirituais. A chuva pesada fora de época simboliza a limpeza das impurezas espirituais acumuladas, um processo muitas vezes desconfortável.",
+          "translation_source": "human"
         },
         {
           "number": 15,
@@ -169,7 +225,11 @@
           "reading": "Yuzuriha no / midori sugasugashi / asabare no / satsuki no sora no / shita o kugiroi",
           "reading_hira": "ゆずりはの　みどりすがすがしあさばれの　さつきのそらのしたをくぎろい",
           "translation": "O verde da Yuzuriha é puro e refrescante; Sob o céu claro da manhã de Maio, Caminho envolto na bruma radiante.",
-          "date": "S11. 3.29"
+          "date": "S11. 3.29",
+          "kigo": "Maio (\"Satsuki\"). A planta \"Yuzuriha\" (Daphniphyllum) é simbólica porque as folhas novas só crescem depois que as velhas caem (sucessão geracional).",
+          "kototama": "\"Sugasugashi\" (refrescante/límpido) traz um som de sopro de vento (S-G-S), limpando a melancolia dos poemas anteriores.",
+          "profundidade": "A \"Yuzuriha\" simboliza a sucessão da Era da Noite para a Era do Dia. O velho cede lugar ao novo de forma harmoniosa. \"Kugiroi\" (aqui interpretado como caminhar sob ou observar a reverberação da luz) indica imersão nessa nova atmosfera.",
+          "translation_source": "human"
         },
         {
           "number": 16,
@@ -178,7 +238,11 @@
           "reading": "Tanpopo wa / ima sakari nari / shikasugani / haru wa niwabe ni / fukamari ni tsutsu",
           "reading_hira": "たんぽぽは　いまさかりなりしかすがに　はるはにわべにふかまりにつつ",
           "translation": "Os dentes-de-leão estão agora no auge de seu vigor; E assim, de forma inegável, A primavera se aprofunda nos cantos do jardim.",
-          "date": "S11. 3.29"
+          "date": "S11. 3.29",
+          "kigo": "Final da primavera. O \"Tanpopo\" (Dente-de-leão) amarelo cobre o chão, indicando o pico da estação (\"Sakari\").",
+          "kototama": "\"Shikasugani\" (Contudo/Sendo assim/De fato) é uma expressão clássica que conecta a observação floral à sensação de tempo (\"Fukamari\" - aprofundar).",
+          "profundidade": "A natureza não se apressa, mas não para. O florescer total é o prelúdio da maturidade. Espiritualmente, indica que o Plano Divino atingiu um estágio de visibilidade plena e irreversível.",
+          "translation_source": "human"
         }
       ]
     },
@@ -194,7 +258,11 @@
           "reading": "Zenaku o / kimetaru setsuna / shinri chou / mono wa senri no / saki ni nigetaru",
           "reading_hira": "ぜんあくを　きめたるせつなしんりちょう　ものはせんりのさきににげたる",
           "translation": "No exato instante em que se decide o 'Bem' e o 'Mal', Aquilo a que chamamos Verdade Foge para mil léguas de distância.",
-          "date": "S11. 5.15"
+          "date": "S11. 5.15",
+          "kigo": "Sem estação (Poema Filosófico/Doka).",
+          "kototama": "O contraste rápido entre \"Setsuna\" (instante/momento) e \"Senri\" (mil ri/mil léguas) cria uma dinâmica de velocidade. A Verdade é ágil.",
+          "profundidade": "Lição Central de Meishu-Sama: O julgamento dualista humano (isto é bom, aquilo é mau) é limitado e rígido. A Verdade Divina é \"Kannagara\" (como Deus quer), fluida e situacional. Ao rotular rigidamente, perde-se a essência da Vontade de Deus, que transcende a lógica humana.",
+          "translation_source": "human"
         },
         {
           "number": 18,
@@ -203,7 +271,11 @@
           "reading": "Yukishimo o / shinogi shinogite / konohana no / sakuya motarasu / kami no yo no haru",
           "reading_hira": "ゆきしもを　しのぎしのぎてこのはなの　さくやもたらすかみのよのはる",
           "translation": "Suportando e superando a neve e a geada, O desabrochar da Flor Preciosa Traz consigo a Primavera da Era de Deus.",
-          "date": "S11. 5.15"
+          "date": "S11. 5.15",
+          "kigo": "Transição do inverno rigoroso (Yuki/Shimo) para a Primavera Suprema.",
+          "kototama": "\"Shinogi shinogite\" (suportando e suportando) enfatiza a resiliência e a dor da espera. \"Sakuya\" evoca a Deusa \"Konohana Sakuya Hime\" (Princesa do Florescer das Árvores), divindade do Fuji.",
+          "profundidade": "A \"Flor\" (Konohana) refere-se tanto à Deusa do Fuji quanto à concretização da fé. Só após resistir às provações rigorosas (Inverno Espiritual) é que a verdadeira beleza da Era Divina (Primavera) pode se manifestar.",
+          "translation_source": "human"
         },
         {
           "number": 19,
@@ -212,7 +284,11 @@
           "reading": "Tokoharu no / higan haroka ni / miyuru nari / oshie no mifune ni / susumi yuku mi wa",
           "reading_hira": "とこはるの　ひがんはろかにみゆるなり　おしえのみふねにすすみゆくみは",
           "translation": "A margem distante da Eterna Primavera já se avista; Pois sigo avançando, seguro, A bordo da Nau Sagrada dos Ensinamentos.",
-          "date": "S11. 5.15"
+          "date": "S11. 5.15",
+          "kigo": "\"Tokoharu\" (Eterna Primavera) é o clima do Paraíso Terrestre, onde não há inverno nem sofrimento.",
+          "kototama": "\"Mifune\" (Nau Sagrada) traz solenidade. O ritmo é de uma navegação constante e segura (\"Susumi yuku\").",
+          "profundidade": "A travessia do \"Mar do Sofrimento\" (Samsara) para o \"Higan\" (Outra Margem/Paraíso) não é feita a nado (esforço próprio), mas através da \"Nau\" (A Fé/Instituição/Ensinamentos). A certeza da chegada vem da visualização da meta.",
+          "translation_source": "human"
         },
         {
           "number": 20,
@@ -221,7 +297,11 @@
           "reading": "Ichirin no / shigumi wa ura no / mata ura no / sono mata ura no / ura no ura nari",
           "reading_hira": "いちりんの　しぐみはうらのまたうらの　そのまたうらのうらのうらなり",
           "translation": "O Mecanismo de Um Rin é o avesso do avesso, E ainda o avesso desse avesso... É o profundo mistério oculto no último avesso.",
-          "date": "S11. 5.15"
+          "date": "S11. 5.15",
+          "kigo": "Sem estação (Poema Místico/Profético).",
+          "kototama": "A repetição hipnótica de \"Ura\" (avesso/costas/lado oculto) cria uma espiral descendente em direção ao mistério. É como descascar camadas infinitas.",
+          "profundidade": "Refere-se ao \"Ichirin no Shigumi\" (Mecanismo do 1% final / Toque Divino). O plano de Deus é incompreensível para a lógica humana. Quando achamos que entendemos (o avesso), Deus revela que a verdade está ainda mais profunda (o avesso do avesso). É a estratégia divina para vencer o mal, escondendo a Luz Verdadeira até o último segundo.",
+          "translation_source": "human"
         }
       ]
     },
@@ -237,7 +317,11 @@
           "reading": "Tokotowa ni / daiametsuchi no / sakayuru wa / moro no ugoki no / kurui nakereba",
           "reading_hira": "とことはに　おおあめつちのさかゆるは　もものうごきのくるいなければ",
           "translation": "Eternamente, o vasto Universo prospera e floresce; Pois em seus infinitos movimentos, Não existe um único desvio, nem loucura.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Sem estação definida (Atemporal). O foco é a \"Daiametsuchi\" (Grande Natureza/Universo) que opera em um ciclo perene e perfeito.",
+          "kototama": "O contraste entre \"Sakayuru\" (prosperar/florescer - som aberto e ascendente) e \"Kurui\" (loucura/desordem - som fechado e retorcido) destaca a mensagem: a prosperidade é fruto da ordem.",
+          "profundidade": "O Universo (Macrocosmo) segue a Lei Divina sem resistência, por isso é eterno. O sofrimento humano surge porque o ser humano possui o \"livre-arbítrio\" para gerar o \"Kurui\" (desordem/desarmonia) contra a Lei. A cura é reentrar no ritmo natural.",
+          "translation_source": "human"
         },
         {
           "number": 22,
@@ -246,7 +330,11 @@
           "reading": "Itoyasuki / kami no mamichi o / yoso ni shite / nayamitsuzukuru / hito no orokasa",
           "reading_hira": "いとやすき　かみのまみちをよそにして　なやみつづくるひとのおろかさ",
           "translation": "Tão simples e fácil é o Verdadeiro Caminho de Deus; Contudo, ignorando-o, o ser humano Persiste em sofrer — quão tola é sua ilusão.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Atmosfera psicológica. O \"clima\" é o peso desnecessário que a humanidade carrega.",
+          "kototama": "\"Itoyasuki\" (muito fácil/simples) tem uma leveza fonética. Já \"Nayamitsuzukuru\" (continuar sofrendo) é longo, repetitivo e cansativo de pronunciar, mimetizando o ciclo vicioso do sofrimento.",
+          "profundidade": "A Verdade é simples (Verdade \\= Bem \\= Belo). Quando a religião ou a vida se tornam excessivamente complexas, rígidas ou dolorosas, é sinal de afastamento da \"Mamichi\" (Vereda Verdadeira). O sofrimento é, muitas vezes, autoimposto pela complicação mental.",
+          "translation_source": "human"
         },
         {
           "number": 23,
@@ -255,7 +343,11 @@
           "reading": "Tsutsuganaku / hitohi no waza o / nashioete / kaereba tanoshiku / saishi machiori",
           "reading_hira": "つつがなく　ひとひのわざをなしおえて　かえればたのしくさいしまちおり",
           "translation": "Sem infortúnios, cumpro a missão do dia; Ao regressar, encontro a alegria: Minha esposa e filhos esperam por mim.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Cenário de fim de tarde/crepúsculo. O sentimento de \"Tsutsuganaku\" (são e salvo/sem doença) traz a paz do dever cumprido.",
+          "kototama": "O poema flui suavemente até \"Machiori\" (estão esperando), transmitindo o calor humano e a estabilidade do lar.",
+          "profundidade": "A espiritualidade de Meishu-Sama não é ascética (fuga do mundo), mas \"vida cotidiana\". A verdadeira fé se manifesta na harmonia do lar e na gratidão por um dia de trabalho honesto e seguro.",
+          "translation_source": "human"
         },
         {
           "number": 24,
@@ -264,7 +356,11 @@
           "reading": "Ametsuchi ni / hajinu akaruki / tanoshimi o / tanoshimu hito koso / shiawasebito naru",
           "reading_hira": "あめつちに　はじぬあかるきたのしみを　たのしむひとこそしあわせびとなる",
           "translation": "Desfrutar de um prazer luminoso e límpido, Do qual não se envergonha perante o Céu e a Terra; Esse, em verdade, é o ser humano feliz.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "A \"Luz\" aqui é moral. \"Akaruki\" (claro/brilhante) refere-se à transparência da consciência.",
+          "kototama": "A repetição de \"Tanoshimi/Tanoshimu\" reforça a importância do prazer. A palavra \"Shiawasebito\" (Pessoa Feliz) soa como uma definição final e absoluta.",
+          "profundidade": "Definição de Ética Mokitiokadiana: O prazer não é pecado, desde que não cause sombra (culpa/vergonha) na consciência. Se você pode expor sua alegria à luz do sol e aos olhos de Deus sem medo, isso é felicidade real. O prazer secreto ou culposo gera \"nuvens\".",
+          "translation_source": "human"
         },
         {
           "number": 25,
@@ -273,7 +369,11 @@
           "reading": "Mutsumashiku / saishi to katarai / yuuge suru / koyonaki tanoshisa / aru yo narikeri",
           "reading_hira": "むつましく　さいしとかたらいゆうげする　こよなきたのしさあるよなりけり",
           "translation": "Conversar harmoniosamente com a esposa e os filhos, Enquanto partilhamos o jantar... Descobri que neste mundo existe, sim, alegria suprema.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "A cena é interna, noturna (\"Yuuge\" - refeição da noite). O clima é de calor humano.",
+          "kototama": "\"Mutsumashiku\" (harmoniosamente/intimamente) tem sons macios (M-Ts-M). \"Koyonaki\" (sem igual/supremo) eleva uma cena banal à categoria de sagrado.",
+          "profundidade": "Meishu-Sama eleva a \"Mesa de Jantar\" ao status de altar. O Paraíso Terrestre começa na mesa de refeições da família. Se há discórdia no jantar, não há paz no mundo.",
+          "translation_source": "human"
         },
         {
           "number": 26,
@@ -282,7 +382,11 @@
           "reading": "Koumyou no / kagayaku michi e / nemogoro ni / michibiki tamou / kanzeon kamo",
           "reading_hira": "こうみょうの　かがやくみちへねもごろに　みちびきたもうかんぜおんかも",
           "translation": "Para a estrada onde a Luz resplandece, Com zelo e infinita bondade, É Kannon quem nos guia pela mão.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Imagem de radiação espiritual.",
+          "kototama": "\"Nemogoro ni\" (cortesmente/zelosamente/calorosamente) é uma palavra antiga cheia de afeto. \"Kanzeon\" (Kannon) soa como um sino de templo, profundo e ressonante.",
+          "profundidade": "A salvação não é conquistada apenas pelo esforço humano, mas pela \"Tariki\" (Poder do Outro/Graça). Kannon (A Misericórdia Divina) trabalha ativamente para puxar a humanidade das trevas para a Luz, não pela força, mas pelo \"zelo\" (amor).",
+          "translation_source": "human"
         },
         {
           "number": 27,
@@ -291,7 +395,11 @@
           "reading": "Kagirinaku / sakaeyukuran / kannongyou wa / kami no sadameshi / mamichi ni ariseba",
           "reading_hira": "かぎりなく　さかえゆくらんかんのんぎょうは　かみのさだめしまみちにありせば",
           "translation": "Sem limites, há de prosperar eternamente A Prática de Kannon (Prática do Amor), Pois ela reside na Verdadeira Vereda traçada por Deus.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Atemporal.",
+          "kototama": "\"Sakaeyukuran\" (há de prosperar/continuará prosperando) projeta o som para o futuro infinito. \"Kannongyou\" é a ação prática da misericórdia.",
+          "profundidade": "Por que a fé messiânica se expande? Não por marketing, mas porque está alinhada com a \"Lei da Evolução\" do Universo (Vontade de Deus). Tudo que segue o fluxo do Universo recebe a energia infinita da natureza para crescer.",
+          "translation_source": "human"
         },
         {
           "number": 28,
@@ -300,7 +408,11 @@
           "reading": "Hito to shite / fumubeki michi to / tsutomubeki / waza to shi aru nari / yume na kurui so",
           "reading_hira": "ひととして　ふむべきみちとつとむべき　わざとしあるなりゆめなくるいそ",
           "translation": "Como ser humano, há um caminho a trilhar E um dever a cumprir; isso é a existência. Jamais te desvies, nem mesmo em sonhos.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Tom de advertência solene.",
+          "kototama": "O uso imperativo antigo \"Na ... so\" (Não faça...) em \"Yume na kurui so\" (Não enlouqueça/Não se desvie nem em sonho) é poderoso e corta a ilusão. \"Fumubeki\" (deve pisar/trilhar) indica firmeza.",
+          "profundidade": "O ser humano não é livre para fazer \"qualquer coisa\". Existe um Dharma (Dever/Caminho). A \"loucura\" (Kurui) é tentar viver fora desse design divino. O aviso para não se desviar \"nem em sonhos\" indica que a vigilância deve ser também no subconsciente.",
+          "translation_source": "human"
         },
         {
           "number": 29,
@@ -309,7 +421,11 @@
           "reading": "Yoki koto o / kasane akaruku / hi o okuru / hito wa hatenaku / sakaeyuku nari",
           "reading_hira": "よきことを　かさねあかるくひをおくる　ひとははてなくさかえゆくなり",
           "translation": "Empilhando boas ações, uma sobre a outra, E vivendo dias luminosos, Tal pessoa prosperará sem fim.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "A imagem é de construção (\"Kasane\" - empilhar camadas). O clima é de claridade constante (\"Akaruku\").",
+          "kototama": "A estrutura rítmica é ascendente. Começa com a ação simples (\"Yoki koto\") e termina na expansão infinita (\"Hatenaku sakaeyuku\").",
+          "profundidade": "A Lei de Causa e Efeito (Karma) explicada de forma simples. A prosperidade não é sorte, é acúmulo. Assim como se constrói um muro tijolo por tijolo, constrói-se o destino \"empilhando\" pequenas boas ações diárias.",
+          "translation_source": "human"
         },
         {
           "number": 30,
@@ -318,7 +434,11 @@
           "reading": "Yasurakeku / tanoshiku ikuru / hito no yo to / su no ookami wa / tsukurareshi naru",
           "reading_hira": "やすらけく　たのしくいくるひとのよと　すのおおかみはつくられしなる",
           "translation": "Para que vivêssemos em paz e alegria, Foi com este propósito que o Senhor Deus Criou o mundo dos homens.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Gênese. O estado original e final do mundo.",
+          "kototama": "\"Yasurakeku\" (pacificamente) suaviza a alma. \"Su no Ookami\" (Deus Senhor/Supremo) traz o peso da autoridade divina confirmando a tese.",
+          "profundidade": "Refutação fundamental do pessimismo religioso que vê o mundo como um lugar de expiação ou sofrimento necessário. Para Meishu-Sama, o sofrimento é um erro de percurso, não o objetivo. O \"Projeto Original\" é a alegria e a paz. Voltar a isso é a missão.",
+          "translation_source": "human"
         },
         {
           "number": 31,
@@ -327,7 +447,11 @@
           "reading": "Me ni mienu / muge no koumyou / makubaritsu / yo o kiyomemasu / uzu no mihotoke",
           "reading_hira": "めにみえぬ　むげのこうみょうまくばりつ　よをきよめますうづのみほとけ",
           "translation": "Aos olhos invisível, a Luz Sem Limites Espalha-se por todas as frestas, Purificando o mundo: eis o Precioso Buda.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Atmosfera etérea. A luz não é solar, é espiritual, penetrando a matéria (\"makubaritsu\" - distribuindo-se pelos espaços).",
+          "kototama": "\"Muge\" (Sem obstáculos) é um termo budista com som grave. \"Uzu\" (precioso/raro) é uma palavra arcaica e carinhosa para definir a divindade (Mihotoke).",
+          "profundidade": "A \"Luz Muge\" é aquela que nada pode bloquear; atravessa paredes e almas. O \"Uzu no Mihotoke\" refere-se à manifestação divina que realiza a limpeza (Jorei) do mundo, invisível aos olhos físicos, mas tangível nos efeitos.",
+          "translation_source": "human"
         },
         {
           "number": 32,
@@ -336,7 +460,11 @@
           "reading": "Ito takaki / kami no megumau / uchie koso / koyonaki hito no / chikara narikeri",
           "reading_hira": "いとたかき　かみのめぐもうちえこそは　こよなきひとのちからなりけり",
           "translation": "A Sabedoria concedida pelo Deus Altíssimo É, de todas as forças, A maior potência que o ser humano pode possuir.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "A \"altura\" (Ito takaki) sugere um céu límpido e elevado de onde desce a inspiração.",
+          "kototama": "\"Uchie\" (Sabedoria Interior/Divina) contrasta com \"Chie\" (conhecimento humano). O som \"U\" inicial interioriza o poder.",
+          "profundidade": "A verdadeira força não é muscular, bélica ou financeira. É a \"Sabedoria Divina\" (Uchie). Com ela, resolvem-se problemas insolúveis. Sem ela, a força bruta gera apenas mais problemas.",
+          "translation_source": "human"
         },
         {
           "number": 33,
@@ -345,7 +473,11 @@
           "reading": "Konkon to / izumi no gotoku / wakiizuru / myouchi o tamou / kannon kashikoshi",
           "reading_hira": "こんこんと　いずみのごとくわきいづる　みょうちをたまうかんのんかしこし",
           "translation": "Jorrando copiosamente, como fonte inesgotável, Brota a Maravilhosa Sabedoria; Quão reverente é a graça de Kannon!",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "A imagem da água jorrando (\"Konkon\") traz frescor e vitalidade.",
+          "kototama": "\"Konkon\" é uma onomatopeia forte para o fluxo abundante de água. \"Kashikoshi\" (Reverente/Temível em majestade) encerra o poema com uma prostração de gratidão.",
+          "profundidade": "Kannon é a fonte da \"Myouchi\" (Sabedoria Misteriosa/Maravilhosa). Diferente do conhecimento acadêmico que se acumula com esforço, essa sabedoria \"brota\" espontaneamente quando se está conectado à Fonte.",
+          "translation_source": "human"
         },
         {
           "number": 34,
@@ -354,7 +486,11 @@
           "reading": "Ametsuchi to / muda hate mo naku / sakayuru wa / kannongyou no / michi ni zo arikeru",
           "reading_hira": "あめつちと　むだはてもなくさかゆるは　かんのんぎょうのみちにぞありける",
           "translation": "Junto com o Céu e a Terra, prosperar sem desperdícios, Em uma expansão sem fim... Tal é o fruto de quem trilha a Prática de Kannon.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Expansão cósmica.",
+          "kototama": "\"Muda hate mo naku\" (Sem desperdício e sem fim). A frase flui sem pausas bruscas, mimetizando a continuidade da prosperidade.",
+          "profundidade": "O conceito de \"Muda\" (desperdício) é central. O Universo não desperdiça nada. O sofrimento é um desperdício de energia. A \"Prática de Kannon\" alinha o homem à eficiência do Universo, gerando prosperidade natural e sustentável.",
+          "translation_source": "human"
         }
       ]
     },
@@ -370,7 +506,11 @@
           "reading": "Shirayuki o / katsugu fujigane / sugashiku mo / utsusu tamagawa / matanaku yoroshi mo",
           "reading_hira": "しらゆきを　かつぐふじがねすがしくも　うつすたまがわまたなくよろしも",
           "translation": "Carregando o manto de neve branca, o Pico do Fuji Reflete-se, límpido e puro, Nas águas do Rio Tamagawa — visão sem igual!",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Inverno ou Início da Primavera (pela neve). O ar é \"Sugashiku\" (refrescante/sagrado).",
+          "kototama": "A aliteração em \"S\" (Shirayuki, Sugashiku) e a fluidez de \"Tamagawa\" criam um som de água corrente cristalina.",
+          "profundidade": "A união da Montanha (Fogo/Espírito) e do Rio (Água/Matéria). O Rio Tamagawa (Água da Joia) refletindo o Fuji (Montanha Divina) simboliza a união perfeita entre Céu e Terra, a base da filosofia de \"Mokichi Okada\" (Yama to Mizu).",
+          "translation_source": "human"
         },
         {
           "number": 36,
@@ -379,7 +519,11 @@
           "reading": "Fujigane o / haroka ni nagame / tamagawa no / kiyoki nagare o / natsukashimu sato",
           "reading_hira": "ふじがねを　はろかにながめたまがわの　きよきながれをなつかしむさと",
           "translation": "Contemplando ao longe o Pico do Fuji, E o fluir cristalino do Rio Tamagawa... Ah, esta é a vila que minha alma ama e recorda.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Paisagem aberta e clara.",
+          "kototama": "\"Natsukashimu\" (sentir saudade/afeição) traz um tom emocional profundo. Não é apenas uma paisagem, é um \"Lar Espiritual\".",
+          "profundidade": "A \"Vila Tamagawa\" representa o local onde a Obra Divina se enraizou antes da expansão. A conexão com a natureza pura é essencial para purificar a mente do líder espiritual.",
+          "translation_source": "human"
         },
         {
           "number": 37,
@@ -388,7 +532,11 @@
           "reading": "Tsuki yuki ni / hana ni tori no ne / mushi no koe / akanu nagame no / tamagawa no sato",
           "reading_hira": "つきゆきに　はなにとりのねむしのこえ　あかぬながめのたまがわのさと",
           "translation": "Lua e Neve, Flores, o canto dos pássaros e a voz dos insetos; Uma paisagem da qual jamais me canso: Eis a Vila Tamagawa.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "\"Tsuki-Yuki-Hana\" (Lua, Neve, Flor) é a tríade clássica da estética japonesa (Settsugekka), abrangendo todas as estações (Outono, Inverno, Primavera).",
+          "kototama": "O poema é uma lista rítmica de belezas. O ritmo é rápido, acumulando imagens sensoriais.",
+          "profundidade": "A apreciação do \"Belo\" (Bi) é uma forma de oração. Deus se manifesta na variedade da natureza. Quem não se cansa (\"Akanu\") de observar a natureza está em constante comunhão com o Criador.",
+          "translation_source": "human"
         },
         {
           "number": 38,
@@ -397,7 +545,11 @@
           "reading": "Daikoumyou / nyorai konodo ni / amorinaba / amegashita niwa / sayaru maga nashi",
           "reading_hira": "だいこうみょう　にょらいこのどにあもりなば　あめがしたにはさやるまがなし",
           "translation": "Se o Grande Tathagata da Luz Descer finalmente a esta Terra, Sob os céus, mal algum poderá obstruir o Caminho.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Evento sobrenatural. A \"descida\" implica uma verticalidade de Luz.",
+          "kototama": "\"Daikoumyou Nyorai\" (O Buda da Grande Luz) possui peso mântrico. \"Amorinaba\" (Se descer do céu) é arcaico e solene. \"Maga\" (Mal/Distorção) é cortado pela negação \"Nashi\".",
+          "profundidade": "Identificação Messiânica. Meishu-Sama revela a chegada de uma entidade solar (Daikoumyou) à Terra (\"Konodo\"). A promessa é absoluta: com essa presença física na Terra, as forças negativas (\"Maga\") perdem a capacidade de bloquear (\"Sayaru\") a evolução.",
+          "translation_source": "human"
         },
         {
           "number": 39,
@@ -406,7 +558,11 @@
           "reading": "Sumitsukite / shiki no nagame ni / koto kakaji / kami no sadameshi / sono ni shi areba",
           "reading_hira": "すみつきて　しきのながめにことかかじ　かみのさだめしそのにしあれば",
           "translation": "Aqui me estabeleço, e nada falta à vista das quatro estações; Pois este é, verdadeiramente, O Jardim predestinado pelo próprio Deus.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Ciclo completo das quatro estações (\"Shiki\").",
+          "kototama": "\"Koto kakaji\" (Nada falta/Não há carência) expressa plenitude. \"Sadameshi\" (Destinado/Decidido) confirma a missão do local.",
+          "profundidade": "Não é o homem que escolhe a Terra Sagrada, é Deus quem a determina. Quando se está no \"lugar certo\" (Topos Divino), a natureza coopera e oferece beleza o ano todo.",
+          "translation_source": "human"
         },
         {
           "number": 40,
@@ -415,7 +571,11 @@
           "reading": "Michinobe ni / saku hana ni sae / sadame ari / toko ni ikeraru / mono mo ariseba",
           "reading_hira": "みちのべに　さくはなにさえさだめあり　とこにいけらるものもありせば",
           "translation": "Até mesmo a flor que desabrocha à beira da estrada tem seu destino; Pois há aquelas escolhidas Para serem vivificadas no vaso da alcova nobre.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Contraste entre o \"fora\" (estrada poeirenta) e o \"dentro\" (Tokonoma sagrado).",
+          "kototama": "\"Sadame\" (Destino) é a palavra central. \"Ikeraru\" (ser vivificada/arranjada) refere-se à Ikebana.",
+          "profundidade": "Uma lição sobre eleição e missão. Muitas flores nascem, mas algumas são colhidas por Deus (o Mestre da Ikebana) para uma missão elevada. Não é mérito da flor, é escolha do Mestre. Mas mesmo a flor na estrada cumpre seu papel.",
+          "translation_source": "human"
         },
         {
           "number": 41,
@@ -424,7 +584,11 @@
           "reading": "Hana chiredo / mi wa minoruran / ametsuchi wa / sakae hatenaki / mono ni shi areba",
           "reading_hira": "はなちれど　みはみのるらんあめつちは　さかえはてなきものにしあれば",
           "translation": "Embora as flores caiam, os frutos hão de amadurecer; Pois o Céu e a Terra são entidades De prosperidade eterna e inesgotável.",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Passagem da Primavera (Flor) para o Outono (Fruto).",
+          "kototama": "\"Minoruran\" (Hão de frutificar) soa como uma promessa.",
+          "profundidade": "Consolo para a impermanência. A morte (queda da flor) não é o fim, é pré-requisito para o fruto (resultado). A \"Grande Natureza\" nunca entra em falência; ela sempre reinveste a vida.",
+          "translation_source": "human"
         },
         {
           "number": 42,
@@ -433,7 +597,11 @@
           "reading": "Konjiki no / hikari mabayuku / kagayaite / kumo yori kudaru / meshiya kannon",
           "reading_hira": "こんじきの　ひかりまばゆくかがやいて　くもよりくだるめしやかんのん",
           "translation": "Banhado em Luz Dourada, de brilho ofuscante, Resplandecendo gloriosamente... Das nuvens desce: o Messias Kannon!",
-          "date": "S11. 5.**"
+          "date": "S11. 5.**",
+          "kigo": "Apoteose Celestial. Luz \"Konjiki\" (Dourada) é a cor da mais alta vibração espiritual.",
+          "kototama": "O ritmo acelera com \"Mabayuku\" (ofuscante) e culmina no nome composto \"Meshiya Kannon\". A fusão fonética Ocidente (Meshiya) \\+ Oriente (Kannon) é o clímax do poema.",
+          "profundidade": "A revelação suprema do sincretismo de Meishu-Sama. Kannon (Buda da Misericórdia do Oriente) e o Messias (Salvador do Ocidente) são a mesma entidade ou função cósmica. A descida das nuvens (imagem cristã/budista amidaísta) marca a chegada da Era da Salvação Universal.",
+          "translation_source": "human"
         },
         {
           "number": 43,
@@ -442,7 +610,11 @@
           "reading": "Naga manako / meshii ni ariya / naga mimi wa / kikurage nariya / michi kirau to wa",
           "reading_hira": "ながまなこ　めしいにありやながみみは　きくらげなりやみちきらうとは",
           "translation": "Serão teus olhos cegos? Serão tuas ouvidos meros fungos de orelha-de-pau? Para que possas, assim, odiar o Caminho da Verdade...",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Sem estação, mas com metáfora biológica.",
+          "kototama": "O uso de \"Kikurage\" (Fungo Orelha-de-Pau) é um trocadilho mordaz. *Kikurage* soa como \"Ouvido\" (*Mimi*), tem formato de ouvido, mas não ouve. A repetição \"Naga... naga...\" (Teu... teu...) é acusatória.",
+          "profundidade": "Uma crítica severa ao materialismo. Quem rejeita a Verdade (\"Michi\") não o faz por inteligência, mas por deficiência sensorial espiritual. Ter ouvidos físicos mas não ouvir a Voz de Deus é ser como um fungo: matéria sem espírito.",
+          "translation_source": "human"
         }
       ]
     },
@@ -458,7 +630,11 @@
           "reading": "Yoki koto o / ashi to miraruru / yo ni arite / nani o kasenya / futokoro-de sumo",
           "reading_hira": "よきことを　あしとみらるるよにありて　なにをかせんやふところですも",
           "translation": "Neste mundo onde o Bem é visto como Mal, Que se pode fazer? Resta-me apenas cruzar os braços e observar.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Inverno social. \"Futokoro-de\" (mãos dentro das mangas do quimono) é uma postura de quem se aquece e se recusa a agir.",
+          "kototama": "A frase \"Ashi to miraruru\" (ser visto como mal) soa passiva e resignada.",
+          "profundidade": "Refere-se à perseguição religiosa e à incompreensão das autoridades da época. Quando a sociedade está tão invertida que pune a bondade (cura/salvação), a Ação Divina entra em pausa (\"Mãos nas mangas\") até que o Karma coletivo amadureça. O \"não-agir\" aqui é estratégico.",
+          "translation_source": "human"
         },
         {
           "number": 45,
@@ -467,7 +643,11 @@
           "reading": "Yo no tame ni / tsukusu mabito wa / itsu no yo mo / ibara no michi o / kuguru mono niya",
           "reading_hira": "よのために　つくすまびとはいつのよも　いばらのみちをくぐるものにや",
           "translation": "O Homem Verdadeiro que se dedica ao bem do mundo, Em qualquer era que seja, Parece fadado a cruzar veredas de espinhos.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "A imagem dos \"espinhos\" (Ibara) evoca dor e dificuldade no caminho.",
+          "kototama": "\"Mabito\" (Homem Verdadeiro/Santo) contrasta com \"Ibara\" (Espinho). O verbo \"Kuguru\" (passar por baixo/atravessar com dificuldade) indica a humildade necessária.",
+          "profundidade": "O arquétipo do Mártir e do Pioneiro. A Luz incomoda as Trevas. Por isso, quem traz a Luz é inicialmente atacado. Meishu-Sama aceita que o sofrimento não é punição, mas o preço da vanguarda espiritual.",
+          "translation_source": "human"
         },
         {
           "number": 46,
@@ -476,7 +656,11 @@
           "reading": "Sakashira no / yo no tsuzuka meya / mihikari no / kagayaki somureba / tadasaru naran",
           "reading_hira": "さかしらの　よのつづかめやみひかりの　かがやきそむればたださるならん",
           "translation": "Poderá durar este mundo de lógica invertida? Jamais! Quando a Sagrada Luz começar a brilhar, Tudo será retificado e posto em ordem.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Alvorada da Justiça.",
+          "kototama": "\"Sakashira\" (Esperteza superficial/Arrogância intelectual) é uma palavra chave. \"Tadasaru\" (ser corrigido) tem som firme e definitivo.",
+          "profundidade": "\"Sakashira\" define a cultura materialista moderna: inteligente na forma, mas errada na essência. Meishu-Sama profetiza que essa estrutura é insustentável e colapsará automaticamente (\"Tadasaru\") perante a Luz da Era do Dia.",
+          "translation_source": "human"
         },
         {
           "number": 47,
@@ -485,7 +669,11 @@
           "reading": "Yo no owari / chikamu kehai no / hishihishi to / mi ni semaru nari / yobito mezameyo",
           "reading_hira": "よのおわり　ちかむけはいのひしひしと　みにせまるなりよびとめざめよ",
           "translation": "Os sinais do Fim dos Tempos aproximam-se; Sinto a pressão intensa a esmagar-me a carne... Despertai, ó povo do mundo!",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Clima de tempestade iminente e opressão atmosférica.",
+          "kototama": "\"Hishihishi\" (Hishi-Hishi) é uma onomatopeia poderosa que descreve algo apertando, pressionando ou aproximando-se inexoravelmente. Transmite urgência física.",
+          "profundidade": "Meishu-Sama, como um sismógrafo espiritual, sente as vibrações da destruição antes que elas ocorram. O \"Fim dos Tempos\" aqui é o fim da Era da Noite. O apelo \"Despertai\" é um grito de misericórdia antes da limpeza (Juízo).",
+          "translation_source": "human"
         },
         {
           "number": 48,
@@ -494,7 +682,11 @@
           "reading": "Ikanaran / itatsuki totemo / iyasu sube / motedo hodokosu / yoshi naki yo ni moya",
           "reading_hira": "いかならん　いたつきとてもいやすすべ　もてどほどこすよしなきよにもや",
           "translation": "Por mais grave que seja a enfermidade, possuo a arte de curá-la; Contudo, vivo num mundo Onde não há meios de aplicá-la livremente.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Estagnação e bloqueio.",
+          "kototama": "A repetição de sons \"O\" em \"Motedo hodokosu\" cria um ritmo de lamento contido.",
+          "profundidade": "O dilema do Salvador. Ter o Poder (Johrei) mas ser impedido pela Lei dos Homens (Lei dos Médicos, restrições religiosas da época). Mostra a dor de ver o sofrimento alheio e ter as mãos atadas pela ignorância legalista.",
+          "translation_source": "human"
         },
         {
           "number": 49,
@@ -503,7 +695,11 @@
           "reading": "Kushibinaru / waga sadame kamo / kamihotoke / hito ka arazu ka / toku yoshi mo naki",
           "reading_hira": "くしびなる　わがさだめかもかみほとけ　ひとかあらずかとくよしもなき",
           "translation": "Misterioso e estranho é o meu destino... Serei Deus? Buda? Ou serei homem? Não há como explicar.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Névoa de mistério.",
+          "kototama": "\"Kushibinaru\" (Misterioso/Bizarro/Místico) abre o poema com um tom sobrenatural. A dúvida \"Ka... Ka...\" (Serei isto? Ou aquilo?) reflete a complexidade de sua própria natureza.",
+          "profundidade": "A natureza do Messias não é fixa. Ele é \"Keshin\" (Avatar). A depender da necessidade, manifesta-se como humano falho ou como divindade suprema. Nem ele mesmo se define rigidamente, pois a divindade é fluida.",
+          "translation_source": "human"
         },
         {
           "number": 50,
@@ -512,7 +708,11 @@
           "reading": "Kirisuto mo / Shaka mo futatabi / umarekoyo / nare to ware to no / chikara tamesan",
           "reading_hira": "きりすとも　しゃかもふたたびうまれこよ　なれとわれとのちからためさん",
           "translation": "Ó Cristo, ó Buda Shakyamuni, renascei mais uma vez! Pois desejo testar a vossa força Em comparação com a minha.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Confronto de Titãs. Trovões no céu.",
+          "kototama": "Imperativo forte: \"Umarekoyo\" (Nasçam! Venham!). \"Chikara tamesan\" (Testemos força) é audacioso.",
+          "profundidade": "Não é arrogância egóica, mas uma afirmação da Hierarquia das Eras. Cristo e Buda foram mestres da Era da Noite (Lua). Meishu-Sama representa a Era do Dia (Sol). A luz do Sol é, por lei física e espiritual, infinitamente mais potente que a da Lua. É a prova de que a \"Hora\" mudou.",
+          "translation_source": "human"
         },
         {
           "number": 51,
@@ -521,7 +721,11 @@
           "reading": "Aru toki wa / bosatsu tomo nari / aru toki wa / nyorai tomo nari / yobito sukuwan",
           "reading_hira": "あるときは　ぼさつともなりあるときは　にょらいともなりよびとすくわん",
           "translation": "Por vezes torno-me Bodhisattva; Outras vezes, manifesto-me como Tathagata; Tudo para salvar o povo do mundo.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Mudança de formas, como nuvens no céu.",
+          "kototama": "A estrutura paralela \"Aru toki wa... Aru toki wa...\" demonstra o equilíbrio e a facilidade de transmutação (\"Hengen Jizai\").",
+          "profundidade": "Continuação do poema 49. Bodhisattva (Bussatsu) é aquele que serve e busca iluminação. Tathagata (Nyorai) é aquele que já atingiu a Verdade Suprema. Meishu-Sama atua em ambos os níveis: ora servindo humildemente, ora emanando Luz absoluta, adaptando-se à capacidade de compreensão de quem recebe a salvação.",
+          "translation_source": "human"
         },
         {
           "number": 52,
@@ -530,7 +734,11 @@
           "reading": "Choujin no / chikara kakushite / susamiyuku / kono utsushiyo o / shizuka ni mimamoru",
           "reading_hira": "ちょうじんの　ちからかくしてすさみゆく　このうつしよをしずかにみまもる",
           "translation": "Ocultando meus poderes sobre-humanos, Observo e protejo, em silêncio, Este mundo que se torna cada vez mais selvagem.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "O mundo está \"Susami\" (áspero, tempestuoso, em ruínas), mas o observador está \"Shizuka\" (silencioso/calmo). O olho do furacão.",
+          "kototama": "\"Mimamoru\" (Observar protegendo/Vigiar) transmite um amor paternal, mas distante.",
+          "profundidade": "O Poder de Deus não intervém no livre-arbítrio de forma imprudente. Mesmo tendo a força para parar o caos (Guerra Mundial), Ele \"esconde a força\" e deixa o Karma humano se desenrolar até o ponto de saturação, protegendo apenas o essencial (as sementes da nova era).",
+          "translation_source": "human"
         },
         {
           "number": 53,
@@ -539,7 +747,11 @@
           "reading": "Atarashiki / yo zo uman to shi / kuni nayami / hito wa aegite / tsukuru o shirazu",
           "reading_hira": "あたらしき　よぞうまんとしくになやみ　ひとはあえぎてつくるをしらず",
           "translation": "Um Novo Mundo está prestes a nascer! Por isso as nações agonizam e o povo ofega, Sem saber que o velho tempo se esgota.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Clima de parto (dor e contração). Não é uma estação climática, mas uma estação cósmica: a transição dolorosa.",
+          "kototama": "\"Aegite\" (ofegando/arquejando) transmite o som da falta de ar, do sufoco. \"Tsukuru\" (esgotar/terminar) marca o fim definitivo da energia da era antiga.",
+          "profundidade": "O sofrimento da guerra e da doença não é castigo aleatório, é \"Omi-no-Kurushimi\" (Dores do Parto). O mundo antigo precisa morrer (esgotar-se) para que o novo nasça. A ignorância desse fato gera o desespero (\"sem saber\").",
+          "translation_source": "human"
         },
         {
           "number": 54,
@@ -548,7 +760,11 @@
           "reading": "Yo no owari / kitaran to shite / misukui no / hikari wa shizuka ni / nobori somekeru",
           "reading_hira": "よのおわり　きたらんとしてみすくいの　ひかりはしずかにのぼりそめけり",
           "translation": "Quando o Fim dos Tempos estava para chegar, A Luz da Sagrada Salvação, Silenciosa e solene, começou a ascender.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "O contraste entre o caos ruidoso do \"Fim\" e o silêncio (\"Shizuka\") da Luz ascendente.",
+          "kototama": "O poema flui de uma tensão inicial (\"Kitaran to shite\") para uma resolução suave e contínua (\"Nobori somekeru\").",
+          "profundidade": "Deus não espera o colapso total para agir. Simultaneamente à chegada do Juízo, Ele providencia a Salvação. A Luz sobe \"silenciosamente\" porque no início é imperceptível para a massa, visível apenas para os despertos.",
+          "translation_source": "human"
         },
         {
           "number": 55,
@@ -557,7 +773,11 @@
           "reading": "Hitobito wa / iro o ushinai / mono wa kotogotoku / horobin to shite / meshiya kudaran",
           "reading_hira": "ひとびとは　いろをうしないものはみな　ほろびんとしてめしやくだらん",
           "translation": "As pessoas perdem a cor de suas faces; E quando todas as coisas estiverem à beira da ruína, O Messias descerá.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Inverno absoluto da humanidade. \"Iro o ushinai\" (perder a cor) denota terror mortal.",
+          "kototama": "\"Kotogotoku\" (tudo/completamente) e \"Horobin\" (perecer/arruinar) são sons pesados, definitivos. \"Meshiya\" (Messias) surge no final como o único ponto de esperança.",
+          "profundidade": "Profecia do \"Último Segundo\". A intervenção divina direta (Descida do Messias) ocorre no clímax da destruição, quando a capacidade humana falha completamente (\"Kotogotoku\"). É o momento limite.",
+          "translation_source": "human"
         },
         {
           "number": 56,
@@ -566,7 +786,11 @@
           "reading": "Eikou no / kumo ni kagayaki / okuchou no / kanko no koe ni / kudaru kirisuto",
           "reading_hira": "えいこうの　くもにかがやきもろもろの　かんこのこえにくだるきりすと",
           "translation": "Resplandecendo em Nuvens de Glória, E ao som do júbilo de bilhões de vozes, Desce o Cristo vitorioso.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Apoteose Celestial. O céu está cheio de luz e som.",
+          "kototama": "\"Kanko\" (júbilo/aclamação) e \"Kagayaki\" (brilho) são explosivos (sons K). O poema vibra com energia de vitória.",
+          "profundidade": "Meishu-Sama descreve a Segunda Vinda de Cristo (Parusia) não como um evento distante, mas como algo que ele vivencia ou canaliza. A \"descida\" não é apenas física, mas a manifestação do \"Espírito Crístico\" (Luz do Sol) na Terra através de sua obra.",
+          "translation_source": "human"
         },
         {
           "number": 57,
@@ -575,7 +799,11 @@
           "reading": "Magakami ni / katsu toki wa kinu / momo no mi no / tama wa waga te ni / ima hairan to su mo",
           "reading_hira": "まがかみに　かつときはきぬもものみの　たまはわがてにいまはいらんとすも",
           "translation": "Chegou a hora de vencer o Deus Maligno! O fruto do Pêssego Divino, a Joia Preciosa, Está prestes a cair, agora, em minhas mãos.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Colheita Mística.",
+          "kototama": "\"Momo\" (Pêssego) e \"Tama\" (Joia/Bola) têm sons redondos e plenos.",
+          "profundidade": "Referência direta ao mito de Izanagi, que usou três pêssegos para afastar os demônios do submundo (Yomi). \"Momo\" também significa \"Cem\" (plenitude). Meishu-Sama declara que recebeu o poder (o Pêssego/Joia) para exorcizar o mal do mundo.",
+          "translation_source": "human"
         },
         {
           "number": 58,
@@ -584,7 +812,11 @@
           "reading": "Ookami no / hakasetamaishi / kono tsurugi / adanasu shikogusa / uchikiriharawan",
           "reading_hira": "おおかみの　はかせたまいしこのつるぎ　あだなすしこぐさうちきりはらわん",
           "translation": "Esta Espada Sagrada que o Grande Deus me cingiu... Com ela, as ervas daninhas que causam mal Eu cortarei e ceifarei por completo!",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Ação de capina e corte. Vento cortante.",
+          "kototama": "O verbo composto \"Uchi-kiri-harawan\" (Golpear-Cortar-Varrer) é uma sequência de sons agressivos e rítmicos, mimetizando os golpes de uma espada (K-R-H).",
+          "profundidade": "A \"Espada\" é a Palavra (Kototama) e a Verdade. As \"ervas daninhas\" (Shikogusa) são os pensamentos malignos, os espíritos encostos e as pessoas que se opõem intencionalmente ao Plano Divino. A misericórdia aqui se manifesta como severidade necessária (corte).",
+          "translation_source": "human"
         },
         {
           "number": 59,
@@ -593,7 +825,11 @@
           "reading": "Nyoi no tama / furuwan toki zo / semaru rashi / kono utsushiyo no / sama o shimireba",
           "reading_hira": "にょいのたま　ふるわんときぞせまるらし　このうつしよのさまをしみれば",
           "translation": "Ao observar o estado deplorável deste mundo, Sinto que se aproxima o momento De brandir a Joia dos Desejos (Nyoi-no-Tama).",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Tensão pré-batalha.",
+          "kototama": "\"Nyoi no Tama\" (Cintamani) é o artefato supremo do Budismo e Xintoísmo. \"Furuwan\" (Brandir/Agitar) indica uso ativo de poder.",
+          "profundidade": "A \"Nyoi no Tama\" é a capacidade de materializar o pensamento e manipular a matéria (alquimia espiritual). Meishu-Sama indica que, até então, manteve esse poder guardado, mas a degradação do mundo (\"Sama\") exige seu uso iminente para a correção final.",
+          "translation_source": "human"
         },
         {
           "number": 60,
@@ -602,7 +838,11 @@
           "reading": "Koshikata o / furisakemireba / yo no tsune no / hito to amarini / chigau ware wa mo",
           "reading_hira": "こしかたを　ふりさけみればよのつねの　ひととあまりにちがうわれはも",
           "translation": "Ao olhar para trás, para o caminho percorrido, Percebo quão imensamente diferente sou Das pessoas comuns deste mundo.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Reflexão solitária no topo da montanha.",
+          "kototama": "\"Amarini\" (excessivamente/demais) enfatiza o abismo entre sua natureza e a norma.",
+          "profundidade": "Autoconsciência messiânica. Não é vaidade, mas a constatação fática de uma biografia guiada por milagres, proteções inexplicáveis e uma missão solitária. Reconhecer a própria natureza divina é o primeiro passo para assumir a responsabilidade de salvar os outros.",
+          "translation_source": "human"
         },
         {
           "number": 61,
@@ -611,7 +851,11 @@
           "reading": "Ikuchitabi / yamasaka koete / youyaku ni / yasukeki michi ni / kishi kokochi sumo",
           "reading_hira": "いくちたび　やまさかこえてようやくに　やすけきみちにきしここちすも",
           "translation": "Milhares de vezes cruzei montanhas e ladeiras íngremes; E agora, finalmente, Sinto que cheguei à estrada plana da paz.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "A mudança de terreno: das montanhas perigosas (tormenta) para a planície (calmaria).",
+          "kototama": "\"Ikuchitabi\" (Milhares de vezes) enfatiza a exaustão e a repetição. \"Yasukeki\" (tranquilo/pacífico) suaviza o final do poema, como um suspiro de alívio.",
+          "profundidade": "O caminho do aprimoramento (Shugyo) é cheio de altos e baixos (\"Yamasaka\"). Chegar ao \"caminho tranquilo\" não significa aposentadoria, mas atingir o estado de *Anshin Ritsumei* (paz inabalável da alma), onde as circunstâncias externas não mais perturbam o interior.",
+          "translation_source": "human"
         },
         {
           "number": 62,
@@ -620,7 +864,11 @@
           "reading": "Yukute niwa / koumyou miete / mune nuchi ni / kibou no izumi / wakiizuru nari",
           "reading_hira": "ゆくてには　こうみょうみえてむねぬちに　きぼうのいずみわきいづるなり",
           "translation": "À minha frente, avisto a Luz resplandecente; E no fundo do meu peito, A fonte da esperança brota inesgotável.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Clima interior de renovação e fluxo.",
+          "kototama": "\"Koumyou\" (Luz brilhante) ilumina o exterior. \"Wakiizuru\" (brotar/jorrar) movimenta o interior. A conexão entre a visão externa e a sensação interna é imediata.",
+          "profundidade": "A esperança (Kibou) não é um desejo mental, é uma energia vital (\"Izumi\" - fonte) que surge quando nos conectamos com a Luz de Deus. Quem vê o futuro divino não consegue ser pessimista.",
+          "translation_source": "human"
         },
         {
           "number": 63,
@@ -629,7 +877,11 @@
           "reading": "Kono chikara / aa kono chikara / uchifuruu / toki no kitsuru no / modokashiki kana",
           "reading_hira": "このちから　ああこのちからうちふるう　ときのきつるのもどかしきかな",
           "translation": "Esta força... Ah, esta força incomensurável! Quão impaciente e frustrante é a espera Pelo momento exato de brandi-la!",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Tensão elétrica acumulada.",
+          "kototama": "A repetição \"Kono chikara, aa kono chikara\" (Esta força, ah esta força) é uma exclamação visceral. \"Modokashiki\" (impaciente/irritante pela demora) revela a humanidade do Salvador que deseja agir logo, mas deve obedecer ao Tempo de Deus.",
+          "profundidade": "O Poder de Johrei e da Lei Espiritual já estava pleno em Meishu-Sama, mas o \"Tempo\" (Toki) ainda não havia amadurecido. A lição é sobre a disciplina de conter o poder até o momento divinamente ordenado, mesmo que o coração arda de vontade de salvar.",
+          "translation_source": "human"
         },
         {
           "number": 64,
@@ -638,7 +890,11 @@
           "reading": "Kouryū mo / toki o ezareba / chi no soko ni / hisomi kakururu / hoka nakarikeri",
           "reading_hira": "こうりゅうも　ときをえざればちのそこに　ひそみかくるるほかなかりけり",
           "translation": "Até mesmo o Dragão da Chuva, se não for o seu tempo, Não tem outra escolha Senão ocultar-se, quieto, nas profundezas da terra.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Estação de latência/hibernação.",
+          "kototama": "\"Kouryū\" (Dragão da Chuva/Dragão Oculto) é uma figura de poder latente. \"Hisomi kakururu\" (esconder-se furtivamente) denota estratégia, não covardia.",
+          "profundidade": "Sabedoria chinesa e espiritual. O \"Dragão\" representa o grande líder ou a força divina. Se o \"Céu\" (circunstância/tempo) não permite, agir é suicídio. A reclusão estratégica é parte da sabedoria divina. Meishu-Sama aplicou isso durante as perseguições religiosas.",
+          "translation_source": "human"
         },
         {
           "number": 65,
@@ -647,7 +903,11 @@
           "reading": "Omoshiroshi / aa omoshiroshi / onigashima / matsurou toki no / chikamaru rashimo",
           "reading_hira": "おもしろし　ああおもしろしおにがしまの　まつろうときのちかまるらしも",
           "translation": "Interessante... Ah, deveras interessante! Parece que se aproxima a hora Em que a Ilha dos Demônios se renderá.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Ironia divina e observação superior.",
+          "kototama": "\"Omoshiroshi\" (Interessante/Divertido) mostra que, para quem está no alto, a batalha do bem contra o mal é um cenário claro. \"Onigashima\" (Ilha dos Ogros - do conto de Momotaro) simboliza o reduto do mal.",
+          "profundidade": "A atitude diante do mal não deve ser de medo, mas de \"interesse\" superior e certeza da vitória. O mal (\"Onigashima\") não será destruído, mas \"Matsurou\" (obedecerá/se renderá/servirá). O mal, no fim, servirá ao bem.",
+          "translation_source": "human"
         },
         {
           "number": 66,
@@ -656,7 +916,11 @@
           "reading": "Shiroki mono o / kuro to mi kuroki o / shiro to miru / yo no sakashira o / tadasade okameya",
           "reading_hira": "しろきものを　くろとみくろきをしろとみる　よのさかしらをたださでおかめや",
           "translation": "Vendo o branco como negro, e o negro como branco... Como poderia eu deixar sem correção A arrogância intelectual deste mundo invertido?",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Contraste visual absoluto (Preto e Branco).",
+          "kototama": "O jogo rápido \"Shiro/Kuro/Kuro/Shiro\" mimetiza a confusão mental da sociedade. \"Tadasade okameya\" (Como deixar sem corrigir? Não posso!) é uma determinação retórica forte.",
+          "profundidade": "A missão do Messias é a \"Retificação\". A sociedade moderna inverteu valores (egoísmo como virtude, matéria acima do espírito). Corrigir essa visão distorcida (\"Sakashira\") é a base da Salvação.",
+          "translation_source": "human"
         },
         {
           "number": 67,
@@ -665,7 +929,11 @@
           "reading": "Arashi fuku / shio no yashioji / koe ni kitsu / higan miyuru zo / tanoshikari keru",
           "reading_hira": "あらしふく　しおのやしおぢこえにきつ　ひがんみゆるぞたのしかりける",
           "translation": "Atravessei as oito rotas de marés açoitadas pela tempestade; E agora, avistar a Outra Margem... Ah, que alegria suprema!",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "O mar revolto (\"Arashi\") versus a terra firme e calma (\"Higan\").",
+          "kototama": "\"Yashioji\" (Oito rotas de marés/Longo caminho marítimo) evoca uma viagem épica e perigosa. \"Higan\" (Nirvana/Paraíso) é o destino final.",
+          "profundidade": "Metáfora budista da iluminação. Meishu-Sama afirma ter completado sua travessia pelo oceano do sofrimento (Samsara) e das provações. Ele agora vê o Paraíso e sua alegria é guia para os que ainda estão no mar.",
+          "translation_source": "human"
         },
         {
           "number": 68,
@@ -674,7 +942,11 @@
           "reading": "Hito no yamai / iyashi no sube o / yo no yamai / iyashi no sube ni / hirogen to suru ware",
           "reading_hira": "ひとのやまい　いやしのすべをよのやまい　いやしのすべにひろげんとするわれ",
           "translation": "A arte de curar a doença do indivíduo... Eu agora a expando e transformo Na Arte de Curar a Doença do Mundo.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "Movimento de expansão concêntrica (do micro para o macro).",
+          "kototama": "O paralelismo perfeito: \"Hito no yamai\" (doença do homem) vs \"Yo no yamai\" (doença do mundo). A estrutura reflete a lógica fractal da salvação.",
+          "profundidade": "A definição da missão da Igreja Messiânica. O Johrei não é apenas para curar uma dor de cabeça; é o princípio (Lei da Purificação) que, aplicado em larga escala, cura a política, a economia e a sociedade (\"Doença do Mundo\").",
+          "translation_source": "human"
         },
         {
           "number": 69,
@@ -683,7 +955,11 @@
           "reading": "Kuni to kuni / hito to hito to no / hate mo naki / isakai tomuru wa / kami no hoka naki",
           "reading_hira": "くにとくに　ひととひととのはてもなき　いさかいとむるはかみのほかなき",
           "translation": "Entre nação e nação, entre homem e homem... Para deter este conflito sem fim, Não há outro recurso senão Deus.",
-          "date": "S15.12.23"
+          "date": "S15.12.23",
+          "kigo": "O caos perpétuo da guerra.",
+          "kototama": "\"Hate mo naki\" (Sem fim/Interminável) soa exaustivo. \"Kami no hoka naki\" (Nada além de Deus) é a conclusão seca e absoluta.",
+          "profundidade": "O fracasso do humanismo sem espiritualidade. Tratados de paz humanos são frágeis porque não removem a causa espiritual do conflito (as nuvens/egoísmo). A Paz Mundial real só virá através da intervenção divina que transforma a natureza humana.",
+          "translation_source": "human"
         },
         {
           "number": 70,
@@ -692,7 +968,11 @@
           "reading": "Umi chikaku / komura ariken / sono ashita / okiidemireba / kemuri ho no miyu",
           "reading_hira": "うみちかく　こむらありけんそのあした　おきいでみればけむりほのみゆ",
           "translation": "Perto do mar, deve haver uma pequena vila... Pois nesta manhã, ao olhar o horizonte, Avisto a fumaça subindo, tênue e distante.",
-          "date": "S16. 1. 1"
+          "date": "S16. 1. 1",
+          "kigo": "\"Ashita\" (Manhã/Amanhecer) de Ano Novo. O ar frio do inverno torna a fumaça visível.",
+          "kototama": "\"Ho no miyu\" (visível de forma tênue/fraca) usa o som suave do \"H\" para descrever a fumaça se dissolvendo no ar matinal.",
+          "profundidade": "A simplicidade da vida humana (a fumaça do café da manhã) vista à distância sugere a paz ideal. Meishu-Sama valoriza a vida cotidiana dos humildes como a base da nação.",
+          "translation_source": "human"
         },
         {
           "number": 71,
@@ -701,7 +981,11 @@
           "reading": "Honobono to / umibe wa akenu / yamakage ni / shizu ga fuseya no / itsutsu mutsu mie",
           "reading_hira": "ほのぼのと　うみべはあけぬやまかげに　しづがふし〔せ〕やのいつつむつみえ",
           "translation": "Vagamente, a orla marítima começa a clarear; E na sombra da montanha, revelam-se Cinco ou seis humildes choupanas.",
-          "date": "S16. 1. 1"
+          "date": "S16. 1. 1",
+          "kigo": "\"Honobono\" (Vagamente/Alvorada pálida) descreve a luz difusa antes do sol nascer.",
+          "kototama": "\"Fuseya\" (Casa baixa/Choupana) e \"Shizu\" (Humilde/Pobre) evocam simplicidade. A contagem \"Itsutsu mutsu\" (cinco, seis) dá ritmo visual à cena.",
+          "profundidade": "O olhar compassivo sobre a pobreza. A luz do amanhecer (Salvação) chega primeiro para os humildes que vivem na sombra da montanha. É a estética do \"Wabi\" (beleza na simplicidade rústica).",
+          "translation_source": "human"
         },
         {
           "number": 72,
@@ -710,7 +994,11 @@
           "reading": "Hatsuhinode / noboru ni tsurete / umi chikaki / sasaya sasaya ni / hata nado miyu mo",
           "reading_hira": "はつひので　のぼるにつれてうみちかき　ささやささやにはたなどみゆも",
           "translation": "À medida que o Primeiro Sol do Ano se eleva, Nas pequenas casas próximas ao mar, Começam a aparecer bandeiras tremulando.",
-          "date": "S16. 1. 1"
+          "date": "S16. 1. 1",
+          "kigo": "\"Hatsuhinode\" (Primeiro Nascer do Sol). Momento de celebração nacional.",
+          "kototama": "A repetição \"Sasaya sasaya\" (Casinhas, casinhas) é rítmica e carinhosa, diminuindo a escala para focar no detalhe doméstico.",
+          "profundidade": "A união do Divino (Sol) e do Humano (Bandeiras). As bandeiras representam o espírito de celebração e a esperança renovada que surge com a Luz.",
+          "translation_source": "human"
         },
         {
           "number": 73,
@@ -719,7 +1007,11 @@
           "reading": "Hingashi no / sora akarishinu / isaribito / fune dasu rashiku / kishi ni ugomeku",
           "reading_hira": "ひんがしの　そらあかりしぬいさりびと　ふねだすらしくきしにうごめく",
           "translation": "O céu do leste já se iluminou por completo; Os pescadores, preparando-se para lançar os barcos, Começam a movimentar-se na praia.",
-          "date": "S16. 1. 1"
+          "date": "S16. 1. 1",
+          "kigo": "A luz da manhã traz a atividade (\"Ugomeku\" - mover-se/formigar).",
+          "kototama": "\"Isaribito\" (Pescadores - termo poético) soa nobre. O movimento na praia contrasta com a quietude do céu.",
+          "profundidade": "Metáfora do trabalho sagrado. Assim como os pescadores acordam com o sol para buscar o sustento, os messiânicos devem despertar com a Luz da Verdade para lançar os barcos da salvação (difusão).",
+          "translation_source": "human"
         },
         {
           "number": 74,
@@ -728,7 +1020,11 @@
           "reading": "Asamadaki / touge kudareba / umi chikaki / mura no ieie / kemuri tatsu nari",
           "reading_hira": "あさまだき　とうげくだればうみちかき　むらのいえいえけむりたつなり",
           "translation": "Ainda é cedo na manhã; ao descer a passagem da montanha, Vejo, na vila próxima ao mar, A fumaça subindo de cada lar.",
-          "date": "S16. 1. 1"
+          "date": "S16. 1. 1",
+          "kigo": "\"Asamadaki\" (Antes do amanhecer completo/Madrugada). Ar frio e limpo.",
+          "kototama": "A descida (\"Kudareba\") leva o olhar do alto para o baixo, conectando o observador à vida da vila.",
+          "profundidade": "A fumaça representa a vida e o calor do lar (fogo de cozinha). A paz social é medida por essa fumaça: se ela sobe, há comida e ordem. É a visão do governante benevolente (ou líder espiritual) zelando pelo bem-estar do povo.",
+          "translation_source": "human"
         },
         {
           "number": 75,
@@ -737,7 +1033,11 @@
           "reading": "Wazawai wa / iyoiyo shigeku / kuniguni no / tami aegunari / aratsuyo chikashi",
           "reading_hira": "わざわいは　いよいよしげくくにぐにの　たみあえぐなりさらつよちかし",
           "translation": "As calamidades tornam-se cada vez mais densas; Enquanto os povos das nações ofegam em dor, O Novo Mundo está próximo!",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Janeiro de 1941. O mundo entrava na espiral da Guerra Mundial. Clima de sufocamento (\"Aegu\").",
+          "kototama": "\"Iyoiyo Shigeku\" (Cada vez mais abundante/denso - usado para mato ou problemas). \"Aratsuyo\" (Novo Mundo) soa forte e fresco, cortando o pessimismo.",
+          "profundidade": "A Lei da Transição: O aumento do sofrimento não é sinal do fim, mas do \"começo\". A intensidade da purificação (\"Wazawai\") é proporcional à proximidade da Nova Era.",
+          "translation_source": "human"
         },
         {
           "number": 76,
@@ -746,7 +1046,11 @@
           "reading": "Choujin no / chikara ni yorade / ikanishite / kuzureyuku yo o / sasae ubekiya",
           "reading_hira": "ちょうじんの　ちからによらでいかにして　くずれゆくよをささえうべきや",
           "translation": "Sem depender de uma Força Sobre-Humana, Como seria possível sustentar Este mundo que desmorona a cada instante?",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Colapso estrutural (\"Kuzureyuku\").",
+          "kototama": "Pergunta retórica poderosa. \"Sasae ubekiya\" (Como poderia sustentar? Impossível!) desafia a arrogância da ciência e política humanas.",
+          "profundidade": "O reconhecimento da limitação humana. Soluções políticas ou militares são paliativos. Apenas uma força \"Choujin\" (Além do homem / Divina) pode impedir a desintegração total da civilização moderna.",
+          "translation_source": "human"
         },
         {
           "number": 77,
@@ -755,7 +1059,11 @@
           "reading": "Hisakata no / kumoi ni soyuru / fujigane no / kedakaki sugata ni / yo o zo wasururu",
           "reading_hira": "ひさかたの　くもいにそびゆるふじがねの　けだかきすがたによをぞわするる",
           "translation": "Elevando-se até as moradas das nuvens eternas, A nobre figura do Monte Fuji Faz-me esquecer as turbulências do mundo.",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Transcendência. O Fuji está acima das nuvens (e dos problemas).",
+          "kototama": "\"Hisakata no\" é um *Makurakotoba* (palavra-travesseiro) poético para o céu/luz/nuvens. \"Kedakaki\" (Nobre/Sublime) eleva a vibração.",
+          "profundidade": "O poder da beleza para curar a angústia. Contemplar o Fuji (o Naka/Centro Imóvel) reconecta a alma à estabilidade divina, permitindo um \"esquecimento\" temporário e curativo do caos social.",
+          "translation_source": "human"
         },
         {
           "number": 78,
@@ -764,7 +1072,11 @@
           "reading": "Nubatama no / yamiyo ni aredo / yukute niwa / koumyou kagayaku / warera ni zo aru",
           "reading_hira": "ぬばたまの　やみよにあれどゆくてには　こうみょうかがやくわれらにぞある",
           "translation": "Embora estejamos imersos na noite escura como o breu, Para nós, que seguimos em frente, A Luz resplandece no caminho.",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Trevas absolutas vs. Foco de Luz.",
+          "kototama": "\"Nubatama no\" é o *Makurakotoba* clássico para a escuridão/noite/cabelo preto. Cria um fundo preto denso para o brilho de \"Koumyou\" (Luz). \"Warera\" (Nós) cria o senso de comunidade eleita.",
+          "profundidade": "A distinção dos despertos. O mundo objetivo pode estar em trevas (Guerra), mas o mundo subjetivo e o destino dos messiânicos (\"Warera\") estão iluminados. A fé permite ver a estrada onde outros só veem o abismo.",
+          "translation_source": "human"
         },
         {
           "number": 79,
@@ -773,7 +1085,11 @@
           "reading": "Ooinaru / kami no megumi o / uku mi niwa / ikanaran yo no / kinu tote yasukeshi",
           "reading_hira": "おおいなる　かみのめぐみをうくみには　いかならんよのきぬとてやすけし",
           "translation": "Para aquele que recebe a Grande Graça de Deus, Não importa que tipo de mundo venha a surgir; Seu coração permanece em paz absoluta.",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Estabilidade inabalável (\"Yasukeshi\").",
+          "kototama": "\"Ikanaran yo no\" (Seja lá que tipo de mundo...) expressa indiferença às circunstâncias externas. \"Yasukeshi\" (Paz/Tranquilidade) é a nota final.",
+          "profundidade": "O conceito de \"Grande Paz\" (Taihei). A segurança não vem de estoques de comida ou abrigos, mas da conexão vertical (\"Megumi\" - Graça) com Deus. Quem está conectado à Fonte não teme a mudança do fluxo.",
+          "translation_source": "human"
         },
         {
           "number": 80,
@@ -782,7 +1098,11 @@
           "reading": "Ruiran no / ayauki yo towa / narinikeru / kami ni inorade / ikani to yanan",
           "reading_hira": "るいらんの　あやうきよとはなりにける　かみにいのらでいかにとやなん",
           "translation": "O mundo tornou-se tão frágil quanto uma pilha de ovos prestes a ruir; Sem orar a Deus, Como esperam os homens sobreviver?",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Situação de equilíbrio precário, prestes a desabar.",
+          "kototama": "\"Ruiran\" (Ovos acumulados/empilhados) é uma metáfora clássica chinesa para perigo extremo. \"Ayauki\" (perigoso) soa agudo e instável.",
+          "profundidade": "A fragilidade da civilização materialista. Parece sólida, mas, sem o alicerce espiritual (\"Kami\"), é como ovos empilhados: qualquer tremor a derruba. A oração é a única \"argamassa\" capaz de dar estabilidade.",
+          "translation_source": "human"
         },
         {
           "number": 81,
@@ -791,7 +1111,11 @@
           "reading": "Magatsuyo no / horobu ni tsurete / makoto naru / hito no kagayaku / toki no ureshisa",
           "reading_hira": "まがつよの　ほろぶにつれてまことなる　ひとのかがやくときのうれしさ",
           "translation": "À medida que o Mundo do Mal perece e se desfaz, Os homens de sinceridade começam a brilhar; Ah, que alegria ver chegar este tempo!",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "A luz rompendo a casca velha.",
+          "kototama": "O contraste entre \"Magatsuyo\" (Mundo Distorcido/Maligno - sons fechados) e \"Kagayaku/Ureshisa\" (Brilhar/Alegria - sons abertos) marca a transição.",
+          "profundidade": "O paradoxo da fé: enquanto o mundo chora o colapso do sistema, o homem de fé se alegra. Não pelo sofrimento alheio, mas porque a queda do falso permite finalmente que a \"Verdade\" (Makoto) seja vista e valorizada.",
+          "translation_source": "human"
         },
         {
           "number": 82,
@@ -800,7 +1124,11 @@
           "reading": "Kirisuto ya / Shaka nimo masaru / sukuinushi / amorazariseba / yo wa ikanarame",
           "reading_hira": "きりすとや　しゃかにもまさるすくいぬし　あもらざりせばよはいかならめ",
           "translation": "Um Salvador que supera a Cristo e a Buda... Se Ele não descesse agora dos Céus, O que seria deste mundo?",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Urgência absoluta.",
+          "kototama": "\"Masaru\" (Superar/Exceder) é a palavra-chave de poder. \"Amorazariseba\" (Se não descesse [do céu]) coloca a condição vital para a sobrevivência.",
+          "profundidade": "A afirmação da Hierarquia do Tempo. Cristo e Buda atuaram na \"Noite\" (preparação). A salvação da \"Era do Dia\" exige uma força solar (Messias) que tem a função de concretizar o que os antecessores profetizaram. Sem essa força extra, a humanidade não sobreviveria ao Juízo.",
+          "translation_source": "human"
         },
         {
           "number": 83,
@@ -809,7 +1137,11 @@
           "reading": "Chi no ue no / yorozu no wazawai / nuguisari / tengoku tatsuru / toki zo mataruru",
           "reading_hira": "ちのうえの　よろずのわざわいぬぐいさり　てんごくたつるときぞまたるる",
           "translation": "Varrer e limpar todas as miríades de calamidades da face da Terra, Para então erguer o Paraíso... Eis o momento pelo qual tanto esperamos!",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Ação de grande limpeza (\"Osoji\").",
+          "kototama": "\"Nuguisari\" (Limpar/Enxugar/Varrer) tem um som de movimento amplo. \"Tatsuru\" (Erguer/Construir) é firme.",
+          "profundidade": "A ordem da construção: Primeiro limpar (\"Nuguisari\"), depois construir (\"Tatsuru\"). Não se constrói o Paraíso sobre a sujeira do egoísmo. A calamidade atual é a \"vassoura\" de Deus.",
+          "translation_source": "human"
         },
         {
           "number": 84,
@@ -818,7 +1150,11 @@
           "reading": "Chi no ue no / ada wa horobite / atarashiki / tadashiki miyo no / aruru ureshisa",
           "reading_hira": "ちのうえの　あだはほろびてあたらしき　ただしきみよのあるるうれしさ",
           "translation": "Os inimigos da Terra perecerão, E um Novo e Correto Reino nascerá; Quão imensa é esta alegria!",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Primavera após a guerra.",
+          "kototama": "\"Ada\" (Inimigo/Mal) é curto e cortante. \"Atarashiki\" (Novo) e \"Ureshisa\" (Alegria) suavizam o tom final.",
+          "profundidade": "\"Inimigos\" aqui não são apenas exércitos rivais, mas os princípios espirituais do mal (egoísmo, materialismo, doença). A alegria vem da certeza de que a \"Justiça\" (Tadashiki) será a nova lei natural.",
+          "translation_source": "human"
         },
         {
           "number": 85,
@@ -827,7 +1163,11 @@
           "reading": "Hate mo naki / konodo no ue no / wazawai wa / kami no misogi no / waza ni zo arikeru",
           "reading_hira": "はてもなき　このどのうえのわざわいは　かみのみそぎのわざにぞありける",
           "translation": "As calamidades sem fim que assolam esta terra... Sabei que são, na verdade, O Ritual de Purificação (Misogi) realizado por Deus.",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Chuva torrencial que lava a sujeira.",
+          "kototama": "\"Misogi\" é o termo xintoísta central: purificação pela água. \"Wazawai\" (Calamidade) é redefinido como \"Waza\" (Ação/Obra) divina.",
+          "profundidade": "Uma mudança radical de perspectiva. O desastre não é punição de um Deus irado, nem acaso. É \"Misogi\": lavagem necessária para remover as impurezas espirituais (nuvens) acumuladas por milênios, permitindo que a Terra se torne habitável para a Era da Luz.",
+          "translation_source": "human"
         },
         {
           "number": 86,
@@ -836,7 +1176,11 @@
           "reading": "Machiwabishi / tengoku rakudo wa / warera sumu / kono chi no ue ni / uchitatsuru nari",
           "reading_hira": "まちわびし　てんごくらくどはわれらすむ　このちのうえにうちたつるなり",
           "translation": "O Paraíso de Delícias, pelo qual tanto ansiávamos, É aqui, nesta terra onde habitamos, Que nós o construiremos agora.",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "O foco desce do céu para o chão firme.",
+          "kototama": "\"Uchitatsuru\" (Erguer/Fundar com força) denota ação física. Não é um sonho, é engenharia espiritual.",
+          "profundidade": "Rejeição do escapismo. O Paraíso não é \"post-mortem\" ou em outro planeta. É \"Kono chi no ue\" (Sobre este solo). A missão messiânica é materializar o ideal divino na Terra através da arte, agricultura e beleza.",
+          "translation_source": "human"
         },
         {
           "number": 87,
@@ -845,7 +1189,11 @@
           "reading": "Arashi fuku / yo o yoso ni shite / fuugetsu o / tomo to shi ware wa / shizuka ni ikinan",
           "reading_hira": "あらしふく　よをよそにしてふうげつを　ともとしわれはしずかにいきなん",
           "translation": "Enquanto a tempestade ruge, deixo o mundo de lado; Tendo o Vento e a Lua como amigos, Viverei em serenidade e quietude.",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "O caos lá fora (\"Arashi\") vs. a paz aqui dentro (\"Shizuka\").",
+          "kototama": "\"Fuugetsu\" (Vento e Lua) é a metáfora clássica para a apreciação da natureza e das artes. \"Yoso ni shite\" (ignorando/deixando de lado) cria uma barreira protetora.",
+          "profundidade": "A atitude do Sábio. Quando não se pode mudar o caos externo imediatamente, preserva-se a integridade interna através da comunhão com a beleza. Não é alienação, é preservação da vibração elevada necessária para o futuro.",
+          "translation_source": "human"
         },
         {
           "number": 88,
@@ -854,7 +1202,11 @@
           "reading": "Kono higoro / efude ni isoshimi / aku toki wa / haroka na fuji o / nagametsu tarau",
           "reading_hira": "このひごろ　えふでにいそしみあくときは　はろかなふじをながめつたらう",
           "translation": "Nestes dias, dedico-me ao pincel da pintura; E quando me canso, Contemplo o distante Fuji e sinto-me pleno.",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Cotidiano artístico e contemplativo.",
+          "kototama": "\"Isoshimi\" (dedicar-se com afinco) mostra que o lazer também é sério. \"Tarau\" (sentir-se satisfeito/pleno) é o estado de gratidão.",
+          "profundidade": "O equilíbrio entre Criar (Pintar) e Receber (Ver o Fuji). A arte purifica o sentimento do líder, permitindo que ele canalize a vontade de Deus sem as distorções do estresse mundano.",
+          "translation_source": "human"
         },
         {
           "number": 89,
@@ -863,7 +1215,11 @@
           "reading": "Iya kataki / makoto no michi o / ayumu mi wa / ikanaran yo no / kuru mo osoreji",
           "reading_hira": "いやかたき　まことのみちをあゆむみは　いかならんよのくるもおそれじ",
           "translation": "Aquele que caminha pela Vereda da Verdade, sólida e firme, Não importa que tipo de mundo venha a surgir, Jamais sentirá temor.",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Chão firme em meio ao terremoto social.",
+          "kototama": "\"Iya kataki\" (Cada vez mais duro/firme). \"Osoreji\" (Não temerei - negativa forte).",
+          "profundidade": "A \"Verdade\" (Makoto) é a única estrutura indestrutível do universo. Quem pisa nela torna-se indestrutível também. O medo é sintoma de quem pisa em terreno falso (ilusão/ego).",
+          "translation_source": "human"
         },
         {
           "number": 90,
@@ -872,7 +1228,11 @@
           "reading": "Egaku hima / mado no to mireba / tamagawa no / nagare kiyokeku / fuji haroka naru",
           "reading_hira": "えがくひま　まどのとみればたまがわの　ながれきよけくふじははろかなる",
           "translation": "Nos intervalos da pintura, olho pela janela: O Rio Tamagawa flui cristalino E o Monte Fuji repousa, majestoso, ao longe.",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Clareza atmosférica que permite ver o Fuji à distância.",
+          "kototama": "O ritmo é calmo, alternando entre a ação próxima (\"Egaku\" - pintar) e a visão distante (\"Haroka\" - longe).",
+          "profundidade": "A pintura (arte humana) e a paisagem (arte divina) se fundem. Meishu-Sama ensina que a inspiração verdadeira vem da conexão visual com a natureza sagrada (Água/Rio e Fogo/Montanha).",
+          "translation_source": "human"
         },
         {
           "number": 91,
@@ -881,7 +1241,11 @@
           "reading": "Yo no yamai / iyase totemo ya / ookami wa / ware ayumu michi / kae tamaikeru",
           "reading_hira": "よのやまい　いやせとてもやおおかみは　わがあゆむみちかえたまいける",
           "translation": "Para curar a Doença do Mundo... Foi por isso, sim, que o Grande Deus Alterou completamente o caminho que eu trilhava.",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Sem estação. Momento de virada do destino.",
+          "kototama": "\"Iyase totemo ya\" (Para que curasse!) tem força de imperativo divino. \"Kae tamaikeru\" (Mudou/Alterou) indica que a mudança não foi escolha do ego, mas imposição superior.",
+          "profundidade": "Um poema histórico. Meishu-Sama explica por que deixou a terapia individual para fundar uma religião. A medicina trata o indivíduo; a religião trata a \"Doença do Mundo\". Deus mudou sua rota para ampliar o alcance da salvação.",
+          "translation_source": "human"
         },
         {
           "number": 92,
@@ -890,7 +1254,11 @@
           "reading": "Fujigane no / shirayuki tama no / mashimizu ni / kokoro arae toya / kami no mimune no",
           "reading_hira": "ふじがねの　しらゆきたまのましみずに　こころあらえとやかみのみむねの",
           "translation": "Na neve branca do Pico do Fuji e na água pura do Tama... 'Lava o teu coração!' Eis a Vontade de Deus que ali se revela.",
-          "date": "S16. 1.22"
+          "date": "S16. 1.22",
+          "kigo": "Pureza absoluta (Branco/Água).",
+          "kototama": "\"Mashimizu\" (Água verdadeira/pura) tem um som refrescante. \"Arae\" (Lava!) é um comando purificador.",
+          "profundidade": "A natureza não é apenas cenário, é ferramenta de purificação (\"Misogi\"). O Fuji (Espírito) e o Tama (Matéria) são os detergentes divinos para limpar as máculas do coração humano.",
+          "translation_source": "human"
         }
       ]
     },
@@ -906,7 +1274,11 @@
           "reading": "Amaterasu / kuni yasukare to / kyou wa shimo / ise no mimiya ni / inorikeru kana",
           "reading_hira": "あまてらす　くにやすかれときょうはしも　いせのみみやにいのりけるかな",
           "translation": "Ó Amaterasu! Que a nação tenha paz! Com este único desejo, hoje, Oro fervorosamente no Santuário de Ise.",
-          "date": "S16. 5.23"
+          "date": "S16. 5.23",
+          "kigo": "Maio de 1941. Peregrinação solene.",
+          "kototama": "\"Amaterasu\" invoca a Deusa do Sol. \"Yasukare\" (Que esteja em paz) é o núcleo da prece.",
+          "profundidade": "Diante da iminência da guerra, Meishu-Sama vai à origem espiritual do Japão (Moto-Ise) para implorar pela paz. Ele não pede vitória militar, pede \"Yasuki\" (paz/segurança) para o povo.",
+          "translation_source": "human"
         },
         {
           "number": 94,
@@ -915,7 +1287,11 @@
           "reading": "Akogare no / motoise ni kite / kamitsuyo no / kashikoki koto no / omoizuru kamo",
           "reading_hira": "あこがれの　もといせにきてかみつよの　かしこきことのおもいづるかも",
           "translation": "Ao chegar a Moto-Ise, terra de minhas saudades, As memórias da sagrada Era dos Deuses Afloram com reverência em meu ser.",
-          "date": "S16. 5.23"
+          "date": "S16. 5.23",
+          "kigo": "Atmosfera mística e antiga.",
+          "kototama": "\"Akogare\" (Anseio/Saudade idealizada). \"Kamitsuyo\" (Era Superior/Era dos Deuses).",
+          "profundidade": "Meishu-Sama sente uma conexão de alma (memória de vidas passadas ou conexão espiritual) com o local, relembrando a \"Lei de Deus\" original que regia o mundo antigo, contrastando com o caos moderno.",
+          "translation_source": "human"
         },
         {
           "number": 95,
@@ -924,7 +1300,11 @@
           "reading": "Magakami no / sayaru kunibara / shizumesase / tamae to inorinu / ise no mimiya ni",
           "reading_hira": "まがかみの　さやるくにばらしずめさせ　たまえといのりぬいせのみみやに",
           "translation": "Os Deuses Malignos obstruem os campos da nação; 'Ó Deus, apaziguai-os e subjugai-os!' Assim orei no Santuário de Ise.",
-          "date": "S16. 5.23"
+          "date": "S16. 5.23",
+          "kigo": "Tensão espiritual sobre a terra (\"Kunibara\").",
+          "kototama": "\"Shizumesase tamae\" (Fazei acalmar/subjugai) é um encantamento de pacificação poderosa. \"Magakami\" são as forças espirituais que incitam a guerra.",
+          "profundidade": "Diagnóstico espiritual da Guerra: não é apenas política, é a ação de \"Magakami\" (forças do mal) agitando a nação. A solução não é apenas diplomacia, é \"Shizume\" (pacificação espiritual/exorcismo) através da oração na raiz.",
+          "translation_source": "human"
         },
         {
           "number": 96,
@@ -933,7 +1313,11 @@
           "reading": "Nubatama no / yami o harashite / akirakeki / yo to nasashimeyo / ise no ookami",
           "reading_hira": "ぬばたまの　やみをはらしてあきらけき　よとなさしめよいせのおおかみ",
           "translation": "Dissipai estas trevas profundas como a noite! E fazei surgir um Mundo Claro e Luminoso... Ó Grande Deus de Ise!",
-          "date": "S16. 5.23"
+          "date": "S16. 5.23",
+          "kigo": "Trevas (\"Yami\") vs Luz (\"Akirakeki\").",
+          "kototama": "\"Akirakeki\" (Claro/Límpido/Evidente) carrega a vibração da luz solar que corta a escuridão. É um clamor direto à Deusa do Sol.",
+          "profundidade": "A oração final da peregrinação. O objetivo de Meishu-Sama é sempre a transição da Noite para o Dia. Ele pede a autoridade de Ise (o Centro Espiritual) para realizar essa mudança global.",
+          "translation_source": "human"
         },
         {
           "number": 97,
@@ -942,7 +1326,11 @@
           "reading": "Kanrei no / momiji medento / kono ashita / kado o izureba / akizora takashi",
           "reading_hira": "かんれいの　もみじめでんとこのあした　かどをいづればあきぞらたかし",
           "translation": "Para apreciar as folhas rubras de Hakone, Saí pelo portão nesta manhã; Ah, quão alto e límpido está o céu de outono!",
-          "date": "S16.10.**"
+          "date": "S16.10.**",
+          "kigo": "Outono (\"Akizora\" - Céu de Outono). \"Kanrei\" é o nome poético das montanhas de Hakone. O ar é fresco e o céu \"alto\" (sem nuvens baixas).",
+          "kototama": "\"Medento\" (com intenção de apreciar/amar). O som aberto de \"Takashi\" (alto) eleva o espírito.",
+          "profundidade": "A mudança de cenário (de Ise para Hakone) marca a preparação para a construção do \"Protótipo do Paraíso\". A beleza do outono inspira a gratidão e a contemplação, essenciais para o \"Shinsenkyo\" (Terra Divina) que ele construiria ali.",
+          "translation_source": "human"
         },
         {
           "number": 98,
@@ -951,7 +1339,11 @@
           "reading": "Haresumishi / akizora kugiri / yamanami wa / musashino no sue / hatena ni miyu mo",
           "reading_hira": "はれすみし　あきぞらくぎりやまなみは　むさしののすえはてなにみゆも",
           "translation": "Sob o céu de outono, límpido e sereno, O recorte das montanhas se desenha; E a planície de Musashino estende-se até o fim do olhar.",
-          "date": "S16.10.**"
+          "date": "S16.10.**",
+          "kigo": "Dia de visibilidade perfeita (\"Haresumishi\").",
+          "kototama": "\"Kugiri\" (recortar/delimitar) descreve a nitidez da silhueta das montanhas. \"Hatena\" (sem fim/infinito) expande a consciência.",
+          "profundidade": "A visão panorâmica simboliza a visão espiritual ampla (\"Takamigan\"). Do alto da montanha sagrada (Hakone), o Mestre observa o mundo dos homens (Planície de Musashino/Tóquio) com clareza e desapego.",
+          "translation_source": "human"
         },
         {
           "number": 99,
@@ -960,107 +1352,220 @@
           "reading": "Yugyouji ni / kuruma o todome / mouzureba / kanjaku ni shite / garan furikeru",
           "reading_hira": "ゆぎょうじに　くるまをとどめもうづれば　かんじゃくにしてがらんふりける",
           "translation": "Parei o carro no Templo Yugyouji para orar; Em profundo silêncio e solidão, As antigas edificações repousam no tempo.",
-          "date": "S16.10.**"
+          "date": "S16.10.**",
+          "kigo": "Atmosfera de outono e antiguidade.",
+          "kototama": "\"Kanjaku\" (Silêncio profundo/Nirvana). \"Garan\" (Complexo do templo/Sangha-arama) tem um som pesado e solene. \"Furikeru\" (Envelhecido) traz a pátina do tempo.",
+          "profundidade": "O respeito pela tradição. Yugyouji é o templo principal da seita Ji-shu (Budismo da Terra Pura). Meishu-Sama reconhece o valor das eras passadas (Noite), reverenciando o silêncio que preparou o caminho para a nova revelação.",
+          "translation_source": "human"
         },
         {
           "number": 100,
-          "title": "",
+          "title": "A Alameda de Pinheiros",
           "original": "藤沢や　辻堂あたり松並木　つづかひ昔の旅を偲びぬ",
-          "reading": "ふじさわや　つじどうあたりまつなみき　つづかいむかしのたびをしのびぬ",
+          "reading": "Fujisawa ya / Tsujidō atari / matsunamiki / tsuzukai mukashi no / tabi o shinobinu",
           "reading_hira": "ふじさわや　つじどうあたりまつなみき　つづかいむかしのたびをしのびぬ",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S16.10.**"
+          "translation": "Em Fujisawa, nos arredores de Tsujido, a contínua alameda de pinheiros faz-me recordar as antigas jornadas.",
+          "date": "S16.10.**",
+          "translation_literal": "Em Fujisawa! / nos arredores de Tsujido / a alameda de pinheiros / continuando, de antigamente / a viagem recordo",
+          "context": "Outubro de 1941, durante uma viagem pela costa de Kanagawa, o autor reflete sobre as antigas rotas de Tokaido.",
+          "tags": [
+            "Viagem",
+            "Natureza",
+            "Saudade",
+            "Lirismo"
+          ],
+          "kigo": "A alameda de pinheiros evoca a brisa costeira e a permanência atemporal, contrastando com a transitoriedade da viagem.",
+          "kototama": "Sons sibilantes e africados (tsu, ji, sa) criam um ritmo contínuo, como os passos de um viajante na estrada.",
+          "profundidade": "A jornada física espelha a jornada espiritual; as raízes do passado (os antigos viajantes) pavimentam o caminho para a missão presente.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 101,
-          "title": "",
+          "title": "O Eco de Saigyo",
           "original": "秋なれや　鴫立沢に西行の　あはれとどめぬ今の世にまで",
-          "reading": "あきなれや　しぎたつさわにさいぎょうの　あわれとどめぬいまのよにまで",
+          "reading": "Aki nare ya / Shigitatsusawa ni / Saigyō no / aware todomenu / ima no yo ni made",
           "reading_hira": "あきなれや　しぎたつさわにさいぎょうの　あわれとどめぬいまのよにまで",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S16.10.**"
+          "translation": "Ah, é outono! Em Shigitatsusawa, a profunda melancolia deixada por Saigyo perdura até o mundo de hoje.",
+          "date": "S16.10.**",
+          "translation_literal": "É outono! / em Shigitatsusawa / de Saigyo / a melancolia deixada / até o mundo de hoje",
+          "context": "Outubro de 1941, ao passar por Oiso (Shigitatsusawa), célebre local poético associado ao monge Saigyo.",
+          "tags": [
+            "Viagem",
+            "Natureza",
+            "Saudade",
+            "Lirismo"
+          ],
+          "kigo": "O outono (aki) traz consigo a melancolia e o isolamento, típicos da estética waka sobre Shigitatsusawa (o brejo onde as narcejas levantam voo).",
+          "kototama": "A cadência suave de 'Saigyō no aware' ressoa como um eco histórico, conectando o passado ao presente através das vogais abertas.",
+          "profundidade": "A beleza sutil (Yugen) e o sentimento (Aware) dos antigos mestres transcendem o tempo; a sensibilidade espiritual é eterna e imutável.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 102,
-          "title": "",
+          "title": "Vislumbre de Hakone",
           "original": "平塚や　大磯越えて松の間に　はやみえそめぬ箱根の山々",
-          "reading": "ひらつかや　おおいそこえてまつのまに　はやみえそめぬはこねのやまやま",
+          "reading": "Hiratsuka ya / Ōiso koete / matsu no ma ni / haya miesomenu / Hakone no yamayama",
           "reading_hira": "ひらつかや　おおいそこえてまつのまに　はやみえそめぬはこねのやまやま",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S16.10.**"
+          "translation": "Passando por Hiratsuka e cruzando Oiso, por entre os pinheiros já despontam ao longe as montanhas de Hakone.",
+          "date": "S16.10.**",
+          "translation_literal": "Hiratsuka! / cruzando Oiso / por entre os pinheiros / já começaram a ser vistos / os montes de Hakone",
+          "context": "Outubro de 1941, a caminho de Hakone, registrando a mudança da paisagem costeira para a montanhosa.",
+          "tags": [
+            "Viagem",
+            "Natureza",
+            "Hakone",
+            "Lirismo"
+          ],
+          "kigo": "A visão dos pinheiros litorâneos e das montanhas ao fundo evoca uma atmosfera clara e ampla de outono.",
+          "kototama": "A repetição de 'ya' e 'ma' em 'Hakone no yamayama' cria uma sensação de vastidão e grandiosidade que se revela.",
+          "profundidade": "A aproximação do solo sagrado de Hakone reflete a elevação espiritual; a visão que se desvela gradualmente representa o despertar para a Luz.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 103,
-          "title": "",
+          "title": "Mar de Odawara",
           "original": "漁船　三つ四つ浮いて小田原の　海は秋日の下に静けし",
-          "reading": "いさりぶね　みつよつういておだわらの　うみはあきひのもとにしずけし",
+          "reading": "Isaribune / mitsu yotsu uite / Odawara no / umi wa akihi no / moto ni shizukeshi",
           "reading_hira": "いさりぶね　みつよつういておだわらの　うみはあきひのもとにしずけし",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S16.10.**"
+          "translation": "Três ou quatro barcos de pesca flutuam nas águas de Odawara; sob o sol de outono, o mar repousa em profunda serenidade.",
+          "date": "S16.10.**",
+          "translation_literal": "Barcos de pesca / três ou quatro flutuando / de Odawara / o mar, do sol de outono / sob, está sereno",
+          "context": "Outubro de 1941, observando a costa de Odawara em um tranquilo dia de outono.",
+          "tags": [
+            "Viagem",
+            "Natureza",
+            "Paz",
+            "Lirismo"
+          ],
+          "kigo": "'Akihi' (sol de outono) ilumina o mar com uma luz límpida e amena, transmitindo paz e quietude.",
+          "kototama": "A sucessão de sons 'tsu' e 'o' (mitsu yotsu) balança o ritmo como pequenos barcos, desaguando na calmaria de 'shizukeshi'.",
+          "profundidade": "O mar sereno sob a luz outonal simboliza o estado de paz interior e a harmonia divina que Meishu-Sama deseja para a humanidade.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 104,
-          "title": "",
+          "title": "A Vastidão do Pacífico",
           "original": "熱海なる　大野屋の宿の四階の　おばしまに太平洋を久に眺めぬ",
-          "reading": "あたみなる　おおのやのやどのよんかいの　おばしまにたいへいようをひさにながめぬ",
+          "reading": "Atami naru / Ōnoya no yado no / yonkai no / obashima ni Taiheiyō o / hisa ni nagamenu",
           "reading_hira": "あたみなる　おおのやのやどのよんかいの　おばしまにたいへいようをひさにながめぬ",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S16.10.**"
+          "translation": "No quarto andar da estalagem Onoya, em Atami, contemplei por longo tempo a vastidão do Oceano Pacífico debruçado no parapeito.",
+          "date": "S16.10.**",
+          "translation_literal": "Em Atami / da estalagem Onoya / do quarto andar / no parapeito, o Oceano Pacífico / por longo tempo contemplei",
+          "context": "Outubro de 1941, durante uma estadia na tradicional pousada Onoya em Atami, contemplando o mar.",
+          "tags": [
+            "Viagem",
+            "Natureza",
+            "Paz",
+            "Lirismo"
+          ],
+          "kigo": "A visão ampla do oceano a partir de um ponto elevado evoca a vastidão e a brisa fresca, sugerindo a limpidez do ar outonal.",
+          "kototama": "A repetição do som 'no' liga as imagens de forma contínua, culminando no som aberto e grandioso de 'Taiheiyō'.",
+          "profundidade": "A contemplação do vasto oceano reflete a expansão da consciência e o olhar visionário de Meishu-Sama sobre o futuro do mundo.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 105,
-          "title": "",
+          "title": "Mar Como Pintura",
           "original": "十国峠　車の窓ゆのぞきみれば　真鶴あたりの海絵のごとし",
-          "reading": "じゅっこくとうげ　くるまのまどゆのぞきみれば　まなづるあたりのうみえのごとし",
+          "reading": "Jukkokutōge / kuruma no mado yu / nozokimireba / Manazuru atari no / umi e no gotoshi",
           "reading_hira": "じゅっこくとうげ　くるまのまどゆのぞきみれば　まなづるあたりのうみえのごとし",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S16.10.**"
+          "translation": "Do Passo de Jukkoku, ao espiar pela janela do carro, o mar nos arredores de Manazuru revela-se belo como uma pintura.",
+          "date": "S16.10.**",
+          "translation_literal": "Passo de Jukkoku / pela janela do carro / ao espiar / nos arredores de Manazuru / o mar é como uma pintura",
+          "context": "Outubro de 1941, atravessando as montanhas entre Atami e Hakone no Passo de Jukkoku.",
+          "tags": [
+            "Viagem",
+            "Natureza",
+            "Beleza",
+            "Lirismo"
+          ],
+          "kigo": "A clareza da vista panorâmica a partir do Passo de Jukkoku indica um dia límpido de outono, onde as cores são nítidas.",
+          "kototama": "O contraste entre as consoantes fortes de 'Jukkokutōge' e a suavidade de 'umi e no gotoshi' reflete a transição da montanha áspera para o mar sereno.",
+          "profundidade": "A capacidade de enxergar a Natureza como uma obra de arte divina (Belo) é essencial para elevar o espírito e purificar a alma.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 106,
-          "title": "",
+          "title": "O Sopro da Montanha",
           "original": "爽やかな　秋の山気を心ゆく　ばかり吸ひつつ今日を足らいぬ",
-          "reading": "さわやかな　あきのさんきをこころゆく　ばかりすいつつきょうをたらいぬ",
+          "reading": "Sawayaka na / aki no sanki o / kokoroyuku / bakari suitsutsu / kyō o tarainu",
           "reading_hira": "さわやかな　あきのさんきをこころゆく　ばかりすいつつきょうをたらいぬ",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S16.10.**"
+          "translation": "Inalando profundamente o ar fresco e revigorante das montanhas no outono, sinto-me plenamente satisfeito com o dia de hoje.",
+          "date": "S16.10.**",
+          "translation_literal": "Refrescante / o ar montês de outono / à vontade / apenas inalando / o dia de hoje satisfiz-me",
+          "context": "Outubro de 1941, desfrutando do clima e da energia das montanhas de Hakone.",
+          "tags": [
+            "Natureza",
+            "Purificação",
+            "Paz",
+            "Lirismo"
+          ],
+          "kigo": "'Sawayaka' (refrescante) e 'aki no sanki' (ar da montanha de outono) transmitem a temperatura gélida e a pureza do ar.",
+          "kototama": "A fluidez dos sons 'sa', 'su' e 'tsu' evoca o som da respiração profunda e do vento soprando entre as árvores.",
+          "profundidade": "A comunhão com a Natureza e a absorção de sua energia pura (Ki) são formas de purificação espiritual e gratidão pela vida.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 107,
-          "title": "",
+          "title": "A Flor Rara do Outono",
           "original": "秋浅く　紅葉には未だ早けれど　珍らしき花わが眼をうばう",
-          "reading": "あきあさく　もみじにはまだはやけれど　めずらしきはなわがめをうばう",
+          "reading": "Aki asaku / momiji ni wa mada / hayakeredo / mezurashiki hana / waga me o ubau",
           "reading_hira": "あきあさく　もみじにはまだはやけれど　めずらしきはなわがめをうばう",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S16.10.**"
+          "translation": "Embora o outono ainda seja incipiente e falte tempo para o rubro dos bordos, uma flor rara cativa inteiramente o meu olhar.",
+          "date": "S16.10.**",
+          "translation_literal": "Outono incipiente / para as folhas de outono ainda / embora seja cedo / uma flor rara / rouba meus olhos",
+          "context": "Outubro de 1941, no início do outono em Hakone, observando a flora local antes do ápice da coloração das folhas.",
+          "tags": [
+            "Natureza",
+            "Beleza",
+            "Lirismo"
+          ],
+          "kigo": "'Aki asaku' (início do outono) e a menção ao 'momiji' (folhas de outono) ainda verdes situam a cena na transição climática.",
+          "kototama": "A alternância entre o ritmo contido do início ('aki asaku') e o arrebatamento final ('waga me o ubau') reflete a surpresa estética.",
+          "profundidade": "A verdadeira apreciação do Belo não depende do espetáculo óbvio (os bordos), mas da sensibilidade para encontrar o divino nos detalhes singelos.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 108,
-          "title": "",
+          "title": "Santuário nas Sombras",
           "original": "老杉の　昼尚暗き径抜けて　箱根神社に詣でけるかな",
-          "reading": "ろうさんの　ひるなおくらきみちぬけて　はこねじんじゃにもうでけるかな",
+          "reading": "Rōsan no / hirunao kuraki / michi nukete / Hakone Jinja ni / mōdekeru kana",
           "reading_hira": "ろうさんの　ひるなおくらきみちぬけて　はこねじんじゃにもうでけるかな",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S16.10.**"
+          "translation": "Atravessando o caminho de velhos cedros, sombrio mesmo em plena luz do dia, fui peregrinar ao Santuário Hakone.",
+          "date": "S16.10.**",
+          "translation_literal": "De velhos cedros / de dia ainda escuro / caminho atravessando / no Santuário Hakone / fui peregrinar, ah!",
+          "context": "Outubro de 1941, visitando o Santuário Hakone, um local de profunda importância espiritual para Meishu-Sama.",
+          "tags": [
+            "Hakone",
+            "Purificação",
+            "Viagem",
+            "Natureza"
+          ],
+          "kigo": "A sombra densa dos velhos cedros transmite uma sensação gélida e mística, típica das antigas florestas santificadas.",
+          "kototama": "O som profundo de 'Rōsan' e 'kuraki' cria uma atmosfera reverente e misteriosa que se dissolve na claridade de 'nukete'.",
+          "profundidade": "A travessia pelas sombras da floresta antiga simboliza a jornada da alma rumo à Luz divina, culminando na purificação perante o sagrado.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 109,
-          "title": "",
+          "title": "Outono Silencioso",
           "original": "神山や　駒ケ嶽など紅葉浅く　温泉の町いまだ秋ひそかなり",
-          "reading": "かみやまや　こまがたけなどもみじあさく　ゆのまちいまだあきひそかなり",
+          "reading": "Kamiyama ya / Komagatake nado / momiji asaku / yunomachi imada / aki hisoka nari",
           "reading_hira": "かみやまや　こまがたけなどもみじあさく　ゆのまちいまだあきひそかなり",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S16.10.**"
+          "translation": "Nos montes Kamiyama e Komagatake os bordos mal começam a colorir; na estância termal, a chegada do outono ainda é um segredo silencioso.",
+          "date": "S16.10.**",
+          "translation_literal": "Kamiyama! / Komagatake e outros / bordos rasos / a cidade termal ainda / o outono é secreto",
+          "context": "Outubro de 1941, observando a paisagem montanhosa de Hakone a partir da cidade termal, antes do pico do outono.",
+          "tags": [
+            "Hakone",
+            "Natureza",
+            "Lirismo",
+            "Viagem"
+          ],
+          "kigo": "O tom pálido do 'momiji asaku' e a atmosfera silenciosa apontam para a quietude e o frio sutil do início de outono.",
+          "kototama": "A repetição de consoantes nasais (ma, mi, na) em 'Kamiyama', 'Komagatake', 'momiji' e 'yunomachi' tece um tapete sonoro macio e intimista.",
+          "profundidade": "O tempo da Natureza é perfeito; a transição silenciosa para o outono reflete a ação invisível de Deus que prepara grandiosas mudanças no mundo.",
+          "translation_source": "gemini-3.1-pro-preview"
         }
       ]
     },
@@ -1071,103 +1576,206 @@
       "poems": [
         {
           "number": 110,
-          "title": "",
+          "title": "Pétalas no Alvorecer Silencioso",
           "original": "ほのぼのと　明けゆく朝の静もりを　一片二片桜花散る",
-          "reading": "ほのぼのと　あけゆくあさのしずもりを　ひとひらふたひらさくらばなちる",
+          "reading": "honobono to / akeyuku asa no / shizumori o / hitohira futahira / sakurabana chiru",
           "reading_hira": "ほのぼのと　あけゆくあさのしずもりを　ひとひらふたひらさくらばなちる",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S17. 4.10"
+          "translation": "No silêncio da manhã que desponta tenuemente, pétalas de cerejeira caem, uma a uma.",
+          "date": "S17. 4.10",
+          "translation_literal": "Tenuemente / amanhecer da manhã de / silêncio (acusativo) / uma pétala duas pétalas / flores de cerejeira caem",
+          "context": "10 de abril de 1942 — em meio à eclosão da Guerra do Pacífico, o autor contempla a efemeridade da primavera em seu lar em Tamagawa.",
+          "tags": [
+            "Natureza",
+            "Lirismo",
+            "Beleza"
+          ],
+          "kigo": "Primavera (桜花 - flores de cerejeira). A luz suave do amanhecer (honobono) contrasta com o movimento delicado das pétalas caindo.",
+          "kototama": "A repetição de sons aspirados e suaves em \"hitohira futahira\" (hi, fu) evoca o deslizar silencioso das pétalas no ar.",
+          "profundidade": "A queda serena das flores de cerejeira no alvorecer reflete a aceitação natural dos ciclos da vida e a beleza efêmera do mundo material, que esconde a imutabilidade do espírito.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 111,
-          "title": "",
+          "title": "Chegada da Era de Plenitude",
           "original": "邪は滅び　正は栄ゆる足御代の　来つる喜びひたに待つなり",
-          "reading": "じゃはほろび　せいはさかゆるたるみよの　きつるよろこびひたにまつなり",
+          "reading": "ja wa horobi / sei wa sakayuru / tarumiyo no / kitsuru yorokobi / hita ni matsu nari",
           "reading_hira": "じゃはほろび　せいはさかゆるたるみよの　きつるよろこびひたにまつなり",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S17. 4.10"
+          "translation": "Aguardo com fervor a alegria da chegada da Era de Plenitude, onde o mal perece e a justiça prospera.",
+          "date": "S17. 4.10",
+          "translation_literal": "O mal perece / o certo prospera / Era de Plenitude de / chegada alegria / unicamente espero (ser)",
+          "context": "10 de abril de 1942 — período sombrio da Segunda Guerra Mundial, onde o autor reafirma sua convicção na chegada da Era do Dia.",
+          "tags": [
+            "Era do Dia",
+            "Profecia",
+            "Paz",
+            "Salvação"
+          ],
+          "kigo": "Sem kigo sazonal direto. Clima de expectativa e transição espiritual, como a aurora dissipando a noite.",
+          "kototama": "Sons firmes e contrastantes no início (\"ja wa horobi\", \"sei wa sakayuru\") estabelecem a dualidade, culminando na suavidade de \"yorokobi\" (alegria).",
+          "profundidade": "A certeza absoluta da transição da Era da Noite para a Era do Dia, onde a lei espiritual se inverte e o Bem passa a prevalecer naturalmente sobre o Mal, trazendo a verdadeira paz.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 112,
-          "title": "",
+          "title": "O Poder Oculto do Messias",
           "original": "超人の　力秘しつ人の為　世の為揮う時ぞ待たるる",
-          "reading": "ちょうじんの　ちからかくしつひとのため　よのためふるうときぞまたるる",
+          "reading": "chōjin no / chikara kakushitsu / hito no tame / yo no tame furuu / toki zo mataruru",
           "reading_hira": "ちょうじんの　ちからかくしつひとのため　よのためふるうときぞまたるる",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S17. 4.10"
+          "translation": "Ocultando o poder sobre-humano, aguardo o tempo em que o empunharei em prol das pessoas e do mundo.",
+          "date": "S17. 4.10",
+          "translation_literal": "Super-homem de / poder ocultando / das pessoas para / do mundo para empunhar / tempo (ênfase) é esperado",
+          "context": "10 de abril de 1942 — em meio a perseguições religiosas e à guerra, Meishu-Sama oculta seu poder espiritual aguardando o momento certo para agir.",
+          "tags": [
+            "Messias",
+            "Salvação",
+            "Profecia"
+          ],
+          "kigo": "Sem kigo sazonal. Uma atmosfera de recolhimento estratégico, como o inverno que guarda a força para a primavera.",
+          "kototama": "A aliteração em \"chōjin\", \"chikara\", \"kakushitsu\" transmite contenção e energia latente, explodindo na ação do \"furuu\" (empunhar).",
+          "profundidade": "A sabedoria de aguardar o Tempo de Deus (Toki). O poder espiritual não deve ser exibido em vão, mas guardado e revelado apenas quando a humanidade estiver pronta para a salvação.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 113,
-          "title": "",
+          "title": "Missão Divina e Apreço Estético",
           "original": "大いなる　使命に生くる吾にして　月にあくがれ花をぞ楽しむ",
-          "reading": "おおいなる　しめいにいくるわれにして　つきにあくがれはなをぞたのしむ",
+          "reading": "ōinaru / shimei ni ikuru / ware ni shite / tsuki ni akugare / hana o zo tanoshimu",
           "reading_hira": "おおいなる　しめいにいくるわれにして　つきにあくがれはなをぞたのしむ",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S17. 4.10"
+          "translation": "Embora eu viva para uma grandiosa missão, encanto-me com a lua e aprecio as flores.",
+          "date": "S17. 4.10",
+          "translation_literal": "Grandiosa / missão em vive / eu sendo / lua por ansiar / flor (ênfase) desfruto",
+          "context": "10 de abril de 1942 — vivendo sob grande responsabilidade espiritual em Tamagawa, o autor revela seu apreço pelas artes e pela natureza.",
+          "tags": [
+            "Natureza",
+            "Lirismo",
+            "Beleza",
+            "Messias"
+          ],
+          "kigo": "Lua (tsuki) e flores (hana) - elementos clássicos do kacho-fugetsu. A dualidade entre o cosmos eterno e a beleza terrena.",
+          "kototama": "O ritmo amplo de \"ōinaru\" contrasta com a delicadeza poética de \"tsuki ni akugare\", equilibrando o divino e o humano.",
+          "profundidade": "A verdadeira espiritualidade não nega a beleza do mundo. O Messias, mesmo portando o peso da salvação mundial, encontra Deus na apreciação estética da natureza.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 114,
-          "title": "",
+          "title": "O Cultivo do Jardim Primaveril",
           "original": "晴耕雨描　春深みゆく此日比　庭造りなど楽しむも吾",
-          "reading": "せいこううびょう　はるふかみゆくこのひごろ　にわづくりなどたのしむもわれ",
+          "reading": "seikō ubyō / haru fukamiyuku / kono higoro / niwazukuri nado / tanoshimu mo ware",
           "reading_hira": "せいこううびょう　はるふかみゆくこのひごろ　にわづくりなどたのしむもわれ",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S17. 4.10"
+          "translation": "Em dias de sol, cultivo; na chuva, pinto. Nestes dias em que a primavera se aprofunda, deleito-me em criar o meu jardim.",
+          "date": "S17. 4.10",
+          "translation_literal": "Sol cultivo chuva pintura / primavera aprofundando vai / estes dias / criação de jardim etc / desfruto também eu",
+          "context": "10 de abril de 1942 — em Tamagawa, Meishu-Sama adapta o provérbio \"seikou udoku\" (trabalhar no campo com sol, ler com chuva) para a sua paixão pela pintura e jardinagem.",
+          "tags": [
+            "Natureza",
+            "Lirismo",
+            "Lar"
+          ],
+          "kigo": "Primavera que se aprofunda (haru fukamiyuku). Clima ameno, intercalando dias ensolarados de trabalho na terra e dias chuvosos de recolhimento artístico.",
+          "kototama": "A expressão \"seikō ubyō\" traz um ritmo chinês clássico, seguido pelo fluxo suave e cotidiano do waka japonês.",
+          "profundidade": "A harmonia com a Lei da Natureza no dia a dia. A criação do jardim terreno é um microcosmo da construção do Paraíso na Terra, unindo arte, trabalho e contemplação.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 115,
-          "title": "",
+          "title": "Vista do Eremitério em Tamagawa",
           "original": "玉川を　真下に富士の霊峯を　はろかに眺むる吾庵の庭",
-          "reading": "たまがわを　ましたにふじのれいほうを　はろかにながむるわがいおのにわ",
+          "reading": "tamagawa o / mashita ni fuji no / reihō o / haroka ni nagamuru / waga io no niwa",
           "reading_hira": "たまがわを　ましたにふじのれいほうを　はろかにながむるわがいおのにわ",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S17. 4.10"
+          "translation": "O jardim do meu eremitério, de onde contemplo o rio Tamagawa logo abaixo e, ao longe, o sagrado Monte Fuji.",
+          "date": "S17. 4.10",
+          "translation_literal": "Tamagawa (acusativo) / logo abaixo em Fuji de / pico sagrado (acusativo) / ao longe contemplar / meu eremitério de jardim",
+          "context": "10 de abril de 1942 — descrição da paisagem vista de sua residência em Tamagawa, Tóquio, que oferecia uma vista privilegiada.",
+          "tags": [
+            "Tamagawa",
+            "Fuji",
+            "Lar",
+            "Natureza"
+          ],
+          "kigo": "Sem kigo estrito, mas evoca um céu claro e amplo que permite enxergar o Fuji ao longe. Sensação de vastidão e ar puro.",
+          "kototama": "A repetição da partícula \"o\" (tamagawa o, reihō o) cria um movimento de olhar que desce ao rio e sobe até a montanha sagrada.",
+          "profundidade": "A posição física do jardim reflete uma postura espiritual: enraizado na realidade local (Tamagawa) mas com os olhos voltados para o ideal mais elevado e puro (Fuji).",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 116,
-          "title": "",
+          "title": "Cerejeiras sob a Aurora Tingida",
           "original": "朝やけの　空をうづめて吾庭の　桜は今し咲き盛りをり",
-          "reading": "あさやけの　そらをうずめてわがにわの　さくらはいましさきさかりおり",
+          "reading": "asayake no / sora o uzumete / waga niwa no / sakura wa imashi / sakizakari ori",
           "reading_hira": "あさやけの　そらをうずめてわがにわの　さくらはいましさきさかりおり",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S17. 4.10"
+          "translation": "Preenchendo o céu tingido pela aurora, as cerejeiras do meu jardim encontram-se agora no auge da floração.",
+          "date": "S17. 4.10",
+          "translation_literal": "Aurora de / céu (acusativo) preenchendo / meu jardim de / cerejeira (tópico) agora / florescer auge está",
+          "context": "10 de abril de 1942 — na residência de Tamagawa, o autor contempla o esplendor máximo das cerejeiras na primavera.",
+          "tags": [
+            "Natureza",
+            "Lirismo",
+            "Lar"
+          ],
+          "kigo": "Cerejeiras no auge (sakizakari), aurora (asayake) e primavera. Luz rosada e dourada da manhã misturando-se com as flores abundantes.",
+          "kototama": "A cadência de sons em \"sora o uzumete\" (preenchendo o céu) transmite uma sensação de abundância e expansão visual.",
+          "profundidade": "O auge da floração no amanhecer simboliza o advento da Era do Dia, onde a vitalidade divina e a beleza espiritual preencherão o mundo em sua plenitude.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 117,
-          "title": "",
+          "title": "Entre o Pincel e o Jardim",
           "original": "描きつつ　飽くれば庭に降りたちて　花など愛でつさすらひにける",
-          "reading": "えがきつつ　あくればにわにおりたちて　はななどめでつさすらいにける",
+          "reading": "egakitsutsu / akureba niwa ni / oritachite / hana nado medetsu / sasurai ni keru",
           "reading_hira": "えがきつつ　あくればにわにおりたちて　はななどめでつさすらいにける",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S17. 4.10"
+          "translation": "Quando me canso de pintar, desço ao jardim e vago sem rumo, admirando as flores.",
+          "date": "S17. 4.10",
+          "translation_literal": "Pintando / ao me cansar jardim em / descendo / flor etc admirando / vaguei",
+          "context": "10 de abril de 1942 — um vislumbre da rotina artística e contemplativa de Meishu-Sama em Tamagawa, alternando entre o pincel e a natureza.",
+          "tags": [
+            "Natureza",
+            "Lirismo",
+            "Lar"
+          ],
+          "kigo": "Flores (hana). Clima de lazer primaveril, onde o tempo flui livremente entre o ateliê e o jardim.",
+          "kototama": "A sequência rítmica \"egakitsutsu\", \"oritachite\", \"medetsu\" dá uma sensação de continuidade e fluidez de ações naturais.",
+          "profundidade": "O equilíbrio entre o esforço concentrado da arte e o relaxamento contemplativo da natureza, mostrando que a verdadeira inspiração nasce da comunhão constante com o Belo.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 118,
-          "title": "",
+          "title": "A Beleza do Próprio Lar",
           "original": "吾庭の　眺めの好きを知りにける　去年をちこちの旅を巡りて",
-          "reading": "わがにわの　ながめのよきをしりにける　こぞおちこちのたびをめぐりて",
+          "reading": "waga niwa no / nagame no yoki o / shiri ni keru / kozo ochikochi no / tabi o megurite",
           "reading_hira": "わがにわの　ながめのよきをしりにける　こぞおちこちのたびをめぐりて",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S17. 4.10"
+          "translation": "Viajando por diversos lugares no ano passado, vim a compreender o quão bela é a vista do meu próprio jardim.",
+          "date": "S17. 4.10",
+          "translation_literal": "Meu jardim de / vista de boa (acusativo) / vim a saber / ano passado aqui e ali de / viagem (acusativo) percorrendo",
+          "context": "10 de abril de 1942 — reflexão sobre as viagens realizadas no ano anterior e a valorização do próprio lar em Tamagawa.",
+          "tags": [
+            "Lar",
+            "Viagem",
+            "Beleza"
+          ],
+          "kigo": "Sem kigo sazonal explícito. Clima de retrospectiva e apreciação tranquila do presente.",
+          "kototama": "O contraste entre o movimento de \"ochikochi no tabi\" (viagens por aqui e ali) e a estabilidade de \"waga niwa\" (meu jardim) reforça o sentimento de retorno e paz.",
+          "profundidade": "A busca pela beleza externa muitas vezes nos leva a reconhecer que o Paraíso e a verdadeira paz já habitam o nosso próprio lar, bastando ter os olhos abertos para enxergá-los.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 119,
-          "title": "",
+          "title": "Pêssegos e Cerejeiras pela Janela",
           "original": "描きつつ　折をり窓の外みれば　桃も桜も今盛りなり",
-          "reading": "えがきつつ　おりおりまどのそとみれば　もももさくらもいまさかりなり",
+          "reading": "egakitsutsu / oriori mado no / soto mireba / momo mo sakura mo / ima sakari nari",
           "reading_hira": "えがきつつ　おりおりまどのそとみれば　もももさくらもいまさかりなり",
-          "translation": "",
-          "translation_pending": true,
-          "date": "S17. 4.10"
+          "translation": "Enquanto pinto, olho de vez em quando pela janela e vejo que os pessegueiros e as cerejeiras estão agora no auge da floração.",
+          "date": "S17. 4.10",
+          "translation_literal": "Pintando / de vez em quando janela de / fora se olho / pêssego também cerejeira também / agora auge é",
+          "context": "10 de abril de 1942 — no ateliê em Tamagawa, a primavera transborda pela janela, inspirando a arte do autor.",
+          "tags": [
+            "Natureza",
+            "Lirismo",
+            "Lar"
+          ],
+          "kigo": "Flores de pessegueiro (momo) e cerejeira (sakura) no auge. Uma primavera exuberante e colorida, que invade o ambiente interno com sua vitalidade.",
+          "kototama": "A repetição da partícula \"mo\" (momo mo sakura mo) cria um ritmo alegre e abundante, celebrando a profusão de flores.",
+          "profundidade": "A união entre a criação artística humana e a obra-prima de Deus (natureza). Ao olhar pela janela, a alma do artista se recarrega com a energia vital do Belo.",
+          "translation_source": "gemini-3.1-pro-preview"
         },
         {
           "number": 120,

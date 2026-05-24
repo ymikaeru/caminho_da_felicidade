@@ -18,9 +18,9 @@ export const DISCIPLES_BOOK_TITLES = {
 };
 
 export const POETRY_BOOK_TITLES = {
-  'warai-no-izumi':   '笑の泉 — Warai no Izumi',
+  'akimaro-kineishu': "明麿近詠集 — Akimaro Kin'eishū",
   'yama-to-mizu':     '山と水 — Yama to Mizu',
-  'akimaro-kineishu': "明麿近詠集 — Akimaro Kin'eishū"
+  'warai-no-izumi':   '笑の泉 — Warai no Izumi'
 };
 
 // Arquivos especiais (prefácios etc.) que não estão em section_map.js

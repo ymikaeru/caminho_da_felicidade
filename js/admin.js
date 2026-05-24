@@ -26,6 +26,7 @@
     import './admin/tabs/analytics.js';
     import './admin/tabs/translation-review.js';
     import './admin/tabs/recommendations.js';
+    import './admin/tabs/poetry-versions.js';
 
     const VOLUMES = [
       { key: 'mioshiec1', name: 'Volume 1 — Mundo Espiritual' },
@@ -59,9 +60,9 @@
     };
 
     const POETRY_BOOK_TITLES = {
-      'warai-no-izumi':   '笑の泉 — Warai no Izumi',
+      'akimaro-kineishu': "明麿近詠集 — Akimaro Kin'eishū",
       'yama-to-mizu':     '山と水 — Yama to Mizu',
-      'akimaro-kineishu': "明麿近詠集 — Akimaro Kin'eishū"
+      'warai-no-izumi':   '笑の泉 — Warai no Izumi'
     };
 
     // Arquivos especiais (prefácios etc.) que não estão em section_map.js
@@ -109,7 +110,7 @@
     window.switchTab = function(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-poetry': 6, 'analytics-search': 7, 'destaques': 8, 'saved': 9, 'recommendations': 10, 'reports': 11, 'users': 12, 'findreplace': 13, 'duplicates': 14, 'logs': 15, 'analytics-johrei': 16, 'essencia-guia': 17 }[tab];
+      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-poetry': 6, 'analytics-search': 7, 'destaques': 8, 'saved': 9, 'recommendations': 10, 'reports': 11, 'poetry-versions': 12, 'users': 13, 'findreplace': 14, 'duplicates': 15, 'logs': 16, 'analytics-johrei': 17, 'essencia-guia': 18 }[tab];
       document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'analytics') {
@@ -128,6 +129,7 @@
       if (tab === 'logs') loadAdminLogs();
       if (tab === 'duplicates') loadDuplicates();
       if (tab === 'recommendations') loadRecommendationsTab();
+      if (tab === 'poetry-versions') loadPoetryVersions();
       if (tab === 'analytics-johrei') loadJohreiAnalytics();
       if (tab === 'analytics-landing') loadLandingAnalytics();
       if (tab === 'analytics-disciples') loadDisciplesAnalytics();

@@ -98,6 +98,32 @@ será comparada em painel A/B. Seja **deliberadamente ousado**.
 8. **Fidelidade espiritual**: interprete sob a ótica da Verdade, Bem e Belo,
    Lei da Natureza, Transição das Eras, Doutrina Messiânica.
 
+9. **Evite formas verbais arcaicas estranhas**: NÃO use formas raríssimas
+   ou inexistentes em PT-BR moderno (ex: `sentenciais`, `houvéreis`,
+   `fôreis`). Prefira presente impessoal (`sentencia-se`), pretérito
+   perfeito (`sentenciou`), ou mesóclise (`dar-se-á`). 2ª pessoa do plural
+   só com verbos comuns (`renascei`, `vinde`, `ouvi`).
+
+10. **Evite vocabulário romano-imperial em contexto oriental**: NÃO use
+    `augusto`, `imperial`, `áulico` para qualificar Kannon, Buda, Fuji,
+    Ise. Prefira: `sublime`, `sagrado`, `reverente`, `venerável`,
+    `majestoso`, `glorioso`, `inefável`, `transcendente`, `numinoso`.
+
+11. **Títulos: ousadia vem de combinação, não obscuridade**.
+    BOM (palavras conhecidas em combinação inesperada): `Ceia Sagrada`,
+    `Sonho da Loucura`, `Exorcismo Nacional`, `Mistério de Um Rin`.
+    EVITAR (palavras raras demais): `Campos Fenecidos`, `Veto à Loucura`,
+    `Ágape Vesperal`, `Áulico Embate`.
+    Quando em dúvida entre rara e comum elevada, escolha a comum elevada.
+
+12. **Volição em 1ª pessoa singular** (formas `-an`/`-mu`/`-n`): quando
+    o autor declara intenção/desafio pessoal — tipicamente com `吾`/
+    `われ`/`ware` (eu) sozinho ou em contraste com `汝`/`なれ`/`nare`
+    (tu/vós) — traduza em **1ª pessoa singular** ("provarei", "testarei",
+    "subjugarei"), NUNCA em plural ("provemos", "testemos") — suaviza o
+    confronto. Use plural só com `われら`/`warera` (nós) explícito.
+    Ex: `汝と吾との力試さん` → "provarei vossa força contra a minha".
+
 # Saída
 
 Devolva um array JSON com objetos `{number, title, translation}` — um por

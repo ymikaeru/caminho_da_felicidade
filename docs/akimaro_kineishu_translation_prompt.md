@@ -49,6 +49,14 @@ da Lição Espiritual.
     - `Ten` / `Ame` (天) → **Céu**
     - `Tengoku` (天国) → **Paraíso** ou **Reino Celestial**
     - `Mahito` (真人) → **Homem Verdadeiro**
+- **Volição em 1ª pessoa singular** (formas verbais `-an`/`-mu`/`-n`):
+  quando o original tem o autor declarando intenção/desafio pessoal —
+  tipicamente quando aparece `吾`/`われ`/`ware` (eu) sozinho ou em
+  contraste com `汝`/`なれ`/`nare` (tu/vós) — traduzir em **1ª pessoa
+  singular** ("provarei", "testarei", "varrerei"), NUNCA em plural
+  ("provemos") — suaviza o confronto direto. A 1ª pessoa do plural é
+  cabível apenas com `われら`/`warera` (nós) explícito.
+  Ex: `汝と吾との力試さん` → "**provarei** vossa força contra a minha".
 - **Análise Tríade (Obrigatória):** Para cada poema, forneça:
   - 🍃 **Kigo (A Estação e o Clima):** análise sensorial da estação,
     luz, temperatura, paisagem e clima evocados.

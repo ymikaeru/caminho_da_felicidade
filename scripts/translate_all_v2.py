@@ -106,6 +106,60 @@ em painel A/B. Seja **deliberadamente ousado**.
 8. **Fidelidade espiritual**: interprete sob a ótica da Verdade, Bem e Belo,
    Lei da Natureza, Transição das Eras, Doutrina Messiânica.
 
+9. **Evite formas verbais arcaicas estranhas**: NÃO use formas raríssimas
+   ou inexistentes em PT-BR moderno (ex: `sentenciais`, `houvéreis`,
+   `fôreis`, `disséreis`). Prefira:
+   - Presente impessoal: `sentencia-se`, `cumpre-se`, `revela-se`
+   - Pretérito perfeito: `sentenciou`, `cumpriu`, `revelou`
+   - Mesóclise quando elegante: `dar-se-á`, `cumprir-se-á`
+   Conjugações da 2ª pessoa do plural (vós) só com verbos comuns:
+   `renascei`, `vinde`, `ouvi`, `tomai` — nunca com verbos obscuros.
+
+10. **Evite vocabulário romano-imperial em contexto oriental/messiânico**:
+    NÃO use `augusto`, `imperial`, `césar`, `pretoriano`, `áulico` para
+    qualificar elementos budistas, xintoístas ou messiânicos (Kannon,
+    Buda, Cristo, Fuji, Ise, etc.). Use em vez disso:
+    `sublime`, `sagrado`, `reverente`, `venerável`, `majestoso`,
+    `glorioso`, `inefável`, `transcendente`, `solene`, `divino`,
+    `numinoso`, `prodigioso`.
+
+11. **Títulos: ousadia vem de combinação, não de obscuridade**.
+    Use palavras que um falante culto de PT-BR reconheça **imediatamente**.
+    Beleza poética nasce da **combinação inesperada de palavras
+    conhecidas**, não da palavra rara que exige dicionário.
+
+    **BOM** (combinações inesperadas, palavras conhecidas):
+    - `A Ceia Sagrada`, `O Sonho da Loucura`, `Exorcismo Nacional`,
+      `O Aware de Saigyō`, `A Joia dos Desejos`, `O Mistério de Um Rin`.
+
+    **EVITAR** (palavras raras demais):
+    - `Os Campos Fenecidos`, `O Veto à Loucura`, `Ágape Vesperal`,
+      `O Onírico Desvario`, `Banimento Patriótico`, `O Áulico Embate`.
+
+    Quando em dúvida entre `palavra rara` e `palavra comum mas elevada`,
+    escolha a comum elevada.
+
+12. **Volição em 1ª pessoa singular vs. coletiva** (formas `-an` / `-mu`
+    / `-n`): quando o original tem o autor declarando intenção/desafio
+    pessoal — tipicamente quando aparece o pronome `吾`/`われ`/`ware`
+    (eu) sozinho ou em contraste com `汝`/`なれ`/`nare` (tu/vós) —
+    traduza em **1ª pessoa singular** ("provarei", "testarei", "varrerei",
+    "subjugarei"), preservando o tom de desafio pessoal do autor.
+
+    NÃO use 1ª pessoa do plural ("provemos", "testemos") nesses casos —
+    suaviza o confronto direto e dilui a autoridade messiânica do "eu"
+    poético.
+
+    Exemplos:
+    - `汝と吾との力試さん` → "**provarei** vossa força contra a minha"
+      (não "provemos a vossa força contra a minha")
+    - `仇なす醜草打伐り払はん` → "**ceifarei** por completo as ervas
+      daninhas que causam mal"
+    - `世人救はん` → "**salvarei** o povo do mundo"
+
+    A 1ª pessoa do plural é cabível apenas quando o original tem
+    explicitamente `われら`/`warera` (nós) ou contexto coletivo claro.
+
 # Saída
 
 Devolva um array JSON com objetos `{number, title, translation}` — um por

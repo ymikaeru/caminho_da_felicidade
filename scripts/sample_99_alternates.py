@@ -39,6 +39,11 @@ RETRY_TEMPERATURE = 0.45
 # lar, profecia). Cobre a paleta tematica das primeiras secoes.
 DEFAULT_SAMPLE = [1, 5, 17, 25, 28, 33, 50, 57, 82, 95]
 
+# Limite duro: este script e' so' para amostragem A/B antes de decidir se
+# vale gerar versoes alternativas para os 99 inteiros. Se quiser rodar
+# todos, use um script dedicado (a ser feito).
+MAX_SAMPLE = 10
+
 
 class AlternateTranslation(BaseModel):
     number: int = Field(description="Numero do poema (deve corresponder).")
@@ -173,11 +178,6 @@ def main():
                     help="Comma-separated poem numbers (default: 10 spread sample)")
     args = ap.parse_args()
 
-    key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    if not key:
-        print("ERROR: set GEMINI_API_KEY", file=sys.stderr)
-        return 1
-
     if args.numbers:
         try:
             numbers = [int(x.strip()) for x in args.numbers.split(",") if x.strip()]
@@ -186,6 +186,18 @@ def main():
             return 1
     else:
         numbers = DEFAULT_SAMPLE
+
+    if len(numbers) > MAX_SAMPLE:
+        print(f"ERROR: este script aceita no máximo {MAX_SAMPLE} poemas por execução "
+              f"(você passou {len(numbers)}). É apenas para amostragem A/B. "
+              f"Para gerar versões alternativas de todos os 99, crie um script "
+              f"dedicado depois de validar a qualidade da amostra.", file=sys.stderr)
+        return 1
+
+    key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    if not key:
+        print("ERROR: set GEMINI_API_KEY", file=sys.stderr)
+        return 1
 
     with open(JSON_PATH, encoding="utf-8") as f:
         data = json.load(f)

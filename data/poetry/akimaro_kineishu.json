@@ -47,7 +47,9 @@
             "Era do Dia",
             "Profecia",
             "Natureza"
-          ]
+          ],
+          "title_gemini": "A Alvorada Escarlate",
+          "translation_gemini": "No firmamento a leste, um rubro fulgor; rasgando a espessa cortina de nuvens: eis que desponta o disco solar!"
         },
         {
           "number": 2,
@@ -138,7 +140,9 @@
             "Lirismo",
             "Paz",
             "Era do Dia"
-          ]
+          ],
+          "title_gemini": "O Despertar da Primavera",
+          "translation_gemini": "Luz a banhar o campo ressequido; já se vislumbra a face da primavera — oh, que inefável paz neste dia!"
         },
         {
           "number": 6,
@@ -385,7 +389,9 @@
             "Makoto",
             "Crítica social",
             "Era da Noite"
-          ]
+          ],
+          "title_gemini": "A Fuga da Verdade",
+          "translation_gemini": "No exato instante do julgamento; ao sentenciar o bem e o mal: a Verdade esquiva-se a mil léguas!"
         },
         {
           "number": 18,
@@ -553,7 +559,9 @@
             "Lar",
             "Lirismo",
             "Paz"
-          ]
+          ],
+          "title_gemini": "O Ápice da Alegria",
+          "translation_gemini": "Em doce harmonia ao cair da tarde; a ceia e o diálogo em família — não há júbilo maior neste mundo!"
         },
         {
           "number": 26,
@@ -613,7 +621,9 @@
             "Makoto",
             "Purificação",
             "Crítica social"
-          ]
+          ],
+          "title_gemini": "O Dever e a Ilusão",
+          "translation_gemini": "Há um nobre caminho a trilhar; há um dever supremo a cumprir: não te deixes cegar por vãs ilusões!"
         },
         {
           "number": 29,
@@ -715,7 +725,9 @@
             "Kannon",
             "Makoto",
             "Salvacao"
-          ]
+          ],
+          "title_gemini": "O Sublime Manancial de Kannon",
+          "translation_gemini": "Inesgotável, como a fonte a jorrar! — eis a maravilhosa sabedoria que me é outorgada: quão formidável é a graça de Kannon."
         },
         {
           "number": 34,
@@ -1085,7 +1097,9 @@
             "Era do Dia",
             "Profecia",
             "Salvação"
-          ]
+          ],
+          "title_gemini": "O Desafio aos Antigos Mestres",
+          "translation_gemini": "Que Kirisuto e Shaka renasçam nesta terra! — vinde, pois, para que possamos, vós e eu: testar o poder supremo de nossa força."
         },
         {
           "number": 51,
@@ -1229,7 +1243,9 @@
             "Purificação",
             "Era do Dia",
             "Salvação"
-          ]
+          ],
+          "title_gemini": "O Fruto da Vitória Divina",
+          "translation_gemini": "Chegou a hora de triunfar sobre Magakami! — o sagrado fruto do pessegueiro: eis que a joia divina pousa agora em minhas mãos."
         },
         {
           "number": 58,
@@ -1747,7 +1763,9 @@
             "Messias",
             "Salvacao",
             "Profecia"
-          ]
+          ],
+          "title_gemini": "O Messias Sem Par",
+          "translation_gemini": "Um Salvador que transcende Kirisuto e Shaka! — se não houvesse descido dos céus: o que seria do destino deste mundo?"
         },
         {
           "number": 83,
@@ -2023,7 +2041,9 @@
             "Purificação",
             "Paz",
             "Crítica social"
-          ]
+          ],
+          "title_gemini": "Oração no Santuário de Ise",
+          "translation_gemini": "Que a nação assolada por Magakami seja pacificada! — assim clamei aos céus: em profunda prece no santuário de Ise."
         },
         {
           "number": 96,

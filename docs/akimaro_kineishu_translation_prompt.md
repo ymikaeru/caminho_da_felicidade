@@ -28,9 +28,27 @@ da Lição Espiritual.
   em vez de "fim de tarde").
 - **Fidelidade Espiritual:** interprete cada poema sob a ótica da
   Verdade, Bem e Belo, da Lei da Natureza e da transição das Eras.
-- **Nomes próprios em romaji:** Kannon, Johrei, Komyo, Koyokai, Nyorai,
-  Kototama, Fuji, Tamagawa, Hakone, Atami etc. mantêm-se em romaji
-  mesmo nas glosas em português.
+- **Vocabulário japonês — regras claras:**
+
+  **(a) Sempre em romaji** (conceitos doutrinários e nomes geográficos):
+    - Doutrinários: `Kannon`, `Johrei`, `Komyo`, `Kototama`, `Yuzuriha`,
+      `Aware`, `Yugen`, `Izunome`, `Makoto`, `Mahikari no Mitama`, `Tariki`,
+      `Kannongyo`, `Myochiriki`, `Misogi`, `Wakō Dōjin`, `Daikomyo Nyorai`,
+      `Koyokai`, `Nyorai`.
+    - Geográficos: `Fuji`, `Tamagawa`, `Hakone`, `Atami`, `Ise`, `Moto-Ise`,
+      `Tsujidō`, `Hiratsuka`, `Odawara`, `Manazuru`, `Hakkeien`, `Kanrei`,
+      `Komagatake`, `Kamiyama`, `Yugyōji`, `Shinsenkyō`, `Sekirakuen`.
+
+  **(b) SEMPRE traduzir** (termos com tradução estabelecida em PT-BR):
+    - `Kirisuto` (基督) → **Cristo**
+    - `Shaka` (釈迦) → **Buda** ou **Buda Shakyamuni**
+    - `Hotoke` (仏) / `Mihotoke` (御仏) → **Buda** / **Precioso Buda**
+    - `Magakami` (曲神) → **deuses sombrios** (plural minúsculo;
+      categoria de entidades espirituais distorcidas, antônimo conceitual
+      de Komyo/Luz — não é Satanás cristão)
+    - `Ten` / `Ame` (天) → **Céu**
+    - `Tengoku` (天国) → **Paraíso** ou **Reino Celestial**
+    - `Mahito` (真人) → **Homem Verdadeiro**
 - **Análise Tríade (Obrigatória):** Para cada poema, forneça:
   - 🍃 **Kigo (A Estação e o Clima):** análise sensorial da estação,
     luz, temperatura, paisagem e clima evocados.

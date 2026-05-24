@@ -1,0 +1,5 @@
+/* Admin-only bundle. Carregado APENAS por admin-supabase.html.
+   Contém seletores genéricos (.stats-grid, .data-table, .user-row, ...)
+   que colidem com classes da landing/reader — por isso fica em bundle
+   separado, não no styles.css principal. */
+@import './modules/_admin.css';

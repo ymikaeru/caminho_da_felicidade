@@ -116,7 +116,7 @@ function _renderGuiaReports() {
     const articleTitle = r.article_title || r.article_id || '(sem título)';
 
     const previewBtn = r.page_url
-      ? `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open(${JSON.stringify(r.page_url)}, '_blank')" title="Abrir artigo no site">👁️ Preview</button>`
+      ? `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open(${_escHtml(JSON.stringify(r.page_url))}, '_blank')" title="Abrir artigo no site">👁️ Preview</button>`
       : '';
 
     const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.12); color:#a87a1b; border-color:rgba(255,160,0,0.4);" onclick="openGuiaEditor('${r.id}')" title="Abrir editor inline, fixar trecho reportado">✏️ Editar</button>`;

@@ -132,7 +132,8 @@ function _renderReports() {
     };
 
     const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
-    const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Sugerir correção pontual via Claude AI">✨ Sugerir IA</button>`;
+    const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Sugerir correção pontual via Claude AI">✨ Claude</button>`;
+    const geminiBtn = `<button class="report-verify-btn" style="background:rgba(26,115,232,0.1); color:#1a73e8; border-color:rgba(26,115,232,0.3);" onclick="suggestWithGemini('${r.id}')" title="Sugerir correção pontual via Gemini">🔷 Gemini</button>`;
     const correctBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.15); color:#1f8a3f; border-color:rgba(52,199,89,0.4);" onclick="markCorrected('${r.id}', this)" title="Marcar correção como aplicada — aguarda revisão para arquivar">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         Corrigido
@@ -149,7 +150,7 @@ function _renderReports() {
     let actions = '';
     let chip = '';
     if (state === 'pending') {
-      actions = `${previewBtn}${editBtn}${aiBtn}${correctBtn}`;
+      actions = `${previewBtn}${editBtn}${aiBtn}${geminiBtn}${correctBtn}`;
     } else if (state === 'corrected') {
       actions = `${previewBtn}${editBtn}${archiveBtn}`;
       chip = `<span class="report-status-chip status-corrected" title="Aguardando arquivamento por outro admin">🟡 Corrigido por ${_escHtml(adminName(r.corrected_by))} · ${shortDate(r.corrected_at)}</span>`;
@@ -705,6 +706,114 @@ function _reportDiscardAIPanel(reportId) {
   panel.style.display = 'none';
   panel.innerHTML = '';
   if (_activeAIPanel && _activeAIPanel.reportId === reportId) _activeAIPanel = null;
+}
+
+// ── Gemini: chamada direta à API via Edge Function ─────────────────────────
+
+async function suggestWithGemini(reportId) {
+  const r = _allReports.find(x => x.id === reportId);
+  if (!r) return;
+
+  const btn = document.querySelector(`#report-card-${reportId} button[onclick*="suggestWithGemini"]`);
+  const origHtml = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Consultando…'; }
+
+  const panel = document.getElementById(`report-ai-panel-${reportId}`);
+  if (panel) {
+    panel.style.display = 'block';
+    panel.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted); padding:4px 0;">⏳ Consultando Gemini…</div>`;
+  }
+
+  const topicIdx = parseInt((r.topic_id || '0').replace(/\D/g, '')) || 0;
+  let contentJa = '', contentPt = '';
+  try {
+    const { data } = await supabase
+      .from('teachings_topics')
+      .select('content_ja, content_pt')
+      .eq('vol', r.vol)
+      .eq('file', r.file)
+      .eq('topic_idx', topicIdx)
+      .maybeSingle();
+    if (data) { contentJa = data.content_ja || ''; contentPt = data.content_pt || ''; }
+  } catch (e) { console.warn('[geminiAI] fetch failed:', e); }
+
+  const prompt = `${TRANSLATION_GUIDELINES}
+
+---
+
+## CONTEXTO: SUGESTÃO DE CORREÇÃO PONTUAL
+
+Um usuário reportou um possível erro de tradução nos ensinamentos de Meishu-sama. Sua missão é identificar exatamente onde está o erro (mesmo que o trecho selecionado pelo usuário não seja o ponto exato) e sugerir a correção, aplicando todas as diretrizes acima.
+
+## DADOS DO REPORT
+
+**Localização:** ${r.vol} / ${r.file} / tópico ${topicIdx}
+**Idioma onde o erro foi identificado:** ${r.lang === 'ja' ? 'Japonês' : 'Português'}
+**Trecho selecionado pelo usuário:**
+"${r.selected_text || '(não informado)'}"
+${r.description ? `\n**Comentário do usuário (pista sobre o erro):**\n"${r.description}"` : ''}
+
+---
+${contentJa ? `## TEXTO JAPONÊS ORIGINAL (referência canônica)\n\n${contentJa}\n\n` : ''}${contentPt ? `## TRADUÇÃO PT-BR ATUAL (versão em uso no site)\n\n${contentPt}\n\n` : ''}---
+
+## TAREFA
+
+Compare o japonês original com a tradução PT-BR atual. Use o comentário do usuário como pista, mas analise o tópico completo se necessário.
+
+Responda com os campos JSON:
+- "erro_identificado": onde está o problema — qual trecho do PT não corresponde ao JP, ou qual termo do glossário foi violado
+- "trecho_atual": o trecho problemático exato da tradução atual
+- "correcao_sugerida": o trecho corrigido — aplicando glossário, calibração de registro PT-BR e estilo
+- "justificativa": explicação breve — qual palavra japonesa foi mal traduzida, qual regra foi violada`;
+
+  try {
+    const { data, error } = await supabase.functions.invoke('gemini-suggest', { body: { prompt } });
+    if (error) throw error;
+    if (data?.error) throw new Error(data.error + (data.detail ? ` — ${data.detail}` : ''));
+    const result = data?.result;
+    if (!result) throw new Error('Resposta vazia do Gemini');
+    _renderGeminiResult(reportId, result);
+  } catch (e) {
+    if (panel) {
+      panel.innerHTML = `
+        <div style="color:#ff3b30; font-size:0.82rem; margin-bottom:8px;">❌ Erro ao consultar Gemini: ${_escHtml(String(e.message))}</div>
+        <button onclick="_reportDiscardAIPanel('${reportId}')" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">Fechar</button>`;
+    }
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
+  }
+}
+
+function _renderGeminiResult(reportId, result) {
+  const panel = document.getElementById(`report-ai-panel-${reportId}`);
+  if (!panel) return;
+
+  const ptCurrent = (result.trecho_atual || '').trim();
+  const ptSuggest = (result.correcao_sugerida || '').trim();
+  const erroId    = (result.erro_identificado || '').trim();
+  const justify   = (result.justificativa || '').trim();
+
+  panel.innerHTML = `
+    <div style="font-size:0.72rem; font-weight:600; color:#1a73e8; text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px;">🔷 Sugestão do Gemini</div>
+    ${erroId ? `<div style="margin-bottom:8px; padding:8px 10px; background:var(--surface); border-left:3px solid #1a73e8; border-radius:4px; font-size:0.8rem; line-height:1.5; color:var(--text-muted);"><b>🔍 Erro identificado:</b> ${_escHtml(erroId)}</div>` : ''}
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px; font-weight:600;">📄 Trecho atual (PT)</div>
+        <div style="padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px; font-size:0.85rem; line-height:1.55; min-height:60px; white-space:pre-wrap;">${_escHtml(ptCurrent || '(não detectado)')}</div>
+      </div>
+      <div>
+        <div style="font-size:0.7rem; color:#1a73e8; margin-bottom:4px; font-weight:600;">✅ Correção sugerida (PT)</div>
+        <div class="report-ai-new" contenteditable="true" style="padding:8px 10px; background:rgba(26,115,232,0.04); border:1px solid rgba(26,115,232,0.4); border-radius:6px; font-size:0.85rem; line-height:1.55; min-height:60px; white-space:pre-wrap; color:var(--text);">${_escHtml(ptSuggest || '')}</div>
+      </div>
+    </div>
+    ${justify ? `<div style="margin-top:10px; padding:8px 10px; background:var(--surface); border-left:3px solid #1a73e8; border-radius:4px; font-size:0.8rem; line-height:1.5; color:var(--text-muted);"><b>💡 Justificativa:</b> ${_escHtml(justify)}</div>` : ''}
+    <div style="display:flex; gap:8px; margin-top:10px; align-items:center; flex-wrap:wrap;">
+      <button onclick="_reportCopySuggestion('${reportId}', this)" style="padding:6px 14px; background:#34c759; color:#fff; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">📋 Copiar correção</button>
+      <button onclick="openEditorFromReport('${reportId}')" style="padding:6px 14px; background:rgba(255,160,0,0.15); color:var(--text); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">📝 Abrir editor</button>
+      <button onclick="_reportDiscardAIPanel('${reportId}')" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">Fechar</button>
+      <span style="font-size:0.72rem; color:var(--text-muted);">Edite a correção antes de copiar, se quiser</span>
+    </div>
+  `;
 }
 
 // ── Auto-paste do clipboard quando volta da aba do claude.ai
@@ -1444,6 +1553,8 @@ Object.assign(window, {
   deleteReportNote,
   // AI helpers (report side)
   suggestTranslationWithAI,
+  suggestWithGemini,
+  _renderGeminiResult,
   _reportParseAISuggestion,
   _reportCopySuggestion,
   _reportDiscardAIPanel,

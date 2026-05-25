@@ -372,8 +372,13 @@ async function openGuiaEditor(reportId) {
   }
 
   const ta = document.getElementById('guia-editor-area');
-  ta.style.display = 'none';
+  const jpTa = document.getElementById('guia-editor-jp');
+  const grid = document.getElementById('guia-editor-grid');
+  const jpCol = document.getElementById('guia-editor-jp-col');
   ta.value = '';
+  if (jpTa) jpTa.value = '';
+  if (grid) grid.style.display = 'none';
+  if (jpCol) jpCol.style.display = 'none';
   const saveBtn = document.getElementById('guia-editor-save');
   saveBtn.disabled = true;
   saveBtn.textContent = '💾 Salvar e marcar Corrigido';
@@ -412,8 +417,17 @@ async function openGuiaEditor(reportId) {
   const conteudo = located.article.conteudo || '';
   _ge_originalConteudo = conteudo;
 
+  // JP opcional — popula coluna esquerda quando existe
+  const jp = located.article.conteudo_jp || located.article.content_jp || '';
+  if (jp && jpTa && jpCol && grid) {
+    jpTa.value = jp;
+    jpCol.style.display = 'block';
+    grid.style.display = 'flex';
+  } else if (grid) {
+    grid.style.display = 'block';
+  }
+
   ta.value = conteudo;
-  ta.style.display = 'block';
   document.getElementById('guia-editor-status').style.display = 'none';
   saveBtn.disabled = false;
 
@@ -667,13 +681,47 @@ async function suggestGuiaAI() {
     ? ta.value.slice(selStart, selEnd)
     : (r.selected_text || '');
 
-  // Parágrafo que contém a seleção (pra contexto). Split por \n\n.
+  // Parágrafo PT que contém a seleção
   const fullText = ta.value;
-  const paras = fullText.split(/\n\n+/);
+  const ptParas = fullText.split(/\n\n+/);
   let contextPara = '';
+  let ptParaIdx = -1;
   if (selectedNow) {
-    contextPara = paras.find(p => p.includes(selectedNow)) || '';
+    ptParaIdx = ptParas.findIndex(p => p.includes(selectedNow));
+    if (ptParaIdx >= 0) contextPara = ptParas[ptParaIdx];
   }
+
+  // JP correspondente (se disponível) — tenta bijeção por índice de parágrafo
+  const jpTa = document.getElementById('guia-editor-jp');
+  const jpFull = jpTa?.value || '';
+  let jpPara = '';
+  let jpFullForFallback = '';
+  if (jpFull) {
+    const jpParas = jpFull.split(/\n\n+/);
+    if (ptParaIdx >= 0 && jpParas.length === ptParas.length) {
+      jpPara = jpParas[ptParaIdx];
+    } else if (ptParaIdx >= 0 && jpParas[ptParaIdx]) {
+      // bijeção quebrada — usa best-effort por índice mesmo assim
+      jpPara = jpParas[ptParaIdx];
+    }
+    // Se nada disso bateu, manda o JP inteiro como contexto largo
+    if (!jpPara) jpFullForFallback = jpFull;
+  }
+
+  const hasJp = !!(jpPara || jpFullForFallback);
+
+  const taskBlock = hasJp
+    ? `## TAREFA
+
+Você tem o **japonês original como fonte canônica**. Sua tarefa é avaliar se a tradução PT atual transmite fielmente o significado doutrinário do JP, aplicando o glossário e a calibração de registro PT-BR.
+
+Devolva APENAS o trecho selecionado retraduzido (sem o parágrafo inteiro), preservando:
+- O sentido doutrinário do JP
+- A quantidade original de quebras de linha
+- A correspondência 1:1 entre frases JP e PT (não fundir nem dividir)`
+    : `## TAREFA
+
+Analise o trecho à luz do glossário, da calibração de registro e do comentário do usuário. Devolva APENAS o trecho selecionado corrigido (sem o parágrafo inteiro), preservando o sentido doutrinário e a quantidade original de quebras de linha.`;
 
   const prompt = `${GUIA_AI_GUIDELINES}
 
@@ -684,17 +732,18 @@ async function suggestGuiaAI() {
 **Arquivo:** ${_ge_currentFile} (Guia do Johrei — Supabase Storage)
 **Aba:** ${GUIA_TAB_LABELS[r.tab] || r.tab}
 **Artigo:** ${r.article_title || r.article_id}
+${hasJp ? '**Fonte JP disponível:** sim (usar como referência canônica)' : '**Fonte JP disponível:** não (revisão PT-only)'}
 
-## TRECHO A REVISAR
+## TRECHO PT A REVISAR
 
 "${selectedNow}"
 ${r.description ? `\n## COMENTÁRIO DO USUÁRIO (pista sobre o erro)\n\n"${r.description}"\n` : ''}
-${contextPara && contextPara !== selectedNow ? `## PARÁGRAFO COMPLETO (contexto — não retradurar)\n\n${contextPara}\n` : ''}
+${contextPara && contextPara !== selectedNow ? `## PARÁGRAFO PT COMPLETO (contexto — não retradurar)\n\n${contextPara}\n` : ''}
+${jpPara ? `## PARÁGRAFO JP CORRESPONDENTE (fonte canônica)\n\n${jpPara}\n` : ''}
+${jpFullForFallback ? `## ARTIGO JP COMPLETO (contexto — bijeção parágrafo a parágrafo não detectada)\n\n${jpFullForFallback.slice(0, 3000)}${jpFullForFallback.length > 3000 ? '\n[…JP truncado]' : ''}\n` : ''}
 ---
 
-## TAREFA
-
-Analise o trecho à luz do glossário, da calibração de registro e do comentário do usuário. Devolva APENAS o trecho selecionado corrigido (sem o parágrafo inteiro), preservando o sentido doutrinário e a quantidade original de quebras de linha.
+${taskBlock}
 
 ## FORMATO OBRIGATÓRIO DA RESPOSTA
 
@@ -702,7 +751,7 @@ Analise o trecho à luz do glossário, da calibração de registro e do comentá
 [apenas o trecho corrigido, pronto pra colar de volta no admin]
 
 **💡 Justificativa:**
-- [Mudança 1: regra/termo aplicado]
+- [Mudança 1: regra/termo aplicado${hasJp ? ' / divergência JP→PT corrigida' : ''}]
 - [Mudança 2 se houver]`;
 
   try {

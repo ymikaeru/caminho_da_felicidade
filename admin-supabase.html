@@ -966,6 +966,32 @@
     </div>
   </div>
 
+  <!-- Guia do Johrei — Editor inline (Phase 3) -->
+  <div class="editor-modal" id="guia-editor-modal" onclick="if(event.target===this)closeGuiaEditor()">
+    <div class="editor-card">
+      <div class="editor-header">
+        <h3 class="editor-title">Editar artigo do Guia: <span class="editor-subtitle" id="guia-editor-article-title">—</span></h3>
+        <button class="user-detail-close" onclick="closeGuiaEditor()" style="margin:0; float:none;">✕</button>
+      </div>
+      <div class="editor-body">
+        <div class="editor-search-hint" style="margin-bottom:14px;">
+          <div style="font-size:.78rem; color:var(--text-muted); margin-bottom:6px;">📍 Aba: <strong id="guia-editor-tab">—</strong> · Arquivo: <code id="guia-editor-file" style="font-size:.8rem;">—</code></div>
+          <div style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#a87a1b; margin-bottom:4px;">⚠ Trecho reportado (selecionado automaticamente)</div>
+          <div id="guia-editor-selected" style="padding:8px 12px; background:rgba(255,160,0,0.08); border-left:3px solid rgba(255,160,0,0.5); border-radius:0 6px 6px 0; font-family:'Crimson Pro',serif; font-size:.92rem; line-height:1.55; color:var(--text); font-style:italic; max-height:90px; overflow-y:auto;"></div>
+          <div id="guia-editor-desc-label" style="display:none; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-top:10px; margin-bottom:4px;">💬 Comentário do usuário</div>
+          <div id="guia-editor-desc" style="display:none; padding:8px 12px; background:var(--surface); border-radius:6px; font-size:.85rem; line-height:1.5; color:var(--text);"></div>
+        </div>
+        <div id="guia-editor-status" class="msg" style="display:none; padding:8px 12px; font-size:.85rem;"></div>
+        <textarea id="guia-editor-area" class="editor-textarea" spellcheck="true" style="display:none; min-height:380px; font-family:'Crimson Pro',serif; font-size:.95rem; line-height:1.65; padding:14px;"></textarea>
+      </div>
+      <div class="editor-footer">
+        <span style="margin:0 auto 0 0; font-size:.78rem; color:var(--text-muted); align-self:center;">Salvar marca o reporte como <strong>Corrigido</strong> e captura o diff automaticamente.</span>
+        <button class="editor-btn-cancel" onclick="closeGuiaEditor()">Cancelar</button>
+        <button class="editor-btn-save" id="guia-editor-save" onclick="saveGuiaEditor()" disabled>💾 Salvar e marcar Corrigido</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Raw File Editor Modal -->
   <div class="editor-modal" id="editor-modal" onclick="if(event.target===this)closeEditor()">
     <div class="editor-card">
@@ -1000,7 +1026,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=44"></script>
+  <script type="module" src="js/admin.js?v=46"></script>
 
 </body>
 </html>

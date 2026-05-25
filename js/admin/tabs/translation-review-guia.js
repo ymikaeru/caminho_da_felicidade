@@ -119,16 +119,17 @@ function _renderGuiaReports() {
       ? `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open(${JSON.stringify(r.page_url)}, '_blank')" title="Abrir artigo no site">👁️ Preview</button>`
       : '';
 
+    const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.12); color:#a87a1b; border-color:rgba(255,160,0,0.4);" onclick="openGuiaEditor('${r.id}')" title="Abrir editor inline, fixar trecho reportado">✏️ Editar</button>`;
     const archiveBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.15); color:#1f8a3f; border-color:rgba(52,199,89,0.4);" onclick="archiveGuiaReport('${r.id}', this)" title="Marcar como resolvido">📦 Arquivar</button>`;
     const dismissBtn = `<button class="report-verify-btn" style="background:rgba(255,59,48,0.1); color:#ff3b30; border-color:rgba(255,59,48,0.3);" onclick="dismissGuiaReport('${r.id}', this)" title="Não é erro / duplicado / spam">✕ Dispensar</button>`;
 
     let actions = '';
     let chip = '';
     if (state === 'open') {
-      actions = `${previewBtn}${archiveBtn}${dismissBtn}`;
+      actions = `${previewBtn}${editBtn}${archiveBtn}${dismissBtn}`;
     } else if (state === 'corrected') {
-      actions = `${previewBtn}${archiveBtn}`;
-      chip = `<span class="report-status-chip status-corrected" title="Phase 3+: editor salvou correção, aguarda revisão">🟡 Corrigido · ${shortDate(r.corrected_at)}</span>`;
+      actions = `${previewBtn}${editBtn}${archiveBtn}`;
+      chip = `<span class="report-status-chip status-corrected" title="Editor salvou correção, aguarda revisão de outro admin">🟡 Corrigido · ${shortDate(r.corrected_at)}</span>`;
     } else if (state === 'verified') {
       actions = `${previewBtn}`;
       chip = `<span class="report-status-chip status-archived">📦 Arquivado · ${shortDate(r.verified_at)}</span>`;
@@ -285,9 +286,319 @@ async function dismissGuiaReport(id, btnEl) {
   return _updateGuiaReportStatus(id, 'dismissed', null, btnEl, '✕ Dispensar');
 }
 
+// ============================================================
+// Editor inline — Phase 3
+// Baixa o JSON do Storage, acha o artigo, edita conteudo, salva
+// de volta + captura pt_before/pt_after no reporte.
+// ============================================================
+
+// Mapeia tab → arquivo no bucket guia-data
+const GUIA_TAB_TO_FILE = {
+  fundamentos:           'tab_fundamentos.json',
+  pratica:               'tab_pratica.json',
+  critica_farmacologica: 'tab_critica_farmacologica.json',
+  por_regiao:            'tab_por_regiao.json',
+  estudo_aprofundado:    'tab_estudo_aprofundado.json',
+  estudo_detalhado:      'tab_estudo_detalhado.json',
+};
+
+let _ge_currentReport = null;
+let _ge_currentFile = null;
+let _ge_currentJson = null;
+let _ge_currentPath = null;       // [s, c, a] em sub_abas[s].categorias[c].artigos[a]
+let _ge_originalConteudo = null;
+
+// Localiza artigo dentro de tab_*.json (schema A)
+function _ge_findArticleInTabJson(json, articleId) {
+  if (!json || !json.sub_abas) return null;
+  for (let s = 0; s < json.sub_abas.length; s++) {
+    const cats = json.sub_abas[s].categorias || [];
+    for (let c = 0; c < cats.length; c++) {
+      const arts = cats[c].artigos || [];
+      for (let a = 0; a < arts.length; a++) {
+        if (arts[a].id === articleId) return { article: arts[a], path: [s, c, a] };
+      }
+    }
+  }
+  return null;
+}
+
+function _ge_setStatus(html, isError = false) {
+  const el = document.getElementById('guia-editor-status');
+  if (!el) return;
+  el.innerHTML = html;
+  el.style.color = isError ? '#ff3b30' : 'var(--text-muted)';
+  el.style.display = 'block';
+}
+
+async function openGuiaEditor(reportId) {
+  const r = (_allGuiaReports || []).find(x => x.id === reportId);
+  if (!r) return;
+
+  const filename = GUIA_TAB_TO_FILE[r.tab];
+  if (!filename) {
+    alert(`Editor inline ainda não disponível pra aba "${r.tab}".\n\nEsta aba lê do guia_atendimento.json (schema diferente).\nPor enquanto, edite manualmente no Supabase Dashboard → Storage → guia-data.`);
+    return;
+  }
+
+  _ge_currentReport = r;
+  _ge_currentFile = filename;
+  _ge_currentJson = null;
+  _ge_currentPath = null;
+  _ge_originalConteudo = null;
+
+  const modal = document.getElementById('guia-editor-modal');
+  if (!modal) {
+    alert('Modal do editor não está no DOM (admin-supabase.html desatualizado?).');
+    return;
+  }
+  modal.classList.add('open');
+
+  // Popula contexto
+  document.getElementById('guia-editor-article-title').textContent = r.article_title || r.article_id || '(sem título)';
+  document.getElementById('guia-editor-tab').textContent = GUIA_TAB_LABELS[r.tab] || r.tab;
+  document.getElementById('guia-editor-file').textContent = filename;
+  document.getElementById('guia-editor-selected').textContent = r.selected_text || '';
+  const descLabel = document.getElementById('guia-editor-desc-label');
+  const descEl    = document.getElementById('guia-editor-desc');
+  if (r.description) {
+    descLabel.style.display = 'block';
+    descEl.style.display = 'block';
+    descEl.textContent = r.description;
+  } else {
+    descLabel.style.display = 'none';
+    descEl.style.display = 'none';
+    descEl.textContent = '';
+  }
+
+  const ta = document.getElementById('guia-editor-area');
+  ta.style.display = 'none';
+  ta.value = '';
+  const saveBtn = document.getElementById('guia-editor-save');
+  saveBtn.disabled = true;
+  saveBtn.textContent = '💾 Salvar e marcar Corrigido';
+
+  _ge_setStatus('Baixando arquivo do Storage…');
+
+  let data, error;
+  try {
+    ({ data, error } = await supabase.storage.from('guia-data').download(filename));
+  } catch (e) {
+    _ge_setStatus(`Falha de rede: ${_escHtml(e.message)}`, true);
+    return;
+  }
+  if (error) {
+    _ge_setStatus(`Erro ao baixar: ${_escHtml(error.message)}`, true);
+    return;
+  }
+
+  let text, json;
+  try {
+    text = await data.text();
+    json = JSON.parse(text);
+  } catch (e) {
+    _ge_setStatus(`JSON inválido em ${filename}: ${_escHtml(e.message)}`, true);
+    return;
+  }
+
+  const located = _ge_findArticleInTabJson(json, r.article_id);
+  if (!located) {
+    _ge_setStatus(`Artigo "${_escHtml(r.article_id)}" não encontrado em ${filename}. Talvez o id tenha mudado desde o reporte.`, true);
+    return;
+  }
+
+  _ge_currentJson = json;
+  _ge_currentPath = located.path;
+  const conteudo = located.article.conteudo || '';
+  _ge_originalConteudo = conteudo;
+
+  ta.value = conteudo;
+  ta.style.display = 'block';
+  document.getElementById('guia-editor-status').style.display = 'none';
+  saveBtn.disabled = false;
+
+  // Auto-localiza o trecho reportado. Faz busca tolerante a mudanças
+  // de espaço/pontuação porque o reporte pode ter sido feito antes de
+  // alguma edição prévia (em-dash trocado por ;, etc).
+  const needle = (r.selected_text || '').trim();
+  if (needle) {
+    const match = _ge_findNeedle(conteudo, needle);
+    if (match) {
+      ta.focus();
+      ta.setSelectionRange(match.start, match.end);
+      const before = conteudo.slice(0, match.start);
+      const linesBefore = (before.match(/\n/g) || []).length;
+      const lineHeight = parseInt(getComputedStyle(ta).lineHeight, 10) || 22;
+      ta.scrollTop = Math.max(0, linesBefore * lineHeight - 80);
+      if (match.fuzzy) {
+        _ge_setStatus(`⚠ Trecho exato não encontrado — selecionei a melhor aproximação (texto pode ter sido editado desde o reporte). Use Ctrl+F se precisar.`, true);
+      }
+    } else {
+      ta.focus();
+      _ge_setStatus(`⚠ Trecho reportado não foi localizado no artigo. Use Ctrl+F pra buscar manualmente.`, true);
+    }
+  }
+}
+
+// Localiza needle dentro de haystack com tolerância progressiva:
+// 1) match exato
+// 2) match com whitespace colapsado
+// 3) match dos primeiros N "tokens" (palavras ≥4 chars) — fuzzy
+// Devolve { start, end, fuzzy: boolean } ou null.
+function _ge_findNeedle(haystack, needle) {
+  if (!needle) return null;
+  // (1) exato
+  let idx = haystack.indexOf(needle);
+  if (idx >= 0) return { start: idx, end: idx + needle.length, fuzzy: false };
+
+  // (2) whitespace colapsado nos dois lados — reconstrói índice
+  const collapseMap = [];
+  let collapsed = '';
+  let prev = ' ';
+  for (let i = 0; i < haystack.length; i++) {
+    const ch = haystack[i];
+    const isWs = /\s/.test(ch);
+    if (isWs) {
+      if (prev !== ' ') {
+        collapsed += ' ';
+        collapseMap.push(i);
+      }
+      prev = ' ';
+    } else {
+      collapsed += ch;
+      collapseMap.push(i);
+      prev = ch;
+    }
+  }
+  const needleNorm = needle.replace(/\s+/g, ' ').trim();
+  idx = collapsed.indexOf(needleNorm);
+  if (idx >= 0 && collapseMap[idx] !== undefined && collapseMap[idx + needleNorm.length - 1] !== undefined) {
+    return {
+      start: collapseMap[idx],
+      end: collapseMap[idx + needleNorm.length - 1] + 1,
+      fuzzy: false
+    };
+  }
+
+  // (3) fuzzy: prefixo decrescente. Útil quando alguém já editou o trecho
+  // (ex.: trocou ";" por "—") e só a primeira metade casa. Quebra em
+  // boundary de palavra pra não cortar no meio.
+  const minPrefix = 15;
+  for (let len = needleNorm.length - 1; len >= minPrefix; len -= 4) {
+    let probe = needleNorm.slice(0, len);
+    // Recua até o fim de uma palavra
+    const lastSpace = probe.lastIndexOf(' ');
+    if (lastSpace >= minPrefix) probe = probe.slice(0, lastSpace);
+    if (probe.length < minPrefix) break;
+    const idx = collapsed.indexOf(probe);
+    if (idx >= 0 && collapseMap[idx] !== undefined) {
+      const startReal = collapseMap[idx];
+      // Estende até o comprimento aproximado do needle original
+      const endReal = Math.min(haystack.length, startReal + needle.length);
+      return { start: startReal, end: endReal, fuzzy: true };
+    }
+  }
+
+  return null;
+}
+
+function closeGuiaEditor(force = false) {
+  const ta = document.getElementById('guia-editor-area');
+  if (!force && ta && _ge_originalConteudo !== null && ta.value !== _ge_originalConteudo) {
+    if (!confirm('Há alterações não salvas. Descartar?')) return;
+  }
+  const modal = document.getElementById('guia-editor-modal');
+  if (modal) modal.classList.remove('open');
+  _ge_currentReport = null;
+  _ge_currentFile = null;
+  _ge_currentJson = null;
+  _ge_currentPath = null;
+  _ge_originalConteudo = null;
+}
+
+async function saveGuiaEditor() {
+  if (!_ge_currentReport || !_ge_currentJson || !_ge_currentPath) return;
+  const ta = document.getElementById('guia-editor-area');
+  const saveBtn = document.getElementById('guia-editor-save');
+  const newConteudo = ta.value;
+
+  if (newConteudo === _ge_originalConteudo) {
+    _ge_setStatus('Nada mudou — feche pra cancelar.', true);
+    return;
+  }
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Salvando…';
+  _ge_setStatus('Subindo JSON pro Storage…');
+
+  // Aplica edição no JSON
+  const [s, c, a] = _ge_currentPath;
+  _ge_currentJson.sub_abas[s].categorias[c].artigos[a].conteudo = newConteudo;
+
+  const finalJson = JSON.stringify(_ge_currentJson, null, 2);
+  const blob = new Blob([finalJson], { type: 'application/json' });
+
+  const { error: upErr } = await supabase.storage.from('guia-data')
+    .upload(_ge_currentFile, blob, { upsert: true, contentType: 'application/json', cacheControl: '0' });
+
+  if (upErr) {
+    _ge_setStatus(`Erro ao salvar no Storage: ${_escHtml(upErr.message)}`, true);
+    saveBtn.disabled = false;
+    saveBtn.textContent = '💾 Salvar e marcar Corrigido';
+    return;
+  }
+
+  // Captura pt_before/pt_after — preferência: parágrafo (split \n\n) que continha selected_text
+  let pt_before = _ge_originalConteudo;
+  let pt_after  = newConteudo;
+  const needle = (_ge_currentReport.selected_text || '').trim();
+  if (needle) {
+    const parasBefore = _ge_originalConteudo.split(/\n\n+/);
+    const parasAfter  = newConteudo.split(/\n\n+/);
+    const beforeIdx = parasBefore.findIndex(p => p.includes(needle));
+    // Só usa o parágrafo isolado se a contagem casar (edição inline, sem reordenar)
+    if (beforeIdx >= 0 && parasBefore.length === parasAfter.length) {
+      pt_before = parasBefore[beforeIdx];
+      pt_after  = parasAfter[beforeIdx];
+    }
+  }
+
+  const now = new Date().toISOString();
+  const update = { status: 'corrected', corrected_at: now, pt_before, pt_after };
+  const { error: updErr } = await supabase
+    .from('translation_reports_guia')
+    .update(update)
+    .eq('id', _ge_currentReport.id);
+
+  if (updErr) {
+    _ge_setStatus(`Arquivo salvo no Storage, mas falhou atualizar o reporte: ${_escHtml(updErr.message)}`, true);
+    saveBtn.disabled = false;
+    saveBtn.textContent = '💾 Salvar e marcar Corrigido';
+    return;
+  }
+
+  // Sync local
+  const idx = _allGuiaReports.findIndex(r => r.id === _ge_currentReport.id);
+  if (idx !== -1) Object.assign(_allGuiaReports[idx], update);
+
+  _ge_setStatus('✅ Salvo. Site público mostra a edição na próxima carga.');
+  saveBtn.textContent = '✓ Salvo';
+
+  // Marca como salvo pra que close() não pergunte
+  _ge_originalConteudo = newConteudo;
+
+  setTimeout(() => {
+    closeGuiaEditor(true);
+    _renderGuiaReports();
+  }, 1200);
+}
+
 Object.assign(window, {
   loadGuiaReports,
   toggleGuiaVerifiedSection,
   archiveGuiaReport,
   dismissGuiaReport,
+  openGuiaEditor,
+  closeGuiaEditor,
+  saveGuiaEditor,
 });

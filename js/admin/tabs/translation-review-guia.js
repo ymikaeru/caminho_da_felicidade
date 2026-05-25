@@ -389,6 +389,9 @@ async function openGuiaEditor(reportId) {
   const saveBtn = document.getElementById('guia-editor-save');
   saveBtn.disabled = true;
   saveBtn.textContent = '💾 Salvar e marcar Corrigido';
+  // Esconde botão "Retraduzir tudo" até confirmarmos que JP existe
+  const retradBtn = document.getElementById('guia-editor-retraduzir');
+  if (retradBtn) retradBtn.style.display = 'none';
 
   _ge_setStatus('Baixando arquivo do Storage…');
 
@@ -425,6 +428,9 @@ async function openGuiaEditor(reportId) {
   _ge_originalConteudo = conteudo;
   const jp = located.article.conteudo_jp || located.article.content_jp || '';
   _ge_originalConteudoJp = jp;
+
+  // Mostra "Retraduzir tudo" quando há JP (qualquer modo)
+  if (jp && retradBtn) retradBtn.style.display = 'inline-block';
 
   const ptParas = conteudo.split(/\n\n+/);
   const jpParas = jp.split(/\n\n+/);
@@ -1084,6 +1090,252 @@ window.addEventListener('focus', async () => {
   _ge_aiLastAutoPasted = text;
 });
 
+// ============================================================
+// Retradução completa do artigo — Phase 7
+// Diferente do "Sugerir IA" (1 parágrafo) — manda o artigo
+// inteiro pra Claude com pedido de retradução fresh do JP,
+// devolve N parágrafos numerados, substitui o PT inteiro.
+// ============================================================
+
+const GUIA_RETRADUCAO_TAB = 'guia-claude-retraducao';
+
+async function retraduzirTudoGuiaAI() {
+  if (!_ge_currentReport || !_ge_originalConteudoJp) {
+    alert('Retradução requer fonte JP disponível.');
+    return;
+  }
+
+  const r = _ge_currentReport;
+  const jp = _ge_originalConteudoJp;
+  const jpParas = jp.split(/\n\n+/);
+  const ptParasAtual = _ge_originalConteudo.split(/\n\n+/);
+
+  // Numera os parágrafos JP no prompt
+  const jpNumbered = jpParas.map((p, i) => `¶${i+1}\n${p}`).join('\n\n');
+
+  const prompt = `${GUIA_AI_GUIDELINES}
+
+---
+
+## CONTEXTO
+
+**Arquivo:** ${_ge_currentFile} (Guia do Johrei)
+**Aba:** ${GUIA_TAB_LABELS[r.tab] || r.tab}
+**Artigo:** ${r.article_title || r.article_id}
+
+## TAREFA: RETRADUÇÃO COMPLETA DO ARTIGO
+
+Você vai retraduzir o artigo INTEIRO do japonês ao português brasileiro.
+**NÃO** se baseie na tradução PT atual — ela tem problemas e está sendo
+substituída. Traduza fresh do JP, aplicando rigorosamente o glossário e
+a calibração de registro PT-BR.
+
+**REGRA DE BIJEÇÃO 1:1 (CRÍTICA):** o JP tem **${jpParas.length} parágrafos**
+numerados ¶1 a ¶${jpParas.length}. Devolva EXATAMENTE ${jpParas.length}
+parágrafos PT, na mesma ordem e mesma numeração. NÃO fundir, NÃO dividir.
+
+## JAPONÊS ORIGINAL (${jpParas.length} parágrafos)
+
+${jpNumbered}
+
+---
+
+## FORMATO OBRIGATÓRIO DA RESPOSTA
+
+Devolva exatamente ${jpParas.length} parágrafos PT, no formato:
+
+**📜 Retradução completa:**
+
+¶1
+[parágrafo 1 retraduzido]
+
+¶2
+[parágrafo 2 retraduzido]
+
+...
+
+¶${jpParas.length}
+[parágrafo ${jpParas.length} retraduzido]
+
+(Sem texto adicional antes ou depois dos parágrafos numerados.)`;
+
+  try {
+    await navigator.clipboard.writeText(prompt);
+  } catch (e) {
+    const tmp = document.createElement('textarea');
+    tmp.value = prompt;
+    tmp.style.position = 'fixed'; tmp.style.opacity = '0';
+    document.body.appendChild(tmp); tmp.select();
+    document.execCommand('copy');
+    document.body.removeChild(tmp);
+  }
+
+  window.open('https://claude.ai/new', GUIA_RETRADUCAO_TAB);
+
+  // Painel de paste — overlay no topo do editor body
+  let panel = document.getElementById('guia-editor-retraducao-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'guia-editor-retraducao-panel';
+    panel.style.cssText = 'margin-bottom:14px; padding:14px; border:1px solid rgba(99,102,241,0.4); border-radius:10px; background:rgba(99,102,241,0.04);';
+    const body = document.querySelector('#guia-editor-modal .editor-body');
+    body.insertBefore(panel, body.firstChild);
+  }
+  panel.style.display = 'block';
+  panel.innerHTML = `
+    <div style="font-size:.72rem; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">🔄 Retradução completa via IA</div>
+    <div style="font-size:.82rem; color:var(--text-muted); margin-bottom:10px; line-height:1.5;">
+      Prompt copiado e <a href="https://claude.ai/new" target="${GUIA_RETRADUCAO_TAB}" style="color:#6366f1;">claude.ai</a> aberto.
+      Cole com Ctrl+V, envie, copie a resposta completa do Claude e cole abaixo.
+      <strong>Esperando ${jpParas.length} parágrafos PT</strong> em formato <code>¶N</code>.
+    </div>
+    <textarea id="guia-retraducao-paste" placeholder="Cole aqui a resposta completa do Claude (com 📜 Retradução completa: e ¶1, ¶2, …)…"
+      style="width:100%; box-sizing:border-box; min-height:140px; padding:10px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:.85rem; font-family:inherit; resize:vertical;"></textarea>
+    <div style="display:flex; gap:8px; margin-top:10px; align-items:center; flex-wrap:wrap;">
+      <button onclick="parseGuiaRetraducao()" style="padding:6px 14px; background:#6366f1; color:#fff; border:none; border-radius:6px; font-size:.78rem; font-weight:600; cursor:pointer;">Comparar</button>
+      <button onclick="discardGuiaRetraducaoPanel()" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:.78rem; cursor:pointer;">Cancelar</button>
+      <span style="font-size:.72rem; color:var(--text-muted);">JP tem ${jpParas.length}¶ · PT atual tem ${ptParasAtual.length}¶</span>
+    </div>
+  `;
+
+  // Auto-paste do clipboard quando user volta da aba claude.ai
+  _ge_aiPasteEl = panel.querySelector('#guia-retraducao-paste');
+  setTimeout(() => _ge_aiPasteEl?.focus(), 100);
+}
+
+function parseGuiaRetraducao() {
+  const panel = document.getElementById('guia-editor-retraducao-panel');
+  const paste = panel?.querySelector('#guia-retraducao-paste');
+  if (!paste) return;
+  const raw = (paste.value || '').trim();
+  if (!raw) return;
+
+  // Extrai bloco depois de "📜 Retradução completa:" (ou usa raw direto)
+  const blockM = raw.match(/📜[^\n]*\n+([\s\S]*)$/);
+  const block = blockM ? blockM[1].trim() : raw;
+
+  // Quebra por marcadores ¶N (capturando o número e o conteúdo até o próximo ¶N ou fim)
+  const paraRe = /¶(\d+)\s*\n+([\s\S]*?)(?=\n+¶\d+\b|$)/g;
+  const found = [];
+  let m;
+  while ((m = paraRe.exec(block)) !== null) {
+    const num = parseInt(m[1], 10);
+    const content = m[2].trim();
+    found.push({ num, content });
+  }
+
+  const jpParas = (_ge_originalConteudoJp || '').split(/\n\n+/);
+  const expected = jpParas.length;
+
+  _ge_aiPasteEl = null;
+
+  if (found.length === 0) {
+    panel.innerHTML = `
+      <div style="font-size:.72rem; font-weight:700; color:#ff9500; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">⚠ Resposta não estruturada</div>
+      <div style="font-size:.82rem; color:var(--text-muted); margin-bottom:8px;">Não encontrei marcadores <code>¶N</code>. Peça pro Claude reformatar e cole de novo.</div>
+      <div style="padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px; font-size:.8rem; max-height:200px; overflow-y:auto; white-space:pre-wrap;">${_escHtml(raw.slice(0, 800))}</div>
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button onclick="discardGuiaRetraducaoPanel()" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:.78rem; cursor:pointer;">Fechar</button>
+      </div>
+    `;
+    return;
+  }
+
+  // Stash globalmente pra applyGuiaRetraducao usar
+  window._ge_retraducaoParsed = found;
+  window._ge_retraducaoExpected = expected;
+
+  const countMatch = found.length === expected;
+  const countWarning = countMatch
+    ? `<span style="color:#34c759;">✓ ${found.length} parágrafos (esperados ${expected})</span>`
+    : `<span style="color:#ff3b30;">⚠ recebido ${found.length}, esperado ${expected} — aplicar mesmo assim pode bagunçar a bijeção JP/PT</span>`;
+
+  const ptAtual = _ge_originalConteudo.split(/\n\n+/);
+
+  let rowsHtml = '';
+  const maxRows = Math.max(expected, found.length);
+  for (let i = 0; i < maxRows; i++) {
+    const oldPt = ptAtual[i] || '<em style="color:var(--text-muted);">(sem ¶ correspondente)</em>';
+    const newPt = found.find(f => f.num === i + 1)?.content || '<em style="color:#ff3b30;">(¶ não fornecido pela IA)</em>';
+    const changed = oldPt !== newPt && !newPt.startsWith('<em');
+    rowsHtml += `
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:8px; border-top:1px solid var(--border); ${changed ? 'background:rgba(99,102,241,0.03);' : ''}">
+        <div>
+          <div style="font-size:.62rem; color:var(--text-muted); font-weight:700; margin-bottom:3px;">¶${i+1} ATUAL</div>
+          <div style="font-size:.8rem; line-height:1.5; max-height:120px; overflow-y:auto; white-space:pre-wrap;">${typeof oldPt === 'string' && !oldPt.startsWith('<em') ? _escHtml(oldPt) : oldPt}</div>
+        </div>
+        <div>
+          <div style="font-size:.62rem; color:#6366f1; font-weight:700; margin-bottom:3px;">¶${i+1} NOVA</div>
+          <div style="font-size:.8rem; line-height:1.5; max-height:120px; overflow-y:auto; white-space:pre-wrap;">${typeof newPt === 'string' && !newPt.startsWith('<em') ? _escHtml(newPt) : newPt}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  panel.innerHTML = `
+    <div style="font-size:.72rem; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">🔄 Preview da retradução</div>
+    <div style="font-size:.85rem; margin-bottom:10px;">${countWarning}</div>
+    <div style="max-height:400px; overflow-y:auto; border:1px solid var(--border); border-radius:6px; background:var(--bg);">
+      ${rowsHtml}
+    </div>
+    <div style="display:flex; gap:8px; margin-top:12px; align-items:center; flex-wrap:wrap;">
+      <button onclick="applyGuiaRetraducao()" ${countMatch ? '' : 'data-mismatch="1"'} style="padding:6px 14px; background:#34c759; color:#fff; border:none; border-radius:6px; font-size:.78rem; font-weight:600; cursor:pointer;">✓ Substituir tudo</button>
+      <button onclick="discardGuiaRetraducaoPanel()" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:.78rem; cursor:pointer;">✗ Descartar</button>
+      <span style="font-size:.72rem; color:var(--text-muted);">Aplicar não salva — você ainda precisa clicar 💾 Salvar</span>
+    </div>
+  `;
+}
+
+function applyGuiaRetraducao() {
+  const found = window._ge_retraducaoParsed || [];
+  const expected = window._ge_retraducaoExpected || 0;
+  if (!found.length) return;
+
+  if (found.length !== expected) {
+    if (!confirm(`A IA devolveu ${found.length} parágrafos mas o JP tem ${expected}. Aplicar mesmo assim?\n\nIsso vai quebrar a bijeção JP/PT — o modo parágrafo pode parar de funcionar.`)) return;
+  } else {
+    if (!confirm(`Substituir os ${expected} parágrafos PT pela retradução? Os textos atuais serão sobrescritos no editor (não salva no Storage até você clicar 💾 Salvar).`)) return;
+  }
+
+  // Aplica conforme modo de render
+  if (_ge_mode === 'paragraph') {
+    const tas = document.querySelectorAll('#guia-editor-paragraphs textarea.ge-para-pt');
+    // Map por idx pra cobrir caso de ¶ faltando
+    const byIdx = new Map(found.map(f => [f.num - 1, f.content]));
+    tas.forEach(t => {
+      const idx = parseInt(t.dataset.idx, 10);
+      if (byIdx.has(idx)) {
+        t.value = byIdx.get(idx);
+        t.style.transition = 'background-color 0.5s';
+        t.style.backgroundColor = 'rgba(52,199,89,0.12)';
+        setTimeout(() => { t.style.backgroundColor = ''; }, 900);
+      }
+    });
+  } else {
+    // Modo grid: rebuild conteudo single textarea
+    const ordered = [];
+    found.sort((a, b) => a.num - b.num);
+    for (const f of found) ordered.push(f.content);
+    const ta = document.getElementById('guia-editor-area');
+    if (ta) {
+      ta.value = ordered.join('\n\n');
+      ta.style.transition = 'background-color 0.5s';
+      ta.style.backgroundColor = 'rgba(52,199,89,0.12)';
+      setTimeout(() => { ta.style.backgroundColor = ''; }, 900);
+    }
+  }
+
+  discardGuiaRetraducaoPanel();
+}
+
+function discardGuiaRetraducaoPanel() {
+  const panel = document.getElementById('guia-editor-retraducao-panel');
+  if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; }
+  delete window._ge_retraducaoParsed;
+  delete window._ge_retraducaoExpected;
+  if (_ge_aiPasteEl && _ge_aiPasteEl.id === 'guia-retraducao-paste') _ge_aiPasteEl = null;
+}
+
 Object.assign(window, {
   loadGuiaReports,
   toggleGuiaVerifiedSection,
@@ -1096,4 +1348,8 @@ Object.assign(window, {
   parseGuiaAISuggestion,
   applyGuiaAISuggestion,
   discardGuiaAIPanel,
+  retraduzirTudoGuiaAI,
+  parseGuiaRetraducao,
+  applyGuiaRetraducao,
+  discardGuiaRetraducaoPanel,
 });

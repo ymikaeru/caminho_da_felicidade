@@ -1090,7 +1090,14 @@
     padding: 22px 12px;
     margin: 0 -12px;
   }
-  .poetry-card__original { font-size: 15px; line-height: 1.85; }
+  .poetry-card__original {
+    font-size: 15px;
+    line-height: 1.85;
+    /* Em viewports estreitos, quebra só nos espaços de largura completa
+       (　) entre os segmentos do tanka, em vez de cortar no meio de uma
+       palavra. Preserva a estrutura kami-ku / shimo-ku do poema. */
+    word-break: keep-all;
+  }
   .poetry-card__translation { font-size: 18px; }
   .poetry-preface { padding: 24px 22px; }
 
@@ -1125,10 +1132,16 @@
    linha 2 só em alguns cards, deixando heads irregulares (22px vs 54px).
    Forçar o pill pra linha 2 sempre uniformiza a altura. Acima de 600px
    tudo cabe naturalmente na linha 1. */
+/* Formato compacto da data (01/01/36) renderizado ao lado do completo
+   (1 jan 1936) no HTML; CSS alterna por viewport. No mobile a versão
+   curta cabe ao lado do título; no desktop o leitor vê a data amigável. */
+.poetry-card__tag-compact { display: none; }
+
 @media (max-width: 600px) {
-  .poetry-card__tag {
-    flex-basis: 100%;
-  }
+  .poetry-card__tag-full { display: none; }
+  .poetry-card__tag-compact { display: inline; }
+  /* Título 13px (era 14) pra dar folga pro pill na mesma linha. */
+  .poetry-card__title { font-size: 13px; }
 }
 
 /* Layout 2-col só faz sentido quando há espaço pra cada coluna respirar.

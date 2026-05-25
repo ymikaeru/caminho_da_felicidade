@@ -180,6 +180,21 @@
     return `${mo} ${year}`;
   }
 
+  // "S11. 1. 1" → "01/01/36"; "S15. 5.**" → "05/40" (formato compacto pro mobile)
+  function _formatDateCompact(s) {
+    if (!s) return '';
+    const m = s.match(/^S(\d+)\.\s*(\d+)\.\s*(\d+|\*+)$/);
+    if (!m) return s;
+    const yy = String((1925 + parseInt(m[1], 10)) % 100).padStart(2, '0');
+    const mm = String(parseInt(m[2], 10)).padStart(2, '0');
+    const day = m[3];
+    if (/^\d+$/.test(day)) {
+      const dd = String(parseInt(day, 10)).padStart(2, '0');
+      return `${dd}/${mm}/${yy}`;
+    }
+    return `${mm}/${yy}`;
+  }
+
   function _renderPoem(p) {
     const num = p.number != null ? String(p.number).padStart(3, '0') : '';
     const pending = !!p.translation_pending;
@@ -190,7 +205,10 @@
       ? `<div class="poetry-card__reading">${_highlight(p.reading, _query)}</div>`
       : '';
     const dateStr = _formatDate(p.date);
-    const dateTag = dateStr ? `<span class="poetry-card__tag" title="${_esc(p.date)}">${_esc(dateStr)}</span>` : '';
+    const dateStrCompact = _formatDateCompact(p.date);
+    const dateTag = dateStr
+      ? `<span class="poetry-card__tag" title="${_esc(p.date)}"><span class="poetry-card__tag-full">${_esc(dateStr)}</span><span class="poetry-card__tag-compact">${_esc(dateStrCompact)}</span></span>`
+      : '';
     const pendingTag = pending
       ? `<span class="poetry-card__tag poetry-card__tag--pending" title="Aguardando tradução"><span class="lang-pt">tradução pendente</span><span class="lang-ja" style="display:none">未訳</span></span>`
       : '';

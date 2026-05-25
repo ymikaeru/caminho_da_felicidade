@@ -982,6 +982,11 @@
           <div id="guia-editor-desc" style="display:none; padding:8px 12px; background:var(--surface); border-radius:6px; font-size:.85rem; line-height:1.5; color:var(--text);"></div>
         </div>
         <div id="guia-editor-status" class="msg" style="display:none; padding:8px 12px; font-size:.85rem;"></div>
+
+        <!-- Modo parágrafo a parágrafo (ativo quando JP existe e bijeção JP/PT é exata) -->
+        <div id="guia-editor-paragraphs" style="display:none; flex-direction:column; gap:14px;"></div>
+
+        <!-- Modo grid 2-col fallback (sem JP, ou bijeção quebrada) -->
         <div id="guia-editor-grid" style="display:none; gap:14px;">
           <div id="guia-editor-jp-col" style="display:none; flex:1; min-width:0;">
             <div style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:6px;">📜 Japonês (somente leitura — referência)</div>

@@ -307,6 +307,9 @@ let _ge_currentFile = null;
 let _ge_currentJson = null;
 let _ge_currentPath = null;       // [s, c, a] em sub_abas[s].categorias[c].artigos[a]
 let _ge_originalConteudo = null;
+let _ge_originalConteudoJp = null;
+let _ge_mode = 'grid';             // 'paragraph' | 'grid' (modo de render do editor)
+let _ge_focusedRowIdx = -1;        // qual linha de parágrafo está focada (modo parágrafo)
 
 // Localiza artigo dentro de tab_*.json (schema A)
 function _ge_findArticleInTabJson(json, articleId) {
@@ -375,10 +378,14 @@ async function openGuiaEditor(reportId) {
   const jpTa = document.getElementById('guia-editor-jp');
   const grid = document.getElementById('guia-editor-grid');
   const jpCol = document.getElementById('guia-editor-jp-col');
+  const paras = document.getElementById('guia-editor-paragraphs');
   ta.value = '';
   if (jpTa) jpTa.value = '';
   if (grid) grid.style.display = 'none';
   if (jpCol) jpCol.style.display = 'none';
+  if (paras) { paras.style.display = 'none'; paras.innerHTML = ''; }
+  _ge_mode = 'grid';
+  _ge_focusedRowIdx = -1;
   const saveBtn = document.getElementById('guia-editor-save');
   saveBtn.disabled = true;
   saveBtn.textContent = '💾 Salvar e marcar Corrigido';
@@ -416,41 +423,163 @@ async function openGuiaEditor(reportId) {
   _ge_currentPath = located.path;
   const conteudo = located.article.conteudo || '';
   _ge_originalConteudo = conteudo;
-
-  // JP opcional — popula coluna esquerda quando existe
   const jp = located.article.conteudo_jp || located.article.content_jp || '';
-  if (jp && jpTa && jpCol && grid) {
-    jpTa.value = jp;
-    jpCol.style.display = 'block';
-    grid.style.display = 'flex';
-  } else if (grid) {
-    grid.style.display = 'block';
+  _ge_originalConteudoJp = jp;
+
+  const ptParas = conteudo.split(/\n\n+/);
+  const jpParas = jp.split(/\n\n+/);
+  const needle = (r.selected_text || '').trim();
+
+  // Modo parágrafo a parágrafo: requer JP existente E bijeção exata
+  if (jp && jpParas.length === ptParas.length && ptParas.length >= 1) {
+    _ge_mode = 'paragraph';
+    _ge_renderParagraphs(ptParas, jpParas, needle);
+    paras.style.display = 'flex';
+  } else {
+    // Fallback: modo grid 2-col (ou single col sem JP)
+    _ge_mode = 'grid';
+    if (jp && jpTa && jpCol && grid) {
+      jpTa.value = jp;
+      jpCol.style.display = 'block';
+      grid.style.display = 'flex';
+      if (jpParas.length !== ptParas.length && ptParas.length > 0) {
+        _ge_setStatus(`⚠ JP tem ${jpParas.length} parágrafos, PT tem ${ptParas.length}. Modo lado-a-lado (sem bijeção exata). Edite manualmente.`, true);
+      }
+    } else if (grid) {
+      grid.style.display = 'block';
+    }
+    ta.value = conteudo;
+    if (jp && jpParas.length === ptParas.length) {
+      // bijeção ok mas algum outro motivo caiu aqui (defensivo)
+      document.getElementById('guia-editor-status').style.display = 'none';
+    }
+
+    // Auto-localiza o trecho reportado no textarea único
+    if (needle) {
+      const match = _ge_findNeedle(conteudo, needle);
+      if (match) {
+        ta.focus();
+        ta.setSelectionRange(match.start, match.end);
+        const before = conteudo.slice(0, match.start);
+        const linesBefore = (before.match(/\n/g) || []).length;
+        const lineHeight = parseInt(getComputedStyle(ta).lineHeight, 10) || 22;
+        ta.scrollTop = Math.max(0, linesBefore * lineHeight - 80);
+        if (match.fuzzy && !document.getElementById('guia-editor-status').textContent) {
+          _ge_setStatus(`⚠ Trecho exato não encontrado — selecionei a melhor aproximação. Use Ctrl+F se precisar.`, true);
+        }
+      } else {
+        ta.focus();
+        if (!document.getElementById('guia-editor-status').textContent) {
+          _ge_setStatus(`⚠ Trecho reportado não foi localizado no artigo. Use Ctrl+F pra buscar manualmente.`, true);
+        }
+      }
+    }
   }
 
-  ta.value = conteudo;
-  document.getElementById('guia-editor-status').style.display = 'none';
   saveBtn.disabled = false;
+}
 
-  // Auto-localiza o trecho reportado. Faz busca tolerante a mudanças
-  // de espaço/pontuação porque o reporte pode ter sido feito antes de
-  // alguma edição prévia (em-dash trocado por ;, etc).
-  const needle = (r.selected_text || '').trim();
+// ────────────────────────────────────────────────────────────
+// Render modo parágrafo: linhas JP|PT, bijetadas 1:1
+// ────────────────────────────────────────────────────────────
+function _ge_renderParagraphs(ptParas, jpParas, needle) {
+  const container = document.getElementById('guia-editor-paragraphs');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // Localiza qual parágrafo contém o trecho reportado (tolerante)
+  let targetRow = -1;
   if (needle) {
-    const match = _ge_findNeedle(conteudo, needle);
-    if (match) {
-      ta.focus();
-      ta.setSelectionRange(match.start, match.end);
-      const before = conteudo.slice(0, match.start);
-      const linesBefore = (before.match(/\n/g) || []).length;
-      const lineHeight = parseInt(getComputedStyle(ta).lineHeight, 10) || 22;
-      ta.scrollTop = Math.max(0, linesBefore * lineHeight - 80);
-      if (match.fuzzy) {
-        _ge_setStatus(`⚠ Trecho exato não encontrado — selecionei a melhor aproximação (texto pode ter sido editado desde o reporte). Use Ctrl+F se precisar.`, true);
-      }
-    } else {
-      ta.focus();
-      _ge_setStatus(`⚠ Trecho reportado não foi localizado no artigo. Use Ctrl+F pra buscar manualmente.`, true);
+    for (let i = 0; i < ptParas.length; i++) {
+      const m = _ge_findNeedle(ptParas[i], needle);
+      if (m) { targetRow = i; break; }
     }
+  }
+
+  for (let i = 0; i < ptParas.length; i++) {
+    const row = document.createElement('div');
+    row.className = 'ge-para-row';
+    row.dataset.idx = String(i);
+    row.style.cssText = `
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+      padding: 12px; border: 1px solid ${i === targetRow ? 'rgba(255,160,0,0.45)' : 'var(--border)'};
+      border-radius: 8px;
+      background: ${i === targetRow ? 'rgba(255,160,0,0.05)' : 'transparent'};
+    `;
+
+    const jpCell = document.createElement('div');
+    jpCell.style.cssText = 'min-width:0;';
+    jpCell.innerHTML = `
+      <div style="font-size:.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px;">📜 JP · ¶${i+1}</div>
+      <pre style="margin:0; padding:10px; background:rgba(0,0,0,0.02); border:1px solid var(--border); border-radius:6px; font-family:'Noto Serif JP','Yu Mincho',serif; font-size:.9rem; line-height:1.8; color:var(--text); white-space:pre-wrap; word-wrap:break-word; max-height:300px; overflow-y:auto;"></pre>
+    `;
+    jpCell.querySelector('pre').textContent = jpParas[i];
+
+    const ptCell = document.createElement('div');
+    ptCell.style.cssText = 'min-width:0; position:relative;';
+    ptCell.innerHTML = `
+      <div style="font-size:.65rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+        <span>✏️ PT · ¶${i+1}${i === targetRow ? ' · <span style="color:#a87a1b;">⚠ reportado</span>' : ''}</span>
+        <button type="button" class="ge-para-ai-btn" data-idx="${i}" title="Sugerir IA pra este parágrafo" style="padding:2px 8px; background:rgba(168,85,247,0.1); color:#a855f7; border:1px solid rgba(168,85,247,0.3); border-radius:5px; font-size:.7rem; font-weight:600; cursor:pointer; text-transform:none; letter-spacing:0;">✨ IA</button>
+      </div>
+      <textarea class="ge-para-pt" data-idx="${i}" spellcheck="true" wrap="soft"
+        style="width:100%; box-sizing:border-box; min-height:80px; padding:10px;
+          font-family:'Crimson Pro',serif; font-size:.92rem; line-height:1.6;
+          border:1px solid var(--border); border-radius:6px;
+          background:var(--bg); color:var(--text); resize:vertical;
+          white-space:pre-wrap; word-wrap:break-word; overflow-wrap:break-word; outline:none;"></textarea>
+    `;
+    const taPara = ptCell.querySelector('textarea');
+    taPara.value = ptParas[i];
+
+    // Auto-resize approximado pra caber o conteúdo (linhas + padding)
+    const lines = (ptParas[i].match(/\n/g) || []).length + 1;
+    const approxLines = Math.max(lines, Math.ceil(ptParas[i].length / 80));
+    taPara.style.minHeight = Math.max(80, approxLines * 22 + 20) + 'px';
+
+    taPara.addEventListener('focus', () => { _ge_focusedRowIdx = i; });
+    taPara.addEventListener('input', () => { _ge_focusedRowIdx = i; });
+
+    row.appendChild(jpCell);
+    row.appendChild(ptCell);
+    container.appendChild(row);
+  }
+
+  // Wire dos botões IA por parágrafo
+  container.querySelectorAll('.ge-para-ai-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      _ge_focusedRowIdx = parseInt(btn.dataset.idx, 10);
+      const ta = container.querySelector(`textarea.ge-para-pt[data-idx="${_ge_focusedRowIdx}"]`);
+      if (ta) ta.focus();
+      suggestGuiaAI();
+    });
+  });
+
+  // Foca + scroll + auto-select do trecho reportado
+  if (targetRow >= 0) {
+    setTimeout(() => {
+      const rowEl = container.querySelector(`.ge-para-row[data-idx="${targetRow}"]`);
+      const ta = container.querySelector(`textarea.ge-para-pt[data-idx="${targetRow}"]`);
+      if (rowEl) rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (ta) {
+        ta.focus();
+        _ge_focusedRowIdx = targetRow;
+        const m = _ge_findNeedle(ta.value, needle);
+        if (m) {
+          ta.setSelectionRange(m.start, m.end);
+          if (m.fuzzy) {
+            _ge_setStatus(`⚠ Match aproximado no ¶${targetRow+1} — pontuação/espaços podem ter mudado desde o reporte.`, true);
+          } else {
+            document.getElementById('guia-editor-status').style.display = 'none';
+          }
+        }
+      }
+    }, 200);
+  } else if (needle) {
+    _ge_setStatus(`⚠ Trecho reportado não localizado em nenhum parágrafo. Procure manualmente nas ${ptParas.length} caixas.`, true);
+  } else {
+    document.getElementById('guia-editor-status').style.display = 'none';
   }
 }
 
@@ -517,9 +646,19 @@ function _ge_findNeedle(haystack, needle) {
 }
 
 function closeGuiaEditor(force = false) {
-  const ta = document.getElementById('guia-editor-area');
-  if (!force && ta && _ge_originalConteudo !== null && ta.value !== _ge_originalConteudo) {
-    if (!confirm('Há alterações não salvas. Descartar?')) return;
+  if (!force && _ge_originalConteudo !== null) {
+    let current;
+    if (_ge_mode === 'paragraph') {
+      const tas = document.querySelectorAll('#guia-editor-paragraphs textarea.ge-para-pt');
+      const arr = [];
+      tas.forEach(t => { arr[parseInt(t.dataset.idx, 10)] = t.value; });
+      current = arr.join('\n\n');
+    } else {
+      current = document.getElementById('guia-editor-area')?.value || '';
+    }
+    if (current !== _ge_originalConteudo) {
+      if (!confirm('Há alterações não salvas. Descartar?')) return;
+    }
   }
   const modal = document.getElementById('guia-editor-modal');
   if (modal) modal.classList.remove('open');
@@ -528,13 +667,26 @@ function closeGuiaEditor(force = false) {
   _ge_currentJson = null;
   _ge_currentPath = null;
   _ge_originalConteudo = null;
+  _ge_originalConteudoJp = null;
+  _ge_mode = 'grid';
+  _ge_focusedRowIdx = -1;
 }
 
 async function saveGuiaEditor() {
   if (!_ge_currentReport || !_ge_currentJson || !_ge_currentPath) return;
   const ta = document.getElementById('guia-editor-area');
   const saveBtn = document.getElementById('guia-editor-save');
-  const newConteudo = ta.value;
+
+  // Coleta conteúdo conforme modo de render
+  let newConteudo;
+  if (_ge_mode === 'paragraph') {
+    const tas = document.querySelectorAll('#guia-editor-paragraphs textarea.ge-para-pt');
+    const arr = [];
+    tas.forEach(t => { arr[parseInt(t.dataset.idx, 10)] = t.value; });
+    newConteudo = arr.join('\n\n');
+  } else {
+    newConteudo = ta.value;
+  }
 
   if (newConteudo === _ge_originalConteudo) {
     _ge_setStatus('Nada mudou — feche pra cancelar.', true);
@@ -673,39 +825,64 @@ async function suggestGuiaAI() {
   if (!_ge_currentReport || _ge_originalConteudo == null) return;
 
   const r = _ge_currentReport;
-  const ta = document.getElementById('guia-editor-area');
-  // Pega o trecho atualmente selecionado (admin pode ter ajustado a seleção)
-  const selStart = ta.selectionStart;
-  const selEnd = ta.selectionEnd;
-  const selectedNow = (selEnd > selStart)
-    ? ta.value.slice(selStart, selEnd)
-    : (r.selected_text || '');
 
-  // Parágrafo PT que contém a seleção
-  const fullText = ta.value;
-  const ptParas = fullText.split(/\n\n+/);
+  let selectedNow = '';
   let contextPara = '';
-  let ptParaIdx = -1;
-  if (selectedNow) {
-    ptParaIdx = ptParas.findIndex(p => p.includes(selectedNow));
-    if (ptParaIdx >= 0) contextPara = ptParas[ptParaIdx];
-  }
-
-  // JP correspondente (se disponível) — tenta bijeção por índice de parágrafo
-  const jpTa = document.getElementById('guia-editor-jp');
-  const jpFull = jpTa?.value || '';
   let jpPara = '';
   let jpFullForFallback = '';
-  if (jpFull) {
-    const jpParas = jpFull.split(/\n\n+/);
-    if (ptParaIdx >= 0 && jpParas.length === ptParas.length) {
-      jpPara = jpParas[ptParaIdx];
-    } else if (ptParaIdx >= 0 && jpParas[ptParaIdx]) {
-      // bijeção quebrada — usa best-effort por índice mesmo assim
-      jpPara = jpParas[ptParaIdx];
+  let ptParaIdx = -1;
+
+  if (_ge_mode === 'paragraph') {
+    // Modo parágrafo: usa a row focada (ou a do reporte se nenhuma focada ainda)
+    let idx = _ge_focusedRowIdx;
+    if (idx < 0) {
+      // fallback: acha row que tem o needle reportado
+      const tas = document.querySelectorAll('#guia-editor-paragraphs textarea.ge-para-pt');
+      const needle = (r.selected_text || '').trim();
+      tas.forEach(t => {
+        if (idx < 0 && needle && _ge_findNeedle(t.value, needle)) idx = parseInt(t.dataset.idx, 10);
+      });
+      if (idx < 0) idx = 0;
     }
-    // Se nada disso bateu, manda o JP inteiro como contexto largo
-    if (!jpPara) jpFullForFallback = jpFull;
+    const taPara = document.querySelector(`#guia-editor-paragraphs textarea.ge-para-pt[data-idx="${idx}"]`);
+    if (!taPara) return;
+
+    ptParaIdx = idx;
+    contextPara = taPara.value;
+    // Texto selecionado: o que o admin destacou na textarea, ou o needle reportado
+    const ss = taPara.selectionStart, se = taPara.selectionEnd;
+    selectedNow = (se > ss) ? taPara.value.slice(ss, se) : (r.selected_text || taPara.value);
+
+    // JP correspondente: o <pre> da mesma row
+    const row = taPara.closest('.ge-para-row');
+    const jpEl = row?.querySelector('pre');
+    if (jpEl) jpPara = jpEl.textContent || '';
+  } else {
+    // Modo grid (textarea único): comportamento anterior
+    const ta = document.getElementById('guia-editor-area');
+    const selStart = ta.selectionStart;
+    const selEnd = ta.selectionEnd;
+    selectedNow = (selEnd > selStart)
+      ? ta.value.slice(selStart, selEnd)
+      : (r.selected_text || '');
+
+    const ptParas = ta.value.split(/\n\n+/);
+    if (selectedNow) {
+      ptParaIdx = ptParas.findIndex(p => p.includes(selectedNow));
+      if (ptParaIdx >= 0) contextPara = ptParas[ptParaIdx];
+    }
+
+    const jpTa = document.getElementById('guia-editor-jp');
+    const jpFull = jpTa?.value || '';
+    if (jpFull) {
+      const jpParas = jpFull.split(/\n\n+/);
+      if (ptParaIdx >= 0 && jpParas.length === ptParas.length) {
+        jpPara = jpParas[ptParaIdx];
+      } else if (ptParaIdx >= 0 && jpParas[ptParaIdx]) {
+        jpPara = jpParas[ptParaIdx];
+      }
+      if (!jpPara) jpFullForFallback = jpFull;
+    }
   }
 
   const hasJp = !!(jpPara || jpFullForFallback);
@@ -841,10 +1018,16 @@ function applyGuiaAISuggestion() {
   const newText = (newEl.textContent || '').trim();
   if (!newText) return;
 
-  const ta = document.getElementById('guia-editor-area');
+  // Em modo parágrafo: aplica no textarea da row focada
+  let ta;
+  if (_ge_mode === 'paragraph' && _ge_focusedRowIdx >= 0) {
+    ta = document.querySelector(`#guia-editor-paragraphs textarea.ge-para-pt[data-idx="${_ge_focusedRowIdx}"]`);
+  }
+  if (!ta) ta = document.getElementById('guia-editor-area');
+  if (!ta) return;
+
   const s = ta.selectionStart;
   const e = ta.selectionEnd;
-  // Se não há seleção ativa, tenta localizar o trecho original e substituir
   let targetStart = s;
   let targetEnd   = e;
   if (s === e) {
@@ -854,8 +1037,15 @@ function applyGuiaAISuggestion() {
       targetStart = located.start;
       targetEnd = located.end;
     } else {
-      alert('Selecione o trecho a substituir no editor antes de aplicar.');
-      return;
+      // Em modo parágrafo, se nada selecionado e needle não casa, substitui a row inteira
+      if (_ge_mode === 'paragraph') {
+        if (!confirm('Substituir o parágrafo inteiro pela sugestão da IA?')) return;
+        targetStart = 0;
+        targetEnd = ta.value.length;
+      } else {
+        alert('Selecione o trecho a substituir no editor antes de aplicar.');
+        return;
+      }
     }
   }
 
@@ -864,7 +1054,7 @@ function applyGuiaAISuggestion() {
   ta.focus();
   ta.setSelectionRange(targetStart, targetStart + newText.length);
 
-  // Feedback visual: pisca o textarea
+  // Feedback visual
   ta.style.transition = 'background-color 0.4s';
   ta.style.backgroundColor = 'rgba(52,199,89,0.12)';
   setTimeout(() => { ta.style.backgroundColor = ''; }, 700);

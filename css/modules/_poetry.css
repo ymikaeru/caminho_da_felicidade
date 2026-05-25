@@ -680,7 +680,7 @@
   color: var(--accent);
   background: var(--accent-soft);
   border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
-  border-radius: 999px;
+  border-radius: 0;
   padding: 2px 8px;
   letter-spacing: 0.04em;
   line-height: 1.4;

@@ -115,26 +115,37 @@ function _renderGuiaReports() {
     const tabLabel = GUIA_TAB_LABELS[r.tab] || r.tab || '—';
     const articleTitle = r.article_title || r.article_id || '(sem título)';
 
-    // Reconstrói URL usando article_id (deep link mais robusto que slug).
-    // Mantém origem do page_url se for prod; senão usa cmu.org.br como default.
+    // URL de preview: prefere o slug do page_url (funciona no prod via slug-match);
+    // se o page_url aponta pra localhost, troca a origem por prod;
+    // se não tem page_url, constrói slug a partir do title.
+    const PROD_BASE = 'https://www.cmu.org.br/guia_do_johrei';
+    function _toGuiaSlug(s) {
+      return String(s || '')
+        .toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
     let previewUrl = '';
-    if (r.article_id) {
-      let origin = 'https://www.cmu.org.br/guia_do_johrei';
-      try {
-        if (r.page_url) {
-          const u = new URL(r.page_url);
-          // Só usa a origem se for o domínio prod — descarta localhost
-          if (u.hostname.endsWith('.cmu.org.br')) {
-            origin = u.origin + u.pathname.replace(/\/$/, '');
-          }
+    try {
+      if (r.page_url) {
+        const u = new URL(r.page_url);
+        if (u.hostname.endsWith('.cmu.org.br')) {
+          previewUrl = r.page_url; // prod URL, usa como está (já tem ?item=<slug>)
+        } else {
+          // localhost / outro — troca só a origem+path, preserva query
+          previewUrl = PROD_BASE + '/' + u.search;
         }
-      } catch (e) { /* mantém default */ }
-      previewUrl = `${origin}/?id=${encodeURIComponent(r.article_id)}&mode=ensinamentos`;
-    } else if (r.page_url) {
-      previewUrl = r.page_url;
+      }
+    } catch (e) { /* segue pro fallback */ }
+    if (!previewUrl && r.article_title) {
+      const slug = _toGuiaSlug(r.article_title);
+      previewUrl = `${PROD_BASE}/?item=${encodeURIComponent(slug)}&mode=ensinamentos`;
     }
     const previewBtn = previewUrl
-      ? `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open(${_escHtml(JSON.stringify(previewUrl))}, '_blank')" title="Abrir artigo no site (deep link via id)">👁️ Preview</button>`
+      ? `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open(${_escHtml(JSON.stringify(previewUrl))}, '_blank')" title="Abrir artigo no site">👁️ Preview</button>`
       : '';
 
     const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.12); color:#a87a1b; border-color:rgba(255,160,0,0.4);" onclick="openGuiaEditor('${r.id}')" title="Abrir editor inline, fixar trecho reportado">✏️ Editar</button>`;

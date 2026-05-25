@@ -8,7 +8,8 @@
 (function () {
   'use strict';
 
-  const DATA_URL = 'data/poetry/yama_to_mizu.json';
+  const STORAGE_PATH       = 'poetry/yama-to-mizu.json';
+  const DATA_URL_FALLBACK  = 'data/poetry/yama_to_mizu.json';
   let _data = null;
   let _sections = [];
   let _activeSectionIdx = null;   // null = preface + tudo agrupado
@@ -33,8 +34,29 @@
     return t.replace(new RegExp(safeQ, 'gi'), m => `<mark>${m}</mark>`);
   }
 
+  // Aguarda window.supabaseStorageFetch ficar disponível (ESM module pode carregar
+  // depois deste script defer). Timeout suave de 3s; cai pro fetch local se falhar.
+  async function _waitForStorage(timeoutMs) {
+    const start = Date.now();
+    while (!window.supabaseStorageFetch) {
+      if (Date.now() - start > timeoutMs) return null;
+      await new Promise(r => setTimeout(r, 50));
+    }
+    return window.supabaseStorageFetch;
+  }
+
   async function _load() {
-    const res = await fetch(DATA_URL);
+    const fetcher = await _waitForStorage(3000);
+    if (fetcher) {
+      try {
+        _data = await fetcher(STORAGE_PATH);
+        _sections = _data.sections || [];
+        return;
+      } catch (err) {
+        console.warn('[poetry-yama] Storage failed, falling back to local JSON:', err.message);
+      }
+    }
+    const res = await fetch(DATA_URL_FALLBACK);
     if (!res.ok) throw new Error('Falha ao carregar poesia: ' + res.status);
     _data = await res.json();
     _sections = _data.sections || [];

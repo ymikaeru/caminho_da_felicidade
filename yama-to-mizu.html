@@ -134,6 +134,11 @@
 
     <script type="importmap">
     {"imports":{"@supabase/supabase-js":"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"}}</script>
+    <script type="module">
+        import { storageFetch, storageList } from './js/storage.js?v=2';
+        window.supabaseStorageFetch = storageFetch;
+        window.supabaseStorageList = storageList;
+    </script>
     <script type="module" src="js/login.js?v=8"></script>
     <script type="module">
         import { startTracking, stopTracking } from './js/read-time-tracker.js';
@@ -153,7 +158,7 @@
     <script src="js/playlists.js?v=21" defer></script>
     <script src="js/poetry-fontsize.js?v=3" defer></script>
     <script src="js/poetry-highlights.js?v=4" defer></script>
-    <script src="js/poetry-yama.js?v=13" defer></script>
+    <script src="js/poetry-yama.js?v=14" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             buildSearchModal(); buildHistoryModal(); buildFavoritesModal();

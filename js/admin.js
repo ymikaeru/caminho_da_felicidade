@@ -27,7 +27,7 @@
     import './admin/tabs/translation-review.js';
     import './admin/tabs/translation-review-guia.js';
     import './admin/tabs/recommendations.js';
-    import './admin/tabs/poetry-versions.js';
+    import './admin/tabs/poetry-versions.js?v=2';
 
     const VOLUMES = [
       { key: 'mioshiec1', name: 'Volume 1 — Mundo Espiritual' },

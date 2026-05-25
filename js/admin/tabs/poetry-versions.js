@@ -1,25 +1,50 @@
 // ============================================================
-// Akimaro Kin'eishū — editor unificado (aba "Versões A/B" do admin)
+// Correção de Poemas — editor unificado (aba do admin)
+//
+// Suporta múltiplas coleções (akimaro, yama, ...) selecionáveis via
+// dropdown ou query param ?collection=. Cada coleção tem seu próprio
+// path no Storage, key de localStorage, e contexto de prompt — o resto
+// do editor é genérico (depende apenas do schema preface/sections/poems).
 //
 // Tela única por poema:
-//   1. As 4 variantes (WEB / v1 / v2 / v3) sempre visíveis lado a lado.
+//   1. Variantes (WEB / v1 / v2 / v3 quando existem) sempre visíveis.
 //   2. Clicar numa variante preenche Título/Tradução abaixo (= edição pendente).
-//   3. Inputs editáveis pra criar uma 5ª versão personalizada.
-//   4. "✨ Sugerir IA" abre claude.ai com prompt contextualizado (variantes
-//       incluídas) — cola a resposta de volta pra virar pending edit.
-//   5. "💾 Publicar" sobe o JSON inteiro pro Supabase Storage. Sem export,
-//       sem script Python, sem commit.
-//
-// Fonte: bucket `teachings`, path `poetry/akimaro-kineishu.json`.
+//   3. Inputs editáveis pra criar uma versão personalizada.
+//   4. "✨ Sugerir IA" abre claude.ai com prompt contextualizado.
+//   5. "💾 Publicar" sobe o JSON inteiro pro Supabase Storage.
 // ============================================================
 import { _escHtml, logAdminAction } from '../shared/helpers.js';
 import { supabase } from '../../supabase-config.js';
 
-const BUCKET           = 'teachings';
-const STORAGE_PATH     = 'poetry/akimaro-kineishu.json';
-const LS_PENDING_EDITS = 'akimaro_editor_pending_v1';
-const CLAUDE_TAB_NAME  = 'claude-ai-akimaro';
-const PAGE_SIZE        = 25;
+const BUCKET    = 'teachings';
+const PAGE_SIZE = 25;
+
+// Registry de coleções. Adicionar uma nova = uma entrada aqui, desde
+// que o JSON siga o schema padrão (preface, sections[], poems[] com
+// number/title/translation/original/reading). storagePath e localPath
+// podem divergir (Storage usa hífen; data files usam underscore).
+const COLLECTIONS = {
+  'akimaro-kineishu': {
+    title: "Akimaro Kin'eishū",
+    storagePath: 'poetry/akimaro-kineishu.json',
+    localPath: 'data/poetry/akimaro_kineishu.json',
+    lsKey: 'akimaro_editor_pending_v1',
+    claudeTab: 'claude-ai-akimaro',
+    promptContext:
+      '- Pseudônimo do autor: 東山明麿 (Higashiyama Akimaro) — Meishu-Sama em 1949.\n' +
+      '- Coletânea: 486 tanka publicada em 30/11/1949.',
+  },
+  'yama-to-mizu': {
+    title: 'Yama to Mizu (山と水)',
+    storagePath: 'poetry/yama-to-mizu.json',
+    localPath: 'data/poetry/yama_to_mizu.json',
+    lsKey: 'yama_editor_pending_v1',
+    claudeTab: 'claude-ai-yama',
+    promptContext:
+      '- Coletânea "Yama to Mizu" (山と水, "Montanhas e Águas") — tanka de Meishu-Sama centrados em paisagens (montanhas, rios, mar, estações).',
+  },
+};
+const DEFAULT_COLLECTION = 'akimaro-kineishu';
 
 const VERSION_LABELS = {
   WEB: { label: 'Web (Gemini Studio)',           color: '#7a9b6e', short: 'WEB' },
@@ -28,9 +53,10 @@ const VERSION_LABELS = {
   v3:  { label: 'API v3 (econ. poética, 0.80)',  color: '#5e7ea8', short: 'v3'  },
 };
 
-// Versão enxuta do prompt mestre (docs/akimaro_kineishu_translation_prompt.md)
-// — calibrada pra revisão pontual de UM poema, não tradução em lote.
-const POETRY_GUIDELINES = `Você é Tradutor Editorial Sênior e Especialista em Espiritualidade Oriental, com autoridade na filosofia de Meishu-Sama (Mokichi Okada) e estética literária japonesa (Waka/Tanka).
+// Regras gerais de tradução — válidas pra todas as coleções de tanka
+// do Meishu-Sama. O CONTEXTO específico (autor, data, foco) vai por
+// coleção no registry (promptContext).
+const POETRY_GUIDELINES_BASE = `Você é Tradutor Editorial Sênior e Especialista em Espiritualidade Oriental, com autoridade na filosofia de Meishu-Sama (Mokichi Okada) e estética literária japonesa (Waka/Tanka).
 
 REGRAS DE OURO:
 - Fluidez nobre: PT culto, rítmico e visual. NUNCA copie a ordem SOV do japonês. Vocabulário elevado ("Gélido" > "frio"; "Crepúsculo" > "fim de tarde").
@@ -39,13 +65,10 @@ REGRAS DE OURO:
   • SEMPRE em romaji (doutrinários: Kannon, Johrei, Komyo, Kototama, Yuzuriha, Aware, Yugen, Izunome, Makoto, Mahikari no Mitama, Tariki, Kannongyo, Myochiriki, Misogi, Wakō Dōjin, Daikomyo Nyorai, Koyokai, Nyorai; geográficos: Fuji, Tamagawa, Hakone, Atami, Ise, Moto-Ise, Tsujidō, Hiratsuka, Odawara, Manazuru, Hakkeien, Kanrei, Komagatake, Kamiyama, Yugyōji, Shinsenkyō, Sekirakuen).
   • SEMPRE traduzir: Kirisuto→Cristo, Shaka→Buda, Hotoke/Mihotoke→Buda/Precioso Buda, Magakami→deuses sombrios (plural minúsculo), Ten/Ame→Céu, Tengoku→Paraíso, Mahito→Homem Verdadeiro.
 - Volição em 1ª pessoa singular: formas -an/-mu/-n com 吾/われ traduzem como "provarei", NUNCA "provemos". 1ª pessoa plural só com われら explícito.
-- Pontuação enxuta — proibido em-dash decorativo: NÃO adicione travessão (—, –, --) onde o japonês não tem pausa explícita. O tanka clássico marca pausas com kireji (や, かな, けり, ぞ, ね, よ) ou com o espaço wide-jp (　) entre as cinco estrofes 5-7-5-7-7. Pra essas pausas, prefira vírgula, ponto-final, ou simplesmente quebra de linha. Travessão SÓ é aceitável quando há kireji dramático real (や/ぞ em pivô semântico) — caso contrário, é vício de tradutor.
-
-CONTEXTO:
-- Pseudônimo do autor: 東山明麿 (Higashiyama Akimaro) — Meishu-Sama em 1949.
-- Coletânea: 486 tanka publicada em 30/11/1949.`;
+- Pontuação enxuta — proibido em-dash decorativo: NÃO adicione travessão (—, –, --) onde o japonês não tem pausa explícita. O tanka clássico marca pausas com kireji (や, かな, けり, ぞ, ね, よ) ou com o espaço wide-jp (　) entre as cinco estrofes 5-7-5-7-7. Pra essas pausas, prefira vírgula, ponto-final, ou simplesmente quebra de linha. Travessão SÓ é aceitável quando há kireji dramático real (や/ぞ em pivô semântico) — caso contrário, é vício de tradutor.`;
 
 // Estado
+let _activeCollection = DEFAULT_COLLECTION;
 let _rawData = null;
 let _allPoems = [];
 let _pendingEdits = {};
@@ -55,27 +78,63 @@ let _editFilterPending = false;
 let _publishing = false;
 let _loadedAt = null;
 
+function _currentConfig() {
+  return COLLECTIONS[_activeCollection];
+}
+
+// Inicializa a coleção ativa a partir de ?collection=... na URL.
+// Mantém links/bookmarks de coleções específicas; browser back/forward
+// trocam a coleção sem reload da página.
+function _initCollectionFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const fromUrl = params.get('collection');
+  if (fromUrl && COLLECTIONS[fromUrl]) _activeCollection = fromUrl;
+}
+
+function _updateUrlForCollection(key) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('collection', key);
+  window.history.replaceState({}, '', url);
+}
+
 // ─── localStorage (rascunho local até Publicar) ──────────────
 function _loadPendingEdits() {
   try {
-    const raw = localStorage.getItem(LS_PENDING_EDITS);
+    const raw = localStorage.getItem(_currentConfig().lsKey);
     if (raw) _pendingEdits = JSON.parse(raw) || {};
   } catch (e) { _pendingEdits = {}; }
 }
 function _savePendingEdits() {
-  try { localStorage.setItem(LS_PENDING_EDITS, JSON.stringify(_pendingEdits)); } catch (e) {}
+  try { localStorage.setItem(_currentConfig().lsKey, JSON.stringify(_pendingEdits)); } catch (e) {}
 }
 function _clearPendingEdits() {
   _pendingEdits = {};
-  try { localStorage.removeItem(LS_PENDING_EDITS); } catch (e) {}
+  try { localStorage.removeItem(_currentConfig().lsKey); } catch (e) {}
 }
 
 // ─── Storage I/O ─────────────────────────────────────────────
 async function _loadFromStorage() {
-  const { data, error } = await supabase.storage.from(BUCKET).download(STORAGE_PATH);
-  if (error) throw new Error(`Download falhou: ${error.message}`);
-  const text = await data.text();
-  return JSON.parse(text);
+  const cfg = _currentConfig();
+  const { data, error } = await supabase.storage.from(BUCKET).download(cfg.storagePath);
+  if (!error) {
+    const text = await data.text();
+    return JSON.parse(text);
+  }
+  // Fallback APENAS quando o objeto não existe no Storage (1ª edição
+  // de uma coleção nova como yama). Erros transitórios (rede, 5xx,
+  // auth) precisam propagar — senão o usuário edita em cima de um
+  // snapshot local desatualizado e o Publicar clobbera o Storage.
+  const msg = error.message || '';
+  const status = error.statusCode || error.status || error.originalError?.status;
+  const isNotFound = status === 404 || String(status) === '404'
+    || /not.?found|object.*not.*exist/i.test(msg);
+  if (!isNotFound) {
+    throw new Error(`Download falhou (${status || 'erro'}): ${msg}`);
+  }
+  console.warn(`[poetry-versions] ${_activeCollection} ainda não está no Storage; carregando data file local (${cfg.localPath})`);
+  const res = await fetch(cfg.localPath);
+  if (!res.ok) throw new Error(`Storage 404 + fallback local também falhou (${res.status})`);
+  return await res.json();
 }
 
 function _applyPendingEditsToRawData() {
@@ -98,7 +157,7 @@ function _applyPendingEditsToRawData() {
 async function _publishToStorage() {
   _applyPendingEditsToRawData();
   const blob = new Blob([JSON.stringify(_rawData, null, 2)], { type: 'application/json' });
-  const { error } = await supabase.storage.from(BUCKET).upload(STORAGE_PATH, blob, {
+  const { error } = await supabase.storage.from(BUCKET).upload(_currentConfig().storagePath, blob, {
     upsert: true,
     contentType: 'application/json',
     cacheControl: '0'
@@ -136,17 +195,32 @@ function _detectActiveVariant(poem, pend) {
 }
 
 // ─── Entry point ─────────────────────────────────────────────
-async function loadPoetryVersions() {
+// Pode ser chamado:
+//   - sem argumento: lê coleção da URL (?collection=...) ou usa default
+//   - com chave de coleção: troca pra essa coleção e atualiza a URL
+async function loadPoetryVersions(collection) {
+  if (collection && COLLECTIONS[collection]) {
+    _activeCollection = collection;
+  } else {
+    _initCollectionFromUrl();
+  }
+  _updateUrlForCollection(_activeCollection);
+
   const container = document.getElementById('pv-container');
   if (!container) return;
   container.innerHTML = '<div class="loading">Carregando poemas do Supabase Storage…</div>';
 
+  // Reset por coleção (estado de busca/página/pendentes é per-collection)
+  _rawData = null;
+  _allPoems = [];
+  _editPage = 0;
+  _editQuery = '';
+  _editFilterPending = false;
   _loadPendingEdits();
 
   try {
     _rawData = await _loadFromStorage();
     _loadedAt = new Date();
-    _allPoems = [];
     for (const sec of _rawData.sections || []) {
       for (const p of sec.poems || []) {
         _allPoems.push({ ...p, section_pt: sec.title_pt, section_jp: sec.title_jp });
@@ -163,11 +237,22 @@ function _renderUI() {
   const container = document.getElementById('pv-container');
   if (!container) return;
 
+  const cfg = _currentConfig();
+  const options = Object.entries(COLLECTIONS).map(([key, c]) =>
+    `<option value="${key}" ${key === _activeCollection ? 'selected' : ''}>${_escHtml(c.title)}</option>`
+  ).join('');
+
   container.innerHTML = `
     <div style="margin-bottom:18px;">
-      <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Akimaro Kin'eishū — ${_allPoems.length} poemas</h2>
+      <div style="display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:6px;">
+        <label for="pv-collection-select" style="font-size:0.72rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em;">Coletânea</label>
+        <select id="pv-collection-select" style="font-size:0.95rem; font-weight:600; color:var(--accent); letter-spacing:0.5px; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:6px 28px 6px 10px; cursor:pointer;">
+          ${options}
+        </select>
+        <span style="font-size:0.85rem; color:var(--text-muted);">— ${_allPoems.length} poemas</span>
+      </div>
       <p style="font-size:0.78rem; color:var(--text-muted); margin:0;">
-        Fonte: <code style="font-size:0.72rem;">${BUCKET}/${STORAGE_PATH}</code> · carregado ${_loadedAt ? _loadedAt.toLocaleTimeString('pt-BR') : '—'}.
+        Fonte: <code style="font-size:0.72rem;">${BUCKET}/${_escHtml(cfg.storagePath)}</code> · carregado ${_loadedAt ? _loadedAt.toLocaleTimeString('pt-BR') : '—'}.
         Escolha uma variante ou edite os campos — as mudanças ficam locais até você clicar em <strong>Publicar</strong>.
       </p>
     </div>
@@ -181,8 +266,21 @@ function _renderUI() {
     <div id="pv-body"></div>
   `;
 
+  _wireCollectionSelector();
   _wirePublishArea();
   _renderEditor();
+}
+
+function _wireCollectionSelector() {
+  const sel = document.getElementById('pv-collection-select');
+  if (!sel) return;
+  sel.addEventListener('change', e => {
+    const next = e.target.value;
+    if (!COLLECTIONS[next] || next === _activeCollection) return;
+    // Edições pendentes ficam por coleção (lsKey diferente) — só trocar
+    // a coleção ativa e recarregar.
+    loadPoetryVersions(next);
+  });
 }
 
 function _renderPublishBar() {
@@ -223,14 +321,15 @@ async function _onPublish() {
 
   try {
     await _publishToStorage();
-    await logAdminAction('akimaro_publish', {
+    await logAdminAction(`${_activeCollection.replace(/-/g, '_')}_publish`, {
+      collection: _activeCollection,
       poems_edited: n,
       numbers: Object.keys(_pendingEdits).map(Number).sort((a,b) => a - b)
     });
     _clearPendingEdits();
     _publishing = false;
     alert('Publicado ✓\n\nO Storage tem a nova versão.');
-    await loadPoetryVersions();
+    await loadPoetryVersions(_activeCollection);
   } catch (e) {
     _publishing = false;
     if (btn) { btn.disabled = false; btn.innerHTML = '💾 Publicar no Storage'; }
@@ -514,11 +613,15 @@ async function _suggestAIForPoem(num) {
     ? versions.map(v => `**${VERSION_LABELS[v.key].short}:** "${v.title}" — ${v.translation}`).join('\n')
     : '(sem variantes Gemini)';
 
-  const prompt = `${POETRY_GUIDELINES}
+  const cfg = _currentConfig();
+  const prompt = `${POETRY_GUIDELINES_BASE}
+
+CONTEXTO:
+${cfg.promptContext}
 
 ---
 
-## CONTEXTO: REVISÃO DE UM POEMA DA COLETÂNEA AKIMARO KIN'EISHŪ
+## CONTEXTO: REVISÃO DE UM POEMA DA COLETÂNEA ${cfg.title.toUpperCase()}
 
 Estou revisando a tradução do poema nº ${num} (seção "${poem.section_pt || ''}" / ${poem.section_jp || ''}). Quero sua sugestão para um título e tradução PT-BR que honrem o Kototama, o Yugen e a lição espiritual do original, aplicando todas as regras acima.
 
@@ -564,7 +667,7 @@ Responda **exatamente** neste formato:
     document.body.appendChild(ta); ta.select(); document.execCommand('copy');
     document.body.removeChild(ta);
   }
-  window.open('https://claude.ai/new', CLAUDE_TAB_NAME);
+  window.open('https://claude.ai/new', cfg.claudeTab);
 
   const panel = document.getElementById(`pv-ai-panel-${num}`);
   if (!panel) return;

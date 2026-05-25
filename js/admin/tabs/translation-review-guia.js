@@ -115,8 +115,26 @@ function _renderGuiaReports() {
     const tabLabel = GUIA_TAB_LABELS[r.tab] || r.tab || '—';
     const articleTitle = r.article_title || r.article_id || '(sem título)';
 
-    const previewBtn = r.page_url
-      ? `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open(${_escHtml(JSON.stringify(r.page_url))}, '_blank')" title="Abrir artigo no site">👁️ Preview</button>`
+    // Reconstrói URL usando article_id (deep link mais robusto que slug).
+    // Mantém origem do page_url se for prod; senão usa cmu.org.br como default.
+    let previewUrl = '';
+    if (r.article_id) {
+      let origin = 'https://www.cmu.org.br/guia_do_johrei';
+      try {
+        if (r.page_url) {
+          const u = new URL(r.page_url);
+          // Só usa a origem se for o domínio prod — descarta localhost
+          if (u.hostname.endsWith('.cmu.org.br')) {
+            origin = u.origin + u.pathname.replace(/\/$/, '');
+          }
+        }
+      } catch (e) { /* mantém default */ }
+      previewUrl = `${origin}/?id=${encodeURIComponent(r.article_id)}&mode=ensinamentos`;
+    } else if (r.page_url) {
+      previewUrl = r.page_url;
+    }
+    const previewBtn = previewUrl
+      ? `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open(${_escHtml(JSON.stringify(previewUrl))}, '_blank')" title="Abrir artigo no site (deep link via id)">👁️ Preview</button>`
       : '';
 
     const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.12); color:#a87a1b; border-color:rgba(255,160,0,0.4);" onclick="openGuiaEditor('${r.id}')" title="Abrir editor inline, fixar trecho reportado">✏️ Editar</button>`;

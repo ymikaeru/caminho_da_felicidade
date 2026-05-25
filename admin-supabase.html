@@ -83,7 +83,7 @@
               <div class="tab-group-tabs">
                 <div class="admin-tab" onclick="switchTab('recommendations')">📤 Recomendações</div>
                 <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty" id="reportsTabBadge">0</span></div>
-                <div class="admin-tab" onclick="switchTab('poetry-versions')">🌸 Poemas Akimaro</div>
+                <div class="admin-tab" onclick="switchTab('poetry-versions')">🌸 Correção Poemas</div>
               </div>
             </div>
             <div class="tab-group" data-section="caminho">
@@ -98,6 +98,7 @@
             <div class="tab-group" data-section="johrei">
               <div class="tab-group-tabs">
                 <div class="admin-tab" onclick="switchTab('analytics-johrei')">📊 Analytics</div>
+                <div class="admin-tab" onclick="switchTab('reports-guia')">⚠ Relatórios <span class="tab-badge empty" id="guiaReportsTabBadge">0</span></div>
                 <div class="admin-tab" onclick="switchTab('essencia-guia')" style="display:none">📌 Essência</div>
               </div>
             </div>
@@ -850,6 +851,16 @@
               </div>
             </div>
             <div id="jr-dashboard"><div class="loading">Carregando dados…</div></div>
+          </div>
+
+          <!-- Reports (Guia) Tab -->
+          <div class="tab-content" id="tab-reports-guia">
+            <div style="margin-bottom:24px;">
+              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Relatórios de Tradução — Guia do Johrei</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Trechos reportados por leitores anônimos como possível erro de tradução. Reportes vêm da home do guia_johrei via seleção de texto.</p>
+            </div>
+            <div class="report-summary-bar" id="guiaReportsSummary"></div>
+            <div id="guiaReportsContainer"><div class="loading">Carregando relatórios…</div></div>
           </div>
 
           <!-- Essência (Guia) Tab -->

@@ -25,6 +25,7 @@
     import './admin/tabs/users-permissions.js';
     import './admin/tabs/analytics.js';
     import './admin/tabs/translation-review.js';
+    import './admin/tabs/translation-review-guia.js';
     import './admin/tabs/recommendations.js';
     import './admin/tabs/poetry-versions.js';
 
@@ -110,7 +111,7 @@
     window.switchTab = function(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-poetry': 6, 'analytics-search': 7, 'destaques': 8, 'saved': 9, 'recommendations': 10, 'reports': 11, 'poetry-versions': 12, 'users': 13, 'findreplace': 14, 'duplicates': 15, 'logs': 16, 'analytics-johrei': 17, 'essencia-guia': 18 }[tab];
+      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-poetry': 6, 'analytics-search': 7, 'destaques': 8, 'saved': 9, 'recommendations': 10, 'reports': 11, 'poetry-versions': 12, 'users': 13, 'findreplace': 14, 'duplicates': 15, 'logs': 16, 'analytics-johrei': 17, 'reports-guia': 18, 'essencia-guia': 19 }[tab];
       document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'analytics') {
@@ -131,6 +132,7 @@
       if (tab === 'recommendations') loadRecommendationsTab();
       if (tab === 'poetry-versions') loadPoetryVersions();
       if (tab === 'analytics-johrei') loadJohreiAnalytics();
+      if (tab === 'reports-guia') loadGuiaReports();
       if (tab === 'analytics-landing') loadLandingAnalytics();
       if (tab === 'analytics-disciples') loadDisciplesAnalytics();
       if (tab === 'analytics-poetry') loadPoetryAnalytics();

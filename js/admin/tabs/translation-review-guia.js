@@ -144,6 +144,11 @@ function _renderGuiaReports() {
       const slug = _toGuiaSlug(r.article_title);
       previewUrl = `${PROD_BASE}/?item=${encodeURIComponent(slug)}&mode=ensinamentos`;
     }
+    // Anexa ?focus=<trecho reportado> pro site destacar e scrollar até a passagem
+    if (previewUrl && r.selected_text) {
+      const sep = previewUrl.includes('?') ? '&' : '?';
+      previewUrl += `${sep}focus=${encodeURIComponent(r.selected_text)}`;
+    }
     const previewBtn = previewUrl
       ? `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open(${_escHtml(JSON.stringify(previewUrl))}, '_blank')" title="Abrir artigo no site">👁️ Preview</button>`
       : '';

@@ -593,6 +593,258 @@ async function saveGuiaEditor() {
   }, 1200);
 }
 
+// ============================================================
+// Sugestão IA — Phase 4
+// Botão dentro do editor: monta prompt com glossário Johrei +
+// passagem reportada + comentário + artigo completo (contexto),
+// copia pro clipboard, abre claude.ai em tab nomeada. Quando user
+// volta, auto-cola resposta do clipboard. Parse, compara lado-a-
+// lado, aplica substituindo a selection do textarea.
+// ============================================================
+
+const GUIA_AI_GUIDELINES = `Você é um revisor sênior brasileiro, devoto da Sekaikyūseikyō, com conhecimento profundo dos ensinamentos de Meishu-sama sobre Johrei. Sua tarefa é revisar trechos do Guia Prático do Johrei (material de referência pra ministrantes brasileiros) em português brasileiro elevado mas acessível.
+
+PRINCÍPIO DOUTRINÁRIO: o que o mundo chama de "doença" é, sob a ótica de Meishu-sama, purificação se manifestando. Use "doença" quando descrever o fenômeno externo; use "purificação", "manifestação" ou "afecção" quando a perspectiva for doutrinária.
+
+GLOSSÁRIO MANDATÓRIO (nunca substituir por sinônimos):
+- jōka / 浄化 → purificação
+- yakudoku / 薬毒 → toxinas medicinais (NUNCA "veneno")
+- kyūsho / 急所 → ponto vital
+- katamari / 固まり → indurações (técnico) ou solidificações (nódulos)
+- Johrei / 浄霊 → Johrei (nunca traduzir)
+- Ohikari / 御光 → Ohikari (1ª menção: "Ohikari [御光]"; depois "Ohikari")
+- 浄霊医術 → arte do Johrei (NUNCA "arte médica do Johrei")
+- 力を抜く → retirar a força (NUNCA "relaxar a força")
+- Komyo Nyorai / 光明如来 → Komyo Nyorai (não traduzir)
+- Kannon / 観音 → Kannon (1ª menção: "Kannon [観音]"; depois "Kannon")
+- Shakuson / 釈尊 → Shakuson
+- kamisama / 神様 → Deus (sem "nosso", sem "o Senhor")
+- oshie / 教え → ensinamento (não "doutrina")
+- sukui / 救い → salvação
+- gokago / 御加護 → proteção divina
+- in'nen / 因縁 → vínculo cármico
+- gō / 業 → carma
+- zaie / 罪穢 → impurezas espirituais
+- shinkō / 信仰 → fé (não "crença" nem "fervor")
+- Meishu-sama (minúsculo no "sama")
+
+CALIBRAÇÃO DE REGISTRO PT-BR:
+Português brasileiro natural pra ministrantes. Solene mas não pomposo. Direto mas não casual. Como um mestre japonês falando português brasileiro fluente.
+
+EVITAR (lusitanismos e academicismos):
+- "Ademais" / "Outrossim" → "Além disso", "E ainda"
+- "Cumpre" / "Mister" → "É preciso", "É necessário"
+- "Eis que" → "Vejam:", "Pois bem,"
+- "Por conseguinte" / "Destarte" → "Por isso", "Assim"
+- "Configura-se como" → "É", "Constitui"
+- "Sob esta ótica" → "Deste ponto de vista"
+- "Há que se" → "É preciso"
+- "Outrora" → "Antigamente"
+- "Em contrapartida" excessivo → alternar com "Por outro lado", "Já"
+- Em-dash decorativo (—) substituindo vírgula ou ponto sem razão
+
+PREFERIR:
+- Conectivos vivos: "Por isso", "Assim", "Desta forma"
+- Convocações diretas: "Vejam:", "Compreendam:", "É fundamental notar:"
+- "É preciso" em vez de "É imperativo"
+- Sacralidade brasileira: "graça divina", "missão", "fé verdadeira"
+
+REGRA DE BIJEÇÃO: NUNCA fundir nem dividir parágrafos. Mantenha a mesma quantidade de quebras de linha do texto original. Se o trecho selecionado é uma frase dentro de um parágrafo, devolva apenas essa frase corrigida — não o parágrafo todo.`;
+
+const GUIA_CLAUDE_TAB = 'guia-claude-ai-correction';
+let _ge_aiPasteEl = null;       // textarea aguardando paste
+let _ge_aiLastAutoPasted = '';
+
+async function suggestGuiaAI() {
+  if (!_ge_currentReport || _ge_originalConteudo == null) return;
+
+  const r = _ge_currentReport;
+  const ta = document.getElementById('guia-editor-area');
+  // Pega o trecho atualmente selecionado (admin pode ter ajustado a seleção)
+  const selStart = ta.selectionStart;
+  const selEnd = ta.selectionEnd;
+  const selectedNow = (selEnd > selStart)
+    ? ta.value.slice(selStart, selEnd)
+    : (r.selected_text || '');
+
+  // Parágrafo que contém a seleção (pra contexto). Split por \n\n.
+  const fullText = ta.value;
+  const paras = fullText.split(/\n\n+/);
+  let contextPara = '';
+  if (selectedNow) {
+    contextPara = paras.find(p => p.includes(selectedNow)) || '';
+  }
+
+  const prompt = `${GUIA_AI_GUIDELINES}
+
+---
+
+## CONTEXTO
+
+**Arquivo:** ${_ge_currentFile} (Guia do Johrei — Supabase Storage)
+**Aba:** ${GUIA_TAB_LABELS[r.tab] || r.tab}
+**Artigo:** ${r.article_title || r.article_id}
+
+## TRECHO A REVISAR
+
+"${selectedNow}"
+${r.description ? `\n## COMENTÁRIO DO USUÁRIO (pista sobre o erro)\n\n"${r.description}"\n` : ''}
+${contextPara && contextPara !== selectedNow ? `## PARÁGRAFO COMPLETO (contexto — não retradurar)\n\n${contextPara}\n` : ''}
+---
+
+## TAREFA
+
+Analise o trecho à luz do glossário, da calibração de registro e do comentário do usuário. Devolva APENAS o trecho selecionado corrigido (sem o parágrafo inteiro), preservando o sentido doutrinário e a quantidade original de quebras de linha.
+
+## FORMATO OBRIGATÓRIO DA RESPOSTA
+
+**📜 Trecho corrigido:**
+[apenas o trecho corrigido, pronto pra colar de volta no admin]
+
+**💡 Justificativa:**
+- [Mudança 1: regra/termo aplicado]
+- [Mudança 2 se houver]`;
+
+  try {
+    await navigator.clipboard.writeText(prompt);
+  } catch (e) {
+    const tmp = document.createElement('textarea');
+    tmp.value = prompt;
+    tmp.style.position = 'fixed'; tmp.style.opacity = '0';
+    document.body.appendChild(tmp); tmp.select();
+    document.execCommand('copy');
+    document.body.removeChild(tmp);
+  }
+
+  window.open('https://claude.ai/new', GUIA_CLAUDE_TAB);
+
+  // Mostra painel de paste abaixo do textarea
+  let panel = document.getElementById('guia-editor-ai-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'guia-editor-ai-panel';
+    panel.style.cssText = 'margin-top:12px; padding:14px; border:1px solid rgba(168,85,247,0.35); border-radius:10px; background:rgba(168,85,247,0.04);';
+    document.getElementById('guia-editor-area').insertAdjacentElement('afterend', panel);
+  }
+  panel.style.display = 'block';
+  panel.innerHTML = `
+    <div style="font-size:.72rem; font-weight:700; color:#a855f7; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">✨ Sugestão da IA</div>
+    <div style="font-size:.82rem; color:var(--text-muted); margin-bottom:10px; line-height:1.5;">
+      1) Prompt copiado e <a href="https://claude.ai/new" target="${GUIA_CLAUDE_TAB}" style="color:#a855f7;">claude.ai</a> aberto. Cole com Ctrl+V e envie.<br>
+      2) Copie a resposta completa do Claude (com 📜) e volte aqui — vai colar automaticamente.
+    </div>
+    <textarea id="guia-ai-paste" placeholder="Cole aqui a resposta completa do Claude (incluindo o marcador 📜)…"
+      style="width:100%; box-sizing:border-box; min-height:100px; padding:8px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:.85rem; font-family:inherit; resize:vertical;"></textarea>
+    <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
+      <button onclick="parseGuiaAISuggestion()" style="padding:6px 14px; background:#a855f7; color:#fff; border:none; border-radius:6px; font-size:.78rem; font-weight:600; cursor:pointer;">Comparar</button>
+      <button onclick="discardGuiaAIPanel()" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:.78rem; cursor:pointer;">Cancelar</button>
+    </div>
+  `;
+  _ge_aiPasteEl = panel.querySelector('#guia-ai-paste');
+  setTimeout(() => _ge_aiPasteEl?.focus(), 100);
+}
+
+function parseGuiaAISuggestion() {
+  const panel = document.getElementById('guia-editor-ai-panel');
+  const paste = panel?.querySelector('#guia-ai-paste');
+  if (!paste) return;
+  const raw = (paste.value || '').trim();
+  if (!raw) return;
+
+  // Extrai o trecho corrigido (entre 📜 e 💡/fim)
+  const m = raw.match(/📜[^\n]*\n+([\s\S]*?)(?=\n\s*\*?\*?\s*💡|\n\s*\*?\*?\s*🔍|$)/);
+  let extracted = m ? m[1].trim() : raw;
+  extracted = extracted.replace(/^["']\s*|\s*["']$/g, '').replace(/^\*+\s*|\s*\*+$/g, '').trim();
+
+  // Justificativa
+  const justMatch = raw.match(/💡[^\n]*\n+([\s\S]*?)$/);
+  const justify = justMatch ? justMatch[1].trim().replace(/^["']\s*|\s*["']$/g, '') : '';
+
+  const ta = document.getElementById('guia-editor-area');
+  const currentSel = ta.value.slice(ta.selectionStart, ta.selectionEnd) || (_ge_currentReport.selected_text || '');
+
+  _ge_aiPasteEl = null;
+  panel.innerHTML = `
+    <div style="font-size:.72rem; font-weight:700; color:#a855f7; text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px;">✨ Comparação</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div>
+        <div style="font-size:.7rem; color:var(--text-muted); margin-bottom:4px; font-weight:600;">📄 Trecho atual</div>
+        <div style="padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px; font-size:.85rem; line-height:1.55; min-height:60px; white-space:pre-wrap;">${_escHtml(currentSel)}</div>
+      </div>
+      <div>
+        <div style="font-size:.7rem; color:#a855f7; margin-bottom:4px; font-weight:600;">✅ Sugestão (editável)</div>
+        <div class="guia-ai-new" contenteditable="true" style="padding:8px 10px; background:rgba(168,85,247,0.05); border:1px solid rgba(168,85,247,0.4); border-radius:6px; font-size:.85rem; line-height:1.55; min-height:60px; white-space:pre-wrap; color:var(--text);">${_escHtml(extracted)}</div>
+      </div>
+    </div>
+    ${justify ? `<div style="margin-top:10px; padding:8px 10px; background:var(--surface); border-left:3px solid #a855f7; border-radius:4px; font-size:.8rem; line-height:1.5; color:var(--text-muted);"><b>💡 Justificativa:</b> ${_escHtml(justify)}</div>` : ''}
+    <div style="display:flex; gap:8px; margin-top:10px; align-items:center; flex-wrap:wrap;">
+      <button onclick="applyGuiaAISuggestion()" style="padding:6px 14px; background:#34c759; color:#fff; border:none; border-radius:6px; font-size:.78rem; font-weight:600; cursor:pointer;">✓ Aplicar no editor</button>
+      <button onclick="discardGuiaAIPanel()" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:.78rem; cursor:pointer;">✗ Descartar</button>
+      <span style="font-size:.72rem; color:var(--text-muted);">Edite a sugestão antes de aplicar, se quiser</span>
+    </div>
+  `;
+}
+
+function applyGuiaAISuggestion() {
+  const panel = document.getElementById('guia-editor-ai-panel');
+  const newEl = panel?.querySelector('.guia-ai-new');
+  if (!newEl) return;
+  const newText = (newEl.textContent || '').trim();
+  if (!newText) return;
+
+  const ta = document.getElementById('guia-editor-area');
+  const s = ta.selectionStart;
+  const e = ta.selectionEnd;
+  // Se não há seleção ativa, tenta localizar o trecho original e substituir
+  let targetStart = s;
+  let targetEnd   = e;
+  if (s === e) {
+    const orig = _ge_currentReport?.selected_text || '';
+    const located = _ge_findNeedle(ta.value, orig);
+    if (located) {
+      targetStart = located.start;
+      targetEnd = located.end;
+    } else {
+      alert('Selecione o trecho a substituir no editor antes de aplicar.');
+      return;
+    }
+  }
+
+  const newValue = ta.value.slice(0, targetStart) + newText + ta.value.slice(targetEnd);
+  ta.value = newValue;
+  ta.focus();
+  ta.setSelectionRange(targetStart, targetStart + newText.length);
+
+  // Feedback visual: pisca o textarea
+  ta.style.transition = 'background-color 0.4s';
+  ta.style.backgroundColor = 'rgba(52,199,89,0.12)';
+  setTimeout(() => { ta.style.backgroundColor = ''; }, 700);
+
+  discardGuiaAIPanel();
+}
+
+function discardGuiaAIPanel() {
+  const panel = document.getElementById('guia-editor-ai-panel');
+  if (panel) {
+    panel.style.display = 'none';
+    panel.innerHTML = '';
+  }
+  _ge_aiPasteEl = null;
+}
+
+// Auto-paste do clipboard quando admin volta da aba do claude.ai
+window.addEventListener('focus', async () => {
+  if (!_ge_aiPasteEl || !_ge_aiPasteEl.isConnected || _ge_aiPasteEl.value.trim()) return;
+  let text = '';
+  try { text = await navigator.clipboard.readText(); } catch (e) { return; }
+  if (!text || text === _ge_aiLastAutoPasted) return;
+  // Heurística: tem marcador 📜 e não é o nosso próprio prompt
+  if (!/📜/.test(text)) return;
+  if (/GLOSSÁRIO MANDATÓRIO|GUIA_AI_GUIDELINES/.test(text)) return;
+  _ge_aiPasteEl.value = text;
+  _ge_aiLastAutoPasted = text;
+});
+
 Object.assign(window, {
   loadGuiaReports,
   toggleGuiaVerifiedSection,
@@ -601,4 +853,8 @@ Object.assign(window, {
   openGuiaEditor,
   closeGuiaEditor,
   saveGuiaEditor,
+  suggestGuiaAI,
+  parseGuiaAISuggestion,
+  applyGuiaAISuggestion,
+  discardGuiaAIPanel,
 });

@@ -41,7 +41,7 @@ async function loadGuiaReports(forceReload = false) {
 
   const { data, error } = await supabase
     .from('translation_reports_guia')
-    .select('id, article_id, article_title, tab, page_url, selected_text, description, pt_before, pt_after, status, corrected_at, verified_at, user_agent, created_at')
+    .select('id, article_id, article_title, tab, page_url, selected_text, description, pt_before, pt_after, status, corrected_at, verified_at, user_agent, created_at, paragraph_index')
     .order('created_at', { ascending: false })
     .limit(500);
 
@@ -144,10 +144,18 @@ function _renderGuiaReports() {
       const slug = _toGuiaSlug(r.article_title);
       previewUrl = `${PROD_BASE}/?item=${encodeURIComponent(slug)}&mode=ensinamentos`;
     }
-    // Anexa ?focus=<trecho reportado> pro site destacar e scrollar até a passagem
-    if (previewUrl && r.selected_text) {
+    // Anexa hint pro site pular pro ¶ correto. Prefere paragraph_index
+    // (imune a mudanças de texto); fallback pra focus=<trecho> só.
+    if (previewUrl) {
       const sep = previewUrl.includes('?') ? '&' : '?';
-      previewUrl += `${sep}focus=${encodeURIComponent(r.selected_text)}`;
+      if (r.paragraph_index != null) {
+        previewUrl += `${sep}paragraph=${r.paragraph_index}`;
+        if (r.selected_text) {
+          previewUrl += `&focus=${encodeURIComponent(r.selected_text)}`;
+        }
+      } else if (r.selected_text) {
+        previewUrl += `${sep}focus=${encodeURIComponent(r.selected_text)}`;
+      }
     }
     const previewBtn = previewUrl
       ? `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open(${_escHtml(JSON.stringify(previewUrl))}, '_blank')" title="Abrir artigo no site">👁️ Preview</button>`

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <title>Admin — Caminho da Felicidade</title>
@@ -8,14 +9,15 @@
   <link rel="stylesheet" href="css/admin.min.css?v=2">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
+
 <body class="admin-locked">
   <!-- Admin PIN gate -->
   <div id="adminPinModal" class="admin-pin-modal" role="dialog" aria-modal="true" aria-labelledby="adminPinTitle">
     <div class="admin-pin-card">
       <h3 id="adminPinTitle">Acesso Administrativo</h3>
       <p id="adminPinDesc">Digite seu PIN para continuar.</p>
-      <input id="adminPinInput" class="admin-pin-input" type="password" inputmode="numeric"
-             autocomplete="off" maxlength="12" pattern="[0-9]*" />
+      <input id="adminPinInput" class="admin-pin-input" type="password" inputmode="numeric" autocomplete="off"
+        maxlength="12" pattern="[0-9]*" />
       <div id="adminPinMsg" class="admin-pin-msg"></div>
       <div class="admin-pin-actions">
         <button id="adminPinCancel" class="btn-zen" type="button">Sair</button>
@@ -26,7 +28,15 @@
 
   <header class="header">
     <a href="index.html" class="header__logo">
-      <svg width="28" height="28" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Emblema da Comunidade Messiânica Universal"><circle cx="100" cy="100" r="98" fill="#b8860b"/><circle cx="100" cy="100" r="92" fill="#fff"/><rect x="80" y="8" width="40" height="184" fill="#006400"/><rect x="8" y="80" width="184" height="40" fill="#006400"/><circle cx="100" cy="100" r="42" fill="#cc0000"/><circle cx="100" cy="100" r="28" fill="#b8860b"/></svg>
+      <svg width="28" height="28" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
+        aria-label="Emblema da Comunidade Messiânica Universal">
+        <circle cx="100" cy="100" r="98" fill="#b8860b" />
+        <circle cx="100" cy="100" r="92" fill="#fff" />
+        <rect x="80" y="8" width="40" height="184" fill="#006400" />
+        <rect x="8" y="80" width="184" height="40" fill="#006400" />
+        <circle cx="100" cy="100" r="42" fill="#cc0000" />
+        <circle cx="100" cy="100" r="28" fill="#b8860b" />
+      </svg>
     </a>
     <div class="header__nav">
       <a href="index.html"><span>⌂ Início</span></a>
@@ -38,22 +48,28 @@
       <div class="glass-pane">
         <div class="admin-wrap">
 
-          <div class="index-header" style="margin-bottom:24px; display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap;">
+          <div class="index-header"
+            style="margin-bottom:24px; display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap;">
             <div style="text-align:left;">
-              <span class="section-label" style="color:var(--accent); font-weight:600; letter-spacing:2px; text-align:left; margin-bottom:0;">ADMIN</span>
-              <h1 class="index-title" style="margin-top:12px; margin-bottom:0; text-align:left; padding:0;">Painel Administrativo</h1>
+              <span class="section-label"
+                style="color:var(--accent); font-weight:600; letter-spacing:2px; text-align:left; margin-bottom:0;">ADMIN</span>
+              <h1 class="index-title" style="margin-top:12px; margin-bottom:0; text-align:left; padding:0;">Painel
+                Administrativo</h1>
             </div>
-            <button class="btn-zen" type="button" onclick="changeAdminPin()" style="font-size:.8rem;" title="Trocar o PIN exigido para entrar no painel">🔑 Trocar PIN</button>
+            <button class="btn-zen" type="button" onclick="changeAdminPin()" style="font-size:.8rem;"
+              title="Trocar o PIN exigido para entrar no painel">🔑 Trocar PIN</button>
           </div>
 
           <!-- Seção picker -->
-          <div class="admin-section-picker" style="margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-            <label for="adminSectionSel" style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.14em;font-weight:600;">Seção</label>
+          <div class="admin-section-picker"
+            style="margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <label for="adminSectionSel"
+              style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.14em;font-weight:600;">Seção</label>
             <select id="adminSectionSel" onchange="switchAdminSection(this.value)"
               style="background:var(--surface);color:var(--text);border:1px solid var(--border);padding:9px 14px;border-radius:10px;font-size:.92rem;min-width:240px;cursor:pointer;font-weight:500;">
               <option value="landing">Landing Page</option>
               <option value="caminho" selected>Caminho da Felicidade</option>
-              <option value="johrei">Johrei Guia</option>
+              <option value="johrei">Guia do Johrei</option>
             </select>
           </div>
 
@@ -82,7 +98,8 @@
               <div class="tab-group-label">Curadoria</div>
               <div class="tab-group-tabs">
                 <div class="admin-tab" onclick="switchTab('recommendations')">📤 Recomendações</div>
-                <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty" id="reportsTabBadge">0</span></div>
+                <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty"
+                    id="reportsTabBadge">0</span></div>
                 <div class="admin-tab" onclick="switchTab('poetry-versions')">🌸 Correção Poemas</div>
               </div>
             </div>
@@ -90,15 +107,18 @@
               <div class="tab-group-label">Admin</div>
               <div class="tab-group-tabs">
                 <div class="admin-tab active" onclick="switchTab('users')">👤 Usuários</div>
-                <div class="admin-tab" onclick="switchTab('findreplace')" style="display:none">✏️ Buscar &amp; Substituir</div>
-                <div class="admin-tab" onclick="switchTab('duplicates')" style="display:none">📑 Duplicatas <span class="tab-badge empty" id="duplicatesTabBadge">0</span></div>
+                <div class="admin-tab" onclick="switchTab('findreplace')" style="display:none">✏️ Buscar &amp;
+                  Substituir</div>
+                <div class="admin-tab" onclick="switchTab('duplicates')" style="display:none">📑 Duplicatas <span
+                    class="tab-badge empty" id="duplicatesTabBadge">0</span></div>
                 <div class="admin-tab" onclick="switchTab('logs')">📋 Logs</div>
               </div>
             </div>
             <div class="tab-group" data-section="johrei">
               <div class="tab-group-tabs">
                 <div class="admin-tab" onclick="switchTab('analytics-johrei')">📊 Analytics</div>
-                <div class="admin-tab" onclick="switchTab('reports-guia')">⚠ Relatórios <span class="tab-badge empty" id="guiaReportsTabBadge">0</span></div>
+                <div class="admin-tab" onclick="switchTab('reports-guia')">⚠ Relatórios <span class="tab-badge empty"
+                    id="guiaReportsTabBadge">0</span></div>
                 <div class="admin-tab" onclick="switchTab('essencia-guia')" style="display:none">📌 Essência</div>
               </div>
             </div>
@@ -107,87 +127,100 @@
           <!-- Users Tab -->
           <div class="tab-content active" id="tab-users">
 
-          <!-- Default Permissions Panel -->
-          <div class="default-perm-panel" id="default-perm-panel">
-            <div class="default-perm-header" id="default-perm-header" onclick="toggleDefaultPermPanel()">
-              <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:1.1rem;">🚫</span>
-                <div>
-                  <h3 style="margin:0; font-size:0.95rem; font-weight:600; color:var(--text); display:flex; align-items:center; gap:6px;">
-                    Restrição Padrão para Todos
-                  </h3>
-                  <p style="margin:2px 0 0; font-size:0.75rem; color:var(--text-muted);">
-                    Configure e aplique uma restrição padrão para todos os usuários cadastrados
+            <!-- Default Permissions Panel -->
+            <div class="default-perm-panel" id="default-perm-panel">
+              <div class="default-perm-header" id="default-perm-header" onclick="toggleDefaultPermPanel()">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span style="font-size:1.1rem;">🚫</span>
+                  <div>
+                    <h3
+                      style="margin:0; font-size:0.95rem; font-weight:600; color:var(--text); display:flex; align-items:center; gap:6px;">
+                      Restrição Padrão para Todos
+                    </h3>
+                    <p style="margin:2px 0 0; font-size:0.75rem; color:var(--text-muted);">
+                      Configure e aplique uma restrição padrão para todos os usuários cadastrados
+                    </p>
+                  </div>
+                </div>
+                <span class="default-perm-chevron" id="default-perm-chevron">▼</span>
+              </div>
+              <div class="default-perm-body" id="default-perm-body">
+                <div class="default-perm-warning">
+                  <span style="font-size:1.1rem; flex-shrink:0;">⚠</span>
+                  <p style="margin:0; font-size:0.8rem; line-height:1.4;">
+                    Esta ação <strong>sobrescreve as restrições de todos os usuários</strong> (exceto admins) com a
+                    configuração abaixo. A ação não pode ser desfeita automaticamente.
                   </p>
                 </div>
-              </div>
-              <span class="default-perm-chevron" id="default-perm-chevron">▼</span>
-            </div>
-            <div class="default-perm-body" id="default-perm-body">
-              <div class="default-perm-warning">
-                <span style="font-size:1.1rem; flex-shrink:0;">⚠</span>
-                <p style="margin:0; font-size:0.8rem; line-height:1.4;">
-                  Esta ação <strong>sobrescreve as restrições de todos os usuários</strong> (exceto admins) com a configuração abaixo. A ação não pode ser desfeita automaticamente.
-                </p>
-              </div>
-              <div id="default-perm-volumes" class="perm-volumes" style="margin-bottom:16px;"></div>
-              <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-                <button class="apply-all-btn" id="apply-all-btn" onclick="applyDefaultPermissions()">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  Aplicar Restrições para Todos os Usuários
-                </button>
-                <span id="apply-all-msg" class="msg" style="margin:0; padding:6px 12px;"></span>
-              </div>
-              <div class="apply-all-progress" id="apply-all-progress">
-                <div class="apply-all-progress-bar" id="apply-all-bar"></div>
-                <div class="apply-all-progress-label" id="apply-all-label">Preparando...</div>
+                <div id="default-perm-volumes" class="perm-volumes" style="margin-bottom:16px;"></div>
+                <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                  <button class="apply-all-btn" id="apply-all-btn" onclick="applyDefaultPermissions()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    Aplicar Restrições para Todos os Usuários
+                  </button>
+                  <span id="apply-all-msg" class="msg" style="margin:0; padding:6px 12px;"></span>
+                </div>
+                <div class="apply-all-progress" id="apply-all-progress">
+                  <div class="apply-all-progress-bar" id="apply-all-bar"></div>
+                  <div class="apply-all-progress-label" id="apply-all-label">Preparando...</div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Add User -->
-          <div class="admin-section">
-            <h2>Adicionar Usuário</h2>
-            <div class="add-user-form">
-              <div class="form-group">
-                <label for="new-name">Nome</label>
-                <input type="text" id="new-name" placeholder="Nome do usuário">
+            <!-- Add User -->
+            <div class="admin-section">
+              <h2>Adicionar Usuário</h2>
+              <div class="add-user-form">
+                <div class="form-group">
+                  <label for="new-name">Nome</label>
+                  <input type="text" id="new-name" placeholder="Nome do usuário">
+                </div>
+                <div class="form-group">
+                  <label for="new-email">Email</label>
+                  <input type="email" id="new-email" placeholder="email@exemplo.com">
+                </div>
+                <div class="form-group">
+                  <label for="new-password">Senha temporária</label>
+                  <input type="password" id="new-password" placeholder="Minimo 6 caracteres">
+                </div>
+                <button id="add-user-btn" onclick="addUser()">Adicionar</button>
               </div>
-              <div class="form-group">
-                <label for="new-email">Email</label>
-                <input type="email" id="new-email" placeholder="email@exemplo.com">
-              </div>
-              <div class="form-group">
-                <label for="new-password">Senha temporária</label>
-                <input type="password" id="new-password" placeholder="Minimo 6 caracteres">
-              </div>
-              <button id="add-user-btn" onclick="addUser()">Adicionar</button>
+              <div id="add-user-msg" class="msg"></div>
             </div>
-            <div id="add-user-msg" class="msg"></div>
-          </div>
 
-          <!-- User List -->
-          <div class="admin-section">
-            <h2>Usuários <span id="user-count" style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
-            <div class="user-search">
-              <input type="text" id="user-search" placeholder="Buscar por nome ou email..." oninput="filterUsers()">
+            <!-- User List -->
+            <div class="admin-section">
+              <h2>Usuários <span id="user-count"
+                  style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
+              <div class="user-search">
+                <input type="text" id="user-search" placeholder="Buscar por nome ou email..." oninput="filterUsers()">
+              </div>
+              <div id="user-list-container">
+                <div class="loading">Carregando usuários...</div>
+              </div>
             </div>
-            <div id="user-list-container">
-              <div class="loading">Carregando usuários...</div>
-            </div>
-          </div>
 
-          <!-- Permission Editor -->
-          <div class="perm-editor" id="perm-editor">
-            <h3 id="perm-editor-title">Restrições de Acesso</h3>
-            <p>Selecione os volumes e arquivos que este usuário <strong>NÃO PODERÁ</strong> ver. (Deixe desmarcado para permitir o acesso livre).</p>
-            <div id="perm-volumes" class="perm-volumes"></div>
-            <div style="margin-top:16px; display:flex; gap:10px;">
-              <button class="login-submit-btn" style="width:auto; padding:10px 24px;" onclick="savePermissions()">💾 Salvar Restrições</button>
-              <button style="padding:10px 24px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); cursor:pointer;" onclick="closePermEditor()">Cancelar</button>
+            <!-- Permission Editor -->
+            <div class="perm-editor" id="perm-editor">
+              <h3 id="perm-editor-title">Restrições de Acesso</h3>
+              <p>Selecione os volumes e arquivos que este usuário <strong>NÃO PODERÁ</strong> ver. (Deixe desmarcado
+                para permitir o acesso livre).</p>
+              <div id="perm-volumes" class="perm-volumes"></div>
+              <div style="margin-top:16px; display:flex; gap:10px;">
+                <button class="login-submit-btn" style="width:auto; padding:10px 24px;" onclick="savePermissions()">💾
+                  Salvar Restrições</button>
+                <button
+                  style="padding:10px 24px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); cursor:pointer;"
+                  onclick="closePermEditor()">Cancelar</button>
+              </div>
+              <div id="save-perm-msg" class="msg" style="margin-top:12px;"></div>
             </div>
-            <div id="save-perm-msg" class="msg" style="margin-top:12px;"></div>
-          </div>
 
           </div><!-- /tab-users -->
 
@@ -210,131 +243,191 @@
                 <span class="online-title">Usuários Online / Recentes</span>
                 <span class="online-count" id="online-count">—</span>
               </div>
-              <div class="online-list" id="online-list"><div class="loading">Verificando...</div></div>
+              <div class="online-list" id="online-list">
+                <div class="loading">Verificando...</div>
+              </div>
             </div>
 
             <!-- Overview -->
             <div class="admin-section">
               <h2>Visão Geral</h2>
               <div class="stats-grid" id="stats-cards">
-                <div class="stat-card"><div class="stat-value" id="stat-total-users">—</div><div class="stat-label">Total Usuários</div></div>
-                <div class="stat-card"><div class="stat-value" id="stat-active-users">—</div><div class="stat-label">Ativos (período)</div></div>
-                <div class="stat-card"><div class="stat-value" id="stat-new-users">—</div><div class="stat-label">Novos (período)</div></div>
-                <div class="stat-card"><div class="stat-value" id="stat-total-views">—</div><div class="stat-label">Visualizações</div></div>
-                <div class="stat-card"><div class="stat-value" id="stat-teachings-read">—</div><div class="stat-label">Ensinamentos Únicos</div></div>
-                <div class="stat-card"><div class="stat-value" id="stat-avg-session">—</div><div class="stat-label">Média/User</div></div>
+                <div class="stat-card">
+                  <div class="stat-value" id="stat-total-users">—</div>
+                  <div class="stat-label">Total Usuários</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="stat-active-users">—</div>
+                  <div class="stat-label">Ativos (período)</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="stat-new-users">—</div>
+                  <div class="stat-label">Novos (período)</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="stat-total-views">—</div>
+                  <div class="stat-label">Visualizações</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="stat-teachings-read">—</div>
+                  <div class="stat-label">Ensinamentos Únicos</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="stat-avg-session">—</div>
+                  <div class="stat-label">Média/User</div>
+                </div>
               </div>
             </div>
 
             <!-- Engagement Funnel -->
             <div class="admin-section">
               <h2>🎯 Funil de Engajamento</h2>
-              <div id="engagement-funnel"><div class="loading">Carregando...</div></div>
+              <div id="engagement-funnel">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- User Segmentation -->
             <div class="admin-section">
               <h2>🧭 Segmentação de Usuários</h2>
-              <div id="user-segmentation"><div class="loading">Carregando...</div></div>
+              <div id="user-segmentation">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Volume Popularity -->
             <div class="admin-section">
               <h2>Popularidade por Volume</h2>
-              <div id="volume-chart"><div class="loading">Carregando...</div></div>
+              <div id="volume-chart">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Top Teachings -->
             <div class="admin-section">
               <h2>Ensinamentos Mais Lidos</h2>
-              <div id="top-teachings"><div class="loading">Carregando...</div></div>
+              <div id="top-teachings">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Article Quality -->
             <div class="admin-section">
               <h2>💎 Qualidade por Ensinamento</h2>
-              <div id="article-quality"><div class="loading">Carregando...</div></div>
+              <div id="article-quality">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Two col: Heatmap + Completion -->
             <div class="two-col">
               <div class="admin-section">
                 <h2>Atividade por Hora do Dia</h2>
-                <div id="heatmap-chart"><div class="loading">Carregando...</div></div>
-                <div class="heatmap-labels"><span>00h</span><span>06h</span><span>12h</span><span>18h</span><span>23h</span></div>
+                <div id="heatmap-chart">
+                  <div class="loading">Carregando...</div>
+                </div>
+                <div class="heatmap-labels">
+                  <span>00h</span><span>06h</span><span>12h</span><span>18h</span><span>23h</span></div>
               </div>
               <div class="admin-section">
                 <h2>Taxa de Conclusão por Volume</h2>
-                <div id="completion-chart"><div class="loading">Carregando...</div></div>
+                <div id="completion-chart">
+                  <div class="loading">Carregando...</div>
+                </div>
               </div>
             </div>
 
             <!-- Recent Activity -->
             <div class="admin-section">
               <h2>Atividade Recente</h2>
-              <div id="recent-activity"><div class="loading">Carregando...</div></div>
+              <div id="recent-activity">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Content Protection (print / copy) -->
             <div class="admin-section">
               <h2>🛡️ Cópias e Impressões</h2>
               <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">
-                Cópias e impressões registradas no período. Cada evento de cópia (Ctrl+C, recortar ou clique-direito) e cada impressão é contado individualmente.
+                Cópias e impressões registradas no período. Cada evento de cópia (Ctrl+C, recortar ou clique-direito) e
+                cada impressão é contado individualmente.
               </p>
-              <div id="content-protection-stats"><div class="loading">Carregando...</div></div>
+              <div id="content-protection-stats">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Daily Activity Line Chart -->
             <div class="admin-section">
               <h2>📈 Atividade Diária</h2>
-              <div id="daily-activity-chart"><div class="loading">Carregando...</div></div>
+              <div id="daily-activity-chart">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Session Stats -->
             <div class="admin-section">
               <h2>⏱️ Sessions de Leitura</h2>
-              <div id="session-stats"><div class="loading">Carregando...</div></div>
+              <div id="session-stats">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Top Users Ranking -->
             <div class="admin-section">
               <h2>👥 Ranking de Usuários Mais Ativos</h2>
-              <div id="top-users-ranking"><div class="loading">Carregando...</div></div>
+              <div id="top-users-ranking">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Top Users by Total Time -->
             <div class="admin-section">
-              <h2>⏳ Tempo Total no Site por Usuário <span style="font-size:0.7rem; color:var(--text-muted); font-weight:400; text-transform:none; letter-spacing:0;">(acumulado all-time)</span></h2>
-              <div id="top-users-time"><div class="loading">Carregando...</div></div>
+              <h2>⏳ Tempo Total no Site por Usuário <span
+                  style="font-size:0.7rem; color:var(--text-muted); font-weight:400; text-transform:none; letter-spacing:0;">(acumulado
+                  all-time)</span></h2>
+              <div id="top-users-time">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Engagement by Volume -->
             <div class="admin-section">
               <h2>📊 Engajamento por Volume</h2>
-              <div id="engagement-by-volume"><div class="loading">Carregando...</div></div>
+              <div id="engagement-by-volume">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Popular Favorites & Highlights -->
             <div class="admin-section">
               <h2>⭐ Favoritos & Destaques Populares</h2>
-              <div id="popular-favorites"><div class="loading">Carregando...</div></div>
+              <div id="popular-favorites">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Retention Rate -->
             <div class="admin-section">
               <h2>🔄 Taxa de Retenção</h2>
-              <div id="retention-rate"><div class="loading">Carregando...</div></div>
+              <div id="retention-rate">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <!-- Storage & Sync Stats -->
             <div class="two-col">
               <div class="admin-section">
                 <h2>Dados Sincronizados</h2>
-                <div id="sync-stats"><div class="loading">Carregando...</div></div>
+                <div id="sync-stats">
+                  <div class="loading">Carregando...</div>
+                </div>
               </div>
               <div class="admin-section">
                 <h2>Distribuição por Perfil</h2>
-                <div id="role-distribution"><div class="loading">Carregando...</div></div>
+                <div id="role-distribution">
+                  <div class="loading">Carregando...</div>
+                </div>
               </div>
             </div>
 
@@ -343,13 +436,16 @@
           <!-- Destaques Tab -->
           <div class="tab-content" id="tab-destaques">
             <div style="margin-bottom:24px;">
-              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Destaques dos Usuários</h2>
-              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Veja todos os trechos destacados por um usuário.</p>
+              <h2
+                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                Destaques dos Usuários</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Veja todos os trechos destacados por um
+                usuário.</p>
             </div>
             <div style="display:flex; gap:10px; margin-bottom:12px;">
               <input type="text" id="hl-user-search" placeholder="Buscar usuário por nome ou email..."
-                     oninput="filterHlUsers()"
-                     style="flex:1; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; box-sizing:border-box;">
+                oninput="filterHlUsers()"
+                style="flex:1; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; box-sizing:border-box;">
             </div>
             <div id="hl-user-list" style="display:flex; flex-direction:column; gap:6px; margin-bottom:24px;"></div>
             <div id="hl-results-header" style="display:none; align-items:center; margin-bottom:16px; gap:10px;">
@@ -364,13 +460,16 @@
           <!-- Salvos Tab -->
           <div class="tab-content" id="tab-saved">
             <div style="margin-bottom:24px;">
-              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Artigos Salvos pelos Usuários</h2>
-              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Veja todos os artigos que um usuário salvou nos favoritos.</p>
+              <h2
+                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                Artigos Salvos pelos Usuários</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Veja todos os artigos que um usuário
+                salvou nos favoritos.</p>
             </div>
             <div style="display:flex; gap:10px; margin-bottom:12px;">
               <input type="text" id="sv-user-search" placeholder="Buscar usuário por nome ou email..."
-                     oninput="filterSavedUsers()"
-                     style="flex:1; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; box-sizing:border-box;">
+                oninput="filterSavedUsers()"
+                style="flex:1; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; box-sizing:border-box;">
             </div>
             <div id="sv-user-list" style="display:flex; flex-direction:column; gap:6px; margin-bottom:24px;"></div>
             <div id="sv-results-header" style="display:none; align-items:center; margin-bottom:16px; gap:10px;">
@@ -385,18 +484,27 @@
           <!-- Reports Tab -->
           <div class="tab-content" id="tab-reports">
             <div style="margin-bottom:24px;">
-              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Relatórios de Tradução</h2>
-              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Trechos reportados por usuários como possível erro de tradução.</p>
+              <h2
+                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                Relatórios de Tradução</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Trechos reportados por usuários como
+                possível erro de tradução.</p>
             </div>
             <div class="report-summary-bar" id="reportsSummary"></div>
-            <div id="reportsContainer"><div class="loading">Carregando relatórios...</div></div>
+            <div id="reportsContainer">
+              <div class="loading">Carregando relatórios...</div>
+            </div>
           </div>
 
           <!-- Find & Replace Tab -->
           <div class="tab-content" id="tab-findreplace">
             <div style="margin-bottom:24px;">
-              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Buscar e Substituir em Massa</h2>
-              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Varre os JSONs no Supabase Storage, lista ocorrências com diff inline e aplica correções individualmente ou em lote. Só altera o texto em português — o japonês é preservado.</p>
+              <h2
+                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                Buscar e Substituir em Massa</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Varre os JSONs no Supabase Storage, lista
+                ocorrências com diff inline e aplica correções individualmente ou em lote. Só altera o texto em
+                português — o japonês é preservado.</p>
             </div>
 
             <div class="admin-section" style="margin-bottom:24px;">
@@ -404,33 +512,56 @@
                 <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem;">
                   <input type="checkbox" id="fr-search-ja" onchange="onFindReplaceModeChange()">
                   <strong>Buscar no japonês</strong>
-                  <span style="color:var(--text-muted); font-size:0.78rem;">— localiza termos JA inconsistentemente traduzidos; o admin abre o editor e digita a tradução correta manualmente.</span>
+                  <span style="color:var(--text-muted); font-size:0.78rem;">— localiza termos JA inconsistentemente
+                    traduzidos; o admin abre o editor e digita a tradução correta manualmente.</span>
                 </label>
               </div>
-              <div id="fr-search-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+              <div id="fr-search-grid"
+                style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
                 <div>
-                  <label id="fr-search-label" style="display:block; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Texto a buscar</label>
-                  <textarea id="fr-search" rows="2" oninput="onFindReplaceSearchChange()" placeholder="Ex: a Imagem da Luz Divina (Komei Nyorai)" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; font-family:inherit; resize:vertical;"></textarea>
+                  <label id="fr-search-label"
+                    style="display:block; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Texto
+                    a buscar</label>
+                  <textarea id="fr-search" rows="2" oninput="onFindReplaceSearchChange()"
+                    placeholder="Ex: a Imagem da Luz Divina (Komei Nyorai)"
+                    style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; font-family:inherit; resize:vertical;"></textarea>
                 </div>
                 <div id="fr-replace-col">
-                  <label style="display:block; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Substituir por</label>
-                  <textarea id="fr-replace" rows="2" oninput="onFindReplaceReplaceChange()" placeholder="Ex: a Imagem de Komyo Nyorai" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; font-family:inherit; resize:vertical;"></textarea>
+                  <label
+                    style="display:block; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Substituir
+                    por</label>
+                  <textarea id="fr-replace" rows="2" oninput="onFindReplaceReplaceChange()"
+                    placeholder="Ex: a Imagem de Komyo Nyorai"
+                    style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; font-family:inherit; resize:vertical;"></textarea>
                 </div>
               </div>
 
               <div style="display:flex; gap:18px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
-                <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Escopo</div>
-                <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" class="fr-scope" value="mioshiec1" checked> Vol 1</label>
-                <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" class="fr-scope" value="mioshiec2" checked> Vol 2</label>
-                <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" class="fr-scope" value="mioshiec3" checked> Vol 3</label>
-                <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" class="fr-scope" value="mioshiec4" checked> Vol 4</label>
-                <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" class="fr-scope" value="books" checked> Livros (Discípulos)</label>
+                <div
+                  style="font-size:0.75rem; color:var(--text-muted); font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
+                  Escopo</div>
+                <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input
+                    type="checkbox" class="fr-scope" value="mioshiec1" checked> Vol 1</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input
+                    type="checkbox" class="fr-scope" value="mioshiec2" checked> Vol 2</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input
+                    type="checkbox" class="fr-scope" value="mioshiec3" checked> Vol 3</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input
+                    type="checkbox" class="fr-scope" value="mioshiec4" checked> Vol 4</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input
+                    type="checkbox" class="fr-scope" value="books" checked> Livros (Discípulos)</label>
               </div>
 
               <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                <button id="fr-btn-search" onclick="runFindReplaceSearch()" style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer;">🔎 Buscar</button>
-                <button id="fr-btn-apply-selected" onclick="applyFindReplaceSelected()" disabled style="padding:8px 18px; background:#34c759; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer; opacity:0.5;">✓ Aplicar selecionadas</button>
-                <button id="fr-btn-apply-all" onclick="applyFindReplaceAll()" disabled style="padding:8px 18px; background:transparent; color:var(--text); border:1px solid var(--border); border-radius:8px; font-weight:600; cursor:pointer; opacity:0.5;">Aplicar todas</button>
+                <button id="fr-btn-search" onclick="runFindReplaceSearch()"
+                  style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer;">🔎
+                  Buscar</button>
+                <button id="fr-btn-apply-selected" onclick="applyFindReplaceSelected()" disabled
+                  style="padding:8px 18px; background:#34c759; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer; opacity:0.5;">✓
+                  Aplicar selecionadas</button>
+                <button id="fr-btn-apply-all" onclick="applyFindReplaceAll()" disabled
+                  style="padding:8px 18px; background:transparent; color:var(--text); border:1px solid var(--border); border-radius:8px; font-weight:600; cursor:pointer; opacity:0.5;">Aplicar
+                  todas</button>
                 <span id="fr-progress" style="font-size:0.82rem; color:var(--text-muted);"></span>
               </div>
             </div>
@@ -442,25 +573,38 @@
           <div class="tab-content" id="tab-duplicates">
             <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
               <div>
-                <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Tópicos Duplicados</h2>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Pares com alta similaridade semântica via embeddings. Dispensar limpa pares "intencionalmente distintos".</p>
+                <h2
+                  style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                  Tópicos Duplicados</h2>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Pares com alta similaridade semântica
+                  via embeddings. Dispensar limpa pares "intencionalmente distintos".</p>
               </div>
               <div style="margin-left:auto; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
                 <label style="font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; gap:8px;">
                   Threshold
-                  <input type="range" id="dup-threshold" min="85" max="99" value="95" step="1" style="vertical-align:middle;" oninput="document.getElementById('dup-threshold-val').textContent='≥ 0.'+this.value">
-                  <span id="dup-threshold-val" style="min-width:38px; display:inline-block; font-variant-numeric:tabular-nums;">≥ 0.95</span>
+                  <input type="range" id="dup-threshold" min="85" max="99" value="95" step="1"
+                    style="vertical-align:middle;"
+                    oninput="document.getElementById('dup-threshold-val').textContent='≥ 0.'+this.value">
+                  <span id="dup-threshold-val"
+                    style="min-width:38px; display:inline-block; font-variant-numeric:tabular-nums;">≥ 0.95</span>
                 </label>
-                <label style="font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; gap:6px; cursor:pointer;" title="Mostra apenas pares dentro do mesmo arquivo — redundância interna.">
+                <label
+                  style="font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; gap:6px; cursor:pointer;"
+                  title="Mostra apenas pares dentro do mesmo arquivo — redundância interna.">
                   <input type="checkbox" id="dup-same-file-only" onchange="renderDuplicates()" style="cursor:pointer;">
                   Só mesmo arquivo
                 </label>
                 <button class="btn-secondary" onclick="loadDuplicates()" style="font-size:0.8rem;">Aplicar</button>
-                <button class="btn-secondary" onclick="recomputeDuplicates()" id="dup-recompute-btn" style="font-size:0.8rem;" title="Repopula a tabela de candidatos varrendo todos os 17k embeddings. ~20 min.">↻ Recalcular</button>
+                <button class="btn-secondary" onclick="recomputeDuplicates()" id="dup-recompute-btn"
+                  style="font-size:0.8rem;"
+                  title="Repopula a tabela de candidatos varrendo todos os 17k embeddings. ~20 min.">↻
+                  Recalcular</button>
               </div>
             </div>
             <div id="duplicates-summary" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;"></div>
-            <div id="duplicates-container"><div class="loading">Clique em "Aplicar" pra carregar.</div></div>
+            <div id="duplicates-container">
+              <div class="loading">Clique em "Aplicar" pra carregar.</div>
+            </div>
           </div>
 
           <!-- Recommendations Tab — admin cria recomendações de estudo
@@ -468,40 +612,67 @@
                busca da aba Usuários), lado direito mostra/cria recs do
                usuário selecionado. -->
           <div class="tab-content" id="tab-poetry-versions">
-            <div id="pv-container"><div class="loading">Selecione a aba para carregar.</div></div>
+            <div id="pv-container">
+              <div class="loading">Selecione a aba para carregar.</div>
+            </div>
           </div>
 
           <div class="tab-content" id="tab-recommendations">
             <div style="margin-bottom:20px;">
-              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Recomendações para Estudo</h2>
-              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Indique ensinamentos a usuários individuais com uma nota opcional. O usuário vê um botão na home e no menu apenas se tiver recomendações.</p>
+              <h2
+                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                Recomendações para Estudo</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Indique ensinamentos a usuários
+                individuais com uma nota opcional. O usuário vê um botão na home e no menu apenas se tiver
+                recomendações.</p>
             </div>
-            <div class="rec-layout-grid" style="display:grid; grid-template-columns:minmax(260px, 320px) 1fr; gap:24px; align-items:start;">
+            <div class="rec-layout-grid"
+              style="display:grid; grid-template-columns:minmax(260px, 320px) 1fr; gap:24px; align-items:start;">
               <!-- Coluna esquerda: seletor de usuário -->
               <div>
-                <input type="text" id="rec-user-search" placeholder="Buscar usuário..." style="width:100%; padding:8px 10px; font-size:0.85rem; margin-bottom:10px; box-sizing:border-box;" oninput="renderRecUserList()">
-                <div id="rec-user-list" style="height:calc(100vh - 260px); min-height:520px; overflow-y:auto; border:1px solid var(--border); border-radius:6px;"><div class="loading" style="padding:16px;">Carregando...</div></div>
+                <input type="text" id="rec-user-search" placeholder="Buscar usuário..."
+                  style="width:100%; padding:8px 10px; font-size:0.85rem; margin-bottom:10px; box-sizing:border-box;"
+                  oninput="renderRecUserList()">
+                <div id="rec-user-list"
+                  style="height:calc(100vh - 260px); min-height:520px; overflow-y:auto; border:1px solid var(--border); border-radius:6px;">
+                  <div class="loading" style="padding:16px;">Carregando...</div>
+                </div>
               </div>
               <!-- Coluna direita: gestão das recs do usuário selecionado -->
               <div>
-                <div id="rec-detail-empty" style="padding:40px 20px; text-align:center; color:var(--text-muted); font-size:0.9rem; border:1px dashed var(--border); border-radius:6px;">Selecione um usuário à esquerda.</div>
+                <div id="rec-detail-empty"
+                  style="padding:40px 20px; text-align:center; color:var(--text-muted); font-size:0.9rem; border:1px dashed var(--border); border-radius:6px;">
+                  Selecione um usuário à esquerda.</div>
                 <div id="rec-detail" style="display:none;">
                   <div style="margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border);">
                     <div style="font-size:0.95rem; font-weight:600;" id="rec-detail-name">—</div>
                     <div style="font-size:0.78rem; color:var(--text-muted);" id="rec-detail-email">—</div>
                   </div>
                   <!-- Form: novo ensinamento -->
-                  <div style="background:var(--surface, var(--bg)); border:1px solid var(--border); border-radius:6px; padding:14px; margin-bottom:18px;">
-                    <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Nova recomendação</div>
+                  <div
+                    style="background:var(--surface, var(--bg)); border:1px solid var(--border); border-radius:6px; padding:14px; margin-bottom:18px;">
+                    <div
+                      style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">
+                      Nova recomendação</div>
                     <div style="position:relative; margin-bottom:10px;">
-                      <input type="text" id="rec-teaching-search" placeholder="Buscar ensinamento por título..." style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box;" autocomplete="off" oninput="recDebounceTeachingSearch()">
-                      <div id="rec-teaching-suggestions" style="position:absolute; top:100%; left:0; right:0; background:var(--surface, #fff); border:1px solid var(--border); border-top:none; border-radius:0 0 6px 6px; max-height:240px; overflow-y:auto; display:none; z-index:100; box-shadow:0 6px 18px rgba(0,0,0,0.12);"></div>
+                      <input type="text" id="rec-teaching-search" placeholder="Buscar ensinamento por título..."
+                        style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box;"
+                        autocomplete="off" oninput="recDebounceTeachingSearch()">
+                      <div id="rec-teaching-suggestions"
+                        style="position:absolute; top:100%; left:0; right:0; background:var(--surface, #fff); border:1px solid var(--border); border-top:none; border-radius:0 0 6px 6px; max-height:240px; overflow-y:auto; display:none; z-index:100; box-shadow:0 6px 18px rgba(0,0,0,0.12);">
+                      </div>
                     </div>
-                    <div id="rec-teaching-picked" style="display:none; padding:8px 10px; background:var(--accent-soft, rgba(184,134,11,0.1)); border:1px solid var(--accent); border-radius:4px; font-size:0.8rem; margin-bottom:10px;"></div>
-                    <textarea id="rec-note" placeholder="Nota opcional (ex.: 'pra refletir sobre paciência esta semana')" rows="2" style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box; font-family:inherit; resize:vertical; margin-bottom:10px;"></textarea>
+                    <div id="rec-teaching-picked"
+                      style="display:none; padding:8px 10px; background:var(--accent-soft, rgba(184,134,11,0.1)); border:1px solid var(--accent); border-radius:4px; font-size:0.8rem; margin-bottom:10px;">
+                    </div>
+                    <textarea id="rec-note"
+                      placeholder="Nota opcional (ex.: 'pra refletir sobre paciência esta semana')" rows="2"
+                      style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box; font-family:inherit; resize:vertical; margin-bottom:10px;"></textarea>
                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-                      <label style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">Auto-arquivar:</label>
-                      <select id="rec-expires" style="flex:1; padding:6px 10px; font-size:0.82rem; box-sizing:border-box;">
+                      <label
+                        style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">Auto-arquivar:</label>
+                      <select id="rec-expires"
+                        style="flex:1; padding:6px 10px; font-size:0.82rem; box-sizing:border-box;">
                         <option value="">Sem prazo</option>
                         <option value="7">Em 7 dias</option>
                         <option value="15">Em 15 dias</option>
@@ -510,13 +681,22 @@
                       </select>
                     </div>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                      <button class="btn-primary" onclick="recCreate()" id="rec-create-btn" style="font-size:0.82rem; padding:6px 16px;" disabled>Recomendar</button>
-                      <button class="btn-secondary" onclick="recCreateAll()" id="rec-create-all-btn" style="font-size:0.82rem; padding:6px 16px;" disabled title="Recomenda este ensinamento pra TODOS os usuários cadastrados agora">📢 Para todos</button>
-                      <button class="btn-secondary" onclick="recClearForm()" style="font-size:0.82rem; padding:6px 16px;">Limpar</button>
+                      <button class="btn-primary" onclick="recCreate()" id="rec-create-btn"
+                        style="font-size:0.82rem; padding:6px 16px;" disabled>Recomendar</button>
+                      <button class="btn-secondary" onclick="recCreateAll()" id="rec-create-all-btn"
+                        style="font-size:0.82rem; padding:6px 16px;" disabled
+                        title="Recomenda este ensinamento pra TODOS os usuários cadastrados agora">📢 Para
+                        todos</button>
+                      <button class="btn-secondary" onclick="recClearForm()"
+                        style="font-size:0.82rem; padding:6px 16px;">Limpar</button>
                     </div>
                   </div>
-                  <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Recomendações ativas</div>
-                  <div id="rec-list"><div class="loading" style="padding:16px;">Carregando...</div></div>
+                  <div
+                    style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">
+                    Recomendações ativas</div>
+                  <div id="rec-list">
+                    <div class="loading" style="padding:16px;">Carregando...</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -526,14 +706,19 @@
           <div class="tab-content" id="tab-logs">
             <div style="margin-bottom:24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
               <div>
-                <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Log de Ações Admin</h2>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Registro de ações críticas realizadas pelos administradores.</p>
+                <h2
+                  style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                  Log de Ações Admin</h2>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Registro de ações críticas realizadas
+                  pelos administradores.</p>
               </div>
               <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                <select id="log-filter-admin" onchange="filterAdminLogs()" style="padding:6px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.8rem;">
+                <select id="log-filter-admin" onchange="filterAdminLogs()"
+                  style="padding:6px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.8rem;">
                   <option value="">Todos os admins</option>
                 </select>
-                <select id="log-filter-days" onchange="loadAdminLogs()" style="padding:6px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.8rem;">
+                <select id="log-filter-days" onchange="loadAdminLogs()"
+                  style="padding:6px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.8rem;">
                   <option value="7">Últimos 7 dias</option>
                   <option value="30" selected>Últimos 30 dias</option>
                   <option value="90">Últimos 90 dias</option>
@@ -541,122 +726,179 @@
                 </select>
               </div>
             </div>
-            <div id="admin-logs-container"><div class="loading">Carregando logs...</div></div>
+            <div id="admin-logs-container">
+              <div class="loading">Carregando logs...</div>
+            </div>
           </div>
 
           <!-- Disciples Analytics Tab -->
           <div class="tab-content" id="tab-analytics-disciples">
             <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
               <div>
-                <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Analytics — Publicações de Discípulos</h2>
+                <h2
+                  style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                  Analytics — Publicações de Discípulos</h2>
                 <p id="dc-gen-at" style="font-size:0.85rem; color:var(--text-muted); margin:0;">Carregando…</p>
               </div>
               <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                <label style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
-                <select id="dc-range" onchange="loadDisciplesAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
+                <label
+                  style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
+                <select id="dc-range" onchange="loadDisciplesAnalytics()"
+                  style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
                   <option value="7">7 dias</option>
                   <option value="30" selected>30 dias</option>
                   <option value="90">90 dias</option>
                   <option value="365">1 ano</option>
                 </select>
-                <button onclick="loadDisciplesAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻ Atualizar</button>
+                <button onclick="loadDisciplesAnalytics()"
+                  style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻
+                  Atualizar</button>
               </div>
             </div>
-            <div id="dc-dashboard"><div class="loading">Carregando dados…</div></div>
+            <div id="dc-dashboard">
+              <div class="loading">Carregando dados…</div>
+            </div>
           </div>
 
           <!-- Poetry Analytics Tab -->
           <div class="tab-content" id="tab-analytics-poetry">
             <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
               <div>
-                <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Analytics — Poesia</h2>
+                <h2
+                  style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                  Analytics — Poesia</h2>
                 <p id="pa-gen-at" style="font-size:0.85rem; color:var(--text-muted); margin:0;">Carregando…</p>
               </div>
               <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                <label style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
-                <select id="pa-range" onchange="loadPoetryAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
+                <label
+                  style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
+                <select id="pa-range" onchange="loadPoetryAnalytics()"
+                  style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
                   <option value="7">7 dias</option>
                   <option value="30" selected>30 dias</option>
                   <option value="90">90 dias</option>
                   <option value="365">1 ano</option>
                 </select>
-                <button onclick="loadPoetryAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻ Atualizar</button>
+                <button onclick="loadPoetryAnalytics()"
+                  style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻
+                  Atualizar</button>
               </div>
             </div>
-            <div id="pa-dashboard"><div class="loading">Carregando dados…</div></div>
+            <div id="pa-dashboard">
+              <div class="loading">Carregando dados…</div>
+            </div>
           </div>
 
           <!-- Search Analytics Tab -->
           <div class="tab-content" id="tab-analytics-search">
             <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
               <div>
-                <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Analytics — Buscas</h2>
+                <h2
+                  style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                  Analytics — Buscas</h2>
                 <p id="sa-gen-at" style="font-size:0.85rem; color:var(--text-muted); margin:0;">Carregando…</p>
               </div>
               <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                <label style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
-                <select id="sa-range" onchange="loadSearchAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
+                <label
+                  style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
+                <select id="sa-range" onchange="loadSearchAnalytics()"
+                  style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
                   <option value="7">7 dias</option>
                   <option value="30" selected>30 dias</option>
                   <option value="90">90 dias</option>
                   <option value="365">1 ano</option>
                 </select>
-                <button onclick="loadSearchAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻ Atualizar</button>
+                <button onclick="loadSearchAnalytics()"
+                  style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻
+                  Atualizar</button>
               </div>
             </div>
 
             <!-- Latency cards -->
             <div class="stats-grid" id="sa-latency-cards" style="margin-bottom:24px;">
-              <div class="stat-card"><div class="stat-value" id="sa-stat-total">—</div><div class="stat-label">Buscas no período</div></div>
-              <div class="stat-card"><div class="stat-value" id="sa-stat-p50">—</div><div class="stat-label">Latência mediana (ms)</div></div>
-              <div class="stat-card"><div class="stat-value" id="sa-stat-p95">—</div><div class="stat-label">P95 (ms)</div></div>
-              <div class="stat-card"><div class="stat-value" id="sa-stat-p99">—</div><div class="stat-label">P99 (ms)</div></div>
+              <div class="stat-card">
+                <div class="stat-value" id="sa-stat-total">—</div>
+                <div class="stat-label">Buscas no período</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="sa-stat-p50">—</div>
+                <div class="stat-label">Latência mediana (ms)</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="sa-stat-p95">—</div>
+                <div class="stat-label">P95 (ms)</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="sa-stat-p99">—</div>
+                <div class="stat-label">P99 (ms)</div>
+              </div>
             </div>
 
             <div class="two-col">
               <div class="admin-section">
                 <h2>Buscas Mais Frequentes</h2>
-                <div id="sa-top-queries"><div class="loading">Carregando...</div></div>
+                <div id="sa-top-queries">
+                  <div class="loading">Carregando...</div>
+                </div>
               </div>
               <div class="admin-section">
-                <h2>Buscas com Zero Resultados <span style="font-size:0.7rem; color:var(--text-muted); font-weight:400; text-transform:none; letter-spacing:0;">(gaps de conteúdo)</span></h2>
-                <div id="sa-zero-queries"><div class="loading">Carregando...</div></div>
+                <h2>Buscas com Zero Resultados <span
+                    style="font-size:0.7rem; color:var(--text-muted); font-weight:400; text-transform:none; letter-spacing:0;">(gaps
+                    de conteúdo)</span></h2>
+                <div id="sa-zero-queries">
+                  <div class="loading">Carregando...</div>
+                </div>
               </div>
             </div>
 
             <div class="admin-section" style="margin-top:16px;">
               <h2>👤 Usuários que Mais Buscaram</h2>
-              <div id="sa-top-searchers"><div class="loading">Carregando...</div></div>
+              <div id="sa-top-searchers">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
 
             <div class="admin-section">
               <h2>🕐 Buscas Recentes por Usuário</h2>
-              <div id="sa-recent-searches" style="max-height:400px; overflow-y:auto;"><div class="loading">Carregando...</div></div>
+              <div id="sa-recent-searches" style="max-height:400px; overflow-y:auto;">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
           </div>
 
           <!-- Calendar Tab -->
           <div class="tab-content" id="tab-calendar">
             <div style="margin-bottom:24px;">
-              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Calendário CMU</h2>
-              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Eventos exibidos no calendário da landing pública (cmu.org.br).</p>
+              <h2
+                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                Calendário CMU</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Eventos exibidos no calendário da landing
+                pública (cmu.org.br).</p>
             </div>
             <div class="admin-section">
               <h2>Novo Evento</h2>
-              <div class="add-user-form" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start;">
+              <div class="add-user-form"
+                style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start;">
                 <div class="form-group">
                   <label for="cal-date">Data</label>
                   <input type="date" id="cal-date">
                   <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:6px;">
-                    <button type="button" onclick="calAtalho(0)"  style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Hoje</button>
-                    <button type="button" onclick="calAtalho(1)"  style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Amanhã</button>
-                    <button type="button" onclick="calAtalho('sab')" style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Próx. sábado</button>
-                    <button type="button" onclick="calAtalho('dom')" style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Próx. domingo</button>
+                    <button type="button" onclick="calAtalho(0)"
+                      style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Hoje</button>
+                    <button type="button" onclick="calAtalho(1)"
+                      style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Amanhã</button>
+                    <button type="button" onclick="calAtalho('sab')"
+                      style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Próx.
+                      sábado</button>
+                    <button type="button" onclick="calAtalho('dom')"
+                      style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Próx.
+                      domingo</button>
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="cal-horario">Horário de funcionamento</label>
-                  <select id="cal-horario" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                  <select id="cal-horario"
+                    style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
                     <option value="">— sem horário —</option>
                     <optgroup label="Manhã">
                       <option>7h00</option>
@@ -705,16 +947,22 @@
               <div id="cal-msg" class="msg"></div>
             </div>
             <div class="admin-section">
-              <h2>Eventos <span id="cal-count" style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
-              <div id="cal-list"><div class="loading">Carregando...</div></div>
+              <h2>Eventos <span id="cal-count"
+                  style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
+              <div id="cal-list">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
           </div>
 
           <!-- Announcements Tab -->
           <div class="tab-content" id="tab-announcements">
             <div style="margin-bottom:24px;">
-              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Comunicados</h2>
-              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Avisos exibidos na landing pública quando ativos.</p>
+              <h2
+                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                Comunicados</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Avisos exibidos na landing pública quando
+                ativos.</p>
             </div>
             <div class="admin-section">
               <h2>Novo Comunicado</h2>
@@ -725,7 +973,9 @@
                 </div>
                 <div class="form-group" style="grid-column:1/-1;">
                   <label for="ann-body">Corpo (use linha em branco para separar parágrafos)</label>
-                  <textarea id="ann-body" rows="5" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:0.9rem; background:var(--surface, #fff); color:var(--text);" placeholder="Texto do comunicado..."></textarea>
+                  <textarea id="ann-body" rows="5"
+                    style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:0.9rem; background:var(--surface, #fff); color:var(--text);"
+                    placeholder="Texto do comunicado..."></textarea>
                 </div>
                 <div class="form-group">
                   <label><input type="checkbox" id="ann-active" checked> Ativo (visível no site)</label>
@@ -735,23 +985,30 @@
               <div id="ann-msg" class="msg"></div>
             </div>
             <div class="admin-section">
-              <h2>Publicações <span id="ann-count" style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
-              <div id="ann-list"><div class="loading">Carregando...</div></div>
+              <h2>Publicações <span id="ann-count"
+                  style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
+              <div id="ann-list">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
           </div>
 
           <!-- Access Tab -->
           <div class="tab-content" id="tab-access">
             <div style="margin-bottom:24px;">
-              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Dados de Acesso</h2>
-              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Informações de difusões e casas de Johrei exibidas na landing pública.</p>
+              <h2
+                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                Dados de Acesso</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Informações de difusões e casas de Johrei
+                exibidas na landing pública.</p>
             </div>
             <div class="admin-section">
               <h2 id="access-form-title">Novo Registro</h2>
               <div class="add-user-form" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <div class="form-group">
                   <label for="access-category">Categoria</label>
-                  <select id="access-category" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                  <select id="access-category"
+                    style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
                     <option value="sede">Sede Central</option>
                     <option value="regional">Regional</option>
                     <option value="difusao">Difusão</option>
@@ -773,37 +1030,73 @@
                 <div class="form-group">
                   <label>Horário</label>
                   <div style="display:flex; align-items:center; gap:6px;">
-                    <select id="access-horario-ini" style="flex:1; padding:9px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                    <select id="access-horario-ini"
+                      style="flex:1; padding:9px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
                       <option value="">—</option>
                       <optgroup label="Manhã">
-                        <option>7h00</option><option>7h30</option><option>8h00</option><option>8h30</option>
-                        <option>9h00</option><option>9h30</option><option>10h00</option><option>10h30</option>
-                        <option>11h00</option><option>11h30</option>
+                        <option>7h00</option>
+                        <option>7h30</option>
+                        <option>8h00</option>
+                        <option>8h30</option>
+                        <option>9h00</option>
+                        <option>9h30</option>
+                        <option>10h00</option>
+                        <option>10h30</option>
+                        <option>11h00</option>
+                        <option>11h30</option>
                       </optgroup>
                       <optgroup label="Tarde">
-                        <option>13h00</option><option>13h30</option><option>14h00</option><option>14h30</option>
-                        <option>15h00</option><option>15h30</option><option>16h00</option><option>17h00</option>
+                        <option>13h00</option>
+                        <option>13h30</option>
+                        <option>14h00</option>
+                        <option>14h30</option>
+                        <option>15h00</option>
+                        <option>15h30</option>
+                        <option>16h00</option>
+                        <option>17h00</option>
                       </optgroup>
                       <optgroup label="Noite">
-                        <option>18h00</option><option>18h30</option><option>19h00</option><option>19h30</option>
-                        <option>20h00</option><option>20h30</option>
+                        <option>18h00</option>
+                        <option>18h30</option>
+                        <option>19h00</option>
+                        <option>19h30</option>
+                        <option>20h00</option>
+                        <option>20h30</option>
                       </optgroup>
                     </select>
                     <span style="color:var(--text-muted); font-size:0.85rem; flex-shrink:0;">às</span>
-                    <select id="access-horario-fim" style="flex:1; padding:9px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                    <select id="access-horario-fim"
+                      style="flex:1; padding:9px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
                       <option value="">—</option>
                       <optgroup label="Manhã">
-                        <option>7h00</option><option>7h30</option><option>8h00</option><option>8h30</option>
-                        <option>9h00</option><option>9h30</option><option>10h00</option><option>10h30</option>
-                        <option>11h00</option><option>11h30</option>
+                        <option>7h00</option>
+                        <option>7h30</option>
+                        <option>8h00</option>
+                        <option>8h30</option>
+                        <option>9h00</option>
+                        <option>9h30</option>
+                        <option>10h00</option>
+                        <option>10h30</option>
+                        <option>11h00</option>
+                        <option>11h30</option>
                       </optgroup>
                       <optgroup label="Tarde">
-                        <option>13h00</option><option>13h30</option><option>14h00</option><option>14h30</option>
-                        <option>15h00</option><option>15h30</option><option>16h00</option><option>17h00</option>
+                        <option>13h00</option>
+                        <option>13h30</option>
+                        <option>14h00</option>
+                        <option>14h30</option>
+                        <option>15h00</option>
+                        <option>15h30</option>
+                        <option>16h00</option>
+                        <option>17h00</option>
                       </optgroup>
                       <optgroup label="Noite">
-                        <option>18h00</option><option>18h30</option><option>19h00</option><option>19h30</option>
-                        <option>20h00</option><option>20h30</option>
+                        <option>18h00</option>
+                        <option>18h30</option>
+                        <option>19h00</option>
+                        <option>19h30</option>
+                        <option>20h00</option>
+                        <option>20h30</option>
                       </optgroup>
                     </select>
                   </div>
@@ -814,21 +1107,27 @@
                 </div>
                 <div class="form-group">
                   <label for="access-sort">Ordem</label>
-                  <input type="number" id="access-sort" value="0" min="0" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                  <input type="number" id="access-sort" value="0" min="0"
+                    style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
                 </div>
                 <div class="form-group" style="display:flex; align-items:flex-end; padding-bottom:2px;">
                   <label><input type="checkbox" id="access-active" checked> Ativo (visível no site)</label>
                 </div>
                 <div style="grid-column:1/-1; display:flex; gap:8px; align-items:center;">
                   <button id="access-add-btn" onclick="saveAccessInfo()">Adicionar</button>
-                  <button id="access-cancel-btn" onclick="resetAccessForm()" style="display:none; padding:9px 16px; border:1px solid var(--border); border-radius:8px; background:none; color:var(--text-muted); font-size:0.9rem; cursor:pointer;">Cancelar edição</button>
+                  <button id="access-cancel-btn" onclick="resetAccessForm()"
+                    style="display:none; padding:9px 16px; border:1px solid var(--border); border-radius:8px; background:none; color:var(--text-muted); font-size:0.9rem; cursor:pointer;">Cancelar
+                    edição</button>
                 </div>
               </div>
               <div id="access-msg" class="msg"></div>
             </div>
             <div class="admin-section">
-              <h2>Registros <span id="access-count" style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
-              <div id="access-list"><div class="loading">Carregando...</div></div>
+              <h2>Registros <span id="access-count"
+                  style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
+              <div id="access-list">
+                <div class="loading">Carregando...</div>
+              </div>
             </div>
           </div>
 
@@ -836,31 +1135,44 @@
           <div class="tab-content" id="tab-analytics-johrei">
             <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
               <div>
-                <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Analytics — Johrei Guia Prático</h2>
+                <h2
+                  style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                  Analytics — Johrei Guia Prático</h2>
                 <p id="jr-gen-at" style="font-size:0.85rem; color:var(--text-muted); margin:0;">Carregando…</p>
               </div>
               <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                <label style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
-                <select id="jr-range" onchange="loadJohreiAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
+                <label
+                  style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
+                <select id="jr-range" onchange="loadJohreiAnalytics()"
+                  style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
                   <option value="7">7 dias</option>
                   <option value="30" selected>30 dias</option>
                   <option value="90">90 dias</option>
                   <option value="365">1 ano</option>
                 </select>
-                <button onclick="loadJohreiAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻ Atualizar</button>
+                <button onclick="loadJohreiAnalytics()"
+                  style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻
+                  Atualizar</button>
               </div>
             </div>
-            <div id="jr-dashboard"><div class="loading">Carregando dados…</div></div>
+            <div id="jr-dashboard">
+              <div class="loading">Carregando dados…</div>
+            </div>
           </div>
 
           <!-- Reports (Guia) Tab -->
           <div class="tab-content" id="tab-reports-guia">
             <div style="margin-bottom:24px;">
-              <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Relatórios de Tradução — Guia do Johrei</h2>
-              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Trechos reportados por leitores anônimos como possível erro de tradução. Reportes vêm da home do guia_johrei via seleção de texto.</p>
+              <h2
+                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                Relatórios de Tradução — Guia do Johrei</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Trechos reportados por leitores anônimos
+                como possível erro de tradução. Reportes vêm da home do guia_johrei via seleção de texto.</p>
             </div>
             <div class="report-summary-bar" id="guiaReportsSummary"></div>
-            <div id="guiaReportsContainer"><div class="loading">Carregando relatórios…</div></div>
+            <div id="guiaReportsContainer">
+              <div class="loading">Carregando relatórios…</div>
+            </div>
           </div>
 
           <!-- Essência (Guia) Tab -->
@@ -873,28 +1185,39 @@
                 Mudanças aqui aparecem no próximo carregamento do site.
               </p>
 
-              <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;max-width:760px;">
-                <label style="display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">
+              <div
+                style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;max-width:760px;">
+                <label
+                  style="display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">
                   Ensinamento em destaque
                 </label>
                 <div id="ess-search-wrap" style="position:relative;margin-bottom:6px;">
-                  <input id="ess-search" type="search" autocomplete="off" placeholder="Buscar título do ensinamento..." style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.95rem;">
-                  <div id="ess-results" style="position:absolute;top:100%;left:0;right:0;max-height:280px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;z-index:10;display:none;"></div>
-                </div>
-
-                <div id="ess-selected" style="margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:8px;background:var(--bg);display:none;">
-                  <div style="font-size:.95rem;font-weight:600;color:var(--text);" id="ess-selected-title"></div>
-                  <div style="font-size:.78rem;color:var(--text-muted);margin-top:4px;" id="ess-selected-meta"></div>
-                  <div style="margin-top:10px;display:flex;gap:8px;">
-                    <a id="ess-open-site" href="#" target="_blank" rel="noopener" style="font-size:.78rem;color:var(--accent);text-decoration:none;">abrir no site ↗</a>
-                    <button type="button" id="ess-clear" style="font-size:.78rem;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0;">trocar</button>
+                  <input id="ess-search" type="search" autocomplete="off" placeholder="Buscar título do ensinamento..."
+                    style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.95rem;">
+                  <div id="ess-results"
+                    style="position:absolute;top:100%;left:0;right:0;max-height:280px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;z-index:10;display:none;">
                   </div>
                 </div>
 
-                <label style="display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text-muted);font-weight:600;margin:28px 0 8px;">
+                <div id="ess-selected"
+                  style="margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:8px;background:var(--bg);display:none;">
+                  <div style="font-size:.95rem;font-weight:600;color:var(--text);" id="ess-selected-title"></div>
+                  <div style="font-size:.78rem;color:var(--text-muted);margin-top:4px;" id="ess-selected-meta"></div>
+                  <div style="margin-top:10px;display:flex;gap:8px;">
+                    <a id="ess-open-site" href="#" target="_blank" rel="noopener"
+                      style="font-size:.78rem;color:var(--accent);text-decoration:none;">abrir no site ↗</a>
+                    <button type="button" id="ess-clear"
+                      style="font-size:.78rem;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0;">trocar</button>
+                  </div>
+                </div>
+
+                <label
+                  style="display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text-muted);font-weight:600;margin:28px 0 8px;">
                   Trecho exibido no card
                 </label>
-                <textarea id="ess-excerpt" rows="4" placeholder="Cole ou escreva o trecho de impacto que vai aparecer junto ao título no site..." style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.92rem;line-height:1.5;resize:vertical;font-family:inherit;"></textarea>
+                <textarea id="ess-excerpt" rows="4"
+                  placeholder="Cole ou escreva o trecho de impacto que vai aparecer junto ao título no site..."
+                  style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.92rem;line-height:1.5;resize:vertical;font-family:inherit;"></textarea>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
                   <span style="font-size:.72rem;color:var(--text-muted);">Recomendado: até 280 caracteres</span>
                   <span id="ess-charcount" style="font-size:.72rem;color:var(--text-muted);">0</span>
@@ -902,11 +1225,14 @@
 
                 <div id="ess-status" style="margin-top:18px;font-size:.78rem;color:var(--text-muted);"></div>
 
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:24px;border-top:1px solid var(--border);padding-top:18px;">
-                  <button type="button" id="ess-delete" style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;">
+                <div
+                  style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:24px;border-top:1px solid var(--border);padding-top:18px;">
+                  <button type="button" id="ess-delete"
+                    style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;">
                     Remover destaque
                   </button>
-                  <button type="button" id="ess-save" disabled style="background:var(--accent);color:#fff;border:none;padding:9px 22px;border-radius:6px;cursor:pointer;font-size:.9rem;font-weight:600;opacity:.5;">
+                  <button type="button" id="ess-save" disabled
+                    style="background:var(--accent);color:#fff;border:none;padding:9px 22px;border-radius:6px;cursor:pointer;font-size:.9rem;font-weight:600;opacity:.5;">
                     Salvar
                   </button>
                 </div>
@@ -918,21 +1244,29 @@
           <div class="tab-content" id="tab-analytics-landing">
             <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
               <div>
-                <h2 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">Analytics — Landing Page CMU</h2>
+                <h2
+                  style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                  Analytics — Landing Page CMU</h2>
                 <p id="lp-gen-at" style="font-size:0.85rem; color:var(--text-muted); margin:0;">Carregando…</p>
               </div>
               <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                <label style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
-                <select id="lp-range" onchange="loadLandingAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
+                <label
+                  style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
+                <select id="lp-range" onchange="loadLandingAnalytics()"
+                  style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
                   <option value="7">7 dias</option>
                   <option value="30" selected>30 dias</option>
                   <option value="90">90 dias</option>
                   <option value="365">1 ano</option>
                 </select>
-                <button onclick="loadLandingAnalytics()" style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻ Atualizar</button>
+                <button onclick="loadLandingAnalytics()"
+                  style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻
+                  Atualizar</button>
               </div>
             </div>
-            <div id="lp-dashboard"><div class="loading">Carregando dados…</div></div>
+            <div id="lp-dashboard">
+              <div class="loading">Carregando dados…</div>
+            </div>
           </div>
 
         </div>
@@ -970,16 +1304,27 @@
   <div class="editor-modal" id="guia-editor-modal" onclick="if(event.target===this)closeGuiaEditor()">
     <div class="editor-card">
       <div class="editor-header">
-        <h3 class="editor-title">Editar artigo do Guia: <span class="editor-subtitle" id="guia-editor-article-title">—</span></h3>
+        <h3 class="editor-title">Editar artigo do Guia: <span class="editor-subtitle"
+            id="guia-editor-article-title">—</span></h3>
         <button class="user-detail-close" onclick="closeGuiaEditor()" style="margin:0; float:none;">✕</button>
       </div>
       <div class="editor-body">
         <div class="editor-search-hint" style="margin-bottom:14px;">
-          <div style="font-size:.78rem; color:var(--text-muted); margin-bottom:6px;">📍 Aba: <strong id="guia-editor-tab">—</strong> · Arquivo: <code id="guia-editor-file" style="font-size:.8rem;">—</code></div>
-          <div style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#a87a1b; margin-bottom:4px;">⚠ Trecho reportado (selecionado automaticamente)</div>
-          <div id="guia-editor-selected" style="padding:8px 12px; background:rgba(255,160,0,0.08); border-left:3px solid rgba(255,160,0,0.5); border-radius:0 6px 6px 0; font-family:'Crimson Pro',serif; font-size:.92rem; line-height:1.55; color:var(--text); font-style:italic; max-height:90px; overflow-y:auto;"></div>
-          <div id="guia-editor-desc-label" style="display:none; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-top:10px; margin-bottom:4px;">💬 Comentário do usuário</div>
-          <div id="guia-editor-desc" style="display:none; padding:8px 12px; background:var(--surface); border-radius:6px; font-size:.85rem; line-height:1.5; color:var(--text);"></div>
+          <div style="font-size:.78rem; color:var(--text-muted); margin-bottom:6px;">📍 Aba: <strong
+              id="guia-editor-tab">—</strong> · Arquivo: <code id="guia-editor-file" style="font-size:.8rem;">—</code>
+          </div>
+          <div
+            style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#a87a1b; margin-bottom:4px;">
+            ⚠ Trecho reportado (selecionado automaticamente)</div>
+          <div id="guia-editor-selected"
+            style="padding:8px 12px; background:rgba(255,160,0,0.08); border-left:3px solid rgba(255,160,0,0.5); border-radius:0 6px 6px 0; font-family:'Crimson Pro',serif; font-size:.92rem; line-height:1.55; color:var(--text); font-style:italic; max-height:90px; overflow-y:auto;">
+          </div>
+          <div id="guia-editor-desc-label"
+            style="display:none; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-top:10px; margin-bottom:4px;">
+            💬 Comentário do usuário</div>
+          <div id="guia-editor-desc"
+            style="display:none; padding:8px 12px; background:var(--surface); border-radius:6px; font-size:.85rem; line-height:1.5; color:var(--text);">
+          </div>
         </div>
         <div id="guia-editor-status" class="msg" style="display:none; padding:8px 12px; font-size:.85rem;"></div>
 
@@ -989,21 +1334,34 @@
         <!-- Modo grid 2-col fallback (sem JP, ou bijeção quebrada) -->
         <div id="guia-editor-grid" style="display:none; gap:14px;">
           <div id="guia-editor-jp-col" style="display:none; flex:1; min-width:0;">
-            <div style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:6px;">📜 Japonês (somente leitura — referência)</div>
-            <textarea id="guia-editor-jp" readonly wrap="soft" style="width:100%; box-sizing:border-box; min-height:380px; font-family:'Noto Serif JP','Yu Mincho',serif; font-size:.92rem; line-height:1.85; padding:14px; border:1px solid var(--border); border-radius:8px; background:rgba(0,0,0,0.02); color:var(--text); resize:vertical; white-space:pre-wrap; word-wrap:break-word; overflow-wrap:break-word;"></textarea>
+            <div
+              style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:6px;">
+              📜 Japonês (somente leitura — referência)</div>
+            <textarea id="guia-editor-jp" readonly wrap="soft"
+              style="width:100%; box-sizing:border-box; min-height:380px; font-family:'Noto Serif JP','Yu Mincho',serif; font-size:.92rem; line-height:1.85; padding:14px; border:1px solid var(--border); border-radius:8px; background:rgba(0,0,0,0.02); color:var(--text); resize:vertical; white-space:pre-wrap; word-wrap:break-word; overflow-wrap:break-word;"></textarea>
           </div>
           <div style="flex:1; min-width:0;">
-            <div style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); margin-bottom:6px;">✏️ Português (editável)</div>
-            <textarea id="guia-editor-area" spellcheck="true" wrap="soft" style="display:block; width:100%; box-sizing:border-box; min-height:380px; font-family:'Crimson Pro',serif; font-size:.95rem; line-height:1.65; padding:14px; white-space:pre-wrap; word-wrap:break-word; overflow-wrap:break-word; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); resize:vertical; outline:none;"></textarea>
+            <div
+              style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); margin-bottom:6px;">
+              ✏️ Português (editável)</div>
+            <textarea id="guia-editor-area" spellcheck="true" wrap="soft"
+              style="display:block; width:100%; box-sizing:border-box; min-height:380px; font-family:'Crimson Pro',serif; font-size:.95rem; line-height:1.65; padding:14px; white-space:pre-wrap; word-wrap:break-word; overflow-wrap:break-word; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); resize:vertical; outline:none;"></textarea>
           </div>
         </div>
       </div>
       <div class="editor-footer">
-        <button onclick="suggestGuiaAI()" style="padding:8px 14px; background:rgba(168,85,247,0.1); color:#a855f7; border:1px solid rgba(168,85,247,0.35); border-radius:8px; font-size:.82rem; font-weight:600; cursor:pointer;" title="Copia prompt com glossário Johrei e abre claude.ai">✨ Sugerir IA</button>
-        <button id="guia-editor-retraduzir" onclick="retraduzirTudoGuiaAI()" style="display:none; padding:8px 14px; background:rgba(99,102,241,0.1); color:#6366f1; border:1px solid rgba(99,102,241,0.35); border-radius:8px; font-size:.82rem; font-weight:600; cursor:pointer;" title="Retraduzir o artigo INTEIRO do JP via Claude (sobrescreve PT atual)">🔄 Retraduzir tudo</button>
-        <span style="margin:0 auto 0 0; font-size:.78rem; color:var(--text-muted); align-self:center; padding-left:14px;">Salvar marca o reporte como <strong>Corrigido</strong> e captura o diff automaticamente.</span>
+        <button onclick="suggestGuiaAI()"
+          style="padding:8px 14px; background:rgba(168,85,247,0.1); color:#a855f7; border:1px solid rgba(168,85,247,0.35); border-radius:8px; font-size:.82rem; font-weight:600; cursor:pointer;"
+          title="Copia prompt com glossário Johrei e abre claude.ai">✨ Sugerir IA</button>
+        <button id="guia-editor-retraduzir" onclick="retraduzirTudoGuiaAI()"
+          style="display:none; padding:8px 14px; background:rgba(99,102,241,0.1); color:#6366f1; border:1px solid rgba(99,102,241,0.35); border-radius:8px; font-size:.82rem; font-weight:600; cursor:pointer;"
+          title="Retraduzir o artigo INTEIRO do JP via Claude (sobrescreve PT atual)">🔄 Retraduzir tudo</button>
+        <span
+          style="margin:0 auto 0 0; font-size:.78rem; color:var(--text-muted); align-self:center; padding-left:14px;">Salvar
+          marca o reporte como <strong>Corrigido</strong> e captura o diff automaticamente.</span>
         <button class="editor-btn-cancel" onclick="closeGuiaEditor()">Cancelar</button>
-        <button class="editor-btn-save" id="guia-editor-save" onclick="saveGuiaEditor()" disabled>💾 Salvar e marcar Corrigido</button>
+        <button class="editor-btn-save" id="guia-editor-save" onclick="saveGuiaEditor()" disabled>💾 Salvar e marcar
+          Corrigido</button>
       </div>
     </div>
   </div>
@@ -1012,12 +1370,16 @@
   <div class="editor-modal" id="editor-modal" onclick="if(event.target===this)closeEditor()">
     <div class="editor-card">
       <div class="editor-header">
-        <h3 class="editor-title">Editar Arquivo HTML.JSON <span class="editor-subtitle" id="editor-target-file"></span></h3>
+        <h3 class="editor-title">Editar Arquivo HTML.JSON <span class="editor-subtitle" id="editor-target-file"></span>
+        </h3>
         <button class="user-detail-close" onclick="closeEditor()" style="margin:0; float:none;">✕</button>
       </div>
       <div class="editor-body">
-        <div class="editor-search-hint" id="editor-search-hint">💡 <strong>Dica:</strong> Use <b>Ctrl+F</b> para localizar palavras. Edite apenas o Português. Você <b>não precisa se preocupar com a sintaxe do JSON</b>!</div>
-        <textarea id="editor-textarea" class="editor-textarea" spellcheck="false" placeholder="Carregando conteúdo..."></textarea>
+        <div class="editor-search-hint" id="editor-search-hint">💡 <strong>Dica:</strong> Use <b>Ctrl+F</b> para
+          localizar palavras. Edite apenas o Português. Você <b>não precisa se preocupar com a sintaxe do JSON</b>!
+        </div>
+        <textarea id="editor-textarea" class="editor-textarea" spellcheck="false"
+          placeholder="Carregando conteúdo..."></textarea>
         <div id="editor-structured-body" class="editor-structured-body"></div>
       </div>
       <div class="editor-footer">
@@ -1045,4 +1407,5 @@
   <script type="module" src="js/admin.js?v=46"></script>
 
 </body>
+
 </html>

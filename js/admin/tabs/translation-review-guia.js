@@ -12,7 +12,7 @@
 //   verified  → admin confirmou que está resolvido
 //   dismissed → admin descartou (não é erro / spam / duplicado)
 // ============================================================
-import { supabase } from '../../supabase-config.js';
+import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from '../../supabase-config.js';
 import { _escHtml } from '../shared/helpers.js';
 
 let _guiaReportsLoaded = false;
@@ -865,6 +865,26 @@ PREFERIR:
 
 REGRA DE BIJEÇÃO: NUNCA fundir nem dividir parágrafos. Mantenha a mesma quantidade de quebras de linha do texto original. Se o trecho selecionado é uma frase dentro de um parágrafo, devolva apenas essa frase corrigida — não o parágrafo todo.`;
 
+// Complemento enviado ao gemini-retrad: bijeção ¶N estrita + formato de I/O
+const RETRAD_BIJECTION_ADDENDUM = `
+
+---
+
+## REGRA DE BIJEÇÃO 1:1 (PRIORIDADE MÁXIMA)
+
+O JP de entrada está numerado ¶1, ¶2, ..., ¶N. Devolva EXATAMENTE N parágrafos PT.
+- NÃO fundir dois parágrafos JP em um PT
+- NÃO dividir um parágrafo JP em dois PT
+- NÃO criar parágrafos extras nem omitir nenhum
+
+## FORMATO DE INPUT
+
+{"items": [{"id": "article", "title_jp": "...", "title_pt_atual": "...", "content_jp_numbered": "¶1\\n[JP]\\n\\n¶2\\n[JP]"}]}
+
+## FORMATO DE SAÍDA (APENAS UM ARRAY JSON, SEM MARKDOWN WRAPPER)
+
+[{"id": "article", "title_ptbr": "...", "content_ptbr_numbered": "¶1\\n[PT]\\n\\n¶2\\n[PT]", "paragraph_count": N}]`;
+
 const GUIA_CLAUDE_TAB = 'guia-claude-ai-correction';
 let _ge_aiPasteEl = null;       // textarea aguardando paste
 let _ge_aiLastAutoPasted = '';
@@ -1133,26 +1153,74 @@ window.addEventListener('focus', async () => {
 });
 
 // ============================================================
-// Retradução completa do artigo — Phase 7
-// Diferente do "Sugerir IA" (1 parágrafo) — manda o artigo
-// inteiro pra Claude com pedido de retradução fresh do JP,
-// devolve N parágrafos numerados, substitui o PT inteiro.
+// Retradução completa do artigo — Phase 7 (atualizado: Gemini API direto)
+// Tenta chamar gemini-retrad edge function primeiro; fallback p/ clipboard.
 // ============================================================
 
 const GUIA_RETRADUCAO_TAB = 'guia-claude-retraducao';
 
-async function retraduzirTudoGuiaAI() {
-  if (!_ge_currentReport || !_ge_originalConteudoJp) {
-    alert('Retradução requer fonte JP disponível.');
-    return;
+function _ge_getOrCreateRetradPanel() {
+  let panel = document.getElementById('guia-editor-retraducao-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'guia-editor-retraducao-panel';
+    panel.style.cssText = 'margin-bottom:14px; padding:14px; border:1px solid rgba(99,102,241,0.4); border-radius:10px; background:rgba(99,102,241,0.04);';
+    const body = document.querySelector('#guia-editor-modal .editor-body');
+    body.insertBefore(panel, body.firstChild);
+  }
+  panel.style.display = 'block';
+  return panel;
+}
+
+async function _retraduzirViaGeminiAPI(r, jp, jpParas, ptParasAtual, session) {
+  const panel = _ge_getOrCreateRetradPanel();
+  panel.innerHTML = `
+    <div style="font-size:.72rem; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">⏳ Retradução via Gemini API</div>
+    <div style="font-size:.82rem; color:var(--text-muted); margin-bottom:10px; line-height:1.5;">
+      Traduzindo <strong>${jpParas.length} parágrafos</strong> do japonês… aguarde.
+    </div>
+    <div style="display:flex; gap:8px; margin-top:10px;">
+      <button onclick="discardGuiaRetraducaoPanel()" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:.78rem; cursor:pointer;">Cancelar</button>
+    </div>
+  `;
+
+  const system_prompt = GUIA_AI_GUIDELINES + RETRAD_BIJECTION_ADDENDUM;
+
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/gemini-retrad`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+      'apikey': SUPABASE_ANON_KEY,
+    },
+    body: JSON.stringify({
+      content_jp: jp,
+      title_jp: r.article_title || '',
+      title_pt_atual: r.article_title || '',
+      system_prompt,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `HTTP ${res.status}`);
   }
 
-  const r = _ge_currentReport;
-  const jp = _ge_originalConteudoJp;
-  const jpParas = jp.split(/\n\n+/);
-  const ptParasAtual = _ge_originalConteudo.split(/\n\n+/);
+  const data = await res.json();
+  if (!data.result?.content_ptbr_numbered) throw new Error('Resposta inesperada da API');
 
-  // Numera os parágrafos JP no prompt
+  // Insere o resultado num textarea oculto e aciona parseGuiaRetraducao
+  panel.innerHTML = `
+    <div style="font-size:.72rem; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">🔄 Retradução completa via IA</div>
+    <textarea id="guia-retraducao-paste" style="position:absolute; opacity:0; width:1px; height:1px; overflow:hidden;"></textarea>
+  `;
+  const ta = panel.querySelector('#guia-retraducao-paste');
+  _ge_aiPasteEl = ta;
+  ta.value = data.result.content_ptbr_numbered;
+  parseGuiaRetraducao();
+}
+
+function _retraduzirViaClipboard(r, jp, jpParas, ptParasAtual) {
   const jpNumbered = jpParas.map((p, i) => `¶${i+1}\n${p}`).join('\n\n');
 
   const prompt = `${GUIA_AI_GUIDELINES}
@@ -1202,28 +1270,19 @@ Devolva exatamente ${jpParas.length} parágrafos PT, no formato:
 (Sem texto adicional antes ou depois dos parágrafos numerados.)`;
 
   try {
-    await navigator.clipboard.writeText(prompt);
-  } catch (e) {
-    const tmp = document.createElement('textarea');
-    tmp.value = prompt;
-    tmp.style.position = 'fixed'; tmp.style.opacity = '0';
-    document.body.appendChild(tmp); tmp.select();
-    document.execCommand('copy');
-    document.body.removeChild(tmp);
-  }
+    navigator.clipboard.writeText(prompt).catch(() => {
+      const tmp = document.createElement('textarea');
+      tmp.value = prompt;
+      tmp.style.cssText = 'position:fixed; opacity:0;';
+      document.body.appendChild(tmp); tmp.select();
+      document.execCommand('copy');
+      document.body.removeChild(tmp);
+    });
+  } catch (e) { /* ignore */ }
 
   window.open('https://claude.ai/new', GUIA_RETRADUCAO_TAB);
 
-  // Painel de paste — overlay no topo do editor body
-  let panel = document.getElementById('guia-editor-retraducao-panel');
-  if (!panel) {
-    panel = document.createElement('div');
-    panel.id = 'guia-editor-retraducao-panel';
-    panel.style.cssText = 'margin-bottom:14px; padding:14px; border:1px solid rgba(99,102,241,0.4); border-radius:10px; background:rgba(99,102,241,0.04);';
-    const body = document.querySelector('#guia-editor-modal .editor-body');
-    body.insertBefore(panel, body.firstChild);
-  }
-  panel.style.display = 'block';
+  const panel = _ge_getOrCreateRetradPanel();
   panel.innerHTML = `
     <div style="font-size:.72rem; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">🔄 Retradução completa via IA</div>
     <div style="font-size:.82rem; color:var(--text-muted); margin-bottom:10px; line-height:1.5;">
@@ -1240,9 +1299,39 @@ Devolva exatamente ${jpParas.length} parágrafos PT, no formato:
     </div>
   `;
 
-  // Auto-paste do clipboard quando user volta da aba claude.ai
   _ge_aiPasteEl = panel.querySelector('#guia-retraducao-paste');
   setTimeout(() => _ge_aiPasteEl?.focus(), 100);
+}
+
+async function retraduzirTudoGuiaAI() {
+  if (!_ge_currentReport || !_ge_originalConteudoJp) {
+    alert('Retradução requer fonte JP disponível.');
+    return;
+  }
+
+  const r = _ge_currentReport;
+  const jp = _ge_originalConteudoJp;
+  const jpParas = jp.split(/\n\n+/);
+  const ptParasAtual = _ge_originalConteudo.split(/\n\n+/);
+
+  // Tenta Gemini API direto; se falhar cai pro clipboard
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      await _retraduzirViaGeminiAPI(r, jp, jpParas, ptParasAtual, session);
+      return;
+    }
+  } catch (e) {
+    console.warn('gemini-retrad falhou, usando clipboard:', e.message);
+    const panel = _ge_getOrCreateRetradPanel();
+    panel.innerHTML = `
+      <div style="font-size:.72rem; font-weight:700; color:#ff9500; text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px;">⚠ API Gemini indisponível</div>
+      <div style="font-size:.8rem; color:var(--text-muted); margin-bottom:10px;">${_escHtml(e.message)} — usando clipboard como alternativa.</div>
+    `;
+    await new Promise(r => setTimeout(r, 1500));
+  }
+
+  _retraduzirViaClipboard(r, jp, jpParas, ptParasAtual);
 }
 
 function parseGuiaRetraducao() {

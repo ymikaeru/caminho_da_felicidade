@@ -15,6 +15,8 @@ const ALLOWED_ORIGINS = [
   'https://cmu.org.br',
 ];
 
+// Flash é ~4x mais rápido que Pro para respostas curtas como sugestão pontual.
+// Pro reservado para gemini-retrad (retradução de artigos completos).
 const GEMINI_MODEL = 'gemini-3.1-pro-preview';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
@@ -75,6 +77,8 @@ serve(async (req: Request) => {
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         generationConfig: {
           responseMimeType: 'application/json',
+          maxOutputTokens: 1024,
+          thinkingConfig: { thinkingBudget: 512 },
           responseSchema: {
             type: 'object',
             properties: {

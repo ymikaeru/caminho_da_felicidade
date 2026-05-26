@@ -134,6 +134,17 @@ async function loadPoetryAnalytics() {
       .sort((a, b) => b.seconds - a.seconds)
       .slice(0, 15);
 
+    const byWorkReaders = {};
+    for (const p of positions) {
+      if (!p.file || !(p.time_spent_seconds > 0)) continue;
+      if (!byWorkReaders[p.file]) byWorkReaders[p.file] = new Map();
+      const wm = byWorkReaders[p.file];
+      const cur = wm.get(p.user_id) || { user_id: p.user_id, seconds: 0, lastAt: null };
+      cur.seconds += p.time_spent_seconds;
+      if (!cur.lastAt || p.updated_at > cur.lastAt) cur.lastAt = p.updated_at;
+      wm.set(p.user_id, cur);
+    }
+
     const fmtSecs = secs => {
       secs = Math.round(secs || 0);
       if (secs < 60) return `${secs}s`;
@@ -162,16 +173,23 @@ async function loadPoetryAnalytics() {
       </div>`;
     };
 
-    const topReadersHtml = topReaders.length
-      ? `<table><thead><tr><th>Usuário</th><th style="text-align:right;">Tempo</th><th>Obras</th><th>Última leitura</th></tr></thead><tbody>${
-          topReaders.map(r => `<tr>
-            <td>${_escHtml(nameMap[r.user_id] || 'Desconhecido')}</td>
-            <td class="num">${fmtSecs(r.seconds)}</td>
-            <td style="font-size:.78rem;">${[...r.works].map(workTitle).map(_escHtml).join(', ') || '—'}</td>
-            <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(r.lastAt)}</td>
-          </tr>`).join('')
-        }</tbody></table>`
-      : '<div class="loading">Sem leitores com tempo registrado ainda.</div>';
+    const perWorkReadersHtml = Object.keys(POETRY_BOOK_TITLES).map(id => {
+      const title = POETRY_BOOK_TITLES[id];
+      const readers = [...(byWorkReaders[id]?.values() || [])]
+        .filter(r => r.seconds > 0)
+        .sort((a, b) => b.seconds - a.seconds)
+        .slice(0, 10);
+      if (!readers.length) {
+        return `<div class="dc-tbl"><h3>Top leitores · ${_escHtml(title)}</h3><div class="loading">Sem tempo registrado ainda.</div></div>`;
+      }
+      return `<div class="dc-tbl"><h3>Top leitores · ${_escHtml(title)}</h3><table><thead><tr><th>Usuário</th><th style="text-align:right;">Tempo</th><th>Última leitura</th></tr></thead><tbody>${
+        readers.map(r => `<tr>
+          <td>${_escHtml(nameMap[r.user_id] || 'Desconhecido')}</td>
+          <td class="num">${fmtSecs(r.seconds)}</td>
+          <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(r.lastAt)}</td>
+        </tr>`).join('')
+      }</tbody></table></div>`;
+    }).join('');
 
     const recentRows = logs.filter(l => l.action === 'view').slice(0, 25);
     const recentHtml = recentRows.length
@@ -307,7 +325,9 @@ async function loadPoetryAnalytics() {
       <div class="dc-section">
         <h3 class="dc-section-title">Atividade dos leitores</h3>
         <div class="dc-tables">
-          <div class="dc-tbl"><h3>Top leitores (por tempo)</h3>${topReadersHtml}</div>
+          ${perWorkReadersHtml}
+        </div>
+        <div class="dc-tables">
           <div class="dc-tbl"><h3>Atividade recente</h3>${recentHtml}</div>
         </div>
       </div>

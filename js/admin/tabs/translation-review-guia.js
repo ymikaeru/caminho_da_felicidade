@@ -559,7 +559,7 @@ function _ge_renderParagraphs(ptParas, jpParas, needle) {
     jpCell.style.cssText = 'min-width:0;';
     jpCell.innerHTML = `
       <div style="font-size:.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px;">📜 JP · ¶${i+1}</div>
-      <pre style="margin:0; padding:10px; background:rgba(0,0,0,0.02); border:1px solid var(--border); border-radius:6px; font-family:'Noto Serif JP','Yu Mincho',serif; font-size:.9rem; line-height:1.8; color:var(--text); white-space:pre-wrap; word-wrap:break-word; max-height:300px; overflow-y:auto;"></pre>
+      <pre style="margin:0; padding:10px 12px; background:rgba(0,0,0,0.02); border:1px solid var(--border); border-radius:6px; font-family:'Noto Serif JP','Yu Mincho',serif; font-size:.9rem; line-height:1.9; color:var(--text); white-space:pre-wrap; word-wrap:break-word;"></pre>
     `;
     jpCell.querySelector('pre').textContent = jpParas[i];
 
@@ -1390,14 +1390,14 @@ function parseGuiaRetraducao() {
     const newPt = found.find(f => f.num === i + 1)?.content || '<em style="color:#ff3b30;">(¶ não fornecido pela IA)</em>';
     const changed = oldPt !== newPt && !newPt.startsWith('<em');
     rowsHtml += `
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:8px; border-top:1px solid var(--border); ${changed ? 'background:rgba(99,102,241,0.03);' : ''}">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:10px 12px; border-top:1px solid var(--border); ${changed ? 'background:rgba(99,102,241,0.03);' : ''}">
         <div>
-          <div style="font-size:.62rem; color:var(--text-muted); font-weight:700; margin-bottom:3px;">¶${i+1} ATUAL</div>
-          <div style="font-size:.8rem; line-height:1.5; max-height:120px; overflow-y:auto; white-space:pre-wrap;">${typeof oldPt === 'string' && !oldPt.startsWith('<em') ? _escHtml(oldPt) : oldPt}</div>
+          <div style="font-size:.62rem; color:var(--text-muted); font-weight:700; margin-bottom:4px;">¶${i+1} ATUAL</div>
+          <div style="font-size:.82rem; line-height:1.55; white-space:pre-wrap;">${typeof oldPt === 'string' && !oldPt.startsWith('<em') ? _escHtml(oldPt) : oldPt}</div>
         </div>
         <div>
-          <div style="font-size:.62rem; color:#6366f1; font-weight:700; margin-bottom:3px;">¶${i+1} NOVA</div>
-          <div style="font-size:.8rem; line-height:1.5; max-height:120px; overflow-y:auto; white-space:pre-wrap;">${typeof newPt === 'string' && !newPt.startsWith('<em') ? _escHtml(newPt) : newPt}</div>
+          <div style="font-size:.62rem; color:#6366f1; font-weight:700; margin-bottom:4px;">¶${i+1} NOVA</div>
+          <div style="font-size:.82rem; line-height:1.55; white-space:pre-wrap;">${typeof newPt === 'string' && !newPt.startsWith('<em') ? _escHtml(newPt) : newPt}</div>
         </div>
       </div>
     `;
@@ -1406,7 +1406,7 @@ function parseGuiaRetraducao() {
   panel.innerHTML = `
     <div style="font-size:.72rem; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">🔄 Preview da retradução</div>
     <div style="font-size:.85rem; margin-bottom:10px;">${countWarning}</div>
-    <div style="max-height:400px; overflow-y:auto; border:1px solid var(--border); border-radius:6px; background:var(--bg);">
+    <div style="max-height:min(60vh, 700px); overflow-y:auto; border:1px solid var(--border); border-radius:6px; background:var(--bg);">
       ${rowsHtml}
     </div>
     <div style="display:flex; gap:8px; margin-top:12px; align-items:center; flex-wrap:wrap;">
@@ -1466,6 +1466,8 @@ function discardGuiaRetraducaoPanel() {
   delete window._ge_retraducaoExpected;
   if (_ge_aiPasteEl && _ge_aiPasteEl.id === 'guia-retraducao-paste') _ge_aiPasteEl = null;
 }
+
+export { GUIA_AI_GUIDELINES, RETRAD_BIJECTION_ADDENDUM };
 
 Object.assign(window, {
   loadGuiaReports,

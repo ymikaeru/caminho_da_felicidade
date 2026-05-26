@@ -237,7 +237,7 @@
     .editor-modal.open { display: flex; }
     .editor-card {
       background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-      width: 95%; max-width: 1000px; height: 90vh; display: flex; flex-direction: column;
+      width: 97%; max-width: 1500px; height: 90vh; display: flex; flex-direction: column;
       box-shadow: 0 16px 48px rgba(0,0,0,0.3);
     }
     .editor-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }

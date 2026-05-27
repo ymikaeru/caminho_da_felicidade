@@ -18,7 +18,7 @@ async function loadJohreiAnalytics() {
   const since = new Date(Date.now() - days * 86400000).toISOString();
 
   // Fetch RPC and extra raw data in parallel
-  const [rpcRes, rawRes, cmOpensRes, cmHeartbeatsRes, cmAudioRes, essShownRes, essSuppRes, essSkippedRes, apostilaPrintRes] = await Promise.all([
+  const [rpcRes, rawRes, cmOpensRes, cmHeartbeatsRes, cmAudioRes, cmDownloadsRes, essShownRes, essSuppRes, essSkippedRes, apostilaPrintRes] = await Promise.all([
     supabase.rpc('admin_get_site_analytics', { p_site: 'johrei', days_back: days }),
     supabase.from('site_events').select('props,created_at').eq('site','johrei').eq('event_type','pageview').gte('created_at', since),
     // Culto Mensal: aberturas. Fetcha todos os cta de johrei e
@@ -41,6 +41,12 @@ async function loadJohreiAnalytics() {
       .select('event_type,session_id,anon_id,props,created_at')
       .eq('site','johrei')
       .in('event_type', ['audio_play','audio_pause','audio_ended'])
+      .gte('created_at', since),
+    // Culto Mensal: downloads (ZIP com PDF + MP3)
+    supabase.from('site_events')
+      .select('anon_id,session_id,props,created_at')
+      .eq('site','johrei')
+      .eq('event_type','download_zip')
       .gte('created_at', since),
     // Essência: modal de boas-vindas exibido
     supabase.from('site_events')
@@ -178,6 +184,11 @@ async function loadJohreiAnalytics() {
   const cmDuration = (cmAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
   const cmAvgListenedPct = cmDuration ? Math.round((cmAvgListenedSec / cmDuration) * 100) : null;
 
+  // Downloads do ZIP (PDF + MP3) — 1 evento por clique no botão "Baixar"
+  const cmDownloads = cmDownloadsRes.data || [];
+  const cmDownloadCount = cmDownloads.length;
+  const cmDownloadUniques = new Set(cmDownloads.map(r => r.anon_id)).size;
+
   // ── Helpers ─────────────────────────────────────────────────
   const esc = s => String(s ?? '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
   const card = (v, label, uniques) => `<div class="jr-card">
@@ -286,7 +297,7 @@ async function loadJohreiAnalytics() {
 
   // Bloco de Culto Mensal: sempre renderiza (mesmo zerado) pra ficar
   // explícito que o tracking está ativo e que estamos esperando dados.
-  const cmHasData = cmOpenCount > 0 || cmAudioSessions > 0 || cmSessionsRead > 0;
+  const cmHasData = cmOpenCount > 0 || cmAudioSessions > 0 || cmSessionsRead > 0 || cmDownloadCount > 0;
   const cmBlock = `
     <div class="jr-chart-wrap" style="margin-bottom:24px;">
       <h3>📖 Orientação do Culto Mensal (${data.days_back}d)</h3>
@@ -296,10 +307,11 @@ async function loadJohreiAnalytics() {
         ${engCard(cmAudioSessions, 'Sessões que ouviram')}
         ${engCard(cmAvgListenedSec > 0 ? fmtTime(cmAvgListenedSec) : '—',
           'Escuta média' + (cmAvgListenedPct != null && cmAvgListenedPct > 0 ? ` (${cmAvgListenedPct}%)` : ''))}
+        ${card(cmDownloadCount, 'Downloads (ZIP)', cmDownloadUniques)}
       </div>
       <p style="font-size:.72rem;color:var(--text-muted);margin:14px 0 0;">
         ${cmHasData
-          ? `Permanência captada via heartbeats (granularidade ~30s, leituras curtas podem não aparecer). Escuta média = média do total ouvido por sessão que apertou play.${cmCompletedCount > 0 ? ` <strong>${cmCompletedCount}</strong> escuta(s) completa(s).` : ''}`
+          ? `Permanência captada via heartbeats (granularidade ~30s, leituras curtas podem não aparecer). Escuta média = média do total ouvido por sessão que apertou play. Downloads = cliques no botão "Baixar" que geraram o ZIP com PDF + MP3.${cmCompletedCount > 0 ? ` <strong>${cmCompletedCount}</strong> escuta(s) completa(s).` : ''}`
           : 'Sem dados ainda no período selecionado. Confirme que o tracking foi deployado em <code>guia_johrei</code> e que alguém abriu o modal.'}
       </p>
     </div>`;

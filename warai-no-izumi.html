@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;600;700&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,200..600,30..100;1,9..144,300..500,30..100&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
-    <link rel="stylesheet" href="css/styles.min.css?v=131">
+    <link rel="stylesheet" href="css/styles.min.css?v=133">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <script src="js/toggle.js?v=36" defer></script>
@@ -127,6 +127,8 @@
                     <span class="lang-ja" style="display:none">題</span>
                 </button>
 
+                <div class="poetry-active-filters" id="waraiActiveFilters" aria-live="polite"></div>
+
                 <div id="waraiList">
                     <div class="poetry-loading">
                         <div class="poetry-loading__spinner"></div>
@@ -159,7 +161,7 @@
     <script src="js/playlists.js?v=21" defer></script>
     <script src="js/poetry-fontsize.js?v=3" defer></script>
     <script src="js/poetry-highlights.js?v=4" defer></script>
-    <script src="js/poetry-warai.js?v=26" defer></script>
+    <script src="js/poetry-warai.js?v=28" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             buildSearchModal(); buildHistoryModal(); buildFavoritesModal();

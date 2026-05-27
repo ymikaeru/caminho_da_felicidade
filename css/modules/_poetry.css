@@ -1034,6 +1034,90 @@
   background: var(--accent-soft);
 }
 
+/* Chips de filtros ativos — feedback visual de qual filtro/tema está aplicado.
+   No mobile (onde a sidebar é bottom-sheet e some), o chip vira sticky logo
+   abaixo do header pra confirmar que o filtro carregou e dar caminho rápido
+   pra limpar. */
+.poetry-active-filters {
+  display: none;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 16px;
+}
+.poetry-active-filters.is-active {
+  display: flex;
+  animation: poetry-chips-in 0.2s var(--ease);
+}
+
+.poetry-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px 3px 4px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+  border-radius: 4px;
+  color: var(--accent);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.poetry-chip:hover {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.poetry-chip:hover .poetry-chip__x {
+  background: var(--accent);
+  color: var(--bg-color);
+}
+
+.poetry-chip__x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease);
+}
+.poetry-chip__x svg {
+  width: 9px;
+  height: 9px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.poetry-chip__kicker {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.65;
+}
+.poetry-chip__label {
+  font-weight: 600;
+}
+.poetry-chip__count {
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.65;
+  font-variant-numeric: tabular-nums;
+  padding-left: 6px;
+  border-left: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+@keyframes poetry-chips-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* Mobile toggle for sidebar */
 .poetry-sidebar-toggle {
   display: none;
@@ -1144,6 +1228,22 @@
 
   .poetry-sidebar-toggle {
     display: inline-flex;
+    margin: 8px 0 14px;
+  }
+
+  /* Sticky logo abaixo do header — confirma o filtro ao usuário enquanto
+     ele rola, sem ocupar espaço quando não há filtro ativo. Glass effect
+     pra não cobrir o conteúdo abaixo. */
+  .poetry-active-filters.is-active {
+    position: sticky;
+    top: var(--nav-height, 60px);
+    z-index: 40;
+    margin: 0 -20px 14px;
+    padding: 10px 20px;
+    background: color-mix(in srgb, var(--bg-color) 88%, transparent);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+    border-bottom: 1px solid var(--border);
   }
 
   .poetry-main {

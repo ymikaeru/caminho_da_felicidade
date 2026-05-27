@@ -298,10 +298,82 @@
     `;
   }
 
+  // Chips de filtros ativos — feedback visual claro de qual tema/filtro está
+  // aplicado. Sticky logo abaixo do header no mobile (a sidebar é bottom-sheet
+  // e some quando fecha, então o usuário precisa de um indicador persistente).
+  // No desktop também aparece, inline acima da lista. Clique no × limpa.
+  function _renderActiveFilterChips() {
+    const container = $('#waraiActiveFilters');
+    if (!container) return;
+    const chips = [];
+    if (_meishuOnly) {
+      chips.push({
+        kind: 'meishu',
+        labelPt: 'Por Akegarasu Aho',
+        labelJp: '明烏阿呆',
+        kickerPt: 'Filtro',
+        kickerJp: '絞り込み',
+        count: _meishuCount
+      });
+    }
+    if (_activeTheme) {
+      const g = _gloss(_activeTheme);
+      const ptCap = g.pt ? g.pt.charAt(0).toUpperCase() + g.pt.slice(1) : g.romaji;
+      chips.push({
+        kind: 'theme',
+        labelPt: ptCap,
+        labelJp: _activeTheme,
+        kickerPt: 'Tema',
+        kickerJp: '題',
+        count: (_byTheme.get(_activeTheme) || []).length
+      });
+    }
+
+    if (chips.length === 0) {
+      container.classList.remove('is-active');
+      container.innerHTML = '';
+      return;
+    }
+
+    container.classList.add('is-active');
+    container.innerHTML = chips.map(c => `
+      <button type="button" class="poetry-chip" data-clear="${c.kind}"
+              aria-label="Remover ${_esc(c.kickerPt)}: ${_esc(c.labelPt)}">
+        <span class="poetry-chip__x" aria-hidden="true">
+          <svg viewBox="0 0 16 16">
+            <line x1="4" y1="4" x2="12" y2="12"/>
+            <line x1="12" y1="4" x2="4" y2="12"/>
+          </svg>
+        </span>
+        <span class="poetry-chip__kicker">
+          <span class="lang-pt">${_esc(c.kickerPt)}</span>
+          <span class="lang-ja" style="display:none">${_esc(c.kickerJp)}</span>
+        </span>
+        <span class="poetry-chip__label">
+          <span class="lang-pt">${_esc(c.labelPt)}</span>
+          <span class="lang-ja" style="display:none">${_esc(c.labelJp)}</span>
+        </span>
+        <span class="poetry-chip__count">${c.count}</span>
+      </button>
+    `).join('');
+
+    container.querySelectorAll('.poetry-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const kind = chip.dataset.clear;
+        if (kind === 'meishu') _meishuOnly = false;
+        else if (kind === 'theme') _activeTheme = null;
+        _visible = PAGE_SIZE;
+        _render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+  }
+
   function _render() {
     const main = $('#waraiList');
     if (!main) return;
     _renderSidebar();
+    _renderActiveFilterChips();
 
     const list = _currentList();
     if (list.length === 0) {

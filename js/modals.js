@@ -11,7 +11,18 @@ function _escModal(str) {
     .replace(/'/g, '&#39;');
 }
 
+// Guarda contra chamadas duplicadas. Algumas páginas (akimaro-kineishu,
+// warai-no-izumi, yama-to-mizu) chamam buildSearchModal duas vezes via
+// DOMContentLoaded inline em <head> + outro inline em <body> — sem essa
+// guarda, ficavam 2 <div id="searchModal"> no DOM, o que em iOS Safari
+// quebra focus trap e accessibility tree. Idempotente = safe pra
+// chamar quantas vezes quiser.
+function _modalExists(id) {
+  return !!document.getElementById(id);
+}
+
 function buildSearchModal() {
+  if (_modalExists('searchModal')) return;
   const lang = localStorage.getItem('site_lang') || 'pt';
   const placeholder = lang === 'ja' ? '教えを検索...' : 'Buscar nos ensinamentos...';
   const clearLabel = lang === 'ja' ? 'クリア' : 'Limpar busca';
@@ -80,6 +91,7 @@ function buildSearchModal() {
 }
 
 function buildHistoryModal() {
+  if (_modalExists('historyModal')) return;
   const lang = localStorage.getItem('site_lang') || 'pt';
   const title = lang === 'ja' ? '閲覧履歴' : 'Histórico de Navegação';
   const clearLabel = lang === 'ja' ? 'すべて削除' : 'Limpar Tudo';
@@ -105,6 +117,7 @@ function buildHistoryModal() {
 }
 
 function buildFavoritesModal() {
+  if (_modalExists('favoritesModal')) return;
   const lang = localStorage.getItem('site_lang') || 'pt';
   const title = lang === 'ja' ? '保存した教え' : 'Ensinamentos Salvos';
 
@@ -126,6 +139,7 @@ function buildFavoritesModal() {
 }
 
 function buildRecommendationsModal() {
+  if (_modalExists('recommendationsModal')) return;
   const lang = localStorage.getItem('site_lang') || 'pt';
   const title = lang === 'ja' ? '学習のおすすめ' : 'Recomendações para Estudo';
   const manageLabel = lang === 'ja' ? 'すべて管理 →' : 'Gerenciar todas →';
@@ -153,6 +167,7 @@ function buildRecommendationsModal() {
 }
 
 function buildHighlightsModal() {
+  if (_modalExists('highlightsModal')) return;
   const lang = localStorage.getItem('site_lang') || 'pt';
   const title = lang === 'ja' ? 'ハイライト一覧' : 'Meus Destaques';
 

@@ -41,6 +41,21 @@ const RESULTS_PER_PAGE = 10;
 const MAX_RESULTS = 50;
 let _focusedIndex = -1;
 
+// Hard limit por chamada de busca. iOS 17 Safari (pré-17.4) pendura fetch
+// na 2ª req ao mesmo origin via HTTP/2 stream reuse — sem timeout, o
+// spinner "Buscando..." nunca some e o usuário precisa dar reload.
+// Promise.race força um throw após N ms; o catch do performSearch já
+// trata erro mostrando msg ou caindo no fallback FTS.
+const SEARCH_TIMEOUT_MS = 8000;
+function _withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timeout após ${ms}ms`)), ms)
+    ),
+  ]);
+}
+
 function getBasePath() {
   return window.location.pathname.includes('/mioshiec') ? '../' : './';
 }
@@ -873,9 +888,9 @@ async function performSearch(query) {
       // Modo literal: ILIKE puro em PT+JA via RPC dedicada. Sem FTS,
       // sem embedding, sem rerank. Resolve termos em kanji/kana que
       // o pt_unaccent não tokeniza, e queries de substring exata.
-      const r = await supabase.rpc('search_teachings_literal', {
+      const r = await _withTimeout(supabase.rpc('search_teachings_literal', {
         q: serverQuery, lang: activeLang, max_results: MAX_RESULTS, scope,
-      });
+      }), SEARCH_TIMEOUT_MS, 'search_teachings_literal');
       data = r.data; error = r.error;
       console.log(`[search literal] "${q}" → ${(data || []).length} resultados`);
     } else {
@@ -883,9 +898,13 @@ async function performSearch(query) {
     // Se falhar (Voyage down, função não deployada, etc.), cai pro RPC
     // FTS-only — preserva o caminho antigo como rede de segurança.
     try {
-      const { data: edgeData, error: edgeError } = await supabase.functions.invoke('search-semantic', {
-        body: { q: serverQuery, lang: activeLang, max_results: MAX_RESULTS, scope },
-      });
+      const { data: edgeData, error: edgeError } = await _withTimeout(
+        supabase.functions.invoke('search-semantic', {
+          body: { q: serverQuery, lang: activeLang, max_results: MAX_RESULTS, scope },
+        }),
+        SEARCH_TIMEOUT_MS,
+        'search-semantic'
+      );
       if (edgeError) throw edgeError;
       data = edgeData?.data ?? [];
       // Breakdown de latência: o servidor reporta tempo por fase (embed,
@@ -909,9 +928,9 @@ async function performSearch(query) {
       }
     } catch (edgeErr) {
       console.warn('search-semantic indisponível, fallback FTS:', edgeErr?.message || edgeErr);
-      const r = await supabase.rpc('search_teachings', {
+      const r = await _withTimeout(supabase.rpc('search_teachings', {
         q: serverQuery, lang: activeLang, max_results: MAX_RESULTS, scope,
-      });
+      }), SEARCH_TIMEOUT_MS, 'search_teachings (fallback)');
       data = r.data; error = r.error;
     }
     } // end of else (non-literal path)

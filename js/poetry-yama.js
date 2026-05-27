@@ -172,11 +172,55 @@
     `;
   }
 
+  // Chips de seção ativa — feedback visual claro de qual seção foi escolhida.
+  // No mobile, sticky logo abaixo do header (a sidebar é bottom-sheet e some
+  // ao fechar, então o usuário precisa de um indicador persistente). × limpa.
+  function _renderActiveFilterChips() {
+    const container = $('#yamaActiveFilters');
+    if (!container) return;
+    if (_activeSectionIdx === null) {
+      container.classList.remove('is-active');
+      container.innerHTML = '';
+      return;
+    }
+    const sec = _sections[_activeSectionIdx];
+    if (!sec) return;
+    const labelPt = sec.title_pt || sec.title_jp || '';
+    const labelJp = sec.title_jp || '';
+    container.classList.add('is-active');
+    container.innerHTML = `
+      <button type="button" class="poetry-chip" data-clear="section"
+              aria-label="Remover seção: ${_esc(labelPt)}">
+        <span class="poetry-chip__x" aria-hidden="true">
+          <svg viewBox="0 0 16 16">
+            <line x1="4" y1="4" x2="12" y2="12"/>
+            <line x1="12" y1="4" x2="4" y2="12"/>
+          </svg>
+        </span>
+        <span class="poetry-chip__kicker">
+          <span class="lang-pt">Seção</span>
+          <span class="lang-ja" style="display:none">題目</span>
+        </span>
+        <span class="poetry-chip__label">
+          <span class="lang-pt">${_esc(labelPt)}</span>
+          <span class="lang-ja" style="display:none">${_esc(labelJp)}</span>
+        </span>
+        <span class="poetry-chip__count">${sec.poems.length}</span>
+      </button>
+    `;
+    container.querySelector('.poetry-chip').addEventListener('click', () => {
+      _activeSectionIdx = null;
+      _render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
   function _render() {
     const main = $('#yamaList');
     if (!main) return;
     // Re-render sidebar to sync active
     _renderSidebar();
+    _renderActiveFilterChips();
 
     let html = '';
     if (_activeSectionIdx === null) {

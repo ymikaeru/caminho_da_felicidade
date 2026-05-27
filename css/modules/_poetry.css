@@ -1158,7 +1158,9 @@
 
 @media (max-width: 1024px) {
   .poetry-page { grid-template-columns: 240px 1fr; }
-  .poetry-main { padding: 24px 32px 60px; }
+  /* O header é sticky/fixo (var(--nav-height)) — precisa compensar no
+     padding-top, senão o título do prefácio/seção fica coberto. */
+  .poetry-main { padding: calc(var(--nav-height) + 16px) 32px 60px; }
 }
 
 @media (max-width: 768px) {

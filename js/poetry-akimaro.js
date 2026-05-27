@@ -195,21 +195,6 @@
     return `${mm}/${yy}`;
   }
 
-  // "S11. 1. 1" → "1 de janeiro de 1936"; "S15. 5.**" → "maio de 1940" (tooltip por extenso)
-  function _formatDateLong(s) {
-    if (!s) return '';
-    const m = s.match(/^S(\d+)\.\s*(\d+)\.\s*(\d+|\*+)$/);
-    if (!m) return s;
-    const year = 1925 + parseInt(m[1], 10);
-    const month = parseInt(m[2], 10);
-    const day = m[3];
-    const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-                    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-    const mo = months[month - 1] || '';
-    if (/^\d+$/.test(day)) return `${parseInt(day, 10)} de ${mo} de ${year}`;
-    return `${mo} de ${year}`;
-  }
-
   function _renderPoem(p) {
     const num = p.number != null ? String(p.number).padStart(3, '0') : '';
     const pending = !!p.translation_pending;
@@ -222,7 +207,7 @@
     const dateStr = _formatDate(p.date);
     const dateStrCompact = _formatDateCompact(p.date);
     const dateTag = dateStr
-      ? `<span class="poetry-card__tag" title="${_esc(_formatDateLong(p.date) || p.date)}"><span class="poetry-card__tag-full">${_esc(dateStr)}</span><span class="poetry-card__tag-compact">${_esc(dateStrCompact)}</span></span>`
+      ? `<span class="poetry-card__tag" title="${_esc(p.date)}"><span class="poetry-card__tag-full">${_esc(dateStr)}</span><span class="poetry-card__tag-compact">${_esc(dateStrCompact)}</span></span>`
       : '';
     const pendingTag = pending
       ? `<span class="poetry-card__tag poetry-card__tag--pending" title="Aguardando tradução"><span class="lang-pt">tradução pendente</span><span class="lang-ja" style="display:none">未訳</span></span>`

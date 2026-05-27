@@ -164,7 +164,56 @@
     return base;
   }
 
+  // Filtro de autor "Por Akegarasu Aho" — renderizado abaixo da busca, separado
+  // dos temas pra deixar claro que é um filtro (toggle composável) e não um tema
+  // (seleção mutualmente exclusiva). Akegarasu Aho (明烏阿呆) é o pseudônimo
+  // poético de Meishu-Sama no Círculo de Kanku; "阿　呆" (Aho) é a forma curta
+  // usada dentro dos versos.
+  function _renderAuthorFilter() {
+    const container = $('#waraiAuthorFilter');
+    if (!container) return;
+    // Mantém o label existente (já está no HTML) e injeta só o toggle.
+    const existing = container.querySelector('.poetry-filter-toggle');
+    const html = `
+      <button type="button"
+              class="poetry-filter-toggle ${_meishuOnly ? 'is-active' : ''}"
+              id="waraiMeishuToggle"
+              role="switch"
+              aria-checked="${_meishuOnly ? 'true' : 'false'}"
+              title="Akegarasu Aho (明烏阿呆) — pseudônimo poético de Meishu-Sama no Círculo de Kanku; '阿　呆' (Aho) é a forma curta usada nos versos">
+        <span class="poetry-filter-toggle__box" aria-hidden="true">
+          <svg viewBox="0 0 16 16">
+            <polyline points="3.5 8.5 6.5 11.5 12.5 5"/>
+          </svg>
+        </span>
+        <span class="poetry-filter-toggle__label">
+          <span class="lang-pt">Por Akegarasu Aho</span>
+          <span class="lang-ja poetry-filter-btn__jp" style="display:none">明烏阿呆の句</span>
+        </span>
+        <span class="poetry-filter-toggle__count">${_meishuCount}</span>
+      </button>
+    `;
+    if (existing) {
+      existing.outerHTML = html;
+    } else {
+      container.insertAdjacentHTML('beforeend', html);
+    }
+    const toggle = $('#waraiMeishuToggle');
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        _meishuOnly = !_meishuOnly;
+        _visible = PAGE_SIZE;
+        _render();
+        const sb = $('#waraiSidebar');
+        if (sb) sb.classList.remove('is-open');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+  }
+
   function _renderSidebar() {
+    _renderAuthorFilter();
+
     const list = $('#waraiThemeList');
     if (!list) return;
     const themes = Array.from(_byTheme.entries())
@@ -175,20 +224,6 @@
         <span class="lang-pt">Todos os temas</span>
         <span class="lang-ja" style="display:none">全題</span>
         <span class="poetry-filter-btn__count">${_poems.length}</span>
-      </button>
-    `;
-    // Botão especial "Por Akegarasu Aho" — toggle, composável com tema/busca.
-    // Akegarasu Aho (明烏阿呆) é o pseudônimo poético de Meishu-Sama como
-    // selecionador (選者) do círculo; "阿　呆" (Aho) é a forma curta usada
-    // dentro dos versos.
-    const meishuBtn = `
-      <button class="poetry-filter-btn poetry-filter-btn--meishu ${_meishuOnly ? 'is-active' : ''}" data-meishu="1"
-              title="Akegarasu Aho (明烏阿呆) — pseudônimo poético de Meishu-Sama no Círculo de Kanku; '阿　呆' (Aho) é a forma curta usada nos versos">
-        <span class="poetry-filter-btn__main">
-          <span class="lang-pt">Por Akegarasu Aho</span>
-          <span class="lang-ja poetry-filter-btn__jp" style="display:none">明烏阿呆の句</span>
-        </span>
-        <span class="poetry-filter-btn__count">${_meishuCount}</span>
       </button>
     `;
     const items = themes.map(([t, arr]) => {
@@ -203,16 +238,11 @@
         <span class="poetry-filter-btn__count">${arr.length}</span>
       </button>
     `;}).join('');
-    list.innerHTML = allBtn + meishuBtn + items;
+    list.innerHTML = allBtn + items;
     list.querySelectorAll('.poetry-filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        if (btn.dataset.meishu) {
-          // Toggle do filtro "Por Meishu-Sama" — composável com tema/busca
-          _meishuOnly = !_meishuOnly;
-        } else {
-          const t = btn.dataset.theme || '';
-          _activeTheme = t || null;
-        }
+        const t = btn.dataset.theme || '';
+        _activeTheme = t || null;
         _visible = PAGE_SIZE;
         _render();
         const sb = $('#waraiSidebar');

@@ -449,25 +449,94 @@
   font-weight: 600;
 }
 
-/* Filtro "Por Meishu-Sama" — variante destacada no topo da sidebar.
-   Estado idle já carrega cor accent (pra sinalizar autoridade do mestre);
-   estado is-active vira fundo mais saturado + peso bold, em coerência
-   com o pill --meishu do card. */
-.poetry-filter-btn--meishu {
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 5%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+/* Filtro "Por Akegarasu Aho" — bloco abaixo da busca, separado dos temas.
+   Tem um checkbox custom à esquerda pra sinalizar visualmente que é um
+   toggle (composável com tema/busca), não uma seleção exclusiva como os
+   temas. Estado idle: caixa vazia com borda accent suave. Estado ativo:
+   caixa preenchida com check, fundo accent, label em bold. */
+.poetry-sidebar__author-filter {
+  padding: 0 20px 14px;
   margin-bottom: 6px;
+  border-bottom: 1px solid var(--border);
 }
-.poetry-filter-btn--meishu:hover {
+.poetry-sidebar__author-filter .poetry-sidebar__label {
+  padding: 0 0 8px;
+}
+
+.poetry-filter-toggle {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  column-gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  color: var(--accent);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.poetry-filter-toggle:hover {
   background: color-mix(in srgb, var(--accent) 10%, transparent);
-  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
 }
-.poetry-filter-btn--meishu.is-active {
+.poetry-filter-toggle.is-active {
   background: color-mix(in srgb, var(--accent) 14%, transparent);
-  border-color: color-mix(in srgb, var(--accent) 38%, transparent);
-  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.poetry-filter-toggle__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: 4px;
+  background: var(--surface);
+  flex-shrink: 0;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.poetry-filter-toggle__box svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--bg-color);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.15s var(--ease), transform 0.15s var(--ease);
+}
+.poetry-filter-toggle.is-active .poetry-filter-toggle__box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.poetry-filter-toggle.is-active .poetry-filter-toggle__box svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.poetry-filter-toggle__label {
+  font-weight: 500;
+  color: inherit;
+  line-height: 1.25;
+}
+.poetry-filter-toggle.is-active .poetry-filter-toggle__label {
   font-weight: 700;
+}
+
+.poetry-filter-toggle__count {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
 }
 
 .poetry-filter-btn__jp {

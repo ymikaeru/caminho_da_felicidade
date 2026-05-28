@@ -73,7 +73,8 @@ function _hasPendingFor(key) {
   return Object.prototype.hasOwnProperty.call(_pendingEdits, key);
 }
 
-// Parse "reader.html?vol=X&file=Y&topic=N" (com ou sem origem absoluta)
+// Parse "reader.html?vol=X&file=Y&topic=N" (com ou sem origem absoluta).
+// topic é 0-based (mesmo do reader).
 function _parseReaderUrl(raw) {
   if (!raw || typeof raw !== 'string') return null;
   const trimmed = raw.trim();
@@ -92,6 +93,16 @@ function _parseReaderUrl(raw) {
   } catch (_) {
     return null;
   }
+}
+
+// Parse atalho: vol + filename + title_idx (1-based como no JSON).
+// Devolve no formato {vol, file, topic_idx} (topic_idx convertido pra 0-based).
+function _parseQuickInput(vol, file, titleIdx) {
+  if (!vol || !file || !titleIdx) return null;
+  const fileTrim = String(file).trim().replace(/\.json$/, '');
+  const n = parseInt(titleIdx, 10);
+  if (!fileTrim || isNaN(n) || n < 1) return null;
+  return { vol, file: fileTrim, topic_idx: n - 1 };
 }
 
 // ─── Storage I/O ────────────────────────────────────────────
@@ -288,6 +299,45 @@ function _renderList() {
       _renderList();
     });
 
+    // Atalho: vol + filename + title_idx (1-based)
+    const qvolEl = form.querySelector(`#pc-qvol-${safeId}`);
+    const qfileEl = form.querySelector(`#pc-qfile-${safeId}`);
+    const qidxEl = form.querySelector(`#pc-qidx-${safeId}`);
+    const qsaveBtn = form.querySelector(`#pc-qsave-${safeId}`);
+    const qpreviewEl = form.querySelector(`#pc-qpreview-${safeId}`);
+
+    function updateQuickPreview() {
+      const parsed = _parseQuickInput(qvolEl.value, qfileEl.value, qidxEl.value);
+      if (parsed) {
+        qpreviewEl.innerHTML = `<span style="color:var(--accent-strong);">✓ ${_escHtml(parsed.vol)} / ${_escHtml(parsed.file)} #${parsed.topic_idx} <span style="opacity:.6;">(title_idx ${qidxEl.value} → topic ${parsed.topic_idx})</span></span>`;
+        qsaveBtn.disabled = false;
+        qsaveBtn.style.opacity = 1;
+      } else if (qfileEl.value.trim() || qidxEl.value.trim()) {
+        qpreviewEl.innerHTML = `<span style="color:#d97706;">⚠ Preencha filename e title_idx (≥1).</span>`;
+        qsaveBtn.disabled = true;
+        qsaveBtn.style.opacity = 0.5;
+      } else {
+        qpreviewEl.innerHTML = '';
+        qsaveBtn.disabled = true;
+        qsaveBtn.style.opacity = 0.5;
+      }
+    }
+    qvolEl.addEventListener('change', updateQuickPreview);
+    qfileEl.addEventListener('input', updateQuickPreview);
+    qidxEl.addEventListener('input', updateQuickPreview);
+    qsaveBtn.addEventListener('click', () => {
+      const parsed = _parseQuickInput(qvolEl.value, qfileEl.value, qidxEl.value);
+      if (!parsed) return;
+      _pendingEdits[key] = {
+        ...parsed,
+        added_at: new Date().toISOString(),
+        added_by: _myEmail || 'unknown',
+      };
+      _savePendingEdits();
+      _renderShell();
+      _renderList();
+    });
+
     if (clearBtn) {
       clearBtn.addEventListener('click', () => {
         if (!confirm('Remover o mapeamento manual desta citação?')) return;
@@ -401,8 +451,28 @@ function _renderRow(it) {
           ${link ? `<button id="pc-clear-${safeId}" class="btn-zen" style="font-size:0.84rem; color:#991b1b;">Remover</button>` : ''}
         </div>
         <div id="pc-preview-${safeId}" style="font-size:0.78rem; margin-top:6px; min-height:18px;"></div>
+
+        <div style="font-size:0.74rem; color:var(--text-muted); margin:10px 0 4px; display:flex; align-items:center; gap:6px;">
+          <span style="opacity:.5;">─ ou atalho do JSON ─</span>
+        </div>
+        <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+          <select id="pc-qvol-${safeId}" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--bg-soft); color:var(--text-main); font-size:0.82rem;">
+            <option value="mioshiec1" ${it.vol === 'mioshiec1' ? 'selected' : ''}>mioshiec1</option>
+            <option value="mioshiec2" ${it.vol === 'mioshiec2' ? 'selected' : ''}>mioshiec2</option>
+            <option value="mioshiec3" ${it.vol === 'mioshiec3' ? 'selected' : ''}>mioshiec3</option>
+            <option value="mioshiec4" ${it.vol === 'mioshiec4' ? 'selected' : ''}>mioshiec4</option>
+          </select>
+          <input type="text" id="pc-qfile-${safeId}"
+                 placeholder="filename.html"
+                 style="flex:1; min-width:160px; padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg-soft); color:var(--text-main); font-size:0.82rem; font-family:monospace;">
+          <label style="font-size:0.78rem; color:var(--text-muted);">title_idx:</label>
+          <input type="number" id="pc-qidx-${safeId}" min="1" placeholder="2"
+                 style="width:70px; padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--bg-soft); color:var(--text-main); font-size:0.82rem; font-family:monospace;">
+          <button id="pc-qsave-${safeId}" class="btn-zen" disabled style="opacity:.5; font-size:0.82rem;">Salvar</button>
+        </div>
+        <div id="pc-qpreview-${safeId}" style="font-size:0.78rem; margin-top:6px; min-height:18px;"></div>
         <div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">
-          Dica: clique em <strong>"↗ Abrir no reader"</strong> acima pra confirmar visualmente que este é o tópico certo. Depois cole aqui a URL do reader do ensinamento <em>fonte</em>.
+          💡 <code>title_idx</code> é o valor do campo no JSON (1-based: o primeiro tópico é 1). Convertido automaticamente. Use o atalho quando estiver olhando o JSON no editor.
         </div>
       </div>
     </div>

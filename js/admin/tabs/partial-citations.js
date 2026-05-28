@@ -534,9 +534,9 @@ async function _openCompareModal(sourceItem, targetParsed) {
   if (srcTopic && tgtTopic) {
     confirmBtn.disabled = false;
     confirmBtn.style.opacity = 1;
-    confirmBtn.onclick = () => {
+    confirmBtn.onclick = async () => {
       const key = _key(sourceItem);
-      _pendingEdits[key] = {
+      const value = {
         ...targetParsed,
         title_jp: (tgtTopic.title || '').trim(),
         title_pt: (tgtTopic.title_ptbr || tgtTopic.title_pt || '').trim(),
@@ -544,10 +544,8 @@ async function _openCompareModal(sourceItem, targetParsed) {
         added_at: new Date().toISOString(),
         added_by: _myEmail || 'unknown',
       };
-      _savePendingEdits();
+      await _publishSingle(key, value, confirmBtn);
       _closeCompareModal();
-      _renderShell();
-      _renderList();
     };
   } else {
     statusEl.innerHTML = `<span style="color:#991b1b;">Não foi possível carregar ${!srcTopic ? 'origem' : 'alvo'}.</span>`;
@@ -801,14 +799,12 @@ function _renderList() {
       const parsed = _parseReaderUrl(urlInput.value);
       if (!parsed) return;
       const enriched = await _enrichWithTargetTitle(parsed);
-      _pendingEdits[key] = {
+      const value = {
         ...enriched,
         added_at: new Date().toISOString(),
         added_by: _myEmail || 'unknown',
       };
-      _savePendingEdits();
-      _renderShell();
-      _renderList();
+      await _publishSingle(key, value, saveBtn);
     });
 
     // Atalho: vol + filename + title_idx (1-based)
@@ -858,28 +854,27 @@ function _renderList() {
       const parsed = _parseQuickInput(qvolEl.value, qfileEl.value, qidxEl.value);
       if (!parsed) return;
       const enriched = await _enrichWithTargetTitle(parsed);
-      _pendingEdits[key] = {
+      const value = {
         ...enriched,
         added_at: new Date().toISOString(),
         added_by: _myEmail || 'unknown',
       };
-      _savePendingEdits();
-      _renderShell();
-      _renderList();
+      await _publishSingle(key, value, qsaveBtn);
     });
 
     if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        if (!confirm('Remover o mapeamento manual desta citação?')) return;
-        // Marca como remoção explícita (null no pending)
+      clearBtn.addEventListener('click', async () => {
+        if (!confirm('Remover o mapeamento manual desta citação?\n\nIsso vai publicar a remoção no Storage imediatamente.')) return;
         if (_manualLinks[key]) {
-          _pendingEdits[key] = null;
+          // Já existia no Storage → publica a remoção
+          await _publishSingle(key, null, clearBtn);
         } else {
+          // Era só pending local → só remove
           delete _pendingEdits[key];
+          _savePendingEdits();
+          _renderShell();
+          _renderList();
         }
-        _savePendingEdits();
-        _renderShell();
-        _renderList();
       });
     }
   }
@@ -1025,7 +1020,42 @@ function _renderRow(it) {
   `;
 }
 
-// ─── Publish ────────────────────────────────────────────────
+// Save + publish atômico: adiciona um único link em pending, sobe pro
+// Storage, atualiza estado. Usado pelos botões "Salvar" pra evitar o
+// passo separado de "Publicar". Devolve true em caso de sucesso.
+async function _publishSingle(key, value, btnEl) {
+  const origText = btnEl ? btnEl.innerHTML : '';
+  if (btnEl) { btnEl.innerHTML = '⏳ Salvando…'; btnEl.disabled = true; }
+  try {
+    const newLinks = { ...(_manualLinks || {}) };
+    if (value === null) delete newLinks[key];
+    else newLinks[key] = value;
+    const payload = {
+      generated_at: new Date().toISOString(),
+      note: 'Mapeamentos manuais de citações parciais → ensinamento completo (interno). Editado via admin → aba "Citações Parciais".',
+      links: newLinks,
+    };
+    await _uploadManual(payload);
+    _manualLinks = newLinks;
+    // Limpa só ESTE key do pending (preserva edições paralelas se houver)
+    delete _pendingEdits[key];
+    _savePendingEdits();
+    if (btnEl) { btnEl.innerHTML = '✓ Salvo!'; setTimeout(() => { _renderShell(); _renderList(); }, 600); }
+    else { _renderShell(); _renderList(); }
+    return true;
+  } catch (e) {
+    alert(`Erro ao salvar: ${e.message}\n\nO link foi mantido como pendente — você pode tentar de novo ou clicar "💾 Publicar".`);
+    if (value === null) _pendingEdits[key] = null;
+    else _pendingEdits[key] = value;
+    _savePendingEdits();
+    if (btnEl) { btnEl.innerHTML = origText; btnEl.disabled = false; }
+    _renderShell();
+    _renderList();
+    return false;
+  }
+}
+
+// ─── Publish em lote (fallback quando há pending acumulado) ─
 async function _publish() {
   if (_publishing) return;
   if (!Object.keys(_pendingEdits).length) {

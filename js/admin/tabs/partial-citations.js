@@ -1289,14 +1289,18 @@ function _renderRow(it) {
         <div id="pc-tgtpreview-${safeId}"></div>
 
         <!-- Marcador "Sem Conteúdo Inteiro": pra citações que não têm
-             ensinamento completo no corpus (precisa de fonte externa). -->
-        <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); display:flex; gap:8px; align-items:center; font-size:0.78rem; color:var(--text-muted); flex-wrap:wrap;">
-          <span>Sem texto completo no corpus?</span>
+             ensinamento completo no corpus (precisa de fonte externa).
+             Botão fica à direita (margin-left:auto) pra evitar clique
+             acidental ao mover entre os campos da esquerda. -->
+        <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); display:flex; gap:8px; align-items:flex-start; font-size:0.78rem; color:var(--text-muted); flex-wrap:wrap;">
+          <div style="flex:1; min-width:240px;">
+            <div style="font-weight:500;">Sem texto completo no corpus?</div>
+            <div style="opacity:.7; margin-top:2px;">Move pra sub-aba "Sem Conteúdo Inteiro" — fica como TODO pra buscar fonte externa depois.</div>
+          </div>
           ${linkType === 'no_full_text'
-            ? `<button id="pc-unmark-${safeId}" class="btn-zen" style="font-size:0.78rem; padding:4px 10px;">↺ Desmarcar e voltar pra Pendentes</button>`
-            : `<button id="pc-marknofull-${safeId}" class="btn-zen" style="font-size:0.78rem; padding:4px 10px; background:#e0e7ff; color:#3730a3;">📌 Marcar "Sem Conteúdo Inteiro"</button>`
+            ? `<button id="pc-unmark-${safeId}" class="btn-zen" style="font-size:0.76rem; padding:4px 10px; margin-left:auto; flex-shrink:0;">↺ Desmarcar</button>`
+            : `<button id="pc-marknofull-${safeId}" class="btn-zen" style="font-size:0.76rem; padding:4px 10px; margin-left:auto; flex-shrink:0; opacity:.75;">📌 Marcar "Sem Conteúdo Inteiro"</button>`
           }
-          <span style="opacity:.7; flex-basis:100%; margin-top:4px;">Move pra sub-aba "Sem Conteúdo Inteiro" — fica como TODO pra buscar fonte externa depois.</span>
         </div>
       </div>
     </div>

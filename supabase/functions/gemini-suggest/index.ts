@@ -77,8 +77,13 @@ serve(async (req: Request) => {
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         generationConfig: {
           responseMimeType: 'application/json',
-          maxOutputTokens: 1024,
-          thinkingConfig: { thinkingBudget: 512 },
+          // 1024 era apertado: com thinkingBudget 512 sobravam só 512
+          // pra resposta. Com 4 campos descritivos (erro_identificado,
+          // trecho_atual, correcao_sugerida, justificativa), respostas
+          // mais elaboradas estouravam e voltavam como JSON inválido.
+          // 4096 dá folga; thinkingBudget 1024 mantém raciocínio decente.
+          maxOutputTokens: 4096,
+          thinkingConfig: { thinkingBudget: 1024 },
           responseSchema: {
             type: 'object',
             properties: {

@@ -776,13 +776,19 @@ Responda com os campos JSON:
       let detail = '';
       try {
         const body = await error.context?.json?.();
-        if (body?.error) detail = body.error + (body.detail ? ` — ${body.detail}` : '');
+        if (body?.error) {
+          const extra = body.detail ? ` — ${body.detail}` : (body.raw ? ` — resposta crua: ${body.raw.slice(0, 200)}…` : '');
+          detail = body.error + extra;
+        }
       } catch (_) {
         try { detail = await error.context?.text?.(); } catch (_) {}
       }
       throw new Error(detail || error.message || String(error));
     }
-    if (data?.error) throw new Error(data.error + (data.detail ? ` — ${data.detail}` : ''));
+    if (data?.error) {
+      const extra = data.detail ? ` — ${data.detail}` : (data.raw ? ` — resposta crua: ${data.raw.slice(0, 200)}…` : '');
+      throw new Error(data.error + extra);
+    }
     const result = data?.result;
     if (!result) throw new Error('Resposta vazia do Gemini');
     _renderGeminiResult(reportId, result);

@@ -39,7 +39,7 @@ let _pendingEdits = {};        // edits locais não publicadas
 let _editPage = 0;
 let _filterText = '';
 let _filterVol = 'all';
-let _filterStatus = 'unmapped'; // 'unmapped' | 'mapped' — sub-aba ativa
+let _filterStatus = 'unmapped'; // 'unmapped' | 'mapped' | 'no_full_text' — sub-aba ativa
 let _publishing = false;
 let _myEmail = '';
 
@@ -67,6 +67,14 @@ function _effectiveLink(key) {
   if (_pendingEdits[key] === null) return null; // explicit removal
   if (_pendingEdits[key]) return _pendingEdits[key];
   return _manualLinks[key] || null;
+}
+
+// Tipo do entry: 'internal' (link pra ensinamento no corpus) ou
+// 'no_full_text' (citação parcial sem texto completo disponível).
+// Default 'internal' pra retrocompat com entries antigos sem type.
+function _entryType(entry) {
+  if (!entry) return null;
+  return entry.type === 'no_full_text' ? 'no_full_text' : 'internal';
 }
 
 function _hasPendingFor(key) {
@@ -599,9 +607,17 @@ async function _uploadManual(payload) {
 function _filteredItems() {
   let arr = _unmatched.slice();
   if (_filterVol !== 'all') arr = arr.filter((i) => i.vol === _filterVol);
-  // Sub-aba ativa filtra mapeados vs pendentes
-  if (_filterStatus === 'mapped') arr = arr.filter((i) => _effectiveLink(_key(i)));
-  else arr = arr.filter((i) => !_effectiveLink(_key(i))); // 'unmapped' default
+  // Sub-aba ativa filtra por status:
+  // - mapped: tem link interno
+  // - no_full_text: marcado como "sem texto completo no corpus"
+  // - unmapped: sem link de nenhum tipo
+  arr = arr.filter((i) => {
+    const link = _effectiveLink(_key(i));
+    const type = _entryType(link);
+    if (_filterStatus === 'mapped') return link && type === 'internal';
+    if (_filterStatus === 'no_full_text') return link && type === 'no_full_text';
+    return !link; // unmapped
+  });
   if (_filterText) {
     const q = _filterText.toLowerCase();
     arr = arr.filter((i) => {
@@ -614,18 +630,20 @@ function _filteredItems() {
 
 // Conta itens por status (ignorando filtros de vol/texto)
 function _statusCounts() {
-  let mapped = 0, unmapped = 0;
+  let mapped = 0, unmapped = 0, noFullText = 0;
   for (const it of _unmatched) {
-    if (_effectiveLink(_key(it))) mapped++;
-    else unmapped++;
+    const link = _effectiveLink(_key(it));
+    if (!link) unmapped++;
+    else if (_entryType(link) === 'no_full_text') noFullText++;
+    else mapped++;
   }
-  return { mapped, unmapped };
+  return { mapped, unmapped, noFullText };
 }
 
 function _renderShell() {
   const cnt = document.getElementById('pc-container');
   if (!cnt) return;
-  const { mapped: mappedCount, unmapped: unmappedCount } = _statusCounts();
+  const { mapped: mappedCount, unmapped: unmappedCount, noFullText: noFullCount } = _statusCounts();
   const pendingCount = Object.keys(_pendingEdits).length;
 
   const subTabBtn = (status, label, count, color) => `
@@ -675,10 +693,11 @@ function _renderShell() {
       </div>
     </div>
 
-    <!-- Sub-abas: Pendentes vs Mapeados -->
+    <!-- Sub-abas: Pendentes / Mapeados / Sem Conteúdo Inteiro -->
     <div style="display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:14px;">
-      ${subTabBtn('unmapped', 'Pendentes', unmappedCount, '#d97706')}
-      ${subTabBtn('mapped',   'Mapeados',  mappedCount,  '#10b981')}
+      ${subTabBtn('unmapped',     'Pendentes',           unmappedCount, '#d97706')}
+      ${subTabBtn('mapped',       'Mapeados',            mappedCount,   '#10b981')}
+      ${subTabBtn('no_full_text', 'Sem Conteúdo Inteiro', noFullCount,   '#6366f1')}
     </div>
 
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; align-items:center;">
@@ -850,6 +869,26 @@ function _renderList() {
         });
       });
     }
+
+    // Botão "📌 Marcar Sem Conteúdo Inteiro" / "↺ Desmarcar"
+    const markBtn = form.querySelector(`#pc-marknofull-${safeId}`);
+    if (markBtn) {
+      markBtn.addEventListener('click', async () => {
+        const value = {
+          type: 'no_full_text',
+          added_at: new Date().toISOString(),
+          added_by: _myEmail || 'unknown',
+        };
+        await _publishSingle(key, value, markBtn);
+      });
+    }
+    const unmarkBtn = form.querySelector(`#pc-unmark-${safeId}`);
+    if (unmarkBtn) {
+      unmarkBtn.addEventListener('click', async () => {
+        if (!confirm('Desmarcar e voltar pra sub-aba "Pendentes"?')) return;
+        await _publishSingle(key, null, unmarkBtn);
+      });
+    }
     qsaveBtn.addEventListener('click', async () => {
       const parsed = _parseQuickInput(qvolEl.value, qfileEl.value, qidxEl.value);
       if (!parsed) return;
@@ -908,9 +947,12 @@ function _renderRow(it) {
   const isPending = _hasPendingFor(key);
   const isCleared = _pendingEdits[key] === null;
 
+  const linkType = _entryType(link);
   let statusBadge = '';
   if (isCleared) {
     statusBadge = `<span title="Remoção do link aguardando publicação" style="font-size:0.72rem; padding:2px 8px; background:#fee2e2; color:#991b1b; border-radius:4px;">🕒 REMOÇÃO PENDENTE</span>`;
+  } else if (link && linkType === 'no_full_text') {
+    statusBadge = `<span title="Marcado como sem texto completo no corpus — precisa de fonte externa" style="font-size:0.72rem; padding:2px 8px; background:#e0e7ff; color:#3730a3; border-radius:4px;">📌 SEM CONTEÚDO INTEIRO</span>`;
   } else if (link && isPending) {
     statusBadge = `<span title="Link adicionado/alterado, aguardando publicação no Storage. Clique 'Publicar' pra ativar no reader." style="font-size:0.72rem; padding:2px 8px; background:#fef3c7; color:#92400e; border-radius:4px;">🕒 AGUARDA PUBLICAÇÃO</span>`;
   } else if (link) {
@@ -1015,6 +1057,17 @@ function _renderRow(it) {
 
         <!-- Preview do tópico alvo: carrega do Storage e mostra título+data+conteúdo -->
         <div id="pc-tgtpreview-${safeId}"></div>
+
+        <!-- Marcador "Sem Conteúdo Inteiro": pra citações que não têm
+             ensinamento completo no corpus (precisa de fonte externa). -->
+        <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); display:flex; gap:8px; align-items:center; font-size:0.78rem; color:var(--text-muted); flex-wrap:wrap;">
+          <span>Sem texto completo no corpus?</span>
+          ${linkType === 'no_full_text'
+            ? `<button id="pc-unmark-${safeId}" class="btn-zen" style="font-size:0.78rem; padding:4px 10px;">↺ Desmarcar e voltar pra Pendentes</button>`
+            : `<button id="pc-marknofull-${safeId}" class="btn-zen" style="font-size:0.78rem; padding:4px 10px; background:#e0e7ff; color:#3730a3;">📌 Marcar "Sem Conteúdo Inteiro"</button>`
+          }
+          <span style="opacity:.7; flex-basis:100%; margin-top:4px;">Move pra sub-aba "Sem Conteúdo Inteiro" — fica como TODO pra buscar fonte externa depois.</span>
+        </div>
       </div>
     </div>
   `;

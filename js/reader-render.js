@@ -72,6 +72,9 @@ function _buildPartialCitationCTA(volId, filename, topicIdx, lang) {
         const manual = window._partialCitationsManual || {};
         const target = manual[key] || auto[key];
         if (!target) return '';
+        // Entries marcadas como "sem conteúdo inteiro" não geram CTA — só
+        // ficam no admin como TODO pra buscar fonte externa depois.
+        if (target.type === 'no_full_text') return '';
         const l = lang === 'ja'
             ? { label: '全文を読む', sub: '出典' }
             : { label: 'Ler o ensinamento completo', sub: 'Fonte' };

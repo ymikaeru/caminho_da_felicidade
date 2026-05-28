@@ -768,7 +768,20 @@ Responda com os campos JSON:
 
   try {
     const { data, error } = await supabase.functions.invoke('gemini-suggest', { body: { prompt } });
-    if (error) throw error;
+    if (error) {
+      // supabase-js entrega FunctionsHttpError com a mensagem genérica
+      // "Edge Function returned a non-2xx status code". O corpo real
+      // fica em error.context (Response). Lê-lo aqui pra mostrar o
+      // motivo de fato (chave inválida, modelo sem acesso, etc.).
+      let detail = '';
+      try {
+        const body = await error.context?.json?.();
+        if (body?.error) detail = body.error + (body.detail ? ` — ${body.detail}` : '');
+      } catch (_) {
+        try { detail = await error.context?.text?.(); } catch (_) {}
+      }
+      throw new Error(detail || error.message || String(error));
+    }
     if (data?.error) throw new Error(data.error + (data.detail ? ` — ${data.detail}` : ''));
     const result = data?.result;
     if (!result) throw new Error('Resposta vazia do Gemini');

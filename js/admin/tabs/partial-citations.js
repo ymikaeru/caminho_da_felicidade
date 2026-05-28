@@ -183,15 +183,13 @@ async function _renderTargetPreview(safeId, parsed) {
     return;
   }
   const titleJa = _stripHtml(topic.title || '');
-  const titlePt = _stripHtml(topic.title_ptbr || topic.title_pt || '');
   const date = topic.date || '';
-  const contentPt = _stripHtml(topic.content_ptbr || topic.content_pt || '').slice(0, 320);
-  const contentJa = _stripHtml(topic.content || '').slice(0, 200);
+  const contentJa = _stripHtml(topic.content || '').slice(0, 320);
   // Marca (Citação parcial) / (一部のみ引用) se aparecer
   function highlightCit(s) {
     return _escHtml(s).replace(/(一部のみ引用|Citação parcial)/g, '<mark style="background:#fef3c7; padding:1px 3px; border-radius:3px;">$1</mark>');
   }
-  const isPartialTarget = /一部のみ引用|Citação parcial/.test(topic.content + topic.content_ptbr);
+  const isPartialTarget = /一部のみ引用|Citação parcial/.test(topic.content + (topic.content_ptbr || topic.content_pt || ''));
   const warnPartial = isPartialTarget
     ? `<div style="margin-top:6px; padding:6px 10px; background:#fef3c7; border-radius:4px; font-size:0.78rem; color:#92400e;">⚠ Atenção: este tópico TAMBÉM é uma citação parcial. Você pode estar mapeando partial → partial em vez de partial → completo.</div>`
     : '';
@@ -199,10 +197,8 @@ async function _renderTargetPreview(safeId, parsed) {
     <div style="margin-top:10px; padding:10px 12px; background:#ecfdf5; border-left:3px solid #10b981; border-radius:0 4px 4px 0; font-size:0.83rem; line-height:1.55;">
       <div style="font-weight:600; margin-bottom:6px; color:#065f46;">📖 Preview do tópico alvo · #${parsed.topic_idx} (de ${totalTopics} tópicos)</div>
       ${titleJa ? `<div style="font-family:'Noto Serif JP',serif; font-size:0.98rem;">${_escHtml(titleJa)}</div>` : ''}
-      ${titlePt ? `<div style="color:var(--text-muted); font-size:0.82rem;">${_escHtml(titlePt)}</div>` : ''}
       ${date ? `<div style="color:var(--text-muted); font-size:0.78rem; margin-top:2px;">${_escHtml(date)}</div>` : ''}
-      ${contentPt ? `<div style="margin-top:6px; color:var(--text-main);">${highlightCit(contentPt)}${contentPt.length >= 320 ? '…' : ''}</div>` : ''}
-      ${!contentPt && contentJa ? `<div style="margin-top:6px; color:var(--text-main); font-family:'Noto Serif JP',serif;">${highlightCit(contentJa)}${contentJa.length >= 200 ? '…' : ''}</div>` : ''}
+      ${contentJa ? `<div style="margin-top:6px; color:var(--text-main); font-family:'Noto Serif JP',serif; font-size:0.9rem; line-height:1.7;">${highlightCit(contentJa)}${contentJa.length >= 320 ? '…' : ''}</div>` : ''}
       ${warnPartial}
     </div>
   `;

@@ -384,9 +384,9 @@ function _ensureJpSearchModal() {
         <h3 style="margin:0; font-size:1.05rem;">🔎 Buscar trecho japonês nos ensinamentos completos</h3>
         <button id="pc-jp-close" class="btn-zen" style="font-size:0.85rem;">✕ Fechar</button>
       </div>
-      <div style="padding:14px 24px; border-bottom:1px solid var(--border); display:flex; gap:10px; flex-shrink:0; align-items:center;">
+      <div style="padding:14px 24px; border-bottom:1px solid var(--border); display:flex; gap:10px; flex-shrink:0; align-items:center; flex-wrap:wrap;">
         <input id="pc-jp-q" type="text" placeholder="Cole trecho japonês (ex: 本守護神は絶対善性であり…)"
-               style="flex:1; padding:9px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:0.95rem; font-family:'Noto Serif JP',serif;">
+               style="flex:1; min-width:300px; padding:9px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:0.95rem; font-family:'Noto Serif JP',serif;">
         <select id="pc-jp-vol" style="padding:9px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:0.9rem;">
           <option value="all">Todos os volumes</option>
           <option value="mioshiec1">Vol 1</option>
@@ -394,6 +394,10 @@ function _ensureJpSearchModal() {
           <option value="mioshiec3">Vol 3</option>
           <option value="mioshiec4">Vol 4</option>
         </select>
+        <label style="display:flex; align-items:center; gap:6px; font-size:0.84rem; color:var(--text-muted); cursor:pointer;" title="Esconder topics que contêm '一部のみ引用' — eles são outras citações parciais, não o texto completo.">
+          <input id="pc-jp-excludepartial" type="checkbox" checked>
+          Só completos
+        </label>
       </div>
       <div id="pc-jp-status" style="padding:6px 24px; font-size:0.78rem; color:var(--text-muted); border-bottom:1px solid var(--border); flex-shrink:0;"></div>
       <div id="pc-jp-results" style="flex:1; overflow-y:auto; padding:8px 24px;"></div>
@@ -405,6 +409,7 @@ function _ensureJpSearchModal() {
 
   const qEl = document.getElementById('pc-jp-q');
   const volEl = document.getElementById('pc-jp-vol');
+  const excludeEl = document.getElementById('pc-jp-excludepartial');
   let timer = null;
   const trigger = () => {
     clearTimeout(timer);
@@ -412,6 +417,7 @@ function _ensureJpSearchModal() {
   };
   qEl.addEventListener('input', trigger);
   volEl.addEventListener('change', trigger);
+  excludeEl.addEventListener('change', trigger);
 
   return modal;
 }
@@ -443,22 +449,45 @@ async function _runJpSearch() {
   const allEntries = indices.flat();
   statusEl.textContent = `Procurando "${rawQuery.slice(0, 40)}${rawQuery.length > 40 ? '…' : ''}" em ${allEntries.length} tópicos.`;
 
-  const hits = [];
+  const excludePartial = document.getElementById('pc-jp-excludepartial')?.checked ?? true;
+  // Regex que detecta citação parcial — usada pra filtrar e pra
+  // mostrar contagem de relacionados ignorados.
+  const PARTIAL_RE = /[（(]\s*一部のみ引用\s*[）)]/;
+
+  const allHits = [];
   for (const e of allEntries) {
     const idx = (e.c || '').indexOf(query);
-    if (idx >= 0) {
-      hits.push({ entry: e, position: idx });
-      if (hits.length >= 30) break;
-    }
+    if (idx >= 0) allHits.push({ entry: e, position: idx });
   }
-  hits.sort((a, b) => a.position - b.position); // matches mais cedo no texto = topo
 
-  if (hits.length === 0) {
-    resultsEl.innerHTML = `<div style="padding:32px; text-align:center; color:var(--text-muted); font-size:0.9rem;">Nenhuma ocorrência encontrada.<br><span style="font-size:.82rem;">Tente um trecho menor ou diferente. Lembre que o índice cobre só os primeiros 800 chars de cada tópico.</span></div>`;
-    statusEl.textContent = `0 resultados em ${allEntries.length} tópicos.`;
+  // Separa em "completos" (sem marcador) e "outras citações parciais".
+  const fullHits = [];
+  const partialHits = [];
+  for (const h of allHits) {
+    if (PARTIAL_RE.test(h.entry.c || '')) partialHits.push(h);
+    else fullHits.push(h);
+  }
+
+  const visible = (excludePartial ? fullHits : allHits)
+    .sort((a, b) => a.position - b.position)
+    .slice(0, 30);
+
+  if (visible.length === 0) {
+    let msg = `<div style="padding:32px; text-align:center; color:var(--text-muted); font-size:0.9rem;">Nenhuma ocorrência encontrada.<br><span style="font-size:.82rem;">Tente um trecho menor ou diferente. Lembre que o índice cobre só os primeiros 800 chars de cada tópico.</span>`;
+    if (excludePartial && partialHits.length > 0) {
+      msg += `<br><br><span style="color:var(--accent);">⚠ Encontrei ${partialHits.length} ocorrência${partialHits.length === 1 ? '' : 's'} em outras citações parciais — desmarque "Só completos" pra ver.</span>`;
+    }
+    msg += '</div>';
+    resultsEl.innerHTML = msg;
+    statusEl.textContent = `0 resultados em ${allEntries.length} tópicos${excludePartial ? ` (ignorando ${partialHits.length} cit. parciais)` : ''}.`;
     return;
   }
-  statusEl.textContent = `${hits.length} resultado${hits.length === 1 ? '' : 's'} (mostrando até 30).`;
+  let suffix = `${visible.length} resultado${visible.length === 1 ? '' : 's'} (mostrando até 30)`;
+  if (excludePartial && partialHits.length > 0) {
+    suffix += ` · ${partialHits.length} cit. parciais ignoradas`;
+  }
+  statusEl.textContent = suffix + '.';
+  const hits = visible;
 
   resultsEl.innerHTML = hits.map((h, hi) => {
     const e = h.entry;
@@ -488,9 +517,22 @@ async function _runJpSearch() {
   resultsEl.querySelectorAll('.pc-jp-result').forEach((row) => {
     row.addEventListener('mouseenter', () => row.style.background = 'var(--accent-soft)');
     row.addEventListener('mouseleave', () => row.style.background = 'var(--bg-color)');
-    row.addEventListener('click', () => {
+    row.addEventListener('click', async () => {
       const hi = parseInt(row.dataset.hi, 10);
       const e = hits[hi].entry;
+      // Procura outras citações parciais (na lista _unmatched) com o
+      // MESMO trecho — candidatas a bulk-apply do mesmo mapeamento.
+      const related = _findRelatedPartials(query, _jpSearchCtx?.sourceItem ? _key(_jpSearchCtx.sourceItem) : null);
+      let bulkApply = false;
+      if (related.length > 0) {
+        bulkApply = confirm(
+          `Encontrei ${related.length} outra${related.length === 1 ? '' : 's'} citaç${related.length === 1 ? 'ão parcial' : 'ões parciais'} ` +
+          `com o mesmo trecho:\n\n${related.slice(0, 5).map((r) => `  • ${r.vol}/${r.file}#${r.topic_idx}`).join('\n')}` +
+          `${related.length > 5 ? `\n  • ... e mais ${related.length - 5}` : ''}` +
+          `\n\nMapear TODAS elas (mais esta) → ${e.v}/${e.f}#${e.i}?\n\n` +
+          `OK = mapeia todas\nCancelar = mapeia só a atual`
+        );
+      }
       if (_jpSearchCtx) {
         // Preenche o atalho da linha que abriu a busca
         if (_jpSearchCtx.qvolEl) _jpSearchCtx.qvolEl.value = e.v;
@@ -499,8 +541,60 @@ async function _runJpSearch() {
         if (_jpSearchCtx.onPick) _jpSearchCtx.onPick();
       }
       _closeJpSearchModal();
+
+      // Bulk-apply assíncrono nas relacionadas (faz uma chamada por item;
+      // não é o mais eficiente mas é o mais simples e seguro)
+      if (bulkApply) {
+        const parsed = { vol: e.v, file: e.f, topic_idx: e.i };
+        const enriched = await _enrichWithTargetTitle(parsed);
+        const value = {
+          ...enriched,
+          added_at: new Date().toISOString(),
+          added_by: _myEmail || 'unknown',
+        };
+        // Atualiza estado em memória pra todos de uma vez, faz um único upload
+        const newLinks = { ...(_manualLinks || {}) };
+        for (const r of related) {
+          newLinks[_key(r)] = value;
+        }
+        try {
+          const payload = {
+            generated_at: new Date().toISOString(),
+            note: 'Mapeamentos manuais de citações parciais → ensinamento completo (interno). Editado via admin → aba "Citações Parciais".',
+            links: newLinks,
+          };
+          await _uploadManual(payload);
+          _manualLinks = newLinks;
+          for (const r of related) delete _pendingEdits[_key(r)];
+          _savePendingEdits();
+          alert(`✓ Bulk-apply concluído. ${related.length} citaç${related.length === 1 ? 'ão' : 'ões'} adicional${related.length === 1 ? '' : 'mente'} mapeada${related.length === 1 ? '' : 's'}.`);
+          _renderShell();
+          _renderList();
+        } catch (err) {
+          alert(`Erro no bulk-apply: ${err.message}`);
+        }
+      }
     });
   });
+}
+
+// Procura outras citações parciais (em _unmatched) cujo content_preview_ja
+// contenha o mesmo trecho da busca atual. Usado pra oferecer bulk-apply
+// quando o user encontra o ensinamento completo de uma e outras citações
+// têm o mesmo excerpt.
+function _findRelatedPartials(query, excludeKey) {
+  if (!query || query.length < 8) return [];
+  const queryNorm = query.replace(/\s+/g, '');
+  const matches = [];
+  for (const u of _unmatched) {
+    const key = _key(u);
+    if (key === excludeKey) continue;
+    // Pula os que já têm link efetivo (mapped ou no_full_text)
+    if (_effectiveLink(key)) continue;
+    const haystack = (u.content_preview_ja || '').replace(/\s+/g, '');
+    if (haystack.includes(queryNorm)) matches.push(u);
+  }
+  return matches;
 }
 
 async function _openJpSearchModal(ctx) {

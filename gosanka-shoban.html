@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <script>(function(){var m=localStorage.getItem('site_mode')||'light';var t=localStorage.getItem('theme')||'light';var d=document.documentElement;d.setAttribute('data-mode',m);d.setAttribute('data-theme',t);var c={'dark:light':'#1A1A1A','dark:quiet':'#2D2D2F','dark:paper':'#2A2824','dark:bold':'#000','dark:calm':'#3B3326','dark:focus':'#000','light:light':'#F2F2F0','light:quiet':'#404043','light:paper':'#EFE8D6','light:bold':'#FFF','light:calm':'#DFCDAE','light:focus':'#FFF'};var bg=c[m+':'+t]||(m==='dark'?'#121212':'#F2F2F0');d.style.backgroundColor=bg})();</script>
+    <meta charset="UTF-8">
+    <title>御讃歌集（初版） — Caminho da Felicidade</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="御讃歌集（初版）— Coletânea de cantos sagrados (1ª edição) publicada em julho de 1948 por Meishu-Sama. 309 tanka traduzidos.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;600;700&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,200..600,30..100;1,9..144,300..500,30..100&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
+    <link rel="stylesheet" href="css/styles.min.css?v=134">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <script>window.POETRY_KEY = 'shoban';</script>
+
+    <script src="js/toggle.js?v=36" defer></script>
+    <script src="js/nav.js?v=44" defer></script>
+    <script src="js/theme.js?v=1" defer></script>
+    <script src="js/language.js?v=7" defer></script>
+    <script src="js/typography.js?v=1" defer></script>
+    <script src="js/search.js?v=22" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('site_lang') || 'pt';
+            if (typeof setLanguage === 'function') setLanguage(savedLang);
+            if (typeof buildSearchModal === 'function') buildSearchModal();
+            if (typeof buildHistoryModal === 'function') buildHistoryModal();
+            if (typeof buildFavoritesModal === 'function') buildFavoritesModal();
+            if (typeof revealPage === 'function') revealPage();
+        });
+    </script>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Ir para o conteúdo</a>
+    <div id="page-gate"
+        style="position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;z-index:4999;background:#f5f3ee;background:var(--bg-color,#f5f3ee)">
+    </div>
+    <header class="header">
+        <a href="index.html" class="header__logo">
+            <svg width="28" height="28" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Emblema da Comunidade Messiânica Universal"><circle cx="100" cy="100" r="98" fill="#b8860b"/><circle cx="100" cy="100" r="92" fill="#fff"/><rect x="80" y="8" width="40" height="184" fill="#006400"/><rect x="8" y="80" width="184" height="40" fill="#006400"/><circle cx="100" cy="100" r="42" fill="#cc0000"/><circle cx="100" cy="100" r="28" fill="#b8860b"/></svg>
+        </a>
+        <span class="header__site-name lang-pt">Caminho da Felicidade</span>
+        <span class="header__site-name lang-ja" style="display:none;">幸福の道</span>
+        <div class="header__nav">
+            <a href="index.html"><span>⌂ <span class="lang-pt">Início</span><span class="lang-ja" style="display:none">ホーム</span></span></a>
+            <a href="mioshiec1/index.html"><span>Vol 1</span></a>
+            <a href="mioshiec2/index.html"><span>Vol 2</span></a>
+            <a href="mioshiec3/index.html"><span>Vol 3</span></a>
+            <a href="mioshiec4/index.html"><span>Vol 4</span></a>
+        </div>
+    </header>
+
+    <main class="main" id="main-content" style="padding:0;">
+        <div id="poetry-root"></div>
+    </main>
+
+    <script type="importmap">
+    {"imports":{"@supabase/supabase-js":"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"}}</script>
+    <script type="module">
+        import { storageFetch, storageList } from './js/storage.js?v=3';
+        window.supabaseStorageFetch = storageFetch;
+        window.supabaseStorageList = storageList;
+    </script>
+    <script type="module" src="js/login.js?v=8"></script>
+    <script type="module">
+        import { startTracking, stopTracking } from './js/read-time-tracker.js';
+        window._readTimeTracker = { start: startTracking, stop: stopTracking };
+    </script>
+    <script type="module">
+        import * as cloudSync from './js/sync.js?v=5';
+        window._cloudSync = cloudSync;
+    </script>
+    <script type="module">
+        import { initSyncQueue, queueSaveHighlight, queueRemoveHighlight, getQueueStatus } from './js/sync-queue.js';
+        window._syncQueue = { init: initSyncQueue, queueSaveHighlight, queueRemoveHighlight, getStatus: getQueueStatus };
+        initSyncQueue().catch(err => console.warn('[sync-queue] init failed:', err));
+    </script>
+    <script src="js/access.js?v=5"></script>
+    <script src="js/modals.js?v=4"></script>
+    <script src="js/playlists.js?v=21" defer></script>
+    <script src="js/poetry-fontsize.js?v=3" defer></script>
+    <script src="js/poetry-highlights.js?v=4" defer></script>
+    <script src="js/poetry-gosanka.js?v=1" defer></script>
+    <script>
+        // Analytics: aguarda sessão Supabase real antes de chamar logAccess
+        (function () {
+            const POEM_VOL = 'poetry', POEM_FILE = 'gosanka-shoban';
+            let _tries = 0;
+            const _tryLog = async () => {
+                _tries++;
+                const supa = window.supabaseAuth?.supabase;
+                if (supa) {
+                    try {
+                        const { data } = await supa.auth.getSession();
+                        if (data?.session) {
+                            window.supabaseAuth.logAccess(POEM_VOL, POEM_FILE, 'view')?.catch?.(() => {});
+                            window._readTimeTracker?.start?.(POEM_VOL, POEM_FILE);
+                            return;
+                        }
+                    } catch (_) {}
+                }
+                if (_tries < 40) setTimeout(_tryLog, 300);
+            };
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', _tryLog);
+            } else {
+                _tryLog();
+            }
+        })();
+    </script>
+</body>
+
+</html>

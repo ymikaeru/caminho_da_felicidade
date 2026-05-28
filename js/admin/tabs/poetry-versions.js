@@ -43,6 +43,33 @@ const COLLECTIONS = {
     promptContext:
       '- Coletânea "Yama to Mizu" (山と水, "Montanhas e Águas") — tanka de Meishu-Sama centrados em paisagens (montanhas, rios, mar, estações).',
   },
+  'gosanka-shoban': {
+    title: 'Gosanka-shū — 1ª ed. (御讃歌集 初版)',
+    storagePath: 'poetry/gosanka-shoban.json',
+    localPath: 'data/poetry/gosanka_shoban.json',
+    lsKey: 'gosanka_shoban_editor_pending_v1',
+    claudeTab: 'claude-ai-gosanka-shoban',
+    promptContext:
+      '- Coletânea "御讃歌集（初版）" (Gosanka-shū, Primeira Edição) — 309 tanka publicados em julho de 1948, organizados em 40 seções temáticas (Senju Kannon, Kannon Gesho, Tenchi Kaimei, Era do Dia, etc).',
+  },
+  'gosanka-kaitei': {
+    title: 'Gosanka-shū — revisada (御讃歌集 改訂版)',
+    storagePath: 'poetry/gosanka-kaitei.json',
+    localPath: 'data/poetry/gosanka_kaitei.json',
+    lsKey: 'gosanka_kaitei_editor_pending_v1',
+    claudeTab: 'claude-ai-gosanka-kaitei',
+    promptContext:
+      '- Coletânea "御讃歌集（改訂版）" (Gosanka-shū, Edição Revisada) — 462 tanka publicados entre 1951 e 1954 sob a Sekai Kyūsei-kyō. Inclui marcadores: * = poema modificado da 1ª edição; ** = re-publicação literal da 1ª edição.',
+  },
+  'gosanka-shikiten': {
+    title: 'Gosanka — Cerimônias (各式典における御讃歌)',
+    storagePath: 'poetry/gosanka-shikiten.json',
+    localPath: 'data/poetry/gosanka_shikiten.json',
+    lsKey: 'gosanka_shikiten_editor_pending_v1',
+    claudeTab: 'claude-ai-gosanka-shikiten',
+    promptContext:
+      '- Coletânea "各式典における御讃歌" (Cantos Sagrados para Cada Cerimônia) — 564 tanka recitados em cerimônias entre 1936 e 1954 (Grande Culto de Primavera, Risshun, Aniversário Sagrado, Outono, Nikkoden de Hakone, etc). Cada seção tem data e fonte original anotadas.',
+  },
 };
 const DEFAULT_COLLECTION = 'akimaro-kineishu';
 

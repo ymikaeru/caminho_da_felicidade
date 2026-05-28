@@ -525,6 +525,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reconstrói _allResults vazio: loadMoreResults vai precisar do
         // server de novo (perda aceitável vs. serializar 50 objetos).
         // O essencial — items clicáveis com data-attrs — está no HTML.
+        // Reescreve hrefs relativos salvos pro basePath da página atual.
+        // Sem isto, quando o usuário busca no home (href = ./reader.html)
+        // e depois navega pra mioshiec3/, o ./reader.html restaurado
+        // resolve pra mioshiec3/reader.html (404). Vale o inverso também.
+        const cur = getBasePath();
+        resultsEl.querySelectorAll('a[href^="./"], a[href^="../"]').forEach(a => {
+          a.setAttribute('href', a.getAttribute('href').replace(/^\.\.?\//, cur));
+        });
       }
     }
   }

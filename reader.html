@@ -143,6 +143,11 @@
         s2.src = 'site_data/global_index_titles.js?v=1';
         document.head.appendChild(s2);
       }
+      if (!window._partialCitations) {
+        var s3 = document.createElement('script');
+        s3.src = 'site_data/partial_citations_index.js?v=1';
+        document.head.appendChild(s3);
+      }
     })();
   </script>
   <main class="main" id="main-content">
@@ -216,7 +221,7 @@
   <script src="js/search.js?v=22" defer></script>
   <script src="js/marked.min.js" defer></script>
   <script src="js/reader-content.js?v=4" defer></script>
-  <script src="js/reader-render.js?v=19" defer></script>
+  <script src="js/reader-render.js?v=20" defer></script>
   <script src="js/highlights.js?v=6" defer></script>
   <script src="js/content-protection.js?v=7" defer></script>
   <script src="js/translation-report.js?v=1" defer></script>

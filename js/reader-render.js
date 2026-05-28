@@ -32,6 +32,37 @@ function _formatQuotedTitle(rawTitle) {
         : quoteMatch[1];
 }
 
+// Se este tópico for uma citação parcial mapeada no índice
+// site_data/partial_citations_index.js (carregado como window._partialCitations),
+// devolve HTML de um link "Ler texto completo" que navega pro
+// ensinamento completo correspondente. Caso contrário, string vazia.
+function _buildPartialCitationCTA(volId, filename, topicIdx, lang) {
+    try {
+        const idx = window._partialCitations;
+        if (!idx) return '';
+        const key = `${volId}/${filename}#${topicIdx}`;
+        const target = idx[key];
+        if (!target) return '';
+        const l = lang === 'ja'
+            ? { label: '全文を読む', sub: '出典' }
+            : { label: 'Ler o ensinamento completo', sub: 'Fonte' };
+        const targetTitle = (target.title_pt || target.title_jp || '').replace(/<[^>]+>/g, '').trim();
+        const escTitle = targetTitle.replace(/"/g, '&quot;');
+        return `
+            <div class="topic-partial-cta" style="margin: 16px 0 8px; padding: 12px 16px; background: var(--accent-soft); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; gap: 10px; font-size: 0.88rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; opacity:.65" aria-hidden="true">
+                    <path d="M7 17l10-10M7 7h10v10"/>
+                </svg>
+                <span style="opacity:.7;">${l.sub}:</span>
+                <a href="javascript:void(0)" onclick="navigateToReader('${target.vol}','${target.file}'); setTimeout(()=>{const u=new URL(window.location);u.searchParams.set('topic','${target.topic_idx}');window.history.replaceState({},'',u);window.scrollTo(0,0);const el=document.getElementById('topic-${target.topic_idx}');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},400)" style="color: var(--text-main); text-decoration: underline; text-underline-offset: 2px;">
+                    ${l.label}
+                </a>
+                <span style="opacity:.5; font-size:.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escTitle}">— ${escTitle}</span>
+            </div>
+        `;
+    } catch (_) { return ''; }
+}
+
 function _buildTopicSaveBar(topicIdx, lang) {
     const l = { pt: { save: 'Salvar esta publicação', saved: 'Publicação salva' }, ja: { save: 'この教えを保存', saved: '保存済み' } }[lang] || { save: 'Salvar esta publicação', saved: 'Publicação salva' };
     const icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
@@ -254,12 +285,13 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             contentHtml += `<div id="${topicId}" class="topic-content comparison-mode" style="margin-top: ${index > 0 ? '40px' : '0'};">
                 ${headerHTML}
                 ${_buildTopicSaveBar(index, lang)}
+                ${_buildPartialCitationCTA(volId, filename, index, lang)}
                 <div class="comparison-labels"><span>日本語</span><span>Português</span></div>
                 <div class="comparison-grid">${gridHtml}</div>
                 <div class="comparison-interleaved">${interleavedHtml}</div>
             </div>`;
         } else {
-            contentHtml += `<div id="${topicId}" class="topic-content" style="margin-top: ${index > 0 ? '40px' : '0'};">\n${headerHTML}\n${_buildTopicSaveBar(index, lang)}\n${formatted}\n</div>`;
+            contentHtml += `<div id="${topicId}" class="topic-content" style="margin-top: ${index > 0 ? '40px' : '0'};">\n${headerHTML}\n${_buildTopicSaveBar(index, lang)}\n${_buildPartialCitationCTA(volId, filename, index, lang)}\n${formatted}\n</div>`;
         }
     });
 

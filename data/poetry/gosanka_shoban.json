@@ -14,12 +14,13 @@
   "preface": {
     "title_jp": "序　文",
     "content_jp": [
-      "御讃歌集（初版）　昭和23年7月1日発行　309首収録",
-      "序　文",
       "人も知るごとく、日本には昔から独特の文藝として和歌がある。この和歌なるものは不思議な力を有ってゐる。千言万語によっても言い表せない意味も僅か三十一文字で現し得る。しかもその人を動かす力に至っては予想外なるものがある。それらによって私は時折浮かんだ感想や道歌や神歌等の中から自選集録したのがこの著である。私は歌人ではないから、あまり頭を捻らないで、あるがままを自然に詠んだものが多いのである。ただ意を用いた点は判り易い事、品位を保つ事、言霊の美に意を注いだ事等である。",
       "昭和二十三年七月　　　　　　　　　　　　　著者識"
     ],
-    "content_pt": [],
+    "content_pt": [
+      "Como é sabido, desde a antiguidade o Japão possui o waka como uma arte literária singular. O waka detém uma força misteriosa. Significados que não poderiam ser expressos nem por milhares de palavras conseguem ser manifestados em apenas trinta e uma sílabas. Além disso, o seu poder de comover as pessoas é algo que transcende as expectativas. Assim, esta obra é uma coletânea que eu mesmo selecionei dentre as reflexões, dōka (cantos do Caminho) e shinka (cantos divinos) que me vieram à mente de tempos em tempos. Como não sou poeta de ofício, não me detive em elaborações complexas; a maioria dos poemas foi composta de forma natural, tal como as coisas são. Os únicos pontos aos quais dediquei especial atenção foram a facilidade de compreensão, a preservação da dignidade e o zelo pela beleza do Kototama.",
+      "Julho de 1948 — Pelo autor"
+    ],
     "title_pt": "Prefácio"
   },
   "sections": [

@@ -14,8 +14,6 @@
   "preface": {
     "title_jp": "はしがき",
     "content_jp": [
-      "御讃歌集（改訂版）　昭和２６年５月２８日～　　４６２首収録",
-      "はしがき",
       "この讃歌集は、昭和二十三年八月出版したものを、今回改訂版として、新たに編集したものである。というのは、以前のは日本観音会当時著作したものであるか ら、世界救世教となった今日では適切でない歌も多々あり、又以前の時は急いだ為、意に充たない点もあったので、今度は充分意を注いで、念入りに作ったもの であるから、面目一新した訳である。",
       "日本には古くから、独特の文芸として和歌があった。この和歌なるものは、不思議な力をもっていて、千言万語でも言い表わせない事を、僅か三十一文字で、 よくその意を表現する事が出来、予想外に人を動かす力がある。それらによって私は、時折詠んだ感想歌、道歌、神歌、抒情歌、叙景歌等の中から、自選集録し て出来たのがこの著である。私は専門的歌人ではないから、巧拙などは余り意とせず、あるがままの、自然に感じたものを詠んだのであるが、ただ意を用いた点 は、誰でも判り易い事、品位の高い事、言霊の妙を発揮した事等で、これを朝夕奉唱する事によって、自然によい影響を受け、信仰の深まるのは言う迄もない。",
       "昭和二十六年五月",
@@ -23,7 +21,14 @@
       "※　*は初版掲載のお歌に修正を加えたもの。**は初版掲載の御歌の再録です。",
       "※　版により表記に細かな修正が加えられているので、ここでは昭和29年10月25日版を最終版として収録しました。〔　〕内は昭和26年版の表記です。"
     ],
-    "content_pt": [],
+    "content_pt": [
+      "Esta coletânea de hinos de louvor é uma nova edição, revisada e reeditada, daquela publicada em agosto de 1948. Isso se deve ao fato de que a anterior foi escrita na época da Nihon Kannon-kai, de modo que hoje, tendo nos tornado a Sekai Kyūsei-kyō, há muitos poemas que já não são adequados. Além disso, como a edição anterior foi feita às pressas, havia pontos que não me satisfaziam. Desta vez, dediquei bastante atenção e a elaborei com esmero, resultando em uma obra completamente renovada.",
+      "No Japão, desde os tempos antigos, existe o waka como uma arte literária singular. Este waka possui uma força misteriosa, capaz de expressar perfeitamente, com apenas trinta e uma sílabas, aquilo que não se consegue dizer nem com milhares de palavras, e tem um poder inesperado de comover as pessoas. Com base nisso, esta obra é o resultado de uma seleção que eu mesmo fiz dentre os cantos de reflexão, dōka (cantos do Caminho), shinka (cantos divinos), cantos líricos e cantos descritivos da paisagem que compus de tempos em tempos. Como não sou poeta profissional, não me preocupei muito com a habilidade técnica, mas compus de forma natural, exatamente como senti. Contudo, os pontos aos quais dediquei atenção foram: ser de fácil compreensão para qualquer pessoa, manter uma elevada dignidade e manifestar a maravilha do Kototama. É escusado dizer que, ao entoá-los reverencialmente de manhã e à noite, recebe-se naturalmente uma boa influência e a fé se aprofunda.",
+      "Maio de 1951",
+      "Pelo autor",
+      "Nota: * indica poemas da primeira edição que sofreram modificações. ** indica a republicação de poemas da primeira edição.",
+      "Nota: Como pequenas correções ortográficas foram feitas dependendo da edição, adotamos aqui a edição de 25 de outubro de 1954 como a versão definitiva. O texto entre 〔 〕 corresponde à grafia da edição de 1951."
+    ],
     "title_pt": "Prefácio"
   },
   "sections": [

@@ -911,7 +911,10 @@
 .poetry-preface {
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 32px 40px;
+  /* padding lateral 18px alinha o texto interno com o início dos cards
+     de poema (que têm padding 32px 18px). Antes era 40px, o que fazia
+     o prefácio parecer "centralizado" comparado aos cards. */
+  padding: 32px 18px;
   margin-bottom: 40px;
   background:
     linear-gradient(var(--accent-soft), var(--accent-soft)),

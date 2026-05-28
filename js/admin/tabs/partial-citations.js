@@ -105,6 +105,89 @@ function _parseQuickInput(vol, file, titleIdx) {
   return { vol, file: fileTrim, topic_idx: n - 1 };
 }
 
+// ─── Target preview (fetch + cache) ─────────────────────────
+const _targetFileCache = new Map(); // vol/file → parsed JSON
+const _previewDebounce = new Map(); // safeId → timer
+
+async function _fetchTargetTopic(vol, file) {
+  const cacheKey = `${vol}/${file}`;
+  if (_targetFileCache.has(cacheKey)) return _targetFileCache.get(cacheKey);
+  try {
+    const { data, error } = await supabase.storage.from(BUCKET).download(`${vol}/${file}.json`);
+    if (error) return null;
+    const json = JSON.parse(await data.text());
+    _targetFileCache.set(cacheKey, json);
+    return json;
+  } catch (_) {
+    return null;
+  }
+}
+
+function _topicAtIdx(json, topicIdx) {
+  if (!json || !json.themes) return null;
+  let i = 0;
+  for (const theme of json.themes) {
+    for (const t of theme.topics || []) {
+      if (i === topicIdx) return t;
+      i++;
+    }
+  }
+  return null;
+}
+
+function _stripHtml(s) {
+  return String(s || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+async function _renderTargetPreview(safeId, parsed) {
+  const el = document.getElementById(`pc-tgtpreview-${safeId}`);
+  if (!el) return;
+  if (!parsed) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div style="margin-top:10px; padding:8px 12px; font-size:0.82rem; color:var(--text-muted);">⏳ Carregando preview do tópico alvo…</div>`;
+  const json = await _fetchTargetTopic(parsed.vol, parsed.file);
+  if (!json) {
+    el.innerHTML = `<div style="margin-top:10px; padding:8px 12px; background:#fef2f2; border-left:3px solid #ef4444; border-radius:0 4px 4px 0; font-size:0.82rem; color:#991b1b;">⚠ Arquivo não encontrado no Storage: ${_escHtml(parsed.vol)}/${_escHtml(parsed.file)}</div>`;
+    return;
+  }
+  const totalTopics = (json.themes || []).reduce((acc, th) => acc + (th.topics || []).length, 0);
+  const topic = _topicAtIdx(json, parsed.topic_idx);
+  if (!topic) {
+    el.innerHTML = `<div style="margin-top:10px; padding:8px 12px; background:#fef2f2; border-left:3px solid #ef4444; border-radius:0 4px 4px 0; font-size:0.82rem; color:#991b1b;">⚠ Tópico #${parsed.topic_idx} não existe no arquivo (tem só ${totalTopics} tópicos, range 0..${totalTopics - 1}).</div>`;
+    return;
+  }
+  const titleJa = _stripHtml(topic.title || '');
+  const titlePt = _stripHtml(topic.title_ptbr || topic.title_pt || '');
+  const date = topic.date || '';
+  const contentPt = _stripHtml(topic.content_ptbr || topic.content_pt || '').slice(0, 320);
+  const contentJa = _stripHtml(topic.content || '').slice(0, 200);
+  // Marca (Citação parcial) / (一部のみ引用) se aparecer
+  function highlightCit(s) {
+    return _escHtml(s).replace(/(一部のみ引用|Citação parcial)/g, '<mark style="background:#fef3c7; padding:1px 3px; border-radius:3px;">$1</mark>');
+  }
+  const isPartialTarget = /一部のみ引用|Citação parcial/.test(topic.content + topic.content_ptbr);
+  const warnPartial = isPartialTarget
+    ? `<div style="margin-top:6px; padding:6px 10px; background:#fef3c7; border-radius:4px; font-size:0.78rem; color:#92400e;">⚠ Atenção: este tópico TAMBÉM é uma citação parcial. Você pode estar mapeando partial → partial em vez de partial → completo.</div>`
+    : '';
+  el.innerHTML = `
+    <div style="margin-top:10px; padding:10px 12px; background:#ecfdf5; border-left:3px solid #10b981; border-radius:0 4px 4px 0; font-size:0.83rem; line-height:1.55;">
+      <div style="font-weight:600; margin-bottom:6px; color:#065f46;">📖 Preview do tópico alvo · #${parsed.topic_idx} (de ${totalTopics} tópicos)</div>
+      ${titleJa ? `<div style="font-family:'Noto Serif JP',serif; font-size:0.98rem;">${_escHtml(titleJa)}</div>` : ''}
+      ${titlePt ? `<div style="color:var(--text-muted); font-size:0.82rem;">${_escHtml(titlePt)}</div>` : ''}
+      ${date ? `<div style="color:var(--text-muted); font-size:0.78rem; margin-top:2px;">${_escHtml(date)}</div>` : ''}
+      ${contentPt ? `<div style="margin-top:6px; color:var(--text-main);">${highlightCit(contentPt)}${contentPt.length >= 320 ? '…' : ''}</div>` : ''}
+      ${!contentPt && contentJa ? `<div style="margin-top:6px; color:var(--text-main); font-family:'Noto Serif JP',serif;">${highlightCit(contentJa)}${contentJa.length >= 200 ? '…' : ''}</div>` : ''}
+      ${warnPartial}
+    </div>
+  `;
+}
+
+function _schedulePreview(safeId, parsed) {
+  if (_previewDebounce.has(safeId)) clearTimeout(_previewDebounce.get(safeId));
+  if (!parsed) { _renderTargetPreview(safeId, null); return; }
+  const timer = setTimeout(() => _renderTargetPreview(safeId, parsed), 300);
+  _previewDebounce.set(safeId, timer);
+}
+
 // ─── Storage I/O ────────────────────────────────────────────
 async function _loadIndex() {
   // 1) tenta Storage (deploy ativo)
@@ -272,14 +355,17 @@ function _renderList() {
         previewEl.innerHTML = `<span style="color:var(--accent-strong);">✓ ${_escHtml(parsed.vol)} / ${_escHtml(parsed.file)} #${parsed.topic_idx}</span>`;
         saveBtn.disabled = false;
         saveBtn.style.opacity = 1;
+        _schedulePreview(safeId, parsed);
       } else if (urlInput.value.trim()) {
         previewEl.innerHTML = `<span style="color:#d97706;">⚠ Não foi possível parsear. Formato esperado: reader.html?vol=X&amp;file=Y&amp;topic=N</span>`;
         saveBtn.disabled = true;
         saveBtn.style.opacity = 0.5;
+        _schedulePreview(safeId, null);
       } else {
         previewEl.innerHTML = '';
         saveBtn.disabled = true;
         saveBtn.style.opacity = 0.5;
+        _schedulePreview(safeId, null);
       }
     }
 
@@ -312,14 +398,17 @@ function _renderList() {
         qpreviewEl.innerHTML = `<span style="color:var(--accent-strong);">✓ ${_escHtml(parsed.vol)} / ${_escHtml(parsed.file)} #${parsed.topic_idx} <span style="opacity:.6;">(title_idx ${qidxEl.value} → topic ${parsed.topic_idx})</span></span>`;
         qsaveBtn.disabled = false;
         qsaveBtn.style.opacity = 1;
+        _schedulePreview(safeId, parsed);
       } else if (qfileEl.value.trim() || qidxEl.value.trim()) {
         qpreviewEl.innerHTML = `<span style="color:#d97706;">⚠ Preencha filename e title_idx (≥1).</span>`;
         qsaveBtn.disabled = true;
         qsaveBtn.style.opacity = 0.5;
+        _schedulePreview(safeId, null);
       } else {
         qpreviewEl.innerHTML = '';
         qsaveBtn.disabled = true;
         qsaveBtn.style.opacity = 0.5;
+        _schedulePreview(safeId, null);
       }
     }
     qvolEl.addEventListener('change', updateQuickPreview);
@@ -474,6 +563,9 @@ function _renderRow(it) {
         <div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">
           💡 <code>title_idx</code> é o valor do campo no JSON (1-based: o primeiro tópico é 1). Convertido automaticamente. Use o atalho quando estiver olhando o JSON no editor.
         </div>
+
+        <!-- Preview do tópico alvo: carrega do Storage e mostra título+data+conteúdo -->
+        <div id="pc-tgtpreview-${safeId}"></div>
       </div>
     </div>
   `;

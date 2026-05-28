@@ -188,6 +188,122 @@ function _schedulePreview(safeId, parsed) {
   _previewDebounce.set(safeId, timer);
 }
 
+// ─── Modal de comparação (singleton) ────────────────────────
+function _ensureCompareModal() {
+  let modal = document.getElementById('pc-compare-modal');
+  if (modal) return modal;
+  modal = document.createElement('div');
+  modal.id = 'pc-compare-modal';
+  modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10000; display:none; align-items:center; justify-content:center; padding:24px;';
+  modal.innerHTML = `
+    <div style="background:var(--bg-card); border-radius:10px; width:100%; max-width:1500px; height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.4); overflow:hidden;">
+      <div style="padding:16px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+        <h3 style="margin:0; font-size:1.05rem;">🔍 Comparar citação parcial vs. ensinamento completo</h3>
+        <button id="pc-cmp-close" class="btn-zen" style="font-size:0.85rem;">✕ Fechar</button>
+      </div>
+      <div id="pc-cmp-body" style="flex:1; overflow:hidden; display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border);">
+        <div id="pc-cmp-src" style="background:var(--bg-card); padding:18px 22px; overflow-y:auto;"></div>
+        <div id="pc-cmp-tgt" style="background:var(--bg-card); padding:18px 22px; overflow-y:auto;"></div>
+      </div>
+      <div style="padding:14px 24px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; gap:12px;">
+        <div id="pc-cmp-status" style="font-size:0.82rem; color:var(--text-muted);"></div>
+        <div style="display:flex; gap:8px;">
+          <button id="pc-cmp-cancel" class="btn-zen" style="font-size:0.85rem;">Cancelar</button>
+          <button id="pc-cmp-confirm" class="btn-zen" style="font-size:0.85rem; background:var(--accent-strong); color:white;">✓ Confirmar mapeamento</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) _closeCompareModal(); });
+  document.getElementById('pc-cmp-close').addEventListener('click', _closeCompareModal);
+  document.getElementById('pc-cmp-cancel').addEventListener('click', _closeCompareModal);
+  return modal;
+}
+
+let _compareCtx = null; // { sourceKey, sourceItem, targetParsed }
+
+function _closeCompareModal() {
+  const modal = document.getElementById('pc-compare-modal');
+  if (modal) modal.style.display = 'none';
+  _compareCtx = null;
+}
+
+function _highlightCit(s) {
+  return _escHtml(s).replace(/(一部のみ引用|Citação parcial)/g, '<mark style="background:#fef3c7; padding:1px 3px; border-radius:3px;">$1</mark>');
+}
+
+function _renderCompareSide(el, label, color, vol, file, topicIdx, topic, totalTopics) {
+  if (!topic) {
+    el.innerHTML = `<div style="color:#991b1b;">Tópico não encontrado.</div>`;
+    return;
+  }
+  const titleJa = _stripHtml(topic.title || '');
+  const titlePt = _stripHtml(topic.title_ptbr || topic.title_pt || '');
+  const date = topic.date || '';
+  // Conteúdo completo (não trunca — modal tem scroll)
+  const contentPt = _stripHtml(topic.content_ptbr || topic.content_pt || '');
+  const contentJa = _stripHtml(topic.content || '');
+  el.innerHTML = `
+    <div style="font-size:0.78rem; color:${color}; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px;">${label}</div>
+    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px; font-family:monospace;">${_escHtml(vol)}/${_escHtml(file)} <span style="background:var(--bg-soft); padding:1px 6px; border-radius:3px;">#${topicIdx}</span> · ${topicIdx + 1} de ${totalTopics}</div>
+    ${titleJa ? `<div style="font-family:'Noto Serif JP',serif; font-size:1.08rem; line-height:1.4; margin-bottom:4px;">${_escHtml(titleJa)}</div>` : ''}
+    ${titlePt ? `<div style="font-size:0.92rem; color:var(--text-muted); margin-bottom:4px;">${_escHtml(titlePt)}</div>` : ''}
+    ${date ? `<div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:14px;">${_escHtml(date)}</div>` : ''}
+    ${contentPt ? `<div style="font-size:0.92rem; line-height:1.7; margin-bottom:14px;">${_highlightCit(contentPt)}</div>` : ''}
+    ${contentJa ? `<details style="margin-top:10px;"><summary style="cursor:pointer; font-size:0.82rem; color:var(--text-muted);">Ver original em japonês</summary><div style="font-family:'Noto Serif JP',serif; font-size:0.95rem; line-height:1.7; margin-top:8px;">${_highlightCit(contentJa)}</div></details>` : ''}
+  `;
+}
+
+async function _openCompareModal(sourceItem, targetParsed) {
+  const modal = _ensureCompareModal();
+  modal.style.display = 'flex';
+  const srcEl = document.getElementById('pc-cmp-src');
+  const tgtEl = document.getElementById('pc-cmp-tgt');
+  const statusEl = document.getElementById('pc-cmp-status');
+  const confirmBtn = document.getElementById('pc-cmp-confirm');
+
+  srcEl.innerHTML = '<div style="color:var(--text-muted);">⏳ Carregando…</div>';
+  tgtEl.innerHTML = '<div style="color:var(--text-muted);">⏳ Carregando…</div>';
+  statusEl.textContent = `Mapeando ${sourceItem.vol}/${sourceItem.file}#${sourceItem.topic_idx} → ${targetParsed.vol}/${targetParsed.file}#${targetParsed.topic_idx}`;
+  confirmBtn.disabled = true;
+  confirmBtn.style.opacity = 0.5;
+
+  _compareCtx = { sourceItem, targetParsed };
+
+  const [srcJson, tgtJson] = await Promise.all([
+    _fetchTargetTopic(sourceItem.vol, sourceItem.file),
+    _fetchTargetTopic(targetParsed.vol, targetParsed.file),
+  ]);
+
+  const srcTotal = srcJson ? (srcJson.themes || []).reduce((a, th) => a + (th.topics || []).length, 0) : 0;
+  const tgtTotal = tgtJson ? (tgtJson.themes || []).reduce((a, th) => a + (th.topics || []).length, 0) : 0;
+  const srcTopic = _topicAtIdx(srcJson, sourceItem.topic_idx);
+  const tgtTopic = _topicAtIdx(tgtJson, targetParsed.topic_idx);
+
+  _renderCompareSide(srcEl, '📌 Citação parcial (origem)', '#92400e', sourceItem.vol, sourceItem.file, sourceItem.topic_idx, srcTopic, srcTotal);
+  _renderCompareSide(tgtEl, '📖 Ensinamento completo (alvo)', '#065f46', targetParsed.vol, targetParsed.file, targetParsed.topic_idx, tgtTopic, tgtTotal);
+
+  if (srcTopic && tgtTopic) {
+    confirmBtn.disabled = false;
+    confirmBtn.style.opacity = 1;
+    confirmBtn.onclick = () => {
+      const key = _key(sourceItem);
+      _pendingEdits[key] = {
+        ...targetParsed,
+        added_at: new Date().toISOString(),
+        added_by: _myEmail || 'unknown',
+      };
+      _savePendingEdits();
+      _closeCompareModal();
+      _renderShell();
+      _renderList();
+    };
+  } else {
+    statusEl.innerHTML = `<span style="color:#991b1b;">Não foi possível carregar ${!srcTopic ? 'origem' : 'alvo'}.</span>`;
+  }
+}
+
 // ─── Storage I/O ────────────────────────────────────────────
 async function _loadIndex() {
   // 1) tenta Storage (deploy ativo)
@@ -349,22 +465,24 @@ function _renderList() {
     const clearBtn = form.querySelector(`#pc-clear-${safeId}`);
     const previewEl = form.querySelector(`#pc-preview-${safeId}`);
 
+    const compareBtn = form.querySelector(`#pc-compare-${safeId}`);
+
     function updatePreview() {
       const parsed = _parseReaderUrl(urlInput.value);
+      const enable = !!parsed;
+      saveBtn.disabled = !enable;
+      saveBtn.style.opacity = enable ? 1 : 0.5;
+      compareBtn.disabled = !enable;
+      compareBtn.style.opacity = enable ? 1 : 0.5;
       if (parsed) {
         previewEl.innerHTML = `<span style="color:var(--accent-strong);">✓ ${_escHtml(parsed.vol)} / ${_escHtml(parsed.file)} #${parsed.topic_idx}</span>`;
-        saveBtn.disabled = false;
-        saveBtn.style.opacity = 1;
         _schedulePreview(safeId, parsed);
+        compareBtn.onclick = () => _openCompareModal(it, parsed);
       } else if (urlInput.value.trim()) {
         previewEl.innerHTML = `<span style="color:#d97706;">⚠ Não foi possível parsear. Formato esperado: reader.html?vol=X&amp;file=Y&amp;topic=N</span>`;
-        saveBtn.disabled = true;
-        saveBtn.style.opacity = 0.5;
         _schedulePreview(safeId, null);
       } else {
         previewEl.innerHTML = '';
-        saveBtn.disabled = true;
-        saveBtn.style.opacity = 0.5;
         _schedulePreview(safeId, null);
       }
     }
@@ -392,22 +510,24 @@ function _renderList() {
     const qsaveBtn = form.querySelector(`#pc-qsave-${safeId}`);
     const qpreviewEl = form.querySelector(`#pc-qpreview-${safeId}`);
 
+    const qcompareBtn = form.querySelector(`#pc-qcompare-${safeId}`);
+
     function updateQuickPreview() {
       const parsed = _parseQuickInput(qvolEl.value, qfileEl.value, qidxEl.value);
+      const enable = !!parsed;
+      qsaveBtn.disabled = !enable;
+      qsaveBtn.style.opacity = enable ? 1 : 0.5;
+      qcompareBtn.disabled = !enable;
+      qcompareBtn.style.opacity = enable ? 1 : 0.5;
       if (parsed) {
         qpreviewEl.innerHTML = `<span style="color:var(--accent-strong);">✓ ${_escHtml(parsed.vol)} / ${_escHtml(parsed.file)} #${parsed.topic_idx} <span style="opacity:.6;">(title_idx ${qidxEl.value} → topic ${parsed.topic_idx})</span></span>`;
-        qsaveBtn.disabled = false;
-        qsaveBtn.style.opacity = 1;
         _schedulePreview(safeId, parsed);
+        qcompareBtn.onclick = () => _openCompareModal(it, parsed);
       } else if (qfileEl.value.trim() || qidxEl.value.trim()) {
         qpreviewEl.innerHTML = `<span style="color:#d97706;">⚠ Preencha filename e title_idx (≥1).</span>`;
-        qsaveBtn.disabled = true;
-        qsaveBtn.style.opacity = 0.5;
         _schedulePreview(safeId, null);
       } else {
         qpreviewEl.innerHTML = '';
-        qsaveBtn.disabled = true;
-        qsaveBtn.style.opacity = 0.5;
         _schedulePreview(safeId, null);
       }
     }
@@ -536,6 +656,7 @@ function _renderRow(it) {
           <input type="text" id="pc-url-${safeId}"
                  placeholder="reader.html?vol=mioshiec3&file=puraguma.html&topic=0"
                  style="flex:1; padding:7px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg-soft); color:var(--text-main); font-size:0.85rem; font-family:monospace;">
+          <button id="pc-compare-${safeId}" class="btn-zen" disabled style="opacity:.5; font-size:0.84rem;" title="Abrir modal de comparação side-by-side">🔍 Comparar</button>
           <button id="pc-save-${safeId}" class="btn-zen" disabled style="opacity:.5; font-size:0.84rem;">Salvar</button>
           ${link ? `<button id="pc-clear-${safeId}" class="btn-zen" style="font-size:0.84rem; color:#991b1b;">Remover</button>` : ''}
         </div>
@@ -557,6 +678,7 @@ function _renderRow(it) {
           <label style="font-size:0.78rem; color:var(--text-muted);">title_idx:</label>
           <input type="number" id="pc-qidx-${safeId}" min="1" placeholder="2"
                  style="width:70px; padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--bg-soft); color:var(--text-main); font-size:0.82rem; font-family:monospace;">
+          <button id="pc-qcompare-${safeId}" class="btn-zen" disabled style="opacity:.5; font-size:0.82rem;" title="Abrir modal de comparação side-by-side">🔍 Comparar</button>
           <button id="pc-qsave-${safeId}" class="btn-zen" disabled style="opacity:.5; font-size:0.82rem;">Salvar</button>
         </div>
         <div id="pc-qpreview-${safeId}" style="font-size:0.78rem; margin-top:6px; min-height:18px;"></div>

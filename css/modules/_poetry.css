@@ -588,7 +588,8 @@
 .poetry-main > .poetry-loading,
 .poetry-main #akimaroList,
 .poetry-main #yamaList,
-.poetry-main #waraiList {
+.poetry-main #waraiList,
+.poetry-main #poetryList {
   max-width: 1180px;
   margin-left: auto;
   margin-right: auto;

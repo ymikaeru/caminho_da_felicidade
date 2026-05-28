@@ -503,15 +503,52 @@ async function _runJpSearch() {
   });
 }
 
-function _openJpSearchModal(ctx) {
+async function _openJpSearchModal(ctx) {
   _jpSearchCtx = ctx;
   const modal = _ensureJpSearchModal();
   modal.style.display = 'flex';
   const qEl = document.getElementById('pc-jp-q');
+  const resultsEl = document.getElementById('pc-jp-results');
+  const statusEl = document.getElementById('pc-jp-status');
   qEl.value = '';
-  document.getElementById('pc-jp-results').innerHTML = `<div style="padding:32px; text-align:center; color:var(--text-muted); font-size:0.9rem;">Digite um trecho japonês pra começar.<br><span style="font-size:.82rem; opacity:.7;">Resultado clicado preenche os campos do atalho automaticamente.</span></div>`;
-  document.getElementById('pc-jp-status').textContent = '';
-  setTimeout(() => qEl.focus(), 50);
+  resultsEl.innerHTML = '';
+  statusEl.textContent = '';
+
+  // Tenta extrair automaticamente o trecho após "(一部のみ引用)" da
+  // citação parcial pra economizar copia-cola do user. Usa primeiro o
+  // content_preview_ja do índice; se não rolar, busca o JSON completo
+  // no Storage pra ter o conteúdo integral.
+  let autoQuery = '';
+  if (ctx?.sourceItem) {
+    const previewJa = ctx.sourceItem.content_preview_ja || '';
+    let excerpt = _extractCitationExcerpt(previewJa);
+    if (!excerpt || excerpt.length < 10) {
+      // Preview não cobriu — pega do JSON completo
+      statusEl.textContent = '⏳ Carregando trecho da citação…';
+      try {
+        const srcJson = await _fetchTargetTopic(ctx.sourceItem.vol, ctx.sourceItem.file);
+        const srcTopic = _topicAtIdx(srcJson, ctx.sourceItem.topic_idx);
+        if (srcTopic) {
+          const fullContent = _stripHtml(srcTopic.content || '');
+          excerpt = _extractCitationExcerpt(fullContent);
+        }
+      } catch (_) {}
+    }
+    if (excerpt && excerpt.length >= 6) {
+      // Primeiros ~40 chars sem espaços = anchor único o suficiente
+      // pra reduzir resultados sem perder hits válidos.
+      autoQuery = excerpt.replace(/\s+/g, '').slice(0, 40);
+    }
+  }
+
+  if (autoQuery) {
+    qEl.value = autoQuery;
+    statusEl.innerHTML = `<span style="color:var(--accent);">✨ Auto-preenchido com trecho da citação. Editando o campo refaz a busca.</span>`;
+    setTimeout(() => { _runJpSearch(); qEl.select(); }, 50);
+  } else {
+    resultsEl.innerHTML = `<div style="padding:32px; text-align:center; color:var(--text-muted); font-size:0.9rem;">Digite um trecho japonês pra começar.<br><span style="font-size:.82rem; opacity:.7;">Resultado clicado preenche os campos do atalho automaticamente.</span></div>`;
+    setTimeout(() => qEl.focus(), 50);
+  }
 }
 
 async function _openCompareModal(sourceItem, targetParsed) {

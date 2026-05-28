@@ -1,0 +1,3822 @@
+{
+  "source_file": "御讃歌集（改訂版）.md",
+  "edition": {
+    "title_jp": "御讃歌集（改訂版）",
+    "title_pt": "Coletânea de Cantos Sagrados (Edição Revisada)",
+    "publication_date_jp": "昭和26年5月28日 / 昭和29年10月25日",
+    "publication_date_pt": "28 de maio de 1951 / 25 de outubro de 1954",
+    "total_declared": 462
+  },
+  "preface": {
+    "title_jp": "はしがき",
+    "content_jp": [
+      "御讃歌集（改訂版）　昭和２６年５月２８日～　　４６２首収録",
+      "はしがき",
+      "この讃歌集は、昭和二十三年八月出版したものを、今回改訂版として、新たに編集したものである。というのは、以前のは日本観音会当時著作したものであるか ら、世界救世教となった今日では適切でない歌も多々あり、又以前の時は急いだ為、意に充たない点もあったので、今度は充分意を注いで、念入りに作ったもの であるから、面目一新した訳である。",
+      "日本には古くから、独特の文芸として和歌があった。この和歌なるものは、不思議な力をもっていて、千言万語でも言い表わせない事を、僅か三十一文字で、 よくその意を表現する事が出来、予想外に人を動かす力がある。それらによって私は、時折詠んだ感想歌、道歌、神歌、抒情歌、叙景歌等の中から、自選集録し て出来たのがこの著である。私は専門的歌人ではないから、巧拙などは余り意とせず、あるがままの、自然に感じたものを詠んだのであるが、ただ意を用いた点 は、誰でも判り易い事、品位の高い事、言霊の妙を発揮した事等で、これを朝夕奉唱する事によって、自然によい影響を受け、信仰の深まるのは言う迄もない。",
+      "昭和二十六年五月",
+      "著　者　識",
+      "※　*は初版掲載のお歌に修正を加えたもの。**は初版掲載の御歌の再録です。",
+      "※　版により表記に細かな修正が加えられているので、ここでは昭和29年10月25日版を最終版として収録しました。〔　〕内は昭和26年版の表記です。"
+    ],
+    "content_pt": []
+  },
+  "sections": [
+    {
+      "title_jp": "五六七大神",
+      "title_furigana": "みろくおおかみ",
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 1,
+          "original": "火水土　三位一体の御力を　具へて出でます五六七大神",
+          "reading_hira": "ひみずつち　さんみいったいのみちからを　そなえていでますみろくおおかみ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 2,
+          "original": "地上天国　打樹てむとて大いなる　力揮はす五六七大神",
+          "reading_hira": "ちじょうてんごく　うちたてんとておおいなる　ちからふるわすみろくおおかみ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 3,
+          "original": "盗人の　来つるが如く窃やかに　下生しましぬ五六七大神",
+          "reading_hira": "ぬすびとの　きつるがごとくひそやかに　げしょうしましぬみろくおおかみ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 4,
+          "original": "万人の　再臨待ちしキリストも　メシヤも弥勒も同じ神なる",
+          "reading_hira": "ばんにんの　さいりんまちしきりすとも　めしやもみろくもおなじかみなる",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 5,
+          "original": "いと高き 御位を後に御救いの 為に弥勒は下生まし〔下生し〕ませり",
+          "reading_hira": "いとたかき　みくらをあとにみすくいの　ためにみろくはげしょうまし〔げしょうし〕ませり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 6,
+          "original": "例しなき　神の力に依らずして　など救はめや此現世を",
+          "reading_hira": "ためしなき　かみのちからによらずして　などすくはめやこのうつしよを",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 7,
+          "original": "千早振　神の御光射し初めて　塵も芥も消ゆる嬉しさ",
+          "reading_hira": "ちはやぶる　かみのみひかりさしそめて　ちりもあくたもきゆるうれしさ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 8,
+          "original": "幾千年　積りつもりし塵芥　祓ひ浄めよ四柱の神",
+          "reading_hira": "いくちとせ　つもりつもりしちりあくた　はらいきよめよよはしらのかみ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 9,
+          "original": "火と水の　大洗霊に打浄め　地上天国樹つる時来ぬ",
+          "reading_hira": "ひとみずの　だいせんれいにうちきよめ　ちじょうてんごくたつるとききぬ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 10,
+          "original": "地上天国　打樹つるまでのいと深き　仕組にありぬ長き歴史は",
+          "reading_hira": "ちじょうてんごく　うちたつるまでのいとふかき　しぐみにありぬながきれきしは",
+          "marker": "**",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "伊都能売神",
+      "title_furigana": "いづのめのかみ",
+      "count_declared": 9,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 11,
+          "original": "久方の 天之〔の〕真名〔奈〕井の八洲河原 誓約にあれし八人男女神",
+          "reading_hira": "ひさかたの　あめのまないのやすがはら　うけひにあれしやたりおめがみ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 12,
+          "original": "八人男女　唯一柱の神御霊と　成らせ此土に伊都能売神",
+          "reading_hira": "やたりおとめ　ただひとはしらのかむみたまと　ならせこのどにいずのめのかみ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 13,
+          "original": "天翔り　国馳り金剛の　御力揮ふ伊都能売金龍",
+          "reading_hira": "あまかけり　くにかけりこんごうの　みちからふるういずのめきんりゅう",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 14,
+          "original": "仏界に　光明如来と生れ給ひ　救はせ給ひし伊都能売神",
+          "reading_hira": "ぶっかいに　こうみょうにょらいとあれたまい　すくわせたまいしいずのめのかみ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 15,
+          "original": "長き世を　化仏に救ひ給ひしは　大慈大悲にあればなりけり",
+          "reading_hira": "ながきよを　けぶつにすくいたまいしは　だいじだいひにあればなりけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 16,
+          "original": "五は火にて　三は水なり五と三　結びてなるぞ伊都能売神",
+          "reading_hira": "ごはひにて　さんはみずなりいずとみず　むすびてなるぞいずのめのかみ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 17,
+          "original": "五は男　三は女の性をいふ　経緯陰陽の意味にぞありける",
+          "reading_hira": "ごはおのこ　さんはおみなのさがをいう　たてよこいんようのいみにぞありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 18,
+          "original": "男にも　非ず女にも亦あらぬ　観音こそは伊都能売神",
+          "reading_hira": "おのこにも　あらずおみなにもまたあらぬ　かんのんこそはいずのめのかみ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 19,
+          "original": "自由無碍の　御力揮ふ観音は　十の御霊にあればなりけり",
+          "reading_hira": "じゆうむげの　みちからふるうかんのんは　じゅうのみたまにあればなりけり",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "光明世界",
+      "title_furigana": "こうみょうせかい",
+      "count_declared": 9,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 20,
+          "original": "夜の教　夜の文化は済みにけり　光明世界の来たらんとして",
+          "reading_hira": "よるのおしえ　よるのぶんかはすみにけり　こうみょうせかいのきたらんとして",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 21,
+          "original": "幾千歳　　あくがれ待ちし光明の　輝く御代は今来つるなり",
+          "reading_hira": "いくちとせ　あくがれまちしこうみょうの　かがやくみよはいまきつるなり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 22,
+          "original": "冬の夜は　はや過ぎ去りて花笑ひ　百鳥歌ふ春は来ぬめり",
+          "reading_hira": "ふゆのよは　はやすぎさりてはなわらい　ももとりうたうはるはきぬめり",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 23,
+          "original": "闇のなき　御代に悩みのあるべしや　曲の障やらむ隙のなければ",
+          "reading_hira": "やみのなき　みよになやみのあるべしや　まがのさやらむすきのなければ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 24,
+          "original": "仇雲は　遠退きにけり久方の　御空に照らふ大き日の光",
+          "reading_hira": "あだぐもは　とおのきにけりひさかたの　みそらにてらうおおきひのかげ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 25,
+          "original": "大神の　造り給ひし天地の　闇にいつまで閉ざさるべしやは",
+          "reading_hira": "おおかみの　つくりたまいしあめつちの　やみにいつまでとざさるべしやは",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 26,
+          "original": "諸人の　心の岩戸開くれば　此世の闇は消ゆるなるらむ",
+          "reading_hira": "もろびとの　こころのいわとひらくれば　このよのやみはきゆるなるらむ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 27,
+          "original": "烏羽玉の　夜の終りとなりにけり　はや東にあかときの鐘",
+          "reading_hira": "うばたまの　よるのおわりとなりにけり　はやひんがしにあかときのかね",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 28,
+          "original": "大光明　世界といふは曇りなき　水晶世界の状をいふなり",
+          "reading_hira": "だいこうみょう　せかいというはくもりなき　すいしょうせかいのさまをいうなり",
+          "marker": "**",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "黎明",
+      "title_furigana": "れいめい",
+      "count_declared": 11,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 29,
+          "original": "ほのぼのと　世の黎明は来つるなり　東のはてに眼とどめそ",
+          "reading_hira": "ほのぼのと　よのれいめいはきつるなり　ひ〔む〕がしのはてにまなことどめそ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 30,
+          "original": "軒先の　雀の声も勇ましし　朝日子の光射し初めてより",
+          "reading_hira": "のきさきの　すずめのこえもいさましし　あさひこのかげさしそめてより",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 31,
+          "original": "明烏　啼く音に見れば空紅く　染めて輝よふ朝日子の光",
+          "reading_hira": "あけがらす　なくねにみればそらあかく　そめてかがようあさひこのかげ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 32,
+          "original": "ほのぼのと　東の空明るみて　黎明告ぐる家鶏鳥の声",
+          "reading_hira": "ほのぼのと　ひんがしのそらあかるみて　れいめいつぐるかけどりのこえ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 33,
+          "original": "はや已に　常暗の夜のすぎけるを　知らで迷える小羊の群",
+          "reading_hira": "はやすでに　とこやみのよのすぎけるを　しらでまよえるこひつじのむれ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 34,
+          "original": "月の夜の　小暗き蔭に諸々の　罪や穢の生るるぞ詮なし",
+          "reading_hira": "つきのよの　おぐらきかげにもろもろの　つみやけがれのあるるぞせんなし",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 35,
+          "original": "真昼間の　明るき御代に如何にして　隠事などよもあらめやは",
+          "reading_hira": "まひるまの　あかるきみよにいかにして　かくしごとなどよもあらめやは",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 36,
+          "original": "邪や　隠事など絶えぬ世は　常暗のまだ残ればなりけり",
+          "reading_hira": "よこしまや　かくしごとなどたえぬよは　とこやみのまだのこればなりけり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 37,
+          "original": "夜の暗に　馴れし諸人心せよ　真陽の光に眼くらまん",
+          "reading_hira": "よるのやみに　なれしもろびとこころせよ　まひのひかりにまなこくらまむ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 38,
+          "original": "暗かりし　心の空も宛らに　真昼の如く晴れし嬉しさ",
+          "reading_hira": "くらかりし　こころのそらもさながらに　まひるのごとくはれしうれしさ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 39,
+          "original": "黎明に　気づく人こそ真なる　眼をもてる徴しなりける",
+          "reading_hira": "れいめいに　きづくひとこそまことなる　まなこをもてるしるしなりける",
+          "marker": "**",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "吾救はれぬ",
+      "title_furigana": "われすくわれぬ",
+      "count_declared": 11,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 40,
+          "original": "命さへ　危ふき程の病きも　癒えて恵みに浸る嬉しさ",
+          "reading_hira": "いのちさえ　あやうきほどのいたつきも　いえてめぐみにひたるうれしさ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 41,
+          "original": "我生命　蘇へるさへ嬉しきに　医しの業まで許されにける",
+          "reading_hira": "わがいのち　よみがえるさえうれしきに　いやしのわざまでゆるされにける",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 42,
+          "original": "病きの　癒されたりし嬉しさよ　生命に代へる宝なければ",
+          "reading_hira": "いたつきの　いやされたりしうれしさよ　いのちにかえるたからなければ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 43,
+          "original": "生命程　尊きものは世にあらじ　ひたに縋りて齢延ばさむ",
+          "reading_hira": "いのちほど　とうときものはよにあらじ　ひたにすがりてよわいのばさむ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 44,
+          "original": "御恵に　酬ひ奉らでおくべきや　生きし此身の幸を思えば",
+          "reading_hira": "みめぐみに　むくいまつらでおくべきや　いきしこのみのさちをおもえば",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 45,
+          "original": "罪深き　此身も尤め給はずて　大いなる幸豊に恵まふ",
+          "reading_hira": "つみふかき　このみもとがめたまわずて　おおいなるさちゆたにめぐもう",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 46,
+          "original": "讃へても　祢へつくせぬ御恵に　酬はむ術のなきぞ悲しき",
+          "reading_hira": "たたえても　たたえつくせぬみめぐみに　むくわんすべのなきぞかなしき",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 47,
+          "original": "御恵の　万分一に届かねど　誠のしるし受けさせ給へ",
+          "reading_hira": "みめぐみの　まんぶんいちにとどかねど　まことのしるしうけさせたまえ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 48,
+          "original": "村肝の　命賜し御恵を　打忘れなば獣に等しき",
+          "reading_hira": "むらきもの　いのちたまいしみめぐみを　うちわすれなばけものにひとしき",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 49,
+          "original": "千億の　富にもまして嬉しきは　恙なみける身にしあるなり",
+          "reading_hira": "せんおくの　とみにもましてうれしきは　つつがなみけるみにしあるなり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 50,
+          "original": "大前に　額く毎に涙しぬ　救はれたりし此身思へば",
+          "reading_hira": "おおまえに　ぬかづくごとになみだしぬ　すくわれたりしこのみおもえば",
+          "marker": "**",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "感謝報恩",
+      "title_furigana": "かんしゃほうおん",
+      "count_declared": 9,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 51,
+          "original": "恙なく　只在るさへもおほけなきに　救ひの道に入りし嬉しさ",
+          "reading_hira": "つつがなく　ただあるさえもおおけなきに　すくいのみちにいりしうれしさ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 52,
+          "original": "讃へても　称へ尽くせぬ大御幸　筆も言葉も表はす由なき",
+          "reading_hira": "たたえても　たたえつくせぬおおみさち　ふでもことばもあらわすよしなき",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 53,
+          "original": "世を呪い　人を恨みし其頃の　心の曇りは消えて跡なき",
+          "reading_hira": "よをのろい　ひとをうらみしそのころの　こころのくもりはきえてあとなき",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 54,
+          "original": "垂乳根の　父母なくば現世に　此身此魂あらじとぞ思ふ",
+          "reading_hira": "たらちねの　ちちははなくばうつしよに　このみこのたまあらじとぞおもう",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 55,
+          "original": "同胞と　睦み合ふ身となりにける　神の御光蒙ぶりてより",
+          "reading_hira": "はらからと　むつみあうみとなりにける　かみのみひかりかかぶりてより",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 56,
+          "original": "人の身の　尊き訳は諸の恩　心に刻みて忘れねばなり",
+          "reading_hira": "ひとのみの　とうときわけはもものおん　こころにきざみてわすれねばなり",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 57,
+          "original": "救はれし　幸を思へば身をつくし　心砕きて酬はでおかめや",
+          "reading_hira": "すくわれし　さちをおもえばみをつくし　こころくだきてむくわでおかめや",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 58,
+          "original": "磯の辺の　真砂に等しき身にしあれど　受けさせ給へ誠のしるしを",
+          "reading_hira": "いそのべの　まさごにひとしきみにしあれど　うけさせたまえまことのしるしを",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 59,
+          "original": "力なき　身にしあれども道の為　尽くさせ給へ伊都能売神",
+          "reading_hira": "ちからなき　みにしあれどもみちのため　つくさせたまえいずのめのかみ",
+          "marker": "*",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "人の道",
+      "title_furigana": "ひとのみち",
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 60,
+          "original": "道の為　世の為人の為のみを　非時思ふ人ぞ尊き",
+          "reading_hira": "みちのため　よのためひとのためのみを　ときじくおもうひとぞとうとき",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 61,
+          "original": "およそ世に　強きは己を打忘れ　正しき道を貫く人なり",
+          "reading_hira": "およそよに　つよきはおのれをうちわすれ　ただしきみちをつらぬくひとなり",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 62,
+          "original": "さもしきは　己が手柄を諸人に　示さむとする心にぞある",
+          "reading_hira": "さもしきは　おのがてがらをもろびとに　しめさんとするこころにぞある",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 63,
+          "original": "私心なく　正しき道を守りなば　大御恵を豊に享くなり",
+          "reading_hira": "ししんなく　ただしきみちをまもりなば　おおみめぐみをゆたにうくなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 64,
+          "original": "床しけれ　我身の事をあとにして　人のよかれと願ふ心の",
+          "reading_hira": "ゆかしけれ　わがみのことをあとにして　ひとのよかれとねがうこころの",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 65,
+          "original": "何事も　程の一字を守りなば　容易すかるべき此世なりけり",
+          "reading_hira": "なにごとも　ほどのいちじをまもりなば　たやすかるべきこのよなりけり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 66,
+          "original": "曲人は　弱きものなり諸々の　罪に打克つ力なければ",
+          "reading_hira": "まがびとは　よわきものなりもろもろの　つみにうちかつちからなければ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 67,
+          "original": "高き低きの　差別をつけず懇ろに　教ゆ人こそ御旨に叶はむ",
+          "reading_hira": "たかきひくきの　けじめをつけずねもごろに　おしゆひとこそみむねにかなわん",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 68,
+          "original": "人の目を　盗むは已に人の物　盗むと同じ事にぞありける",
+          "reading_hira": "ひとのめを　ぬすむはすでにひとのもの　ぬすむとおなじことにぞありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 69,
+          "original": "如何ならむ　事も堪へてさりげなく　微笑みあしらふ人となれかし",
+          "reading_hira": "いかならん　こともこらえてさりげなく　ほほえみあしらうひととなれかし",
+          "marker": "*",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "病なき世界",
+      "title_furigana": "やまいなきせかい",
+      "count_declared": 8,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 70,
+          "original": "病む人の　無き世を樹てむと救世の　神は御力揮はせ給ふ",
+          "reading_hira": "やむひとの　なきよたてんときゅうせいの　かみはみちからふるわせたもう",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 71,
+          "original": "石の上　古き神代は諸人の　寿百を越えしとぞ言ふ",
+          "reading_hira": "いそのかみ　ふるきかみよはもろびとの　ことぶきひゃくをこえしとぞいう",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 72,
+          "original": "人の齢　百を越へたる古き世は　薬といふものあらざりしなり",
+          "reading_hira": "ひとのよわい　ひゃくをこえたるふるきよは　くすりといふものあらざりしなり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 73,
+          "original": "健やかに　人生かしゆく業にこそ　神の力のありやかに見ゆも",
+          "reading_hira": "すこやかに　ひといかしゆくわざにこそ　かみのちからのありやかにみゆも",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 74,
+          "original": "病など　あるべき筈はよもあらじ　誠の道を履む人にして",
+          "reading_hira": "やまいなど　あるべきはずはよもあらじ　まことのみちをふむひとにして",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 75,
+          "original": "病きを　怖るな積りし罪穢　浄むる神の恵なりせば",
+          "reading_hira": "いたつきを　おそるなつもりしつみけがれ　きよむるかみのめぐみなりせば",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 76,
+          "original": "病きの　因知らずして病きを　治さむとする人の愚かさ",
+          "reading_hira": "いたつきの　もとしらずしていたつきを　なおさんとするひとのおろかさ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 77,
+          "original": "病きは　人造るもの健康は　神造るものと知れよ世人はも",
+          "reading_hira": "いたつきは　ひとつくるものけんこうは　かみつくるものとしれよよびとはも",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "神の御心",
+      "title_furigana": "かみのみこころ",
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 78,
+          "original": "奇びなり　嗚呼〔噫〕奇びなり願事の　正しかりせば叶へますなり",
+          "reading_hira": "くしびなり　ああくしびなりねぎごとの　ただしかりせばかなえますなり",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 79,
+          "original": "世を救ふ　時の力は惟神　神の御旨にありとこそ知れ",
+          "reading_hira": "よをすくう　ときのちからはかむながら　かみのみむねにありとこそしれ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 80,
+          "original": "人の眼に　善しとし映る事とても　神の御旨に適はぬ事あり",
+          "reading_hira": "ひとのめに　よしとしうつることとても　かみのみむねにかなわぬことあり",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 81,
+          "original": "春ぬ野に　遊ぶが如く心楽し　神の霊衣に包まるる身の",
+          "reading_hira": "はるぬのに　あそぶがごとくうらたのし　かみのれいいにつつまるるみの",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 82,
+          "original": "如何ならむ　罪も赦させ如何ならむ　罪も尤むる天地の神",
+          "reading_hira": "いかならん　つみもゆるさせいかならん　つみもとがむるあめつちのかみ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 83,
+          "original": "垂乳根の　子を憶ふ如億兆を　愛まふ神の御心畏し",
+          "reading_hira": "たらちねの　こをおもうごとおくちょうを　めぐもうかみのみこころかしこし",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 84,
+          "original": "大空の　広きを仰ぎて憶ふかな　限りもしらぬ大御心を",
+          "reading_hira": "おおぞらの　ひろきをあおぎておもうかな　かぎりもしらぬおおみこころを",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 85,
+          "original": "神は　愛なり力なれば　神を離れて安んじ得べきや",
+          "reading_hira": "かみは　あいなりちからなれば　かみをはなれてやすんじうべきや",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 86,
+          "original": "神の愛　心の底より知りてより　寂しさ知らぬ吾となりける",
+          "reading_hira": "かみのあい　こころのそこよりしりてより　さびしさしらぬわれとなりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 87,
+          "original": "和田の原　底ひも知れぬいと深き　恵みに鬼も涙するらむ",
+          "reading_hira": "わだのはら　そこいもしれぬいとふかき　めぐみにおにもなみだするらむ",
+          "marker": "*",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "神業",
+      "title_furigana": "かむわざ",
+      "count_declared": 7,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 88,
+          "original": "キリストも　釈迦も讃へむ大いなる　我神業を天国に居まして",
+          "reading_hira": "きりすとも　しゃかもたたえんおおいなる　わがかむわざをてんごくにいまして",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 89,
+          "original": "奇びなる　此神業に比ぶもの　ひろき現世にあらじとぞ思ふ",
+          "reading_hira": "くしびなる　このかむわざにくらぶもの　ひろきうつしよにあらじとぞおもう",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 90,
+          "original": "刈菰の　乱れたる世を打切りて　正しき御代を打樹つるなり",
+          "reading_hira": "かりこもの　みだれたるよをうちきりて　ただしきみよをうちたつるなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 91,
+          "original": "小やかな　人の智慧もて大いなる　救世の御業の解らざらめやは",
+          "reading_hira": "ささやかな　ひとのちえもておおいなる　ぐせのみわざのわからざらめやは",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 92,
+          "original": "奇びなる　我神業は古へゆ　書にも見へず言伝へにもなき",
+          "reading_hira": "くしびなる　わがかむわざはいにしえゆ　ふみにもみえずいいつたえにもなき",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 93,
+          "original": "大神の　御業といへど人の身を　通じて世人救ふにありける",
+          "reading_hira": "おおかみの　みわざといえどひとのみを　つうじてよびとすくうにありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 94,
+          "original": "久方の　天より降る救世の　神の御業の尊かりける",
+          "reading_hira": "ひさかたの　あめよりくだるきゅうせいの　かみのみわざのとうとかりける",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "病",
+      "title_furigana": "やまい",
+      "count_declared": 9,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 95,
+          "original": "病とは　身魂浄むるものなれば　此上なき神の恵みなりけり",
+          "reading_hira": "やまいとは　みたまきよむるものなれば　こよなきかみのめぐみなりけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 96,
+          "original": "健やかに　神が造りし人の身を　病き造る罪大いなり",
+          "reading_hira": "すこやかに　かみがつくりしひとのみを　いたつきつくるつみおおいなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 97,
+          "original": "人の身は　神が造りしものにして　人の造りしものにはあらじ",
+          "reading_hira": "ひとのみは　かみがつくりしものにして　ひとのつくりしものにはあらじ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 98,
+          "original": "病きの　因は薬にあるを知らす　救ひの業の難しきかも",
+          "reading_hira": "いたつきの　もとはくすしにあるをしらす　すくいのわざのむつかしきかも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 99,
+          "original": "病きを　悲しむ人ぞ哀れなり　いと喜ばむ事にしありせば",
+          "reading_hira": "いたつきを　かなしむひとぞあわれなり　いとよろこばんことにしありせば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 100,
+          "original": "高殿に　錦纏うも病きに　悶え〔へ〕る人ぞいと哀れなる",
+          "reading_hira": "たかどのに　にしきまとうもいたつきに　もだえるひとぞいとあわれなる",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 101,
+          "original": "病きの　癒え〔へ〕し喜びにいやまして　尊き御霊斎く嬉しさ",
+          "reading_hira": "いたつきの　いえしよろこびいやまして　とうときみたまいつくうれしさ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 102,
+          "original": "おほけなくも　神の僕に選ばれし　幸も病きが縁なりけり",
+          "reading_hira": "おおけなくも　かみのしもべにえらばれし　さちもいたつきがえにしなりけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 103,
+          "original": "賜はりし　尊き生命今日よりは　力限りに神に仕へむ",
+          "reading_hira": "たまわりし　とうときいのちきょうよりは　ちからかぎりにかみにつかえん",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "斎き奉りて",
+      "title_furigana": "いつきまつりて",
+      "count_declared": 9,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 104,
+          "original": "光明如来　斎き奉りて畏くも　吾家ぬちは明るみにけり",
+          "reading_hira": "こうみょうにょらい　いつきまつりてかしこくも　わがいえぬちはあかるみにけり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 105,
+          "original": "今日よりは　諸の災ひ消え〔へ〕ぬらむ　光明如来斎き奉りて",
+          "reading_hira": "きょうよりは　もものわざわいきえぬらむ　こうみょうにょらいいつきまつりて",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 106,
+          "original": "霊の世に　未だ彷へる家族等の　神の光に救はれし今日",
+          "reading_hira": "たまのよに　いまださまよえるうかららの　かみのひかりにすくわれしきょう",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 107,
+          "original": "神に祈る　吾となりけり霊の世の　うからやからも共喜ばむ",
+          "reading_hira": "かみにいのる　われとなりけりたまのよの　うからやからもむだよろこばん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 108,
+          "original": "御祭りの　今日の嬉しさ身も魂も　天国楽土に遊ぶ思ひすも",
+          "reading_hira": "みまつりの　きょうのうれしさみもたまも　てんごくらくどにあそぶおもいすも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 109,
+          "original": "大前に　額き拝がむ心こそ　岩戸開けし徴しなるらむ",
+          "reading_hira": "おおまえに　ぬかづきおろがむこころこそ　いわとひらけししるしなるらん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 110,
+          "original": "有難し　嗚呼〔噫〕有難し行手には　光明輝く道見ゆるなり",
+          "reading_hira": "ありがたし　ああありがたしゆくてには　こうみょうかがやくみちみゆるなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 111,
+          "original": "身も魂も　神の光に浄められ　天国に住む吾となりける",
+          "reading_hira": "みもたまも　かみのひかりにきよめられ　てんごくにすむわれとなりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 112,
+          "original": "天国を　此土に造る大神業の　僕となりし今日の嬉しさ",
+          "reading_hira": "てんごくを　このどにつくるおおみわざの　しもべとなりしきょうのうれしさ",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "神を讃へる",
+      "title_furigana": "かみをたたえる",
+      "count_declared": 9,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 113,
+          "original": "世の人の　幾歳憧れ待ちしらむ　救ひの神は現れましにけり",
+          "reading_hira": "よのひとの　いくとせあくがれまちしらむ　すくいのかみはあれましにけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 114,
+          "original": "現世の　生きとし生けるもの悉は　神の恵みに漏るるはあらじな",
+          "reading_hira": "うつしよの　いきとしいけるものみなは　かみのめぐみにもるるはあらじな",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 115,
+          "original": "世の人を　救ふ力は理にあらず　見えざる神の恵にぞあらむ",
+          "reading_hira": "よのひとを　すくうちからはりにあらず　みえざるかみのめぐみにぞあらん",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 116,
+          "original": "神を力に　誠の杖もて進む身は　世に怖るものなきを知りけり",
+          "reading_hira": "かみをちからに　まことのつえもてすすむみは　よにおそるものなきをしりけり",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 117,
+          "original": "世の穢れ　浄めて諸の狂ひ矯め　正しき御代を樹つる神業",
+          "reading_hira": "よのけがれ　きよめてもものくるいため　ただしきみよをたつるかむわざ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 118,
+          "original": "人の世は　早すみにけり待ち侘びし　神の大御代弥よ来にけむ",
+          "reading_hira": "ひとのよは　はやすみにけりまちわびし　かみのおおみよいよよきにけん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 119,
+          "original": "仏力は　限りあるなり神力は　限りとてなく絶対力なる",
+          "reading_hira": "ぶつりきは　かぎりあるなりしんりきは　かぎりとてなくぜったいりきなる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 120,
+          "original": "観世音の　御名の救ひは仏の世を　限りに神の御名と変りぬ",
+          "reading_hira": "かんぜおんの　みなのすくいはぶつのよを　かぎりにかみのみなとかわりぬ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 121,
+          "original": "神仏は　同根なりとの理を　知りてゆ心の空は霽れける",
+          "reading_hira": "しんぶつは　どうこんなりとのことはりを　しりてゆこころのそらははれける",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "メ シ ヤ",
+      "title_furigana": null,
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 122,
+          "original": "大救世主の　御名は最後の世を救ふ　尊き御名なり心せよかし",
+          "reading_hira": "だいメシヤの　みなはさいごのよをすくう　とうときみななりこころせよかし",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 123,
+          "original": "万民の　悩み苦しみ涯もなき　世ぞ救はむと救主天降りぬ",
+          "reading_hira": "ばんみんの　なやみくるしみはてもなき　よぞすくわんとメシヤあもりぬ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 124,
+          "original": "万民の　生命を救ふ神業こそ　此上なき尊きものにぞありける",
+          "reading_hira": "ばんみんの　いのちをすくうみわざこそ　こよなきとうときものにぞありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 125,
+          "original": "ハレルヤハレルヤ　救世主の神の現世に　降らせ給はむ時ぞ楽しき",
+          "reading_hira": "はれるやはれるや　メシヤのかみのうつしよに　くだらせたまわぬときぞたのしき",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 126,
+          "original": "観音の　衣をかなぐり捨て給ひ　メシヤと生るる大いなる時",
+          "reading_hira": "かんのんの　ころもをかなぐりすてたまい　めしやとあるるおおいなるとき",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 127,
+          "original": "数多ある　教を救ふ教こそ　メシヤの宣らす教なりけり",
+          "reading_hira": "あまたある　おしえをすくうおしえこそ　めしやののらすおしえなりけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 128,
+          "original": "栄光の　雲より降る大救世主を　歓呼の声に迎ふ嬉しさ",
+          "reading_hira": "えいこうの　くもよりくだるだいメシヤを　かんこのこえにむかううれしさ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 129,
+          "original": "憂きの世を　切り替へまさむ力こそ　メシヤの揮ふ力にぞある",
+          "reading_hira": "うきのよを　きりかえまさんちからこそ　めしやのふるうちからにぞある",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 130,
+          "original": "キリストや 釈迦マホメットの待ち侘びし メシヤの神は天降りましける",
+          "reading_hira": "きりすとや　しゃかまほめっとのまちわびし　めしやのかみはあもりましける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 131,
+          "original": "待望の　メシヤ生まれぬ警鐘を　ひた打鳴らし世人醒まさむ",
+          "reading_hira": "たいぼうの　メシヤうまれぬけいしょうを　ひたうちならしよびとさまさん",
+          "marker": "*",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "神恩",
+      "title_furigana": "しんおん",
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 132,
+          "original": "其頃を　顧みすれば恐ろしも　闇〔暗〕路杖なく彷ひし吾",
+          "reading_hira": "そのころを　かえりみすればおそろしも　やみじつえなくさまよいしわれ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 133,
+          "original": "断崖の　行手にあるが知られけり　神の光に照らされてより",
+          "reading_hira": "だんがいの　ゆくてにあるがしられけり　かみのひかりにてらされてより",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 134,
+          "original": "今更に　過ぎにし事を忘れなむ　我愚かさの尤にありせば",
+          "reading_hira": "いまさらに　すぎにしことをわすれなん　わがおろかさのとがにありせば",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 135,
+          "original": "吹き荒ぶ　世嵐とても忘れける　神の光に包まれてより",
+          "reading_hira": "ふきすさぶ　よあらしとてもわすれける　かみのひかりにつつまれてより",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 136,
+          "original": "盲ほど　儚きものは世にあらじ　近処の宝知る由もなく",
+          "reading_hira": "めしいほど　はかなきものはよにあらじ　ちかどのたからしるよしもなく",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 137,
+          "original": "人事と　思ひし事もいつしかに　我身の上にふりかかる世や",
+          "reading_hira": "ひとごとと　おもいしこともいつしかに　わがみのうえにふりかかるよや",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 138,
+          "original": "正神の　鏡によらで如何にして　万の逆事映らざらめや",
+          "reading_hira": "せいしんの　かがみによらでいかにして　よろずのさかごとうつらざらめや",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 139,
+          "original": "力なく　杖なく灯火有たぬ身の　神に縋らで歩み得べしや",
+          "reading_hira": "ちからなく　つえなくともしびもたぬみの　かみにすがらであゆみうべしや",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 140,
+          "original": "御光を　浴びてゆ懐疑の邪道に　外れし吾はも救はれにける",
+          "reading_hira": "みひかりを　あびてゆかいぎのよこみちに　それしわれはもすくわれにける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 141,
+          "original": "我享けし　幸の余りに大きければ　讃へる術のなきぞうたてき",
+          "reading_hira": "わがうけし　さちのあまりにおおきければ　たたえるすべのなきぞうたてき",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "世に処して",
+      "title_furigana": "よにしょして",
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 142,
+          "original": "拙なくも　誠に出づる言の葉は　人を動かす力ありけり",
+          "reading_hira": "つたなくも　まことにいずることのはは　ひとをうごかすちからありけり",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 143,
+          "original": "言ふべきと　言はでよき事ある世なり　道にあるもの心せよゆめ",
+          "reading_hira": "いうべきと　いわでよきことあるよなり　みちにあるものこころせよゆめ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 144,
+          "original": "上魂の　人のしるしは交はりて　何かはしらに床しさ仄めく",
+          "reading_hira": "じょうこんの　ひとのしるしはまじわりて　なにかはしらにゆかしさほのめく",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 145,
+          "original": "快きは　白きを白とそのままに　宣る言の葉を聞くにぞありける",
+          "reading_hira": "こころよきは　しろきをしろとそのままに　のることのはをきくにぞありける",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 146,
+          "original": "円満に　ものを治むる人にして　諸々の人慕ひくるなり",
+          "reading_hira": "えんまんに　ものをおさむるひとにして　もろもろのひとしたいくるなり",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 147,
+          "original": "小やかな　事としいへど忽せに　せぬ人にして大き事なる",
+          "reading_hira": "ささやかな　こととしいえどゆるがせに　せぬひとにしておおきことなる",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 148,
+          "original": "小さなる　眼をもてる儚なさは　大いなる道見失ふなり",
+          "reading_hira": "ちいさなる　まなこをもてるはかなさは　おおいなるみちみうしなうなり",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 149,
+          "original": "惟神　神のまにまに進むこそ　憂きの世易く渡る道なり",
+          "reading_hira": "かむながら　かみのまにまにすすむこそ　うきのよやすくわたるみちなり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 150,
+          "original": "訝しむ　勿れ世人よ思ふ事　ならぬは心に曇りあるなり",
+          "reading_hira": "いぶかしむ　なかれよびとよおもうこと　ならぬはこころにくもりあるなり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 151,
+          "original": "天地の　誠の道を守るより　外に術なし人の此世は",
+          "reading_hira": "あめつちの　まことのみちをまもるより　ほかにすべなしひとのこのよは",
+          "marker": "*",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "天国と地獄",
+      "title_furigana": "てんごくとじごく",
+      "count_declared": 9,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 152,
+          "original": "己が手に　牢獄作りその中に　苦しむ人ぞ哀れなりける",
+          "reading_hira": "おのがてに　ろうごくつくりそのなかに　くるしむひとぞあわれなりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 153,
+          "original": "天国を　作るも地獄を作るのも　心のままなり人とふものは",
+          "reading_hira": "てんごくを　つくるもじごくをつくるのも　こころのままなりひととうものは",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 154,
+          "original": "よしやよし　人の眼はかくすとて　己が眼は隠すよしなき",
+          "reading_hira": "よしやよし　ひとのまなこはかくすとて　おのがまなこはかくすよしなき",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 155,
+          "original": "目に見ゆる　もののみ知りて眼に見えぬ　物知らぬこそ真の盲ぞ",
+          "reading_hira": "めにみゆる　もののみしりてめにみえぬ　ものしらぬこそまことのめしいぞ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 156,
+          "original": "執着と　きりなき慾の柵に　身も魂も滅ぶるなりけり",
+          "reading_hira": "しゅうちゃくと　きりなきよくのしがらみに　みもたましいもほろぶるなりけり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 157,
+          "original": "長き世を　迷ひ迷ひて来つる吾　神の光に目覚めし嬉しさ",
+          "reading_hira": "ながきよを　まよいまよいてきつるわれ　かみのひかりにめざめしうれしさ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 158,
+          "original": "夢とのみ　思ひし幸のまざまざと　眼に見ゆるなり涙溢るる",
+          "reading_hira": "ゆめとのみ　おもいしさちのまざまざと　めにみゆるなりなみだあふるる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 159,
+          "original": "暗かりし　此現世もいつかしら　明るくなりぬ吾救はれてより",
+          "reading_hira": "くらかりし　このうつしよもいつかしら　あかるくなりぬわれすくわれてより",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 160,
+          "original": "奴羽玉の　闇〔暗〕も光の射し初めて　消えにけるかな我家ぬちは",
+          "reading_hira": "ぬばたまの　やみもひかりのさしそめて　きえにけるかなわがいえぬちは",
+          "marker": "*",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "大神業",
+      "title_furigana": "だいしんぎょう",
+      "count_declared": 8,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 161,
+          "original": "病貧争　絶無の世界造らむと　任し給へり神は我身に",
+          "reading_hira": "びょうひんそう　ぜつむのせかいつくらんと　よさしたまえりかみはわがみに",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 162,
+          "original": "例しなき　事にこそあれ闇〔暗〕のなき　大千世界の生れまさむとは",
+          "reading_hira": "ためしなき　ことにこそあれやみのなき　だいせんせかいのあれまさんとは",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 163,
+          "original": "憂しとみし　世は過ぎにけり心せよ　楽しき御代は今生れんとすも",
+          "reading_hira": "うしとみし　よはすぎにけりこころせよ　たのしきみよはいまあれんとすも",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 164,
+          "original": "千早振　神の光に照らされて　正邪の道の眼に映るなり",
+          "reading_hira": "ちはやぶる　かみのひかりにてらされて　せいじゃのみちのめにうつるなり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 165,
+          "original": "久方の　天津御国を地の上に　映さむとする吾願ひかな",
+          "reading_hira": "ひさかたの　あまつみくにをちのうえに　うつさんとするわがねがいかな",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 166,
+          "original": "大いなる　神の力に依らずして　など救はめや此醜の世は",
+          "reading_hira": "おおいなる　かみのちからによらずして　などすくわめやこのしこのよは",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 167,
+          "original": "天国を　此土に造る文明は　神の御胸に秘め給はむ",
+          "reading_hira": "てんごくを　このどにつくるぶんめいは　かみのみむねにひそめたまわん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 168,
+          "original": "病貧争　悩み苦しむ文明は　偽りの文明にあればなりけり",
+          "reading_hira": "びょうひんそう　なやみくるしむぶんめいは　いつわりのぶんめいにあればなりけり",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "天地開明",
+      "title_furigana": "てんちかいめい",
+      "count_declared": 7,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 169,
+          "original": "梓弓　春立ち初めて兄の花の　香りは四方に匂ひぬるらむ",
+          "reading_hira": "あずさゆみ　はるたちそめてこのはなの　かおりはよもににおいぬるらん",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 170,
+          "original": "長き世の　闇〔暗〕の帳もしづしづと　開けはなれけり眼醒ませよ",
+          "reading_hira": "ながきよの　やみのとばりもしずしずと　あけはなれけりまなこさませよ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 171,
+          "original": "忌はしき　事のみ多き現世は　闇〔暗〕の帳の残ればなりける",
+          "reading_hira": "いまわしき　ことのみおおきうつしよは　やみのとばりののこればなりける",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 172,
+          "original": "烏羽玉の　暗夜に馴れし人の目に　眩ゆかるらむ神の光は",
+          "reading_hira": "うばたまの　やみよになれしひとのめに　まばゆかるらんかみのひかりは",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 173,
+          "original": "光明は　早射し初めぬ諸人よ　心の扉うち開けかし",
+          "reading_hira": "こうみょうは　はやさしそめぬもろびとよ　こころのとびらうちひらけかし",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 174,
+          "original": "大神の　光遍く漂ひて　甦へるなり諸の民草",
+          "reading_hira": "おおかみの　ひかりあまねくただよいて　よみがえるなりもものたみぐさ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 175,
+          "original": "日の光　輝き初めて曲津等の　隠るる隙のなきぞ儚なき",
+          "reading_hira": "ひのひかり　かがやきそめてまがつらの　かくるるすきのなきぞはかなき",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "理想世界",
+      "title_furigana": "りそうせかい",
+      "count_declared": 7,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 176,
+          "original": "地上天国　弥勒の御代と人称ぶも　理想世界の事にぞありける",
+          "reading_hira": "ちじょうてんごく　みろくのみよとひとよぶも　りそうせかいのことにぞありける",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 177,
+          "original": "善き人の　喜び悪しき人滅ぶ　正しき御代の来つる嬉しさ",
+          "reading_hira": "よきひとの　よろこびあしきひとほろぶ　ただしきみよのきつるうれしさ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 178,
+          "original": "大神は　天地諸を澄み浄め　理想世界をうち樹てますらむ",
+          "reading_hira": "おおかみは　あめつちももをすみきよめ　りそうせかいをうちたてますらん",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 179,
+          "original": "塵程の　罪や穢れも隠されぬ　御代を水晶世界といふなる",
+          "reading_hira": "ちりほどの　つみやけがれもかくされぬ　みよをすいしょうせかいというなる",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 180,
+          "original": "雲一つ　隠すよしなき大空は　水晶世界の姿なるらむ",
+          "reading_hira": "くもひとつ　かくすよしなきおおぞらは　すいしょうせかいのすがたなるらん",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 181,
+          "original": "石の上　古事記にも未だ見ぬ　地上天国の美はしの姿よ",
+          "reading_hira": "いそのかみ　ふることぶみにもいまだみぬ　ちじょうてんごくのうるわしのすがたよ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 182,
+          "original": "三界万霊　洩なく歓喜に浸るらむ　大神光の隈なく照らせば",
+          "reading_hira": "さんかいばんれい　もれなくかんきにひたるらん　おおみひかりのくまなくてらせば",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "闇〔暗〕の世",
+      "title_furigana": "やみのよ",
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 183,
+          "original": "人の眼は　一寸先も見え〔へ〕ぬなり　頼むは神の御護りなりける",
+          "reading_hira": "ひとのめは　いっすんさきもみえぬなり　たのむはかみのみまもりなりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 184,
+          "original": "常暗の　道に彷ふ小羊を　いと懇ろに神手に誘ふ",
+          "reading_hira": "とこやみの　みちにさまようこひつじを　いとねもごろにみてにいざなう",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 185,
+          "original": "悩み多き　此現世を悩みなき　光の道に誘ふ神はも",
+          "reading_hira": "なやみおおき　このうつしよをなやみなき　ひかりのみちにいざなうかみはも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 186,
+          "original": "奴羽玉の　暗に蠢めく小羊を　光明の道に誘ふ吾かな",
+          "reading_hira": "ぬばたまの　やみにうごめくこひつじを　こうみょうのみちにいざなうわれかな",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 187,
+          "original": "物識の　誘ふ道の行手には　虎狼の口開け待ちをり",
+          "reading_hira": "ものしりの　いざなうみちのゆくてには　とらおおかみのくちあけまちおり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 188,
+          "original": "誤れる　道や心に気付かずば　やがて滅びむ神の裁きに",
+          "reading_hira": "あやまれる　みちやこころにきづかずば　やがてほろびんかみのさばきに",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 189,
+          "original": "危ふきは　曲の俘虜になり乍ら　未だ目醒めぬ人の行末",
+          "reading_hira": "あやうきは　まがのとりこになりながら　いまだめざめぬひとのゆくすえ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 190,
+          "original": "唯吾身　よかれの心に災ひの　種播く人ぞ危ふかりける",
+          "reading_hira": "ただわがみ　よかれのこころにわざわいの　たねまくひとぞあやうかりける",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 191,
+          "original": "幾千歳　かかりて道を狂はせし　曲津滅ぶる時は来ぬめり",
+          "reading_hira": "いくちとせ　かかりてみちをくるわせし　まがつほろぶるときはきぬめり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 192,
+          "original": "己も己も　誠心に立還り　神の光に魂照らせかし",
+          "reading_hira": "おのもおのも　まことごころにたちかえり　かみのひかりにたまてらせかし",
+          "marker": "**",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "審判",
+      "title_furigana": "しんぱん",
+      "count_declared": 11,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 193,
+          "original": "幾千歳　積りつもりし三界の　穢れ浄むる時となりけり",
+          "reading_hira": "いくちとせ　つもりつもりしさんがいの　けがれきよむるときとなりけり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 194,
+          "original": "火と水の　洗霊なくば穢れにし　人の此世は滅ぶるなるらむ",
+          "reading_hira": "ひとみずの　せんれいなくばけがれにし　ひとのこのよはほろぶるなるらむ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 195,
+          "original": "諸人よ　心ゆるすな厳めしき　神の裁きのやがて来たらむ",
+          "reading_hira": "もろびとよ　こころゆるすないかめしき　かみのさばきのやがてきたらん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 196,
+          "original": "神は無しと　いと誇し気に言ひし人の　狼狽ふためく時ぞ来にける",
+          "reading_hira": "かみはなしと　いとほこらしげにいいしひとの　あわてふためくときぞきにける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 197,
+          "original": "例しなき　裁きの状の諸人の　眼に映る時はちかめり",
+          "reading_hira": "ためしなき　さばきのさまのもろびとの　まなこにうつるときはちかめり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 198,
+          "original": "キリストの　唱へし最後の審判とは　火の洗霊の事にぞありける",
+          "reading_hira": "きりすとの　となえしさいごのさばきとは　ひのせんれいのことにぞありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 199,
+          "original": "世の穢れ　洗ひ浄めて新しき　世に立直す審判の業かな",
+          "reading_hira": "よのけがれ　あらいきよめてあたらしき　よにたてなおすさばきのわざかな",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 200,
+          "original": "人々よ　悔改めて世の峠　安く越えなむ備へせよかし",
+          "reading_hira": "ひとびとよ　くいあらためてよのとうげ　やすくこえなんそなえせよかし",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 201,
+          "original": "力なり 嗚呼〔噫〕力なり潰え〔へ〕なむ 世を甦へ〔甦〕らすも神の御力",
+          "reading_hira": "ちからなり　ああちからなりついえなん　よをよみがえらすもかみのみちから",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 202,
+          "original": "只神に　うち委すより詮なけれ　力とてなき人の身なれば",
+          "reading_hira": "ただかみに　うちまかすよりせんなけれ　ちからとてなきひとのみなれば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 203,
+          "original": "厳かな　神の裁きに赦さるる　人にこそなれ身魂浄めて",
+          "reading_hira": "おごそかな　かみのさばきにゆるさるる　ひとにこそなれみたまきよめて",
+          "marker": "*",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "身魂磨き",
+      "title_furigana": "みたまみがき",
+      "count_declared": 7,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 204,
+          "original": "魂磨き　心清めて世を救ふ　尊き神業に励しめよ皆",
+          "reading_hira": "たまみがき　こころきよめてよをすくう　とうときみわざにいそしめよみな",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 205,
+          "original": "如何ならむ　世の大峠来つるとて　魂清ければ安く越え〔へ〕なむ",
+          "reading_hira": "いかならん　よのおおとうげきつるとて　たまきよければやすくこえなん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 206,
+          "original": "言霊の　強き力は美魂より　出づるしなくば甲斐なかりける",
+          "reading_hira": "ことたまの　つよきちからはみたまより　いづるしなくばかいなかりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 207,
+          "original": "村肝の　心を浄め醜の世を　清むる業の人となれかし",
+          "reading_hira": "むらきもの　こころをきよめしこのよを　きよむるわざのひととなれかし",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 208,
+          "original": "身も魂も　浄霊をもて浄めます　神業ぞ真の洗霊なりける",
+          "reading_hira": "みもたまも　じょうれいをもてきよめます　みわざぞまことのせんれいなりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 209,
+          "original": "大神の　仕組の暫し延びぬれば　身魂磨きて備へせよかし",
+          "reading_hira": "おおかみの　しぐみのしばしのびぬれば　みたまみがきてそなえせよかし",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 210,
+          "original": "誰も彼も　貴ぶ金剛石とても　磨かざりせば瓦なるらむ",
+          "reading_hira": "たれもかも　とうとぶこんごうせきとても　みがかざりせばかわらなるらん",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "医しの業",
+      "title_furigana": "いやしのわざ",
+      "count_declared": 9,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 211,
+          "original": "真なる　医しの業を吾は今　世に知らしめて救ふべらなり",
+          "reading_hira": "まことなる　いやしのわざをわれはいま　よにしらしめてすくふべらなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 212,
+          "original": "今迄の　医しの業は弥果てに　真のものの出づるが迄なる",
+          "reading_hira": "いままでの　いやしのわざはいやはてに　まことのもののいづるがまでなる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 213,
+          "original": "黴菌の　本体知らぬ医学もて　など病など治し得べきや",
+          "reading_hira": "ばいきんの　ほんたいしらぬいがくもて　などやまいなどなおしうべきや",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 214,
+          "original": "今迄の　医術は真のものならじ　仮のものにてありと知れかし",
+          "reading_hira": "いままでの　いじゅつはまことのものならじ　かりのものにてありとしれかし",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 215,
+          "original": "我医術　こそ尊き大神の　示し給ひしものにぞありける",
+          "reading_hira": "わがいじゅつ　こそとうときおおかみの　しめしたまいしものにぞありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 216,
+          "original": "病なき　世界ぞ茲に生れなむ　神の医術の世に拡ごれば",
+          "reading_hira": "やまいなき　せかいぞここにうまれなん　かみのいじゅつのよにひろごれば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 217,
+          "original": "人の作りし　医術は科学にあらで神霊の　医しの業は科学なりけり",
+          "reading_hira": "ひとのつくりし　いじゅつはかがくにあらでしんれいの　いやしのわざはかがくなりけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 218,
+          "original": "諦めし　生命も容易く生かすなり　神の賜ひし医しの業もて",
+          "reading_hira": "あきらめし　いのちもたやすくいかすなり　かみのたまいしいやしのわざもて",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 219,
+          "original": "諦めし　人の齢をひきのばす　我神業ぞ世に例しなき",
+          "reading_hira": "あきらめし　ひとのよわいをひきのばす　わがかむわざぞよにためしなき",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "大経綸",
+      "title_furigana": "だいけいりん",
+      "count_declared": 9,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 220,
+          "original": "小さなる　人の眼に映らめや　大天地を正す仕組の",
+          "reading_hira": "ちいさなる　ひとのまなこにうつらめや　おおあめつちをただすしぐみの",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 221,
+          "original": "永久に　此土の上に打樹てむ　実となりし夢の天国",
+          "reading_hira": "とこしえに　このどのうえにうちたてん　まこととなりしゆめのてんごく",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 222,
+          "original": "文明と　口にはいへど真なる　文明世界はこれよりぞなり",
+          "reading_hira": "ぶんめいと　くちにはいえどまことなる　ぶんめいせかいはこれよりぞなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 223,
+          "original": "眼ひらき　吾業を見よ世の誰も　知らぬ事どもばかりなりける",
+          "reading_hira": "まなこひらき　わがわざをみよよのたれも　しらぬことどもばかりなりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 224,
+          "original": "大神の　深き仕組みは如何ならむ　聖といへど知る由もなき",
+          "reading_hira": "おおかみの　ふかきしぐみはいかならん　ひじりといえどしるよしもなき",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 225,
+          "original": "人の眼に　など映らめや大神の　仕組の深さ測〔量〕り知らねば",
+          "reading_hira": "ひとのめに　などうつらめやおおかみの　しぐみのふかさはかりしらねば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 226,
+          "original": "此仕組　待兼山の時鳥　啼いて待たれし諸の聖者等",
+          "reading_hira": "このしぐみ　まちかねやまのほととぎす　ないてまたれしもものせいじゃら",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 227,
+          "original": "大神の　深き仕組は智慧や学　などもて判るものにあらなき",
+          "reading_hira": "おおかみの　ふかきしぐみはちえやがく　などもてわかるものにあらなき",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 228,
+          "original": "大神の　仕組の奥のその奥の　又その奥の奥ぞ尊き",
+          "reading_hira": "おおかみの　しぐみのおくのそのおくの　またそのおくのおくぞとうとき",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "正直と嘘",
+      "title_furigana": "しょうじきとうそ",
+      "count_declared": 11,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 229,
+          "original": "嘘をいふ　人こそいとも愚かなり　己が舌もて己が傷つき",
+          "reading_hira": "うそをいう　ひとこそいともおろかなり　おのがしたもておのがきずつき",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 230,
+          "original": "正直の　人ほど神は賞でまされ　限りなき幸恵み給はむ",
+          "reading_hira": "しょうじきの　ひとほどかみはめでまされ　かぎりなきさちめぐみたまわん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 231,
+          "original": "如何ならむ　宝といへど正直の　宝に優るものはあらじな",
+          "reading_hira": "いかならん　たからといえどしょうじきの　たからにまさるものはあらじな",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 232,
+          "original": "日本の　再建いとも容易かり　皆〔悉〕嘘言はぬ民となりなば",
+          "reading_hira": "にっぽんの　さいけんいともたやすかり　みなうそいわぬたみとなりなば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 233,
+          "original": "忌はしき　事のみ繁き現世は　偽り人の多ければなり",
+          "reading_hira": "いまわしき　ことのみしげきうつしよは　いつわりびとのおおければなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 234,
+          "original": "誠とは　嘘偽〔佯〕りのなき人の　胸に育くむ宝にぞある",
+          "reading_hira": "まこととは　うそいつわりのなきひとの　むねにはぐくむたからにぞある",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 235,
+          "original": "諸々の　悪を育くむ種こそは　嘘偽〔佯〕りの心なりけり",
+          "reading_hira": "もろもろの　あくをはぐくむたねこそは　うそいつわりのこころなりけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 236,
+          "original": "世の中の　乱れの因は人々の　嘘偽りの言葉にぞある",
+          "reading_hira": "よのなかの　みだれのもとはひとびとの　うそいつわりのことばにぞある",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 237,
+          "original": "正直の　宝はこよなき宝なり　誠の宝ぞ此宝なる",
+          "reading_hira": "しょうじきの　たからはこよなきたからなり　まことのたからぞこのたからなる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 238,
+          "original": "正直の　人造らむと吾は今　神の教へを間配りてけり",
+          "reading_hira": "しょうじきの　ひとつくらんとわれはいま　かみのおしえをまくばりてけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 239,
+          "original": "正直の　人造るには先づ己が　嘘偽〔佯〕りを捨つるにありける",
+          "reading_hira": "しょうじきの　ひとつくるにはまずおのが　うそいつわりをすつるにありける",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "善と悪",
+      "title_furigana": "ぜんとあく",
+      "count_declared": 9,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 240,
+          "original": "如何ならむ　善き行ひも神知らぬ　人は大方利己のためなる",
+          "reading_hira": "いかならん　よきおこないもかみしらぬ　ひとはおおかたりこのためなる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 241,
+          "original": "神知らぬ　人の誠は形のみ　神知る人の誠ぞ真なる",
+          "reading_hira": "かみしらぬ　ひとのまことはかたちのみ　かみしるひとのまことぞしんなる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 242,
+          "original": "偽〔佯〕りや　秘密なき世を造らむと　夜昼心を砕く吾かも",
+          "reading_hira": "いつわりや　ひみつなきよをつくらんと　よるひるこころをくだくわれかも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 243,
+          "original": "耳近く　ひそひそ語る人こそは　心ゆるせぬ人と思ひそ",
+          "reading_hira": "みみちかく　ひそひそかたるひとこそは　こころゆるせぬひととおもいそ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 244,
+          "original": "吾は唯　世の為人の為のみに　竭すにありせば心明るし",
+          "reading_hira": "われはただ　よのためひとのためのみに　つくすにありせばこころあかるし",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 245,
+          "original": "正しきを　行ふものは明るかり　曲の忍ぶる隙のなければ",
+          "reading_hira": "ただしきを　おこなうものはあかるかり　まがのしのぶるすきのなければ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 246,
+          "original": "神命の　まま進みゆく吾等には　曲の騒ぎも浜の松風",
+          "reading_hira": "しんめいの　まますすみゆくわれらには　まがのさやぎもはまのまつかぜ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 247,
+          "original": "人によく　思はれたしと願ふ人　大方神を忘れ勝ちなる",
+          "reading_hira": "ひとによく　おもわれたしとねがうひと　おおかたかみをわすれがちなる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 248,
+          "original": "目に見ゆる　徳は真の徳ならじ　見えぬ徳こそ神に通はめ",
+          "reading_hira": "めにみゆる　とくはまことのとくならじ　みえぬとくこそかみにかよわめ",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "大慈大悲",
+      "title_furigana": "だいじだいひ",
+      "count_declared": 8,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 249,
+          "original": "観音の　慈悲とは善悪無差別に　救はせ給ふ事にぞありける",
+          "reading_hira": "かんのんの　じひとはぜんあくむさべつに　すくわせたまうことにぞありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 250,
+          "original": "観世音　又の御名大悲菩薩とは　仏滅の世の悲しみにぞある",
+          "reading_hira": "かんぜおん　またのみなだいひぼさつとは　ぶつめつのよのかなしみにぞある",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 251,
+          "original": "善を讃へ　悪を尤めぬ観世音　菩薩の御心こころとせよ皆",
+          "reading_hira": "ぜんをたたえ　あくをとがめぬかんぜおん　ぼさつのみこころこころとせよみな",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 252,
+          "original": "憂きの世も　楽しき御代となりぬらむ　神の救ひの力現れなば",
+          "reading_hira": "うきのよも　たのしきみよとなりぬらん　かみのすくいのちからあれなば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 253,
+          "original": "観音力　世に現はれて刈菰の　乱れける世も正さるるならめ",
+          "reading_hira": "かんのんりき　よにあらわれてかりこもの　みだれけるよもたださるるならめ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 254,
+          "original": "観世音　菩薩は光明如来なる　御名もて衆生を救ひますなり",
+          "reading_hira": "かんぜおん　ぼさつはこうみょうにょらいなる　みなもてしゅじょうをすくいますなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 255,
+          "original": "観音の　化仏の御名に長き世を　救はせ給ひし神ぞ尊き",
+          "reading_hira": "かんのんの　けぶつのみなにながきよを　すくわせたまいしかみぞとうとき",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 256,
+          "original": "千早振　神の御代とぞなりにける　御仏の世のはやすみければ",
+          "reading_hira": "ちはやぶる　かみのみよとぞなりにける　みほとけのよのはやすみければ",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "光の道",
+      "title_furigana": "ひかりのみち",
+      "count_declared": 8,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 257,
+          "original": "奴羽玉の　闇の夜路にゆきまどふ　世人誘はむ光の道へ",
+          "reading_hira": "ぬばたまの　やみのよみちにゆきまどう　よびといざなわんひかりのみちへ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 258,
+          "original": "光明の　いと美はしく輝ける　蔭に蠢めく哀れ世の人",
+          "reading_hira": "こうみょうの　いとうるわしくかがやける　かげにうごめくあわれよのひと",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 259,
+          "original": "目に見えぬ　神の光のまざまざと　眼に映るなり魂磨きなば",
+          "reading_hira": "めにみえぬ　かみのひかりのまざまざと　めにうつるなりたまみがきなば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 260,
+          "original": "大いなる　救ひの御手をのばせども　見えぬ盲ぞ哀れなりけり",
+          "reading_hira": "おおいなる　すくいのみてをのばせども　みえぬめしいぞあわれなりけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 261,
+          "original": "汝が耳は　木耳なるや光明の　道を説けども聞かむとはせず",
+          "reading_hira": "ながみみは　きくらげなるやこうみょうの　みちをとけどもきかんとはせず",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 262,
+          "original": "光なり　嗚呼光なり烏羽玉の　闇うち晴らすものにありせば",
+          "reading_hira": "ひかりなり　ああひかりなりうばたまの　やみうちはらすものにありせば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 263,
+          "original": "醜人の　滅ぶる時となりにける　神の御光弥よ輝き",
+          "reading_hira": "しこびとの　ほろぶるときとなりにける　かみのみひかりいよよかがやき",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 264,
+          "original": "滅びゆく　偽り人の儚さよ　光の道に背けばなりける",
+          "reading_hira": "ほろびゆく　いつわりびとのはかなさよ　ひかりのみちにそむけばなりける",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "世の終り",
+      "title_furigana": "よのおわり",
+      "count_declared": 11,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 265,
+          "original": "如何ならむ　頑な人も平〔鰭〕伏して　神を拝む時となりぬる",
+          "reading_hira": "いかならん　かたくなびともひれふして　かみをおろがむときとなりぬる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 266,
+          "original": "神は無しと　心驕れる偉人の　神に額く世ぞ近みけり",
+          "reading_hira": "かみはなしと　こころおごれるえらびとの　かみにぬかづくよぞちかみけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 267,
+          "original": "地の上の　穢れ浄むる神業は　火の洗霊の事にぞありける",
+          "reading_hira": "ちのうえの　けがれきよむるかむわざは　ひのせんれいのことにぞありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 268,
+          "original": "如何ならむ　曲人たりと平〔鰭〕伏して　神に縋らむ世の終りには",
+          "reading_hira": "いかならん　まがびとたりとひれふして　かみにすがらんよのおわりには",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 269,
+          "original": "只管に　神祈るより詮なけれ　滅びんとする世の終りには",
+          "reading_hira": "ひたすらに　かみいのるよりせんなけれ　ほろびんとするよのおわりには",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 270,
+          "original": "幾万年　待たれ給ひし大神の　仕組は今し成らむとすなり",
+          "reading_hira": "いくまんねん　またれたまいしおおかみの　しぐみはいましならんとすなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 271,
+          "original": "待望の　地上天国生るるまで　嵐も吹かむ波も荒れなむ",
+          "reading_hira": "たいぼうの　ちじょうてんごくあるるまで　あらしもふかんなみもあれなん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 272,
+          "original": "天国の　産声今や挙げむとし　世は神通の悩みの中なり",
+          "reading_hira": "てんごくの　うぶごえいまやあげんとし　よはじんつうのなやみのなかなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 273,
+          "original": "世の終り　来つるも知らで埒もなき　争事に耽けるうたてさ",
+          "reading_hira": "よのおわり　きつるもしらでらちもなき　あらそいごとにふけるうたてさ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 274,
+          "original": "長き世を　積りつもりし塵芥　浄めて生れむ地上天国",
+          "reading_hira": "ながきよを　つもりつもりしちりあくた　きよめてあれんちじょうてんごく",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 275,
+          "original": "言の葉も　筆にもなどかつくすべき　此現世の終りの状はも",
+          "reading_hira": "ことのはも　ふでにもなどかつくすべき　このうつしよのおわりのさまはも",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "信仰",
+      "title_furigana": "しんこう",
+      "count_declared": 7,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 276,
+          "original": "浮草の　漂ふ如き運命もつ　人にかあらむ信仰無き人",
+          "reading_hira": "うきくさの　ただようごときさだめもつ　ひとにかあらんしんこうなきひと",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 277,
+          "original": "儚なきは　此現世にあり乍ら　神に頼らで進む人なる",
+          "reading_hira": "はかなきは　このうつしよにありながら　かみにたよらですすむひとなる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 278,
+          "original": "神無しと　誇りし人の行末は　我身のなしと語るに似たり",
+          "reading_hira": "かみなしと　ほこりしひとのゆくすえは　わがみのなしとかたるににたり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 279,
+          "original": "信仰の　無き人見る毎思ふかな　水母に似たる骨無人と",
+          "reading_hira": "しんこうの　なきひとみるごとおもうかな　くらげににたるほねなしびとと",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 280,
+          "original": "束の間も　心安らにあるべきや　神に叛ける人とう人は",
+          "reading_hira": "つかのまも　こころやすらにあるべきや　かみにそむけるひととうひとは",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 281,
+          "original": "槍衾　刃の垣にかくまるる　状にも似たり今の世の人",
+          "reading_hira": "やりぶすま　やいばのかきにかくまるる　さまにもにたりいまのよのひと",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 282,
+          "original": "夜の終り　来つるも知らで夢醒めぬ　人こそ世にも哀れなりける",
+          "reading_hira": "よるのおわり　きつるもしらでゆめさめぬ　ひとこそよにもあわれなりける",
+          "marker": "*",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "救ひの業",
+      "title_furigana": "すくいのわざ",
+      "count_declared": 9,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 283,
+          "original": "地の底に　喘ぎ苦しむ小羊を　救はむとして吾は立つなり",
+          "reading_hira": "ちのそこに　あえぎくるしむこひつじを　すくわんとしてわれはたつなり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 284,
+          "original": "如何ならむ　聖も知らぬ大いなる　救の業を吾は行ふ",
+          "reading_hira": "いかならん　ひじりもしらぬおおいなる　すくいのわざをわれはおこなう",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 285,
+          "original": "奇蹟なり　嗚呼奇蹟なり人間の　智慧もて計れぬ珍の神業",
+          "reading_hira": "きせきなり　ああきせきなりにんげんの　ちえもてはかれぬうずのかむわざ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 286,
+          "original": "山よりも　高く海よりも深かりぬ　救の神の深き恵は",
+          "reading_hira": "やまよりも　たかくうみよりもふかかりぬ　すくいのかみのふかきめぐみは",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 287,
+          "original": "奴羽玉の　常世の暗を晴らさむと　輝き出でぬ神の聖火は",
+          "reading_hira": "ぬばたまの　とこよのやみをはらさんと　かがやきいでぬかみのせいかは",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 288,
+          "original": "万人を　救ふといふは永遠の　生命の道を諭ゆるにあり",
+          "reading_hira": "ばんにんを　すくうというはえいえんの　いのちのみちをおしゆるにあり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 289,
+          "original": "穢れ多き　人を浄むる業こそは　誠の救ひの道にぞありける",
+          "reading_hira": "けがれおおき　ひとをきよむるわざこそは　まことのすくいのみちにぞありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 290,
+          "original": "大神の　任しのままに吾は今　生きとし生ける物みな救はむ",
+          "reading_hira": "おおかみの　よさしのままにわれはいま　いきとしいけるものみなすくわん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 291,
+          "original": "智慧や学　如何にありとて判るまじ　神の仕組の奥の奥がは",
+          "reading_hira": "ちえやがく　いかにありとてわかるまじ　かみのしぐみのおくのおくがは",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "地上天国",
+      "title_furigana": "ちじょうてんごく",
+      "count_declared": 8,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 292,
+          "original": "地上天国　造らむとして吾は今　力限りに励しみにける",
+          "reading_hira": "ちじょうてんごく　つくらんとしてわれはいま　ちからかぎりにいそしみにける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 293,
+          "original": "安らけき　美しの御代は樹てられむ　浄められにし此地の上に",
+          "reading_hira": "やすらけき　うましのみよはたてられん　きよめられにしこのちのうえに",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 294,
+          "original": "永遠に　冬なき夜なき天国に　世人救はむはや来れかし",
+          "reading_hira": "とことわに　ふゆなきよるなきてんごくに　よびとすくはんはやきたれかし",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 295,
+          "original": "今迄の　文化は地獄の文化なり　吾は造らむ天国の文化を",
+          "reading_hira": "いままでの　ぶんかはじごくのぶんかなり　われはつくらんてんごくのぶんかを",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 296,
+          "original": "病貧争　全く消ゆる文化こそ　天国楽土の文化なりける",
+          "reading_hira": "びょうひんそう　まったくきゆるぶんかこそ　てんごくらくどのぶんかなりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 297,
+          "original": "天国の　固き礎漸くに　此土の上に打樹てられぬ",
+          "reading_hira": "てんごくの　かたきいしずえようやくに　このどのうえにうちたてられぬ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 298,
+          "original": "仏の世は　すみ極まりて待ち望む　弥勒の御代は生れんとすも",
+          "reading_hira": "ぶつのよは　すみきわまりてまちのぞむ　みろくのみよはうまれんとすも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 299,
+          "original": "厭離穢土　澄み浄められ新しき　楽しき御代は現れなむとすも",
+          "reading_hira": "おんりえど　すみきよめられあたらしき　たのしきみよはあれなんとすも",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "諸の聖者",
+      "title_furigana": "もものせいじゃ",
+      "count_declared": 7,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 300,
+          "original": "キリストも 釈迦も孔子もこの救ひ 如何に待たれし天国に居まして",
+          "reading_hira": "きりすとも　しゃかもこうしもこのすくい　いかにまたれしてんごくにいまして",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 301,
+          "original": "バイブルも　仏書も此世の弥果に　救世の力の出づるを示せる",
+          "reading_hira": "ばいぶるも　ぶっしょもこのよのいやはてに　ぐせのちからのいずるをしめせる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 302,
+          "original": "キリストの　宣らせ給ひし天国の　福音吾は伝へむとすも",
+          "reading_hira": "きりすとの　のらせたまいしてんごくの　ふくいんわれはつたえんとすも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 303,
+          "original": "キリストも　釈迦もメシヤの生れまさむ　時来るまでの露払ひなる",
+          "reading_hira": "きりすとも　しゃかもめしやのあれまさん　ときくるまでのつゆはらいなる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 304,
+          "original": "万民の　罪の贖ひ主にあらで　メシヤは罪の赦し主なる",
+          "reading_hira": "ばんみんの　つみのあがないぬしにあらで　めしやはつみのゆるしぬしなる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 305,
+          "original": "万民の　救ひの主は世の終りに　生るるとキリストの君はいひける",
+          "reading_hira": "ばんみんの　すくいのぬしはよのおわりに　あるるときりすとのきみはいいける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 306,
+          "original": "キリストは　贖い主と生れ給ひ　メシヤは救ひの主と生るるも",
+          "reading_hira": "きりすとは　あがないぬしとあれたまい　めしやはすくいのぬしとあるるも",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "芸術",
+      "title_furigana": "げいじゅつ",
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 307,
+          "original": "芸術の　高き匂ひは人の世の　いとも尊きものにぞありける",
+          "reading_hira": "げいじゅつの　たかきにおいはひとのよの　いともとうときものにぞありける",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 308,
+          "original": "芸術を　楽しむ心裕なる　人こそ天国に住すればなり",
+          "reading_hira": "げいじゅつを　たのしむこころゆたかなる　ひとこそてんごくにじゅうすればなり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 309,
+          "original": "人の情　月雪花に目を外らす　人は身魂の低ければなり",
+          "reading_hira": "ひとのなさけ　つきゆきはなにめをそらす　ひとはみたまのひくければなり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 310,
+          "original": "春の花　秋の紅葉を愛ずるこそ　神の恵みに応ふるなりける",
+          "reading_hira": "はるのはな　あきのもみじをめずるこそ　かみのめぐみにこたうるなりける",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 311,
+          "original": "花笑ひ　百鳥歌ふ春ぬ野は　神が誘ふ天国の苑",
+          "reading_hira": "はなわらい　ももとりうたうはるぬのは　かみがいざなうてんごくのその",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 312,
+          "original": "山河草木　こよなき眺めは人の目を　楽しませます神の芸術",
+          "reading_hira": "さんかそうもく　こよなきながめはひとのめを　たのしませますかみのげいじゅつ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 313,
+          "original": "古への　聖者は紙衣白木綿に　包まれたれど我はしかせじ",
+          "reading_hira": "いにしえの　せいじゃはかみこしらゆうに　つつまれたれどわれはしかせじ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 314,
+          "original": "天国に　世人救はむ望みもて　吾先ず天国の人となるなり",
+          "reading_hira": "てんごくに　よびとすくわんのぞみもて　われまずてんごくのひととなるなり",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 315,
+          "original": "如何ならむ　聖者といえど己が身の　地獄にありて世を救はめや",
+          "reading_hira": "いかならん　せいじゃといえどおのがみの　じごくにありてよをすくわめや",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 316,
+          "original": "花鳥風月　吾は友とし憂き多き　世にも楽しく生きむとぞ思ふ",
+          "reading_hira": "かちょうふうげつ　われはともとしうきおおき　よにもたのしくいきんとぞおもう",
+          "marker": "**",
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "戒心",
+      "title_furigana": "かいしん",
+      "count_declared": 8,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 317,
+          "original": "物にのみ　頼りし事の愚かさを　世人悟らむ時ぞ来ぬるも",
+          "reading_hira": "ものにのみ　たよりしことのおろかさを　よびとさとらんときぞきぬるも",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 318,
+          "original": "近み来る　正しき御世を知らずして　未だ曲事企む哀れさ",
+          "reading_hira": "ちかみくる　ただしきみよをしらずして　いまだまがことたくむあわれさ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 319,
+          "original": "物の慾　ほどほどにせよ越え難き　峠来ぬれば如何にとやせむ",
+          "reading_hira": "もののよく　ほどほどにせよこえがたき　とうげきぬればいかにとやせむ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 320,
+          "original": "儚なきは 明日をも知らぬ運命もつ 人のきりなき慾にこそあれ",
+          "reading_hira": "はかなきは　あすをもしらぬさだめもつ　ひとのきりなきよくにこそあれ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 321,
+          "original": "飢に哭く　民草憐れ長き世を　神忘れにし咎にかあらむ",
+          "reading_hira": "うえになく　たみぐさあわれながきよを　かみわすれしにとがにかあらむ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 322,
+          "original": "大いなる　救の神業に仕へ奉る　人こそ大き心もてかし",
+          "reading_hira": "おおいなる　すくいのみわざにつかえまつる　ひとこそおおきこころもてかし",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 323,
+          "original": "いと高き　尊きものは人なりと　思ふ人こそ人たる人なり",
+          "reading_hira": "いとたかき　とうときものはひとなりと　おもうひとこそひとたるひとなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 324,
+          "original": "争ひを　恥と思はぬ心もつ　人こそ卑しき人にありける",
+          "reading_hira": "あらそいを　はじとおもわぬこころもつ　ひとこそいやしきひとにありける",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "完き教へ",
+      "title_furigana": "まったきおしえ",
+      "count_declared": 7,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 325,
+          "original": "諸々の　教へはあれど完きの　教へは外にあらじとぞ思ふ",
+          "reading_hira": "もろもろの　おしえはあれどまったきの　おしえはほかにあらじとぞおもう",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 326,
+          "original": "信仰は　いくつともなく出でたれど　未だ此世を救へぬぞ憂き",
+          "reading_hira": "しんこうは　いくつともなくいでたれど　いまだこのよをすくえぬぞうき",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 327,
+          "original": "宗教を　科学もて解き科学をば　宗教に解く我書を見よ",
+          "reading_hira": "しゅうきょうを　かがくもてときかがくをば　しゅうきょうにとくわがふみをみよ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 328,
+          "original": "過現未を　いとありやかに示す書　未だ此世にあらざりしなり",
+          "reading_hira": "かげんみを　いとありやかにしめすふみ　いまだこのよにあらざりしなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 329,
+          "original": "此教へ　知らぬ人こそ哀れなれ　真の幸を掴み得ざれば",
+          "reading_hira": "このおしえ　しらぬひとこそあわれなれ　まことのさちをつかみえざれば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 330,
+          "original": "人の文化　より外知らぬ世の人に　吾は知らさん神の文化を",
+          "reading_hira": "ひとのぶんか　よりほかしらぬよのひとに　われはしらさんかみのぶんかを",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 331,
+          "original": "世を挙げて　讃へむ時ぞ待たれぬる　我神業の普ねかりせば",
+          "reading_hira": "よをあげて　たたえんときぞまたれぬる　わがかむわざのあまねかりせば",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "生死一如",
+      "title_furigana": "せいしいちにょ",
+      "count_declared": 8,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 332,
+          "original": "生き変り　死に変りつ永久の　生命の主は人にぞあるなり",
+          "reading_hira": "いきかわり　しにかわりつとこしえの　いのちのぬしはひとにぞあるなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 333,
+          "original": "生まるるも 死ぬるも深きわけあるを 知らで世人を導き得べしや",
+          "reading_hira": "うまるるも　しぬるもふかきわけあるを　しらでよびとをみちびきうべしや",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 334,
+          "original": "幽世の　事ども知らで道を説く　人の言葉は空虚なりける",
+          "reading_hira": "かくりよの　ことどもしらでみちをとく　ひとのことばはくうきょなりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 335,
+          "original": "己が身の　神に造られたも知らで　神は此世に無しとう愚かさ",
+          "reading_hira": "おのがみの　かみにつくられたもしらで　かみはこのよになしとうおろかさ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 336,
+          "original": "永久に　人の生命はあるものと　知りて初めて人たる人なり",
+          "reading_hira": "とこしえに　ひとのいのちはあるものと　しりてはじめてひとたるひとなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 337,
+          "original": "永遠の　生命の幸を作れかし　此現世にありし間に",
+          "reading_hira": "とことわの　いのちのさちをつくれかし　このうつしよにありしあいだに",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 338,
+          "original": "朽ちず焼けぬ 宝といふは目に見えぬ 徳を施す事にぞありける",
+          "reading_hira": "くちずやけぬ　たからというはめにみえぬ　とくをほどこすことにぞありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 339,
+          "original": "幽世に います垂乳根に尽くすこそ こよなき真の孝にぞありける",
+          "reading_hira": "かくりよに　いますたらちねにつくすこそ　こよなきまことのこうにぞありける",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "安心立命",
+      "title_furigana": "あんしんりゅうめい",
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 340,
+          "original": "千早振　神の光に照らされて　常暗の世も安く生きなん",
+          "reading_hira": "ちはやぶる　かみのひかりにてらされて　とこやみのよもやすくいきなん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 341,
+          "original": "奴羽玉の　闇に杖なく彷へる　人こそ訪ねよ光明の国",
+          "reading_hira": "ぬばたまの　やみにつえなくさまよえる　ひとこそたずねよこうみょうのくに",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 342,
+          "original": "大いなる　悩みを他に喜びの　槌揮ふなり神の信徒",
+          "reading_hira": "おおいなる　なやみをよそによろこびの　つちふるうなりかみのまめひと",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 343,
+          "original": "右左　争ふ世をば知らぬがに　歓喜に生くる神の僕等",
+          "reading_hira": "みぎひだり　あらそうよをばしらぬがに　かんきにいくるかみのしもべら",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 344,
+          "original": "美はしき　花見る毎に憶ふかな　神の恵みの如何に深きを",
+          "reading_hira": "うるわしき　はなみるごとにおもうかな　かみのめぐみのいかにふかきを",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 345,
+          "original": "吹き荒ぶ　嵐の外に安かりぬ　神の護りを享くる此身は",
+          "reading_hira": "ふきすさぶ　あらしのそとにやすかりぬ　かみのまもりをうくるこのみは",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 346,
+          "original": "いと小さき　我家なれども大神の　恵の幸に天国なりける",
+          "reading_hira": "いとちさき　わがやなれどもおおかみの　めぐみのさちにてんごくなりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 347,
+          "original": "救はれて　恐るるものは世にあらじ　神を力に進む此身は",
+          "reading_hira": "すくわれて　おそるるものはよにあらじ　かみをちからに　すすむこのみは",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 348,
+          "original": "有難し　嗚呼〔噫〕有難し救はれて　我家ぬちは此世の天国",
+          "reading_hira": "ありがたし　ああありがたしすくわれて　わがいえぬちはこのよのてんごく",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 349,
+          "original": "嬉しきは　地獄にも似し我過去　いつしか忘らひ天国のさま",
+          "reading_hira": "うれしきは　じごくにもにしわがすぐせ　いつしかわすらいてんごくのさま",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "盲",
+      "title_furigana": "めしい",
+      "count_declared": 12,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 350,
+          "original": "善悪の　差別も分かぬ眼もつ　盲のはばる世にぞありける",
+          "reading_hira": "ぜんあくの　けじめもわかぬまなこもつ　めしいのはばるよにぞありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 351,
+          "original": "善ものを　善とし悪きを悪と見る　眼は正しき眼なりける",
+          "reading_hira": "よきものを　よしとしあしきをあしとみる　まなこはただしきまなこなりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 352,
+          "original": "人の眼は　偽り得ても神の眼は　偽り得ぬと知る人の幸",
+          "reading_hira": "ひとのめは　いつわりえてもかみのめは　いつわりえぬとしるひとのさち",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 353,
+          "original": "愚かなる 人とは悪なる種を蒔き 刈りとる悩み知らぬにぞある",
+          "reading_hira": "おろかなる　ひととはあくなるたねをまき　かりとるなやみしらぬにぞある",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 354,
+          "original": "大いなる　幸を賜はる御救ひに　眼を閉づる人の哀れさ",
+          "reading_hira": "おおいなる　さちをたまわるみすくいに　まなこをとずるひとのあわれさ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 355,
+          "original": "神在るを　知らぬ世人の浅ましさ　心の盲知る由もなく",
+          "reading_hira": "かみあるを　しらぬよびとのあさましさ　こころのめしいしるよしもなく",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 356,
+          "original": "如何ならむ 奇蹟も盲には見えざらめ 豚に真珠の譬への如くに",
+          "reading_hira": "いかならん　きせきもめしいにはみえざらめ　ぶたにしんじゅのたとえのごとくに",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 357,
+          "original": "本物を　贋物と思ひ贋物を　本物と思ふは盲なればなり",
+          "reading_hira": "ほんものを　にせものとおもいにせものを　ほんものとおもうはめしいなればなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 358,
+          "original": "世に哀れ　なるは盲ぞ地獄をば　天国と見紛ひ足らひゐるなり",
+          "reading_hira": "よにあわれ　なるはめしいぞじごくをば　てんごくとみまがいたらいいるなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 359,
+          "original": "己が生命　助からんとして逆しらに　滅ぶる人の多き世なるも",
+          "reading_hira": "おのがいのち　たすからんとしてさかしらに　ほろぶるひとのおおきよなるも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 360,
+          "original": "よしやよし　金剛石を見するとて　盲は只の小石と思はむ",
+          "reading_hira": "よしやよし　こんごうせきをみするとて　めしいはただのこいしとおもわん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 361,
+          "original": "我教へ　詮じ詰むれば世の盲の　眼を開く事にぞありける",
+          "reading_hira": "わがおしえ　せんじつむればよのめしいの　まなこをひらくことにぞありける",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "熱海",
+      "title_furigana": "あたみ",
+      "count_declared": 7,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 362,
+          "original": "冬知らぬ　熱海愛まし一月に　梅咲き二月に桜咲くなり",
+          "reading_hira": "ふゆしらぬ　あたみめぐましいちがつに　うめさきにがつにさくらさくなり",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 363,
+          "original": "海山の　景色美はし温泉湧き　熱海は此世の天国なるかも",
+          "reading_hira": "うみやまの　けしきうるわしいでゆわき　あたみはこのよのてんごくなるかも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 364,
+          "original": "静かなる　海に浮かべる初島を　遥かに眺めつ温泉につかれる",
+          "reading_hira": "しずかなる　うみにうかべるはつしまを　はるかにながめついでゆにつかれる",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 365,
+          "original": "山清く　海静かなる熱海はも　温泉のありて足らぬものなき",
+          "reading_hira": "やまきよく　うみしずかなるあたみはも　いでゆのありてたらぬものなき",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 366,
+          "original": "山水の　美は整ひて暖かく　足らぬものなき熱海よきかな",
+          "reading_hira": "さんすいの　びはととのいてあたたかく　たらぬものなきあたみよきかな",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 367,
+          "original": "熱海程 美はしき地はあらざらめ 神は前つに備へしなるらめ",
+          "reading_hira": "あたみほど　うるわしきちはあらざらめ　かみはまえつにそなえしなるらめ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 368,
+          "original": "大神は　熱海を選み天国の　型造るべう吾に任しぬ",
+          "reading_hira": "おおかみは　あたみをえらみてんごくの　かたつくるべうわれによさしぬ",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "瑞雲天国（一）",
+      "title_furigana": "ずいうんてんごく１",
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 369,
+          "original": "常春の　姿そのまま表はして　地上天国吾造らむとすも",
+          "reading_hira": "とこはるの　すがたそのままあらわして　ちじょうてんごくわれつくらんとすも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 370,
+          "original": "花笑ひ　百鳥歌ふ天国の　状を写せる瑞雲郷かな",
+          "reading_hira": "はなわらい　ももとりうたうてんごくの　さまをうつせるずいうんきょうかな",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 371,
+          "original": "宛らに　天国なるかも咲き盛る　百花の香に酔ひ海山眺むる",
+          "reading_hira": "さながらに　てんごくなるかもさきさかる　ひゃっかのかによいうみやまながむる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 372,
+          "original": "現世に　斯くも妙なるパラダイス　ありやと思ふ瑞雲天国",
+          "reading_hira": "うつしよに　かくもたえなるぱらだいす　ありやとおもうずいうんてんごく",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 373,
+          "original": "桜雲の　靉びく奥に絵の如く　霞に浮か〔泛〕ぶ白亜の殿堂",
+          "reading_hira": "おううんの　たなびくおくにえのごとく　かすみにうかぶはくあのでんどう",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 374,
+          "original": "宛らに　天国紫微宮偲ばれぬ　花雲に聳ゆる崇高き館は",
+          "reading_hira": "さながらに　てんごくしびきゅうしのばれぬ　かうんにそびゆるけだかきやかたは",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 375,
+          "original": "伝へ聞く　祇園精舎にいや優る　極楽境を熱海に造らむ",
+          "reading_hira": "つたえきく　ぎおんしょうじゃにいやまさる　ごくらくきょうをあたみにつくらん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 376,
+          "original": "百花の　色香を賞でつ目をやれば　遥かに霞む伊豆の島山",
+          "reading_hira": "ももはなの　いろかをめでつめをやれば　はるかにかすむいずのしまやま",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 377,
+          "original": "天然と　人工の美を心ゆく　まで表はせる瑞雲天国",
+          "reading_hira": "てんねんと　じんこうのびをこころゆく　まであらわせるずいうんてんごく",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 378,
+          "original": "現世の　穢れに染みし諸人の　心を洗ふ天国の苑",
+          "reading_hira": "うつしよの　けがれにそみしもろびとの　こころをあらうてんごくのその",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "瑞雲天国（二）",
+      "title_furigana": "ずいうんてんごく２",
+      "count_declared": 11,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 379,
+          "original": "疲れたる　世人静かに憩はせむ　天国の型吾は造りて",
+          "reading_hira": "つかれたる　よびとしずかにいこわせん　てんごくのかたわれはつくりて",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 380,
+          "original": "口々に 人そやすなり瑞雲郷に あれば憂きの世忘らへるとや",
+          "reading_hira": "くちぐちに　ひとそやすなりずいうんきょうに　あればうきのよわすらえるとや",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 381,
+          "original": "現世の　地獄に喘ぐ諸人を　暫しなりとも天国に導く",
+          "reading_hira": "うつしよの　じごくにあえぐもろびとを　しばしなりともてんごくにみちびく",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 382,
+          "original": "宛らに　羽化登仙の思ひすも　晴々台上に四方眺むれば",
+          "reading_hira": "さながらに　うかとうせんのおもいすも　せいせいだいじょうによもながむれば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 383,
+          "original": "真下には　花雲靉びき遥らかに　海山眺むる晴々台上",
+          "reading_hira": "ましたには　かうんたなびきはろらかに　うみやまながむるせいせいだいじょう",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 384,
+          "original": "百花の　咽ぶが如く咲きさかる　瑞雲郷は春の天国",
+          "reading_hira": "ももはなの　むせぶがごとくさきさかる　ずいうんきょうははるのてんごく",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 385,
+          "original": "外国の 人もやがては集ひ来む 世に二つなきパラダイスなれば",
+          "reading_hira": "とつくにの　ひともやがてはつどいこん　よにふたつなきぱらだいすなれば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 386,
+          "original": "絵巻物　繰り展げたるが如くにて　ただ恍惚たりぬ景観台の上",
+          "reading_hira": "えまきもの　くりひろげたるがごとくにて　ただこうこつたりぬけいかんだいのうえ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 387,
+          "original": "万人の　心を和め気を休め　美を楽します地上天国",
+          "reading_hira": "ばんにんの　こころをなごめきをやすめ　びをたのしますちじょうてんごく",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 388,
+          "original": "美はしき　百花千花は山埋め　天国楽土を偲ばするなり",
+          "reading_hira": "うるわしき　ももはなちはなはやまうずめ　てんごくらくどをしのばするなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 389,
+          "original": "大自然の　美しさこそ外になき　尊き無言の教へなりけり",
+          "reading_hira": "だいしぜんの　うつくしさこそほかになき　とうときむごんのおしえなりけり",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "神人の業",
+      "title_furigana": "しんじんのわざ",
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 390,
+          "original": "人にして　神にしありぬ神にして　人にあらねば世ぞ救へまじ",
+          "reading_hira": "ひとにして　かみにしありぬかみにして　ひとにあらねばよぞすくえまじ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 391,
+          "original": "超凡の　力にあらねば罪穢　極りなき世を救ひ得べしや",
+          "reading_hira": "ちょうぼんの　ちからにあらねばつみけがれ　きわまりなきよをすくいうべしや",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 392,
+          "original": "久方の　天より降るいと高き　救ひの主の御業讃へむ",
+          "reading_hira": "ひさかたの　あめよりくだるいとたかき　すくいのぬしのみわざたたえん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 393,
+          "original": "救世の　神の御力おほけなくも　賜ひて吾に任し給ひぬ",
+          "reading_hira": "きゅうせいの　かみのみちからおおけなくも　たまいてわれによさしたまいぬ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 394,
+          "original": "人の力　如何に強くも九分九厘の　瀬戸際に来て覆へるなり",
+          "reading_hira": "ひとのちから　いかにつよくもくぶくりんの　せとぎわにきてくつがえるなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 395,
+          "original": "人の力は 九分九厘神の力は十全と 知る人にして救はれしなる",
+          "reading_hira": "ひとのちからは　くぶくりんかみのちからはじゅうぜんと　しるひとにしてすくわれしなる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 396,
+          "original": "一厘の　玉の光は日に月に　常暗の世に拡ぎゆくなり",
+          "reading_hira": "いちりんの　たまのひかりはひにつきに　とこやみのよにひろぎゆくなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 397,
+          "original": "如何ならむ　曲津といへど唯一つ　敵はぬものは大浄力なり",
+          "reading_hira": "いかならん　まがつといえどただひとつ　かなわぬものはだいじょうりきなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 398,
+          "original": "待ち望む　真の救ひは現はれぬ　眼醒ませよ万国人",
+          "reading_hira": "まちのぞむ　まことのすくいはあらわれぬ　まなこさませよよろずくにびと",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 399,
+          "original": "善と悪　たて分け給ふ御力を　揮ふメシヤの神業畏し",
+          "reading_hira": "ぜんとあく　たてわけたまうみちからを　ふるうめしやのみわざかしこし",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "法難",
+      "title_furigana": "ほうなん",
+      "count_declared": 9,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 400,
+          "original": "力弱き　我魂を鍜〔鍛〕めんと　神は法難を与え給ひぬ",
+          "reading_hira": "ちからよわき　わがたましいをきためんと　かみはほうなんをあたえたまいぬ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 401,
+          "original": "大神は　珍の神業ひそやかに　成さしめんとて牢獄選みぬ",
+          "reading_hira": "おおかみは　うずのかむわざひそやかに　なさしめんとてひとやえらみぬ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 402,
+          "original": "いと深き　神の仕組は人の眼の　届かぬ牢獄を選み給ひぬ",
+          "reading_hira": "いとふかき　かみのしぐみはひとのめの　とどかぬひとやをえらみたまいぬ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 403,
+          "original": "救世の　深き神秘を明さむと　神は牢獄に誘ひにけり",
+          "reading_hira": "きゅうせいの　ふかきしんぴをあかさんと　かみはひとやにいざないにけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 404,
+          "original": "我運命　奇しと思ひぬふり見れば　荊の道を幾度越え来し",
+          "reading_hira": "わがさだめ　くしとおもいぬふりみれば　いばらのみちをいくどこえきし",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 405,
+          "original": "高山も　深谷川もいと安く　越えて来にけり神の護りに",
+          "reading_hira": "たかやまも　ふかかにがわもいとやすく　こえてきにけりかみのまもりに",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 406,
+          "original": "人よりも　苦しき事あり人よりも　楽しき事あり我運命はも",
+          "reading_hira": "ひとよりも　くるしきことありひとよりも　たのしきことありわがさだめはも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 407,
+          "original": "惟神　神のまにまに進む身は　諸の悩みもうち消ゆるなり",
+          "reading_hira": "かむながら　かみのまにまにすすむみは　もものなやみもうちきゆるなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 408,
+          "original": "如何ならむ　悩みに遭ふも躊らはじ　誠一つに進みゆく身は",
+          "reading_hira": "いかならん　なやみにあうもためらわじ　まことひとつにすすみゆくみは",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "偶感",
+      "title_furigana": "ぐうかん",
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 409,
+          "original": "草萌ゆる　春野は何時に易らねど　移りゆく世の憂れたき姿よ",
+          "reading_hira": "くさもゆる　はるのはいつにかわらねど　うつりゆくよのうれたきすがたよ",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 410,
+          "original": "美はしき　花に憧る人こそは　花にも似たる心持つなり",
+          "reading_hira": "うるわしき　はなにあこがるひとこそは　はなにもにたるこころもつなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 411,
+          "original": "人の世の　楽しさ知りぬ庭に咲く　椿一輪床に飾りて",
+          "reading_hira": "ひとのよの　たのしさしりぬにわにさく　つばきいちりんとこにかざりて",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 412,
+          "original": "花は咲き　鳥歌へども楽しめぬ　世こそ憂たてし我住める国",
+          "reading_hira": "はなはさき　とりうたえどもたのしめぬ　よこそうたてしわがすめるくに",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 413,
+          "original": "人の世の　苦楽の因はみな己が　手もて作りしものにありける",
+          "reading_hira": "ひとのよの　くらくのもとはみなおのが　てもてつくりしものにありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 414,
+          "original": "誠なり　嗚呼〔噫〕誠なり此国に　欲しきは誠の一字なりけり",
+          "reading_hira": "まことなり　ああまことなりこのくにに　ほしきはまことのいちじなりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 415,
+          "original": "国の悩み　解けぬは諸の司等が　誠の乏しき故にぞありける",
+          "reading_hira": "くにのなやみ　とけぬはもものつかさらが　まことのとぼしきゆえにぞありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 416,
+          "original": "天をます 大樹も双葉のいと小さき 頃もありける世にしあるなり",
+          "reading_hira": "てんをます　おおきもふたばのいとちさき　ころもありけるよにしあるなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 417,
+          "original": "誤れる　文明を真の文明と　思う盲の眼醒まさむ",
+          "reading_hira": "あやまれる　ぶんめいをしんのぶんめいと　おもうめしいのまなこさまさん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 418,
+          "original": "信仰を　只一口に約むれば　誠の一字につくるなりけり",
+          "reading_hira": "しんこうを　ただひとくちにちぢむれば　まことのいちじにつくるなりけり",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "吾",
+      "title_furigana": "われ",
+      "count_declared": 12,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 419,
+          "original": "四十五歳　吾見真実となりてより　説きし悉真理にぞある",
+          "reading_hira": "しじゅうごさい　われけんしんじつとなりてより　ときしことごとしんりにぞある",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 420,
+          "original": "見真実の　我眼に映る現世は　塵や芥に埋もれており",
+          "reading_hira": "けんしんじつの　わがめにうつるうつしよは　ちりやあくたにうずもれており",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 421,
+          "original": "人の世に　例しとてなき大いなる　力を神は吾に給ひぬ",
+          "reading_hira": "ひとのよに　ためしとてなきおおいなる　ちからをかみはわれにたまいぬ",
+          "marker": "*",
+          "translation_pending": true
+        },
+        {
+          "number": 422,
+          "original": "大いなる　望みに生くる吾にして　小さき事にも心配るなり",
+          "reading_hira": "おおいなる　のぞみにいくるわれにして　ちさきことにもこころくばるなり",
+          "marker": "**",
+          "translation_pending": true
+        },
+        {
+          "number": 423,
+          "original": "如何ならむ　非難譏りも来れかし　吾には破邪の剣ありせば",
+          "reading_hira": "いかならん　ひなんそしりもきたれかし　われにははじゃのつるぎありせば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 424,
+          "original": "我身魂　磨かれんとして大神は　枉とう砥石用ひ給ふも",
+          "reading_hira": "わがみたま　みがかれんとしておおかみは　まがとうといしもちいたまうも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 425,
+          "original": "事繁く　我為す業の一片にも　深き神意の籠れると知れ",
+          "reading_hira": "ことしげく　わがなすわざのひとひらにも　ふかきしんいのこもれるとしれ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 426,
+          "original": "ふみ迷ひ　行手もわかぬ小羊を　いと懇ろに吾は導く",
+          "reading_hira": "ふみまよい　ゆくてもわかぬこひつじを　いとねもごろにわれはみちびく",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 427,
+          "original": "人の世に　まだ見ぬ文明の創造とふ　珍の神書を吾かき綴るなり",
+          "reading_hira": "ひとのよに　まだみぬぶんめいのそうぞうとう　うずのしんしょをわれかきつづるなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 428,
+          "original": "キリストや 釈迦マホメットさへ行はぬ 救ひの神業吾為し遂げむかも",
+          "reading_hira": "きりすとや　しゃかまほめっとさえおこなわぬ　すくいのみわざわれなしとげんかも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 429,
+          "original": "神に叛き　吾を譏りし盲等の　悔改める状見るぞ憂き",
+          "reading_hira": "かみにそむき　われをそしりしめしいらの　くいあらためるさまみるぞうき",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 430,
+          "original": "吾もしも 生まれざりせば人の世は やがて潰えなむとふと思ひける",
+          "reading_hira": "われもしも　うまれざりせばひとのよは　やがてついえなんとふとおもいける",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "無題歌",
+      "title_furigana": "むだいか",
+      "count_declared": 11,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 431,
+          "original": "天に恥ぢず　地に怖れなき人にこそ　神が愛もう赤子なるらむ",
+          "reading_hira": "てんにはじず　ちにおそれなきひとにこそ　かみがめぐもうせきしなるらん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 432,
+          "original": "只神の　御心に叶ふよう〔やふ〕にせよ　人の目口に心惹かれそ",
+          "reading_hira": "ただかみの　みこころにかなうようにせよ　ひとのめくちにこころひかれそ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 433,
+          "original": "地上天国も　詮じ詰めれば暗がりも　秘密も嘘もなき世なりける",
+          "reading_hira": "ちじょうてんごくも　せんじつめればくらがりも　ひみつもうそもなきよなりける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 434,
+          "original": "眼開き　破壊の裏に創造の　槌を揮はす神業見られよ",
+          "reading_hira": "まなこひらき　はかいのうらにそうぞうの　つちをふるわすみわざみられよ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 435,
+          "original": "世の終り　延ばし延ばして一人だも　多く救はす神の御心",
+          "reading_hira": "よのおわり　のばしのばしてひとりだも　おおくすくわすかみのみこころ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 436,
+          "original": "如意の玉　うち揮ひなば如何ならむ　人としいへど眼くらまむ",
+          "reading_hira": "にょいのたま　うちふるいなばいかならん　ひととしいえどまなこくらまん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 437,
+          "original": "美須摩琉の　玉の光は日に月に　輝き増すなり眼開けよ",
+          "reading_hira": "みすまるの　たまのひかりはひにつきに　かがやきますなりまなこひらけよ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 438,
+          "original": "何事も　思ひに委せぬ現世に　頼るは神の力のみなり",
+          "reading_hira": "なにごとも　おもいにまかせぬうつしよに　たよるはかみのちからのみなり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 439,
+          "original": "只神の　大御心に叶はむと　努むる人こそ真人なりけり",
+          "reading_hira": "ただかみの　おおみこころにかなわんと　つとむるひとこそまびとなりけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 440,
+          "original": "人の罪　尤むる人こそ神よりの　咎め蒙ぶる人にぞありける",
+          "reading_hira": "ひとのつみ　とがむるひとこそかみよりの　とがめかかぶるひとにぞありける",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 441,
+          "original": "醜雲の　漂ふ中の此国に　崇高く聳ゆる富士の霊峰",
+          "reading_hira": "しこぐもの　ただようなかのこのくにに　けだかくそびゆるふじのれいほう",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "付 録",
+      "title_furigana": null,
+      "count_declared": null,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": []
+    },
+    {
+      "title_jp": "結婚",
+      "title_furigana": "けっこん",
+      "count_declared": 11,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [],
+      "poems": [
+        {
+          "number": 442,
+          "original": "汝と吾と　結びし今日の嬉しさよ　神の定めし縁にありせば",
+          "reading_hira": "なれとわれと　むすびしきょうのうれしさよ　かみのさだめしえにしにありせば",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 443,
+          "original": "今日よりは　力を協せひたむきに　世の為道の為に尽く〔尽〕さん",
+          "reading_hira": "きょうよりは　ちからをあわせひたむきに　よのためみちのためにつくさん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 444,
+          "original": "御恵に　結ばれたりし縁なれば　末の末迄添ひ遂げんとぞ誓ふ",
+          "reading_hira": "みめぐみに　むすばれたりしえにしなれば　すえのすえまでそいとげんとぞちかう",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 445,
+          "original": "大神の　深き御恵み畏みて　友白髪まで添ひ遂げむかも",
+          "reading_hira": "おおかみの　ふかきみめぐみかしこみて　ともしらがまでそいとげんかも",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 446,
+          "original": "何事も　神の御むねに委ねつつ　心安らに共進まなむ",
+          "reading_hira": "なにごとも　かみのみむねにゆだねつつ　こころやすらにむだすすまなむ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 447,
+          "original": "神を背に　誠を杖に手を連ね　進む行手になどさやりあらめや",
+          "reading_hira": "かみをせに　まことをつえにてをつらね　すすむゆくてになどさやりあらめや",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 448,
+          "original": "如何ならむ　悩みに遭ふも心を合わせ　道守りなばなど恐れめや",
+          "reading_hira": "いかならん　なやみにあうもこころをあわせ　みちまもりなばなどおそれめや",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 449,
+          "original": "相共に　神の正道守りつつ　生くれば楽しき此世なりけり",
+          "reading_hira": "あいともに　かみのまさみちまもりつつ　いくればたのしきこのよなりけり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 450,
+          "original": "尊きは　夫婦の仲も睦じく　幾千代かけて変らぬにあり",
+          "reading_hira": "とうときは　ふうふのなかもむつまじく　いくちよかけてかわらぬにあり",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 451,
+          "original": "曲神は　夫婦の道を乱さんと　狙ひつめをり心せよかし",
+          "reading_hira": "まがかみは　ふうふのみちをみださんと　ねらいつめおりこころせよかし",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 452,
+          "original": "男女　固く結べば如何ならむ　事にも耐へて安くゆくめり",
+          "reading_hira": "おのこおみな　かたくむすべばいかならん　ことにもこらえてやすくゆくめり",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    },
+    {
+      "title_jp": "救霊",
+      "title_furigana": "きゅうれい",
+      "count_declared": 10,
+      "title_pt": "",
+      "year_jp": null,
+      "year_iso": null,
+      "notes_jp": [
+        "全四六二首収録"
+      ],
+      "poems": [
+        {
+          "number": 453,
+          "original": "惜しまれつ　此世去りにし汝なりき　はや天国の門に入るらむ",
+          "reading_hira": "おしまれつ　このよさりにしなれなりき　はやてんごくのもんにいるらん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 454,
+          "original": "幽世の　神に祈りて天国の　人となれかし一日も早く",
+          "reading_hira": "かくりよの　かみにいのりててんごくの　ひととなれかしひとひもはやく",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 455,
+          "original": "惜しみても　尚余りある汝なれど　神の運命は如何とも詮なし",
+          "reading_hira": "おしみても　なおあまりあるなれなれど　かみのさだめはいかんともせんなし",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 456,
+          "original": "現身の　世にては叶はぬ御救の　業も叶はん霊の御国は",
+          "reading_hira": "うつそみの　よにてはかなわぬみすくいの　わざもかなわんたまのみくには",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 457,
+          "original": "幽世の　神に只管願ぎ申すは　今去りましし汝の幸ひ",
+          "reading_hira": "かくりよの　かみにひたすらねぎもうすは　いまさりまししなれのさちわい",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 458,
+          "original": "幽世に　入りし汝はも御救に　ひた励めよ力限りに",
+          "reading_hira": "かくりよに　いりしなれはもみすくいに　ひたいそしめよちからかぎりに",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 459,
+          "original": "現身の　救ひは限りあるものぞ　霊の救ひは自由無碍なる",
+          "reading_hira": "うつそみの　すくいはかぎりあるものぞ　たまのすくいはじゆうむげなる",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 460,
+          "original": "よしやよし　現世去りて幽世に　往くとて神の護りはかはらじ",
+          "reading_hira": "よしやよし　うつしよさりてかくりよに　ゆくとてかみのまもりはかわらじ",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 461,
+          "original": "幽世の　救の業も大神の　御旨に叶へば天国に入りなむ",
+          "reading_hira": "かくりよの　すくいのわざもおおかみの　みむねにかなえばてんごくにいりなん",
+          "marker": null,
+          "translation_pending": true
+        },
+        {
+          "number": 462,
+          "original": "尊きは　人とふものなり生き変り　死に変りつつ果てなの生命",
+          "reading_hira": "とうときは　ひととうものなりいきかわり　しにかわりつつはてなのいのち",
+          "marker": null,
+          "translation_pending": true
+        }
+      ]
+    }
+  ]
+}

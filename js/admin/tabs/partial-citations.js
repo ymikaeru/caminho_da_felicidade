@@ -260,17 +260,17 @@ function _highlightCit(s) {
   return _escHtml(s).replace(/(一部のみ引用|Citação parcial)/g, '<mark style="background:#fef3c7; padding:1px 3px; border-radius:3px;">$1</mark>');
 }
 
-// Extrai o trecho que vem logo após "（一部のみ引用）" no conteúdo da
-// citação parcial. Pega ~80 chars (sufficient pra um anchor único).
-// Usado pra localizar e destacar o mesmo trecho no conteúdo do alvo.
+// Extrai TODO o trecho que vem após "（一部のみ引用）" no conteúdo da
+// citação parcial — usado pra destacar o trecho completo no conteúdo
+// do alvo. Como as citações parciais são extratos verbatim, o texto
+// após o marcador deve aparecer literalmente no ensinamento completo.
 function _extractCitationExcerpt(contentJa) {
   if (!contentJa) return null;
-  const m = contentJa.match(/[（(]\s*一部のみ引用\s*[）)]\s*(.{20,120})/);
+  const m = contentJa.match(/[（(]\s*一部のみ引用\s*[）)]\s*([\s\S]+)$/);
   if (!m) return null;
-  // Pega só os ~80 primeiros chars do trecho — anchor suficiente sem
-  // arrastar muito ruído (cita parcial pode ser longa, mas pra
-  // localizar no completo precisamos só do começo)
-  return m[1].replace(/\s+/g, '').slice(0, 60);
+  // Remove fechamento de aspas final ("」, ", etc.) que possa fazer
+  // parte do invólucro de citação, mas não do trecho citado em si.
+  return m[1].trim().replace(/[」"”]+$/, '').trim();
 }
 
 // Localiza um trecho (ignorando espaços/quebras) dentro de um texto
@@ -292,16 +292,35 @@ function _findFuzzy(haystack, needle) {
   const needleNorm = needle.replace(/\s+/g, '');
   const idx = normalized.indexOf(needleNorm);
   if (idx === -1) return null;
-  return { start: map[idx], end: map[idx + needleNorm.length - 1] + 1 };
+  return { start: map[idx], end: map[idx + needleNorm.length - 1] + 1, normStart: idx };
 }
 
 function _highlightExcerpt(contentJa, excerpt) {
   if (!excerpt) return _highlightCit(contentJa);
-  const range = _findFuzzy(contentJa, excerpt);
+  // Usa os primeiros ~60 chars não-ws como anchor pra achar o início.
+  // Trechos muito longos podem ter pequenas variações de formatação no
+  // meio (que quebram um match exato), mas o INÍCIO é sempre verbatim.
+  const excerptNoWs = excerpt.replace(/\s+/g, '');
+  const anchor = excerptNoWs.slice(0, Math.min(60, excerptNoWs.length));
+  const range = _findFuzzy(contentJa, anchor);
   if (!range) return _highlightCit(contentJa);
+
+  // A partir do start do anchor, estende o highlight contando
+  // excerptNoWs.length chars não-whitespace no contentJa original.
+  // Assim cobre o trecho inteiro mesmo que tenha whitespace/quebras
+  // diferentes entre source e target.
+  const totalNonWs = excerptNoWs.length;
+  let nonWsCount = 0;
+  let endPos = range.start;
+  for (let i = range.start; i < contentJa.length; i++) {
+    if (!/\s/.test(contentJa[i])) nonWsCount++;
+    endPos = i + 1;
+    if (nonWsCount >= totalNonWs) break;
+  }
+
   const before = contentJa.slice(0, range.start);
-  const middle = contentJa.slice(range.start, range.end);
-  const after = contentJa.slice(range.end);
+  const middle = contentJa.slice(range.start, endPos);
+  const after = contentJa.slice(endPos);
   return _highlightCit(before)
     + `<mark style="background:#bbf7d0; padding:1px 3px; border-radius:3px; box-shadow:0 0 0 2px #86efac;" id="pc-excerpt-anchor">${_escHtml(middle)}</mark>`
     + _highlightCit(after);

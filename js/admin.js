@@ -26,7 +26,7 @@
     import './admin/tabs/analytics.js';
     import './admin/tabs/translation-review.js';
     import './admin/tabs/translation-review-guia.js';
-    import './admin/tabs/partial-citations.js?v=18';
+    import './admin/tabs/partial-citations.js?v=19';
     import './admin/tabs/recommendations.js';
     import './admin/tabs/poetry-versions.js?v=2';
 

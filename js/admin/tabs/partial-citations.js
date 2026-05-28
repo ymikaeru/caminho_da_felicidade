@@ -517,62 +517,27 @@ async function _runJpSearch() {
   resultsEl.querySelectorAll('.pc-jp-result').forEach((row) => {
     row.addEventListener('mouseenter', () => row.style.background = 'var(--accent-soft)');
     row.addEventListener('mouseleave', () => row.style.background = 'var(--bg-color)');
-    row.addEventListener('click', async () => {
+    row.addEventListener('click', () => {
       const hi = parseInt(row.dataset.hi, 10);
       const e = hits[hi].entry;
-      // Procura outras citações parciais (na lista _unmatched) com o
-      // MESMO trecho — candidatas a bulk-apply do mesmo mapeamento.
-      const related = _findRelatedPartials(query, _jpSearchCtx?.sourceItem ? _key(_jpSearchCtx.sourceItem) : null);
-      let bulkApply = false;
-      if (related.length > 0) {
-        bulkApply = confirm(
-          `Encontrei ${related.length} outra${related.length === 1 ? '' : 's'} citaç${related.length === 1 ? 'ão parcial' : 'ões parciais'} ` +
-          `com o mesmo trecho:\n\n${related.slice(0, 5).map((r) => `  • ${r.vol}/${r.file}#${r.topic_idx}`).join('\n')}` +
-          `${related.length > 5 ? `\n  • ... e mais ${related.length - 5}` : ''}` +
-          `\n\nMapear TODAS elas (mais esta) → ${e.v}/${e.f}#${e.i}?\n\n` +
-          `OK = mapeia todas\nCancelar = mapeia só a atual`
-        );
-      }
+      const sourceItem = _jpSearchCtx?.sourceItem;
+      const parsed = { vol: e.v, file: e.f, topic_idx: e.i };
+
+      // Pré-preenche o atalho da linha (pra user editar depois se quiser)
       if (_jpSearchCtx) {
-        // Preenche o atalho da linha que abriu a busca
         if (_jpSearchCtx.qvolEl) _jpSearchCtx.qvolEl.value = e.v;
         if (_jpSearchCtx.qfileEl) _jpSearchCtx.qfileEl.value = e.f;
-        if (_jpSearchCtx.qidxEl)  _jpSearchCtx.qidxEl.value  = String(e.i + 1); // 1-based
+        if (_jpSearchCtx.qidxEl)  _jpSearchCtx.qidxEl.value  = String(e.i + 1);
         if (_jpSearchCtx.onPick) _jpSearchCtx.onPick();
       }
-      _closeJpSearchModal();
 
-      // Bulk-apply assíncrono nas relacionadas (faz uma chamada por item;
-      // não é o mais eficiente mas é o mais simples e seguro)
-      if (bulkApply) {
-        const parsed = { vol: e.v, file: e.f, topic_idx: e.i };
-        const enriched = await _enrichWithTargetTitle(parsed);
-        const value = {
-          ...enriched,
-          added_at: new Date().toISOString(),
-          added_by: _myEmail || 'unknown',
-        };
-        // Atualiza estado em memória pra todos de uma vez, faz um único upload
-        const newLinks = { ...(_manualLinks || {}) };
-        for (const r of related) {
-          newLinks[_key(r)] = value;
-        }
-        try {
-          const payload = {
-            generated_at: new Date().toISOString(),
-            note: 'Mapeamentos manuais de citações parciais → ensinamento completo (interno). Editado via admin → aba "Citações Parciais".',
-            links: newLinks,
-          };
-          await _uploadManual(payload);
-          _manualLinks = newLinks;
-          for (const r of related) delete _pendingEdits[_key(r)];
-          _savePendingEdits();
-          alert(`✓ Bulk-apply concluído. ${related.length} citaç${related.length === 1 ? 'ão' : 'ões'} adicional${related.length === 1 ? '' : 'mente'} mapeada${related.length === 1 ? '' : 's'}.`);
-          _renderShell();
-          _renderList();
-        } catch (err) {
-          alert(`Erro no bulk-apply: ${err.message}`);
-        }
+      // Procura outras citações parciais com o mesmo trecho — viram
+      // candidatas a bulk-apply dentro do modal de comparação.
+      const related = sourceItem ? _findRelatedPartials(query, _key(sourceItem)) : [];
+
+      _closeJpSearchModal();
+      if (sourceItem) {
+        _openCompareModal(sourceItem, parsed, related);
       }
     });
   });
@@ -645,7 +610,7 @@ async function _openJpSearchModal(ctx) {
   }
 }
 
-async function _openCompareModal(sourceItem, targetParsed) {
+async function _openCompareModal(sourceItem, targetParsed, related = []) {
   const modal = _ensureCompareModal();
   modal.style.display = 'flex';
   const srcEl = document.getElementById('pc-cmp-src');
@@ -684,14 +649,27 @@ async function _openCompareModal(sourceItem, targetParsed) {
       const anchor = tgtEl.querySelector('#pc-excerpt-anchor');
       if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 100);
-    statusEl.innerHTML = `<span style="color:#065f46;">✓ Trecho após "(一部のみ引用)" destacado em verde no conteúdo do alvo.</span>`;
+    statusEl.innerHTML = `<span style="color:#065f46;">✓ Trecho destacado em verde no alvo.</span>`;
   } else {
-    statusEl.innerHTML = `<span style="color:var(--text-muted);">Não foi possível identificar trecho após "(一部のみ引用)" no origem — compare manualmente.</span>`;
+    statusEl.innerHTML = `<span style="color:var(--text-muted);">Não foi possível identificar trecho — compare manualmente.</span>`;
+  }
+  if (related && related.length > 0) {
+    statusEl.innerHTML += ` <span style="color:var(--accent); margin-left:8px;">· ${related.length} outra${related.length === 1 ? '' : 's'} cit${related.length === 1 ? '.' : 's.'} parcia${related.length === 1 ? 'l' : 'is'} com mesmo trecho serão mapeadas junto.</span>`;
   }
 
   if (srcTopic && tgtTopic) {
     confirmBtn.disabled = false;
     confirmBtn.style.opacity = 1;
+    // Se vier com `related` (pré-detectadas pela busca JP), oferece
+    // bulk-apply direto no footer do modal de comparação.
+    if (related && related.length > 0) {
+      confirmBtn.innerHTML = `✓ Mapear esta + ${related.length} outra${related.length === 1 ? '' : 's'} com mesmo trecho`;
+      confirmBtn.title = related.slice(0, 5).map((r) => `${r.vol}/${r.file}#${r.topic_idx}`).join('\n') +
+        (related.length > 5 ? `\n…e mais ${related.length - 5}` : '');
+    } else {
+      confirmBtn.innerHTML = '✓ Confirmar mapeamento';
+      confirmBtn.title = '';
+    }
     confirmBtn.onclick = async () => {
       const key = _key(sourceItem);
       const value = {
@@ -702,8 +680,36 @@ async function _openCompareModal(sourceItem, targetParsed) {
         added_at: new Date().toISOString(),
         added_by: _myEmail || 'unknown',
       };
-      await _publishSingle(key, value, confirmBtn);
-      _closeCompareModal();
+      if (related && related.length > 0) {
+        // Bulk: upload único com todos os entries
+        confirmBtn.innerHTML = '⏳ Salvando…';
+        confirmBtn.disabled = true;
+        try {
+          const newLinks = { ...(_manualLinks || {}) };
+          newLinks[key] = value;
+          for (const r of related) newLinks[_key(r)] = value;
+          const payload = {
+            generated_at: new Date().toISOString(),
+            note: 'Mapeamentos manuais de citações parciais → ensinamento completo (interno). Editado via admin → aba "Citações Parciais".',
+            links: newLinks,
+          };
+          await _uploadManual(payload);
+          _manualLinks = newLinks;
+          delete _pendingEdits[key];
+          for (const r of related) delete _pendingEdits[_key(r)];
+          _savePendingEdits();
+          _closeCompareModal();
+          _renderShell();
+          _renderList();
+        } catch (err) {
+          alert(`Erro ao salvar: ${err.message}`);
+          confirmBtn.innerHTML = `✓ Mapear esta + ${related.length} outra${related.length === 1 ? '' : 's'}`;
+          confirmBtn.disabled = false;
+        }
+      } else {
+        await _publishSingle(key, value, confirmBtn);
+        _closeCompareModal();
+      }
     };
   } else {
     statusEl.innerHTML = `<span style="color:#991b1b;">Não foi possível carregar ${!srcTopic ? 'origem' : 'alvo'}.</span>`;

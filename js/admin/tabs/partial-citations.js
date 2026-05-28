@@ -139,6 +139,25 @@ function _stripHtml(s) {
   return String(s || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+// Pega title_jp/title_pt/date do tópico alvo no Storage e enriquece
+// o objeto que vai ser salvo no manual_citation_links.json.
+// Reader usa esses campos pra mostrar "— Título" no CTA.
+async function _enrichWithTargetTitle(parsed) {
+  try {
+    const json = await _fetchTargetTopic(parsed.vol, parsed.file);
+    const topic = _topicAtIdx(json, parsed.topic_idx);
+    if (!topic) return parsed;
+    return {
+      ...parsed,
+      title_jp: (topic.title || '').trim(),
+      title_pt: (topic.title_ptbr || topic.title_pt || '').trim(),
+      date: (topic.date || '').trim(),
+    };
+  } catch (_) {
+    return parsed;
+  }
+}
+
 async function _renderTargetPreview(safeId, parsed) {
   const el = document.getElementById(`pc-tgtpreview-${safeId}`);
   if (!el) return;
@@ -291,6 +310,9 @@ async function _openCompareModal(sourceItem, targetParsed) {
       const key = _key(sourceItem);
       _pendingEdits[key] = {
         ...targetParsed,
+        title_jp: (tgtTopic.title || '').trim(),
+        title_pt: (tgtTopic.title_ptbr || tgtTopic.title_pt || '').trim(),
+        date: (tgtTopic.date || '').trim(),
         added_at: new Date().toISOString(),
         added_by: _myEmail || 'unknown',
       };
@@ -547,11 +569,12 @@ function _renderList() {
     urlInput.addEventListener('input', updatePreview);
     updatePreview();
 
-    saveBtn.addEventListener('click', () => {
+    saveBtn.addEventListener('click', async () => {
       const parsed = _parseReaderUrl(urlInput.value);
       if (!parsed) return;
+      const enriched = await _enrichWithTargetTitle(parsed);
       _pendingEdits[key] = {
-        ...parsed,
+        ...enriched,
         added_at: new Date().toISOString(),
         added_by: _myEmail || 'unknown',
       };
@@ -591,11 +614,12 @@ function _renderList() {
     qvolEl.addEventListener('change', updateQuickPreview);
     qfileEl.addEventListener('input', updateQuickPreview);
     qidxEl.addEventListener('input', updateQuickPreview);
-    qsaveBtn.addEventListener('click', () => {
+    qsaveBtn.addEventListener('click', async () => {
       const parsed = _parseQuickInput(qvolEl.value, qfileEl.value, qidxEl.value);
       if (!parsed) return;
+      const enriched = await _enrichWithTargetTitle(parsed);
       _pendingEdits[key] = {
-        ...parsed,
+        ...enriched,
         added_at: new Date().toISOString(),
         added_by: _myEmail || 'unknown',
       };

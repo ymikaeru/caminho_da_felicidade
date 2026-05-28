@@ -80,6 +80,12 @@ function _buildPartialCitationCTA(volId, filename, topicIdx, lang) {
         // Preserva ?lang=ja na URL do destino se a página atual estiver em JP.
         const langSuffix = window.location.search.includes('lang=ja') ? '&lang=ja' : '';
         const targetUrl = `reader.html?vol=${encodeURIComponent(target.vol)}&file=${encodeURIComponent(target.file)}&topic=${target.topic_idx}${langSuffix}`;
+        // Omite o "— Título" quando o targetTitle vier vazio (manual links
+        // antigos só guardavam vol/file/topic_idx, sem title). Evita o
+        // travessão solto "— " no fim do CTA.
+        const titleSuffix = targetTitle
+            ? `<span style="opacity:.5; font-size:.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escTitle}">— ${escTitle}</span>`
+            : '';
         return `
             <div class="topic-partial-cta" style="margin: 16px 0 8px; padding: 12px 16px; background: var(--accent-soft); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; gap: 10px; font-size: 0.88rem;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; opacity:.65" aria-hidden="true">
@@ -94,7 +100,7 @@ function _buildPartialCitationCTA(volId, filename, topicIdx, lang) {
                         <line x1="10" y1="14" x2="21" y2="3"/>
                     </svg>
                 </a>
-                <span style="opacity:.5; font-size:.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escTitle}">— ${escTitle}</span>
+                ${titleSuffix}
             </div>
         `;
     } catch (_) { return ''; }

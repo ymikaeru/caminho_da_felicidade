@@ -320,6 +320,173 @@ function _renderCompareSide(el, label, color, vol, file, topicIdx, topic, totalT
   `;
 }
 
+// ─── Modal de busca JP (singleton) ──────────────────────────
+// Permite o admin colar um trecho japonês e encontrar em qual
+// arquivo/tópico ele está, sem precisar abrir editor externo.
+// Carrega data/jp_search/mioshiecN.json (Storage) lazily por vol.
+
+const _jpIndexCache = new Map(); // vol → array de { v, f, i, t, d, c }
+let _jpSearchCtx = null;          // { sourceItem, qvolEl, qfileEl, qidxEl, callback }
+
+async function _loadJpIndex(vol) {
+  if (_jpIndexCache.has(vol)) return _jpIndexCache.get(vol);
+  const promise = (async () => {
+    try {
+      const data = await window.supabaseStorageFetch
+        ? await window.supabaseStorageFetch(`data/jp_search/${vol}.json`)
+        : await fetch(`data/jp_search/${vol}.json`).then((r) => r.json());
+      return Array.isArray(data) ? data : (data?.entries || data || []);
+    } catch (e) {
+      console.error('[jp-search] falhou', vol, e.message);
+      return [];
+    }
+  })();
+  _jpIndexCache.set(vol, promise);
+  return promise;
+}
+
+function _ensureJpSearchModal() {
+  let modal = document.getElementById('pc-jpsearch-modal');
+  if (modal) return modal;
+  modal = document.createElement('div');
+  modal.id = 'pc-jpsearch-modal';
+  modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10001; display:none; align-items:center; justify-content:center; padding:24px;';
+  modal.innerHTML = `
+    <div style="background:var(--bg-card); border-radius:10px; width:100%; max-width:1100px; height:85vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.4); overflow:hidden;">
+      <div style="padding:16px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+        <h3 style="margin:0; font-size:1.05rem;">🔎 Buscar trecho japonês nos ensinamentos completos</h3>
+        <button id="pc-jp-close" class="btn-zen" style="font-size:0.85rem;">✕ Fechar</button>
+      </div>
+      <div style="padding:14px 24px; border-bottom:1px solid var(--border); display:flex; gap:10px; flex-shrink:0; align-items:center;">
+        <input id="pc-jp-q" type="text" placeholder="Cole trecho japonês (ex: 本守護神は絶対善性であり…)"
+               style="flex:1; padding:9px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-soft); color:var(--text-main); font-size:0.95rem; font-family:'Noto Serif JP',serif;">
+        <select id="pc-jp-vol" style="padding:9px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-soft); color:var(--text-main); font-size:0.9rem;">
+          <option value="all">Todos os volumes</option>
+          <option value="mioshiec1">Vol 1</option>
+          <option value="mioshiec2">Vol 2</option>
+          <option value="mioshiec3">Vol 3</option>
+          <option value="mioshiec4">Vol 4</option>
+        </select>
+      </div>
+      <div id="pc-jp-status" style="padding:6px 24px; font-size:0.78rem; color:var(--text-muted); border-bottom:1px solid var(--border); flex-shrink:0;"></div>
+      <div id="pc-jp-results" style="flex:1; overflow-y:auto; padding:8px 24px;"></div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) _closeJpSearchModal(); });
+  document.getElementById('pc-jp-close').addEventListener('click', _closeJpSearchModal);
+
+  const qEl = document.getElementById('pc-jp-q');
+  const volEl = document.getElementById('pc-jp-vol');
+  let timer = null;
+  const trigger = () => {
+    clearTimeout(timer);
+    timer = setTimeout(_runJpSearch, 200);
+  };
+  qEl.addEventListener('input', trigger);
+  volEl.addEventListener('change', trigger);
+
+  return modal;
+}
+
+function _closeJpSearchModal() {
+  const modal = document.getElementById('pc-jpsearch-modal');
+  if (modal) modal.style.display = 'none';
+  _jpSearchCtx = null;
+}
+
+async function _runJpSearch() {
+  const qEl = document.getElementById('pc-jp-q');
+  const volEl = document.getElementById('pc-jp-vol');
+  const resultsEl = document.getElementById('pc-jp-results');
+  const statusEl = document.getElementById('pc-jp-status');
+  const rawQuery = (qEl.value || '').trim();
+  const query = rawQuery.replace(/\s+/g, ''); // normaliza whitespace
+  if (query.length < 4) {
+    resultsEl.innerHTML = `<div style="padding:32px; text-align:center; color:var(--text-muted); font-size:0.9rem;">Digite ao menos 4 caracteres japoneses pra começar a busca.</div>`;
+    statusEl.textContent = '';
+    return;
+  }
+  const vol = volEl.value;
+  const volsToSearch = vol === 'all' ? ['mioshiec1', 'mioshiec2', 'mioshiec3', 'mioshiec4'] : [vol];
+  statusEl.textContent = `⏳ Carregando índices (${volsToSearch.length} vol${volsToSearch.length === 1 ? '' : 's'})…`;
+  resultsEl.innerHTML = `<div style="padding:32px; text-align:center; color:var(--text-muted);">⏳ Buscando…</div>`;
+
+  const indices = await Promise.all(volsToSearch.map((v) => _loadJpIndex(v)));
+  const allEntries = indices.flat();
+  statusEl.textContent = `Procurando "${rawQuery.slice(0, 40)}${rawQuery.length > 40 ? '…' : ''}" em ${allEntries.length} tópicos.`;
+
+  const hits = [];
+  for (const e of allEntries) {
+    const idx = (e.c || '').indexOf(query);
+    if (idx >= 0) {
+      hits.push({ entry: e, position: idx });
+      if (hits.length >= 30) break;
+    }
+  }
+  hits.sort((a, b) => a.position - b.position); // matches mais cedo no texto = topo
+
+  if (hits.length === 0) {
+    resultsEl.innerHTML = `<div style="padding:32px; text-align:center; color:var(--text-muted); font-size:0.9rem;">Nenhuma ocorrência encontrada.<br><span style="font-size:.82rem;">Tente um trecho menor ou diferente. Lembre que o índice cobre só os primeiros 800 chars de cada tópico.</span></div>`;
+    statusEl.textContent = `0 resultados em ${allEntries.length} tópicos.`;
+    return;
+  }
+  statusEl.textContent = `${hits.length} resultado${hits.length === 1 ? '' : 's'} (mostrando até 30).`;
+
+  resultsEl.innerHTML = hits.map((h, hi) => {
+    const e = h.entry;
+    const content = e.c || '';
+    const before = content.slice(Math.max(0, h.position - 40), h.position);
+    const match = content.slice(h.position, h.position + query.length);
+    const after = content.slice(h.position + query.length, h.position + query.length + 120);
+    // title_idx no JSON é 1-based, topic_idx (i no índice) é 0-based
+    const titleIdx = e.i + 1;
+    return `
+      <div class="pc-jp-result" data-hi="${hi}" style="padding:14px 16px; margin-bottom:10px; border:1px solid var(--border); border-radius:8px; background:var(--bg-soft); cursor:pointer; transition:background .15s;">
+        <div style="display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+          <div style="font-family:'Noto Serif JP',serif; font-size:0.95rem; line-height:1.3;">${_escHtml(e.t || '(sem título)')}</div>
+          <div style="font-family:monospace; font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">
+            ${_escHtml(e.v)}/${_escHtml(e.f)}
+            <span style="background:var(--bg-card); padding:1px 6px; border-radius:3px; margin-left:4px;">title_idx ${titleIdx}</span>
+          </div>
+        </div>
+        ${e.d ? `<div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:6px;">${_escHtml(e.d)}</div>` : ''}
+        <div style="font-family:'Noto Serif JP',serif; font-size:0.88rem; line-height:1.7; color:var(--text-main);">
+          …${_escHtml(before)}<mark style="background:#bbf7d0; padding:1px 2px; border-radius:2px;">${_escHtml(match)}</mark>${_escHtml(after)}…
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  resultsEl.querySelectorAll('.pc-jp-result').forEach((row) => {
+    row.addEventListener('mouseenter', () => row.style.background = 'var(--accent-soft)');
+    row.addEventListener('mouseleave', () => row.style.background = 'var(--bg-soft)');
+    row.addEventListener('click', () => {
+      const hi = parseInt(row.dataset.hi, 10);
+      const e = hits[hi].entry;
+      if (_jpSearchCtx) {
+        // Preenche o atalho da linha que abriu a busca
+        if (_jpSearchCtx.qvolEl) _jpSearchCtx.qvolEl.value = e.v;
+        if (_jpSearchCtx.qfileEl) _jpSearchCtx.qfileEl.value = e.f;
+        if (_jpSearchCtx.qidxEl)  _jpSearchCtx.qidxEl.value  = String(e.i + 1); // 1-based
+        if (_jpSearchCtx.onPick) _jpSearchCtx.onPick();
+      }
+      _closeJpSearchModal();
+    });
+  });
+}
+
+function _openJpSearchModal(ctx) {
+  _jpSearchCtx = ctx;
+  const modal = _ensureJpSearchModal();
+  modal.style.display = 'flex';
+  const qEl = document.getElementById('pc-jp-q');
+  qEl.value = '';
+  document.getElementById('pc-jp-results').innerHTML = `<div style="padding:32px; text-align:center; color:var(--text-muted); font-size:0.9rem;">Digite um trecho japonês pra começar.<br><span style="font-size:.82rem; opacity:.7;">Resultado clicado preenche os campos do atalho automaticamente.</span></div>`;
+  document.getElementById('pc-jp-status').textContent = '';
+  setTimeout(() => qEl.focus(), 50);
+}
+
 async function _openCompareModal(sourceItem, targetParsed) {
   const modal = _ensureCompareModal();
   modal.style.display = 'flex';
@@ -675,6 +842,18 @@ function _renderList() {
     qvolEl.addEventListener('change', updateQuickPreview);
     qfileEl.addEventListener('input', updateQuickPreview);
     qidxEl.addEventListener('input', updateQuickPreview);
+
+    // Botão "Buscar trecho JP" — abre modal compartilhado e seleciona resultado
+    const jpSearchBtn = form.querySelector(`#pc-jpsearch-${safeId}`);
+    if (jpSearchBtn) {
+      jpSearchBtn.addEventListener('click', () => {
+        _openJpSearchModal({
+          sourceItem: it,
+          qvolEl, qfileEl, qidxEl,
+          onPick: () => updateQuickPreview(),
+        });
+      });
+    }
     qsaveBtn.addEventListener('click', async () => {
       const parsed = _parseQuickInput(qvolEl.value, qfileEl.value, qidxEl.value);
       if (!parsed) return;
@@ -812,8 +991,11 @@ function _renderRow(it) {
         </div>
         <div id="pc-preview-${safeId}" style="font-size:0.78rem; margin-top:6px; min-height:18px;"></div>
 
-        <div style="font-size:0.74rem; color:var(--text-muted); margin:10px 0 4px; display:flex; align-items:center; gap:6px;">
+        <div style="font-size:0.74rem; color:var(--text-muted); margin:10px 0 4px; display:flex; align-items:center; gap:8px;">
           <span style="opacity:.5;">─ ou atalho do JSON ─</span>
+          <button id="pc-jpsearch-${safeId}" class="btn-zen" style="font-size:0.76rem; padding:3px 10px;" title="Buscar trecho japonês entre os ~17.000 ensinamentos">
+            🔎 Buscar trecho JP
+          </button>
         </div>
         <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
           <select id="pc-qvol-${safeId}" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--bg-soft); color:var(--text-main); font-size:0.82rem;">

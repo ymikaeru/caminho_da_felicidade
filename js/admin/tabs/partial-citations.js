@@ -150,38 +150,51 @@ function _stripHtml(s) {
 // Pega title_jp/title_pt/date do tópico alvo no Storage e enriquece
 // o objeto que vai ser salvo no manual_citation_links.json.
 // Reader usa esses campos pra mostrar "— Título" no CTA.
-// Procura no arquivo alvo (vol+file) um tópico cujo título bate com o
-// título da citação parcial (sourceTitle). Estratégia em camadas:
-//   1. Match exato após normalizar whitespace + remover sufixo "より"
-//   2. Match pelo "core" entre 「」 (cobre casos onde só o título dentro
-//      dos colchetes japoneses é igual, com prefixos diferentes)
+// Procura no arquivo alvo (vol+file) um tópico cujo CONTEÚDO contém o
+// trecho após "(一部のみ引用)" da citação parcial. Mais confiável que
+// busca por título porque o texto extraído é verbatim, enquanto títulos
+// podem ter prefixos diferentes ("より", "御教え", etc.).
+//
+// Estratégia:
+//   1. Extrai excerpt da source (preview do índice, ou JSON completo
+//      se o preview não tiver)
+//   2. Anchor = primeiros 60 chars não-whitespace
+//   3. Procura no arquivo alvo um tópico cujo content contenha o anchor
+//   4. Prefere matches que NÃO sejam outras citações parciais (busca
+//      em 2 passes); se só achar partial, retorna esse mesmo
 // Devolve topic_idx (0-based) ou null se não encontrar.
-async function _autoFindTopicByTitle(vol, file, sourceTitle) {
-  if (!vol || !file || !sourceTitle) return null;
+async function _autoFindTopicByContent(vol, file, sourceItem) {
+  if (!vol || !file || !sourceItem) return null;
   try {
-    const json = await _fetchTargetTopic(vol, file);
-    if (!json) return null;
-    const normalize = (s) => (s || '').trim().replace(/より\s*$/, '').replace(/[\s　]+/g, '');
-    const coreTitle = (s) => {
-      const m = (s || '').match(/「([^」]+)」/);
-      return m ? m[1].replace(/[\s　]+/g, '') : null;
-    };
-    const srcNorm = normalize(sourceTitle);
-    const srcCore = coreTitle(sourceTitle);
-    let i = 0;
-    let coreMatch = null;
-    for (const theme of json.themes || []) {
+    // 1. Extrai excerpt da source
+    let excerpt = _extractCitationExcerpt(sourceItem.content_preview_ja || '');
+    if (!excerpt || excerpt.length < 10) {
+      const srcJson = await _fetchTargetTopic(sourceItem.vol, sourceItem.file);
+      const srcTopic = _topicAtIdx(srcJson, sourceItem.topic_idx);
+      if (srcTopic) excerpt = _extractCitationExcerpt(_stripHtml(srcTopic.content || ''));
+    }
+    if (!excerpt) return null;
+    const anchor = excerpt.replace(/\s+/g, '').slice(0, 60);
+    if (anchor.length < 8) return null;
+
+    // 2. Carrega target
+    const tgtJson = await _fetchTargetTopic(vol, file);
+    if (!tgtJson) return null;
+
+    // 3. Pass 1 — prefere tópicos que NÃO sejam outras cit. parciais
+    let i = 0, fallback = null;
+    for (const theme of tgtJson.themes || []) {
       for (const t of theme.topics || []) {
-        const tNorm = normalize(t.title);
-        if (srcNorm && tNorm === srcNorm) return i; // exato
-        if (srcCore && coreMatch === null) {
-          const tCore = coreTitle(t.title);
-          if (tCore && tCore === srcCore) coreMatch = i;
+        const content = (t.content || '').replace(/<[^>]+>/g, '').replace(/\s+/g, '');
+        if (content.includes(anchor)) {
+          const isPartial = /[（(]\s*一部のみ引用\s*[）)]/.test(t.content || '');
+          if (!isPartial) return i;          // ideal: full match
+          if (fallback === null) fallback = i; // só registra; continua procurando full
         }
         i++;
       }
     }
-    return coreMatch;
+    return fallback; // null se não achou nada, ou idx do partial match
   } catch (_) {
     return null;
   }
@@ -1055,7 +1068,7 @@ function _renderList() {
       // Só auto-preenche se o user ainda não digitou title_idx
       const cur = qidxEl.value.trim();
       if (cur && cur !== '0') return;
-      const matched = await _autoFindTopicByTitle(vol, file, it.title_jp);
+      const matched = await _autoFindTopicByContent(vol, file, it);
       if (matched !== null && (!qidxEl.value.trim() || qidxEl.value.trim() === '0')) {
         qidxEl.value = String(matched + 1); // 1-based
         // Pisca verde rápido pra avisar que foi auto-preenchido

@@ -1,9 +1,13 @@
 {
-  "generated_at": "2026-05-28T13:00:34.000Z",
-  "total_partials": 270,
-  "total_linked": 48,
-  "note": "Mapeia citações parciais → ensinamento completo correspondente. Apenas matches 1:1 por title_jp + date.",
-  "index": {
+  "generated_at": "2026-05-28T13:12:50.229Z",
+  "stats": {
+    "total_partials": 270,
+    "auto_linked": 48,
+    "ambiguous": 10,
+    "unmatched": 222
+  },
+  "note": "auto_linked: matches 1:1 garantidos (title_jp + date). unmatched: precisam mapeamento manual via admin.",
+  "auto_linked": {
     "mioshiec1/Skankei.html#17": {
       "vol": "mioshiec3",
       "file": "tumi1.html",
@@ -388,5 +392,2227 @@
       "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Estrutura do Mundo Espiritual\"",
       "date": "昭和18年10月23日"
     }
-  }
+  },
+  "unmatched": [
+    {
+      "vol": "mioshiec1",
+      "file": "huku1SHUGOSIN.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「犯罪をなくすには」",
+      "title_pt": "Ensinamento de Meishu-Sama: \"Para Eliminar os Crimes\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Para Eliminar os Crimes\" (Publicado em 25 de julho de 1951) \"(Citação parcial) Como consta nos ensinamentos da nossa Igreja, o ser humano possui três espíritos guardiões. Ou seja, o Espírito Guardião Primordial "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku6SHUGOSIN.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「守護神」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Espírito Guardião\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Espírito Guardião\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) Assim, o Espírito Guardião Primordial é de natureza absolutamente boa, sendo aquilo que é denominado consciência. Por outro "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku6SHUGOSIN.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「兇党界」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Mundo do Mal\"",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Mundo do Mal\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Para o Espírito Guardião Primordial, a consciência é constantemente transmitida do Mundo Divino Justo através dos elos espiritua"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei11.html",
+      "topic_idx": 24,
+      "title_jp": "明主様御教え　「霊の種々相」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Os Diversos Aspectos dos Espíritos\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Os Diversos Aspectos dos Espíritos\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) Em seguida, certo dia, por mais que eu perguntasse a um espírito encostado, ele não abria a boca de jeito "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ikiryou1.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「霊的病気の種々相」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Diversos Aspectos das Doenças Espirituais\"",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Diversos Aspectos das Doenças Espirituais\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Direi aqui algumas palavras sobre o espírito vivo. Além dos espíritos mortos, existe o encosto de e"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kamiHYOUI.html",
+      "topic_idx": 3,
+      "title_jp": "明主様御教え　「低級宗教」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Religiões de Baixo Nível\"",
+      "date": "昭和10年9月15日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "\"(Citação parcial) A verdadeira possessão divina não difere em nada do estado normal; a verdade é que não há absolutamente nenhum aceno de mãos ou atitude estranha.\n\nÉ quase impossível distinguir se um Deus encostou ou não.\n\nAlém disso, as "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kanzeon2.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「大乗と小乗」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Daijo e Shojo\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Daijo e Shojo\" (Publicado em 5 de setembro de 1948) \"(Citação parcial) Em seguida, tentarei explicar o Daijo (Grande Veículo) e o Shojo (Pequeno Veículo) na religião. Originalmente, o budismo é Shoj"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kokudo.html",
+      "topic_idx": 11,
+      "title_jp": "明主様御教え　「気候と天候」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Clima e Tempo\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Clima e Tempo\" (Publicado em 5 de setembro de 1948) \"(Citação parcial) Aqui, explicarei sobre o Estreito de Naruto em Awa. Como as sujeiras acumuladas pela purificação do vento, da água e do fogo men"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuda.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「生 \n霊」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Espírito Vivo\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "**Ensinamento de Meishu-Sama - Extraído de \"Espírito Vivo\"** (Publicado em 25 de agosto de 1949)\n\n\"(Apenas citação parcial) O espírito vivo humano não é tão terrível, mas o que é temível aqui é o espírito vivo da raposa de tubo (*kudagitsun"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiGAXTUTAI.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「霊界の構成」より",
+      "title_pt": "A Estrutura do Mundo Espiritual",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Estrutura do Mundo Espiritual\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) O Caminho da Luxúria (Shikiyoku-do) é, obviamente, o inferno para onde caem aqueles que tiveram relações impu"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiGAXTUTAI.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「死後の種々相」より",
+      "title_pt": "A Estrutura do Mundo Espiritual",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"As Diversas Fases Após a Morte\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) O ser humano deve saber que, por maior que seja o sofrimento que enfrente, o suicídio é algo que jamais deve ser"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiGAXTUTAI.html",
+      "topic_idx": 3,
+      "title_jp": "明主様御講義　「地 \n獄」より",
+      "title_pt": "A Estrutura do Mundo Espiritual",
+      "date": "昭和10年8月15日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Palestra de Meishu-Sama: Extraído de \"Inferno\" (Publicado em 15 de agosto de 1935)Inferno　　Caminho das Batalhas (Shura-do)　　　　　Caminho dos Espíritos Famintos (Gaki-do)　　　　　Caminho da Luxúria (Shikiyoku-do)　　　　　Caminho das Bestas (Chikusho-d"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1ENCHOU.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「死後の種々相」",
+      "title_pt": "Ensinamento de Meishu-Sama - \"Os Diversos Aspectos Após a Morte\"",
+      "date": "昭和24年8月25日",
+      "reason": "ambíguo",
+      "content_preview": "Ensinamento de Meishu-Sama - \"Os Diversos Aspectos Após a Morte\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) Em seguida, há algo que se deve saber sobre a morte não natural. Trata-se do fato de que os espíritos de todos aqueles q"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1ENCHOU.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御講義　「地 \n獄」より",
+      "title_pt": "Palestra de Meishu-Sama - Extraído de \"Inferno\"",
+      "date": "昭和10年8月15日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Palestra de Meishu-Sama - Extraído de \"Inferno\" (Publicado em 15 de agosto de 1935)Inferno      Caminho de Asura (Shurado)             Caminho dos Fantasmas Famintos (Gakido)             Caminho da Luxúria (Shikiyokudo)             Caminho "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「広吉の霊」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"O Espírito de Hirokichi\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "**Ensinamento de Meishu-Sama - Extraído de \"O Espírito de Hirokichi\"** (Publicado em 23 de outubro de 1943)\n\n**Morrer Também Não é Ruim**\n\n\"(Citação parcial) Dois ou três dias depois, como na época eu me dedicava aos negócios, estava trabal"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai2SEIKATU.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「我と執着」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Ego e Apego\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "**Encontro de Casais no Mundo Espiritual**\n\n\"(Citação parcial) O maior objetivo do aprimoramento no Mundo Espiritual é remover os apegos e a posição se eleva à medida que os apegos são eliminados.\n\nSobre isso, ocorre o seguinte.\n\nNo Mundo E"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai2SOUNEN.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「死後の種々相」",
+      "title_pt": "Ensinamento de Meishu-Sama - \"Diversos Aspectos do Pós-Morte\"",
+      "date": "昭和24年8月25日",
+      "reason": "ambíguo",
+      "content_preview": "Ensinamento de Meishu-Sama - \"Diversos Aspectos do Pós-Morte\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) Também ocorre o seguinte. Por mais que uma pessoa tenha uma aparência respeitável no Mundo Material, ao ir para o Mundo Esp"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiGENKAI.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御教え　「祖霊と死後の準備」より",
+      "title_pt": "Composição do Mundo Espiritual",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Os Espíritos Antepassados e a Preparação para o Pós-Morte\"　(Publicado em 25 de agosto de 1949) A Diferença entre o Mundo Espiritual do Oriente e do Ocidente \"(Citação parcial) O Mundo Espiritual do "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiKOUHEI.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「霊界の審判」より",
+      "title_pt": "Extraído do Ensinamento de Meishu-Sama: \"O Julgamento no Mundo Espiritual\"",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Extraído do Ensinamento de Meishu-Sama: \"O Julgamento no Mundo Espiritual\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Primeiramente, explicarei sobre os espíritos que vão para o Yachimata. Após a morte, ao irem para o Yachimat"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiKOUHEI.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「死後の種々相」より",
+      "title_pt": "Extraído do Ensinamento de Meishu-Sama: \"Diversos Aspectos Após a Morte\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Extraído do Ensinamento de Meishu-Sama: \"Diversos Aspectos Após a Morte\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) Assim, todos os mortos, especialmente os suicidas, arrependem-se muito ao irem para o Mundo Espiritual, pois a a"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiKOUHEI.html",
+      "topic_idx": 3,
+      "title_jp": "明主様御教え　「霊界の構成」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"A Estrutura do Mundo Espiritual\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "**Ensinamento de Meishu-Sama - Extraído de \"A Estrutura do Mundo Espiritual\"** (Publicado em 5 de fevereiro de 1947)\n\n\"(Citação parcial) O Caminho da Luxúria é, sem dúvida, o inferno para onde caem aqueles que tiveram relações impuras entre"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiSEIKI.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「霊界の構成」",
+      "title_pt": "Ensinamento de Meishu-Sama: \"A Estrutura do Mundo Espiritual\"",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"A Estrutura do Mundo Espiritual\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Como foi mencionado no item anterior, o Mundo Espiritual é composto por nove níveis: Paraíso, Yachimata (Mundo Intermediá"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiSEIKI.html",
+      "topic_idx": 6,
+      "title_jp": "明主様御教え　「広吉の霊」より",
+      "title_pt": "Extraído do Ensinamento de Meishu-Sama: \"O Espírito de Hirokichi\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Extraído do Ensinamento de Meishu-Sama: \"O Espírito de Hirokichi\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) O que se deve observar aqui é que, no Mundo Espiritual, a ordem e a disciplina são extremamente corretas e os espírito"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiSEIKI.html",
+      "topic_idx": 7,
+      "title_jp": "明主様御教え　「我と執着」",
+      "title_pt": "Ensinamento de Meishu-Sama: \"Ego e Apego\"",
+      "date": "昭和23年9月5日",
+      "reason": "ambíguo",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Ego e Apego\" (Publicado em 5 de setembro de 1948) \"(Citação parcial) Assim, o maior objetivo do aprimoramento no Mundo Espiritual é eliminar o apego, e, à medida que o apego é removido, a posição se eleva. A res"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiSHUUKYOU.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「祖霊と死後の準備」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Os Espíritos Antepassados e a Preparação para o Pós-Morte\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Os Espíritos Antepassados e a Preparação para o Pós-Morte\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) Escreverei aqui sobre as organizações no Mundo Espiritual. O Mundo Espiritual, assim "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiSHUUKYOU.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「霊界の構成」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Estrutura do Mundo Espiritual\"",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Estrutura do Mundo Espiritual\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Conforme mencionado no item anterior, o Mundo Espiritual é composto por nove níveis: Paraíso, Yachimata (Mund"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reishu.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「世界の大転換」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Grande Transição do Mundo\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Grande Transição do Mundo\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) Como expliquei detalhadamente antes, sobre a Terra onde vivemos, ela é constituída por três estágios: o Mundo Espi"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "rinne2TIKU.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「我と執着」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de 'Ego e Apego'",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Ego e Apego\" (Publicado em 5 de setembro de 1948) A encarnação do apego torna-se espírito de cobra \"(Citação parcial) O maior objetivo do treinamento no Mundo Espiritual é eliminar os apegos e a posi"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "rinne2TIKU.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「霊界の構成」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de 'A Estrutura do Mundo Espiritual'",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Estrutura do Mundo Espiritual\" (Publicado em 5 de fevereiro de 1947) O caso da sogra que morreu de fome e se tornou uma cobra \"(Citação parcial) Este é um fato vivenciado por um discípulo meu que a"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ryuume.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「龍神界」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Mundo dos Deuses Dragões\"",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Mundo dos Deuses Dragões\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Constantemente vejo inúmeras pessoas que são reencarnações de deuses dragões e todas elas possuem características f"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ryuuzinSAISEI.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「龍神界」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Mundo dos Deuses Dragões\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Mundo dos Deuses Dragões\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) Após a morte de um ser humano, seu espírito pode se tornar um Deus Dragão e também há casos em que um Deus Dragão ree"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "sake.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「天狗界」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Mundo dos Tengu\"",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Mundo dos Tengu\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Aqui, explicarei sobre o vício da bebida alcoólica. Quando se trata de um grande bebedor, é impressionante como ele consegue"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SB.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「祖霊と死後の準備」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Os Antepassados e a Preparação para o Pós-Morte\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Os Antepassados e a Preparação para o Pós-Morte\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) Em seguida, explicarei resumidamente o significado do oratório budista (butsudan). O interior d"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SB.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「霊界の構成」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Estrutura do Mundo Espiritual\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Estrutura do Mundo Espiritual\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Explicarei sobre o oratório budista (butsudan). O interior do oratório possui o aspecto do Paraíso (Gokuraku "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SB.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「幽霊はあるか」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Existem Fantasmas?\"",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Existem Fantasmas?\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Além disso, o espírito tem a capacidade de expandir-se e contrair-se livremente de acordo com o seu próprio pensamento. Me"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb2.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「元看護婦の体験」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Experiência de uma ex-enfermeira\"",
+      "date": "昭和28年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Experiência de uma ex-enfermeira\"　(1953) \"(Citação parcial) Há mais um exemplo que, por ser de cunho espiritual e religioso, eu não gostaria de escrever aqui. No entanto, como também é uma verdade, e"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb3.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御教え　「広吉の霊」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"O Espírito de Hirokichi\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"O Espírito de Hirokichi\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) A partir de agora, escreverei sobre muitos casos reais que eu mesmo experimentei. Como se trata de fenômenos que não "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb4.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「御霊光」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"A Luz Divina\"",
+      "date": "昭和10年3月4日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"A Luz Divina\" (Publicado em 4 de março de 1935) Cura de doença através do culto a um cachorro \"(Citação parcial) Há uma história um pouco interessante sobre essa família, então vou contá-la. O motiv"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBiti.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御論文　「順序を過る勿れ」より",
+      "title_pt": "Artigo de Meishu-Sama - Extraído de \"Não Errem a Ordem\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Artigo de Meishu-Sama - Extraído de \"Não Errem a Ordem\" (Publicado em 5 de setembro de 1948) Não se deve colocar o altar budista no andar de baixo \"(Citação parcial) Em seguida, há famílias em que os filhos e os empregados dormem no segundo"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「祖霊と死後の準備」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Os Espíritos Antepassados e a Preparação para o Pós-Morte\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "\"(Apenas um trecho citado) Durante a alimentação, os espíritos antepassados absorvem o espírito desses alimentos.\n\nNo entanto, a quantidade de alimento espiritual consumida é muito pequena e apenas o que é oferecido no altar budista pode so"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「霊界の構成」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Estrutura do Mundo Espiritual\"",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "\"(Apenas um trecho citado) O inferno da camada superior é o estágio imediatamente anterior à ascensão ao *Yachimata* (Encruzilhada de Oito Caminhos), após o cumprimento das penas do inferno, portanto, a maior parte consiste em sofrimentos l"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御講義　「地 \n獄」より",
+      "title_pt": "Palestra de Meishu-Sama: Extraído de \"Inferno\"",
+      "date": "昭和10年8月15日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "\"(Apenas um trecho citado) Para o Caminho dos Demônios Famintos vão os espíritos que não recebem oferendas.\n\nAlém disso, espíritos de extrema ganância e crueldade também seguem por este caminho.\n\nIsso ocorre porque, devido à sua ganância, f"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html",
+      "topic_idx": 27,
+      "title_jp": "明主様御教え　「御霊光」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Luz Divina\" (*Goreikou*)",
+      "date": "昭和10年3月4日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "**Cura de doença através do ofício religioso para um cachorro**\n\n\"(Citação parcial) Há uma história um pouco interessante sobre essa família, então vou contá-la.\n\nO motivo pelo qual essa senhora assentou a Imagem de *Kannon* foi porque\n\nhá "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "sei1SHUGOSIN.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「霊線に就て」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Trecho de \"Sobre os Elos Espirituais\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Trecho de \"Sobre os Elos Espirituais\" (Publicado em 5 de setembro de 1948) \"(Citação parcial) O elo espiritual (reisen) nos seres humanos não se limita apenas aos parentes próximos vivos. Ele também se comunica c"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "shugosin1.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「精神病と癲癇」",
+      "title_pt": "Ensinamento de Meishu-Sama - \"Doença Mental e Epilepsia\"",
+      "date": "昭和27年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - \"Doença Mental e Epilepsia\"　(Escrito em 1952) \"(Citação parcial) Assim, há também dois tipos de encosto espiritual: o espírito animal que está encostado de forma residente na pessoa desde o nascimento e o espíri"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "sinra1.html",
+      "topic_idx": 3,
+      "title_jp": "明主様御教え　「悪と守護霊」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"O Mal e o Espírito Guardião\"",
+      "date": "昭和27年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"O Mal e o Espírito Guardião\" (Escrito em 1952) \"(Apenas uma parte citada) Como no item anterior, mesmo que o mal, que era necessário até o presente, se torne desnecessário, ele não pode ser banido t"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "sinra1.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御教え　「胃病と心臓病」",
+      "title_pt": "Ensinamento de Meishu-Sama - \"Doenças Gástricas e Doenças Cardíacas\"",
+      "date": "昭和28年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - \"Doenças Gástricas e Doenças Cardíacas\" (Escrito em 1953) \"(Apenas uma parte citada) No item anterior, escrevi detalhadamente sobre a tuberculose, então agora escreverei sobre doenças gástricas e doenças cardíac"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "sinzin1.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「浄霊の原理　神示の医学」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Princípio do Johrei - A Medicina da Revelação Divina\"",
+      "date": "昭和24年5月30日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Princípio do Johrei - A Medicina da Revelação Divina\" (Publicado em 30 de maio de 1949) \"(Citação parcial) O método que atualmente utilizo como forma de Johrei consiste em conceder um pedaço de pape"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "sinzin1.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「病原と浄霊の原理・無機から有機へ」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"A Origem das Doenças e o Princípio do Johrei - Do Inorgânico para o Orgânico\"",
+      "date": "昭和26年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"A Origem das Doenças e o Princípio do Johrei - Do Inorgânico para o Orgânico\" (Publicado em 25 de agosto de 1951) \"(Citação parcial) Para se tornar um ministrante de Johrei, basta tornar-se fiel de "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "siSETUNA.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「生と死」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Vida e a Morte\"",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Vida e a Morte\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) O ser humano, como explicado anteriormente, quando o espírito humano se separa do corpo físico que se tornou inutilizável, r"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku1.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「祖霊と死後の準備」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Os Espíritos dos Antepassados e a Preparação para o Pós-Morte\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Os Espíritos dos Antepassados e a Preparação para o Pós-Morte\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) Na sociedade, é comum dizer que apenas o filho mais velho deve instalar o altar "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku1.html",
+      "topic_idx": 12,
+      "title_jp": "明主様御教え　「元看護婦の体験」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Experiência de uma Ex-Enfermeira\"",
+      "date": "昭和28年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Experiência de uma Ex-Enfermeira\" (1953) \"(Citação parcial) Outro exemplo, como é de natureza espiritual e religiosa, eu não gostaria de escrever aqui, porém, como também é uma verdade, escrevo como "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku5.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「夫婦の道」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"O Caminho do Casal\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"O Caminho do Casal\" (Publicado em 5 de setembro de 1948) Ao Cometer Adultério, os Filhos Morrem \"(Citação parcial) Há mais uma coisa importante, que é a morte dos filhos, cuja causa se baseia na má c"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaishuu.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「祖霊と死後の準備」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Os Espíritos dos Antepassados e a Preparação para o Pós-Morte\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "**Ensinamento de Meishu-Sama: Extraído de \"Os Espíritos dos Antepassados e a Preparação para o Pós-Morte\"** (Publicado em 25 de agosto de 1949)\n\n\"(Citação parcial) Outro ponto que requer atenção é o caso de conversão religiosa. Trata-se de "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skankei.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「死後の種々相」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Diversos Aspectos Após a Morte\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Diversos Aspectos Após a Morte\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) Existem vários tipos de morte, mas há casos em que a pessoa se torna subitamente um habitante do Mundo Espiritu"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skankei.html",
+      "topic_idx": 18,
+      "title_jp": "明主様御講義　「病気の根本原因」より",
+      "title_pt": "Palestra de Meishu-Sama: Trecho de \"A Causa Fundamental das Doenças\"",
+      "date": "昭和10年9月15日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Palestra de Meishu-Sama: Trecho de \"A Causa Fundamental das Doenças\" (Publicado em 15 de setembro de 1935) \"(Citação parcial) De onde vêm as máculas de todo o corpo humano? Vêm dos antepassados. Os antepassados e os seres humanos atuais est"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「我と執着」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"O Ego e o Apego\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"O Ego e o Apego\" (Publicado em 5 de setembro de 1948) A Encarnação do Apego Torna-se Espírito de Cobra \"(Citação parcial) O maior objetivo do treinamento no Mundo Espiritual é remover o apego e a po"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「霊界の構成」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"A Estrutura do Mundo Espiritual\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"A Estrutura do Mundo Espiritual\" (Publicado em 5 de fevereiro de 1947) Caso em que uma Sogra que Morreu de Fome se Tornou uma Cobra \"(Citação parcial) Este é um fato experimentado por um discípulo m"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skudoku.html",
+      "topic_idx": 15,
+      "title_jp": "明主様御教え　「広吉の霊」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"O Espírito de Hirokichi\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"O Espírito de Hirokichi\" (Publicado em 23 de outubro de 1943)\n\n\"(Citação parcial) O que se deve notar aqui é que, no Mundo Espiritual, a ordem e a disciplina são extremamente rigorosas e o espírito "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skyou.html",
+      "topic_idx": 9,
+      "title_jp": "参考　読者の声　七十翁ふゆのよがたり",
+      "title_pt": "Referência: Voz dos Leitores - Contos de inverno de um idoso de setenta anos",
+      "date": "昭和25年8月15日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Referência: Voz dos Leitores - Contos de inverno de um idoso de setenta anos (Tijou Tengoku, Edição 16, publicado em 15 de agosto de 1950) Igreja Maior Tengoku, Igreja Média Misho, T.R. (Masculino) \"(Apenas um trecho citado) Desde jovem, eu"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko1.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「元看護婦の体験」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"A Experiência de uma Ex-Enfermeira\"",
+      "date": "昭和28年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"A Experiência de uma Ex-Enfermeira\" (1953) \"(Citação parcial) O outro exemplo é de natureza espiritual e religiosa, por isso não gostaria de escrevê-lo aqui, mas como também é uma verdade, escrevo-o"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko1.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「霊の種々相」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"As Diversas Facetas dos Espíritos\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"As Diversas Facetas dos Espíritos\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) A Sra. M era a melhor médium e me proporcionou não poucos aprendizados. Dentre eles, escreverei alguns exem"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko3.html",
+      "topic_idx": 8,
+      "title_jp": "明主様御教え　「癲 \n癇」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Epilepsia\"",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Epilepsia\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Em seguida, há os sonâmbulos, que, ao terem um ataque, perdem a consciência de si mesmos, saem correndo de casa e vagam sem destino"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN2kyuurei.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御論文　「天国と地獄」より",
+      "title_pt": "Ensaio de Meishu-Sama - Extraído de 'Céu e Inferno'",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensaio de Meishu-Sama - Extraído de \"Céu e Inferno\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) O Inferno do Lago de Sangue é habitado por espíritos que morreram por causas relacionadas ao parto, como abortos espontâneos e partos"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN8kyuurei.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「霊の種々相」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"As Diversas Facetas dos Espíritos\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"As Diversas Facetas dos Espíritos\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) Em seguida, certo dia, por mais que eu perguntasse ao espírito encostado, ele não abria a boca de forma algu"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "sounenkai1.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「大三災と小三災」",
+      "title_pt": "Ensinamento de Meishu-Sama - \"Os Grandes Três Desastres e os Pequenos Três Desastres\"",
+      "date": "昭和24年8月13日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - \"Os Grandes Três Desastres e os Pequenos Três Desastres\" (Publicado em 13 de agosto de 1949) \"(Citação parcial) O que são os grandes três desastres de vento, água e fogo e os pequenos três desastres de fome, doe"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SreikaiIKENAI.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御論文　「死後の種々相」より",
+      "title_pt": "Ensaio de Meishu-Sama - Extraído de \"Diversos Aspectos do Pós-Morte\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensaio de Meishu-Sama - Extraído de \"Diversos Aspectos do Pós-Morte\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) Existem vários tipos de morte, mas há casos em que a pessoa se torna subitamente um habitante do Mundo Espiritual de"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin1.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「龍神界」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Mundo dos Deuses Dragões\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Mundo dos Deuses Dragões\" (Publicado em 23 de outubro de 1943)\n\nComo Construir o Santuário do Deus Dragão\n\n\"(Citação parcial) Ao assentar um deus dragão, a localização deve, naturalmente, ser um loc"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sshuuchaku.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「生と死」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Vida e Morte\"",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Vida e Morte\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Qual é a relação do Mundo Espiritual com o ser humano? É que, ao cumprir a missão de cada pessoa como alguém que recebeu a vida"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sshuuchaku.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御講義　「地 \n獄」より",
+      "title_pt": "Palestra de Meishu-Sama - Extraído de \"Inferno\"",
+      "date": "昭和10年8月15日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Palestra de Meishu-Sama - Extraído de \"Inferno\" (Publicado em 15 de agosto de 1935) \"(Citação parcial) Além disso, no momento da morte, o pensamento varia muito de pessoa para pessoa. Difere imensamente dependendo da quantidade de apego à v"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sshuuchaku.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御教え　「霊線に就て」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Sobre os Elos Espirituais\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Sobre os Elos Espirituais\" (Publicado em 5 de setembro de 1948) \"(Citação parcial) Em seguida, há casos em que, entre irmãos, um é uma pessoa boa e o outro é uma pessoa má. Por que isso acontece? Há"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sshuuchaku.html",
+      "topic_idx": 9,
+      "title_jp": "明主様御教え　「祖霊と死後の準備」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Espíritos Antepassados e a Preparação Pós-Morte\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Espíritos Antepassados e a Preparação Pós-Morte\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) Em seguida, quando uma pessoa morre, no Budismo encerram-se temporariamente os ritos no quadra"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sshuuchaku.html",
+      "topic_idx": 21,
+      "title_jp": "明主様御講話　「死んだ子供のことは忘れるべき」",
+      "title_pt": "Palestra de Meishu-Sama - \"Deve-se esquecer a criança falecida\"",
+      "date": "昭和28年6月27日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Palestra de Meishu-Sama - \"Deve-se esquecer a criança falecida\" (27 de junho de 1953) \"(Citação parcial) Exatamente, quando uma pessoa morre, se não conseguirem esquecê-la após a morte, o espírito que foi para o Mundo Espiritual deseja que "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sshuuchaku.html",
+      "topic_idx": 35,
+      "title_jp": "明主様御教え　「化人形」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Boneca Assombrada\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Boneca Assombrada\" (Publicado em 25 de agosto de 1949) Sobre o sentimento de apego dos habitantes do Mundo Espiritual \"(Citação parcial) Há uma história interessante sobre uma boneca assombrada com"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SshuuchakuREI.html",
+      "topic_idx": 8,
+      "title_jp": "明主様御教え　「霊の種々相」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"As Diversas Facetas dos Espíritos\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"As Diversas Facetas dos Espíritos\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) Em seguida, certo dia, por mais que eu perguntasse a um espírito encostado, ele não abria a boca de jeito n"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SshuuchakuREI.html",
+      "topic_idx": 18,
+      "title_jp": "明主様御教え　「化人形」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"A Boneca Assombrada\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"A Boneca Assombrada\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) Há uma história interessante sobre uma boneca assombrada com a qual lidei anteriormente. Certa vez, um amigo meu veio me c"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SsigoHUUHU.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「我と執着」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Ego e Apego\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Ego e Apego\" (Publicado em 5 de setembro de 1948) \"(Citação parcial) O objetivo máximo do aprimoramento no Mundo Espiritual é eliminar o apego e a posição se eleva à medida que o apego é removido. S"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssonota.html",
+      "topic_idx": 28,
+      "title_jp": "明主様御教え　「広吉の霊」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"O Espírito de Hirokichi\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"O Espírito de Hirokichi\" (Publicado em 23 de outubro de 1943) Morrer Também Não É Ruim \"(Citação parcial) Passados dois ou três dias, como na época eu me dedicava aos negócios, estava trabalhando no"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssorei1DATIKU.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「霊界の構成」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Estrutura do Mundo Espiritual\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Estrutura do Mundo Espiritual\"　(Publicado em 5 de fevereiro de 1947) \"(Citação parcial) O Inferno Superior é o estágio um passo antes de subir para o Yachimata (Oito Caminhos), após o término das p"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssounen.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「憑依霊の種々相」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Diversos Aspectos dos Espíritos Encostados\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "**Ensinamento de Meishu-Sama - Extraído de \"Diversos Aspectos dos Espíritos Encostados\"** (Publicado em 25 de agosto de 1949)\n\n\"(Citação parcial) Quando o referido idoso saiu, parece que algo o substituiu e encostou, apresentando uma atitud"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Stasi.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「祖霊と死後の準備」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Os Antepassados e a Preparação para o Pós-Morte\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"Os Antepassados e a Preparação para o Pós-Morte\" (Publicado em 25 de agosto de 1949)\n\n\"(Citação parcial) É comum na sociedade que apenas o filho mais velho instale um oratório budista, considerando "
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Stouzin.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「霊線に就て」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Sobre os Elos Espirituais\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Sobre os Elos Espirituais\" (Publicado em 5 de setembro de 1948) Quando a Riqueza Ilícita é Dissipada, a Família Prospera \"(Citação parcial) Também há muitos casos assim. Quando os pais acumulam rique"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Syukuehumei.html",
+      "topic_idx": 6,
+      "title_jp": "明主様御教え　「広吉の霊」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"O Espírito de Hirokichi\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - Extraído de \"O Espírito de Hirokichi\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) A partir de agora, escreverei sobre muitos exemplos reais que experimentei. Como se tratam de fenômenos que não podem"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Szibaku1.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「怨霊及び地縛の霊」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Espíritos Rancorosos e Espíritos Presos à Terra\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "\"(Citação parcial) Em seguida, há o que chamamos de espírito preso à terra.\n\nTrata-se do espírito de pessoas que tiveram morte não natural, como afogamento, enforcamento, atropelamento, queda, envenenamento, suicídio, homicídio, etc.\n\nEsses"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Szibaku1.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「死後の種々相」より",
+      "title_pt": "Ensinamento de Meishu-Sama - Extraído de \"Diversos Aspectos do Pós-Morte\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "\"(Citação parcial) Em seguida, há algo que se deve saber sobre a morte não natural.\n\nTodos os espíritos de pessoas que tiveram morte não natural, como homicídio, suicídio, etc., são chamados de espíritos presos à terra e não conseguem se af"
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamasiiKOKORO.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御教え　「浄霊の原理　神示の医学」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"O Princípio do Johrei - A Medicina Revelada por Deus\"",
+      "date": "昭和24年5月30日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "**Ensinamento de Meishu-Sama: Extraído de \"O Princípio do Johrei - A Medicina Revelada por Deus\"** (Publicado em 30 de maio de 1949)\n\n\"(Citação parcial) Finalmente, explicarei o princípio do Johrei, mas, como premissa, há algo que deve ser "
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "aza.html",
+      "topic_idx": 0,
+      "title_jp": "痣（あざ）",
+      "title_pt": "Manchas",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Espíritos vingativos e espíritos presos à terra\"　(Publicado em 23 de outubro de 1943) \"(Citação parcial) Uma paciente que tratei anteriormente, uma jovem senhora de cerca de vinte anos, tinha uma man"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "bakaG.html",
+      "topic_idx": 2,
+      "title_jp": "馬鹿の原因は薬毒",
+      "title_pt": "A Causa da Estupidez é a Toxina Medicamentosa",
+      "date": "昭和18年10月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Toxinas de \nMedicamentos\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Além disso, o cérebro das pessoas modernas tornou-se extremamente lento. Isso chega ao ponto de que as palestras de "
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "binetu.html",
+      "topic_idx": 3,
+      "title_jp": "微　熱",
+      "title_pt": "Febre　Baixa",
+      "date": "昭和18年10月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Toxinas dos Medicamentos\"　(Publicado em 5 de fevereiro de 1947) \"(Apenas uma parte citada) Pelo princípio acima, se os medicamentos fossem removidos da humanidade, é absolutamente indubitável que as "
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "bonyuu.html",
+      "topic_idx": 2,
+      "title_jp": "母　乳",
+      "title_pt": "Leite　Materno",
+      "date": "昭和11年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Método de Prevenção de Crianças Fracas\" (Escrito em 1936) \"(Apenas uma parte citada) Crianças fracas significa que são portadoras da bactéria da tuberculose, ou seja, as chamadas crianças escrofulosas. Se houver"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "chazuke.html",
+      "topic_idx": 1,
+      "title_jp": "お茶漬け健康法",
+      "title_pt": "Método de Saúde com Chazuke",
+      "date": "昭和28年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Toxina Medicinal II\" (1953) \"(Apenas uma parte citada) Em seguida, quanto à gastroptose (queda do estômago), isso também ocorre porque, ao tomar medicamentos digestivos e comer coisas de fácil digest"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "hebi1.html",
+      "topic_idx": 1,
+      "title_jp": "蛇の憑霊による病気　１",
+      "title_pt": "Doenças por possessão de espírito de cobra　１",
+      "date": "昭和27年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Câncer - Doença Espiritual\"　(Escrito em 1952) \"(Citação parcial) Como doença cancerígena, a mais comum e, além disso, de difícil tratamento é, sem dúvida, o câncer de estômago. Anteriormente, expliqu"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "hebi3.html",
+      "topic_idx": 11,
+      "title_jp": "蛇の憑霊による病気　３",
+      "title_pt": "Doenças por possessão de espírito de cobra　３",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Espíritos de Encosto Grotescos\"　(Publicado em 25 de agosto de 1949) \"(Citação parcial) Havia dois espíritos de serpente encostados nele. Estes também eram espíritos das serpentes que ele havia matado"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "hidokuSUIGAI.html",
+      "topic_idx": 4,
+      "title_jp": "肥毒と水害",
+      "title_pt": "Agrotóxicos e Enchentes",
+      "date": "昭和28年10月14日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Desastres Causados por Tufões\"　(Publicado em 14 de outubro de 1953) \"(Citação parcial) Outra causa é totalmente material: como a terra é poluída por fertilizantes, como esterco humano e fertilizantes químicos e "
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "hisu.html",
+      "topic_idx": 0,
+      "title_jp": "ヒステリー",
+      "title_pt": "Histeria",
+      "date": "昭和25年4月20日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Trecho de \"Os Japoneses e as Doenças Mentais\"　(Publicado em 20 de abril de 1950) \"(Citação parcial) O instinto de restringir constantemente as emoções, que são o instinto humano e de evitar que se cometam erros, "
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "JN1.html",
+      "topic_idx": 1,
+      "title_jp": "浄霊と農業　１",
+      "title_pt": "Johrei e Agricultura　１",
+      "date": "昭和27年1月30日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Grande Revolução da Agricultura: O Aumento de 50% na Produção de Arroz em Cinco Anos é Certo\" (Publicado em 30 de janeiro de 1952) \"(Citação parcial) Em seguida, há mais uma coisa que desejo dizer."
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "JN1.html",
+      "topic_idx": 2,
+      "title_jp": "浄霊と農業　１",
+      "title_pt": "Johrei e Agricultura　１",
+      "date": "昭和24年5月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Era da Radioatividade Espiritual Divina\" (Publicado em 25 de maio de 1949) \"(Citação parcial) O efeito da irradiação espiritual divina não se restringe apenas às doenças, há efeitos notáveis também"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "Jziko.html",
+      "topic_idx": 13,
+      "title_jp": "自己浄霊",
+      "title_pt": "Auto-Johrei",
+      "date": "昭和28年1月1日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Extraído de \"Vacinação e Toxina Medicinal\"　(Publicado em 1º de janeiro de 1953) \"(Citação parcial) Pelo que foi explicado acima sob diversos aspectos, deve ter ficado claro que a causa de todas as doenças é a toxina medicinal. Portanto, sab"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "Jziko.html",
+      "topic_idx": 17,
+      "title_jp": "自己浄霊",
+      "title_pt": "Auto-Johrei",
+      "date": "昭和26年9月8日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Meishu-Sama ministra Johrei em si mesmo todos os dias\" (8 de setembro de 1951) (Citação parcial) Ensinamento de Meishu-Sama\"Essa pessoa já ingeriu algum remédio anteriormente?\"\nFala do fiel\"Teve algo parecido co"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "kaikoku1.html",
+      "topic_idx": 9,
+      "title_jp": "祖霊の戒告と病気　１",
+      "title_pt": "Advertência dos Espíritos Ancestrais e Doença　１",
+      "date": "昭和28年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Experiência de uma Ex-Enfermeira\" (1953) \"(Citação parcial) Outro exemplo, como é de natureza espiritual e religiosa, eu não gostaria de escrever aqui, mas como também é uma verdade, escrevo como uma"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "kaikoku4.html",
+      "topic_idx": 1,
+      "title_jp": "祖霊の戒告と病気　４",
+      "title_pt": "Advertência dos Espíritos Ancestrais e Doença　４",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"O Caminho do Casal\" (Publicado em 5 de setembro de 1948) Ao cometer adultério, o filho morre \"(Citação parcial) Há mais uma coisa importante, que é a morte de uma criança e a sua causa baseia-se na m"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "keibatu.html",
+      "topic_idx": 1,
+      "title_jp": "刑罰としての病気",
+      "title_pt": "A Doença como Punição",
+      "date": "昭和27年12月1日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Trecho de \"A Anatomia das Toxinas\" (Publicado em 1 de dezembro de 1952) \"(Apenas um trecho citado) Agora, finalmente, passo à explicação das toxinas. Originalmente, as toxinas são, por assim dizer, sangue impuro "
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "keibatu.html",
+      "topic_idx": 2,
+      "title_jp": "刑罰としての病気",
+      "title_pt": "A Doença como Punição",
+      "date": "昭和26年8月1日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Trecho de \"As Bactérias são Bem-Vindas\" (Publicado em 1 de agosto de 1951) \"(Apenas um trecho citado) Então, finalmente, sobre a teoria das bactérias, a sujeira do corpo humano é, obviamente, a impureza do sangue"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "komenuka.html",
+      "topic_idx": 1,
+      "title_jp": "米ヌカ健康法",
+      "title_pt": "Método de Saúde com Farelo de Arroz",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Beribéri e Doença de Basedow\"　(Publicado em 5 de fevereiro de 1947) \"(Citação parcial) O beribéri também é uma doença peculiar aos japoneses e a causa, como a medicina afirma, é sem dúvida a  intoxicação por arr"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "kosi.html",
+      "topic_idx": 4,
+      "title_jp": "腰の重要性",
+      "title_pt": "A Importância da Lombar",
+      "date": "昭和18年10月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"HON IJUTSU NO SHIHOU\"　(Publicado em 5 de outubro de 1943) \"(Citação parcial) Além disso, os nódulos de toxinas se deslocam da região dos rins para baixo, até a região dos ossos lombares, e, especialm"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "kousen.html",
+      "topic_idx": 2,
+      "title_jp": "光線療法",
+      "title_pt": "Fototerapia",
+      "date": "昭和25年2月20日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Tanosuke Sawamura e Outros\" (Publicado em 20 de fevereiro de 1950) \"(Citação parcial) A seguir, houve também este caso raro. Uma mulher casada de cerca de quarenta anos teve um tumor entre o olho dir"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "kyuusi.html",
+      "topic_idx": 0,
+      "title_jp": "急死者の憑霊",
+      "title_pt": "Possessão por espírito de morte súbita",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Vários Aspectos do Pós-Morte\"　(Publicado em 25 de agosto de 1949) \"(Apenas uma parte citada) Existem vários tipos de morte, mas há casos em que a pessoa se torna um habitante do Mundo Espiritual subi"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "mizuko1.html",
+      "topic_idx": 0,
+      "title_jp": "水子、嬰児の憑霊による病気　１",
+      "title_pt": "Doenças por possessão de espíritos de abortos e bebês　１",
+      "date": "昭和28年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Experiência de uma Ex-Enfermeira\"　(1953) \"(Citação parcial) Outro exemplo, como é de natureza espiritual e religiosa, eu não gostaria de escrever aqui, mas como também é uma verdade, escrevo como uma"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "mizuko1.html",
+      "topic_idx": 10,
+      "title_jp": "水子、嬰児の憑霊による病気　１",
+      "title_pt": "Doenças por possessão de espíritos de abortos e bebês　１",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Epilepsia\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Em seguida, há o sonambulismo, que é um sintoma problemático onde, ao ter uma crise, a pessoa perde a consciência de si mesma, sai "
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "nyoudoku.html",
+      "topic_idx": 0,
+      "title_jp": "尿　毒",
+      "title_pt": "Toxina　Urêmica",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - \"A Arte Médica dos Rins e o Método de Rejuvenescimento\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Esta arte médica, em uma palavra, pode ser chamada de arte médica dos rins. Como explicado detalha"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "nyoudoku.html",
+      "topic_idx": 1,
+      "title_jp": "尿　毒",
+      "title_pt": "Toxina　Urêmica",
+      "date": "昭和18年10月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama - \"O Método de Aplicação Desta Arte Médica\" (Publicado em 5 de outubro de 1943) \"(Citação parcial) O fato de que esta arte médica é a arte médica dos rins é como expliquei anteriormente. Portanto, no caso da aplic"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "ryuuzin3.html",
+      "topic_idx": 0,
+      "title_jp": "龍神の憑霊、再生による病気　３（木龍）",
+      "title_pt": "Doenças por possessão e reencarnação de deus-dragão　３ (Dragão de\n                            Madeira)",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Surdez e Prisão de Ventre e Difteria - A Doença e o Espírito 8\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) As causas da surdez (nota: deficiência auditiva) podem ser espirituais e materiais, mas pri"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "shoudoku1.html",
+      "topic_idx": 1,
+      "title_jp": "消毒薬　１",
+      "title_pt": "Desinfetante　１",
+      "date": "昭和26年7月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"O Ponto Cego da Medicina e a Capacidade de Cura Natural\" (Publicado em 25 de julho de 1951) \"(Citação parcial) No entanto, esse bactericida é o problema. Isso porque ele primeiro se infiltra através dos músculos"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "shoudoku1.html",
+      "topic_idx": 2,
+      "title_jp": "消毒薬　１",
+      "title_pt": "Desinfetante　１",
+      "date": "昭和27年12月1日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Diversos Aspectos dos Erros Médicos\" (Publicado em 1 de dezembro de 1952) \"(Citação parcial) Além disso, quanto à neuralgia intercostal como causa indireta da tuberculose, sua causa está em um lugar inesperado. "
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "shoudoku1.html",
+      "topic_idx": 3,
+      "title_jp": "消毒薬　１",
+      "title_pt": "Desinfetante　１",
+      "date": "昭和28年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Sobre a Cirurgia\" (Escrito em 1953) \"(Citação parcial) O que se deve ter muita atenção aqui é a intoxicação por desinfetantes. Em casos de cirurgia ou ferimentos externos, o desinfetante é considerado indispensá"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "shoudoku1.html",
+      "topic_idx": 4,
+      "title_jp": "消毒薬　１",
+      "title_pt": "Desinfetante　１",
+      "date": "昭和24年12月3日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"O Corpo Humano é um Todo Integrado\" (Publicado em 3 de dezembro de 1949) \"(Citação parcial) A seguir, uma jovem com dor de dente, ao receber Johrei, curou-se imediatamente, mas no dia seguinte disse que doía nov"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "sinzouS.html",
+      "topic_idx": 1,
+      "title_jp": "心臓神経衰弱",
+      "title_pt": "Neurastenia Cardíaca",
+      "date": "昭和28年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Doenças Gástricas e Doenças Cardíacas\" (1953) \"(Citação parcial) A seguir, sobre as doenças cardíacas, a causa delas é extremamente simples. Ou seja, as toxinas se acumulam e se solidificam nas áreas"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "Skenkou2.html",
+      "topic_idx": 1,
+      "title_jp": "食と健康　２（食事のバランス）",
+      "title_pt": "Alimentação e Saúde　２（Equilíbrio na Alimentação）",
+      "date": "昭和11年7月",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Sobre a Alimentação Nutritiva\" (Julho de 1936) \"(Citação parcial) Em seguida, nos alimentos, há a alimentação de origem animal e a de origem vegetal e o princípio é comer ambos em proporções iguais. Peixes e ave"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "Skenkou2.html",
+      "topic_idx": 2,
+      "title_jp": "食と健康　２（食事のバランス）",
+      "title_pt": "Alimentação e Saúde　２（Equilíbrio na Alimentação）",
+      "date": "昭和25年1月1日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Meu Método de Saúde\" (Publicado em 1 de janeiro de 1950) \"(Citação parcial) Sobre a alimentação, o interessante é que eu sempre me preocupo em não ter excesso de nutrição. Isso porque há uma quantida"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "Skenkou6.html",
+      "topic_idx": 10,
+      "title_jp": "食と健康　６（肉食牛乳の害）",
+      "title_pt": "Alimentação e Saúde　６（Malefícios da CarneLeite）",
+      "date": "昭和18年10月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Nutrição\" (Publicado em 5 de outubro de 1943) \"(Citação parcial) Em seguida, sobre o leite de vaca, ele é adequado para bebês que ainda não têm dentes, mas é inadequado após o nascimento dos dentes. O nascimento"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "Skenkou6.html",
+      "topic_idx": 11,
+      "title_jp": "食と健康　６（肉食牛乳の害）",
+      "title_pt": "Alimentação e Saúde　６（Malefícios da CarneLeite）",
+      "date": "昭和11年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Método de Prevenção de Crianças Fracas\" (Escrito em 1936) \"(Citação parcial) Antes de falar sobre isso, a ordem é examinar a causa de como a grande maioria das crianças fracas surge sucessivamente.\nA causa origi"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "Skenkou6.html",
+      "topic_idx": 16,
+      "title_jp": "食と健康　６（肉食牛乳の害）",
+      "title_pt": "Alimentação e Saúde　６（Malefícios da CarneLeite）",
+      "date": "昭和28年1月21日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"O Motivo do Desaparecimento dos Mestres - Parte 3\" (Publicado em 21 de janeiro de 1953) \"(Sobre o enfraquecimento da força física) Ainda que para os brancos esteja tudo bem, pois são uma raça carnívora de geraçã"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "Skenkou7.html",
+      "topic_idx": 7,
+      "title_jp": "食と健康　７（偏食）",
+      "title_pt": "Alimentação e Saúde　７（Alimentação Desequilibrada）",
+      "date": "昭和25年2月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Extraído do Ensinamento de Meishu-Sama: \"Sobre a Alimentação dos Bebês\" (Publicado em 25 de fevereiro de 1950) \"(Citação parcial) Antigamente, tive uma paciente interessante, uma senhora de cerca de quarenta anos. Como diziam que espinafre "
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "Skenkou8.html",
+      "topic_idx": 16,
+      "title_jp": "食と健康　８（その他）",
+      "title_pt": "Alimentação e Saúde　８（Outros）",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Doenças venéreas\"　(Publicado em 5 de fevereiro de 1947) \"(Citação parcial) E mesmo para a gonorreia, a terapia natural é eficaz, que consiste em ingerir a maior quantidade de líquido possível, pois com isso a ex"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "sounenN.html",
+      "topic_idx": 5,
+      "title_jp": "想念と農業",
+      "title_pt": "Pensamentos e Agricultura",
+      "date": "昭和24年8月13日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Os Três Grandes Desastres e os Três Pequenos Desastres\"　(Publicado em 13 de agosto de 1949) \"(Citação parcial) O que são os três grandes desastres de vento, água e fogo e os três pequenos desastres d"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "tenkan2.html",
+      "topic_idx": 15,
+      "title_jp": "てんかん　２",
+      "title_pt": "Epilepsia　２",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de 'Epilepsia'　(Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Em seguida, há os chamados sonâmbulos, que apresentam um sintoma problemático: ao terem uma crise, perdem a consciência de si mesmo"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "ti.html",
+      "topic_idx": 0,
+      "title_jp": "血　液",
+      "title_pt": "Sangue　Líquido",
+      "date": "昭和11年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"O Espírito, o Sangue e a Fé Correta\" (Escrito em 1936) \"(Citação parcial) Em primeiro lugar, se dividirmos amplamente os elementos constituintes do corpo humano, eles são compostos por dois tipos de elementos. E"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "tumi3.html",
+      "topic_idx": 1,
+      "title_jp": "罪と病気　３（病気の因果応報的解釈）",
+      "title_pt": "Pecado e Doença　３ (Interpretação cármica da doença)",
+      "date": "昭和27年12月１日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"O Surgimento das Bactérias\" (Publicado em 1 de dezembro de 1952) \"(Citação parcial) Aqui, o que afinal é o espírito humano? Cientificamente falando, é algo de densidade extremamente alta e super-rarefeito, e, ap"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "tumi3.html",
+      "topic_idx": 2,
+      "title_jp": "罪と病気　３（病気の因果応報的解釈）",
+      "title_pt": "Pecado e Doença　３ (Interpretação cármica da doença)",
+      "date": "昭和28年12月2日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Despertem para a Vontade Divina\" \n(Publicado em 2 de dezembro de 1953) \"(Citação parcial) Além disso, todos os outros desastres são iguais, tudo é ação de purificação. No entanto, mesmo sendo a mesma ação de pur"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "tumi3.html",
+      "topic_idx": 3,
+      "title_jp": "罪と病気　３（病気の因果応報的解釈）",
+      "title_pt": "Pecado e Doença　３ (Interpretação cármica da doença)",
+      "date": "昭和27年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Artigo de Meishu-Sama: Extraído de \"Câncer e Doenças Espirituais\" (Escrito em 1952) \"(Citação parcial) O próximo é o câncer de reto, que é o câncer que surge na região do reto e não é móvel, mas fixo. Como o reto é um tubo de passagem das f"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "tumi3.html",
+      "topic_idx": 4,
+      "title_jp": "罪と病気　３（病気の因果応報的解釈）",
+      "title_pt": "Pecado e Doença　３ (Interpretação cármica da doença)",
+      "date": "昭和26年8月15日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"O Espírito Precede a Matéria\" (Publicado em 15 de agosto de 1951) \"(Citação parcial) Como dito acima, as impurezas, ou seja, as máculas acumuladas no espírito humano, fazem com que surjam partes opacas no espíri"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "tumi4.html",
+      "topic_idx": 14,
+      "title_jp": "罪と病気　４（病気の因果応報的解釈）",
+      "title_pt": "Pecado e Doença　４ (Interpretação cármica da doença)",
+      "date": "Unknown",
+      "reason": "ambíguo",
+      "content_preview": "Artigo de Meishu-Sama: Extraído de \"Doenças na boca, etc.\" (Escrito em 1952) \"(Citação parcial) Embora seja raro, há casos que não se curam de jeito nenhum. Ou seja, este é o verdadeiro câncer de língua. No entanto, isso é espiritual e a ca"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "yobou.html",
+      "topic_idx": 3,
+      "title_jp": "予防接種",
+      "title_pt": "Vacinação",
+      "date": "昭和10年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Palestra de Meishu-Sama: \"Intoxicação por Medicamentos\"　(Escrito em 1935) \"(Citação parcial) Em seguida, o interessante é que, frequentemente nos pés, pode-se ver o surgimento de tumores do tamanho de um grão de feijão ou de uma ameixa em c"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "yobou.html",
+      "topic_idx": 5,
+      "title_jp": "予防接種",
+      "title_pt": "Vacinação",
+      "date": "昭和22年2月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Doenças Contagiosas e Bactérias\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Pelo significado acima, as chamadas bactérias patogênicas são, para os portadores de sangue maculado entre os seres human"
+    },
+    {
+      "vol": "mioshiec2",
+      "file": "zikoG.html",
+      "topic_idx": 7,
+      "title_jp": "事故の原因は薬毒",
+      "title_pt": "A Causa dos Acidentes é a Toxina Medicamentosa",
+      "date": "昭和18年10月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Toxina Medicinal\" (Publicado em 5 de outubro de 1943) \"(Citação parcial) Aqui, devo mencionar mais uma coisa importante. É que os portadores de toxinas medicinais sofrem as seguintes más influências "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "baikin1.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「御神意を覚れ」より",
+      "title_pt": "Trecho do Ensinamento de Meishu-Sama: \"Compreendam a Vontade Divina\"",
+      "date": "昭和28年12月2日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Trecho do Ensinamento de Meishu-Sama: \"Compreendam a Vontade Divina\"　(Publicado em 2 de dezembro de 1953) \"(Citação parcial) Todos os desastres são semelhantes, sendo todos ações purificadoras. No entanto, mesmo sendo a mesma ação purificad"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "baikin2.html",
+      "topic_idx": 10,
+      "title_jp": "明主様御教え　「霊線に就て」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Sobre os Elos Espirituais\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Sobre os Elos Espirituais\" (Publicado em 5 de setembro de 1948) Quando a Riqueza Ilícita é Dilapidada, a Família Prospera \"(Citação parcial) Também há frequentemente exemplos como este. Quando os pai"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "binbou.html",
+      "topic_idx": 9,
+      "title_jp": "明主様御教え　「宗教的治病に於る誤謬」より",
+      "title_pt": "Trecho do Ensinamento de Meishu-Sama: \"O Erro na Cura de Doenças pela Religião\"",
+      "date": "昭和11年4月8日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Trecho do Ensinamento de Meishu-Sama: \"O Erro na Cura de Doenças pela Religião\"　(Escrito em 8 de abril de 1936) 「(Citação parcial) No mundo, frequentemente, ao curar doenças por meio da fé, há um assunto importante que é muito fácil de ser "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "daizyouTARE1.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「之も慢心」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de 'Isso Também é Arrogância'",
+      "date": "昭和26年9月12日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Isso Também é Arrogância\" (Publicado em 12 de setembro de 1951) \"(Citação parcial) Sendo assim, é evidente que entre as pessoas que se tornam fiéis desta religião não há quem tenha um coração mau; co"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "genzitu.html",
+      "topic_idx": 3,
+      "title_jp": "側近者の寄稿　「薬毒の恐怖」より",
+      "title_pt": "Contribuição de um Assessor: De \"O Terror das Toxinas dos Remédios\"",
+      "date": "昭和29年10月15日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Contribuição de um Assessor: De \"O Terror das Toxinas dos Remédios\"　Hyotan　(Publicado em 15 de outubro de 1954) As Coisas Devem Ser Pensadas de Forma Realista \"(Citação parcial) Desde que passei a receber Johrei na região da cabeça e do pes"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "Gkizui1.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「万教帰一」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de 'BANKYO KIITSU'",
+      "date": "昭和11年1月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de 'BANKYO KIITSU'　(Publicado em 25 de janeiro de 1936) 「(Citação parcial) Antigamente, como na história de Sawaichi de Tsubosaka contada há pouco pelo Sr. Okaniba, até agora, se não se praticasse a fé c"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "gosinsho.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御教え　「善悪の戦い」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Batalha entre o Bem e o Mal\"",
+      "date": "昭和25年3月18日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Batalha entre o Bem e o Mal\"　(Publicado em 18 de março de 1950) Aqueles que não leem as publicações da Igreja Messiânica são possuídos por Jashin \"(Citação parcial) Aqui, há algo muito interessante"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "gyakuKOUKA.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「観音信仰」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Fé em Kannon\"",
+      "date": "昭和24年4月20日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Fé em Kannon\" (20 de abril de 1949) \"(Citação parcial) Além disso, as pessoas de fé Shojo (Pequeno Veículo), sem perceberem, caem na falsidade, por isso gostam de se exibir e querem parecer superio"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "H2.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「話上手より聞上手」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Mais do que saber falar, saber ouvir\"",
+      "date": "昭和10年3月4日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Mais do que saber falar, saber ouvir\" (Publicado em 4 de março de 1935) \"(Citação parcial) Ao fazer a difusão da doutrina, mais do que saber falar, saber ouvir é essencial. Ouvir bem a história da ou"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "H5.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「我と執着」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de 'Ego e Apego'",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Ego e Apego\" (Publicado em 5 de setembro de 1948) \"(Citação parcial) E, como mencionado anteriormente, a encarnação do apego torna-se um espírito de serpente, o que é temível. Quando um espírito huma"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "haidoku1.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御講話　「拝読は一つの浄霊」",
+      "title_pt": "Palestra de Meishu-Sama: 'A leitura é um tipo de Johrei'",
+      "date": "昭和28年3月16日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Palestra de Meishu-Sama: \"A leitura é um tipo de Johrei\" (16 de março de 1953) \"(Citação parcial) Não apenas plantas e árvores, mas até mesmo objetos como uma tigela de chá, quando amados por um ser humano, tornam-se diferentes. Muitas veze"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "hanasikata.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御教え　「再びベルグソンに就て」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Novamente sobre Bergson\"",
+      "date": "昭和26年7月18日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Novamente sobre Bergson\"　(Publicado em 18 de julho de 1951) Falar adaptando-se ao interlocutor \"(Citação parcial) Mudar infinitamente, sem se desviar nem um pouco do fluxo constante de todas as coisa"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "hentai2.html",
+      "topic_idx": 9,
+      "title_jp": "明主様御教え　「太陽の救い」",
+      "title_pt": "Ensinamento de Meishu-Sama: \"A Salvação do Sol\"",
+      "date": "昭和27年11月19日",
+      "reason": "ambíguo",
+      "content_preview": "Ensinamento de Meishu-Sama: \"A Salvação do Sol\" (Publicado em 19 de novembro de 1952) \"(Citação parcial) Atualmente, as pessoas consideradas intelectuais têm o hábito de, quase sem exceção, olhar para as novas religiões com preconceito desd"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "houon.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「信仰の合理性と再浄化」",
+      "title_pt": "Ensinamento de Meishu-Sama: \"A Racionalidade da Fé e a Re-purificação\"",
+      "date": "昭和28年5月27日",
+      "reason": "ambíguo",
+      "content_preview": "Ensinamento de Meishu-Sama: \"A Racionalidade da Fé e a Re-purificação\"　(Publicado em 27 de maio de 1953) \"(Citação parcial) E ao oferecer a sinceridade de gratidão, mesmo que seja em dinheiro, não importa se é muito ou pouco. Basta que seja"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "houon.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「宗教的治病に於る誤謬」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"SHUKYOU-TEKI CHIBYOU NI OKERU GOBYUU\"",
+      "date": "昭和11年4月8日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"SHUKYOU-TEKI CHIBYOU NI OKERU GOBYUU\"　(Escrito em 8 de abril de 1936) \"(Apenas uma parte citada) Na sociedade, muitas vezes, ao se curar doenças através da fé, há uma questão importante que é muito f"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "hurin.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「邪神活躍」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Atividade dos Jashin\"",
+      "date": "昭和25年12月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Atividade dos Jashin\"　(Publicado em 25 de dezembro de 1950) \"(Citação parcial) Naturalmente, do chefe que está assentado na sede geral, saem diretrizes uma a uma, que são transmitidas ao espírito g"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "hurinTUMI.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「地獄界の続き」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Continuação do Mundo Infernal\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Continuação do Mundo Infernal\"　(Publicado em 25 de agosto de 1949) \"(Citação parcial) O Caminho da Luxúria é, como o nome sugere, para aqueles que se tornaram demônios famintos de luxúria. No caso "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "hurinTUMI.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「天国と地獄」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Céu e Inferno\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Céu e Inferno\"　(Publicado em 25 de agosto de 1949) Ter relações sexuais com múltiplas mulheres faz com que a pessoa se torne uma galinha no mundo espiritual \"(Citação parcial) Aquele que gosta de cas"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "hurinTUMI.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御教え　「不倫をすると性器に癌ができる」",
+      "title_pt": "Ensinamento de Meishu-Sama: \"Cometer adultério causa câncer nos órgãos genitais\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Cometer adultério causa câncer nos órgãos genitais\"　(Escrito em 1952) \"Raramente há o câncer de vagina, mas isso é um pecado devido a relações imorais entre homens e mulheres. (Citação parcial)\"　(Extraído de \"GA"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "hurinTUMI.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御教え　「夫婦の道」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"O Caminho do Casal\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"O Caminho do Casal\"　(Publicado em 5 de setembro de 1948) Cometer adultério faz com que os filhos morram \"(Citação parcial) Há mais uma coisa importante, que é a morte dos filhos e a sua causa baseia-"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "huuhu.html",
+      "topic_idx": 16,
+      "title_jp": "明主様御教え　「我と執着」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Ego e Apego\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Ego e Apego\" (Publicado em 5 de setembro de 1948) \"(Citação parcial) O objetivo máximo do aprimoramento no Mundo Espiritual é eliminar o apego e à medida que o apego é removido, a posição da pessoa s"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "ikari.html",
+      "topic_idx": 3,
+      "title_jp": "明主様御垂示　「威張るな、怒るな、早まるな」",
+      "title_pt": "Ensinamento de Meishu-Sama: \"Não Seja Arrogante, Não Se Ire, Não Se Precipite\"",
+      "date": "昭和23年5月18日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Não Seja Arrogante, Não Se Ire, Não Se Precipite\" (18 de maio de 1948) \"(Citação parcial) Antigamente, eu criei os Três Preceitos do Terapeuta e mandei afixá-los no local de tratamento. \"Não seja arrogante, não "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "keizai5.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「浄財と不浄財」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Dinheiro Limpo e Dinheiro Sujo\"",
+      "date": "昭和10年7月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Dinheiro Limpo e Dinheiro Sujo\" (Publicado em 25 de julho de 1935) Se não pagar o dinheiro que deve ser pago, o dinheiro não entrará \"(Citação parcial) Havia um fiel muito fervoroso de uma certa reli"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "keizai5.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御教え　「霊波と霊衣　付録霊科学」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"REIHA TO REII FUROKU REIKAGAKU\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"REIHA TO REII FUROKU REIKAGAKU\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Quando analisamos todos os pensamentos e ações do ser humano, é desnecessário dizer que eles pertencem ao bem "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "keizai5.html",
+      "topic_idx": 9,
+      "title_jp": "明主様御教え　「霊界の構成」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"REIKAI NO KOUSEI\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"REIKAI NO KOUSEI\"　(Publicado em 5 de fevereiro de 1947) \"(Citando apenas uma parte) É preciso saber também o seguinte. Existem pessoas que, embora ricas neste mundo, são extremamente avarentas. Essas"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "keizai6.html",
+      "topic_idx": 6,
+      "title_jp": "明主様御教え　「霊線に就て」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Sobre os Elos Espirituais\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Sobre os Elos Espirituais\"　(Publicado em 5 de setembro de 1948) Quando a Riqueza Ilícita é Dissipada, a Família Prospera \"(Citação parcial) Além disso, esse tipo de exemplo também é comum. Quando os "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "kenkinZ.html",
+      "topic_idx": 3,
+      "title_jp": "明主様御教え　「神と悪魔」",
+      "title_pt": "Ensinamento de Meishu-Sama: \"Deus e o Demônio\"",
+      "date": "昭和18年10月23日",
+      "reason": "ambíguo",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Deus e o Demônio\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) Além disso, um deus que diz que a doença será curada se você oferecer dinheiro é um Jashin. O motivo é que curar a doença em troca de din"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "kenzyou.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御教え　「観音信仰」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Fé em Kannon\"",
+      "date": "昭和24年4月20日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Fé em Kannon\" (Publicado em 20 de abril de 1949) \"(Citação parcial) Além disso, as pessoas de fé Shojo (Veículo Menor), sem perceberem, caem na falsidade, por isso gostam de ostentar e querem parec"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "kibun.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「私の考え方」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Minha Forma de Pensar\"",
+      "date": "昭和27年6月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Minha Forma de Pensar\" (Publicado em 25 de junho de 1952) \"(Citação parcial) O próximo ponto que quero chamar a atenção é que o ser humano deve fazer a mudança mental. Isso porque há muitas pessoas q"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "kouhuku.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御教え　「霊波と霊衣　付録霊科学」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Ondas Espirituais e Veste Espiritual - Apêndice Ciência Espiritual\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Ondas Espirituais e Veste Espiritual - Apêndice Ciência Espiritual\" (Publicado em 5 de fevereiro de 1947) \"(Apenas uma parte citada) O corpo espiritual do ser humano possui uma forma semelhante à do "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "kouhuku.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御教え　「毒素の解剖」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Anatomia das Toxinas\"",
+      "date": "昭和27年12月1日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Anatomia das Toxinas\" (Publicado em 1 de dezembro de 1952) \"(Apenas uma parte citada) Voltando ao assunto, como resultado do mal, surge o sentimento de remorso e esse sofrimento do coração é uma pu"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "koxtuka1.html",
+      "topic_idx": 10,
+      "title_jp": "明主様御教え　「霊線に就て」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Sobre os Elos Espirituais\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Sobre os Elos Espirituais\" (Publicado em 5 de setembro de 1948) \"(Citação parcial) Os elos espirituais variam em número de acordo com a posição da pessoa. Pessoas com muitos elos, por exemplo, se for"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "kyousan2.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「兇党界」",
+      "title_pt": "Ensinamento de Meishu-Sama: \"Mundo das Facções Malignas\"",
+      "date": "昭和18年10月23日",
+      "reason": "ambíguo",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Mundo das Facções Malignas\" (Publicado em 23 de outubro de 1943) \"(Citação parcial) Em nosso país divino, o Japão, por um tempo estivemos em perigo de ser envenenados pelas mãos demoníacas dos Jashin, mas, por s"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "makoto.html",
+      "topic_idx": 7,
+      "title_jp": "明主様御教え　「之も慢心」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Isso Também é Vaidade\"",
+      "date": "昭和26年9月12日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Isso Também é Vaidade\"　(Publicado em 12 de setembro de 1951) \"(Citação parcial) E assim, para as pessoas que se tornam fiéis desta religião, não há como haver pessoas de mau coração; compreendo bem q"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "nankai.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御講話　「本を読まねば病気が治らないというのでは無学な人間は治らない」",
+      "title_pt": "Palestra de Meishu-Sama: \"Dizer Que a Doença Não Cura Se Não Ler o Livro Significa Que Pessoas Sem Estudo Não Se Curam\"",
+      "date": "昭和10年10月11日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Palestra de Meishu-Sama: \"Dizer Que a Doença Não Cura Se Não Ler o Livro Significa Que Pessoas Sem Estudo Não Se Curam\" (11 de outubro de 1935) \"(Citação parcial) Por isso, por mais que se pratique a Seicho-No-Ie, o resultado é limitado. O "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "nikumi1.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「霊波と霊衣　付録霊科学」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"REIHA TO REII FUROKU REIKAGAKU\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"REIHA TO REII FUROKU REIKAGAKU\"　(Publicado em 5 de fevereiro de 1947) \"(Apenas uma parte citada) Ao analisar todos os pensamentos e ações humanas, não é preciso dizer que eles pertencem ao bem ou ao "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "nikumi1.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御論文　「毒素の解剖」より",
+      "title_pt": "Artigo de Meishu-Sama: Extraído de \"DOKUSO NO KAIBOU\"",
+      "date": "昭和27年12月1日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Artigo de Meishu-Sama: Extraído de \"DOKUSO NO KAIBOU\"　(Publicado em 1 de dezembro de 1952) \"(Apenas uma parte citada) Voltando ao assunto, como resultado do mal, surge o sentimento de remorso e essa dor no coração é uma leve purificação. Se"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "nikumi2.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御論文　「霊界の不思議」より",
+      "title_pt": "Ensaio de Meishu-Sama: Extraído de 'REIKAI NO FUSHIGI'",
+      "date": "昭和24年10月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensaio de Meishu-Sama: Extraído de 'REIKAI NO FUSHIGI'　(Publicado em 25 de outubro de 1949) \"(Citação parcial) O que mais se vê no mundo é o excesso de pessoas inescrupulosas que, por desejos egoístas, causam transtornos, fazem os outros so"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "nikumi2.html",
+      "topic_idx": 8,
+      "title_jp": "明主様御教え　「地獄界の続き」より",
+      "title_pt": "Extraído do Ensinamento de Meishu-Sama: \"Continuação do Mundo Infernal\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Extraído do Ensinamento de Meishu-Sama: \"Continuação do Mundo Infernal\"　(Publicado em 25 de agosto de 1949) \"(Citação parcial) No Inferno das Serpentes, inúmeras serpentes se reúnem e o sofrimento ali é indescritível. Este pecado é o de cau"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "Okizui.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御講話　「おひねりで溺れたところを救われた事例」",
+      "title_pt": "Palestra de Meishu-Sama: \"Caso em que foi salvo de afogamento pelo Ohineri\"",
+      "date": "昭和28年8月17日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Palestra de Meishu-Sama: \"Caso em que foi salvo de afogamento pelo Ohineri\" (17 de agosto de 1953) \"(Citação parcial) Antigamente, quando uma senhora idosa foi passear, ao passar de uma barcaça para o navio principal, ela caiu e afundou. En"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "omakase2.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御垂示　「心配事は神様にお任せ」",
+      "title_pt": "Orientação de Meishu-Sama: \"Entregue as preocupações nas mãos de Deus\"",
+      "date": "昭和25年1月1日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Orientação de Meishu-Sama: \"Entregue as preocupações nas mãos de Deus\" (1 de janeiro de 1950) \"(Citação parcial) Aqui há algo que pode parecer um pouco surpreendente, pois é melhor usar a cabeça o máximo possível; isso é uma espécie de méto"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "onna.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御教え　「脳疾患・病患と医学の誤謬　七」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Doenças Cerebrais, Enfermidades e os Erros da Medicina - Parte 7\"",
+      "date": "昭和18年10月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Doenças Cerebrais, Enfermidades e os Erros da Medicina - Parte 7\" (Publicado em 5 de outubro de 1943) \"(Citação parcial) Originalmente, a ação do cérebro humano divide-se, em linhas gerais, em razão "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "owabi1.html",
+      "topic_idx": 31,
+      "title_jp": "参考　側近者の寄稿　「薬毒の恐怖」より",
+      "title_pt": "Referência: Contribuição de um Servidor Próximo - Extraído de \"O Terror das Toxinas dos Remédios\"",
+      "date": "昭和29年10月15日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Referência: Contribuição de um Servidor Próximo - Extraído de \"O Terror das Toxinas dos Remédios\"　HYOUTAN (Publicado em 15 de outubro de 1954) As coisas devem ser pensadas de forma realista \"(Citação parcial) Desde que passei a receber Johr"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "sabakunakare.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「之も慢心」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Isso Também é Arrogância\"",
+      "date": "昭和26年9月12日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Isso Também é Arrogância\" (Publicado em 12 de setembro de 1951) \"(Citação parcial) Muitas vezes, por excesso de zelo na fé, há pessoas que criticam a maneira de agir do reverendo da igreja a que pert"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "sabakunakare.html",
+      "topic_idx": 7,
+      "title_jp": "明主様御垂示　「神様を相手とする」",
+      "title_pt": "Ensinamento de Meishu-Sama: 'Ter Deus como parceiro'",
+      "date": "昭和27年4月1日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Ter Deus como parceiro\"　(1 de abril de 1952) \"(Citação parcial) A pior coisa é dizer que aquela pessoa não deve fazer aquilo. Dizer que aquela pessoa está errada é o que não se deve fazer. O ser humano não conse"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "sagi.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「神と悪魔」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Deus e o Demônio\"",
+      "date": "昭和18年10月23日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Deus e o Demônio\"　(Publicado em 23 de outubro de 1943) \"(Citação parcial) Além disso, um deus que diz que a doença será curada se oferecer dinheiro também é um Jashin. O motivo é que curar a doença e"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "sagi.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「信仰の合理性と再浄化」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Racionalidade da Fé e a Re-purificação\"",
+      "date": "昭和28年5月27日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Racionalidade da Fé e a Re-purificação\"　(Publicado em 27 de maio de 1953) \"(Citação parcial) E, ao dedicar a sincera gratidão, mesmo que seja em dinheiro, não importa se é muito ou pouco. Basta que"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "shugi.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「大乗と小乗」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Daijo e Shojo\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Daijo e Shojo\" (Publicado em 5 de setembro de 1948) \"(Apenas um trecho citado) Desde os tempos antigos, existem as palavras Daijo (Grande Veículo) e Shojo (Pequeno Veículo). Naturalmente, são termos "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "shuukyouZIGYOU.html",
+      "topic_idx": 8,
+      "title_jp": "明主様御講話　「ごまかしの世界」",
+      "title_pt": "Palestra de Meishu-Sama: \"O Mundo da Enganação\"",
+      "date": "昭和10年2月11日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Palestra de Meishu-Sama: \"O Mundo da Enganação\" (11 de fevereiro de 1935) \"(Citação parcial) O Exército de Salvação coloca suas panelas no final do ano e distribui mochi de Ano Novo e também diz que salva os infelizes, os pecadores, etc., m"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "sibuchou.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「順序を過る勿れ」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Não Erre a Ordem\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Não Erre a Ordem\"　(Publicado em 5 de setembro de 1948) \"(Citação parcial) Durante a guerra, na época do Gabinete Tojo, o Primeiro-Ministro Tojo defendia que o presidente deveria comandar na linha de "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "sibuchou.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御教え　「霊線に就て」より",
+      "title_pt": "Ensinamento de <i>Meishu-Sama</i>: Extraído de \"REISEN NI TSUITE\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"REISEN NI TSUITE\" (Publicado em 5 de setembro de 1948) Se o coração do chefe de igreja ou do chefe de filial for sujo, o coração dos fiéis também se tornará sujo \"(Citação parcial) A quantidade de el"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "sibuchou.html",
+      "topic_idx": 7,
+      "title_jp": "明主様御教え　「死後の種々相」より",
+      "title_pt": "Ensinamento de <i>Meishu-Sama</i>: Extraído de \"SHIGO NO SHUJUSOU\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"SHIGO NO SHUJUSOU\" (Publicado em 25 de agosto de 1949) O adultério de um chefe de filial é um crime grave \"(Citação parcial) Além disso, relações impuras entre homens e mulheres por parte de monges, "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "sinbou.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「順序を過る勿れ」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Não Transgrida a Ordem\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Não Transgrida a Ordem\"　(Publicado em 5 de setembro de 1948) \"(Citação parcial) Durante a guerra, na época do gabinete de Tojo, o Primeiro-Ministro Tojo defendia que o presidente da empresa deveria c"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "sinzya2SI.html",
+      "topic_idx": 8,
+      "title_jp": "明主様御教え　「夫婦の道」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"FUUFU NO MICHI\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"FUUFU NO MICHI\" (Publicado em 5 de setembro de 1948) Se cometer adultério, os filhos morrem \"(Citação parcial) Há mais uma coisa importante, que é a morte dos filhos e a causa disso baseia-se na má c"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "strike.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「霊界の構成」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"REIKAI NO KOSEI\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"REIKAI NO KOSEI\" (Publicado em 5 de fevereiro de 1947) \"(Citação parcial) Existem pessoas que, embora sejam ricas neste mundo, são extremamente avarentas. Tais pessoas, mesmo que o corpo físico seja "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "strike.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御教え　「順序を過る勿れ」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Não Errem a Ordem\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Não Errem a Ordem\" (Publicado em 5 de setembro de 1948) \"(Apenas uma parte citada) Desde a antiguidade, existe o ditado 'Deus é a Ordem' e isso é algo de extrema importância em tudo, algo que se deve"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "subayaku.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「薬 \n毒」より",
+      "title_pt": "Ensinamento de <i>Meishu-Sama</i>: Extraído de \"Toxinas dos Remédios\"",
+      "date": "昭和18年10月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Toxinas dos Remédios\"　(Publicado em 5 de outubro de 1943) \"(Citação parcial) Devo mencionar aqui mais um fato importante. Trata-se das más influências que os portadores de toxinas de remédios sofrem,"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tenkou.html",
+      "topic_idx": 3,
+      "title_jp": "明主様御教え　「神は正なり」",
+      "title_pt": "Ensinamento de Meishu-Sama: \"Deus é a Justiça\"",
+      "date": "昭和25年3月18日",
+      "reason": "ambíguo",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Deus é a Justiça\" (Publicado em 18 de março de 1950) \"(Citação parcial) O ponto notável disso é a falta de amor e a fé ser do tipo Shojo, baseada em preceitos e rigorosa e ao mesmo tempo, é a chamada fé de ameaç"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tenkou.html",
+      "topic_idx": 5,
+      "title_jp": "明主様御教え　「正しき信仰」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Fé Correta\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Fé Correta\" (Publicado em 5 de setembro de 1948) \"(Apenas uma parte citada) Também existem religiões assim. Elas detestam ao extremo que seus fiéis tenham contato com outras religiões, mas isso tam"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "toku.html",
+      "topic_idx": 7,
+      "title_jp": "明主様御教え　「毒素の解剖」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Trecho de \"A Anatomia das Toxinas\"",
+      "date": "昭和27年12月1日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Trecho de \"A Anatomia das Toxinas\"　(Publicado em 1 de dezembro de 1952) \"(Citação parcial) Aqui passo finalmente à explicação das toxinas. Originalmente, as toxinas são, por assim dizer, sangue impuro e como já f"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi1.html",
+      "topic_idx": 2,
+      "title_jp": "明主様御教え　「地獄と天国」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de 'Inferno e Paraíso'",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de 'Inferno e Paraíso' As Causas da Queda ao Inferno São os Medicamentos e os Atos Pecaminosos \"(Citação parcial) Originalmente, o Mundo Espiritual encontra-se no espaço terrestre e está dividido em três"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi1.html",
+      "topic_idx": 3,
+      "title_jp": "明主様御教え　「天国と地獄」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de 'Paraíso e Inferno'",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de 'Paraíso e Inferno'　(Publicado em 25 de agosto de 1949) \"(Citação parcial)　 ・A Montanha de Agulhas é, como o nome diz, a travessia de uma montanha onde inúmeras agulhas se erguem como uma floresta e a"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi1.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御教え　「地獄界の続き」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de 'A Continuação do Mundo Infernal'",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Continuação do Mundo Infernal\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) ・O Caminho de Asura (Shurado) é o sofrimento de queimar em fúria, por exemplo, a angústia de perder uma luta e "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi1.html",
+      "topic_idx": 6,
+      "title_jp": "明主様御教え　「ご神意を覚れ」",
+      "title_pt": "Ensinamento de Meishu-Sama: \"Compreendam a Vontade Divina\"",
+      "date": "昭和28年12月2日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Compreendam a Vontade Divina\" \n(Publicado em 2 de dezembro de 1953) \"(Citação parcial) Além disso, todos os outros desastres são semelhantes; tudo é ação de purificação. Porém, mesmo sendo a mesma ação de purifi"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi1.html",
+      "topic_idx": 7,
+      "title_jp": "明主様御論文　「癌病・霊的病気」より",
+      "title_pt": "Artigo de Meishu-Sama: Extraído de \"Câncer - Doença Espiritual\"",
+      "date": "昭和27年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Artigo de Meishu-Sama: Extraído de \"Câncer - Doença Espiritual\" (Escrito em 1952) \"(Citação parcial) O próximo é o câncer de reto, onde o câncer se desenvolve na região do reto e não é móvel, mas fixo. Como o reto é o canal de passagem das "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi2.html",
+      "topic_idx": 6,
+      "title_jp": "明主様御教え　「癌病・霊的病気」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Ganbyou - Reiteki Byouki\"",
+      "date": "Unknown",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Ganbyou - Reiteki Byouki\"　(Escrito em 1952) O adultério causa câncer nos órgãos genitais \"(Citação parcial) Raramente existe o câncer de vagina, mas este é um pecado devido a relações imorais entre h"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi2.html",
+      "topic_idx": 7,
+      "title_jp": "明主様御教え　「地獄界の続き」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Jigokukai no Tsuzuki\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Jigokukai no Tsuzuki\"　(Publicado em 25 de agosto de 1949) \"(Citação parcial) O Caminho da Luxúria (Shikiyokudou), como o próprio nome diz, é para aqueles que se tornaram demônios famintos de luxúria."
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi2.html",
+      "topic_idx": 8,
+      "title_jp": "明主様御教え　「天国と地獄」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Tengoku to Jigoku\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Tengoku to Jigoku\"　(Publicado em 25 de agosto de 1949) Ter relações sexuais com múltiplas mulheres faz com que se torne uma galinha no Mundo Espiritual \"(Citação parcial) Aquele que gosta de casos am"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi2.html",
+      "topic_idx": 9,
+      "title_jp": "明主様御教え　「夫婦の道」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Fuufu no Michi\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Fuufu no Michi\"　(Publicado em 5 de setembro de 1948) O adultério é um crime tão grave que é digno de morte \"(Citação parcial) Há mais uma coisa importante, que é a morte de uma criança, cuja causa se"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi3.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「自殺者の無責任」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Irresponsabilidade dos Suicidas\"",
+      "date": "昭和25年1月14日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Irresponsabilidade dos Suicidas\"　(Publicado em 14 de janeiro de 1950) \"(Citação parcial) E o que eu gostaria de dizer especialmente é que, em relação a esse tipo de suicida, há até quem os glorifiq"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi3.html",
+      "topic_idx": 11,
+      "title_jp": "明主様御教え　「病気の原因と罪穢れ」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Causa das Doenças e os Pecados e Impurezas\"",
+      "date": "昭和11年",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Causa das Doenças e os Pecados e Impurezas\" (Escrito em 1936) Ser alvo de rancor dos derrotados torna-se uma espécie de pecado \"(Citação parcial) Além disso, vencer em competições ou alcançar suces"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi3.html",
+      "topic_idx": 12,
+      "title_jp": "明主様御教え　「裁く勿れ」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Não Julgueis\"",
+      "date": "昭和28年5月13日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Não Julgueis\" (Publicado em 13 de maio de 1953) O ato de julgar o bem e o mal dos outros usurpa a posição de Deus \"(Citação parcial) É algo que sempre digo aos fiéis, mas parece que há pessoas que di"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi3.html",
+      "topic_idx": 13,
+      "title_jp": "明主様御講話　「他人を邪神呼ばわり行為は神様の地位を冒す」」",
+      "title_pt": "Palestra de Meishu-Sama: \"O ato de chamar os outros de Jashin usurpa a posição de Deus\"",
+      "date": "昭和27年8月１日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Palestra de Meishu-Sama: \"O ato de chamar os outros de Jashin usurpa a posição de Deus\"\"  (1 de agosto de 1952) \"(Citação parcial) Primeiramente, há algo que gostaria de dizer. Isto é algo óbvio, mas o que mais me preocupa é que, embora eu "
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "tumi4.html",
+      "topic_idx": 13,
+      "title_jp": "明主様御教え　「死後の種々相」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"As Diversas Fases Após a Morte\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"As Diversas Fases Após a Morte\"　(Publicado em 25 de agosto de 1949) Os pecados de luxúria de monges, sacerdotes xintoístas, educadores, etc., são pesados \"(Citação parcial) O que mais surpreende as p"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "zyasinHANBETU1.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「霊線に就て」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Sobre os Elos Espirituais\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Sobre os Elos Espirituais\"　(Publicado em 5 de setembro de 1948) É Essencial Distinguir o Bem e o Mal das Divindades \"(Citação parcial) Os elos espirituais não existem apenas entre os seres humanos. E"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "zyasinHANBETU1.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御教え　「正しき信仰」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Fé Correta\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Fé Correta\" (Publicado em 5 de setembro de 1948) \"(Apenas uma parte citada) No entanto, também é preciso ter cuidado com o seguinte. É quando se manifestam consideráveis graças e milagres. Mesmo os"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "zyasinHANBETU1.html",
+      "topic_idx": 6,
+      "title_jp": "明主様御教え　「善悪の戦い」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Batalha entre o Bem e o Mal\"",
+      "date": "昭和25年3月18日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Batalha entre o Bem e o Mal\"　(Publicado em 18 de março de 1950) Aqueles que não leem as publicações da Igreja Messiânica estão possuídos por Jashin \"(Citação parcial) Aqui, há algo muito interessan"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "zyasinSUKI.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「霊憑りに就て」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de 'Sobre a Possessão Espiritual'",
+      "date": "昭和26年12月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Sobre a Possessão Espiritual\" (Publicado em 5 de dezembro de 1951) \"(Citação parcial) No entanto, há um ponto importante a que se deve prestar atenção aqui. É o fato de que os fiéis desta religião pe"
+    },
+    {
+      "vol": "mioshiec3",
+      "file": "zyousiki.html",
+      "topic_idx": 3,
+      "title_jp": "明主様御教え　「霊憑りに就て」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de 'Sobre a Possessão Espiritual'",
+      "date": "昭和26年12月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Sobre a Possessão Espiritual\"　(Publicado em 5 de dezembro de 1951) \"(Apenas uma parte citada) No entanto, há aqui um ponto importante que requer atenção. Trata-se do descuido dos fiéis desta religião"
+    },
+    {
+      "vol": "mioshiec4",
+      "file": "567daikoku.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「麹町時代」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"A Época de Kojimachi\"",
+      "date": "昭和24年12月30日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"A Época de Kojimachi\"　(Publicado em 30 de dezembro de 1949) \"(Apenas uma parte citada) Aqui vou escrever sobre um milagre relacionado a Daikoku-Sama. O que as pessoas frequentemente me perguntam é qu"
+    },
+    {
+      "vol": "mioshiec4",
+      "file": "kasai.html",
+      "topic_idx": 13,
+      "title_jp": "明主様御教え　「悪銭身に附かず」",
+      "title_pt": "Ensinamento de Meishu-Sama: \"Dinheiro Mal Adquirido Não Traz Proveito\"",
+      "date": "昭和24年6月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: \"Dinheiro Mal Adquirido Não Traz Proveito\"　(Publicado em 25 de junho de 1949) \"(Citação parcial) Desde os tempos antigos, é comum que edifícios religiosos sejam reduzidos a cinzas devido a incêndios. Pode parecer"
+    },
+    {
+      "vol": "mioshiec4",
+      "file": "kinzyuu.html",
+      "topic_idx": 3,
+      "title_jp": "明主様御教え　「人間の死後と畜生道」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"NINGEN NO SHIGO TO CHIKUSHOUDOU\"",
+      "date": "昭和25年12月6日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"NINGEN NO SHIGO TO CHIKUSHOUDOU\" (Publicado em 6 de dezembro de 1950) \"(Citação parcial) Eu já escrevi anteriormente sobre a razão pela qual, após a morte, dependendo de seus pecados, o ser humano ca"
+    },
+    {
+      "vol": "mioshiec4",
+      "file": "kinzyuu.html",
+      "topic_idx": 4,
+      "title_jp": "明主様御教え　「天国と地獄」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"TENGOKU TO JIGOKU\"",
+      "date": "昭和24年8月25日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"TENGOKU TO JIGOKU\" (Publicado em 25 de agosto de 1949) \"(Citação parcial) Mesmo que caiam no Caminho das Bestas, como resultado de seu treinamento, eles reencarnam. O fato de os seres humanos caírem "
+    },
+    {
+      "vol": "mioshiec4",
+      "file": "kourei.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御講義　「善悪の真諦と光明世界の建設」より",
+      "title_pt": "Palestra de Meishu-Sama: Extraído de 'A Verdade sobre o Bem e o Mal e a Construção do Mundo da Luz'",
+      "date": "昭和10年8月25日",
+      "reason": "ambíguo",
+      "content_preview": "Palestra de Meishu-Sama: Extraído de \"A Verdade sobre o Bem e o Mal e a Construção do Mundo da Luz\"　(Publicado em 25 de agosto de 1935) \"(Citação parcial) No grupo de pesquisa espiritual do Sr. Wasaburo Asano, foi realizado um teste com o m"
+    },
+    {
+      "vol": "mioshiec4",
+      "file": "uchuu.html",
+      "topic_idx": 0,
+      "title_jp": "明主様御教え　「霊線に就て」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"Sobre os Elos Espirituais\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"Sobre os Elos Espirituais\"　(Publicado em 5 de setembro de 1948) \"(Citação parcial) Recentemente, os chamados raios cósmicos estão sendo estudados cientificamente, mas, do meu ponto de vista, eles são"
+    },
+    {
+      "vol": "mioshiec4",
+      "file": "uchuuZIN.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「霊線に就て」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Trecho de \"Sobre os Elos Espirituais\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Trecho de \"Sobre os Elos Espirituais\" (Publicado em 5 de setembro de 1948) \"(Citação parcial) Além disso, sobre a teoria de seres vivos em Marte, isso é um erro. De acordo com o meu entendimento, os seres vivos e"
+    },
+    {
+      "vol": "mioshiec4",
+      "file": "uzigami.html",
+      "topic_idx": 1,
+      "title_jp": "明主様御教え　「夫婦の道」より",
+      "title_pt": "Ensinamento de Meishu-Sama: Extraído de \"O Caminho do Casal\"",
+      "date": "昭和23年9月5日",
+      "reason": "sem candidato no corpus",
+      "content_preview": "Ensinamento de Meishu-Sama: Extraído de \"O Caminho do Casal\"　(Publicado em 5 de setembro de 1948) \"(Citação parcial) Ultimamente, discute-se com bastante alarde se o casamento arranjado (miai) é melhor ou se o casamento por amor é melhor. N"
+    }
+  ]
 }

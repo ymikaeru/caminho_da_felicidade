@@ -1,5 +1,6 @@
-// Gerado por scripts/build_partial_citations_index.mjs em 2026-05-28T13:00:34.000Z
-// 48 citações parciais mapeadas para o ensinamento completo correspondente.
+// Gerado por scripts/build_partial_citations_index.mjs em 2026-05-28T13:12:50.229Z
+// 48 citações parciais auto-mapeadas. Manual overrides ficam em
+// data/manual_citation_links.json e são mergeados em runtime pelo reader.
 window._partialCitations = {
   "mioshiec1/Skankei.html#17": {
     "vol": "mioshiec3",

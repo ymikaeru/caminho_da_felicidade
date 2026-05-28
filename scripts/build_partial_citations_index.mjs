@@ -92,25 +92,40 @@ for (const f of fulls) {
   fullIndex.get(key).push(f);
 }
 
-// ─── Constrói o índice de partial → full ─────────────────────
-const index = {};
+// ─── Constrói o índice de partial → full + lista de unmatched ───
+const autoLinked = {};
+const unmatchedList = [];
 let matched = 0;
 let ambiguous = 0;
 
 for (const p of partials) {
-  if (!p.title_jp || !p.date) continue;
+  const partialKey = `${p.vol}/${p.file}#${p.topic_idx}`;
+  if (!p.title_jp) {
+    unmatchedList.push({ ...p, reason: 'sem title_jp' });
+    continue;
+  }
+  if (!p.date) {
+    unmatchedList.push({ ...p, reason: 'sem date' });
+    continue;
+  }
   const key = `${p.title_jp}|||${p.date}`;
   const candidates = fullIndex.get(key);
-  if (!candidates) continue;
+  if (!candidates) {
+    unmatchedList.push({ ...p, reason: 'sem candidato no corpus' });
+    continue;
+  }
   const others = candidates.filter((c) => !(c.vol === p.vol && c.file === p.file && c.topic_idx === p.topic_idx));
-  if (others.length === 0) continue;
+  if (others.length === 0) {
+    unmatchedList.push({ ...p, reason: 'só self-match' });
+    continue;
+  }
   if (others.length > 1) {
     ambiguous++;
-    continue; // conservador: pula ambíguos
+    unmatchedList.push({ ...p, reason: 'ambíguo', candidates: others });
+    continue;
   }
   const target = others[0];
-  const partialKey = `${p.vol}/${p.file}#${p.topic_idx}`;
-  index[partialKey] = {
+  autoLinked[partialKey] = {
     vol: target.vol,
     file: target.file,
     topic_idx: target.topic_idx,
@@ -121,29 +136,64 @@ for (const p of partials) {
   matched++;
 }
 
-console.log(`✓ Matches 1:1: ${matched}`);
+console.log(`✓ Auto-matched 1:1: ${matched}`);
 console.log(`⚠ Ambíguos (pulados): ${ambiguous}`);
+console.log(`⊘ Unmatched (incluindo ambíguos): ${unmatchedList.length}`);
 
 // ─── Output ──────────────────────────────────────────────────
-const sorted = {};
-for (const k of Object.keys(index).sort()) sorted[k] = index[k];
+const sortedAuto = {};
+for (const k of Object.keys(autoLinked).sort()) sortedAuto[k] = autoLinked[k];
+
+// Adiciona conteúdo preview pros unmatched (pra admin UI)
+function _previewContent(vol, file, topicIdx) {
+  try {
+    const data = JSON.parse(readFileSync(join(TEACHINGS_DIR, vol, `${file}.json`), 'utf8'));
+    let i = 0;
+    for (const theme of data.themes || []) {
+      for (const t of theme.topics || []) {
+        if (i === topicIdx) {
+          const pt = (t.content_ptbr || t.content_pt || '').replace(/<[^>]+>/g, '').trim();
+          return pt.slice(0, 240);
+        }
+        i++;
+      }
+    }
+  } catch (_) {}
+  return '';
+}
+
+const unmatchedSorted = unmatchedList
+  .map((u) => ({
+    vol: u.vol,
+    file: u.file,
+    topic_idx: u.topic_idx,
+    title_jp: u.title_jp,
+    title_pt: u.title_pt,
+    date: u.date,
+    reason: u.reason,
+    content_preview: _previewContent(u.vol, u.file, u.topic_idx),
+  }))
+  .sort((a, b) => {
+    if (a.vol !== b.vol) return a.vol.localeCompare(b.vol);
+    if (a.file !== b.file) return a.file.localeCompare(b.file);
+    return a.topic_idx - b.topic_idx;
+  });
 
 const payload = {
   generated_at: new Date().toISOString(),
-  total_partials: partials.length,
-  total_linked: matched,
-  note: 'Mapeia citações parciais → ensinamento completo correspondente. Apenas matches 1:1 por title_jp + date.',
-  index: sorted,
+  stats: {
+    total_partials: partials.length,
+    auto_linked: matched,
+    ambiguous,
+    unmatched: unmatchedSorted.length,
+  },
+  note: 'auto_linked: matches 1:1 garantidos (title_jp + date). unmatched: precisam mapeamento manual via admin.',
+  auto_linked: sortedAuto,
+  unmatched: unmatchedSorted,
 };
 
 if (DRY_RUN) {
-  console.log('\n[DRY] não gravando. Amostra de 5 entries:');
-  const entries = Object.entries(sorted).slice(0, 5);
-  for (const [k, v] of entries) {
-    console.log(`  ${k}`);
-    console.log(`    → ${v.vol}/${v.file}#${v.topic_idx}`);
-    console.log(`      ${v.title_pt || v.title_jp} (${v.date})`);
-  }
+  console.log('\n[DRY] não gravando. Stats:', payload.stats);
 } else {
   // 1) JSON canônico em data/
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
@@ -151,20 +201,35 @@ if (DRY_RUN) {
   console.log(`✓ ${OUTPUT_PATH}`);
 
   // 2) Versão JS pré-carregada em site_data/ (window._partialCitations)
-  //    pra reader.html consumir síncrono via <script>.
+  //    pra reader.html consumir síncrono via <script>. Aqui só os
+  //    auto-linked — manual_citation_links.json é mergeado em runtime
+  //    pelo reader (carregado do Storage quando o admin atualizar).
   const JS_PATH = join(ROOT, 'site_data', 'partial_citations_index.js');
   mkdirSync(dirname(JS_PATH), { recursive: true });
   const jsContent = `// Gerado por scripts/build_partial_citations_index.mjs em ${payload.generated_at}
-// ${matched} citações parciais mapeadas para o ensinamento completo correspondente.
-window._partialCitations = ${JSON.stringify(sorted, null, 2)};
+// ${matched} citações parciais auto-mapeadas. Manual overrides ficam em
+// data/manual_citation_links.json e são mergeados em runtime pelo reader.
+window._partialCitations = ${JSON.stringify(sortedAuto, null, 2)};
 `;
   writeFileSync(JS_PATH, jsContent, 'utf8');
   console.log(`✓ ${JS_PATH}`);
 
+  // 3) Stub vazio do manual_citation_links.json se ainda não existir.
+  const MANUAL_PATH = join(ROOT, 'data', 'manual_citation_links.json');
+  if (!existsSync(MANUAL_PATH)) {
+    const stub = {
+      generated_at: new Date().toISOString(),
+      note: 'Mapeamentos manuais de citações parciais → ensinamento completo (interno). Editado via admin → aba "Citações Parciais".',
+      links: {},
+    };
+    writeFileSync(MANUAL_PATH, JSON.stringify(stub, null, 2) + '\n', 'utf8');
+    console.log(`✓ ${MANUAL_PATH} (stub criado)`);
+  }
+
   // Mostra a entry do Pragmatismo se existir
-  const pragma = sorted['mioshiec3/hentai2.html#10'];
+  const pragma = sortedAuto['mioshiec3/hentai2.html#10'];
   if (pragma) {
-    console.log('\nExemplo (Pragmatismo):');
+    console.log('\nExemplo (Pragmatismo, auto-linked):');
     console.log('  partial: mioshiec3/hentai2.html#10');
     console.log(`  → ${pragma.vol}/${pragma.file}#${pragma.topic_idx}`);
   }

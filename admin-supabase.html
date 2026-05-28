@@ -101,6 +101,7 @@
                 <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty"
                     id="reportsTabBadge">0</span></div>
                 <div class="admin-tab" onclick="switchTab('poetry-versions')">🌸 Correção Poemas</div>
+                <div class="admin-tab" onclick="switchTab('partial-citations')">🔗 Citações Parciais</div>
               </div>
             </div>
             <div class="tab-group" data-section="caminho">
@@ -613,6 +614,12 @@
                usuário selecionado. -->
           <div class="tab-content" id="tab-poetry-versions">
             <div id="pv-container">
+              <div class="loading">Selecione a aba para carregar.</div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-partial-citations">
+            <div id="pc-container">
               <div class="loading">Selecione a aba para carregar.</div>
             </div>
           </div>
@@ -1404,7 +1411,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=48"></script>
+  <script type="module" src="js/admin.js?v=49"></script>
 
 </body>
 

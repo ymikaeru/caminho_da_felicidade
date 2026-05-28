@@ -32,16 +32,45 @@ function _formatQuotedTitle(rawTitle) {
         : quoteMatch[1];
 }
 
-// Se este tópico for uma citação parcial mapeada no índice
-// site_data/partial_citations_index.js (carregado como window._partialCitations),
+// Carrega manual_citation_links.json (Supabase Storage com fallback local)
+// em background na primeira chamada. Resultado merge no window._partialCitations.
+let _manualCitationsPromise = null;
+function _loadManualCitations() {
+    if (_manualCitationsPromise) return _manualCitationsPromise;
+    _manualCitationsPromise = (async () => {
+        try {
+            // Tenta Storage primeiro (admin pode ter publicado update)
+            if (window.supabaseStorageFetch) {
+                try {
+                    const data = await window.supabaseStorageFetch('data/manual_citation_links.json');
+                    if (data?.links) return data.links;
+                } catch (_) { /* fallback local */ }
+            }
+            const res = await fetch('data/manual_citation_links.json');
+            if (res.ok) {
+                const data = await res.json();
+                return data?.links || {};
+            }
+        } catch (_) {}
+        return {};
+    })();
+    return _manualCitationsPromise;
+}
+
+// Se este tópico for uma citação parcial mapeada (auto OU manual),
 // devolve HTML de um link "Ler texto completo" que abre o ensinamento
 // completo correspondente em NOVA ABA. Caso contrário, string vazia.
+//
+// Manual links têm prioridade sobre auto (admin pode corrigir falsos
+// positivos). Manual links são carregados async — primeira renderização
+// pode mostrar só os auto; após o load, a próxima renderização pega os
+// manuais. Para forçar re-render, usar onload listener no fetch.
 function _buildPartialCitationCTA(volId, filename, topicIdx, lang) {
     try {
-        const idx = window._partialCitations;
-        if (!idx) return '';
         const key = `${volId}/${filename}#${topicIdx}`;
-        const target = idx[key];
+        const auto = window._partialCitations || {};
+        const manual = window._partialCitationsManual || {};
+        const target = manual[key] || auto[key];
         if (!target) return '';
         const l = lang === 'ja'
             ? { label: '全文を読む', sub: '出典' }
@@ -108,6 +137,26 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     const lang = localStorage.getItem('site_lang') || 'pt';
     const isPt = lang === 'pt';
     window._usedNavTitles = new Set();
+
+    // Carrega manual_citation_links.json (Storage com fallback local) e
+    // dispara re-render se novas entradas chegarem após o 1º paint. Mantém
+    // CTA do "Ler texto completo" disponível mesmo pra mapeamentos manuais
+    // publicados após o build do site_data/partial_citations_index.js.
+    if (!window._partialCitationsManual && !window._partialCitationsManualLoading) {
+        window._partialCitationsManualLoading = true;
+        _loadManualCitations().then((links) => {
+            window._partialCitationsManual = links;
+            window._partialCitationsManualLoading = false;
+            // Re-render se algum tópico da página atual tem manual link
+            try {
+                const keys = Object.keys(links || {});
+                const here = `${volId}/${filename}#`;
+                if (keys.some((k) => k.startsWith(here)) && typeof renderReader === 'function') {
+                    renderReader(volId, filename, json, allFiles, searchQuery, searchTopicTitle, hlScroll);
+                }
+            } catch (_) {}
+        });
+    }
 
     let topicsFound = [];
     let themeSectionName = '';

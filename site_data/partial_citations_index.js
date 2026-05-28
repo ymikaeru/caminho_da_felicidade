@@ -1,4 +1,4 @@
-// Gerado por scripts/build_partial_citations_index.mjs em 2026-05-28T13:12:50.229Z
+// Gerado por scripts/build_partial_citations_index.mjs em 2026-05-28T14:12:04.749Z
 // 48 citações parciais auto-mapeadas. Manual overrides ficam em
 // data/manual_citation_links.json e são mergeados em runtime pelo reader.
 window._partialCitations = {

@@ -144,7 +144,7 @@ console.log(`⊘ Unmatched (incluindo ambíguos): ${unmatchedList.length}`);
 const sortedAuto = {};
 for (const k of Object.keys(autoLinked).sort()) sortedAuto[k] = autoLinked[k];
 
-// Adiciona conteúdo preview pros unmatched (pra admin UI)
+// Adiciona conteúdo preview (PT e JA) pros unmatched (pra admin UI)
 function _previewContent(vol, file, topicIdx) {
   try {
     const data = JSON.parse(readFileSync(join(TEACHINGS_DIR, vol, `${file}.json`), 'utf8'));
@@ -152,27 +152,32 @@ function _previewContent(vol, file, topicIdx) {
     for (const theme of data.themes || []) {
       for (const t of theme.topics || []) {
         if (i === topicIdx) {
-          const pt = (t.content_ptbr || t.content_pt || '').replace(/<[^>]+>/g, '').trim();
-          return pt.slice(0, 240);
+          const pt = (t.content_ptbr || t.content_pt || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+          const ja = (t.content || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+          return { pt: pt.slice(0, 240), ja: ja.slice(0, 180) };
         }
         i++;
       }
     }
   } catch (_) {}
-  return '';
+  return { pt: '', ja: '' };
 }
 
 const unmatchedSorted = unmatchedList
-  .map((u) => ({
-    vol: u.vol,
-    file: u.file,
-    topic_idx: u.topic_idx,
-    title_jp: u.title_jp,
-    title_pt: u.title_pt,
-    date: u.date,
-    reason: u.reason,
-    content_preview: _previewContent(u.vol, u.file, u.topic_idx),
-  }))
+  .map((u) => {
+    const prev = _previewContent(u.vol, u.file, u.topic_idx);
+    return {
+      vol: u.vol,
+      file: u.file,
+      topic_idx: u.topic_idx,
+      title_jp: u.title_jp,
+      title_pt: u.title_pt,
+      date: u.date,
+      reason: u.reason,
+      content_preview: prev.pt,       // mantém retrocompatibilidade
+      content_preview_ja: prev.ja,    // novo: ajuda admin localizar no editor externo
+    };
+  })
   .sort((a, b) => {
     if (a.vol !== b.vol) return a.vol.localeCompare(b.vol);
     if (a.file !== b.file) return a.file.localeCompare(b.file);

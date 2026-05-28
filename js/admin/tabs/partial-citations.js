@@ -357,7 +357,7 @@ function _filteredItems() {
   if (_filterText) {
     const q = _filterText.toLowerCase();
     arr = arr.filter((i) => {
-      const hay = `${i.title_jp || ''} ${i.title_pt || ''} ${i.date || ''} ${i.file || ''} ${i.content_preview || ''}`.toLowerCase();
+      const hay = `${i.title_jp || ''} ${i.title_pt || ''} ${i.date || ''} ${i.file || ''} ${i.content_preview || ''} ${i.content_preview_ja || ''}`.toLowerCase();
       return hay.includes(q);
     });
   }
@@ -685,7 +685,22 @@ function _renderRow(it) {
             ${_escHtml(it.title_jp || '(sem título JP)')}
           </div>
           ${it.title_pt ? `<div style="font-size:0.86rem; color:var(--text-muted); margin-top:2px;">${_escHtml(it.title_pt)}</div>` : ''}
-          ${it.content_preview ? `<div style="font-size:0.84rem; margin-top:10px; padding:10px 12px; background:var(--bg-soft); border-left:3px solid var(--accent); border-radius:0 4px 4px 0; line-height:1.6; color:var(--text-main);">${_highlightCitMarker(it.content_preview)}${it.content_preview.length >= 240 ? '…' : ''}</div>` : ''}
+          ${it.content_preview_ja || it.content_preview ? `
+            <div style="margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); border-radius:0 4px 4px 0; border-left:3px solid var(--accent); overflow:hidden;">
+              ${it.content_preview_ja ? `
+                <div style="background:var(--bg-soft); padding:8px 12px;">
+                  <div style="font-size:0.68rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">日本語</div>
+                  <div style="font-family:'Noto Serif JP', serif; font-size:0.86rem; line-height:1.55; color:var(--text-main);">${_highlightCitMarker(it.content_preview_ja)}${it.content_preview_ja.length >= 180 ? '…' : ''}</div>
+                </div>
+              ` : '<div style="background:var(--bg-soft);"></div>'}
+              ${it.content_preview ? `
+                <div style="background:var(--bg-soft); padding:8px 12px;">
+                  <div style="font-size:0.68rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Português</div>
+                  <div style="font-size:0.84rem; line-height:1.55; color:var(--text-main);">${_highlightCitMarker(it.content_preview)}${it.content_preview.length >= 240 ? '…' : ''}</div>
+                </div>
+              ` : '<div style="background:var(--bg-soft);"></div>'}
+            </div>
+          ` : ''}
           ${currentLinkHtml}
         </div>
       </div>

@@ -39,7 +39,7 @@ let _pendingEdits = {};        // edits locais não publicadas
 let _editPage = 0;
 let _filterText = '';
 let _filterVol = 'all';
-let _filterStatus = 'all';     // all | mapped | unmapped
+let _filterStatus = 'unmapped'; // 'unmapped' | 'mapped' — sub-aba ativa
 let _publishing = false;
 let _myEmail = '';
 
@@ -351,8 +351,9 @@ async function _uploadManual(payload) {
 function _filteredItems() {
   let arr = _unmatched.slice();
   if (_filterVol !== 'all') arr = arr.filter((i) => i.vol === _filterVol);
+  // Sub-aba ativa filtra mapeados vs pendentes
   if (_filterStatus === 'mapped') arr = arr.filter((i) => _effectiveLink(_key(i)));
-  if (_filterStatus === 'unmapped') arr = arr.filter((i) => !_effectiveLink(_key(i)));
+  else arr = arr.filter((i) => !_effectiveLink(_key(i))); // 'unmapped' default
   if (_filterText) {
     const q = _filterText.toLowerCase();
     arr = arr.filter((i) => {
@@ -363,20 +364,57 @@ function _filteredItems() {
   return arr;
 }
 
+// Conta itens por status (ignorando filtros de vol/texto)
+function _statusCounts() {
+  let mapped = 0, unmapped = 0;
+  for (const it of _unmatched) {
+    if (_effectiveLink(_key(it))) mapped++;
+    else unmapped++;
+  }
+  return { mapped, unmapped };
+}
+
 function _renderShell() {
   const cnt = document.getElementById('pc-container');
   if (!cnt) return;
-  const mappedCount = _unmatched.filter((i) => _effectiveLink(_key(i))).length;
+  const { mapped: mappedCount, unmapped: unmappedCount } = _statusCounts();
   const pendingCount = Object.keys(_pendingEdits).length;
 
+  const subTabBtn = (status, label, count, color) => `
+    <button class="pc-subtab" data-status="${status}"
+            style="
+              padding:10px 18px;
+              border:none;
+              border-bottom:3px solid ${_filterStatus === status ? color : 'transparent'};
+              background:none;
+              color:${_filterStatus === status ? 'var(--text-main)' : 'var(--text-muted)'};
+              font-weight:${_filterStatus === status ? '600' : '400'};
+              font-size:0.95rem;
+              cursor:pointer;
+              margin-bottom:-1px;
+              display:flex;
+              align-items:center;
+              gap:8px;
+            ">
+      ${label}
+      <span style="
+        font-size:0.78rem;
+        background:${_filterStatus === status ? color : 'var(--bg-soft)'};
+        color:${_filterStatus === status ? 'white' : 'var(--text-muted)'};
+        padding:2px 8px;
+        border-radius:10px;
+        font-weight:600;
+      ">${count}</span>
+    </button>
+  `;
+
   cnt.innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
       <div>
         <h3 style="margin:0 0 4px;">Citações Parciais — mapeamento manual</h3>
         <div style="font-size:0.84rem; color:var(--text-muted);">
-          ${_unmatched.length} citações sem match automático ·
-          <strong style="color:var(--accent-strong);">${mappedCount} mapeadas</strong> ·
-          ${pendingCount > 0 ? `<span style="color:#d97706;">${pendingCount} pendentes</span>` : 'tudo sincronizado'}
+          ${_unmatched.length} citações sem match automático
+          ${pendingCount > 0 ? `· <span style="color:#d97706;">${pendingCount} pendente${pendingCount === 1 ? '' : 's'} de publicação</span>` : ''}
         </div>
       </div>
       <div style="display:flex; gap:8px;">
@@ -387,6 +425,12 @@ function _renderShell() {
           💾 Publicar ${pendingCount > 0 ? `(${pendingCount})` : ''}
         </button>
       </div>
+    </div>
+
+    <!-- Sub-abas: Pendentes vs Mapeados -->
+    <div style="display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:14px;">
+      ${subTabBtn('unmapped', 'Pendentes', unmappedCount, '#d97706')}
+      ${subTabBtn('mapped',   'Mapeados',  mappedCount,  '#10b981')}
     </div>
 
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; align-items:center;">
@@ -400,17 +444,20 @@ function _renderShell() {
         <option value="mioshiec3" ${_filterVol === 'mioshiec3' ? 'selected' : ''}>Vol 3</option>
         <option value="mioshiec4" ${_filterVol === 'mioshiec4' ? 'selected' : ''}>Vol 4</option>
       </select>
-      <select id="pc-status" style="padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-soft); color:var(--text-main); font-size:0.9rem;">
-        <option value="all" ${_filterStatus === 'all' ? 'selected' : ''}>Todos</option>
-        <option value="unmapped" ${_filterStatus === 'unmapped' ? 'selected' : ''}>Sem mapeamento</option>
-        <option value="mapped" ${_filterStatus === 'mapped' ? 'selected' : ''}>Já mapeados</option>
-      </select>
     </div>
 
     <div id="pc-list"></div>
     <div id="pc-pagination" style="display:flex; justify-content:center; gap:8px; margin-top:18px;"></div>
   `;
 
+  cnt.querySelectorAll('.pc-subtab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      _filterStatus = btn.dataset.status;
+      _editPage = 0;
+      _renderShell();
+      _renderList();
+    });
+  });
   document.getElementById('pc-search').addEventListener('input', (e) => {
     _filterText = e.target.value;
     _editPage = 0;
@@ -418,11 +465,6 @@ function _renderShell() {
   });
   document.getElementById('pc-vol').addEventListener('change', (e) => {
     _filterVol = e.target.value;
-    _editPage = 0;
-    _renderList();
-  });
-  document.getElementById('pc-status').addEventListener('change', (e) => {
-    _filterStatus = e.target.value;
     _editPage = 0;
     _renderList();
   });

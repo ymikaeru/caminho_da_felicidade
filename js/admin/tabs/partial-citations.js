@@ -494,7 +494,22 @@ function _renderList() {
     return;
   }
 
-  list.innerHTML = pageItems.map((it) => _renderRow(it)).join('');
+  // Banner explicativo na sub-aba "Mapeados" quando houver pendências.
+  // Esclarece: link visível aqui ≠ link ativo no reader (precisa publicar).
+  let banner = '';
+  if (_filterStatus === 'mapped') {
+    const pendingInMapped = items.filter((it) => _hasPendingFor(_key(it)) && _pendingEdits[_key(it)] !== null).length;
+    if (pendingInMapped > 0) {
+      banner = `
+        <div style="margin-bottom:14px; padding:10px 14px; background:#fef3c7; border-left:3px solid #f59e0b; border-radius:0 4px 4px 0; font-size:0.84rem; color:#78350f; line-height:1.5;">
+          🕒 <strong>${pendingInMapped} mapeamento${pendingInMapped === 1 ? '' : 's'} aguarda${pendingInMapped === 1 ? '' : 'm'} publicação.</strong>
+          Os links foram salvos localmente mas <strong>ainda não aparecem no reader</strong>.
+          Clique <strong>"💾 Publicar"</strong> no topo da página pra subir tudo pro Storage.
+        </div>`;
+    }
+  }
+
+  list.innerHTML = banner + pageItems.map((it) => _renderRow(it)).join('');
 
   // Wire form actions
   for (const it of pageItems) {
@@ -636,11 +651,11 @@ function _renderRow(it) {
 
   let statusBadge = '';
   if (isCleared) {
-    statusBadge = `<span style="font-size:0.72rem; padding:2px 8px; background:#fee2e2; color:#991b1b; border-radius:4px;">REMOVIDO (pendente)</span>`;
+    statusBadge = `<span title="Remoção do link aguardando publicação" style="font-size:0.72rem; padding:2px 8px; background:#fee2e2; color:#991b1b; border-radius:4px;">🕒 REMOÇÃO PENDENTE</span>`;
   } else if (link && isPending) {
-    statusBadge = `<span style="font-size:0.72rem; padding:2px 8px; background:#fef3c7; color:#92400e; border-radius:4px;">PENDENTE</span>`;
+    statusBadge = `<span title="Link adicionado/alterado, aguardando publicação no Storage. Clique 'Publicar' pra ativar no reader." style="font-size:0.72rem; padding:2px 8px; background:#fef3c7; color:#92400e; border-radius:4px;">🕒 AGUARDA PUBLICAÇÃO</span>`;
   } else if (link) {
-    statusBadge = `<span style="font-size:0.72rem; padding:2px 8px; background:#d1fae5; color:#065f46; border-radius:4px;">MAPEADO</span>`;
+    statusBadge = `<span title="Link publicado e ativo no reader" style="font-size:0.72rem; padding:2px 8px; background:#d1fae5; color:#065f46; border-radius:4px;">✓ PUBLICADO</span>`;
   } else {
     statusBadge = `<span style="font-size:0.72rem; padding:2px 8px; background:var(--bg-soft); color:var(--text-muted); border-radius:4px;">SEM LINK</span>`;
   }

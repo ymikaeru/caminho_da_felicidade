@@ -355,6 +355,12 @@ function _renderRow(it) {
     : '';
 
   const sourceUrl = `reader.html?vol=${_escHtml(it.vol)}&file=${_escHtml(it.file)}&topic=${it.topic_idx}`;
+  // Realça os marcadores 一部のみ引用 / (Citação parcial) no preview pra
+  // o admin enxergar de cara qual trecho está sendo importado.
+  function _highlightCitMarker(s) {
+    const esc = _escHtml(s);
+    return esc.replace(/(一部のみ引用|Citação parcial)/g, '<mark style="background:#fef3c7; padding:1px 3px; border-radius:3px;">$1</mark>');
+  }
 
   return `
     <div style="border:1px solid var(--border); border-radius:8px; padding:14px 18px; margin-bottom:10px; background:var(--bg-card);">
@@ -362,17 +368,23 @@ function _renderRow(it) {
         <div style="flex:1; min-width:0;">
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             ${statusBadge}
+            <span style="font-size:0.78rem; padding:2px 8px; background:var(--bg-soft); color:var(--text-main); border-radius:4px; font-family:monospace; font-weight:600;">
+              #${it.topic_idx}
+            </span>
             <a href="${sourceUrl}" target="_blank" rel="noopener" style="font-size:0.78rem; color:var(--text-muted); text-decoration:underline;">
-              ${_escHtml(it.vol)}/${_escHtml(it.file)} #${it.topic_idx}
+              ${_escHtml(it.vol)}/${_escHtml(it.file)}
             </a>
             <span style="font-size:0.78rem; color:var(--text-muted);">·</span>
             <span style="font-size:0.78rem; color:var(--text-muted);">${_escHtml(it.date || '—')}</span>
+            <a href="${sourceUrl}" target="_blank" rel="noopener" style="font-size:0.78rem; color:var(--accent-strong); text-decoration:underline; margin-left:auto; white-space:nowrap;">
+              ↗ Abrir no reader
+            </a>
           </div>
           <div style="font-family:'Noto Serif JP',serif; font-size:1.02rem; margin-top:6px; line-height:1.4;">
             ${_escHtml(it.title_jp || '(sem título JP)')}
           </div>
           ${it.title_pt ? `<div style="font-size:0.86rem; color:var(--text-muted); margin-top:2px;">${_escHtml(it.title_pt)}</div>` : ''}
-          ${it.content_preview ? `<div style="font-size:0.82rem; color:var(--text-muted); margin-top:8px; font-style:italic; line-height:1.5;">${_escHtml(it.content_preview)}${it.content_preview.length >= 240 ? '…' : ''}</div>` : ''}
+          ${it.content_preview ? `<div style="font-size:0.84rem; margin-top:10px; padding:10px 12px; background:var(--bg-soft); border-left:3px solid var(--accent); border-radius:0 4px 4px 0; line-height:1.6; color:var(--text-main);">${_highlightCitMarker(it.content_preview)}${it.content_preview.length >= 240 ? '…' : ''}</div>` : ''}
           ${currentLinkHtml}
         </div>
       </div>
@@ -390,7 +402,7 @@ function _renderRow(it) {
         </div>
         <div id="pc-preview-${safeId}" style="font-size:0.78rem; margin-top:6px; min-height:18px;"></div>
         <div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">
-          Dica: abra <a href="${sourceUrl}" target="_blank" rel="noopener" style="text-decoration:underline;">a citação parcial</a>, navegue até o ensinamento original em outra aba e cole a URL do reader aqui.
+          Dica: clique em <strong>"↗ Abrir no reader"</strong> acima pra confirmar visualmente que este é o tópico certo. Depois cole aqui a URL do reader do ensinamento <em>fonte</em>.
         </div>
       </div>
     </div>

@@ -252,25 +252,71 @@ function _highlightCit(s) {
   return _escHtml(s).replace(/(一部のみ引用|Citação parcial)/g, '<mark style="background:#fef3c7; padding:1px 3px; border-radius:3px;">$1</mark>');
 }
 
-function _renderCompareSide(el, label, color, vol, file, topicIdx, topic, totalTopics) {
+// Extrai o trecho que vem logo após "（一部のみ引用）" no conteúdo da
+// citação parcial. Pega ~80 chars (sufficient pra um anchor único).
+// Usado pra localizar e destacar o mesmo trecho no conteúdo do alvo.
+function _extractCitationExcerpt(contentJa) {
+  if (!contentJa) return null;
+  const m = contentJa.match(/[（(]\s*一部のみ引用\s*[）)]\s*(.{20,120})/);
+  if (!m) return null;
+  // Pega só os ~80 primeiros chars do trecho — anchor suficiente sem
+  // arrastar muito ruído (cita parcial pode ser longa, mas pra
+  // localizar no completo precisamos só do começo)
+  return m[1].replace(/\s+/g, '').slice(0, 60);
+}
+
+// Localiza um trecho (ignorando espaços/quebras) dentro de um texto
+// maior. Devolve { start, end } no texto original ou null. Usa busca
+// "espaços-insensitivo" porque o JSON pode ter formatting diferente
+// entre cópias do mesmo texto.
+function _findFuzzy(haystack, needle) {
+  if (!haystack || !needle || needle.length < 8) return null;
+  // Normaliza ambos retirando whitespace, mas mantém um índice mapeando
+  // posição no normalizado → posição no original
+  const map = [];
+  let normalized = '';
+  for (let i = 0; i < haystack.length; i++) {
+    const ch = haystack[i];
+    if (/\s/.test(ch)) continue;
+    map.push(i);
+    normalized += ch;
+  }
+  const needleNorm = needle.replace(/\s+/g, '');
+  const idx = normalized.indexOf(needleNorm);
+  if (idx === -1) return null;
+  return { start: map[idx], end: map[idx + needleNorm.length - 1] + 1 };
+}
+
+function _highlightExcerpt(contentJa, excerpt) {
+  if (!excerpt) return _highlightCit(contentJa);
+  const range = _findFuzzy(contentJa, excerpt);
+  if (!range) return _highlightCit(contentJa);
+  const before = contentJa.slice(0, range.start);
+  const middle = contentJa.slice(range.start, range.end);
+  const after = contentJa.slice(range.end);
+  return _highlightCit(before)
+    + `<mark style="background:#bbf7d0; padding:1px 3px; border-radius:3px; box-shadow:0 0 0 2px #86efac;" id="pc-excerpt-anchor">${_escHtml(middle)}</mark>`
+    + _highlightCit(after);
+}
+
+function _renderCompareSide(el, label, color, vol, file, topicIdx, topic, totalTopics, excerpt) {
   if (!topic) {
     el.innerHTML = `<div style="color:#991b1b;">Tópico não encontrado.</div>`;
     return;
   }
   const titleJa = _stripHtml(topic.title || '');
-  const titlePt = _stripHtml(topic.title_ptbr || topic.title_pt || '');
   const date = topic.date || '';
-  // Conteúdo completo (não trunca — modal tem scroll)
-  const contentPt = _stripHtml(topic.content_ptbr || topic.content_pt || '');
   const contentJa = _stripHtml(topic.content || '');
+  const isSource = label.includes('parcial'); // source mostra "(一部のみ引用)" destacado normal
+  const renderedContent = isSource
+    ? _highlightCit(contentJa)
+    : _highlightExcerpt(contentJa, excerpt);
   el.innerHTML = `
     <div style="font-size:0.78rem; color:${color}; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px;">${label}</div>
     <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px; font-family:monospace;">${_escHtml(vol)}/${_escHtml(file)} <span style="background:var(--bg-soft); padding:1px 6px; border-radius:3px;">#${topicIdx}</span> · ${topicIdx + 1} de ${totalTopics}</div>
     ${titleJa ? `<div style="font-family:'Noto Serif JP',serif; font-size:1.08rem; line-height:1.4; margin-bottom:4px;">${_escHtml(titleJa)}</div>` : ''}
-    ${titlePt ? `<div style="font-size:0.92rem; color:var(--text-muted); margin-bottom:4px;">${_escHtml(titlePt)}</div>` : ''}
     ${date ? `<div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:14px;">${_escHtml(date)}</div>` : ''}
-    ${contentPt ? `<div style="font-size:0.92rem; line-height:1.7; margin-bottom:14px;">${_highlightCit(contentPt)}</div>` : ''}
-    ${contentJa ? `<details style="margin-top:10px;"><summary style="cursor:pointer; font-size:0.82rem; color:var(--text-muted);">Ver original em japonês</summary><div style="font-family:'Noto Serif JP',serif; font-size:0.95rem; line-height:1.7; margin-top:8px;">${_highlightCit(contentJa)}</div></details>` : ''}
+    ${contentJa ? `<div style="font-family:'Noto Serif JP',serif; font-size:1rem; line-height:1.85; color:var(--text-main);">${renderedContent}</div>` : '<div style="color:#991b1b;">Sem conteúdo japonês.</div>'}
   `;
 }
 
@@ -300,8 +346,23 @@ async function _openCompareModal(sourceItem, targetParsed) {
   const srcTopic = _topicAtIdx(srcJson, sourceItem.topic_idx);
   const tgtTopic = _topicAtIdx(tgtJson, targetParsed.topic_idx);
 
-  _renderCompareSide(srcEl, '📌 Citação parcial (origem)', '#92400e', sourceItem.vol, sourceItem.file, sourceItem.topic_idx, srcTopic, srcTotal);
-  _renderCompareSide(tgtEl, '📖 Ensinamento completo (alvo)', '#065f46', targetParsed.vol, targetParsed.file, targetParsed.topic_idx, tgtTopic, tgtTotal);
+  // Extrai trecho que sucede "（一部のみ引用）" no source pra destacar no target
+  const srcContentJa = _stripHtml(srcTopic?.content || '');
+  const excerpt = _extractCitationExcerpt(srcContentJa);
+
+  _renderCompareSide(srcEl, '📌 Citação parcial (origem)', '#92400e', sourceItem.vol, sourceItem.file, sourceItem.topic_idx, srcTopic, srcTotal, null);
+  _renderCompareSide(tgtEl, '📖 Ensinamento completo (alvo)', '#065f46', targetParsed.vol, targetParsed.file, targetParsed.topic_idx, tgtTopic, tgtTotal, excerpt);
+
+  // Scroll automático até o excerpt destacado no target (se achou)
+  if (excerpt) {
+    setTimeout(() => {
+      const anchor = tgtEl.querySelector('#pc-excerpt-anchor');
+      if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+    statusEl.innerHTML = `<span style="color:#065f46;">✓ Trecho após "(一部のみ引用)" destacado em verde no conteúdo do alvo.</span>`;
+  } else {
+    statusEl.innerHTML = `<span style="color:var(--text-muted);">Não foi possível identificar trecho após "(一部のみ引用)" no origem — compare manualmente.</span>`;
+  }
 
   if (srcTopic && tgtTopic) {
     confirmBtn.disabled = false;
@@ -724,22 +785,15 @@ function _renderRow(it) {
             ${_escHtml(it.title_jp || '(sem título JP)')}
           </div>
           ${it.title_pt ? `<div style="font-size:0.86rem; color:var(--text-muted); margin-top:2px;">${_escHtml(it.title_pt)}</div>` : ''}
-          ${it.content_preview_ja || it.content_preview ? `
-            <div style="margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); border-radius:0 4px 4px 0; border-left:3px solid var(--accent); overflow:hidden;">
-              ${it.content_preview_ja ? `
-                <div style="background:var(--bg-soft); padding:8px 12px;">
-                  <div style="font-size:0.68rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">日本語</div>
-                  <div style="font-family:'Noto Serif JP', serif; font-size:0.86rem; line-height:1.55; color:var(--text-main);">${_highlightCitMarker(it.content_preview_ja)}${it.content_preview_ja.length >= 180 ? '…' : ''}</div>
-                </div>
-              ` : '<div style="background:var(--bg-soft);"></div>'}
-              ${it.content_preview ? `
-                <div style="background:var(--bg-soft); padding:8px 12px;">
-                  <div style="font-size:0.68rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Português</div>
-                  <div style="font-size:0.84rem; line-height:1.55; color:var(--text-main);">${_highlightCitMarker(it.content_preview)}${it.content_preview.length >= 240 ? '…' : ''}</div>
-                </div>
-              ` : '<div style="background:var(--bg-soft);"></div>'}
+          ${it.content_preview_ja ? `
+            <div style="margin-top:10px; padding:10px 12px; background:var(--bg-soft); border-left:3px solid var(--accent); border-radius:0 4px 4px 0; font-family:'Noto Serif JP', serif; font-size:0.92rem; line-height:1.6; color:var(--text-main);">
+              ${_highlightCitMarker(it.content_preview_ja)}${it.content_preview_ja.length >= 180 ? '…' : ''}
             </div>
-          ` : ''}
+          ` : (it.content_preview ? `
+            <div style="margin-top:10px; padding:10px 12px; background:var(--bg-soft); border-left:3px solid var(--accent); border-radius:0 4px 4px 0; font-size:0.84rem; line-height:1.55; color:var(--text-main);">
+              ${_highlightCitMarker(it.content_preview)}${it.content_preview.length >= 240 ? '…' : ''}
+            </div>
+          ` : '')}
           ${currentLinkHtml}
         </div>
       </div>

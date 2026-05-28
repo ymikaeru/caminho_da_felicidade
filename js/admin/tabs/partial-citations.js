@@ -313,7 +313,7 @@ function _renderCompareSide(el, label, color, vol, file, topicIdx, topic, totalT
     : _highlightExcerpt(contentJa, excerpt);
   el.innerHTML = `
     <div style="font-size:0.78rem; color:${color}; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px;">${label}</div>
-    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px; font-family:monospace;">${_escHtml(vol)}/${_escHtml(file)} <span style="background:var(--bg-quiet); padding:1px 6px; border-radius:3px;">#${topicIdx}</span> · ${topicIdx + 1} de ${totalTopics}</div>
+    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px; font-family:monospace;">${_escHtml(vol)}/${_escHtml(file)} <span style="background:var(--bg-color); padding:1px 6px; border-radius:3px;">#${topicIdx}</span> · ${topicIdx + 1} de ${totalTopics}</div>
     ${titleJa ? `<div style="font-family:'Noto Serif JP',serif; font-size:1.08rem; line-height:1.4; margin-bottom:4px;">${_escHtml(titleJa)}</div>` : ''}
     ${date ? `<div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:14px;">${_escHtml(date)}</div>` : ''}
     ${contentJa ? `<div style="font-family:'Noto Serif JP',serif; font-size:1rem; line-height:1.85; color:var(--text-main);">${renderedContent}</div>` : '<div style="color:#991b1b;">Sem conteúdo japonês.</div>'}
@@ -359,8 +359,8 @@ function _ensureJpSearchModal() {
       </div>
       <div style="padding:14px 24px; border-bottom:1px solid var(--border); display:flex; gap:10px; flex-shrink:0; align-items:center;">
         <input id="pc-jp-q" type="text" placeholder="Cole trecho japonês (ex: 本守護神は絶対善性であり…)"
-               style="flex:1; padding:9px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-quiet); color:var(--text-main); font-size:0.95rem; font-family:'Noto Serif JP',serif;">
-        <select id="pc-jp-vol" style="padding:9px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-quiet); color:var(--text-main); font-size:0.9rem;">
+               style="flex:1; padding:9px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:0.95rem; font-family:'Noto Serif JP',serif;">
+        <select id="pc-jp-vol" style="padding:9px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:0.9rem;">
           <option value="all">Todos os volumes</option>
           <option value="mioshiec1">Vol 1</option>
           <option value="mioshiec2">Vol 2</option>
@@ -442,7 +442,7 @@ async function _runJpSearch() {
     // title_idx no JSON é 1-based, topic_idx (i no índice) é 0-based
     const titleIdx = e.i + 1;
     return `
-      <div class="pc-jp-result" data-hi="${hi}" style="padding:14px 16px; margin-bottom:10px; border:1px solid var(--border); border-radius:8px; background:var(--bg-quiet); cursor:pointer; transition:background .15s;">
+      <div class="pc-jp-result" data-hi="${hi}" style="padding:14px 16px; margin-bottom:10px; border:1px solid var(--border); border-radius:8px; background:var(--bg-color); cursor:pointer; transition:background .15s;">
         <div style="display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
           <div style="font-family:'Noto Serif JP',serif; font-size:0.95rem; line-height:1.3;">${_escHtml(e.t || '(sem título)')}</div>
           <div style="font-family:monospace; font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">
@@ -460,7 +460,7 @@ async function _runJpSearch() {
 
   resultsEl.querySelectorAll('.pc-jp-result').forEach((row) => {
     row.addEventListener('mouseenter', () => row.style.background = 'var(--accent-soft)');
-    row.addEventListener('mouseleave', () => row.style.background = 'var(--bg-quiet)');
+    row.addEventListener('mouseleave', () => row.style.background = 'var(--bg-color)');
     row.addEventListener('click', () => {
       const hi = parseInt(row.dataset.hi, 10);
       const e = hits[hi].entry;
@@ -649,7 +649,7 @@ function _renderShell() {
       ${label}
       <span style="
         font-size:0.78rem;
-        background:${_filterStatus === status ? color : 'var(--bg-quiet)'};
+        background:${_filterStatus === status ? color : 'var(--bg-color)'};
         color:${_filterStatus === status ? 'white' : 'var(--text-muted)'};
         padding:2px 8px;
         border-radius:10px;
@@ -671,7 +671,7 @@ function _renderShell() {
         <button id="pc-discard" class="btn-zen" style="${pendingCount > 0 ? '' : 'opacity:.4; pointer-events:none;'}">
           Descartar edições
         </button>
-        <button id="pc-publish" class="btn-zen" style="background:${pendingCount > 0 ? 'var(--accent)' : 'var(--bg-quiet)'}; color:${pendingCount > 0 ? 'white' : 'var(--text-muted)'};">
+        <button id="pc-publish" class="btn-zen" style="background:${pendingCount > 0 ? 'var(--accent)' : 'var(--bg-color)'}; color:${pendingCount > 0 ? 'white' : 'var(--text-muted)'};">
           💾 Publicar ${pendingCount > 0 ? `(${pendingCount})` : ''}
         </button>
       </div>
@@ -686,8 +686,8 @@ function _renderShell() {
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; align-items:center;">
       <input id="pc-search" type="text" placeholder="Filtrar por título, data, arquivo..."
              value="${_escHtml(_filterText)}"
-             style="flex:1; min-width:240px; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-quiet); color:var(--text-main); font-size:0.9rem;">
-      <select id="pc-vol" style="padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-quiet); color:var(--text-main); font-size:0.9rem;">
+             style="flex:1; min-width:240px; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:0.9rem;">
+      <select id="pc-vol" style="padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:0.9rem;">
         <option value="all" ${_filterVol === 'all' ? 'selected' : ''}>Todos os volumes</option>
         <option value="mioshiec1" ${_filterVol === 'mioshiec1' ? 'selected' : ''}>Vol 1</option>
         <option value="mioshiec2" ${_filterVol === 'mioshiec2' ? 'selected' : ''}>Vol 2</option>
@@ -921,7 +921,7 @@ function _renderRow(it) {
   } else if (link) {
     statusBadge = `<span title="Link publicado e ativo no reader" style="font-size:0.72rem; padding:2px 8px; background:#d1fae5; color:#065f46; border-radius:4px;">✓ PUBLICADO</span>`;
   } else {
-    statusBadge = `<span style="font-size:0.72rem; padding:2px 8px; background:var(--bg-quiet); color:var(--text-muted); border-radius:4px;">SEM LINK</span>`;
+    statusBadge = `<span style="font-size:0.72rem; padding:2px 8px; background:var(--bg-color); color:var(--text-muted); border-radius:4px;">SEM LINK</span>`;
   }
 
   const currentLinkHtml = link
@@ -948,7 +948,7 @@ function _renderRow(it) {
         <div style="flex:1; min-width:0;">
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             ${statusBadge}
-            <span style="font-size:0.78rem; padding:2px 8px; background:var(--bg-quiet); color:var(--text-main); border-radius:4px; font-family:monospace; font-weight:600;">
+            <span style="font-size:0.78rem; padding:2px 8px; background:var(--bg-color); color:var(--text-main); border-radius:4px; font-family:monospace; font-weight:600;">
               #${it.topic_idx}
             </span>
             <a href="${sourceUrl}" target="_blank" rel="noopener" style="font-size:0.78rem; color:var(--text-muted); text-decoration:underline;">
@@ -965,11 +965,11 @@ function _renderRow(it) {
           </div>
           ${it.title_pt ? `<div style="font-size:0.86rem; color:var(--text-muted); margin-top:2px;">${_escHtml(it.title_pt)}</div>` : ''}
           ${it.content_preview_ja ? `
-            <div style="margin-top:10px; padding:10px 12px; background:var(--bg-quiet); border-left:3px solid var(--accent); border-radius:0 4px 4px 0; font-family:'Noto Serif JP', serif; font-size:0.92rem; line-height:1.6; color:var(--text-main);">
+            <div style="margin-top:10px; padding:10px 12px; background:var(--bg-color); border-left:3px solid var(--accent); border-radius:0 4px 4px 0; font-family:'Noto Serif JP', serif; font-size:0.92rem; line-height:1.6; color:var(--text-main);">
               ${_highlightCitMarker(it.content_preview_ja)}${it.content_preview_ja.length >= 180 ? '…' : ''}
             </div>
           ` : (it.content_preview ? `
-            <div style="margin-top:10px; padding:10px 12px; background:var(--bg-quiet); border-left:3px solid var(--accent); border-radius:0 4px 4px 0; font-size:0.84rem; line-height:1.55; color:var(--text-main);">
+            <div style="margin-top:10px; padding:10px 12px; background:var(--bg-color); border-left:3px solid var(--accent); border-radius:0 4px 4px 0; font-size:0.84rem; line-height:1.55; color:var(--text-main);">
               ${_highlightCitMarker(it.content_preview)}${it.content_preview.length >= 240 ? '…' : ''}
             </div>
           ` : '')}
@@ -984,7 +984,7 @@ function _renderRow(it) {
         <div style="display:flex; gap:8px; align-items:center;">
           <input type="text" id="pc-url-${safeId}"
                  placeholder="reader.html?vol=mioshiec3&file=puraguma.html&topic=0"
-                 style="flex:1; padding:7px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg-quiet); color:var(--text-main); font-size:0.85rem; font-family:monospace;">
+                 style="flex:1; padding:7px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:0.85rem; font-family:monospace;">
           <button id="pc-compare-${safeId}" class="btn-zen" disabled style="opacity:.5; font-size:0.84rem;" title="Abrir modal de comparação side-by-side">🔍 Comparar</button>
           <button id="pc-save-${safeId}" class="btn-zen" disabled style="opacity:.5; font-size:0.84rem;">Salvar</button>
           ${link ? `<button id="pc-clear-${safeId}" class="btn-zen" style="font-size:0.84rem; color:#991b1b;">Remover</button>` : ''}
@@ -998,7 +998,7 @@ function _renderRow(it) {
           </button>
         </div>
         <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-          <select id="pc-qvol-${safeId}" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--bg-quiet); color:var(--text-main); font-size:0.82rem;">
+          <select id="pc-qvol-${safeId}" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:0.82rem;">
             <option value="mioshiec1" ${it.vol === 'mioshiec1' ? 'selected' : ''}>mioshiec1</option>
             <option value="mioshiec2" ${it.vol === 'mioshiec2' ? 'selected' : ''}>mioshiec2</option>
             <option value="mioshiec3" ${it.vol === 'mioshiec3' ? 'selected' : ''}>mioshiec3</option>
@@ -1006,10 +1006,10 @@ function _renderRow(it) {
           </select>
           <input type="text" id="pc-qfile-${safeId}"
                  placeholder="filename.html"
-                 style="flex:1; min-width:160px; padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg-quiet); color:var(--text-main); font-size:0.82rem; font-family:monospace;">
+                 style="flex:1; min-width:160px; padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:0.82rem; font-family:monospace;">
           <label style="font-size:0.78rem; color:var(--text-muted);">title_idx:</label>
           <input type="number" id="pc-qidx-${safeId}" min="1" placeholder="2"
-                 style="width:70px; padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--bg-quiet); color:var(--text-main); font-size:0.82rem; font-family:monospace;">
+                 style="width:70px; padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:0.82rem; font-family:monospace;">
           <button id="pc-qcompare-${safeId}" class="btn-zen" disabled style="opacity:.5; font-size:0.82rem;" title="Abrir modal de comparação side-by-side">🔍 Comparar</button>
           <button id="pc-qsave-${safeId}" class="btn-zen" disabled style="opacity:.5; font-size:0.82rem;">Salvar</button>
         </div>

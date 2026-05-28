@@ -34,8 +34,8 @@ function _formatQuotedTitle(rawTitle) {
 
 // Se este tópico for uma citação parcial mapeada no índice
 // site_data/partial_citations_index.js (carregado como window._partialCitations),
-// devolve HTML de um link "Ler texto completo" que navega pro
-// ensinamento completo correspondente. Caso contrário, string vazia.
+// devolve HTML de um link "Ler texto completo" que abre o ensinamento
+// completo correspondente em NOVA ABA. Caso contrário, string vazia.
 function _buildPartialCitationCTA(volId, filename, topicIdx, lang) {
     try {
         const idx = window._partialCitations;
@@ -48,14 +48,22 @@ function _buildPartialCitationCTA(volId, filename, topicIdx, lang) {
             : { label: 'Ler o ensinamento completo', sub: 'Fonte' };
         const targetTitle = (target.title_pt || target.title_jp || '').replace(/<[^>]+>/g, '').trim();
         const escTitle = targetTitle.replace(/"/g, '&quot;');
+        // Preserva ?lang=ja na URL do destino se a página atual estiver em JP.
+        const langSuffix = window.location.search.includes('lang=ja') ? '&lang=ja' : '';
+        const targetUrl = `reader.html?vol=${encodeURIComponent(target.vol)}&file=${encodeURIComponent(target.file)}&topic=${target.topic_idx}${langSuffix}`;
         return `
             <div class="topic-partial-cta" style="margin: 16px 0 8px; padding: 12px 16px; background: var(--accent-soft); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; gap: 10px; font-size: 0.88rem;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; opacity:.65" aria-hidden="true">
                     <path d="M7 17l10-10M7 7h10v10"/>
                 </svg>
                 <span style="opacity:.7;">${l.sub}:</span>
-                <a href="javascript:void(0)" onclick="navigateToReader('${target.vol}','${target.file}'); setTimeout(()=>{const u=new URL(window.location);u.searchParams.set('topic','${target.topic_idx}');window.history.replaceState({},'',u);window.scrollTo(0,0);const el=document.getElementById('topic-${target.topic_idx}');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},400)" style="color: var(--text-main); text-decoration: underline; text-underline-offset: 2px;">
+                <a href="${targetUrl}" target="_blank" rel="noopener" style="color: var(--text-main); text-decoration: underline; text-underline-offset: 2px;">
                     ${l.label}
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-1px; margin-left:2px; opacity:.7;">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
                 </a>
                 <span style="opacity:.5; font-size:.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escTitle}">— ${escTitle}</span>
             </div>

@@ -150,6 +150,43 @@ function _stripHtml(s) {
 // Pega title_jp/title_pt/date do tópico alvo no Storage e enriquece
 // o objeto que vai ser salvo no manual_citation_links.json.
 // Reader usa esses campos pra mostrar "— Título" no CTA.
+// Procura no arquivo alvo (vol+file) um tópico cujo título bate com o
+// título da citação parcial (sourceTitle). Estratégia em camadas:
+//   1. Match exato após normalizar whitespace + remover sufixo "より"
+//   2. Match pelo "core" entre 「」 (cobre casos onde só o título dentro
+//      dos colchetes japoneses é igual, com prefixos diferentes)
+// Devolve topic_idx (0-based) ou null se não encontrar.
+async function _autoFindTopicByTitle(vol, file, sourceTitle) {
+  if (!vol || !file || !sourceTitle) return null;
+  try {
+    const json = await _fetchTargetTopic(vol, file);
+    if (!json) return null;
+    const normalize = (s) => (s || '').trim().replace(/より\s*$/, '').replace(/[\s　]+/g, '');
+    const coreTitle = (s) => {
+      const m = (s || '').match(/「([^」]+)」/);
+      return m ? m[1].replace(/[\s　]+/g, '') : null;
+    };
+    const srcNorm = normalize(sourceTitle);
+    const srcCore = coreTitle(sourceTitle);
+    let i = 0;
+    let coreMatch = null;
+    for (const theme of json.themes || []) {
+      for (const t of theme.topics || []) {
+        const tNorm = normalize(t.title);
+        if (srcNorm && tNorm === srcNorm) return i; // exato
+        if (srcCore && coreMatch === null) {
+          const tCore = coreTitle(t.title);
+          if (tCore && tCore === srcCore) coreMatch = i;
+        }
+        i++;
+      }
+    }
+    return coreMatch;
+  } catch (_) {
+    return null;
+  }
+}
+
 async function _enrichWithTargetTitle(parsed) {
   try {
     const json = await _fetchTargetTopic(parsed.vol, parsed.file);
@@ -1006,8 +1043,36 @@ function _renderList() {
         _schedulePreview(safeId, null);
       }
     }
-    qvolEl.addEventListener('change', updateQuickPreview);
-    qfileEl.addEventListener('input', updateQuickPreview);
+    // Auto-detecção do title_idx: quando o user preenche/cola um filename
+    // (e ainda não tem title_idx), busca no arquivo um tópico com o mesmo
+    // título da citação parcial. Cobre o caso comum onde o mesmo
+    // ensinamento aparece em vários arquivos sob o mesmo título.
+    let _autoFillTimer = null;
+    async function _tryAutoFillTitleIdx() {
+      const vol = qvolEl.value;
+      const file = qfileEl.value.trim().replace(/\.json$/, '');
+      if (!vol || !file || file.length < 3) return;
+      // Só auto-preenche se o user ainda não digitou title_idx
+      const cur = qidxEl.value.trim();
+      if (cur && cur !== '0') return;
+      const matched = await _autoFindTopicByTitle(vol, file, it.title_jp);
+      if (matched !== null && (!qidxEl.value.trim() || qidxEl.value.trim() === '0')) {
+        qidxEl.value = String(matched + 1); // 1-based
+        // Pisca verde rápido pra avisar que foi auto-preenchido
+        const prevBorder = qidxEl.style.borderColor;
+        qidxEl.style.borderColor = '#10b981';
+        qidxEl.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.2)';
+        setTimeout(() => { qidxEl.style.borderColor = prevBorder; qidxEl.style.boxShadow = ''; }, 1200);
+        updateQuickPreview();
+      }
+    }
+    function _scheduleAutoFill() {
+      clearTimeout(_autoFillTimer);
+      _autoFillTimer = setTimeout(_tryAutoFillTitleIdx, 400);
+    }
+
+    qvolEl.addEventListener('change', () => { updateQuickPreview(); _scheduleAutoFill(); });
+    qfileEl.addEventListener('input', () => { updateQuickPreview(); _scheduleAutoFill(); });
     qidxEl.addEventListener('input', updateQuickPreview);
 
     // Botão "Buscar trecho JP" — abre modal compartilhado e seleciona resultado

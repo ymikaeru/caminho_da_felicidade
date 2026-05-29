@@ -202,6 +202,39 @@ function _initMobileNav() {
              separadas só por um divisor suave (sem label próprio). -->
         <div class="mobile-nav-subdivider"></div>
 
+        <!-- Obras poéticas agrupadas como na home (poesia.html): duas seções
+             rotuladas — Salmos Sagrados (御讃歌) e Poesia Lírica (詩歌). Itens
+             dos Salmos com título curto + ícone de livro (arcticons:book). -->
+        <div class="mobile-nav-section-label"><span class="lang-pt">Salmos Sagrados</span><span class="lang-ja" style="display:none">御讃歌</span></div>
+
+        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}gosanka-shoban.html" id="mobileNavLinkGosankaShoban">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M7.35 2.25h-1.15c-1.1 0-2 0.9-2 2v15.5c0 1.1 0.9 2 2 2h1.15m0-19.5v19.5h10.45c1.1 0 2-0.9 2-2v-15.5c0-1.1-0.9-2-2-2z"/></svg>
+          <span class="mobile-nav-link__title">
+            <span><span class="lang-pt">Primeira Edição (1948)</span><span class="lang-ja" style="display:none">初版</span></span>
+            <span class="mobile-nav-link__subtitle"><span class="lang-pt">Tanka · 309</span><span class="lang-ja" style="display:none">短歌・309首</span></span>
+          </span>
+        </a>
+
+        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}gosanka-kaitei.html" id="mobileNavLinkGosankaKaitei">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M7.35 2.25h-1.15c-1.1 0-2 0.9-2 2v15.5c0 1.1 0.9 2 2 2h1.15m0-19.5v19.5h10.45c1.1 0 2-0.9 2-2v-15.5c0-1.1-0.9-2-2-2z"/></svg>
+          <span class="mobile-nav-link__title">
+            <span><span class="lang-pt">Edição Revisada (1951)</span><span class="lang-ja" style="display:none">改訂版</span></span>
+            <span class="mobile-nav-link__subtitle"><span class="lang-pt">Tanka · 462</span><span class="lang-ja" style="display:none">短歌・462首</span></span>
+          </span>
+        </a>
+
+        <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}gosanka-shikiten.html" id="mobileNavLinkGosankaShikiten">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M7.35 2.25h-1.15c-1.1 0-2 0.9-2 2v15.5c0 1.1 0.9 2 2 2h1.15m0-19.5v19.5h10.45c1.1 0 2-0.9 2-2v-15.5c0-1.1-0.9-2-2-2z"/></svg>
+          <span class="mobile-nav-link__title">
+            <span><span class="lang-pt">Cerimônia Especial</span><span class="lang-ja" style="display:none">各式典の御讃歌</span></span>
+            <span class="mobile-nav-link__subtitle"><span class="lang-pt">Tanka · 564</span><span class="lang-ja" style="display:none">短歌・564首</span></span>
+          </span>
+        </a>
+
+        <!-- 2ª seção poética: Poesia Lírica (詩歌) — Akimaro, Yama, Warai. -->
+        <div class="mobile-nav-subdivider"></div>
+        <div class="mobile-nav-section-label"><span class="lang-pt">Poesia Lírica</span><span class="lang-ja" style="display:none">詩歌</span></div>
+
         <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}akimaro-kineishu.html" id="mobileNavLinkAkimaro">
           <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.93" y1="4.93" x2="7.05" y2="7.05"/><line x1="16.95" y1="16.95" x2="19.07" y2="19.07"/><line x1="4.93" y1="19.07" x2="7.05" y2="16.95"/><line x1="16.95" y1="7.05" x2="19.07" y2="4.93"/></svg>
           <span class="mobile-nav-link__title">

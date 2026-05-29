@@ -279,6 +279,10 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         const activeTitle = isPt ? (topicData.title_ptbr || topicData.title_pt || topicData.publication_title_pt || '') : (topicData.title_ja || topicData.title || '');
 
         let headerHTML = '';
+        // Fragmentos (continues_previous) não têm cabeçalho real — pular toda a
+        // extração de cabeçalho. Ela MUTA rawContent (substring) e descartaria o
+        // início do trecho citado, que aqui é texto, não título.
+        if (!topicData.continues_previous) {
         const headerMatch = rawContent.match(/^([\s\S]{0,350}?)\(([^)]*\d+[^)]*)\)/);
         if (headerMatch) {
             let preText = headerMatch[1];
@@ -322,6 +326,7 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
                 }
             }
         }
+        } // /if (!continues_previous) — fim da extração de cabeçalho
 
         let formatted = _normalizeContent(rawContent);
 
@@ -332,6 +337,17 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             let _pIdx = 0;
             formatted = formatted.replace(/<p(\s|>)/gi, (_, end) => `<p data-p-idx="${_pIdx++}"${end}`);
         }
+
+        // Fragmento de extração (continues_previous): uma palavra enfatizada
+        // (<font size="+2"><b>…) foi lida como título e cortou a frase no meio,
+        // criando um tópico falso que começa no meio do texto. Renderiza sem
+        // cabeçalho, sem barra de botões e sem o gap de 40px, pra o texto fluir
+        // no tópico anterior. IMPORTANTE: o tópico CONTINUA no array (mesmo
+        // topic_idx) — só some visualmente; favoritos/posições/grifos não mudam.
+        const isCont = !!topicData.continues_previous;
+        const topMargin = isCont ? '0' : (index > 0 ? '40px' : '0');
+        const topHeader = isCont ? '' : `${headerHTML}\n${_buildTopicSaveBar(index, lang)}\n${_buildPartialCitationCTA(volId, filename, index, lang)}`;
+        const contClass = isCont ? ' topic-continuation' : '';
 
         const comparisonMode = localStorage.getItem('reader_comparison') === 'true';
         if (comparisonMode) {
@@ -348,16 +364,14 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
                 gridHtml += `<div class="comparison-row"><div class="comparison-cell ja">${jaSeg}</div><div class="comparison-cell pt">${ptSeg}</div></div>`;
                 interleavedHtml += `<div class="comparison-pair"><div class="comparison-cell ja">${jaSeg}</div><div class="comparison-cell pt">${ptSeg}</div></div>`;
             }
-            contentHtml += `<div id="${topicId}" class="topic-content comparison-mode" style="margin-top: ${index > 0 ? '40px' : '0'};">
-                ${headerHTML}
-                ${_buildTopicSaveBar(index, lang)}
-                ${_buildPartialCitationCTA(volId, filename, index, lang)}
+            contentHtml += `<div id="${topicId}" class="topic-content comparison-mode${contClass}" style="margin-top: ${topMargin};">
+                ${topHeader}
                 <div class="comparison-labels"><span>日本語</span><span>Português</span></div>
                 <div class="comparison-grid">${gridHtml}</div>
                 <div class="comparison-interleaved">${interleavedHtml}</div>
             </div>`;
         } else {
-            contentHtml += `<div id="${topicId}" class="topic-content" style="margin-top: ${index > 0 ? '40px' : '0'};">\n${headerHTML}\n${_buildTopicSaveBar(index, lang)}\n${_buildPartialCitationCTA(volId, filename, index, lang)}\n${formatted}\n</div>`;
+            contentHtml += `<div id="${topicId}" class="topic-content${contClass}" style="margin-top: ${topMargin};">\n${topHeader}\n${formatted}\n</div>`;
         }
     });
 
@@ -492,6 +506,7 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     if (typeof window._updateMobileNavTopics === 'function') {
         if (topicsFound.length > 1) {
             const opts = topicsFound.map((t, i) => {
+                if (t.continues_previous) return null;  // fragmento de extração — fora do índice/TOC
                 const topicEl = document.getElementById(`topic-${i}`);
                 let extractedTitle = '';
                 if (topicEl) {
@@ -515,7 +530,7 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
                 }
                 if (extractedTitle.length > 60) extractedTitle = extractedTitle.substring(0, 57) + '…';
                 return { value: `#topic-${i}`, text: `"${extractedTitle}"` };
-            });
+            }).filter(Boolean);
             const tocLabel = lang === 'ja' ? 'このテーマの教え' : 'Ensinamentos deste tema';
             window._updateMobileNavTopics(tocLabel, opts);
 

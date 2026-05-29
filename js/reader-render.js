@@ -82,7 +82,11 @@ function _buildPartialCitationCTA(volId, filename, topicIdx, lang) {
         const escTitle = targetTitle.replace(/"/g, '&quot;');
         // Preserva ?lang=ja na URL do destino se a página atual estiver em JP.
         const langSuffix = window.location.search.includes('lang=ja') ? '&lang=ja' : '';
-        const targetUrl = `reader.html?vol=${encodeURIComponent(target.vol)}&file=${encodeURIComponent(target.file)}&topic=${target.topic_idx}${langSuffix}`;
+        // Âncora opcional (ex.: imports ocultos do Zenshu): &search=<trecho>
+        // faz o reader rolar/destacar o trecho citado dentro do alvo, em vez
+        // de abrir no topo. Só pega no modo JA (highlight CJK).
+        const anchorSuffix = target.anchor ? `&search=${encodeURIComponent(target.anchor)}` : '';
+        const targetUrl = `reader.html?vol=${encodeURIComponent(target.vol)}&file=${encodeURIComponent(target.file)}&topic=${target.topic_idx}${anchorSuffix}${langSuffix}`;
         // Omite o "— Título" quando o targetTitle vier vazio (manual links
         // antigos só guardavam vol/file/topic_idx, sem title). Evita o
         // travessão solto "— " no fim do CTA.

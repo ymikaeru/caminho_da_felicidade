@@ -272,9 +272,42 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         </div>`;
 
     // Build topic HTML
+
+    // Texto contínuo: fragmentos (continues_previous) tiveram o conteúdo
+    // cortado do tópico anterior pela extração (palavra enfatizada lida como
+    // título). Reanexa o conteúdo BRUTO de cada fragmento ao tópico-raiz
+    // anterior ANTES de renderizar, pro normalizador tratar como UM fluxo só
+    // (reconstrói o texto original, com a palavra enfatizada inline). O array
+    // topicsFound mantém tamanho/ordem → topic_idx intacto (favoritos,
+    // posições, grifos e recomendações não mudam). Os seams são limpos (sem
+    // <br>/<hr> entre o fim do raiz e o início do fragmento — verificado).
+    {
+        let rootIdx = -1;
+        for (let _i = 0; _i < topicsFound.length; _i++) {
+            const _t = topicsFound[_i];
+            if (_t.continues_previous && rootIdx >= 0) {
+                const _root = topicsFound[rootIdx];
+                const _fragPt = _t.content_ptbr || _t.content_pt || _t.content || '';
+                const _rootPt = _root.content_ptbr || _root.content_pt || _root.content || '';
+                _root.content_ptbr = _rootPt + _fragPt;
+                _root.content = (_root.content || '') + (_t.content || '');
+                _t._mergedAway = true;
+            } else {
+                rootIdx = _i;
+            }
+        }
+    }
+
     let contentHtml = '';
     topicsFound.forEach((topicData, index) => {
         const topicId = `topic-${index}`;
+        if (topicData._mergedAway) {
+            // Conteúdo já reanexado ao tópico-raiz acima (texto contínuo).
+            // Âncora invisível só preserva #topic-${index} pro getElementById
+            // (scroll/posição) sem inserir um bloco que quebraria o fluxo.
+            contentHtml += `<div id="${topicId}" class="topic-continuation-anchor" style="margin:0;padding:0;"></div>`;
+            return;
+        }
         let rawContent = isPt ? (topicData.content_ptbr || topicData.content_pt || topicData.content || '') : (topicData.content || '');
         const activeTitle = isPt ? (topicData.title_ptbr || topicData.title_pt || topicData.publication_title_pt || '') : (topicData.title_ja || topicData.title || '');
 

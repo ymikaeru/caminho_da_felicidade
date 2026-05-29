@@ -19,7 +19,7 @@
     import './admin/tabs/analytics-search.js';
     import './admin/tabs/analytics-disciples.js';
     import './admin/tabs/analytics-poetry.js';
-    import './admin/tabs/analytics-johrei.js';
+    import './admin/tabs/analytics-johrei.js?v=2';
     import './admin/tabs/analytics-landing.js';
     import './admin/tabs/highlights-saved.js';
     import './admin/tabs/users-permissions.js';

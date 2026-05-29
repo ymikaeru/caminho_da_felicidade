@@ -18,7 +18,7 @@ async function loadJohreiAnalytics() {
   const since = new Date(Date.now() - days * 86400000).toISOString();
 
   // Fetch RPC and extra raw data in parallel
-  const [rpcRes, rawRes, cmOpensRes, cmHeartbeatsRes, cmAudioRes, cmDownloadsRes, essShownRes, essSuppRes, essSkippedRes, apostilaPrintRes] = await Promise.all([
+  const [rpcRes, rawRes, cmOpensRes, cmHeartbeatsRes, cmAudioRes, cmDownloadsRes, essShownRes, essSuppRes, essSkippedRes, apostilaPrintRes, sectionRes] = await Promise.all([
     supabase.rpc('admin_get_site_analytics', { p_site: 'johrei', days_back: days }),
     supabase.from('site_events').select('props,created_at').eq('site','johrei').eq('event_type','pageview').gte('created_at', since),
     // Culto Mensal: aberturas. Fetcha todos os cta de johrei e
@@ -71,6 +71,14 @@ async function loadJohreiAnalytics() {
       .select('anon_id,props,created_at')
       .eq('site','johrei')
       .eq('event_type','apostila_print')
+      .gte('created_at', since),
+    // Acessos por aba: cada troca de aba emite um `section` com props.tab.
+    // (Pontos focais reusam o fetch de cta acima — cmOpensRes — filtrando
+    // client-side por props.label === 'focal_point'.)
+    supabase.from('site_events')
+      .select('anon_id,props')
+      .eq('site','johrei')
+      .eq('event_type','section')
       .gte('created_at', since)
   ]);
 
@@ -348,6 +356,90 @@ async function loadJohreiAnalytics() {
       </p>
     </div>`;
 
+  // ── Acessos por aba (event_type='section', props.tab) ───────────────
+  // O guia_johrei emite um `section` por aba ativada (dedup de re-cliques).
+  const TAB_LABELS = {
+    fundamentos:        'Fundamentos',
+    como_aplicar:       'Como Aplicar',
+    por_condicao:       'Por Condição',
+    por_regiao:         'Por Região',
+    estudo_aprofundado: 'Estudo Aprofundado',
+    estudo_detalhado:   'Estudo Detalhado',
+    mapa:               'Mapa Interativo',
+    apostila:           'Apostila',
+    qa:                 'Perguntas & Orientações',
+    pontos_focais:      'Pontos Focais'
+  };
+  const sectionRows = sectionRes.data || [];
+  const tabAgg = {};
+  sectionRows.forEach(r => {
+    const tab = (r.props || {}).tab;
+    if (!tab) return;
+    if (!tabAgg[tab]) tabAgg[tab] = { views: 0, anons: new Set() };
+    tabAgg[tab].views++;
+    if (r.anon_id) tabAgg[tab].anons.add(r.anon_id);
+  });
+  const tabRows = Object.entries(tabAgg)
+    .map(([tab, a]) => ({ label: TAB_LABELS[tab] || prettySlug(tab), views: a.views, uniques: a.anons.size }))
+    .sort((a, b) => b.views - a.views);
+  const tabViewsTotal = tabRows.reduce((s, r) => s + r.views, 0);
+  const tabViewsMax = Math.max(...tabRows.map(r => r.views), 1);
+  const tabBars = tabRows.map(r => {
+    const pct = Math.round(r.views / tabViewsMax * 100);
+    return `<div style="margin-bottom:11px;">
+      <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:3px;gap:8px;">
+        <span class="ell">${esc(r.label)}</span>
+        <span style="font-weight:600;white-space:nowrap;">${r.views.toLocaleString('pt-BR')} <span style="color:var(--text-muted);font-weight:400;">· ${r.uniques.toLocaleString('pt-BR')} únicos</span></span>
+      </div>
+      <div style="height:7px;background:var(--border);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:var(--accent);border-radius:4px;transition:width .4s;"></div>
+      </div>
+    </div>`;
+  }).join('');
+  const tabsBlock = `
+    <div class="jr-chart-wrap" style="margin-bottom:24px;">
+      <h3>📑 Acessos por aba (${data.days_back}d)</h3>
+      ${tabRows.length
+        ? `<div style="margin-top:8px;">${tabBars}</div>
+           <p style="font-size:.72rem;color:var(--text-muted);margin:12px 0 0;">Cada troca de aba conta uma visualização (re-clicar a aba já ativa não conta). <strong>${tabViewsTotal.toLocaleString('pt-BR')}</strong> visualizações no período.</p>`
+        : '<div class="loading">Sem dados ainda. Os eventos <code>section</code> aparecem quando o tracking atualizado do guia_johrei é deployado e alguém navega entre abas.</div>'}
+    </div>`;
+
+  // ── Pontos focais consultados (cta com props.label='focal_point') ────
+  // Reusa cmOpensRes (todos os cta de johrei) com um segundo filtro.
+  const focalRows = (cmOpensRes.data || []).filter(r => (r.props || {}).label === 'focal_point');
+  const focalCount = focalRows.length;
+  const focalUniques = new Set(focalRows.map(r => r.anon_id)).size;
+  const focalByCond = {};
+  focalRows.forEach(r => {
+    const c = (r.props || {}).condicao || '(sem rótulo)';
+    focalByCond[c] = (focalByCond[c] || 0) + 1;
+  });
+  const focalTop = Object.entries(focalByCond).sort((a, b) => b[1] - a[1]).slice(0, 15);
+  const focalTopRows = focalTop.map(([c, n]) =>
+    `<tr><td class="ell" title="${esc(c)}">${esc(c)}</td><td class="num">${n.toLocaleString('pt-BR')}</td></tr>`
+  ).join('') || '<tr><td colspan="2" style="color:var(--text-muted);">Sem dados ainda.</td></tr>';
+  const focalBlock = `
+    <div class="jr-chart-wrap" style="margin-bottom:24px;">
+      <h3>📍 Pontos Focais consultados no mapa (${data.days_back}d)</h3>
+      <div class="jr-cards" style="margin-bottom:0;">
+        ${card(focalCount, 'Consultas de pontos focais', focalUniques)}
+        ${engCard(focalTop.length, 'Condições diferentes')}
+        ${engCard(focalCount > 0 ? (focalCount / Math.max(focalUniques, 1)).toFixed(1) : '—', 'Consultas / usuário')}
+      </div>
+      <div style="margin-top:16px;">
+        <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+          <thead><tr><th style="text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);padding:6px 12px 6px 0;border-bottom:1px solid var(--border);font-weight:500;">Condição / Purificação</th><th style="text-align:right;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);padding:6px 0;border-bottom:1px solid var(--border);font-weight:500;">Consultas</th></tr></thead>
+          <tbody>${focalTopRows}</tbody>
+        </table>
+      </div>
+      <p style="font-size:.72rem;color:var(--text-muted);margin:14px 0 0;">
+        ${focalCount > 0
+          ? 'Cada vez que o ministrante seleciona uma condição no mapa (pela lista, busca de purificação ou cross-link da aba Estudo), os pontos focais daquela condição são revelados — e contados aqui. Mostra o que os ministrantes mais precisam tratar.'
+          : 'Sem dados ainda. O evento é emitido quando alguém seleciona uma condição no mapa interativo do guia_johrei (requer o tracking atualizado deployado).'}
+      </p>
+    </div>`;
+
   dash.innerHTML = `
     <div class="jr-cards">
       ${card(t.today_visits,'Hoje',t.today_uniques)}
@@ -361,6 +453,8 @@ async function loadJohreiAnalytics() {
       ${engCard(eng.bounce_rate_pct, 'Bounce rate', '%')}
       ${engCard(t.period_sessions, `Sessões (${data.days_back}d)`)}
     </div>
+    ${tabsBlock}
+    ${focalBlock}
     ${cmBlock}
     ${essBlock}
     ${apBlock}

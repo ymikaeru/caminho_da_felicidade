@@ -10,7 +10,7 @@
 //     { v: 'mioshiec1', f: 'huku6SHUGOSIN.html', i: 0,
 //       t: '明主様御教え 「守護神」より',
 //       d: '昭和18年10月23日',
-//       c: '...primeiros 1000 chars de content (JP)...' },
+//       c: '...primeiros MAX_CONTENT_CHARS chars de content (JP)...' },
 //     ...
 //   ]
 //
@@ -28,7 +28,12 @@ const TEACHINGS_DIR = join(ROOT, '.local-edits', 'teachings');
 const OUT_DIR = join(ROOT, 'data', 'jp_search');
 
 const VOLS = ['mioshiec1', 'mioshiec2', 'mioshiec3', 'mioshiec4'];
-const MAX_CONTENT_CHARS = 800; // suficiente pra match de trechos distintivos sem inchar o índice
+// 3000 cobre ~99% dos tópicos por inteiro (p99 ≈ 3890 chars). Com 800
+// (valor antigo) ~25% dos ensinamentos eram truncados e o trecho citado
+// ficava fora do alcance da busca da aba Citações — a maior causa de
+// "não acha o texto completo". Subir pra 3000 recupera ~79 citações e
+// custa só ~10 MB no total do índice (lazy-load por volume).
+const MAX_CONTENT_CHARS = 3000;
 
 mkdirSync(OUT_DIR, { recursive: true });
 

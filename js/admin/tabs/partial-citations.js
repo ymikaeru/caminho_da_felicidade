@@ -418,6 +418,66 @@ async function _loadJpIndex(vol) {
   return promise;
 }
 
+// ─── Janelas de busca (trechos deslizantes do excerpt) ──────
+// Por que: a busca é match EXATO de substring. Uma única diferença de
+// transcrição (pontuação 、，, variante de kanji, okurigana) entre a
+// citação parcial e o ensinamento completo — que são entradas JSON
+// separadas — quebra o match inteiro. Fatiar o excerpt em janelas
+// sobrepostas e tentar OUTRA janela costuma achar o texto, porque o
+// meio/fim do mesmo trecho casa mesmo quando o começo difere.
+function _buildQueryWindows(excerpt) {
+  const noWs = String(excerpt || '').replace(/\s+/g, '');
+  if (noWs.length < 4) return [];
+  if (noWs.length < 8) return [noWs];
+  const W = 40, STEP = 25;
+  const out = [];
+  for (let s = 0; s < noWs.length; s += STEP) {
+    const w = noWs.slice(s, s + W);
+    if (w.length >= 8 && !out.includes(w)) out.push(w);
+    if (s + W >= noWs.length) break;
+  }
+  return out;
+}
+
+// Extrai o excerpt COMPLETO (não o preview de 180 chars) do tópico de
+// origem, baixando o JSON do Storage. Dá mais material pras janelas.
+async function _getFullSourceExcerpt(sourceItem) {
+  try {
+    const json = await _fetchTargetTopic(sourceItem.vol, sourceItem.file);
+    const topic = _topicAtIdx(json, sourceItem.topic_idx);
+    if (!topic) return null;
+    return _extractCitationExcerpt(_stripHtml(topic.content || ''));
+  } catch (_) { return null; }
+}
+
+function _updateWindowIndicator() {
+  const ind = document.getElementById('pc-jp-winind');
+  const btn = document.getElementById('pc-jp-nextwin');
+  const ctx = _jpSearchCtx;
+  const n = ctx?.windows?.length || 0;
+  if (!ind || !btn) return;
+  if (n <= 1) {
+    ind.textContent = '';
+    btn.disabled = n === 0;
+    btn.style.opacity = n === 0 ? '0.4' : '1';
+  } else {
+    ind.textContent = `trecho ${(ctx.windowIdx ?? 0) + 1}/${n}`;
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  }
+}
+
+// Avança pra próxima janela do excerpt e refaz a busca. Dá a volta no fim.
+function _useNextExcerptWindow() {
+  const ctx = _jpSearchCtx;
+  if (!ctx || !ctx.windows || ctx.windows.length === 0) return;
+  ctx.windowIdx = ((ctx.windowIdx ?? 0) + 1) % ctx.windows.length;
+  const qEl = document.getElementById('pc-jp-q');
+  if (qEl) qEl.value = ctx.windows[ctx.windowIdx];
+  _updateWindowIndicator();
+  _runJpSearch();
+}
+
 function _ensureJpSearchModal() {
   let modal = document.getElementById('pc-jpsearch-modal');
   if (modal) return modal;
@@ -444,6 +504,9 @@ function _ensureJpSearchModal() {
           <input id="pc-jp-excludepartial" type="checkbox" checked>
           Só completos
         </label>
+        <button id="pc-jp-nextwin" class="btn-zen" style="font-size:0.84rem; padding:8px 12px; white-space:nowrap;"
+                title="Tenta um trecho diferente da MESMA citação. Útil quando o começo do trecho tem uma diferença de transcrição (pontuação, variante de kanji) que quebra a busca exata.">🔀 Outro trecho</button>
+        <span id="pc-jp-winind" style="font-size:0.76rem; color:var(--text-muted); white-space:nowrap;"></span>
       </div>
       <div id="pc-jp-status" style="padding:6px 24px; font-size:0.78rem; color:var(--text-muted); border-bottom:1px solid var(--border); flex-shrink:0;"></div>
       <div id="pc-jp-results" style="flex:1; overflow-y:auto; padding:8px 24px;"></div>
@@ -464,6 +527,9 @@ function _ensureJpSearchModal() {
   qEl.addEventListener('input', trigger);
   volEl.addEventListener('change', trigger);
   excludeEl.addEventListener('change', trigger);
+
+  const nextWinBtn = document.getElementById('pc-jp-nextwin');
+  if (nextWinBtn) nextWinBtn.addEventListener('click', _useNextExcerptWindow);
 
   return modal;
 }
@@ -519,7 +585,11 @@ async function _runJpSearch() {
     .slice(0, 30);
 
   if (visible.length === 0) {
-    let msg = `<div style="padding:32px; text-align:center; color:var(--text-muted); font-size:0.9rem;">Nenhuma ocorrência encontrada.<br><span style="font-size:.82rem;">Tente um trecho menor ou diferente. Lembre que o índice cobre só os primeiros 800 chars de cada tópico.</span>`;
+    let msg = `<div style="padding:32px; text-align:center; color:var(--text-muted); font-size:0.9rem;">Nenhuma ocorrência encontrada.<br><span style="font-size:.82rem;">Tente um trecho menor ou diferente. Lembre que o índice cobre só o início de cada tópico — textos muito longos podem ter o trecho citado fora do alcance.</span>`;
+    const nWin = _jpSearchCtx?.windows?.length || 0;
+    if (nWin > 1) {
+      msg += `<br><br><span style="color:var(--accent);">🔀 Clique <strong>"Outro trecho"</strong> no topo pra tentar outra parte da mesma citação (${nWin} trechos disponíveis).</span>`;
+    }
     if (excludePartial && partialHits.length > 0) {
       msg += `<br><br><span style="color:var(--accent);">⚠ Encontrei ${partialHits.length} ocorrência${partialHits.length === 1 ? '' : 's'} em outras citações parciais — desmarque "Só completos" pra ver.</span>`;
     }
@@ -619,37 +689,49 @@ async function _openJpSearchModal(ctx) {
   resultsEl.innerHTML = '';
   statusEl.textContent = '';
 
-  // Tenta extrair automaticamente o trecho após "(一部のみ引用)" da
-  // citação parcial pra economizar copia-cola do user. Usa primeiro o
-  // content_preview_ja do índice; se não rolar, busca o JSON completo
-  // no Storage pra ter o conteúdo integral.
-  let autoQuery = '';
+  // Inicializa o estado das janelas (trechos deslizantes da citação).
+  ctx.windows = [];
+  ctx.windowIdx = 0;
+  _updateWindowIndicator();
+
+  // Extrai o trecho após "(一部のみ引用)" pra montar as janelas de busca.
+  // Usa primeiro o content_preview_ja (rápido, mas cortado em 180 chars);
+  // se não rolar, baixa o JSON completo no Storage.
+  let excerpt = '';
+  let usedFull = false;
   if (ctx?.sourceItem) {
-    const previewJa = ctx.sourceItem.content_preview_ja || '';
-    let excerpt = _extractCitationExcerpt(previewJa);
+    excerpt = _extractCitationExcerpt(ctx.sourceItem.content_preview_ja || '') || '';
     if (!excerpt || excerpt.length < 10) {
-      // Preview não cobriu — pega do JSON completo
       statusEl.textContent = '⏳ Carregando trecho da citação…';
-      try {
-        const srcJson = await _fetchTargetTopic(ctx.sourceItem.vol, ctx.sourceItem.file);
-        const srcTopic = _topicAtIdx(srcJson, ctx.sourceItem.topic_idx);
-        if (srcTopic) {
-          const fullContent = _stripHtml(srcTopic.content || '');
-          excerpt = _extractCitationExcerpt(fullContent);
-        }
-      } catch (_) {}
-    }
-    if (excerpt && excerpt.length >= 6) {
-      // Primeiros ~40 chars sem espaços = anchor único o suficiente
-      // pra reduzir resultados sem perder hits válidos.
-      autoQuery = excerpt.replace(/\s+/g, '').slice(0, 40);
+      const full = await _getFullSourceExcerpt(ctx.sourceItem);
+      if (full) { excerpt = full; usedFull = true; }
     }
   }
 
-  if (autoQuery) {
-    qEl.value = autoQuery;
-    statusEl.innerHTML = `<span style="color:var(--accent);">✨ Auto-preenchido com trecho da citação. Editando o campo refaz a busca.</span>`;
+  ctx.windows = _buildQueryWindows(excerpt);
+  ctx.windowIdx = 0;
+
+  if (ctx.windows.length) {
+    qEl.value = ctx.windows[0];
+    statusEl.innerHTML = `<span style="color:var(--accent);">✨ Auto-preenchido com trecho da citação. "🔀 Outro trecho" tenta partes diferentes; editar o campo refaz a busca.</span>`;
+    _updateWindowIndicator();
     setTimeout(() => { _runJpSearch(); qEl.select(); }, 50);
+
+    // Em background, expande as janelas com o excerpt COMPLETO (preview é
+    // cortado em 180 chars → mais material = mais trechos pra tentar). Só
+    // troca se o user ainda não navegou pra outra janela.
+    if (!usedFull && ctx.sourceItem) {
+      _getFullSourceExcerpt(ctx.sourceItem).then((full) => {
+        if (!full || _jpSearchCtx !== ctx) return;
+        const expanded = _buildQueryWindows(full);
+        const qNow = document.getElementById('pc-jp-q');
+        if (expanded.length > ctx.windows.length && ctx.windowIdx === 0
+            && qNow && qNow.value === ctx.windows[0]) {
+          ctx.windows = expanded;
+          _updateWindowIndicator();
+        }
+      }).catch(() => {});
+    }
   } else {
     resultsEl.innerHTML = `<div style="padding:32px; text-align:center; color:var(--text-muted); font-size:0.9rem;">Digite um trecho japonês pra começar.<br><span style="font-size:.82rem; opacity:.7;">Resultado clicado preenche os campos do atalho automaticamente.</span></div>`;
     setTimeout(() => qEl.focus(), 50);

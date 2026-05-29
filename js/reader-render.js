@@ -279,6 +279,10 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         const activeTitle = isPt ? (topicData.title_ptbr || topicData.title_pt || topicData.publication_title_pt || '') : (topicData.title_ja || topicData.title || '');
 
         let headerHTML = '';
+        // Fragmentos (continues_previous) não têm cabeçalho real — pular toda a
+        // extração de cabeçalho. Ela MUTA rawContent (substring) e descartaria o
+        // início do trecho citado, que aqui é texto, não título.
+        if (!topicData.continues_previous) {
         const headerMatch = rawContent.match(/^([\s\S]{0,350}?)\(([^)]*\d+[^)]*)\)/);
         if (headerMatch) {
             let preText = headerMatch[1];
@@ -322,6 +326,7 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
                 }
             }
         }
+        } // /if (!continues_previous) — fim da extração de cabeçalho
 
         let formatted = _normalizeContent(rawContent);
 

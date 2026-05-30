@@ -181,21 +181,15 @@
   }
 
   // ============================================================
-  // Player de áudio (inline) + MINIPLAYER fixo — "editorial dourado".
-  // Um único motor de áudio persistente vive numa barra ancorada no
-  // rodapé (.zmini), montada no <body> uma vez. Os players inline da
-  // cartinha/página (.zaudio) são SUPERFÍCIES DE CONTROLE: clicar play
-  // aciona o motor e o inline espelha o estado. Assim o áudio sobrevive
-  // a fechar o modal / re-render / rolar a tela (mas não a trocar de
-  // página — limitação de site multi-página). Estética alinhada ao site:
-  // acento ouro (--accent), serif Crimson Pro no título, Outfit tabular
-  // no tempo, sombras premium. Tudo via variáveis → segue todos os temas.
-  // Estado de reprodução é dirigido pela classe .is-playing (CSS).
+  // Player de áudio inline — "editorial dourado".
+  // Cada recomendação de áudio tem seu próprio player auto-contido
+  // (botão play circular + barra de progresso + tempo) que toca DENTRO
+  // da cartinha / da página. Sem miniplayer ancorado: ao fechar a
+  // cartinha o áudio pausa (ver _close). Estética alinhada ao site
+  // (acento ouro --accent, Outfit tabular no tempo); tudo via variáveis
+  // → segue todos os temas. Reprodução dirigida pela classe .is-playing.
   // Exposto via window._zaudioRender / _zaudioMount.
   // ============================================================
-  const _zmini = { audio: null, bar: null, els: null, src: null, title: '' };
-  const _zDurCache = {};
-
   function _ensureZaudioStyle() {
     if (document.getElementById('zaudioStyle')) return;
     const s = document.createElement('style');
@@ -208,42 +202,21 @@
       .zaudio__btn:active { transform:scale(.96); }
       .zaudio__btn:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
       .zaudio__btn svg { width:16px; height:16px; }
-      .zaudio__icon-play, .zmini__icon-play { display:block; margin-left:2px; }
-      .zaudio__icon-pause, .zmini__icon-pause { display:none; }
-      .is-playing .zaudio__btn, .is-playing .zmini__btn { background:var(--accent); color:var(--surface,#fff); box-shadow:0 6px 18px -4px var(--accent-mid); }
-      .is-playing .zaudio__icon-play, .is-playing .zmini__icon-play { display:none; }
-      .is-playing .zaudio__icon-pause, .is-playing .zmini__icon-pause { display:block; }
+      .zaudio__icon-play { display:block; margin-left:2px; }
+      .zaudio__icon-pause { display:none; }
+      .zaudio.is-playing .zaudio__btn { background:var(--accent); color:var(--surface,#fff); box-shadow:0 6px 18px -4px var(--accent-mid); }
+      .zaudio.is-playing .zaudio__icon-play { display:none; }
+      .zaudio.is-playing .zaudio__icon-pause { display:block; }
       /* trilha de progresso — fina, dourada, com handle */
       .zaudio__track { flex:1; min-width:0; height:3px; position:relative; background:var(--border,#e4e4e0); border-radius:var(--radius-pill,99px); cursor:pointer; touch-action:none; transition:height .15s var(--ease); }
       .zaudio__track:hover { height:5px; }
       .zaudio__fill { position:absolute; top:0; left:0; height:100%; width:0%; background:var(--accent); border-radius:inherit; }
       .zaudio__handle { position:absolute; right:0; top:50%; width:11px; height:11px; border-radius:50%; background:var(--accent); transform:translate(50%,-50%) scale(0); transition:transform .15s var(--ease); box-shadow:0 1px 5px rgba(0,0,0,.28); }
-      .zaudio__track:hover .zaudio__handle, .is-playing .zaudio__handle { transform:translate(50%,-50%) scale(1); }
+      .zaudio__track:hover .zaudio__handle, .zaudio.is-playing .zaudio__handle { transform:translate(50%,-50%) scale(1); }
       /* tempo — Outfit tabular */
       .zaudio__time { flex-shrink:0; font-family:var(--font-ui); font-size:.72rem; font-weight:500; letter-spacing:.06em; color:var(--text-muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
-      /* ---- miniplayer ancorado ---- */
-      .zmini { position:fixed; bottom:20px; right:20px; z-index:1000; display:none; align-items:center; gap:15px; width:min(400px, calc(100vw - 40px)); padding:15px 17px; background:var(--surface,#fff); border:1px solid var(--border,#e4e4e0); border-radius:var(--radius,4px); box-shadow:var(--shadow-premium); overflow:hidden; }
-      .zmini::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--accent), transparent); }
-      .zmini.active { display:flex; animation:zminiIn .42s var(--ease) both; }
-      @keyframes zminiIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
-      .zmini__body { flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
-      .zmini__head { display:flex; align-items:center; gap:9px; min-width:0; }
-      .zmini__title { flex:1; min-width:0; font-family:var(--font-serif, Georgia, serif); font-size:.98rem; font-weight:600; line-height:1.2; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.01em; }
-      .zmini__row { display:flex; align-items:center; gap:13px; }
-      .zmini__close { flex-shrink:0; align-self:flex-start; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; background:none; border:none; font-size:1.3rem; line-height:1; color:var(--text-muted); cursor:pointer; padding:0; border-radius:var(--radius-sm,2px); transition:color .15s var(--ease), background .15s var(--ease); }
-      .zmini__close:hover { color:var(--text-main); background:var(--accent-soft); }
-      /* equalizer dourado — anima só tocando */
-      .zeq { display:none; align-items:flex-end; gap:2px; height:13px; flex-shrink:0; }
-      .is-playing .zeq { display:inline-flex; }
-      .zeq i { display:block; width:2px; height:100%; background:var(--accent); border-radius:1px; transform-origin:bottom; transform:scaleY(.35); animation:zeq 1s var(--ease) infinite; }
-      .zeq i:nth-child(2){ animation-delay:.22s; }
-      .zeq i:nth-child(3){ animation-delay:.44s; }
-      @keyframes zeq { 0%,100%{ transform:scaleY(.35);} 50%{ transform:scaleY(1);} }
-      @media (prefers-reduced-motion: reduce) {
-        .zaudio__btn, .zaudio__track, .zaudio__handle, .zmini__close { transition:none; }
-        .zmini.active { animation:none; }
-        .zeq i { animation:none; transform:scaleY(.7); }
-      }
+      @media (prefers-reduced-motion: reduce) { .zaudio__btn, .zaudio__track, .zaudio__handle { transition:none; } }
+      @media (max-width: 600px) { .zaudio { gap:12px; padding:13px 14px; } }
     `;
     document.head.appendChild(s);
   }
@@ -255,18 +228,34 @@
     return m + ':' + (sec < 10 ? '0' : '') + sec;
   }
 
-  // Lê a duração de um src (com cache) sem ser o motor de playback —
-  // só pra exibir o tempo total no player inline antes de tocar.
-  function _zProbeDuration(src, cb) {
-    if (!src) return;
-    if (_zDurCache[src] != null) { cb(_zDurCache[src]); return; }
-    try {
-      const a = new Audio();
-      a.preload = 'metadata';
-      a.src = src;
-      a.addEventListener('loadedmetadata', () => { _zDurCache[src] = a.duration; cb(a.duration); });
-      a.addEventListener('error', () => {});
-    } catch (e) { /* ignore */ }
+  // ── Posição de escuta (persistente) ───────────────────────────
+  // Chave pelo CAMINHO do áudio (estável; a signed URL muda a cada
+  // sessão, mas o pathname não). Permite continuar de onde parou mesmo
+  // fechando o site.
+  function _zPosKey(src) {
+    try { return 'zaudio_pos:' + new URL(src, location.href).pathname; }
+    catch (e) { return 'zaudio_pos:' + (src || ''); }
+  }
+  function _zLoadPos(src) {
+    try { const v = parseFloat(localStorage.getItem(_zPosKey(src))); return isFinite(v) ? v : 0; }
+    catch (e) { return 0; }
+  }
+  function _zSavePos(src, t) {
+    try { if (isFinite(t) && t > 3) localStorage.setItem(_zPosKey(src), String(Math.floor(t))); } catch (e) {}
+  }
+  function _zClearPos(src) { try { localStorage.removeItem(_zPosKey(src)); } catch (e) {} }
+
+  // Salva a posição de tudo que estiver tocando ao sair/ocultar a página
+  // (fechar aba, navegar) — cobre o caso em que não há evento 'pause'.
+  let _zPagehideWired = false;
+  function _zWirePagehide() {
+    if (_zPagehideWired) return;
+    _zPagehideWired = true;
+    window.addEventListener('pagehide', () => {
+      document.querySelectorAll('.zaudio audio').forEach(a => {
+        if (a && a.src && !a.paused) _zSavePos(a.src, a.currentTime);
+      });
+    });
   }
 
   // Liga clicar/arrastar numa track a uma função de seek (ratio 0..1).
@@ -286,124 +275,14 @@
     });
   }
 
-  // Constrói a barra-miniplayer (motor único) no <body>, uma vez.
-  function _zminiEnsure() {
-    if (_zmini.bar) return;
-    _ensureZaudioStyle();
-    const bar = document.createElement('div');
-    bar.className = 'zmini';
-    bar.setAttribute('role', 'region');
-    bar.setAttribute('aria-label', 'Player de áudio');
-    bar.innerHTML = `
-      <button type="button" class="zmini__btn zaudio__btn" aria-label="Tocar">
-        <svg class="zmini__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-        <svg class="zmini__icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
-      </button>
-      <div class="zmini__body">
-        <div class="zmini__head">
-          <span class="zeq" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="zmini__title"></span>
-        </div>
-        <div class="zmini__row">
-          <div class="zmini__track zaudio__track"><div class="zmini__fill zaudio__fill"><span class="zaudio__handle"></span></div></div>
-          <div class="zmini__time zaudio__time"><span class="zmini__cur">0:00</span> / <span class="zmini__dur">--:--</span></div>
-        </div>
-      </div>
-      <button type="button" class="zmini__close" aria-label="Fechar player">&times;</button>`;
-    document.body.appendChild(bar);
-
-    const audio = document.createElement('audio');
-    audio.preload = 'metadata';
-    bar.appendChild(audio);
-
-    _zmini.bar = bar;
-    _zmini.audio = audio;
-    _zmini.els = {
-      btn: bar.querySelector('.zmini__btn'),
-      track: bar.querySelector('.zmini__track'),
-      fill: bar.querySelector('.zmini__fill'),
-      cur: bar.querySelector('.zmini__cur'),
-      dur: bar.querySelector('.zmini__dur'),
-      title: bar.querySelector('.zmini__title'),
-      close: bar.querySelector('.zmini__close'),
-    };
-
-    _zmini.els.btn.addEventListener('click', () => { if (audio.paused) audio.play(); else audio.pause(); });
-    _zmini.els.close.addEventListener('click', () => { audio.pause(); _zmini.bar.classList.remove('active'); });
-    _zBindTrack(_zmini.els.track, (ratio) => { if (audio.duration) { audio.currentTime = ratio * audio.duration; _zRenderProgress(); } });
-
-    audio.addEventListener('loadedmetadata', () => { if (_zmini.els.dur) _zmini.els.dur.textContent = _zfmtTime(audio.duration); _zRenderProgress(); });
-    audio.addEventListener('timeupdate', _zRenderProgress);
-    audio.addEventListener('play', () => { _zSetPlayingUI(true); _zmini.bar.classList.add('active'); });
-    audio.addEventListener('pause', () => { _zSetPlayingUI(false); });
-    audio.addEventListener('ended', () => { _zSetPlayingUI(false); audio.currentTime = 0; _zRenderProgress(); });
-  }
-
-  // Alterna a classe .is-playing na barra E nos inline do src ativo.
-  // O CSS cuida de trocar ícone, acender o botão e animar o equalizer.
-  function _zSetPlayingUI(playing) {
-    if (_zmini.bar) {
-      _zmini.bar.classList.toggle('is-playing', playing);
-      if (_zmini.els && _zmini.els.btn) _zmini.els.btn.setAttribute('aria-label', playing ? 'Pausar' : 'Tocar');
-    }
-    document.querySelectorAll('.zaudio[data-mounted]').forEach(p => {
-      const on = !!(playing && p.dataset.src && p.dataset.src === _zmini.src);
-      p.classList.toggle('is-playing', on);
-      const b = p.querySelector('.zaudio__btn');
-      if (b) b.setAttribute('aria-label', on ? 'Pausar' : 'Tocar');
-    });
-  }
-
-  // Atualiza barra de progresso/tempo na barra E nos inline do src ativo.
-  function _zRenderProgress() {
-    const a = _zmini.audio;
-    if (!a) return;
-    const d = a.duration || 0;
-    const pct = d ? (a.currentTime / d * 100) : 0;
-    if (_zmini.els) {
-      _zmini.els.fill.style.width = pct + '%';
-      _zmini.els.cur.textContent = _zfmtTime(a.currentTime);
-    }
-    document.querySelectorAll('.zaudio[data-mounted]').forEach(p => {
-      if (!p.dataset.src || p.dataset.src !== _zmini.src) return;
-      const fill = p.querySelector('.zaudio__fill');
-      const cur = p.querySelector('.zaudio__cur');
-      const dur = p.querySelector('.zaudio__dur');
-      if (fill) fill.style.width = pct + '%';
-      if (cur) cur.textContent = _zfmtTime(a.currentTime);
-      if (dur && d) dur.textContent = _zfmtTime(d);
-    });
-  }
-
-  // Aciona/alterna um src no motor único. Mesmo src → play/pause;
-  // src diferente → carrega e toca.
-  function _zPlaySrc(src, title) {
-    if (!src) return;
-    _zminiEnsure();
-    const a = _zmini.audio;
-    if (_zmini.src === src) {
-      if (a.paused) a.play(); else a.pause();
-      return;
-    }
-    _zmini.src = src;
-    _zmini.title = title || 'Áudio';
-    if (_zmini.els.title) _zmini.els.title.textContent = _zmini.title;
-    if (_zmini.els.dur) _zmini.els.dur.textContent = _zDurCache[src] != null ? _zfmtTime(_zDurCache[src]) : '--:--';
-    if (_zmini.els.cur) _zmini.els.cur.textContent = '0:00';
-    if (_zmini.els.fill) _zmini.els.fill.style.width = '0%';
-    a.src = src;
-    a.play();
-    _zmini.bar.classList.add('active');
-    _zSetPlayingUI(true);
-  }
-
-  // HTML do player inline (superfície de controle; sem <audio> próprio).
+  // HTML do player inline AUTO-CONTIDO — tem seu próprio <audio> e toca
+  // ali dentro (na cartinha / na página). Sem miniplayer ancorado.
   function _zaudioRender(opts) {
     _ensureZaudioStyle();
     const src = (opts && opts.src) ? opts.src : '';
-    const title = (opts && opts.title) ? opts.title : '';
     return `
-      <div class="zaudio" data-src="${_esc(src)}" data-title="${_esc(title)}">
+      <div class="zaudio" data-src="${_esc(src)}">
+        <audio preload="metadata" src="${_esc(src)}"></audio>
         <button type="button" class="zaudio__btn" aria-label="Tocar">
           <svg class="zaudio__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
           <svg class="zaudio__icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
@@ -413,29 +292,59 @@
       </div>`;
   }
 
-  // Liga os players inline ainda não montados dentro de `root`.
+  // Liga os players inline ainda não montados dentro de `root`. Cada um
+  // toca no próprio <audio>. Só um por vez (ao tocar, pausa os outros).
   function _zaudioMount(root) {
     if (!root) return;
     _ensureZaudioStyle();
-    _zminiEnsure();
+    _zWirePagehide();
     root.querySelectorAll('.zaudio:not([data-mounted])').forEach(p => {
       p.setAttribute('data-mounted', '1');
-      const src = p.dataset.src || '';
-      const title = p.dataset.title || '';
+      const audio = p.querySelector('audio');
       const btn = p.querySelector('.zaudio__btn');
       const track = p.querySelector('.zaudio__track');
-      const durEl = p.querySelector('.zaudio__dur');
-      // Mostra a duração total mesmo antes de tocar (se não for o ativo).
-      if (src) _zProbeDuration(src, (d) => { if (durEl && _zmini.src !== src) durEl.textContent = _zfmtTime(d); });
-      if (btn) btn.addEventListener('click', () => _zPlaySrc(src, title));
-      if (track) _zBindTrack(track, (ratio) => {
-        if (_zmini.src !== src) { _zPlaySrc(src, title); return; }
-        if (_zmini.audio && _zmini.audio.duration) { _zmini.audio.currentTime = ratio * _zmini.audio.duration; _zRenderProgress(); }
+      const fill = p.querySelector('.zaudio__fill');
+      const cur = p.querySelector('.zaudio__cur');
+      const dur = p.querySelector('.zaudio__dur');
+      const src = p.dataset.src || (audio && audio.src) || '';
+      if (!audio || !btn || !track) return;
+      let lastSaved = -10;
+
+      // Ao ter metadados: mostra duração e RETOMA de onde parou (se houver
+      // posição salva). Não dá play sozinho — o navegador bloqueia após
+      // navegação; só posiciona, e a pessoa toca pra continuar.
+      const onMeta = () => {
+        if (dur) dur.textContent = _zfmtTime(audio.duration);
+        const saved = _zLoadPos(src);
+        if (saved > 3 && audio.duration && saved < audio.duration - 2) {
+          try { audio.currentTime = saved; } catch (e) {}
+          if (fill) fill.style.width = (saved / audio.duration * 100) + '%';
+          if (cur) cur.textContent = _zfmtTime(saved);
+        }
+      };
+      audio.addEventListener('loadedmetadata', onMeta);
+      if (audio.readyState >= 1) onMeta();
+
+      audio.addEventListener('timeupdate', () => {
+        const d = audio.duration || 0;
+        if (fill) fill.style.width = d ? (audio.currentTime / d * 100) + '%' : '0%';
+        if (cur) cur.textContent = _zfmtTime(audio.currentTime);
+        if (Math.abs(audio.currentTime - lastSaved) >= 5) { lastSaved = audio.currentTime; _zSavePos(src, audio.currentTime); }
+      });
+      audio.addEventListener('play', () => {
+        document.querySelectorAll('.zaudio audio').forEach(a => { if (a !== audio && !a.paused) a.pause(); });
+        p.classList.add('is-playing');
+        btn.setAttribute('aria-label', 'Pausar');
+      });
+      audio.addEventListener('pause', () => { p.classList.remove('is-playing'); btn.setAttribute('aria-label', 'Tocar'); _zSavePos(src, audio.currentTime); });
+      audio.addEventListener('ended', () => { p.classList.remove('is-playing'); if (fill) fill.style.width = '0%'; _zClearPos(src); });
+
+      btn.addEventListener('click', () => { if (audio.paused) audio.play(); else audio.pause(); });
+      _zBindTrack(track, (ratio) => {
+        if (audio.duration) { audio.currentTime = ratio * audio.duration; _zSavePos(src, audio.currentTime); }
+        if (fill) fill.style.width = (ratio * 100) + '%';
       });
     });
-    // Sincroniza estado inicial (caso o src ativo esteja entre os novos).
-    _zRenderProgress();
-    _zSetPlayingUI(_zmini.audio ? !_zmini.audio.paused : false);
   }
 
   async function _markSeen() {
@@ -475,7 +384,7 @@
     const basePath = _basePathForReader();
     ul.innerHTML = list.map(r => {
       const noteHtml = r.note
-        ? `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:6px; font-style:italic; line-height:1.4;">"${_esc(r.note)}"</div>`
+        ? `<div style="font-size:0.9rem; color:var(--text-main); margin-top:10px; font-style:italic; line-height:1.5; padding-left:12px; border-left:2px solid var(--accent);">"${_esc(r.note)}"</div>`
         : '';
       const dateStr = r.created_at
         ? new Date(r.created_at).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'pt-BR')
@@ -498,9 +407,11 @@
           : `<div style="font-size:0.78rem; color:#c00; margin-top:8px;">${lang === 'ja' ? '音声を読み込めませんでした。' : 'Não foi possível carregar o áudio.'}</div>`;
         return `
         <li style="position:relative;">
-          <div style="padding:14px 100px 14px 16px; border-bottom:1px solid var(--border);">
-            <div style="font-size:0.95rem; font-weight:500; color:var(--text-main);">🎵 ${_esc(audioTitle)}</div>
-            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
+          <div style="padding:14px 10px 14px 16px; border-bottom:1px solid var(--border);">
+            <div style="padding-right:92px;">
+              <div style="font-size:0.95rem; font-weight:500; color:var(--text-main);">🎵 ${_esc(audioTitle)}</div>
+              <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
+            </div>
             ${player}
             ${noteHtml}
           </div>
@@ -586,6 +497,8 @@
   function _close() {
     const overlay = document.getElementById('recommendationsModal');
     if (!overlay) return;
+    // Áudio vive dentro da cartinha: ao fechar, pausa o que estiver tocando.
+    overlay.querySelectorAll('audio').forEach(a => { try { a.pause(); } catch (e) {} });
     overlay.classList.remove('active');
     document.body.style.overflow = '';
   }

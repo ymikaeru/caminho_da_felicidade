@@ -330,14 +330,9 @@
                         </div>
                         <a href="poesia.html" class="topic-card"
                             style="flex-direction:column; align-items:flex-start; padding: 28px 32px; gap:8px;">
-                            <div style="display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;">
-                                <span style="font-family:'Noto Serif JP', serif; font-size:26px; font-weight:700; color:var(--text-main); letter-spacing:0.04em;">明麿近詠集</span>
-                                <span style="font-family:'Noto Serif JP', serif; font-size:20px; color:var(--text-muted); opacity:.5;">·</span>
-                                <span style="font-family:'Noto Serif JP', serif; font-size:26px; font-weight:700; color:var(--text-main); letter-spacing:0.04em;">山と水</span>
-                                <span style="font-family:'Noto Serif JP', serif; font-size:20px; color:var(--text-muted); opacity:.5;">·</span>
-                                <span style="font-family:'Noto Serif JP', serif; font-size:26px; font-weight:700; color:var(--text-main); letter-spacing:0.04em;">笑の泉</span>
-                                <span style="font-family:'Noto Serif JP', serif; font-size:20px; color:var(--text-muted); opacity:.5;">·</span>
-                                <span style="font-family:'Noto Serif JP', serif; font-size:26px; font-weight:700; color:var(--text-main); letter-spacing:0.04em;">御讃歌集</span>
+                            <div class="topic-card__title" style="font-size:22px; flex:0 0 auto;">
+                                <span class="lang-pt">Poesia e Cantos Sagrados</span>
+                                <span class="lang-ja" style="display:none">詩歌・御讃歌集</span>
                             </div>
                             <div class="topic-card__tagline" style="margin: 0;">
                                 <span class="lang-pt">Akimaro Kin'eishū · Yama to Mizu · Warai no Izumi · Gosanka-shū</span>
@@ -391,7 +386,7 @@
     <script src="js/access.js?v=5"></script>
     <script src="js/modals.js?v=4"></script>
     <script src="js/highlights.js?v=6" defer></script>
-    <script src="js/recommendations.js?v=19" defer></script>
+    <script src="js/recommendations.js?v=24" defer></script>
     <script src="js/playlists.js?v=21" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => { buildSearchModal(); buildHistoryModal(); buildFavoritesModal(); buildHighlightsModal(); buildRecommendationsModal(); initSmartHome(); if (typeof revealPage === 'function') revealPage(); if (typeof initRecommendations === 'function') initRecommendations(); });

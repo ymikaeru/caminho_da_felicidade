@@ -370,6 +370,83 @@
     return name;
   }
 
+  // Dica de scroll: quando a lista tem mais do que cabe, aplica um fade
+  // (máscara) no topo/fim da área rolável indicando que dá pra rolar. O fade
+  // de baixo some ao chegar no fim; o de cima aparece depois de rolar.
+  function _ensureScrollHintStyle() {
+    if (document.getElementById('recScrollHintStyle')) return;
+    const s = document.createElement('style');
+    s.id = 'recScrollHintStyle';
+    s.textContent = `
+      #recommendationsResults.rec-more-below:not(.rec-more-above) {
+        -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent);
+                mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent);
+      }
+      #recommendationsResults.rec-more-above:not(.rec-more-below) {
+        -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px);
+                mask-image: linear-gradient(to bottom, transparent, #000 32px);
+      }
+      #recommendationsResults.rec-more-above.rec-more-below {
+        -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 40px), transparent);
+                mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 40px), transparent);
+      }
+      .rec-scroll-cue {
+        position: absolute; left: 50%; transform: translateX(-50%);
+        width: 34px; height: 34px; border-radius: 50%;
+        background: var(--surface); border: 1px solid var(--border);
+        box-shadow: 0 4px 14px rgba(0,0,0,0.14);
+        color: var(--accent); display: flex; align-items: center; justify-content: center;
+        opacity: 0; pointer-events: none; transition: opacity .25s ease; z-index: 5;
+      }
+      .rec-scroll-cue.is-visible { opacity: 1; animation: recCueBounce 1.5s ease-in-out infinite; }
+      @keyframes recCueBounce {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50%      { transform: translateX(-50%) translateY(4px); }
+      }
+      @media (prefers-reduced-motion: reduce) { .rec-scroll-cue.is-visible { animation: none; } }
+    `;
+    document.head.appendChild(s);
+  }
+
+  function _wireScrollHint(ul) {
+    if (!ul) return;
+    _ensureScrollHintStyle();
+    const modal = ul.closest('.search-modal');
+    // Setinha explícita (vive no .search-modal, fora da máscara da lista).
+    let cue = modal ? modal.querySelector('.rec-scroll-cue') : null;
+    if (modal && !cue) {
+      cue = document.createElement('div');
+      cue.className = 'rec-scroll-cue';
+      cue.setAttribute('aria-hidden', 'true');
+      cue.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+      modal.appendChild(cue);
+    }
+    const update = () => {
+      const moreBelow = (ul.scrollHeight - ul.scrollTop - ul.clientHeight) > 8;
+      const moreAbove = ul.scrollTop > 8;
+      ul.classList.toggle('rec-more-below', moreBelow);
+      ul.classList.toggle('rec-more-above', moreAbove);
+      if (cue && modal) {
+        if (moreBelow) {
+          // logo acima do que vem depois da lista (áudio/rodapé).
+          const belowH = modal.clientHeight - (ul.offsetTop + ul.clientHeight);
+          cue.style.bottom = (belowH + 10) + 'px';
+          cue.classList.add('is-visible');
+        } else {
+          cue.classList.remove('is-visible');
+        }
+      }
+    };
+    if (!ul.dataset.scrollHintWired) {
+      ul.dataset.scrollHintWired = '1';
+      ul.addEventListener('scroll', update, { passive: true });
+    }
+    update();
+    // re-checa quando a fonte serifada carrega (muda a altura) e num tick extra
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(update).catch(() => {});
+    setTimeout(update, 120);
+  }
+
   function _renderList(list) {
     const ul = document.getElementById('recommendationsResults');
     if (!ul) return;
@@ -384,14 +461,7 @@
     const basePath = _basePathForReader();
 
     // ── helpers ────────────────────────────────────────────────────────
-    const SVG = {
-      teaching: `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
-      audio:    `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
-      poetry:   `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/></svg>`,
-    };
-    const iconCircle = (type) =>
-      `<div style="width:30px;height:30px;border-radius:50%;background:var(--accent-soft,rgba(184,134,11,.13));color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${SVG[type]}</div>`;
-
+    // Sem ícones (design nórdico): a tipografia carrega a hierarquia.
     const relDate = (iso) => {
       if (!iso) return '';
       const d = new Date(iso);
@@ -407,33 +477,35 @@
       const isJP = s => /[぀-ヿ㐀-鿿]/.test(s);
       const pt = poemText.split('\n').filter(s => s && !isJP(s));
       if (!pt.length) return '';
-      return `<div style="font-size:0.85rem;color:var(--text-muted);font-family:'Crimson Pro',Georgia,serif;font-style:italic;line-height:1.55;margin-top:6px;">${_esc(pt.join(' / '))}</div>`;
+      return `<div style="font-size:0.92rem;color:var(--text-muted);font-family:'Crimson Pro',Georgia,serif;font-style:italic;line-height:1.55;">${_esc(pt.join(' / '))}</div>`;
     };
 
-    // Layout: [icon] [title block] [×]
-    // Below: indent 40px (icon+gap) for secondary content
-    const card = ({ type, title, titleHref, meta, below, recId }) => {
+    // Card nórdico: sem ícone, sem linha separadora. Hierarquia por tipo —
+    // eyebrow (coletânea, opcional) → título serifado → meta → nota/trecho.
+    // Itens separados por espaço (padding), não por borda.
+    const card = ({ kicker, title, titleHref, meta, below, recId }) => {
       const archLabel = lang === 'ja' ? 'アーカイブ' : 'Arquivar';
       const titleHtml = titleHref
-        ? `<a href="${titleHref}" style="color:inherit;text-decoration:none;font-size:0.95rem;font-weight:600;line-height:1.3;">${_esc(title)}</a>`
-        : `<span style="font-size:0.95rem;font-weight:600;line-height:1.3;color:var(--text-main);">${_esc(title)}</span>`;
+        ? `<a href="${titleHref}" style="display:block;font-family:'Crimson Pro',Georgia,serif;font-size:1.12rem;font-weight:600;line-height:1.3;color:var(--text-main);text-decoration:none;">${_esc(title)}</a>`
+        : `<span style="display:block;font-family:'Crimson Pro',Georgia,serif;font-size:1.12rem;font-weight:600;line-height:1.3;color:var(--text-main);">${_esc(title)}</span>`;
+      const kickerHtml = kicker
+        ? `<div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--font-ui);letter-spacing:.03em;margin-bottom:5px;">${_esc(kicker)}</div>`
+        : '';
       const archiveBtn = `<button type="button" data-rec-id="${_esc(recId)}" class="rec-archive-btn"
               title="${archLabel}" aria-label="${archLabel}"
-              style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px;opacity:0.45;display:flex;align-items:center;flex-shrink:0;align-self:flex-start;margin-top:1px;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+              style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;margin:-6px -6px 0 0;opacity:0.55;display:flex;align-items:center;flex-shrink:0;align-self:flex-start;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
             </button>`;
       return `
-        <li style="padding:5px 12px;">
-          <div style="padding:12px;border-bottom:1px solid var(--border);">
-            <div style="display:flex;align-items:flex-start;gap:10px;">
-              ${iconCircle(type)}
-              <div style="flex:1;min-width:0;">
-                ${titleHtml}
-                ${meta ? `<div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;">${meta}</div>` : ''}
-              </div>
-              ${archiveBtn}
+        <li style="padding:6px 24px 22px;">
+          <div style="display:flex;align-items:flex-start;gap:18px;">
+            <div style="flex:1;min-width:0;">
+              ${kickerHtml}
+              ${titleHtml}
+              ${meta ? `<div style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-ui);margin-top:7px;letter-spacing:.02em;">${meta}</div>` : ''}
+              ${below ? `<div style="margin-top:9px;display:flex;flex-direction:column;gap:8px;">${below}</div>` : ''}
             </div>
-            ${below ? `<div style="margin-top:8px;padding-left:40px;">${below}</div>` : ''}
+            ${archiveBtn}
           </div>
         </li>`;
     };
@@ -459,20 +531,27 @@
       const metaParts = [recommender, date, expHtml].filter(Boolean);
       const meta = metaParts.join(`<span style="margin:0 4px;opacity:0.35;">·</span>`);
       const noteHtml = r.note
-        ? `<div style="font-size:0.83rem;color:var(--text-muted);font-style:italic;line-height:1.45;">"${_esc(r.note)}"</div>`
+        ? `<div style="font-family:'Crimson Pro',Georgia,serif;font-size:0.96rem;color:var(--text-muted);font-style:italic;line-height:1.5;">"${_esc(r.note)}"</div>`
         : '';
       const g = _typeOrd(r);
+      // Rótulo de seção quieto. Separação por espaço (sem linha): o primeiro
+      // vem mais colado ao cabeçalho, os seguintes com respiro generoso.
       const groupHdr = g !== _prevGroup
-        ? `<li style="padding:10px 24px 3px;"><span style="font-size:0.62rem;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;">${_groupLabel[g]}</span></li>`
+        ? `<li style="padding:${_prevGroup === -1 ? '20px' : '32px'} 24px 12px;"><span style="font-size:0.66rem;font-weight:600;letter-spacing:.18em;color:var(--text-muted);text-transform:uppercase;opacity:0.7;font-family:var(--font-ui);">${_groupLabel[g]}</span></li>`
         : '';
       _prevGroup = g;
 
       if (r.vol === 'poetry') {
         let phref = `${basePath}${r.file}.html?poem=${encodeURIComponent(r.poem_topic_id || '')}&hl_scroll=1`;
         if (lang === 'ja') phref += '&lang=ja';
-        const ptitle = r.poem_title || '(poema)';
+        // poem_title = "<Coletânea> · № N — <Título>" (ver _composeTitle, poetry-recommend.js).
+        // Separa no 1º " — ": antes = coletânea (eyebrow discreto), depois = título (manchete).
+        const raw = r.poem_title || '(poema)';
+        const dash = raw.indexOf(' — ');
+        const kicker = dash >= 0 ? raw.slice(0, dash).trim() : '';
+        const ptitle = dash >= 0 ? raw.slice(dash + 3).trim() : raw;
         const below = ptExcerpt(r.poem_text) + noteHtml;
-        return groupHdr + card({ type: 'poetry', title: ptitle, titleHref: phref, meta, below: below || '', recId: r.id });
+        return groupHdr + card({ kicker, title: ptitle, titleHref: phref, meta, below: below || '', recId: r.id });
       }
 
       const title = (lang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '(sem título)');
@@ -480,7 +559,7 @@
       let href = `${basePath}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
       if (idx > 0) href += `&topic=${idx}`;
       if (lang === 'ja') href += '&lang=ja';
-      return groupHdr + card({ type: 'teaching', title, titleHref: href, meta, below: noteHtml, recId: r.id });
+      return groupHdr + card({ title, titleHref: href, meta, below: noteHtml, recId: r.id });
     }).join('');
 
     // ── footer de áudio (fixo, compacto, acima de "Gerenciar todas") ────
@@ -491,36 +570,36 @@
         audioFooter.innerHTML = '';
       } else {
         audioFooter.style.display = 'block';
-        // Mini-player compacto: [▶] Título ━━━━━━━━ 0:00/65:05 [⬛]
-        // Reutiliza as classes zaudio para que _zaudioMount funcione normalmente.
-        audioFooter.innerHTML = audioList.map(r => {
+        // Áudio nórdico: hairline + rótulo "ÁUDIO" + player calmo. Sem faixa
+        // dourada/sombra — o botão play (círculo contornado) é o único acento.
+        // Classes zaudio mantidas pro _zaudioMount achar btn/track/fill/cur/dur.
+        const audioLbl = lang === 'ja' ? '音声' : 'Áudio';
+        const players = audioList.map((r, i) => {
           const audioTitle = r.audio_title || (lang === 'ja' ? '音声' : 'Áudio');
           const src = r._audioUrl || '';
-          const noteHtml = r.note ? `<div style="padding:0 14px 10px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">"${_esc(r.note)}"</div>` : '';
-          // Container com bg dourado cobre player + nota.
-          // .zaudio fica sem bg/borda próprios — herda do wrapper.
+          const aNote = r.note ? `<div style="font-family:'Crimson Pro',Georgia,serif;font-size:0.96rem;color:var(--text-muted);font-style:italic;line-height:1.45;">"${_esc(r.note)}"</div>` : '';
+          const mt = i > 0 ? 'margin-top:22px;' : '';
           return src ? `
-            <div style="border-top:2px solid var(--accent);box-shadow:0 -8px 20px rgba(0,0,0,0.10);background:var(--accent-soft,rgba(184,134,11,.12));">
-              <div class="zaudio" data-src="${_esc(src)}"
-                style="margin-top:0;padding:10px 14px;border:none;box-shadow:none;background:transparent;gap:10px;border-radius:0;align-items:center;">
-                <audio preload="metadata" src="${_esc(src)}"></audio>
-                <button type="button" class="zaudio__btn" aria-label="Tocar"
-                  style="width:28px;height:28px;flex-shrink:0;border-radius:5px;align-self:center;">
-                  <svg class="zaudio__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;margin-left:0;"><path d="M8 5v14l11-7z"/></svg>
-                  <svg class="zaudio__icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
-                </button>
-                <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;align-self:center;">
-                  <div style="font-size:0.82rem;font-weight:600;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(audioTitle)}</div>
-                  <div style="display:flex;align-items:center;gap:6px;">
-                    <div class="zaudio__track" aria-hidden="true" style="flex:1;"><div class="zaudio__fill"><span class="zaudio__handle"></span></div></div>
-                    <div class="zaudio__time" style="font-size:0.62rem;white-space:nowrap;flex-shrink:0;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
-                  </div>
+            <div class="zaudio" data-src="${_esc(src)}"
+              style="${mt}padding:0;border:none;box-shadow:none;background:transparent;border-radius:0;gap:18px;align-items:flex-start;">
+              <audio preload="metadata" src="${_esc(src)}"></audio>
+              <button type="button" class="zaudio__btn" aria-label="Tocar"
+                style="width:42px;height:42px;flex-shrink:0;border-radius:50%;align-self:flex-start;margin-top:1px;">
+                <svg class="zaudio__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:14px;height:14px;margin-left:2px;"><path d="M8 5v14l11-7z"/></svg>
+                <svg class="zaudio__icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:14px;height:14px;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+              </button>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:9px;">
+                <div style="font-family:'Crimson Pro',Georgia,serif;font-size:1.08rem;font-weight:600;color:var(--text-main);line-height:1.3;">${_esc(audioTitle)}</div>
+                ${aNote}
+                <div style="display:flex;align-items:center;gap:12px;margin-top:2px;">
+                  <div class="zaudio__track" aria-hidden="true" style="flex:1;"><div class="zaudio__fill"><span class="zaudio__handle"></span></div></div>
+                  <div class="zaudio__time" style="font-size:0.68rem;white-space:nowrap;flex-shrink:0;letter-spacing:.04em;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
                 </div>
               </div>
-              ${noteHtml}
             </div>`
-          : `<div style="padding:10px 14px;border-top:1px solid var(--border);font-size:0.82rem;font-weight:600;">${_esc(audioTitle)}</div>`;
+          : `<div style="${mt}font-family:'Crimson Pro',Georgia,serif;font-size:1.05rem;font-weight:600;">${_esc(audioTitle)}</div>`;
         }).join('');
+        audioFooter.innerHTML = `<div style="border-top:1px solid var(--border);padding:24px 24px 20px;"><div style="font-size:0.66rem;font-weight:600;letter-spacing:.18em;color:var(--text-muted);text-transform:uppercase;opacity:0.7;font-family:var(--font-ui);margin-bottom:16px;">${audioLbl}</div>${players}</div>`;
         _zaudioMount(audioFooter);
       }
     }
@@ -559,6 +638,9 @@
       modal.dataset.archiveWired = '1';
       modal.addEventListener('click', _archiveHandler);
     }
+
+    // Lista pronta — liga a dica de scroll (fade no topo/fim se houver overflow).
+    _wireScrollHint(ul);
   }
 
   // Trava o scroll da pagina atras do modal. No mobile (iOS Safari)

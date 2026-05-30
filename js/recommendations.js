@@ -420,6 +420,23 @@
       `;
       }
 
+      // Recomendação de POESIA — link direto pra coletânea com autoscroll.
+      if (r.vol === 'poetry') {
+        const ptitle = r.poem_title || '(poema)';
+        let phref = `${basePath}${r.file}.html?poem=${encodeURIComponent(r.poem_topic_id || '')}&hl_scroll=1`;
+        if (lang === 'ja') phref += '&lang=ja';
+        return `
+        <li style="position:relative;">
+          <a href="${phref}" style="display:block; padding:14px 100px 14px 16px; text-decoration:none; color:inherit; border-bottom:1px solid var(--border);">
+            <div style="font-size:0.95rem; font-weight:500; color:var(--text-main);">${_esc(ptitle)}</div>
+            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
+            ${noteHtml}
+          </a>
+          ${archiveBtn}
+        </li>
+      `;
+      }
+
       // Recomendação de ENSINAMENTO (comportamento original)
       const title = (lang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '(sem título)');
       const idx = r.topic_idx != null ? r.topic_idx : 0;

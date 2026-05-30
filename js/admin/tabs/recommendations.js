@@ -96,14 +96,20 @@ async function recLoadList() {
   const now = new Date();
   container.innerHTML = '<div style="display:flex; flex-direction:column; gap:8px;">' + recs.map(r => {
     const isAudio = !!r.audio_path;
+    const isPoetry = r.vol === 'poetry';
     const title = isAudio
       ? `🎵 ${r.audio_title || '(áudio sem título)'}`
-      : (r.title_pt || '(sem título)');
+      : isPoetry
+        ? `📜 ${r.poem_title || '(poema)'}`
+        : (r.title_pt || '(sem título)');
     // Linha de referência: ensinamento mostra vol/file#topic; áudio
-    // mostra "Áudio · <nome-do-arquivo>" (vol/file são nulos).
+    // mostra "Áudio · <nome-do-arquivo>" (vol/file são nulos); poesia
+    // mostra "Poesia · <coletânea>" (title vem de poem_title).
     const refLine = isAudio
       ? `Áudio${r.audio_path ? ' · ' + _escHtml(r.audio_path.split('/').pop()) : ''}`
-      : `${VOL_SHORT[r.vol] || r.vol} · ${_escHtml(r.file)}#${r.topic_idx}`;
+      : isPoetry
+        ? `Poesia · ${_escHtml(r.file)}`
+        : `${VOL_SHORT[r.vol] || r.vol} · ${_escHtml(r.file)}#${r.topic_idx}`;
     const expired = r.expires_at && new Date(r.expires_at) <= now;
     const archived = !!r.archived_at;
     const inactive = expired || archived;
@@ -151,7 +157,11 @@ async function recLoadList() {
             ${noteHtml}
           </div>
           <div style="display:flex; gap:6px; flex-shrink:0;">
-            ${isAudio ? '' : `<a href="reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}&topic=${encodeURIComponent(r.topic_idx)}" target="_blank" rel="noopener" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer; text-decoration:none; white-space:nowrap;" title="Abrir o ensinamento numa nova aba">↗ Abrir</a>`}
+            ${isAudio
+              ? ''
+              : isPoetry
+                ? `<a href="${encodeURIComponent(r.file)}.html?poem=${encodeURIComponent(r.poem_topic_id || '')}&hl_scroll=1" target="_blank" rel="noopener" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer; text-decoration:none; white-space:nowrap;" title="Abrir o poema numa nova aba">↗ Abrir</a>`
+                : `<a href="reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}&topic=${encodeURIComponent(r.topic_idx)}" target="_blank" rel="noopener" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer; text-decoration:none; white-space:nowrap;" title="Abrir o ensinamento numa nova aba">↗ Abrir</a>`}
             <button onclick="recDelete('${_escHtml(r.id)}')" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer;" title="Apagar permanentemente">✕</button>
           </div>
         </div>

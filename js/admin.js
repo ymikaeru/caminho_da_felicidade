@@ -27,7 +27,7 @@
     import './admin/tabs/translation-review.js';
     import './admin/tabs/translation-review-guia.js';
     import './admin/tabs/partial-citations.js?v=24';
-    import './admin/tabs/recommendations.js?v=4';
+    import './admin/tabs/recommendations.js?v=5';
     import './admin/tabs/poetry-versions.js?v=2';
 
     const VOLUMES = [

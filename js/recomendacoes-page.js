@@ -153,6 +153,27 @@
       `;
       }
 
+      // Recomendação de POESIA — título é link DIRETO pra coletânea (sem
+      // preview modal): abre a página e dá autoscroll até o poema
+      // (?poem=<âncora>&hl_scroll=1), convidando a descobrir os vizinhos.
+      if (r.vol === 'poetry') {
+        const ptitle = r.poem_title || '(poema)';
+        let phref = `${base}${r.file}.html?poem=${encodeURIComponent(r.poem_topic_id || '')}&hl_scroll=1`;
+        if (lang === 'ja') phref += '&lang=ja';
+        return `
+        <article class="${cardCls}">
+          <div class="rec-card-body">
+            <h2 class="rec-card-title"><a href="${phref}">${_esc(ptitle)}</a></h2>
+            ${metaHtml}
+            ${noteHtml}
+          </div>
+          <div class="rec-card-actions">
+            ${actionBtn}
+          </div>
+        </article>
+      `;
+      }
+
       // Recomendação de ENSINAMENTO — título abre um preview modal em vez
       // de navegar pro reader direto. Evita conflito popstate/scroll do
       // reader quando user tenta trocar tópico. CTA do modal abre o reader.

@@ -242,10 +242,12 @@
     <script src="js/access.js?v=5"></script>
     <script src="js/modals.js?v=5"></script>
     <script src="js/playlists.js?v=21" defer></script>
+    <script src="js/recommendations.js?v=52" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            buildSearchModal(); buildHistoryModal(); buildFavoritesModal();
+            buildSearchModal(); buildHistoryModal(); buildFavoritesModal(); buildRecommendationsModal();
             if (typeof revealPage === 'function') revealPage();
+            if (typeof initRecommendations === 'function') initRecommendations();
         });
     </script>
 </body>

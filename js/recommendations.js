@@ -500,7 +500,7 @@
           // Container com bg dourado cobre player + nota.
           // .zaudio fica sem bg/borda próprios — herda do wrapper.
           return src ? `
-            <div style="border-top:1px solid var(--border);box-shadow:0 -6px 16px rgba(0,0,0,0.06);background:var(--accent-soft,rgba(184,134,11,.06));">
+            <div style="border-top:2px solid var(--accent);box-shadow:0 -8px 20px rgba(0,0,0,0.10);background:var(--accent-soft,rgba(184,134,11,.12));">
               <div class="zaudio" data-src="${_esc(src)}"
                 style="margin-top:0;padding:10px 14px;border:none;box-shadow:none;background:transparent;gap:10px;border-radius:0;align-items:center;">
                 <audio preload="metadata" src="${_esc(src)}"></audio>

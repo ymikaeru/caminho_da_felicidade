@@ -146,17 +146,36 @@
       // ── ÁUDIO ─────────────────────────────────────────────────────────
       if (r.audio_path) {
         const audioTitle = r.audio_title || (lang === 'ja' ? '音声' : 'Áudio');
-        const player = r._audioUrl
-          ? (window._zaudioRender
-              ? window._zaudioRender({ src: r._audioUrl, title: audioTitle })
-              : `<audio controls preload="none" src="${_esc(r._audioUrl)}" style="width:100%;margin-top:8px;"></audio>`)
-          : `<div style="font-size:0.85rem;color:#c00;">${lang === 'ja' ? '音声を読み込めませんでした。' : 'Não foi possível carregar o áudio.'}</div>`;
-        const noteAfterPlayer = r.note ? `<div style="margin-top:20px;">${noteHtml}</div>` : '';
-        return `
+        const src = r._audioUrl || '';
+        // Player compacto: [▶] Título ━━━━━━ 0:00/65:05
+        const compactPlayer = src ? `
+          <div class="zaudio" data-src="${_esc(src)}"
+            style="margin-top:0;padding:0;border:none;box-shadow:none;background:transparent;gap:10px;align-items:center;">
+            <audio preload="metadata" src="${_esc(src)}"></audio>
+            <button type="button" class="zaudio__btn" aria-label="Tocar"
+              style="width:28px;height:28px;flex-shrink:0;border-radius:5px;">
+              <svg class="zaudio__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;margin-left:0;"><path d="M8 5v14l11-7z"/></svg>
+              <svg class="zaudio__icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+            </button>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;">
+              <div style="font-size:0.82rem;font-weight:600;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(audioTitle)}</div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="zaudio__track" aria-hidden="true" style="flex:1;"><div class="zaudio__fill"><span class="zaudio__handle"></span></div></div>
+                <div class="zaudio__time" style="font-size:0.62rem;white-space:nowrap;flex-shrink:0;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
+              </div>
+            </div>
+          </div>` : `<div style="font-size:0.85rem;color:#c00;">${lang === 'ja' ? '音声を読み込めませんでした。' : 'Não foi possível carregar o áudio.'}</div>`;
+        const noteAfterPlayer = r.note ? `<div style="margin-top:12px;">${noteHtml}</div>` : '';
+        const el = `
         <article class="${cardCls}">
-          ${body('audio', `<h2 class="rec-card-title">${_esc(audioTitle)}</h2>`, player + noteAfterPlayer)}
+          <div class="rec-card-body">
+            ${compactPlayer}
+            ${noteAfterPlayer}
+          </div>
           <div class="rec-card-actions">${actionBtn}</div>
         </article>`;
+        // Monta o zaudio depois de inserido no DOM (via _zaudioMount no caller)
+        return el;
       }
 
       // ── POESIA ────────────────────────────────────────────────────────
@@ -236,22 +255,9 @@
       }
     });
 
-    // Caso 1: nada agrupado → renderiza com cabeçalhos de categoria.
+    // Caso 1: nada agrupado — renderiza sem cabeçalhos (ícone já diferencia o tipo)
     if (groups.size === 0) {
-      const labels = [
-        lang === 'ja' ? 'オーディオ' : 'Áudio',
-        lang === 'ja' ? '詩' : 'Poemas',
-        lang === 'ja' ? '教え' : 'Ensinamentos',
-      ];
-      let prevG = -1;
-      return loose.map(r => {
-        const g = _typeOrdPage(r);
-        const hdr = g !== prevG
-          ? `<div style="font-size:0.62rem;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;padding:16px 0 6px;">${labels[g]}</div>`
-          : '';
-        prevG = g;
-        return hdr + _renderOneCard(r, archived, lang, base);
-      }).join('');
+      return loose.map(r => _renderOneCard(r, archived, lang, base)).join('');
     }
 
     // Caso 2: tem grupos → renderiza cada um como <details open>, soltas

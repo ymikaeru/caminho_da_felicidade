@@ -46,10 +46,25 @@
       supa.rpc('get_my_recommendations'),
       supa.rpc('get_my_recommendations_archived'),
     ]);
-    return {
-      active: (a.data || []).filter(r => !_hiddenByAccess(r)),
-      archived: (b.data || []).filter(r => !_hiddenByAccess(r)),
-    };
+    const active = (a.data || []).filter(r => !_hiddenByAccess(r));
+    const archived = (b.data || []).filter(r => !_hiddenByAccess(r));
+    await Promise.all([_resolveAudioUrls(supa, active), _resolveAudioUrls(supa, archived)]);
+    return { active, archived };
+  }
+
+  // Recomendações de áudio guardam só o PATH no bucket privado. Mintamos
+  // uma signed URL (validade longa, cobre a sessão de escuta). Só funciona
+  // logado — anônimo não consegue gerar a URL.
+  async function _resolveAudioUrls(supa, list) {
+    const audios = (list || []).filter(r => r.audio_path);
+    if (audios.length === 0) return;
+    await Promise.all(audios.map(async (r) => {
+      try {
+        const { data, error } = await supa.storage
+          .from('rec-audio').createSignedUrl(r.audio_path, 43200);
+        if (!error && data) r._audioUrl = data.signedUrl;
+      } catch (e) { /* sem URL → player mostra fallback */ }
+    }));
   }
 
   function _basePathForReader() {
@@ -72,12 +87,6 @@
 
   // Renderiza UM card (sem header de grupo). Retorna HTML string.
   function _renderOneCard(r, archived, lang, base) {
-      const title = (lang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '(sem título)');
-      const idx = r.topic_idx != null ? r.topic_idx : 0;
-      let href = `${base}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
-      if (idx > 0) href += `&topic=${idx}`;
-      if (lang === 'ja') href += '&lang=ja';
-
       const createdStr = _formatDate(r.created_at, lang);
       const recommender = _displayRecommender(r.created_by_name);
       let metaExtra = '';
@@ -113,18 +122,50 @@
 
       const cardCls = archived ? 'rec-card archived' : 'rec-card';
 
-      // Título agora abre um preview modal em vez de navegar pro reader
-      // direto. Evita conflito popstate/scroll do reader quando user
-      // tenta trocar tópico. CTA do modal abre o reader completo.
-      return `
-        <article class="${cardCls}">
-          <div class="rec-card-body">
-            <h2 class="rec-card-title"><a href="${href}" class="rec-card-link" data-rec-id="${_esc(r.id)}" data-vol="${_esc(r.vol)}" data-file="${_esc(r.file)}" data-topic="${idx}" data-title-pt="${_esc(r.title_pt || '')}" data-title-ja="${_esc(r.title_ja || '')}">${_esc(title)}</a></h2>
+      const metaHtml = `
             <div class="rec-card-meta">
               ${recommender ? `<span>${_esc(recommender)}</span><span class="dot">·</span>` : ''}
               <span>${_esc(createdStr)}</span>
               ${metaExtra}
-            </div>
+            </div>`;
+
+      // Recomendação de ÁUDIO — título em texto puro (sem .rec-card-link),
+      // então o handler de preview não dispara; player nativo embutido.
+      if (r.audio_path) {
+        const audioTitle = r.audio_title || (lang === 'ja' ? '音声' : 'Áudio');
+        const player = r._audioUrl
+          ? (window._zaudioRender
+              ? window._zaudioRender({ src: r._audioUrl, title: audioTitle })
+              : `<audio controls preload="none" src="${_esc(r._audioUrl)}" style="width:100%; margin-top:10px;"></audio>`)
+          : `<div style="font-size:0.88rem; color:#c00; margin-top:8px;">${lang === 'ja' ? '音声を読み込めませんでした。' : 'Não foi possível carregar o áudio.'}</div>`;
+        return `
+        <article class="${cardCls}">
+          <div class="rec-card-body">
+            <h2 class="rec-card-title">🎵 ${_esc(audioTitle)}</h2>
+            ${metaHtml}
+            ${player}
+            ${noteHtml}
+          </div>
+          <div class="rec-card-actions">
+            ${actionBtn}
+          </div>
+        </article>
+      `;
+      }
+
+      // Recomendação de ENSINAMENTO — título abre um preview modal em vez
+      // de navegar pro reader direto. Evita conflito popstate/scroll do
+      // reader quando user tenta trocar tópico. CTA do modal abre o reader.
+      const title = (lang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '(sem título)');
+      const idx = r.topic_idx != null ? r.topic_idx : 0;
+      let href = `${base}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
+      if (idx > 0) href += `&topic=${idx}`;
+      if (lang === 'ja') href += '&lang=ja';
+      return `
+        <article class="${cardCls}">
+          <div class="rec-card-body">
+            <h2 class="rec-card-title"><a href="${href}" class="rec-card-link" data-rec-id="${_esc(r.id)}" data-vol="${_esc(r.vol)}" data-file="${_esc(r.file)}" data-topic="${idx}" data-title-pt="${_esc(r.title_pt || '')}" data-title-ja="${_esc(r.title_ja || '')}">${_esc(title)}</a></h2>
+            ${metaHtml}
             ${noteHtml}
           </div>
           <div class="rec-card-actions">
@@ -225,6 +266,7 @@
     if (!container) return;
     const list = _currentTab === 'archived' ? _archived : _active;
     container.innerHTML = _renderCards(list, _currentTab === 'archived');
+    if (window._zaudioMount) window._zaudioMount(container);
   }
 
   async function _refresh() {
@@ -485,7 +527,9 @@
       if (link) {
         e.preventDefault();
         // Constrói lista de itens da aba atual pra navegação prev/next.
-        const list = (_currentTab === 'archived' ? _archived : _active);
+        // Exclui áudios — o preview baixa o JSON do ensinamento e áudios
+        // não têm vol/file (prev/next pularia pra um item inválido).
+        const list = (_currentTab === 'archived' ? _archived : _active).filter(r => !r.audio_path);
         const items = list.map(r => {
           const idx = r.topic_idx != null ? r.topic_idx : 0;
           const lang = localStorage.getItem('site_lang') || 'pt';

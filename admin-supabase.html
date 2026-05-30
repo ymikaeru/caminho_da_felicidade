@@ -98,6 +98,7 @@
                 <div class="admin-tab" onclick="switchTab('destaques')">⭐ Destaques</div>
                 <div class="admin-tab" onclick="switchTab('saved')">🔖 Salvos</div>
                 <div class="admin-tab" onclick="switchTab('recommendations')">📤 Recomendações</div>
+                <div class="admin-tab" onclick="switchTab('recommend-audio')">🎵 Recomendar Áudio</div>
               </div>
             </div>
             <div class="tab-group" data-section="caminho">
@@ -710,6 +711,75 @@
                     <div class="loading" style="padding:16px;">Carregando...</div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recomendar Áudio Tab -->
+          <div class="tab-content" id="tab-recommend-audio">
+            <div style="margin-bottom:20px;">
+              <h2
+                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                Recomendar Áudio</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Suba um MP3 e envie como recomendação
+                avulsa. Marque "Selecionar todos" e desmarque quem não deve receber. O áudio aparece com um player na
+                cartinha do usuário. <strong>Enviar um novo áudio substitui o anterior automaticamente</strong> (apaga
+                de todos e libera o espaço no Storage).</p>
+            </div>
+            <div
+              style="background:var(--surface, var(--bg)); border:1px solid var(--border); border-radius:6px; padding:16px; max-width:880px;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+                <!-- Esquerda: arquivo + título + nota + prazo -->
+                <div>
+                  <input type="file" id="rec-audio-file" accept="audio/*"
+                    style="width:100%; padding:7px 10px; font-size:0.82rem; box-sizing:border-box; margin-bottom:10px; border:1px solid var(--border); border-radius:4px; background:var(--bg, #fff);"
+                    onchange="recAudioValidate()">
+                  <input type="text" id="rec-audio-title"
+                    placeholder="Título do áudio (ex.: 'Mensagem do Reverendo Walter')"
+                    style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box; margin-bottom:10px;"
+                    autocomplete="off" oninput="recAudioValidate()">
+                  <textarea id="rec-audio-note"
+                    placeholder="Nota opcional (ex.: 'pra ouvir com calma esta semana')" rows="2"
+                    style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box; font-family:inherit; resize:vertical; margin-bottom:10px;"></textarea>
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <label
+                      style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">Auto-arquivar:</label>
+                    <select id="rec-audio-expires"
+                      style="flex:1; padding:6px 10px; font-size:0.82rem; box-sizing:border-box;">
+                      <option value="">Sem prazo</option>
+                      <option value="7">Em 7 dias</option>
+                      <option value="15">Em 15 dias</option>
+                      <option value="30">Em 30 dias</option>
+                      <option value="90">Em 90 dias</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- Direita: destinatários (multi-seleção: selecionar todos + desmarcar) -->
+                <div>
+                  <div
+                    style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;">
+                    <label style="font-size:0.78rem; color:var(--text-muted);">Destinatários</label>
+                    <button type="button" id="rec-audio-selall" onclick="recAudioToggleAll()"
+                      style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer; padding:0; text-decoration:underline;">Selecionar
+                      todos</button>
+                  </div>
+                  <input type="text" id="rec-audio-user-search" placeholder="Buscar usuário por nome ou email..."
+                    style="width:100%; padding:7px 10px; font-size:0.82rem; box-sizing:border-box; margin-bottom:8px;"
+                    oninput="renderRecAudioUserList()">
+                  <div id="rec-audio-user-list"
+                    style="height:240px; overflow-y:auto; border:1px solid var(--border); border-radius:6px;">
+                    <div class="loading" style="padding:16px;">Carregando...</div>
+                  </div>
+                  <div id="rec-audio-selcount" style="font-size:0.72rem; color:var(--text-muted); margin-top:6px;">
+                    Nenhum selecionado</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center; margin-top:14px;">
+                <button class="btn-primary" onclick="recCreateAudio()" id="rec-audio-create-btn"
+                  style="font-size:0.82rem; padding:6px 16px;" disabled>Recomendar áudio</button>
+                <button class="btn-secondary" onclick="recClearAudioForm()"
+                  style="font-size:0.82rem; padding:6px 16px;">Limpar</button>
+                <span id="rec-audio-msg" style="font-size:0.8rem; color:var(--text-muted);"></span>
               </div>
             </div>
           </div>
@@ -1416,7 +1486,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=74"></script>
+  <script type="module" src="js/admin.js?v=76"></script>
 
 </body>
 

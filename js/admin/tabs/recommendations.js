@@ -95,7 +95,15 @@ async function recLoadList() {
   // visual distinto. Admin não recebe notificação — só vê histórico.
   const now = new Date();
   container.innerHTML = '<div style="display:flex; flex-direction:column; gap:8px;">' + recs.map(r => {
-    const title = r.title_pt || '(sem título)';
+    const isAudio = !!r.audio_path;
+    const title = isAudio
+      ? `🎵 ${r.audio_title || '(áudio sem título)'}`
+      : (r.title_pt || '(sem título)');
+    // Linha de referência: ensinamento mostra vol/file#topic; áudio
+    // mostra "Áudio · <nome-do-arquivo>" (vol/file são nulos).
+    const refLine = isAudio
+      ? `Áudio${r.audio_path ? ' · ' + _escHtml(r.audio_path.split('/').pop()) : ''}`
+      : `${VOL_SHORT[r.vol] || r.vol} · ${_escHtml(r.file)}#${r.topic_idx}`;
     const expired = r.expires_at && new Date(r.expires_at) <= now;
     const archived = !!r.archived_at;
     const inactive = expired || archived;
@@ -139,11 +147,11 @@ async function recLoadList() {
         <div style="display:flex; align-items:flex-start; gap:8px;">
           <div style="flex:1;">
             <div style="font-size:0.88rem; font-weight:500;">${_escHtml(title)}${stateTag}</div>
-            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${VOL_SHORT[r.vol] || r.vol} · ${_escHtml(r.file)}#${r.topic_idx} · criado ${created} · <span style="color:${seenColor};">${seenLabel}</span>${readHtml}${expiresHtml}</div>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${refLine} · criado ${created} · <span style="color:${seenColor};">${seenLabel}</span>${readHtml}${expiresHtml}</div>
             ${noteHtml}
           </div>
           <div style="display:flex; gap:6px; flex-shrink:0;">
-            <a href="reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}&topic=${encodeURIComponent(r.topic_idx)}" target="_blank" rel="noopener" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer; text-decoration:none; white-space:nowrap;" title="Abrir o ensinamento numa nova aba">↗ Abrir</a>
+            ${isAudio ? '' : `<a href="reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}&topic=${encodeURIComponent(r.topic_idx)}" target="_blank" rel="noopener" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer; text-decoration:none; white-space:nowrap;" title="Abrir o ensinamento numa nova aba">↗ Abrir</a>`}
             <button onclick="recDelete('${_escHtml(r.id)}')" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer;" title="Apagar permanentemente">✕</button>
           </div>
         </div>
@@ -290,6 +298,205 @@ async function recDelete(recId) {
   recLoadList();
 }
 
+// ============================================================
+// Recomendação de áudio (avulsa) — aba "Recomendar Áudio".
+// Upload no bucket privado `rec-audio` + envio em lote pros
+// destinatários marcados (multi-seleção com "selecionar todos").
+// Bloco independente do fluxo de ensinamento.
+// ============================================================
+const REC_AUDIO_BUCKET = 'rec-audio';
+let _recAudioSelectedIds = new Set();
+
+// Carrega a aba: garante allUsers e popula o checklist de destinatários.
+async function loadRecommendAudioTab() {
+  if (!Array.isArray(allUsers) || allUsers.length === 0) {
+    const { data, error } = await supabase.rpc('admin_get_users');
+    if (error) {
+      const el = document.getElementById('rec-audio-user-list');
+      if (el) el.innerHTML = `<div class="msg err" style="margin:12px;">Erro: ${_escHtml(error.message)}</div>`;
+      return;
+    }
+    setAllUsers(data || []);
+  }
+  renderRecAudioUserList();
+}
+
+function _recAudioFilteredUsers() {
+  const q = (document.getElementById('rec-audio-user-search')?.value || '').toLowerCase();
+  const users = allUsers || [];
+  if (!q) return users.slice();
+  return users.filter(u =>
+    (u.display_name || '').toLowerCase().includes(q) ||
+    (u.email || '').toLowerCase().includes(q));
+}
+
+function renderRecAudioUserList() {
+  const container = document.getElementById('rec-audio-user-list');
+  if (!container) return;
+  const filtered = _recAudioFilteredUsers();
+  if (filtered.length === 0) {
+    container.innerHTML = '<div style="padding:14px; color:var(--text-muted); font-size:0.82rem; text-align:center;">Nenhum usuário.</div>';
+    recAudioValidate();
+    return;
+  }
+  const prevScroll = container.scrollTop;
+  container.innerHTML = filtered.slice(0, 600).map(u => {
+    const sel = _recAudioSelectedIds.has(u.id);
+    const bg = sel
+      ? 'background:var(--accent-soft, rgba(184,134,11,0.12)); border-left:3px solid var(--accent);'
+      : 'border-left:3px solid transparent;';
+    const check = sel
+      ? '<span style="display:inline-flex; align-items:center; justify-content:center; width:17px; height:17px; border-radius:4px; background:var(--accent); color:#fff; font-size:0.72rem; flex-shrink:0;">✓</span>'
+      : '<span style="display:inline-block; width:17px; height:17px; border-radius:4px; border:1.5px solid var(--border); flex-shrink:0;"></span>';
+    return `
+      <div onclick="recAudioToggleUser('${_escHtml(u.id)}')" style="padding:7px 12px; cursor:pointer; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:9px; ${bg}">
+        ${check}
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:0.84rem; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_escHtml(u.display_name || 'Sem nome')}</div>
+          <div style="font-size:0.7rem; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_escHtml(u.email || '—')}</div>
+        </div>
+      </div>`;
+  }).join('');
+  container.scrollTop = prevScroll;
+  recAudioValidate();
+}
+
+function recAudioToggleUser(id) {
+  if (_recAudioSelectedIds.has(id)) _recAudioSelectedIds.delete(id);
+  else _recAudioSelectedIds.add(id);
+  renderRecAudioUserList();
+}
+
+// "Selecionar todos" respeita o filtro de busca: marca todos os
+// visíveis; se já estavam todos marcados, desmarca (vira toggle).
+function recAudioToggleAll() {
+  const visible = _recAudioFilteredUsers();
+  if (visible.length === 0) return;
+  const allSel = visible.every(u => _recAudioSelectedIds.has(u.id));
+  if (allSel) visible.forEach(u => _recAudioSelectedIds.delete(u.id));
+  else visible.forEach(u => _recAudioSelectedIds.add(u.id));
+  renderRecAudioUserList();
+}
+
+// Habilita o botão (arquivo + título + ≥1 destinatário), atualiza o
+// contador e o label do "Selecionar/Desmarcar todos".
+function recAudioValidate() {
+  const file = document.getElementById('rec-audio-file')?.files?.[0];
+  const title = (document.getElementById('rec-audio-title')?.value || '').trim();
+  const n = _recAudioSelectedIds.size;
+  const btn = document.getElementById('rec-audio-create-btn');
+  if (btn) {
+    btn.disabled = !(file && title && n > 0);
+    btn.textContent = n > 1 ? `Recomendar áudio (${n})` : 'Recomendar áudio';
+  }
+  const count = document.getElementById('rec-audio-selcount');
+  if (count) count.textContent = n === 0
+    ? 'Nenhum selecionado'
+    : (n === 1 ? '1 destinatário selecionado' : `${n} destinatários selecionados`);
+  const selAll = document.getElementById('rec-audio-selall');
+  if (selAll) {
+    const visible = _recAudioFilteredUsers();
+    const allSel = visible.length > 0 && visible.every(u => _recAudioSelectedIds.has(u.id));
+    selAll.textContent = allSel ? 'Desmarcar todos' : 'Selecionar todos';
+  }
+}
+
+// Lê o select de prazo do áudio e devolve ISO ou null.
+function _recAudioExpiresIso() {
+  const days = parseInt(document.getElementById('rec-audio-expires')?.value || '0', 10);
+  if (!days || days <= 0) return null;
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString();
+}
+
+// Sobe o arquivo no bucket privado e devolve o PATH (não a URL —
+// o cliente do usuário minta uma signed URL ao renderizar). Path
+// único via UUID pra evitar colisão.
+async function _recUploadAudio(file) {
+  const ext = (file.name.split('.').pop() || 'mp3').toLowerCase().replace(/[^a-z0-9]/g, '') || 'mp3';
+  const path = `audio/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from(REC_AUDIO_BUCKET).upload(path, file, {
+    contentType: file.type || 'audio/mpeg',
+    upsert: false,
+  });
+  if (error) throw error;
+  return path;
+}
+
+// "1 áudio por vez": apaga as recomendações do(s) áudio(s) anterior(es)
+// e remove os arquivos antigos do bucket (libera espaço, inclusive
+// órfãos de envios passados), preservando só o recém-enviado.
+// Não-fatal: qualquer falha aqui é logada mas não derruba o envio.
+async function _recPurgePreviousAudio(keepPath) {
+  try {
+    await supabase.rpc('admin_purge_other_audio_recommendations', { p_keep_path: keepPath });
+  } catch (e) {
+    console.warn('[audio] purge das recomendações antigas falhou:', e?.message || e);
+  }
+  try {
+    const { data: files } = await supabase.storage.from(REC_AUDIO_BUCKET).list('audio', { limit: 1000 });
+    const keepName = (keepPath || '').split('/').pop();
+    const toRemove = (files || [])
+      .filter(f => f.name && f.name !== keepName)
+      .map(f => `audio/${f.name}`);
+    if (toRemove.length) await supabase.storage.from(REC_AUDIO_BUCKET).remove(toRemove);
+  } catch (e) {
+    console.warn('[audio] limpeza do bucket falhou:', e?.message || e);
+  }
+}
+
+async function recCreateAudio() {
+  const file = document.getElementById('rec-audio-file')?.files?.[0];
+  const title = document.getElementById('rec-audio-title').value.trim();
+  const ids = Array.from(_recAudioSelectedIds);
+  if (!file || !title || ids.length === 0) return;
+  if (ids.length >= 10 && !confirm(`Recomendar o áudio "${title}" pra ${ids.length} usuários?\n\nCada um recebe uma cópia. Não dá pra desfazer em massa.`)) return;
+  const note = document.getElementById('rec-audio-note').value.trim();
+  const msg = document.getElementById('rec-audio-msg');
+  const btn = document.getElementById('rec-audio-create-btn');
+  btn.disabled = true;
+  msg.style.color = 'var(--text-muted)';
+  msg.textContent = `Enviando áudio pra ${ids.length} usuário${ids.length === 1 ? '' : 's'}...`;
+  try {
+    const path = await _recUploadAudio(file);
+    const { data, error } = await supabase.rpc('admin_create_audio_recommendations_bulk', {
+      p_user_ids: ids,
+      p_audio_path: path,
+      p_audio_title: title,
+      p_note: note || null,
+      p_expires_at: _recAudioExpiresIso(),
+    });
+    if (error) throw error;
+    // "1 áudio por vez": apaga as recomendações e os arquivos do áudio
+    // anterior (libera espaço). Não-fatal — não bloqueia o sucesso.
+    await _recPurgePreviousAudio(path);
+    const created = typeof data === 'number' ? data : ids.length;
+    recClearAudioForm();
+    msg.style.color = '#2c8a3e';
+    msg.textContent = `✓ Enviado pra ${created} usuário${created === 1 ? '' : 's'} (áudio anterior substituído).`;
+  } catch (e) {
+    msg.style.color = '#c00';
+    msg.textContent = 'Erro: ' + (e.message || String(e));
+    recAudioValidate();
+  }
+}
+
+function recClearAudioForm() {
+  const file = document.getElementById('rec-audio-file');
+  if (file) file.value = '';
+  const title = document.getElementById('rec-audio-title');
+  if (title) title.value = '';
+  const note = document.getElementById('rec-audio-note');
+  if (note) note.value = '';
+  const expires = document.getElementById('rec-audio-expires');
+  if (expires) expires.value = '';
+  const search = document.getElementById('rec-audio-user-search');
+  if (search) search.value = '';
+  _recAudioSelectedIds.clear();
+  renderRecAudioUserList();
+}
+
 // Fecha o dropdown de sugestões ao clicar fora.
 document.addEventListener('click', (e) => {
   const sug = document.getElementById('rec-teaching-suggestions');
@@ -308,5 +515,12 @@ Object.assign(window, {
   recClearForm,
   recCreate,
   recCreateAll,
-  recDelete
+  recDelete,
+  loadRecommendAudioTab,
+  renderRecAudioUserList,
+  recAudioToggleUser,
+  recAudioToggleAll,
+  recAudioValidate,
+  recCreateAudio,
+  recClearAudioForm
 });

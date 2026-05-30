@@ -417,20 +417,21 @@
       const titleHtml = titleHref
         ? `<a href="${titleHref}" style="color:inherit;text-decoration:none;font-size:0.95rem;font-weight:600;line-height:1.3;">${_esc(title)}</a>`
         : `<span style="font-size:0.95rem;font-weight:600;line-height:1.3;color:var(--text-main);">${_esc(title)}</span>`;
+      const archiveBtn = `<button type="button" data-rec-id="${_esc(recId)}" class="rec-archive-btn"
+              title="${archLabel}" aria-label="${archLabel}"
+              style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px;opacity:0.45;display:flex;align-items:center;flex-shrink:0;align-self:flex-start;margin-top:1px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+            </button>`;
       return `
         <li style="padding:5px 12px;">
-          <div style="position:relative;padding:12px 36px 12px 12px;border-bottom:1px solid var(--border);">
-            <button type="button" data-rec-id="${_esc(recId)}" class="rec-archive-btn"
-              title="${archLabel}" aria-label="${archLabel}"
-              style="position:absolute;top:10px;right:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;padding:2px 4px;opacity:0.5;display:flex;align-items:center;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-            </button>
+          <div style="padding:12px;border-bottom:1px solid var(--border);">
             <div style="display:flex;align-items:flex-start;gap:10px;">
               ${iconCircle(type)}
               <div style="flex:1;min-width:0;">
                 ${titleHtml}
                 ${meta ? `<div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;">${meta}</div>` : ''}
               </div>
+              ${archiveBtn}
             </div>
             ${below ? `<div style="margin-top:8px;padding-left:40px;">${below}</div>` : ''}
           </div>

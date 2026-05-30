@@ -508,7 +508,7 @@
           return src ? `
             <div class="zaudio" data-src="${_esc(src)}"
               style="margin-top:0;padding:10px 14px;border:none;border-top:1px solid var(--border);
-                     box-shadow:none;background:transparent;gap:10px;border-radius:0;align-items:center;">
+                     box-shadow:0 -6px 16px rgba(0,0,0,0.06);background:var(--accent-soft,rgba(184,134,11,.06));gap:10px;border-radius:0;align-items:center;">
               <audio preload="metadata" src="${_esc(src)}"></audio>
               <button type="button" class="zaudio__btn" aria-label="Tocar"
                 style="width:28px;height:28px;flex-shrink:0;border-radius:5px;align-self:center;">

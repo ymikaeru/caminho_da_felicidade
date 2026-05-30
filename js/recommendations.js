@@ -491,31 +491,40 @@
         audioFooter.innerHTML = '';
       } else {
         audioFooter.style.display = 'block';
+        // Mini-player compacto: [▶] Título ━━━━━━━━ 0:00/65:05 [⬛]
+        // Reutiliza as classes zaudio para que _zaudioMount funcione normalmente.
         audioFooter.innerHTML = audioList.map(r => {
           const audioTitle = r.audio_title || (lang === 'ja' ? '音声' : 'Áudio');
-          const player = r._audioUrl
-            ? _zaudioRender({ src: r._audioUrl, title: audioTitle })
-            : `<div style="font-size:0.78rem;color:#c00;">${lang === 'ja' ? '音声を読み込めませんでした。' : 'Não foi possível carregar o áudio.'}</div>`;
-          const noteHtml = r.note ? `<div style="margin-top:14px;font-size:0.83rem;color:var(--text-muted);font-style:italic;line-height:1.45;">"${_esc(r.note)}"</div>` : '';
+          const src = r._audioUrl || '';
           const archLabel = lang === 'ja' ? 'アーカイブ' : 'Arquivar';
           const archBtn = `<button type="button" data-rec-id="${_esc(r.id)}" class="rec-archive-btn" title="${archLabel}" aria-label="${archLabel}"
-            style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px;opacity:0.45;display:flex;align-items:center;flex-shrink:0;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+            style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px;opacity:0.4;display:flex;align-items:center;flex-shrink:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
           </button>`;
-          const recommender = _displayRecommender(r.created_by_name);
-          const date = relDate(r.created_at);
-          const meta = [recommender, date].filter(Boolean).join(' · ');
+          const noteHtml = r.note ? `<div style="padding:6px 14px 8px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">"${_esc(r.note)}"</div>` : '';
+          // Layout compacto numa só linha (sem padding extra do .zaudio — override inline)
+          const miniPlayer = src ? `
+            <div class="zaudio" data-src="${_esc(src)}"
+              style="margin-top:0;padding:0;border:none;box-shadow:none;background:transparent;flex:1;min-width:0;gap:8px;">
+              <audio preload="metadata" src="${_esc(src)}"></audio>
+              <button type="button" class="zaudio__btn" aria-label="Tocar"
+                style="width:30px;height:30px;flex-shrink:0;">
+                <svg class="zaudio__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:13px;height:13px;"><path d="M8 5v14l11-7z"/></svg>
+                <svg class="zaudio__icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:13px;height:13px;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+              </button>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;">
+                <div style="font-size:0.82rem;font-weight:600;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(audioTitle)}</div>
+                <div class="zaudio__track" aria-hidden="true"><div class="zaudio__fill"><span class="zaudio__handle"></span></div></div>
+              </div>
+              <div class="zaudio__time" style="font-size:0.65rem;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
+            </div>`
+            : `<div style="flex:1;font-size:0.82rem;font-weight:600;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(audioTitle)}</div>`;
           return `
-            <div style="padding:12px 14px;border-top:1px solid var(--border);background:var(--surface,var(--bg));">
-              <div style="display:flex;align-items:center;gap:10px;">
-                ${iconCircle('audio')}
-                <div style="flex:1;min-width:0;">
-                  <div style="font-size:0.9rem;font-weight:600;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(audioTitle)}</div>
-                  ${meta ? `<div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">${_esc(meta)}</div>` : ''}
-                </div>
+            <div style="border-top:1px solid var(--border);">
+              <div style="padding:10px 14px;display:flex;align-items:center;gap:8px;">
+                ${miniPlayer}
                 ${archBtn}
               </div>
-              <div style="margin-top:10px;">${player}</div>
               ${noteHtml}
             </div>`;
         }).join('');

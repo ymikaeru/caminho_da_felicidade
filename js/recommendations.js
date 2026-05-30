@@ -382,99 +382,94 @@
       return;
     }
     const basePath = _basePathForReader();
-    ul.innerHTML = list.map(r => {
-      const noteHtml = r.note
-        ? `<div style="font-size:0.9rem; color:var(--text-main); margin-top:10px; font-style:italic; line-height:1.5; padding-left:12px; border-left:2px solid var(--accent);">"${_esc(r.note)}"</div>`
-        : '';
-      const dateStr = r.created_at
-        ? new Date(r.created_at).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'pt-BR')
-        : '';
-      const recommender = _displayRecommender(r.created_by_name);
-      const expHtml = _expHtml(r, lang);
-      const metaPrefix = recommender ? `${_esc(recommender)} <span style="opacity:0.4;">·</span> ` : '';
-      const archiveLabel = lang === 'ja' ? 'アーカイブ' : 'Arquivar';
-      const archiveBtn = `<button type="button" data-rec-id="${_esc(r.id)}" aria-label="${archiveLabel}" title="${archiveLabel}" class="rec-archive-btn" style="position:absolute; top:12px; right:10px; background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; border-radius:4px; cursor:pointer; font-size:0.72rem; line-height:1; display:inline-flex; align-items:center; gap:5px; font-family:inherit;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-            ${archiveLabel}
-          </button>`;
 
-      // Recomendação de ÁUDIO — bloco NÃO-âncora: clique/seek no player
-      // não pode disparar navegação (o item de ensinamento é um <a>).
+    // ── helpers ────────────────────────────────────────────────────────
+    const SVG = {
+      teaching: `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+      audio:    `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+      poetry:   `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/></svg>`,
+    };
+    const iconCircle = (type) =>
+      `<div style="width:30px;height:30px;border-radius:50%;background:var(--accent-soft,rgba(184,134,11,.13));color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${SVG[type]}</div>`;
+
+    const relDate = (iso) => {
+      if (!iso) return '';
+      const d = new Date(iso);
+      const diff = Math.floor((Date.now() - d) / 86400000);
+      if (diff === 0) return lang === 'ja' ? '今日' : 'hoje';
+      if (diff === 1) return lang === 'ja' ? '昨日' : 'ontem';
+      if (diff < 7) return `${diff}d`;
+      return d.toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'pt-BR', { day: 'numeric', month: 'short' });
+    };
+
+    const ptExcerpt = (poemText) => {
+      if (!poemText) return '';
+      const isJP = s => /[぀-ヿ㐀-鿿]/.test(s);
+      const pt = poemText.split('\n').filter(s => s && !isJP(s));
+      if (!pt.length) return '';
+      return `<div style="font-size:0.85rem;color:var(--text-muted);font-family:'Crimson Pro',Georgia,serif;font-style:italic;line-height:1.55;margin-top:6px;">${_esc(pt.join(' / '))}</div>`;
+    };
+
+    // Layout: [icon] [title block] [×]
+    // Below: indent 40px (icon+gap) for secondary content
+    const card = ({ type, title, titleHref, meta, below, recId }) => {
+      const archLabel = lang === 'ja' ? 'アーカイブ' : 'Arquivar';
+      const titleHtml = titleHref
+        ? `<a href="${titleHref}" style="color:inherit;text-decoration:none;font-size:0.95rem;font-weight:600;line-height:1.3;">${_esc(title)}</a>`
+        : `<span style="font-size:0.95rem;font-weight:600;line-height:1.3;color:var(--text-main);">${_esc(title)}</span>`;
+      return `
+        <li style="padding:5px 12px;">
+          <div style="position:relative;padding:12px 36px 12px 12px;border-bottom:1px solid var(--border);">
+            <button type="button" data-rec-id="${_esc(recId)}" class="rec-archive-btn"
+              title="${archLabel}" aria-label="${archLabel}"
+              style="position:absolute;top:10px;right:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.1rem;line-height:1;padding:2px 5px;opacity:0.45;font-family:inherit;">×</button>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              ${iconCircle(type)}
+              <div style="flex:1;min-width:0;">
+                ${titleHtml}
+                ${meta ? `<div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;">${meta}</div>` : ''}
+              </div>
+            </div>
+            ${below ? `<div style="margin-top:8px;padding-left:40px;">${below}</div>` : ''}
+          </div>
+        </li>`;
+    };
+
+    // ── per-type ────────────────────────────────────────────────────────
+    ul.innerHTML = list.map(r => {
+      const recommender = _displayRecommender(r.created_by_name);
+      const date = relDate(r.created_at);
+      const expHtml = _expHtml(r, lang);
+      const metaParts = [recommender, date, expHtml].filter(Boolean);
+      const meta = metaParts.join(`<span style="margin:0 4px;opacity:0.35;">·</span>`);
+
+      const noteHtml = r.note
+        ? `<div style="font-size:0.83rem;color:var(--text-muted);font-style:italic;line-height:1.45;">"${_esc(r.note)}"</div>`
+        : '';
+
       if (r.audio_path) {
         const audioTitle = r.audio_title || (lang === 'ja' ? '音声' : 'Áudio');
         const player = r._audioUrl
           ? _zaudioRender({ src: r._audioUrl, title: audioTitle })
-          : `<div style="font-size:0.78rem; color:#c00; margin-top:8px;">${lang === 'ja' ? '音声を読み込めませんでした。' : 'Não foi possível carregar o áudio.'}</div>`;
-        return `
-        <li style="position:relative;">
-          <div style="padding:14px 10px 14px 16px; border-bottom:1px solid var(--border);">
-            <div style="padding-right:92px;">
-              <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:3px;">
-                <span style="font-size:0.6rem; font-weight:700; letter-spacing:.07em; padding:2px 7px; border-radius:99px; background:var(--accent-soft,rgba(184,134,11,.12)); color:var(--accent); text-transform:uppercase; flex-shrink:0;">Áudio</span>
-                <span style="font-size:0.95rem; font-weight:500; color:var(--text-main);">${_esc(audioTitle)}</span>
-              </div>
-              <div style="font-size:0.72rem; color:var(--text-muted);">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
-            </div>
-            ${player}
-            ${noteHtml}
-          </div>
-          ${archiveBtn}
-        </li>
-      `;
+          : `<div style="font-size:0.78rem;color:#c00;">${lang === 'ja' ? '音声を読み込めませんでした。' : 'Não foi possível carregar o áudio.'}</div>`;
+        return card({ type: 'audio', title: audioTitle, meta, below: player + noteHtml, recId: r.id });
       }
 
-      // Recomendação de POESIA — link direto pra coletânea com autoscroll.
       if (r.vol === 'poetry') {
-        const ptitle = r.poem_title || '(poema)';
         let phref = `${basePath}${r.file}.html?poem=${encodeURIComponent(r.poem_topic_id || '')}&hl_scroll=1`;
         if (lang === 'ja') phref += '&lang=ja';
-        // Trecho do poema: original (JP) em muted + tradução (PT) em destaque
-        let poemBlock = '';
-        if (r.poem_text) {
-          const isJP = s => /[぀-ヿ㐀-鿿]/.test(s);
-          const parts = r.poem_text.split('\n').filter(Boolean);
-          const jp = parts.filter(isJP);
-          const pt = parts.filter(s => !isJP(s));
-          poemBlock = `<div style="margin-top:10px; padding:9px 13px; border-left:2px solid var(--accent); font-family:'Crimson Pro',Georgia,serif; font-style:italic; line-height:1.65;">`;
-          if (jp.length) poemBlock += `<div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:5px;">${_esc(jp.join(' / '))}</div>`;
-          if (pt.length) poemBlock += `<div style="font-size:0.9rem; color:var(--text-main);">${_esc(pt.join(' / '))}</div>`;
-          poemBlock += `</div>`;
-        }
-        return `
-        <li style="position:relative;">
-          <a href="${phref}" style="display:block; padding:14px 100px 14px 16px; text-decoration:none; color:inherit; border-bottom:1px solid var(--border);">
-            <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:3px;">
-              <span style="font-size:0.6rem; font-weight:700; letter-spacing:.07em; padding:2px 7px; border-radius:99px; background:var(--accent-soft,rgba(184,134,11,.12)); color:var(--accent); text-transform:uppercase; flex-shrink:0;">Poema</span>
-              <div style="font-size:0.95rem; font-weight:500; color:var(--text-main);">${_esc(ptitle)}</div>
-            </div>
-            <div style="font-size:0.72rem; color:var(--text-muted);">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
-            ${poemBlock}
-            ${noteHtml}
-          </a>
-          ${archiveBtn}
-        </li>
-      `;
+        const ptitle = r.poem_title || '(poema)';
+        const below = ptExcerpt(r.poem_text) + noteHtml;
+        return card({ type: 'poetry', title: ptitle, titleHref: phref, meta, below: below || '', recId: r.id });
       }
 
-      // Recomendação de ENSINAMENTO (comportamento original)
+      // Ensinamento
       const title = (lang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '(sem título)');
       const idx = r.topic_idx != null ? r.topic_idx : 0;
       let href = `${basePath}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
       if (idx > 0) href += `&topic=${idx}`;
       if (lang === 'ja') href += '&lang=ja';
-      return `
-        <li style="position:relative;">
-          <a href="${href}" style="display:block; padding:14px 100px 14px 16px; text-decoration:none; color:inherit; border-bottom:1px solid var(--border);">
-            <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:3px;">
-              <span style="font-size:0.6rem; font-weight:700; letter-spacing:.07em; padding:2px 7px; border-radius:99px; background:var(--accent-soft,rgba(184,134,11,.12)); color:var(--accent); text-transform:uppercase; flex-shrink:0;">Ensinamento</span>
-              <span style="font-size:0.95rem; font-weight:500; color:var(--text-main);">${_esc(title)}</span>
-            </div>
-            <div style="font-size:0.72rem; color:var(--text-muted);">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
-            ${noteHtml}
-          </a>
-          ${archiveBtn}
-        </li>
-      `;
+      return card({ type: 'teaching', title, titleHref: href, meta, below: noteHtml, recId: r.id });
     }).join('');
 
     _zaudioMount(ul);

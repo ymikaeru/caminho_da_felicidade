@@ -85,129 +85,111 @@
     return name;
   }
 
+  // Ícones SVG por tipo
+  const _SVG = {
+    teaching: `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+    audio:    `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+    poetry:   `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/></svg>`,
+  };
+  const _iconCircle = (t) =>
+    `<div style="width:30px;height:30px;border-radius:50%;background:var(--accent-soft,rgba(184,134,11,.13));color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${_SVG[t]}</div>`;
+
   // Renderiza UM card (sem header de grupo). Retorna HTML string.
   function _renderOneCard(r, archived, lang, base) {
-      const createdStr = _formatDate(r.created_at, lang);
       const recommender = _displayRecommender(r.created_by_name);
+      const createdStr = _formatDate(r.created_at, lang);
+
+      // Meta secundária: prazo ou data de arquivamento
       let metaExtra = '';
       if (archived) {
         const archStr = _formatDate(r.archived_at, lang);
-        const archLbl = lang === 'ja' ? `アーカイブ: ${archStr}` : `arquivada ${archStr}`;
-        metaExtra = `<span class="dot">·</span><span>${_esc(archLbl)}</span>`;
+        metaExtra = ` <span style="opacity:.35;">·</span> ${_esc(lang === 'ja' ? `アーカイブ: ${archStr}` : `arquivada ${archStr}`)}`;
       } else if (r.expires_at) {
         const daysLeft = Math.ceil((new Date(r.expires_at) - new Date()) / 86400000);
         if (daysLeft > 0) {
           const expLbl = daysLeft === 1
-            ? (lang === 'ja' ? '明日に自動アーカイブ' : 'será arquivado amanhã')
-            : (lang === 'ja' ? `${daysLeft}日後に自動アーカイブ` : `será arquivado em ${daysLeft} dias`);
+            ? (lang === 'ja' ? '明日に自動アーカイブ' : 'arquivado amanhã')
+            : (lang === 'ja' ? `${daysLeft}日後に自動アーカイブ` : `arquivado em ${daysLeft}d`);
           const c = daysLeft <= 3 ? 'color:#c80;' : '';
-          metaExtra = `<span class="dot">·</span><span style="${c}">⏱ ${_esc(expLbl)}</span>`;
+          metaExtra = ` <span style="opacity:.35;">·</span> <span style="${c}">⏱ ${_esc(expLbl)}</span>`;
         }
       }
 
-      const noteHtml = r.note
-        ? `<div class="rec-card-note">"${_esc(r.note)}"</div>`
-        : '';
+      const metaLine = `<div class="rec-card-meta">${recommender ? `<span>${_esc(recommender)}</span><span class="dot">·</span>` : ''}<span>${_esc(createdStr)}</span>${metaExtra}</div>`;
+      const noteHtml = r.note ? `<div class="rec-card-note">"${_esc(r.note)}"</div>` : '';
 
-      // Botão de ação muda conforme estado
       const actionBtn = archived
-        ? `<button class="rec-action-btn primary" data-action="unarchive" data-rec-id="${_esc(r.id)}" type="button" title="${_esc(lang === 'ja' ? 'アーカイブから戻す' : 'Trazer de volta para Ativas')}">
+        ? `<button class="rec-action-btn primary" data-action="unarchive" data-rec-id="${_esc(r.id)}" type="button">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><polyline points="14 11 14 17 10 17"/></svg>
             <span>${_esc(lang === 'ja' ? '戻す' : 'Desarquivar')}</span>
           </button>`
-        : `<button class="rec-action-btn" data-action="archive" data-rec-id="${_esc(r.id)}" type="button" title="${_esc(lang === 'ja' ? 'アーカイブ' : 'Arquivar')}">
+        : `<button class="rec-action-btn" data-action="archive" data-rec-id="${_esc(r.id)}" type="button">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
             <span>${_esc(lang === 'ja' ? 'アーカイブ' : 'Arquivar')}</span>
           </button>`;
 
       const cardCls = archived ? 'rec-card archived' : 'rec-card';
 
-      const metaHtml = `
-            <div class="rec-card-meta">
-              ${recommender ? `<span>${_esc(recommender)}</span><span class="dot">·</span>` : ''}
-              <span>${_esc(createdStr)}</span>
-              ${metaExtra}
-            </div>`;
+      // Helper: monta o corpo interno do card com ícone + título + meta + conteúdo
+      const body = (type, titleHtml, content) => `
+        <div class="rec-card-body">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            ${_iconCircle(type)}
+            <div style="flex:1;min-width:0;">
+              ${titleHtml}
+              ${metaLine}
+            </div>
+          </div>
+          ${content ? `<div style="padding-left:40px;margin-top:6px;">${content}</div>` : ''}
+        </div>`;
 
-      // Recomendação de ÁUDIO — título em texto puro (sem .rec-card-link),
-      // então o handler de preview não dispara; player nativo embutido.
+      // ── ÁUDIO ─────────────────────────────────────────────────────────
       if (r.audio_path) {
         const audioTitle = r.audio_title || (lang === 'ja' ? '音声' : 'Áudio');
         const player = r._audioUrl
           ? (window._zaudioRender
               ? window._zaudioRender({ src: r._audioUrl, title: audioTitle })
-              : `<audio controls preload="none" src="${_esc(r._audioUrl)}" style="width:100%; margin-top:10px;"></audio>`)
-          : `<div style="font-size:0.88rem; color:#c00; margin-top:8px;">${lang === 'ja' ? '音声を読み込めませんでした。' : 'Não foi possível carregar o áudio.'}</div>`;
+              : `<audio controls preload="none" src="${_esc(r._audioUrl)}" style="width:100%;margin-top:8px;"></audio>`)
+          : `<div style="font-size:0.85rem;color:#c00;">${lang === 'ja' ? '音声を読み込めませんでした。' : 'Não foi possível carregar o áudio.'}</div>`;
         return `
         <article class="${cardCls}">
-          <div class="rec-card-body">
-            <h2 class="rec-card-title"><span style="display:inline-block; font-size:0.6rem; font-weight:700; letter-spacing:.07em; padding:2px 7px; border-radius:99px; background:var(--accent-soft,rgba(184,134,11,.12)); color:var(--accent); text-transform:uppercase; vertical-align:middle; margin-right:6px;">Áudio</span>${_esc(audioTitle)}</h2>
-            ${metaHtml}
-            ${player}
-            ${noteHtml}
-          </div>
-          <div class="rec-card-actions">
-            ${actionBtn}
-          </div>
-        </article>
-      `;
+          ${body('audio', `<h2 class="rec-card-title">${_esc(audioTitle)}</h2>`, player + noteHtml)}
+          <div class="rec-card-actions">${actionBtn}</div>
+        </article>`;
       }
 
-      // Recomendação de POESIA — título é link DIRETO pra coletânea (sem
-      // preview modal): abre a página e dá autoscroll até o poema
-      // (?poem=<âncora>&hl_scroll=1), convidando a descobrir os vizinhos.
+      // ── POESIA ────────────────────────────────────────────────────────
       if (r.vol === 'poetry') {
         const ptitle = r.poem_title || '(poema)';
         let phref = `${base}${r.file}.html?poem=${encodeURIComponent(r.poem_topic_id || '')}&hl_scroll=1`;
         if (lang === 'ja') phref += '&lang=ja';
-        // Trecho do poema: original JP (pequeno, muted) + tradução PT (destaque, itálico)
-        let poemBlock = '';
+        // Só a tradução em PT — limpo e legível
+        let poemExcerpt = '';
         if (r.poem_text) {
           const isJP = s => /[぀-ヿ㐀-鿿]/.test(s);
-          const parts = r.poem_text.split('\n').filter(Boolean);
-          const jp = parts.filter(isJP);
-          const pt = parts.filter(s => !isJP(s));
-          poemBlock = `<div style="margin:10px 0; padding:10px 14px; border-left:2px solid var(--accent); font-family:'Crimson Pro',Georgia,serif; font-style:italic; line-height:1.7;">`;
-          if (jp.length) poemBlock += `<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px;">${_esc(jp.join(' / '))}</div>`;
-          if (pt.length) poemBlock += `<div style="font-size:0.95rem; color:var(--text-main);">${_esc(pt.join(' / '))}</div>`;
-          poemBlock += `</div>`;
+          const pt = r.poem_text.split('\n').filter(s => s && !isJP(s));
+          if (pt.length) poemExcerpt = `<div style="font-size:0.88rem;color:var(--text-muted);font-family:'Crimson Pro',Georgia,serif;font-style:italic;line-height:1.55;">${_esc(pt.join(' / '))}</div>`;
         }
-        const poemBadge = `<span style="display:inline-block; font-size:0.6rem; font-weight:700; letter-spacing:.07em; padding:2px 7px; border-radius:99px; background:var(--accent-soft,rgba(184,134,11,.12)); color:var(--accent); text-transform:uppercase; vertical-align:middle; margin-right:6px;">Poema</span>`;
+        const titleHtml = `<h2 class="rec-card-title"><a href="${phref}" class="rec-card-link" data-rec-id="${_esc(r.id)}" data-vol="poetry" data-file="${_esc(r.file)}" data-topic="0" data-title-pt="${_esc(ptitle)}" data-title-ja="">${_esc(ptitle)}</a></h2>`;
         return `
         <article class="${cardCls}">
-          <div class="rec-card-body">
-            <h2 class="rec-card-title"><a href="${phref}">${poemBadge}${_esc(ptitle)}</a></h2>
-            ${metaHtml}
-            ${poemBlock}
-            ${noteHtml}
-          </div>
-          <div class="rec-card-actions">
-            ${actionBtn}
-          </div>
-        </article>
-      `;
+          ${body('poetry', titleHtml, poemExcerpt + noteHtml)}
+          <div class="rec-card-actions">${actionBtn}</div>
+        </article>`;
       }
 
-      // Recomendação de ENSINAMENTO — título abre um preview modal em vez
-      // de navegar pro reader direto. Evita conflito popstate/scroll do
-      // reader quando user tenta trocar tópico. CTA do modal abre o reader.
+      // ── ENSINAMENTO ───────────────────────────────────────────────────
       const title = (lang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '(sem título)');
       const idx = r.topic_idx != null ? r.topic_idx : 0;
       let href = `${base}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
       if (idx > 0) href += `&topic=${idx}`;
       if (lang === 'ja') href += '&lang=ja';
+      const titleHtml = `<h2 class="rec-card-title"><a href="${href}" class="rec-card-link" data-rec-id="${_esc(r.id)}" data-vol="${_esc(r.vol)}" data-file="${_esc(r.file)}" data-topic="${idx}" data-title-pt="${_esc(r.title_pt || '')}" data-title-ja="${_esc(r.title_ja || '')}">${_esc(title)}</a></h2>`;
       return `
         <article class="${cardCls}">
-          <div class="rec-card-body">
-            <h2 class="rec-card-title"><a href="${href}" class="rec-card-link" data-rec-id="${_esc(r.id)}" data-vol="${_esc(r.vol)}" data-file="${_esc(r.file)}" data-topic="${idx}" data-title-pt="${_esc(r.title_pt || '')}" data-title-ja="${_esc(r.title_ja || '')}"><span style="display:inline-block; font-size:0.6rem; font-weight:700; letter-spacing:.07em; padding:2px 7px; border-radius:99px; background:var(--accent-soft,rgba(184,134,11,.12)); color:var(--accent); text-transform:uppercase; vertical-align:middle; margin-right:6px;">Ensinamento</span>${_esc(title)}</a></h2>
-            ${metaHtml}
-            ${noteHtml}
-          </div>
-          <div class="rec-card-actions">
-            ${actionBtn}
-          </div>
-        </article>
-      `;
+          ${body('teaching', titleHtml, noteHtml)}
+          <div class="rec-card-actions">${actionBtn}</div>
+        </article>`;
   }
 
   // Renderiza a lista de cards, agrupando por source_collection_id quando

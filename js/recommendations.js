@@ -422,7 +422,9 @@
           <div style="position:relative;padding:12px 36px 12px 12px;border-bottom:1px solid var(--border);">
             <button type="button" data-rec-id="${_esc(recId)}" class="rec-archive-btn"
               title="${archLabel}" aria-label="${archLabel}"
-              style="position:absolute;top:10px;right:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.1rem;line-height:1;padding:2px 5px;opacity:0.45;font-family:inherit;">×</button>
+              style="position:absolute;top:10px;right:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;padding:2px 4px;opacity:0.5;display:flex;align-items:center;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+            </button>
             <div style="display:flex;align-items:flex-start;gap:10px;">
               ${iconCircle(type)}
               <div style="flex:1;min-width:0;">

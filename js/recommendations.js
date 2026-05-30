@@ -517,7 +517,7 @@
               <audio preload="metadata" src="${_esc(src)}"></audio>
               <button type="button" class="zaudio__btn" aria-label="Tocar"
                 style="width:28px;height:28px;flex-shrink:0;border-radius:5px;align-self:center;">
-                <svg class="zaudio__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;"><path d="M8 5v14l11-7z"/></svg>
+                <svg class="zaudio__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;margin-left:0;"><path d="M8 5v14l11-7z"/></svg>
                 <svg class="zaudio__icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
               </button>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;align-self:center;">

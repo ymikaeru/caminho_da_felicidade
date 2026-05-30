@@ -496,11 +496,6 @@
         audioFooter.innerHTML = audioList.map(r => {
           const audioTitle = r.audio_title || (lang === 'ja' ? '音声' : 'Áudio');
           const src = r._audioUrl || '';
-          const archLabel = lang === 'ja' ? 'アーカイブ' : 'Arquivar';
-          const archBtn = `<button type="button" data-rec-id="${_esc(r.id)}" class="rec-archive-btn" title="${archLabel}" aria-label="${archLabel}"
-            style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px;opacity:0.4;display:flex;align-items:center;flex-shrink:0;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-          </button>`;
           if (!document.getElementById('recAudioNoteStyle')) {
             const s = document.createElement('style');
             s.id = 'recAudioNoteStyle';
@@ -525,7 +520,6 @@
                 <div class="zaudio__track" aria-hidden="true"><div class="zaudio__fill"><span class="zaudio__handle"></span></div></div>
               </div>
               <div class="zaudio__time" style="font-size:0.65rem;white-space:nowrap;align-self:center;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
-              ${archBtn}
             </div>
             ${noteHtml}`
           : `<div style="padding:10px 14px;border-top:1px solid var(--border);font-size:0.82rem;font-weight:600;">${_esc(audioTitle)}</div>`;

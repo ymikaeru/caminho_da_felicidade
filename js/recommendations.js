@@ -513,18 +513,18 @@
           return src ? `
             <div class="zaudio" data-src="${_esc(src)}"
               style="margin-top:0;padding:10px 14px;border:none;border-top:1px solid var(--border);
-                     box-shadow:none;background:transparent;gap:10px;border-radius:0;">
+                     box-shadow:none;background:transparent;gap:10px;border-radius:0;align-items:center;">
               <audio preload="metadata" src="${_esc(src)}"></audio>
               <button type="button" class="zaudio__btn" aria-label="Tocar"
-                style="width:30px;height:30px;flex-shrink:0;">
-                <svg class="zaudio__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:13px;height:13px;"><path d="M8 5v14l11-7z"/></svg>
-                <svg class="zaudio__icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:13px;height:13px;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+                style="width:28px;height:28px;flex-shrink:0;border-radius:5px;align-self:center;">
+                <svg class="zaudio__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;"><path d="M8 5v14l11-7z"/></svg>
+                <svg class="zaudio__icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
               </button>
-              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;align-self:center;">
                 <div style="font-size:0.82rem;font-weight:600;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(audioTitle)}</div>
                 <div class="zaudio__track" aria-hidden="true"><div class="zaudio__fill"><span class="zaudio__handle"></span></div></div>
               </div>
-              <div class="zaudio__time" style="font-size:0.65rem;white-space:nowrap;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
+              <div class="zaudio__time" style="font-size:0.65rem;white-space:nowrap;align-self:center;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
               ${archBtn}
             </div>
             ${noteHtml}`

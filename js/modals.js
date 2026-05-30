@@ -159,6 +159,7 @@ function buildRecommendationsModal() {
         '<h2 id="recommendationsModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
       '</div>' +
       '<ul class="search-results" id="recommendationsResults" aria-live="polite"></ul>' +
+      '<div id="rec-audio-footer" style="display:none;"></div>' +
       '<div style="padding: 14px 18px; border-top: 1px solid var(--border); text-align: right;">' +
         '<a href="' + basePath + 'recomendacoes.html" style="font-size: 0.85rem; color: var(--accent); text-decoration: none; font-weight: 500;">' + manageLabel + '</a>' +
       '</div>' +

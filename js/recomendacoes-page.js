@@ -160,11 +160,25 @@
         const ptitle = r.poem_title || '(poema)';
         let phref = `${base}${r.file}.html?poem=${encodeURIComponent(r.poem_topic_id || '')}&hl_scroll=1`;
         if (lang === 'ja') phref += '&lang=ja';
+        // Trecho do poema: original JP (pequeno, muted) + tradução PT (destaque, itálico)
+        let poemBlock = '';
+        if (r.poem_text) {
+          const isJP = s => /[぀-ヿ㐀-鿿]/.test(s);
+          const parts = r.poem_text.split('\n').filter(Boolean);
+          const jp = parts.filter(isJP);
+          const pt = parts.filter(s => !isJP(s));
+          poemBlock = `<div style="margin:10px 0; padding:10px 14px; border-left:2px solid var(--accent); font-family:'Crimson Pro',Georgia,serif; font-style:italic; line-height:1.7;">`;
+          if (jp.length) poemBlock += `<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px;">${_esc(jp.join(' / '))}</div>`;
+          if (pt.length) poemBlock += `<div style="font-size:0.95rem; color:var(--text-main);">${_esc(pt.join(' / '))}</div>`;
+          poemBlock += `</div>`;
+        }
+        const poemBadge = `<span style="display:inline-block; font-size:0.6rem; font-weight:700; letter-spacing:.07em; padding:2px 7px; border-radius:99px; background:var(--accent-soft,rgba(184,134,11,.12)); color:var(--accent); text-transform:uppercase; vertical-align:middle; margin-right:6px;">Poema</span>`;
         return `
         <article class="${cardCls}">
           <div class="rec-card-body">
-            <h2 class="rec-card-title"><a href="${phref}">${_esc(ptitle)}</a></h2>
+            <h2 class="rec-card-title"><a href="${phref}">${poemBadge}${_esc(ptitle)}</a></h2>
             ${metaHtml}
+            ${poemBlock}
             ${noteHtml}
           </div>
           <div class="rec-card-actions">

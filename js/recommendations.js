@@ -425,11 +425,27 @@
         const ptitle = r.poem_title || '(poema)';
         let phref = `${basePath}${r.file}.html?poem=${encodeURIComponent(r.poem_topic_id || '')}&hl_scroll=1`;
         if (lang === 'ja') phref += '&lang=ja';
+        // Trecho do poema: original (JP) em muted + tradução (PT) em destaque
+        let poemBlock = '';
+        if (r.poem_text) {
+          const isJP = s => /[぀-ヿ㐀-鿿]/.test(s);
+          const parts = r.poem_text.split('\n').filter(Boolean);
+          const jp = parts.filter(isJP);
+          const pt = parts.filter(s => !isJP(s));
+          poemBlock = `<div style="margin-top:10px; padding:9px 13px; border-left:2px solid var(--accent); font-family:'Crimson Pro',Georgia,serif; font-style:italic; line-height:1.65;">`;
+          if (jp.length) poemBlock += `<div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:5px;">${_esc(jp.join(' / '))}</div>`;
+          if (pt.length) poemBlock += `<div style="font-size:0.9rem; color:var(--text-main);">${_esc(pt.join(' / '))}</div>`;
+          poemBlock += `</div>`;
+        }
         return `
         <li style="position:relative;">
           <a href="${phref}" style="display:block; padding:14px 100px 14px 16px; text-decoration:none; color:inherit; border-bottom:1px solid var(--border);">
-            <div style="font-size:0.95rem; font-weight:500; color:var(--text-main);">${_esc(ptitle)}</div>
-            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
+            <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:3px;">
+              <span style="font-size:0.6rem; font-weight:700; letter-spacing:.07em; padding:2px 7px; border-radius:99px; background:var(--accent-soft,rgba(184,134,11,.12)); color:var(--accent); text-transform:uppercase; flex-shrink:0;">Poema</span>
+              <div style="font-size:0.95rem; font-weight:500; color:var(--text-main);">${_esc(ptitle)}</div>
+            </div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
+            ${poemBlock}
             ${noteHtml}
           </a>
           ${archiveBtn}

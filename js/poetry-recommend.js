@@ -108,11 +108,16 @@
     const n = parseInt(card.dataset.poemIndex, 10);
     const titleEl = card.querySelector('.poetry-card__title');
     const poemTitle = titleEl ? titleEl.textContent.trim() : '';
+    const origEl = card.querySelector('.poetry-card__original');
+    const transEl = card.querySelector('.poetry-card__translation');
+    const original = origEl ? origEl.innerText.trim() : '';
+    const translation = transEl ? transEl.innerText.trim() : '';
+    const poemText = [original, translation].filter(Boolean).join('\n');
     if (!topicId) {
       alert('Não consegui identificar o poema (sem âncora). Recarregue a página.');
       return;
     }
-    _open({ topicId: topicId, number: isNaN(n) ? 0 : n, poemTitle: poemTitle });
+    _open({ topicId, number: isNaN(n) ? 0 : n, poemTitle, poemText });
   });
 
   // Rótulo guardado em poem_title — auto-explicativo na lista do usuário.
@@ -338,6 +343,7 @@
       p_poem_number: _ctx.number || 0,
       p_poem_topic_id: _ctx.topicId,
       p_poem_title: _composeTitle(_ctx.number, _ctx.poemTitle),
+      p_poem_text: _ctx.poemText || null,
       p_note: note || null,
       p_expires_at: _expiresIso(),
     });

@@ -409,8 +409,11 @@
         <li style="position:relative;">
           <div style="padding:14px 10px 14px 16px; border-bottom:1px solid var(--border);">
             <div style="padding-right:92px;">
-              <div style="font-size:0.95rem; font-weight:500; color:var(--text-main);">🎵 ${_esc(audioTitle)}</div>
-              <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
+              <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:3px;">
+                <span style="font-size:0.6rem; font-weight:700; letter-spacing:.07em; padding:2px 7px; border-radius:99px; background:var(--accent-soft,rgba(184,134,11,.12)); color:var(--accent); text-transform:uppercase; flex-shrink:0;">Áudio</span>
+                <span style="font-size:0.95rem; font-weight:500; color:var(--text-main);">${_esc(audioTitle)}</span>
+              </div>
+              <div style="font-size:0.72rem; color:var(--text-muted);">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
             </div>
             ${player}
             ${noteHtml}
@@ -462,8 +465,11 @@
       return `
         <li style="position:relative;">
           <a href="${href}" style="display:block; padding:14px 100px 14px 16px; text-decoration:none; color:inherit; border-bottom:1px solid var(--border);">
-            <div style="font-size:0.95rem; font-weight:500; color:var(--text-main);">${_esc(title)}</div>
-            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
+            <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:3px;">
+              <span style="font-size:0.6rem; font-weight:700; letter-spacing:.07em; padding:2px 7px; border-radius:99px; background:var(--accent-soft,rgba(184,134,11,.12)); color:var(--accent); text-transform:uppercase; flex-shrink:0;">Ensinamento</span>
+              <span style="font-size:0.95rem; font-weight:500; color:var(--text-main);">${_esc(title)}</span>
+            </div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">${metaPrefix}${_esc(dateStr)}${expHtml}</div>
             ${noteHtml}
           </a>
           ${archiveBtn}

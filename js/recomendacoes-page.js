@@ -141,7 +141,7 @@
         return `
         <article class="${cardCls}">
           <div class="rec-card-body">
-            <h2 class="rec-card-title">🎵 ${_esc(audioTitle)}</h2>
+            <h2 class="rec-card-title"><span style="display:inline-block; font-size:0.6rem; font-weight:700; letter-spacing:.07em; padding:2px 7px; border-radius:99px; background:var(--accent-soft,rgba(184,134,11,.12)); color:var(--accent); text-transform:uppercase; vertical-align:middle; margin-right:6px;">Áudio</span>${_esc(audioTitle)}</h2>
             ${metaHtml}
             ${player}
             ${noteHtml}
@@ -199,7 +199,7 @@
       return `
         <article class="${cardCls}">
           <div class="rec-card-body">
-            <h2 class="rec-card-title"><a href="${href}" class="rec-card-link" data-rec-id="${_esc(r.id)}" data-vol="${_esc(r.vol)}" data-file="${_esc(r.file)}" data-topic="${idx}" data-title-pt="${_esc(r.title_pt || '')}" data-title-ja="${_esc(r.title_ja || '')}">${_esc(title)}</a></h2>
+            <h2 class="rec-card-title"><a href="${href}" class="rec-card-link" data-rec-id="${_esc(r.id)}" data-vol="${_esc(r.vol)}" data-file="${_esc(r.file)}" data-topic="${idx}" data-title-pt="${_esc(r.title_pt || '')}" data-title-ja="${_esc(r.title_ja || '')}"><span style="display:inline-block; font-size:0.6rem; font-weight:700; letter-spacing:.07em; padding:2px 7px; border-radius:99px; background:var(--accent-soft,rgba(184,134,11,.12)); color:var(--accent); text-transform:uppercase; vertical-align:middle; margin-right:6px;">Ensinamento</span>${_esc(title)}</a></h2>
             ${metaHtml}
             ${noteHtml}
           </div>

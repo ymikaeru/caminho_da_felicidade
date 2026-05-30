@@ -501,7 +501,13 @@
             style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px;opacity:0.4;display:flex;align-items:center;flex-shrink:0;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
           </button>`;
-          const noteHtml = r.note ? `<div style="padding:6px 14px 8px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">"${_esc(r.note)}"</div>` : '';
+          if (!document.getElementById('recAudioNoteStyle')) {
+            const s = document.createElement('style');
+            s.id = 'recAudioNoteStyle';
+            s.textContent = '@media (max-width:600px){.rec-audio-footer-note{display:none;}}';
+            document.head.appendChild(s);
+          }
+          const noteHtml = r.note ? `<div class="rec-audio-footer-note" style="padding:0 14px 8px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">"${_esc(r.note)}"</div>` : '';
           // Tudo dentro do .zaudio (único flex) — sem wrapper extra que desalinha.
           // archBtn é o último filho do flex, alinhado automaticamente por align-items:center.
           return src ? `

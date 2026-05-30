@@ -171,8 +171,8 @@
   }
 
   #recommendationsModal .search-modal {
-    max-height: 98vh;
-    max-height: 98dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
   }
 
 

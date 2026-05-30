@@ -561,11 +561,40 @@
     }
   }
 
+  // Trava o scroll da pagina atras do modal. No mobile (iOS Safari)
+  // `body { overflow:hidden }` sozinho nao segura o toque — fixamos o
+  // body e guardamos/restauramos a posicao de scroll.
+  let _savedScrollY = 0;
+  function _lockScroll() {
+    _savedScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.top = `-${_savedScrollY}px`;
+    document.body.style.position = 'fixed';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+  }
+  function _unlockScroll() {
+    if (document.body.style.position !== 'fixed') return; // nao estava travado
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    document.body.style.overflow = '';
+    // Restaura sem animacao (html usa scroll-behavior: smooth).
+    const html = document.documentElement;
+    const prev = html.style.scrollBehavior;
+    html.style.scrollBehavior = 'auto';
+    window.scrollTo(0, _savedScrollY);
+    html.style.scrollBehavior = prev;
+  }
+
   async function _open() {
     const overlay = document.getElementById('recommendationsModal');
     if (!overlay) return;
+    if (!overlay.classList.contains('active')) _lockScroll();
     overlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
     // Render placeholder enquanto busca.
     const ul = document.getElementById('recommendationsResults');
     if (ul) ul.innerHTML = '<li class="search-empty" style="padding:20px; text-align:center; color:var(--text-muted);">Carregando...</li>';
@@ -582,7 +611,7 @@
     // Áudio vive dentro da cartinha: ao fechar, pausa o que estiver tocando.
     overlay.querySelectorAll('audio').forEach(a => { try { a.pause(); } catch (e) {} });
     overlay.classList.remove('active');
-    document.body.style.overflow = '';
+    _unlockScroll();
   }
 
   async function init() {

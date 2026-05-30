@@ -496,34 +496,29 @@
         audioFooter.innerHTML = audioList.map(r => {
           const audioTitle = r.audio_title || (lang === 'ja' ? '音声' : 'Áudio');
           const src = r._audioUrl || '';
-          if (!document.getElementById('recAudioNoteStyle')) {
-            const s = document.createElement('style');
-            s.id = 'recAudioNoteStyle';
-            s.textContent = '@media (max-width:600px){.rec-audio-footer-note{display:none;}}';
-            document.head.appendChild(s);
-          }
-          const noteHtml = r.note ? `<div class="rec-audio-footer-note" style="padding:0 14px 8px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">"${_esc(r.note)}"</div>` : '';
-          // Tudo dentro do .zaudio (único flex) — sem wrapper extra que desalinha.
-          // archBtn é o último filho do flex, alinhado automaticamente por align-items:center.
+          const noteHtml = r.note ? `<div style="padding:0 14px 10px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">"${_esc(r.note)}"</div>` : '';
+          // Container com bg dourado cobre player + nota.
+          // .zaudio fica sem bg/borda próprios — herda do wrapper.
           return src ? `
-            <div class="zaudio" data-src="${_esc(src)}"
-              style="margin-top:0;padding:10px 14px;border:none;border-top:1px solid var(--border);
-                     box-shadow:0 -6px 16px rgba(0,0,0,0.06);background:var(--accent-soft,rgba(184,134,11,.06));gap:10px;border-radius:0;align-items:center;">
-              <audio preload="metadata" src="${_esc(src)}"></audio>
-              <button type="button" class="zaudio__btn" aria-label="Tocar"
-                style="width:28px;height:28px;flex-shrink:0;border-radius:5px;align-self:center;">
-                <svg class="zaudio__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;margin-left:0;"><path d="M8 5v14l11-7z"/></svg>
-                <svg class="zaudio__icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
-              </button>
-              <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;align-self:center;">
-                <div style="font-size:0.82rem;font-weight:600;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(audioTitle)}</div>
-                <div style="display:flex;align-items:center;gap:6px;">
-                  <div class="zaudio__track" aria-hidden="true" style="flex:1;"><div class="zaudio__fill"><span class="zaudio__handle"></span></div></div>
-                  <div class="zaudio__time" style="font-size:0.62rem;white-space:nowrap;flex-shrink:0;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
+            <div style="border-top:1px solid var(--border);box-shadow:0 -6px 16px rgba(0,0,0,0.06);background:var(--accent-soft,rgba(184,134,11,.06));">
+              <div class="zaudio" data-src="${_esc(src)}"
+                style="margin-top:0;padding:10px 14px;border:none;box-shadow:none;background:transparent;gap:10px;border-radius:0;align-items:center;">
+                <audio preload="metadata" src="${_esc(src)}"></audio>
+                <button type="button" class="zaudio__btn" aria-label="Tocar"
+                  style="width:28px;height:28px;flex-shrink:0;border-radius:5px;align-self:center;">
+                  <svg class="zaudio__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;margin-left:0;"><path d="M8 5v14l11-7z"/></svg>
+                  <svg class="zaudio__icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:12px;height:12px;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+                </button>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;align-self:center;">
+                  <div style="font-size:0.82rem;font-weight:600;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(audioTitle)}</div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <div class="zaudio__track" aria-hidden="true" style="flex:1;"><div class="zaudio__fill"><span class="zaudio__handle"></span></div></div>
+                    <div class="zaudio__time" style="font-size:0.62rem;white-space:nowrap;flex-shrink:0;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
+                  </div>
                 </div>
               </div>
-            </div>
-            ${noteHtml}`
+              ${noteHtml}
+            </div>`
           : `<div style="padding:10px 14px;border-top:1px solid var(--border);font-size:0.82rem;font-weight:600;">${_esc(audioTitle)}</div>`;
         }).join('');
         _zaudioMount(audioFooter);

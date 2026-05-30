@@ -452,7 +452,8 @@
         const player = r._audioUrl
           ? _zaudioRender({ src: r._audioUrl, title: audioTitle })
           : `<div style="font-size:0.78rem;color:#c00;">${lang === 'ja' ? '音声を読み込めませんでした。' : 'Não foi possível carregar o áudio.'}</div>`;
-        return card({ type: 'audio', title: audioTitle, meta, below: player + noteHtml, recId: r.id });
+        const noteAfterPlayer = r.note ? `<div style="margin-top:12px;">${noteHtml}</div>` : '';
+        return card({ type: 'audio', title: audioTitle, meta, below: player + noteAfterPlayer, recId: r.id });
       }
 
       if (r.vol === 'poetry') {

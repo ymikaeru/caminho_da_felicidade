@@ -1153,12 +1153,12 @@
 
 /* ─── Responsive ─────────────────────────────────────────────── */
 
-/* Em telas largas, espelha a sidebar com uma coluna fantasma à direita.
-   Resultado: o conteúdo principal fica geometricamente centrado em
-   relação ao viewport (e ao emblema central do header). */
-@media (min-width: 1280px) {
-  .poetry-page { grid-template-columns: 300px minmax(0, 1fr) 300px; }
-}
+/* Sem coluna-fantasma à direita: o conteúdo usa toda a largura disponível
+   ao lado da sidebar. Antes uma 3ª coluna de 300px espelhava a sidebar pra
+   centralizar o conteúdo sob o emblema do header — mas isso comia ~300px de
+   largura útil justamente na faixa 1280–1600px (onde vive a maioria dos
+   notebooks), achatando os poemas pra ~60% da tela. A medida de leitura
+   continua contida pelo max-width de .poetry-main (1180px). */
 
 @media (max-width: 1024px) {
   .poetry-page { grid-template-columns: 240px 1fr; }

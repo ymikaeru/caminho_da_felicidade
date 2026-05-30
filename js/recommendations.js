@@ -562,12 +562,6 @@
   }
 
   async function _open() {
-    // Mobile → navega direto para a Central de Recomendações (fullscreen nativa)
-    if (window.innerWidth <= 767) {
-      const base = window.location.pathname.includes('/mioshiec') ? '../' : '';
-      window.location.href = base + 'recomendacoes.html';
-      return;
-    }
     const overlay = document.getElementById('recommendationsModal');
     if (!overlay) return;
     overlay.classList.add('active');

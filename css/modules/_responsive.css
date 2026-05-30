@@ -170,6 +170,20 @@
     height: auto;
   }
 
+  /* Recomendações: fullscreen no mobile */
+  #recommendationsModal {
+    align-items: stretch;
+    padding: 0;
+  }
+
+  #recommendationsModal .search-modal {
+    border-radius: 0;
+    max-height: 100vh;
+    max-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+  }
+
 
   .side-drawer {
     width: 85vw;

@@ -148,8 +148,31 @@ html.toc-ready .toc-toggle {
 }
 
 @media (min-width: 1280px) {
-  .toc-toggle {
+  .toc-toggle:not([hidden]) {
     display: inline-flex;
+  }
+}
+
+/* Mobile (<=1024px): o mesmo TOC do desktop, agora acessivel pelo icone de
+   lista (≡) ao lado da seta de voltar. O painel lateral fixo vira um
+   flutuante ancorado abaixo do header. nav.js posiciona o botao ao lado do
+   "Voltar/Inicio" e fecha o painel ao escolher um item ou tocar fora. */
+@media (max-width: 1024px) {
+  .toc-toggle:not([hidden]) {
+    display: inline-flex;
+  }
+
+  .publication-toc {
+    left: 16px;
+    top: calc(var(--nav-height, 60px) + 8px);
+    width: min(300px, calc(100vw - 32px));
+    max-height: calc(100dvh - var(--nav-height, 60px) - 24px);
+    z-index: 1900;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .publication-toc:not([hidden]) {
+    display: flex;
   }
 }
 

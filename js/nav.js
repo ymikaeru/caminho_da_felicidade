@@ -533,13 +533,16 @@ window._updateMobileNavTopics = function (label, optionsList) {
 // hidden attr quando não há publicações suficientes.
 window._updateDesktopToc = function (label, optionsList, currentHref) {
   const aside = document.getElementById('publicationToc');
+  const toggleBtn = document.getElementById('tocToggle');
   if (!aside) return;
   if (!optionsList || optionsList.length === 0) {
     aside.hidden = true;
     aside.innerHTML = '';
+    if (toggleBtn) toggleBtn.hidden = true;   // sem TOC (ex: artigo de topico unico) → esconde o botao
     return;
   }
   aside.hidden = false;
+  if (toggleBtn) toggleBtn.hidden = false;
   const currentLang = localStorage.getItem('site_lang') || 'pt';
   const heading = label || (currentLang === 'ja' ? 'このテーマの教え' : 'Ensinamentos deste tema');
   const items = optionsList.map((o, i) => {
@@ -649,12 +652,24 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.setAttribute('aria-expanded', String(!collapsed));
     btn.classList.toggle('is-collapsed', collapsed);
   };
-  reflect();
-  btn.addEventListener('click', () => {
-    const next = !document.documentElement.classList.contains('toc-collapsed');
+  const setCollapsed = (next) => {
     document.documentElement.classList.toggle('toc-collapsed', next);
     try { localStorage.setItem('caminho_toc_collapsed', next ? 'true' : 'false'); } catch (e) {}
     reflect();
+  };
+  reflect();
+  btn.addEventListener('click', () => {
+    setCollapsed(!document.documentElement.classList.contains('toc-collapsed'));
+  });
+  // Mobile (<=1024px): o painel flutua sobre o conteudo, entao fecha ao
+  // escolher um item ou tocar fora (no desktop e painel lateral persistente).
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth > 1024) return;
+    if (document.documentElement.classList.contains('toc-collapsed')) return;
+    const aside = document.getElementById('publicationToc');
+    if (!aside || aside.hidden) return;
+    if (e.target.closest('.publication-toc__item')) { setCollapsed(true); return; }
+    if (!aside.contains(e.target) && !btn.contains(e.target)) setCollapsed(true);
   });
 });
 

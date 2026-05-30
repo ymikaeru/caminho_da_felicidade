@@ -50,45 +50,48 @@
     margin-bottom: 32px;
   }
 
-  #backToIndexBtn {
+  /* Botao voltar/subir (Voltar ao Indice no artigo / Inicio no indice de
+     volume) — VISIVEL no mobile, a esquerda, so o icone (texto escondido)
+     pra nao colidir com o logo central. Busca + cartinha + menu ficam todos
+     a direita (no .header__actions, que ja tem margin-left:auto).
+     Em reader.html o #backToIndexBtn tem display:none inline e o
+     reader-render.js o revela (display:flex) quando o artigo carrega — por
+     isso NAO forcamos display aqui (deixa o JS controlar). */
+  .header > a.btn-zen {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0 !important;
+    padding: 8px;
+  }
+
+  .header > a.btn-zen span {
     display: none !important;
   }
 
-  #backToIndexBtn svg {
+  .header > a.btn-zen svg {
     margin-right: 0 !important;
   }
 
-  .header > .btn-zen {
-    display: none !important;
-  }
-
+  /* Titulo do site no mobile — aparece so nas paginas que o tem (as que NAO
+     tem botao voltar: home, poesia, etc.). Menor que no desktop pra caber a
+     esquerda sem encostar no logo central (max-width recorta com reticencias
+     em telas bem estreitas). A lang ativa usa o display do CSS (o setLanguage
+     poe inline display:'' nela); a inativa fica escondida pelo inline
+     display:none que o setLanguage seta — por isso nao usamos !important. */
   .header__site-name {
-    display: none !important;
+    display: inline-block;
+    font-size: 11px;
+    margin-left: 0;
+    max-width: calc(50% - 40px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
   }
 
-  .mobile-search-btn {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  /* Highlight button removido do header mobile — fica acessível só via
-     menu sanduíche em telas pequenas. Em desktop continua no
-     header__actions normalmente. */
+  /* Highlight fora do header mobile — acessivel pelo menu sanduiche. */
   #mobileHighlightBtn {
     display: none !important;
-  }
-
-  /* Envelope (Recomendações) ocupa o espaço onde estava o highlight,
-     direto ao lado direito da lupa de busca. Usa !important pra
-     sobrescrever o inline `position:relative` que o nav.js seta pra
-     posicionar o badge (em desktop o button continua relativo). */
-  #headerRecommendationsBtn {
-    position: absolute !important;
-    left: 56px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
   }
 
   .topic-list {

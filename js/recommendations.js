@@ -517,9 +517,11 @@
               </button>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;align-self:center;">
                 <div style="font-size:0.82rem;font-weight:600;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(audioTitle)}</div>
-                <div class="zaudio__track" aria-hidden="true"><div class="zaudio__fill"><span class="zaudio__handle"></span></div></div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <div class="zaudio__track" aria-hidden="true" style="flex:1;"><div class="zaudio__fill"><span class="zaudio__handle"></span></div></div>
+                  <div class="zaudio__time" style="font-size:0.62rem;white-space:nowrap;flex-shrink:0;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
+                </div>
               </div>
-              <div class="zaudio__time" style="font-size:0.65rem;white-space:nowrap;align-self:center;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
             </div>
             ${noteHtml}`
           : `<div style="padding:10px 14px;border-top:1px solid var(--border);font-size:0.82rem;font-weight:600;">${_esc(audioTitle)}</div>`;

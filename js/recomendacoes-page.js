@@ -151,7 +151,7 @@
               ? window._zaudioRender({ src: r._audioUrl, title: audioTitle })
               : `<audio controls preload="none" src="${_esc(r._audioUrl)}" style="width:100%;margin-top:8px;"></audio>`)
           : `<div style="font-size:0.85rem;color:#c00;">${lang === 'ja' ? '音声を読み込めませんでした。' : 'Não foi possível carregar o áudio.'}</div>`;
-        const noteAfterPlayer = r.note ? `<div style="margin-top:12px;">${noteHtml}</div>` : '';
+        const noteAfterPlayer = r.note ? `<div style="margin-top:20px;">${noteHtml}</div>` : '';
         return `
         <article class="${cardCls}">
           ${body('audio', `<h2 class="rec-card-title">${_esc(audioTitle)}</h2>`, player + noteAfterPlayer)}

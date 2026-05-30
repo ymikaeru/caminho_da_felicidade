@@ -216,6 +216,10 @@
       `;
     }
     const base = _basePathForReader();
+    // Ordena por tipo antes de qualquer agrupamento: áudio → poemas → ensinamentos
+    const _typeOrdPage = r => r.audio_path ? 0 : r.vol === 'poetry' ? 1 : 2;
+    list = [...list].sort((a, b) => _typeOrdPage(a) - _typeOrdPage(b));
+
     // Particiona: grupos (com source_collection_id) preservando ordem de
     // chegada da playlist; soltas (sem source) vão pra um array separado.
     const groups = new Map();     // id → { name, items[] }
@@ -232,9 +236,22 @@
       }
     });
 
-    // Caso 1: nada agrupado → renderiza como antes, sem cabeçalhos.
+    // Caso 1: nada agrupado → renderiza com cabeçalhos de categoria.
     if (groups.size === 0) {
-      return loose.map(r => _renderOneCard(r, archived, lang, base)).join('');
+      const labels = [
+        lang === 'ja' ? 'オーディオ' : 'Áudio',
+        lang === 'ja' ? '詩' : 'Poemas',
+        lang === 'ja' ? '教え' : 'Ensinamentos',
+      ];
+      let prevG = -1;
+      return loose.map(r => {
+        const g = _typeOrdPage(r);
+        const hdr = g !== prevG
+          ? `<div style="font-size:0.62rem;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;padding:16px 0 6px;">${labels[g]}</div>`
+          : '';
+        prevG = g;
+        return hdr + _renderOneCard(r, archived, lang, base);
+      }).join('');
     }
 
     // Caso 2: tem grupos → renderiza cada um como <details open>, soltas

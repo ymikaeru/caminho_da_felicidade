@@ -438,8 +438,18 @@
         </li>`;
     };
 
+    // ── ordenação: áudio → poemas → ensinamentos (independente de data) ──
+    const _typeOrd = r => r.audio_path ? 0 : r.vol === 'poetry' ? 1 : 2;
+    const _groupLabel = [
+      lang === 'ja' ? 'オーディオ' : 'Áudio',
+      lang === 'ja' ? '詩' : 'Poemas',
+      lang === 'ja' ? '教え' : 'Ensinamentos',
+    ];
+    const sorted = [...list].sort((a, b) => _typeOrd(a) - _typeOrd(b));
+    let _prevGroup = -1;
+
     // ── per-type ────────────────────────────────────────────────────────
-    ul.innerHTML = list.map(r => {
+    ul.innerHTML = sorted.map(r => {
       const recommender = _displayRecommender(r.created_by_name);
       const date = relDate(r.created_at);
       const expHtml = _expHtml(r, lang);
@@ -450,13 +460,19 @@
         ? `<div style="font-size:0.83rem;color:var(--text-muted);font-style:italic;line-height:1.45;">"${_esc(r.note)}"</div>`
         : '';
 
+      const g = _typeOrd(r);
+      const groupHdr = g !== _prevGroup
+        ? `<li style="padding:10px 24px 3px;"><span style="font-size:0.62rem;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;">${_groupLabel[g]}</span></li>`
+        : '';
+      _prevGroup = g;
+
       if (r.audio_path) {
         const audioTitle = r.audio_title || (lang === 'ja' ? '音声' : 'Áudio');
         const player = r._audioUrl
           ? _zaudioRender({ src: r._audioUrl, title: audioTitle })
           : `<div style="font-size:0.78rem;color:#c00;">${lang === 'ja' ? '音声を読み込めませんでした。' : 'Não foi possível carregar o áudio.'}</div>`;
         const noteAfterPlayer = r.note ? `<div style="margin-top:20px;">${noteHtml}</div>` : '';
-        return card({ type: 'audio', title: audioTitle, meta, below: player + noteAfterPlayer, recId: r.id });
+        return groupHdr + card({ type: 'audio', title: audioTitle, meta, below: player + noteAfterPlayer, recId: r.id });
       }
 
       if (r.vol === 'poetry') {
@@ -464,7 +480,7 @@
         if (lang === 'ja') phref += '&lang=ja';
         const ptitle = r.poem_title || '(poema)';
         const below = ptExcerpt(r.poem_text) + noteHtml;
-        return card({ type: 'poetry', title: ptitle, titleHref: phref, meta, below: below || '', recId: r.id });
+        return groupHdr + card({ type: 'poetry', title: ptitle, titleHref: phref, meta, below: below || '', recId: r.id });
       }
 
       // Ensinamento
@@ -473,7 +489,7 @@
       let href = `${basePath}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
       if (idx > 0) href += `&topic=${idx}`;
       if (lang === 'ja') href += '&lang=ja';
-      return card({ type: 'teaching', title, titleHref: href, meta, below: noteHtml, recId: r.id });
+      return groupHdr + card({ type: 'teaching', title, titleHref: href, meta, below: noteHtml, recId: r.id });
     }).join('');
 
     _zaudioMount(ul);

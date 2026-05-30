@@ -237,6 +237,10 @@
         .rec-action-btn.primary:hover {
             opacity: 0.9;
         }
+        @media (max-width: 600px) {
+            .rec-card { flex-direction: column; gap: 10px; }
+            .rec-card-actions { flex-direction: row; justify-content: flex-end; width: 100%; }
+        }
         .rec-empty {
             text-align: center;
             padding: 60px 20px;

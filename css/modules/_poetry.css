@@ -1237,6 +1237,22 @@
     margin: 8px 0 14px;
   }
 
+  /* "Seções" reancorado no header (esquerda, no lugar do título) pelo
+     observer em poetry-recommend.js. Esconde a cópia no conteúdo (evita
+     flash no re-render), estiliza no header e esconde o título do site. */
+  .poetry-main .poetry-sidebar-toggle { display: none; }
+  .header .poetry-sidebar-toggle {
+    display: inline-flex;
+    position: static;
+    margin: 0;
+    padding: 6px 8px 6px 0;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    align-self: center;
+  }
+  .header.has-poetry-toggle .header__site-name { display: none; }
+
   /* Sticky logo abaixo do header — confirma o filtro ao usuário enquanto
      ele rola, sem ocupar espaço quando não há filtro ativo. Glass effect
      pra não cobrir o conteúdo abaixo. */

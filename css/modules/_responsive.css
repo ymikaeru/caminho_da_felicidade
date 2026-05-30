@@ -89,6 +89,20 @@
     vertical-align: middle;
   }
 
+  /* Quando o header tem botao de voltar (ex: poesia → Inicio), o titulo
+     cede o lugar pra ele (mesma logica das demais paginas internas). */
+  .header:has(> a.btn-zen) .header__site-name {
+    display: none;
+  }
+
+  /* Busca escondida no mobile nas paginas de poesia (home + coletaneas) —
+     a busca nao acha poemas. is-poetry-collection: setado por
+     poetry-recommend.js (coletaneas); poetry-hub-pane: a home da poesia. */
+  html.is-poetry-collection .mobile-search-btn,
+  body:has(.poetry-hub-pane) .mobile-search-btn {
+    display: none !important;
+  }
+
   /* Highlight fora do header mobile — acessivel pelo menu sanduiche. */
   #mobileHighlightBtn {
     display: none !important;

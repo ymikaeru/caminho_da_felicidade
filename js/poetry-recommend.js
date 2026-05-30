@@ -19,6 +19,38 @@
 // Carregado nas 6 páginas de coletânea (yama/warai/akimaro/3× gosanka).
 // ============================================================
 
+// ── Mobile (≤768px): reancora o botão "Seções" (#poetrySidebarToggle) no
+// header, no lugar do título. O JS da coletânea o renderiza DENTRO do
+// conteúdo e reconstrói a cada interação — um observer o move de volta
+// sempre que reaparece. O CSS (_poetry.css) esconde a cópia no conteúdo,
+// estiliza o botão no header e esconde o título (.header.has-poetry-toggle).
+(function () {
+  'use strict';
+  // Marca a pagina (todas as coletaneas carregam este script) pra esconder
+  // a busca no header mobile — a busca nao acha poemas.
+  document.documentElement.classList.add('is-poetry-collection');
+  // Reancora o botao "Secoes" (.poetry-sidebar-toggle) no header, no lugar
+  // do titulo. As 3 gosanka renderizam o botao via JS (#poetrySidebarToggle)
+  // e refazem a cada interacao; akimaro/warai/yama tem o botao estatico com
+  // ids proprios — por isso miramos a CLASSE (.poetry-sidebar-toggle) e
+  // observamos o body inteiro, reancorando sempre que (re)aparecer.
+  const relocate = () => {
+    const header = document.querySelector('header.header');
+    const toggle = document.querySelector('.poetry-sidebar-toggle');
+    if (!header || !toggle || toggle.parentElement === header) return;
+    const logo = header.querySelector('.header__logo');
+    if (logo) logo.insertAdjacentElement('afterend', toggle);
+    else header.appendChild(toggle);
+    header.classList.add('has-poetry-toggle');
+  };
+  const start = () => {
+    relocate();
+    new MutationObserver(relocate).observe(document.body, { childList: true, subtree: true });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
+
 (function () {
   'use strict';
 

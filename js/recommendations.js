@@ -502,10 +502,12 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
           </button>`;
           const noteHtml = r.note ? `<div style="padding:6px 14px 8px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">"${_esc(r.note)}"</div>` : '';
-          // Layout compacto numa só linha (sem padding extra do .zaudio — override inline)
-          const miniPlayer = src ? `
+          // Tudo dentro do .zaudio (único flex) — sem wrapper extra que desalinha.
+          // archBtn é o último filho do flex, alinhado automaticamente por align-items:center.
+          return src ? `
             <div class="zaudio" data-src="${_esc(src)}"
-              style="margin-top:0;padding:0;border:none;box-shadow:none;background:transparent;flex:1;min-width:0;gap:8px;">
+              style="margin-top:0;padding:10px 14px;border:none;border-top:1px solid var(--border);
+                     box-shadow:none;background:transparent;gap:10px;border-radius:0;">
               <audio preload="metadata" src="${_esc(src)}"></audio>
               <button type="button" class="zaudio__btn" aria-label="Tocar"
                 style="width:30px;height:30px;flex-shrink:0;">
@@ -516,17 +518,11 @@
                 <div style="font-size:0.82rem;font-weight:600;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(audioTitle)}</div>
                 <div class="zaudio__track" aria-hidden="true"><div class="zaudio__fill"><span class="zaudio__handle"></span></div></div>
               </div>
-              <div class="zaudio__time" style="font-size:0.65rem;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
-            </div>`
-            : `<div style="flex:1;font-size:0.82rem;font-weight:600;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(audioTitle)}</div>`;
-          return `
-            <div style="border-top:1px solid var(--border);">
-              <div style="padding:10px 14px;display:flex;align-items:center;gap:8px;">
-                ${miniPlayer}
-                ${archBtn}
-              </div>
-              ${noteHtml}
-            </div>`;
+              <div class="zaudio__time" style="font-size:0.65rem;white-space:nowrap;"><span class="zaudio__cur">0:00</span> / <span class="zaudio__dur">--:--</span></div>
+              ${archBtn}
+            </div>
+            ${noteHtml}`
+          : `<div style="padding:10px 14px;border-top:1px solid var(--border);font-size:0.82rem;font-weight:600;">${_esc(audioTitle)}</div>`;
         }).join('');
         _zaudioMount(audioFooter);
       }

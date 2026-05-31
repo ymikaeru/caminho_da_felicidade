@@ -99,6 +99,8 @@
                 <div class="admin-tab" onclick="switchTab('saved')">🔖 Salvos</div>
                 <div class="admin-tab" onclick="switchTab('recommendations')">📤 Recomendações</div>
                 <div class="admin-tab" onclick="switchTab('recommend-audio')">🎵 Recomendar Áudio</div>
+                <div class="admin-tab" onclick="switchTab('inbox')">📬 Caixa de Entrada</div>
+                <div class="admin-tab" onclick="switchTab('mural')">🌸 Mural</div>
               </div>
             </div>
             <div class="tab-group" data-section="caminho">
@@ -627,6 +629,36 @@
           <div class="tab-content" id="tab-partial-citations">
             <div id="pc-container">
               <div class="loading">Selecione a aba para carregar.</div>
+            </div>
+          </div>
+
+          <!-- Caixa de Entrada Tab (mensagens privadas usuário → Reverendo) -->
+          <div class="tab-content" id="tab-inbox">
+            <div style="margin-bottom:20px;">
+              <h2
+                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                Caixa de Entrada</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Mensagens privadas que os ministros
+                enviaram a partir de um Ensinamento ou poema. Responda diretamente — o ministro vê a resposta e um aviso —
+                ou repasse o Ensinamento a todos.</p>
+            </div>
+            <div id="inbox-list">
+              <div class="loading" style="padding:16px;">Selecione a aba para carregar.</div>
+            </div>
+          </div>
+
+          <!-- Mural Tab (moderação do Mural de Descobertas) -->
+          <div class="tab-content" id="tab-mural">
+            <div style="margin-bottom:20px;">
+              <h2
+                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                Mural de Reflexões</h2>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Reflexões que os ministros compartilharam
+                (anônimas). Pré-moderação: cada uma entra como pendente — <strong>aprove</strong> para aparecer no Mural,
+                ou oculte/apague.</p>
+            </div>
+            <div id="mural-mod-list">
+              <div class="loading" style="padding:16px;">Selecione a aba para carregar.</div>
             </div>
           </div>
 

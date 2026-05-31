@@ -270,13 +270,15 @@
         }
     </style>
 
-    <script src="js/toggle.js?v=36" defer></script>
-    <script src="js/nav.js?v=49" defer></script>
+    <script src="js/toggle.js?v=39" defer></script>
+    <script src="js/nav.js?v=52" defer></script>
     <script src="js/theme.js?v=1" defer></script>
     <script src="js/language.js?v=7" defer></script>
     <script src="js/typography.js?v=1" defer></script>
     <script src="js/search.js?v=22" defer></script>
     <script src="js/recommendations.js?v=52" defer></script>
+    <script src="js/study-messages.js?v=2" defer></script>
+    <script src="js/mural.js?v=2" defer></script>
     <script src="js/recomendacoes-page.js?v=19" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -344,14 +346,14 @@
       window._cloudSync = cloudSync;
     </script>
     <script type="module" src="js/login.js?v=8"></script>
-    <script src="js/access.js?v=5"></script>
-    <script src="js/modals.js?v=5"></script>
+    <script src="js/access.js?v=6"></script>
+    <script src="js/modals.js?v=8"></script>
     <script src="js/playlists.js?v=21" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             buildSearchModal(); buildHistoryModal(); buildFavoritesModal(); buildHighlightsModal(); buildRecommendationsModal();
             if (typeof revealPage === 'function') revealPage();
-            if (typeof initRecommendations === 'function') initRecommendations();
+            if (typeof initRecommendations === 'function') initRecommendations(); if (typeof initStudyMessages === 'function') initStudyMessages(); if (typeof initMuralBadge === 'function') initMuralBadge();
             if (typeof initRecomendacoesPage === 'function') initRecomendacoesPage();
         });
     </script>

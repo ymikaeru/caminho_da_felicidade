@@ -30,6 +30,13 @@ function isFullUser() {
   return localStorage.getItem('mioshie_auth') === 'full';
 }
 
+// Qualquer sessão autenticada (admin/full/limited/legacy). Gate síncrono
+// usado por botões que aparecem só pra logados (ex.: "Compartilhar com o
+// Reverendo" no save-bar). Espelha o uso síncrono de isAdminUser().
+function isLoggedIn() {
+  return !!localStorage.getItem('mioshie_auth');
+}
+
 // Returns array of enabled volume keys ['mioshiec1', 'mioshiec2', ...]
 function getEnabledVolumes(config) {
   if (!config) return ['mioshiec1', 'mioshiec2', 'mioshiec3', 'mioshiec4'];

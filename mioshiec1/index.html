@@ -22,10 +22,10 @@
     <meta property="og:type" content="website">
     <meta property="og:image" content="../icon-512.png">
     <meta name="twitter:card" content="summary">
-    <script src="../js/toggle.js?v=36" defer></script>
+    <script src="../js/toggle.js?v=39" defer></script>
     <script src="../js/playlists.js?v=21" defer></script>
     <script type="module" src="../js/pdf-booklet-bridge.js?v=2"></script>
-    <script src="../js/nav.js?v=49" defer></script>
+    <script src="../js/nav.js?v=52" defer></script>
     <script src="../js/theme.js?v=1" defer></script>
     <script src="../js/language.js?v=7" defer></script>
     <script src="../js/typography.js?v=1" defer></script>
@@ -3171,11 +3171,13 @@
         window._cloudSync = cloudSync;
     </script>
     <script type="module" src="../js/login.js?v=8"></script>
-    <script src="../js/access.js?v=5"></script>
-    <script src="../js/modals.js?v=5"></script>
+    <script src="../js/access.js?v=6"></script>
+    <script src="../js/modals.js?v=8"></script>
     <script src="../js/recommendations.js?v=52" defer></script>
+    <script src="../js/study-messages.js?v=2" defer></script>
+    <script src="../js/mural.js?v=2" defer></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => { initVolumeFilter('mioshiec1'); buildRecommendationsModal(); if (typeof revealPage === 'function') revealPage(); if (typeof initRecommendations === 'function') initRecommendations(); });
+        document.addEventListener('DOMContentLoaded', () => { initVolumeFilter('mioshiec1'); buildRecommendationsModal(); if (typeof revealPage === 'function') revealPage(); if (typeof initRecommendations === 'function') initRecommendations(); if (typeof initStudyMessages === 'function') initStudyMessages(); if (typeof initMuralBadge === 'function') initMuralBadge(); });
     </script>
     <script>document.addEventListener("DOMContentLoaded", function () { document.querySelectorAll(".topic-card__title .lang-pt").forEach(function (e) { if (e.innerHTML.length > 0) e.innerHTML = e.innerHTML.charAt(0).toUpperCase() + e.innerHTML.slice(1) }); });</script>
 </body>

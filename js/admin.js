@@ -28,6 +28,8 @@
     import './admin/tabs/translation-review-guia.js';
     import './admin/tabs/partial-citations.js?v=24';
     import './admin/tabs/recommendations.js?v=7';
+    import './admin/tabs/inbox.js';
+    import './admin/tabs/mural.js';
     import './admin/tabs/poetry-versions.js?v=2';
 
     const VOLUMES = [
@@ -112,7 +114,7 @@
     window.switchTab = function(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-poetry': 6, 'analytics-search': 7, 'destaques': 8, 'saved': 9, 'recommendations': 10, 'recommend-audio': 11, 'reports': 12, 'poetry-versions': 13, 'partial-citations': 14, 'users': 15, 'findreplace': 16, 'duplicates': 17, 'logs': 18, 'analytics-johrei': 19, 'reports-guia': 20, 'essencia-guia': 21 }[tab];
+      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-poetry': 6, 'analytics-search': 7, 'destaques': 8, 'saved': 9, 'recommendations': 10, 'recommend-audio': 11, 'inbox': 12, 'mural': 13, 'reports': 14, 'poetry-versions': 15, 'partial-citations': 16, 'users': 17, 'findreplace': 18, 'duplicates': 19, 'logs': 20, 'analytics-johrei': 21, 'reports-guia': 22, 'essencia-guia': 23 }[tab];
       document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
       document.getElementById(`tab-${tab}`).classList.add('active');
       if (tab === 'analytics') {
@@ -132,6 +134,8 @@
       if (tab === 'duplicates') loadDuplicates();
       if (tab === 'recommendations') loadRecommendationsTab();
       if (tab === 'recommend-audio') loadRecommendAudioTab();
+      if (tab === 'inbox') loadInboxTab();
+      if (tab === 'mural') loadMuralTab();
       if (tab === 'poetry-versions') loadPoetryVersions();
       if (tab === 'partial-citations') loadPartialCitations();
       if (tab === 'analytics-johrei') loadJohreiAnalytics();

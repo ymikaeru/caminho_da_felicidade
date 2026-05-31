@@ -120,7 +120,7 @@ function _buildTopicSaveBar(topicIdx, lang) {
     if (typeof isAdminUser === 'function' && isAdminUser()) {
         const plLabel = lang === 'ja' ? 'プレイリストに追加' : 'Adicionar à playlist';
         const plIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
-        const recLabel = lang === 'ja' ? 'この教えを推薦' : 'Recomendar este ensinamento';
+        const recLabel = lang === 'ja' ? 'この教えを推薦' : 'Recomendar este Ensinamento';
         const recIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
         adminBtns =
             `<button type="button" class="topic-save-btn topic-playlist-btn" data-topic-idx="${topicIdx}" title="${plLabel}" aria-label="${plLabel}" onclick="if (typeof openPlaylistAddPicker === 'function') openPlaylistAddPicker(${topicIdx});">` +
@@ -131,11 +131,33 @@ function _buildTopicSaveBar(topicIdx, lang) {
             `</button>`;
     }
 
+    // Botões do usuário logado (não-admin): compartilhar em privado com o
+    // Reverendo, ou publicar uma descoberta (anônima) no mural. Gate síncrono
+    // via isLoggedIn(). O admin não vê — ele é o Reverendo/curador.
+    let shareBtn = '', descobertaBtn = '';
+    if (typeof isLoggedIn === 'function' && isLoggedIn()
+        && !(typeof isAdminUser === 'function' && isAdminUser())) {
+        const shLabel = lang === 'ja' ? 'ご住職に共有' : 'Compartilhar com o Reverendo';
+        const shIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
+        shareBtn =
+            `<button type="button" class="topic-save-btn topic-share-btn" data-topic-idx="${topicIdx}" title="${shLabel}" aria-label="${shLabel}" onclick="if (typeof openShareWithReverendo === 'function') openShareWithReverendo(${topicIdx});">` +
+                shIcon +
+            `</button>`;
+        const dsLabel = lang === 'ja' ? '感想を共有' : 'Compartilhar uma reflexão';
+        const dsIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>';
+        descobertaBtn =
+            `<button type="button" class="topic-save-btn topic-discover-btn" data-topic-idx="${topicIdx}" title="${dsLabel}" aria-label="${dsLabel}" onclick="if (typeof openPublicarDescoberta === 'function') openPublicarDescoberta(${topicIdx});">` +
+                dsIcon +
+            `</button>`;
+    }
+
     return `<div class="topic-save-bar" data-topic-idx="${topicIdx}">` +
         `<button type="button" class="topic-save-btn" data-topic-idx="${topicIdx}" title="${l.save}" aria-label="${l.save}" onclick="window.toggleFavorite(${topicIdx})">` +
             icon +
             `<span class="topic-save-label" data-save="${l.save}" data-saved="${l.saved}">${l.save}</span>` +
         `</button>` +
+        shareBtn +
+        descobertaBtn +
         adminBtns +
     `</div>`;
 }

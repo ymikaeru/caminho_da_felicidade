@@ -23,6 +23,14 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     #tab-destaques.active { display: flex; flex-direction: column; min-height: calc(100vh - 240px); }
+    /* Mobile: empilha em 1 coluna qualquer grid de 2+ colunas definido
+       INLINE nas abas (recomendar áudio, recomendações, add-user, etc.),
+       inclusive os injetados via JS. Como o grid vem em style inline,
+       precisa de !important pra vencer a especificidade. Direção segura:
+       no celular sempre queremos coluna única. */
+    @media (max-width: 700px) {
+      .tab-content [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+    }
 
     /* Aba Poetry Versions — Comparador A/B/C/D */
     .btn-sm {

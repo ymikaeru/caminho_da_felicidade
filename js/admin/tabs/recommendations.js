@@ -370,12 +370,13 @@ function _recRenderCurrentAudio() {
   }
   const t = _recCurrentAudio.audio_title || '(áudio sem título)';
   const url = _recCurrentAudio._url || '';
+  // Título em cima, player numa linha própria (full-width, com teto no
+  // desktop). Player nativo dentro de um flex-row encolhe demais no mobile
+  // e o Chrome esconde a barra de progresso — por isso fica empilhado.
   box.innerHTML =
-    `<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">` +
-      `<span style="font-size:0.9rem; font-weight:600; color:var(--text-main);">🎵 ${_escHtml(t)}</span>` +
-      (url ? `<audio controls preload="none" src="${_escHtml(url)}" style="height:32px; max-width:100%;"></audio>` : '') +
-    `</div>` +
-    `<div style="font-size:0.76rem; color:var(--text-muted); margin-top:6px;">Recomende este áudio quantas vezes quiser, para quem quiser, sem subir de novo. Para trocar, escolha um arquivo novo abaixo.</div>`;
+    `<div style="font-size:0.9rem; font-weight:600; color:var(--text-main);">🎵 ${_escHtml(t)}</div>` +
+    (url ? `<audio controls preload="none" src="${_escHtml(url)}" style="display:block; width:100%; max-width:420px; margin-top:8px;"></audio>` : '') +
+    `<div style="font-size:0.76rem; color:var(--text-muted); margin-top:8px;">Recomende este áudio quantas vezes quiser, para quem quiser, sem subir de novo. Para trocar, escolha um arquivo novo abaixo.</div>`;
 }
 
 function _recAudioFilteredUsers() {

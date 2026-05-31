@@ -6,7 +6,7 @@
   <title>Admin — Caminho da Felicidade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.min.css?v=148">
-  <link rel="stylesheet" href="css/admin.min.css?v=4">
+  <link rel="stylesheet" href="css/admin.min.css?v=5">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 
@@ -727,7 +727,7 @@
                 novo</strong> — o anterior é substituído (apaga de todos e libera o espaço no Storage).</p>
             </div>
             <div
-              style="background:var(--surface, var(--bg)); border:1px solid var(--border); border-radius:6px; padding:16px; max-width:880px;">
+              style="background:var(--surface, var(--bg)); border:1px solid var(--border); border-radius:6px; padding:16px; max-width:1140px;">
               <!-- Áudio guardado: a recomendação de áudio mais recente. Preenchido por _recRenderCurrentAudio(). -->
               <div
                 style="margin-bottom:16px; padding:12px 14px; background:var(--bg, #fff); border:1px solid var(--border); border-radius:6px;">
@@ -738,7 +738,7 @@
                   <div class="loading" style="font-size:0.82rem;">Carregando...</div>
                 </div>
               </div>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+              <div style="display:grid; grid-template-columns:minmax(280px, 340px) 1fr; gap:20px; align-items:start;">
                 <!-- Esquerda: trocar áudio (opcional) + nota + prazo -->
                 <div>
                   <label
@@ -780,7 +780,7 @@
                     style="width:100%; padding:7px 10px; font-size:0.82rem; box-sizing:border-box; margin-bottom:8px;"
                     oninput="renderRecAudioUserList()">
                   <div id="rec-audio-user-list"
-                    style="height:240px; overflow-y:auto; border:1px solid var(--border); border-radius:6px;">
+                    style="height:min(54vh, 440px); overflow-y:auto; border:1px solid var(--border); border-radius:6px;">
                     <div class="loading" style="padding:16px;">Carregando...</div>
                   </div>
                   <div id="rec-audio-selcount" style="font-size:0.72rem; color:var(--text-muted); margin-top:6px;">
@@ -955,7 +955,7 @@
 
             <div class="admin-section">
               <h2>🕐 Buscas Recentes por Usuário</h2>
-              <div id="sa-recent-searches" style="max-height:400px; overflow-y:auto;">
+              <div id="sa-recent-searches" style="max-height:min(72vh, 760px); overflow-y:auto;">
                 <div class="loading">Carregando...</div>
               </div>
             </div>
@@ -1499,7 +1499,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=78"></script>
+  <script type="module" src="js/admin.js?v=79"></script>
 
 </body>
 

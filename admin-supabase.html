@@ -721,21 +721,34 @@
               <h2
                 style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
                 Recomendar Áudio</h2>
-              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Suba um MP3 e envie como recomendação
-                avulsa. Marque "Selecionar todos" e desmarque quem não deve receber. O áudio aparece com um player na
-                cartinha do usuário. <strong>Enviar um novo áudio substitui o anterior automaticamente</strong> (apaga
-                de todos e libera o espaço no Storage).</p>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Suba um MP3 <strong>uma vez</strong>: ele
+                fica guardado e você pode recomendá-lo quantas vezes quiser, para quem quiser, sem subir de novo. O áudio
+                aparece com um player na cartinha do usuário. <strong>Para trocar o áudio guardado, escolha um arquivo
+                novo</strong> — o anterior é substituído (apaga de todos e libera o espaço no Storage).</p>
             </div>
             <div
               style="background:var(--surface, var(--bg)); border:1px solid var(--border); border-radius:6px; padding:16px; max-width:880px;">
+              <!-- Áudio guardado: a recomendação de áudio mais recente. Preenchido por _recRenderCurrentAudio(). -->
+              <div
+                style="margin-bottom:16px; padding:12px 14px; background:var(--bg, #fff); border:1px solid var(--border); border-radius:6px;">
+                <div
+                  style="font-size:0.72rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">
+                  Áudio guardado</div>
+                <div id="rec-audio-current">
+                  <div class="loading" style="font-size:0.82rem;">Carregando...</div>
+                </div>
+              </div>
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
-                <!-- Esquerda: arquivo + título + nota + prazo -->
+                <!-- Esquerda: trocar áudio (opcional) + nota + prazo -->
                 <div>
+                  <label
+                    style="display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:4px;">Trocar áudio —
+                    só preencha para enviar um arquivo novo</label>
                   <input type="file" id="rec-audio-file" accept="audio/*"
                     style="width:100%; padding:7px 10px; font-size:0.82rem; box-sizing:border-box; margin-bottom:10px; border:1px solid var(--border); border-radius:4px; background:var(--bg, #fff);"
                     onchange="recAudioValidate()">
                   <input type="text" id="rec-audio-title"
-                    placeholder="Título do áudio (ex.: 'Mensagem do Reverendo Walter')"
+                    placeholder="Título do novo áudio (ex.: 'Mensagem do Reverendo Walter')"
                     style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box; margin-bottom:10px;"
                     autocomplete="off" oninput="recAudioValidate()">
                   <textarea id="rec-audio-note"
@@ -1486,7 +1499,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=77"></script>
+  <script type="module" src="js/admin.js?v=78"></script>
 
 </body>
 

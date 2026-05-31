@@ -310,14 +310,21 @@ async function recDelete(recId) {
 
 // ============================================================
 // Recomendação de áudio (avulsa) — aba "Recomendar Áudio".
-// Upload no bucket privado `rec-audio` + envio em lote pros
-// destinatários marcados (multi-seleção com "selecionar todos").
-// Bloco independente do fluxo de ensinamento.
+// O áudio mais recente fica GUARDADO (admin_get_current_audio, v13) e
+// pode ser recomendado quantas vezes quiser sem re-upload. Subir um
+// arquivo novo TROCA o guardado: apaga o anterior (linhas + arquivos do
+// bucket privado `rec-audio`), mantendo o "1 áudio por vez". Envio em
+// lote pros destinatários marcados. Bloco independente do ensinamento.
 // ============================================================
 const REC_AUDIO_BUCKET = 'rec-audio';
 let _recAudioSelectedIds = new Set();
+// Áudio guardado = a recomendação de áudio mais recente. Quando existe,
+// o admin pode recomendá-lo de novo sem subir arquivo; só troca quando
+// sobe um arquivo novo. { audio_path, audio_title, _url? } | null.
+let _recCurrentAudio = null;
 
-// Carrega a aba: garante allUsers e popula o checklist de destinatários.
+// Carrega a aba: garante allUsers, busca o áudio guardado e popula o
+// checklist de destinatários.
 async function loadRecommendAudioTab() {
   if (!Array.isArray(allUsers) || allUsers.length === 0) {
     const { data, error } = await supabase.rpc('admin_get_users');
@@ -328,7 +335,47 @@ async function loadRecommendAudioTab() {
     }
     setAllUsers(data || []);
   }
+  await _recLoadCurrentAudio();
   renderRecAudioUserList();
+}
+
+// Busca o áudio guardado via RPC (RLS impede ler recs de outros usuários
+// no cliente) e minta uma signed URL pra prévia no player. Degrada de boa
+// se a RPC não existir ainda (v13 não rodada) — só não mostra o guardado.
+async function _recLoadCurrentAudio() {
+  try {
+    const { data, error } = await supabase.rpc('admin_get_current_audio');
+    if (error) throw error;
+    const row = Array.isArray(data) ? data[0] : data;
+    _recCurrentAudio = (row && row.audio_path) ? row : null;
+    if (_recCurrentAudio) {
+      const { data: signed } = await supabase.storage
+        .from(REC_AUDIO_BUCKET).createSignedUrl(_recCurrentAudio.audio_path, 3600);
+      _recCurrentAudio._url = signed ? signed.signedUrl : '';
+    }
+  } catch (e) {
+    console.warn('[audio] não consegui carregar o áudio guardado:', e?.message || e);
+    _recCurrentAudio = null;
+  }
+  _recRenderCurrentAudio();
+}
+
+// Renderiza o bloco "Áudio guardado" no topo da aba.
+function _recRenderCurrentAudio() {
+  const box = document.getElementById('rec-audio-current');
+  if (!box) return;
+  if (!_recCurrentAudio) {
+    box.innerHTML = '<span style="color:var(--text-muted); font-size:0.82rem;">Nenhum áudio guardado ainda. Suba um arquivo abaixo para recomendar.</span>';
+    return;
+  }
+  const t = _recCurrentAudio.audio_title || '(áudio sem título)';
+  const url = _recCurrentAudio._url || '';
+  box.innerHTML =
+    `<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">` +
+      `<span style="font-size:0.9rem; font-weight:600; color:var(--text-main);">🎵 ${_escHtml(t)}</span>` +
+      (url ? `<audio controls preload="none" src="${_escHtml(url)}" style="height:32px; max-width:100%;"></audio>` : '') +
+    `</div>` +
+    `<div style="font-size:0.76rem; color:var(--text-muted); margin-top:6px;">Recomende este áudio quantas vezes quiser, para quem quiser, sem subir de novo. Para trocar, escolha um arquivo novo abaixo.</div>`;
 }
 
 function _recAudioFilteredUsers() {
@@ -396,7 +443,10 @@ function recAudioValidate() {
   const n = _recAudioSelectedIds.size;
   const btn = document.getElementById('rec-audio-create-btn');
   if (btn) {
-    btn.disabled = !(file && title && n > 0);
+    // Com arquivo novo: precisa de título. Sem arquivo: reusa o áudio
+    // guardado (precisa existir). Sempre precisa de ≥1 destinatário.
+    const ok = n > 0 && (file ? !!title : !!_recCurrentAudio);
+    btn.disabled = !ok;
     btn.textContent = n > 1 ? `Recomendar áudio (${n})` : 'Recomendar áudio';
   }
   const count = document.getElementById('rec-audio-selcount');
@@ -456,20 +506,38 @@ async function _recPurgePreviousAudio(keepPath) {
   }
 }
 
+// Recomenda áudio. O modo é decidido pela presença de um arquivo:
+//   • COM arquivo  → sobe o novo, envia e TROCA o guardado: apaga o
+//     anterior (linhas + arquivos do Storage). "Apaga só quando sobe um novo."
+//   • SEM arquivo  → reusa o áudio guardado: só envia. Não sobe nada,
+//     não apaga nada. "Recomende quantas vezes quiser."
 async function recCreateAudio() {
   const file = document.getElementById('rec-audio-file')?.files?.[0];
-  const title = document.getElementById('rec-audio-title').value.trim();
   const ids = Array.from(_recAudioSelectedIds);
-  if (!file || !title || ids.length === 0) return;
-  if (ids.length >= 10 && !confirm(`Recomendar o áudio "${title}" pra ${ids.length} usuários?\n\nCada um recebe uma cópia. Não dá pra desfazer em massa.`)) return;
+  if (ids.length === 0) return;
+
+  // Resolve o áudio a enviar (novo upload x guardado).
+  let path, title;
+  const replacing = !!file;
+  if (replacing) {
+    title = document.getElementById('rec-audio-title').value.trim();
+    if (!title) return;
+  } else {
+    if (!_recCurrentAudio) return;
+    path = _recCurrentAudio.audio_path;
+    title = _recCurrentAudio.audio_title || '';
+  }
+
+  if (ids.length >= 10 && !confirm(`Recomendar "${title || 'o áudio guardado'}" pra ${ids.length} usuários?\n\nCada um recebe uma cópia. Não dá pra desfazer em massa.`)) return;
   const note = document.getElementById('rec-audio-note').value.trim();
   const msg = document.getElementById('rec-audio-msg');
   const btn = document.getElementById('rec-audio-create-btn');
   btn.disabled = true;
   msg.style.color = 'var(--text-muted)';
-  msg.textContent = `Enviando áudio pra ${ids.length} usuário${ids.length === 1 ? '' : 's'}...`;
+  msg.textContent = (replacing ? 'Subindo e enviando' : 'Enviando o áudio guardado')
+    + ` pra ${ids.length} usuário${ids.length === 1 ? '' : 's'}...`;
   try {
-    const path = await _recUploadAudio(file);
+    if (replacing) path = await _recUploadAudio(file);
     const { data, error } = await supabase.rpc('admin_create_audio_recommendations_bulk', {
       p_user_ids: ids,
       p_audio_path: path,
@@ -478,13 +546,15 @@ async function recCreateAudio() {
       p_expires_at: _recAudioExpiresIso(),
     });
     if (error) throw error;
-    // "1 áudio por vez": apaga as recomendações e os arquivos do áudio
+    // Só ao TROCAR: apaga as recomendações e os arquivos do áudio
     // anterior (libera espaço). Não-fatal — não bloqueia o sucesso.
-    await _recPurgePreviousAudio(path);
+    if (replacing) await _recPurgePreviousAudio(path);
     const created = typeof data === 'number' ? data : ids.length;
-    recClearAudioForm();
+    recClearAudioForm();           // limpa arquivo/título/nota/prazo/seleção
+    await _recLoadCurrentAudio();   // re-renderiza o "áudio guardado"
     msg.style.color = '#2c8a3e';
-    msg.textContent = `✓ Enviado pra ${created} usuário${created === 1 ? '' : 's'} (áudio anterior substituído).`;
+    msg.textContent = `✓ Enviado pra ${created} usuário${created === 1 ? '' : 's'}`
+      + (replacing ? ' — áudio guardado (anterior substituído).' : '.');
   } catch (e) {
     msg.style.color = '#c00';
     msg.textContent = 'Erro: ' + (e.message || String(e));

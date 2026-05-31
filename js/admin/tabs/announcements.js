@@ -58,6 +58,23 @@ function annBold() {
   ta.focus();
 }
 
+// Envolve a seleção do textarea em * * (itálico). Sem seleção, insere
+// ** e posiciona o cursor no meio para o admin digitar.
+function annItalic() {
+  const ta = document.getElementById('ann-body');
+  if (!ta) return;
+  const s = ta.selectionStart, e = ta.selectionEnd, v = ta.value;
+  const sel = v.slice(s, e);
+  if (sel) {
+    ta.value = v.slice(0, s) + '*' + sel + '*' + v.slice(e);
+    ta.setSelectionRange(s + 1, e + 1);
+  } else {
+    ta.value = v.slice(0, s) + '**' + v.slice(s);
+    ta.setSelectionRange(s + 1, s + 1);
+  }
+  ta.focus();
+}
+
 async function saveAnnouncement() {
   const payload = _collectAnnForm();
   const msg = document.getElementById('ann-msg');
@@ -125,13 +142,13 @@ async function loadAnnouncements() {
       <thead><tr><th>Publicado</th><th>Título</th><th>Status</th><th></th></tr></thead>
       <tbody>
         ${data.map(a => {
-          // Tira os marcadores ** só para o preview ficar legível na lista.
-          const preview = (a.body || '').replace(/\*\*/g, '');
+          // Tira os marcadores ** e * só para o preview ficar legível na lista.
+          const preview = (a.body || '').replace(/\*\*/g, '').replace(/\*/g, '');
           return `
           <tr>
             <td style="white-space:nowrap; font-variant-numeric:tabular-nums;">${new Date(a.published_at).toLocaleDateString('pt-BR')}</td>
             <td>
-              <strong>${_escapeCmu(a.title)}</strong>
+              <strong style="color:var(--accent);">${_escapeCmu(a.title)}</strong>
               <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px; max-width:480px;">${_escapeCmu(preview.slice(0, 140))}${preview.length > 140 ? '…' : ''}</div>
             </td>
             <td>
@@ -155,6 +172,7 @@ Object.assign(window, {
   resetAnnouncementForm,
   editAnnouncement,
   annBold,
+  annItalic,
   saveAnnouncement,
   toggleAnnouncement,
   deleteAnnouncement,

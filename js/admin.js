@@ -1,4 +1,4 @@
-﻿    import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
+    import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
     import Chart from 'chart.js/auto';
     // Estado compartilhado entre admin.js e abas extraídas
     import {
@@ -12,7 +12,7 @@
     // Abas extraídas — registram suas funções em window.*
     import './admin/tabs/admin-logs.js';
     import './admin/tabs/calendar.js';
-    import './admin/tabs/announcements.js';
+    import './admin/tabs/announcements.js?v=2';
     import './admin/tabs/access-info.js';
     import './admin/tabs/find-replace.js';
     import './admin/tabs/duplicates.js';

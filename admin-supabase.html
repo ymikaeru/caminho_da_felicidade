@@ -1103,7 +1103,9 @@
                   <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
                     <button type="button" onclick="annBold()" title="Negrito — selecione um trecho e clique"
                       style="padding:3px 11px; border:1px solid var(--border); border-radius:6px; background:var(--surface,#fff); color:var(--text); font-weight:700; cursor:pointer;">B</button>
-                    <span style="font-size:0.78rem; color:var(--text-muted);">Selecione um trecho e clique <strong>B</strong> — ou escreva <code>**texto**</code> para deixar em negrito.</span>
+                    <button type="button" onclick="annItalic()" title="Itálico — selecione um trecho e clique"
+                      style="padding:3px 13px; border:1px solid var(--border); border-radius:6px; background:var(--surface,#fff); color:var(--text); font-style:italic; font-family:serif; font-size:1.05rem; cursor:pointer;">I</button>
+                    <span style="font-size:0.78rem; color:var(--text-muted);">Selecione e clique <strong>B</strong> ou <em style="font-family:serif; font-size:1.05rem;">I</em> — ou escreva <code>**negrito**</code> / <code>*itálico*</code>.</span>
                   </div>
                   <textarea id="ann-body" rows="5"
                     style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:0.9rem; background:var(--surface, #fff); color:var(--text);"
@@ -1541,7 +1543,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=82"></script>
+  <script type="module" src="js/admin.js?v=83"></script>
 
 </body>
 

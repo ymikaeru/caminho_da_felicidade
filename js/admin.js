@@ -93,7 +93,7 @@
     // (importado no topo deste arquivo)
 
     window.switchAdminSection = function(section) {
-      document.querySelectorAll('.tab-group[data-section]').forEach(g => {
+      document.querySelectorAll('.admin-nav-section[data-section]').forEach(g => {
         g.style.display = g.dataset.section === section ? '' : 'none';
       });
       try { localStorage.setItem('admin_section', section); } catch (e) {}
@@ -111,12 +111,35 @@
       } catch (e) { setTimeout(() => window.switchAdminSection('caminho'), 0); }
     })();
 
+    // Gaveta lateral (mobile): abre/fecha o menu + o scrim de fundo.
+    window.openAdminDrawer = function () {
+      const sb = document.getElementById('adminSidebar');
+      const sc = document.getElementById('adminScrim');
+      if (sb) sb.classList.add('is-open');
+      if (sc) sc.classList.add('show');
+    };
+    window.closeAdminDrawer = function () {
+      const sb = document.getElementById('adminSidebar');
+      const sc = document.getElementById('adminScrim');
+      if (sb) sb.classList.remove('is-open');
+      if (sc) sc.classList.remove('show');
+    };
+    (function _wireAdminDrawer() {
+      const h = document.getElementById('adminHamburger');
+      const sc = document.getElementById('adminScrim');
+      if (h) h.addEventListener('click', window.openAdminDrawer);
+      if (sc) sc.addEventListener('click', window.closeAdminDrawer);
+    })();
+
     window.switchTab = function(tab) {
-      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.admin-nav-item').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-poetry': 6, 'analytics-search': 7, 'destaques': 8, 'saved': 9, 'recommendations': 10, 'recommend-audio': 11, 'inbox': 12, 'mural': 13, 'reports': 14, 'poetry-versions': 15, 'partial-citations': 16, 'users': 17, 'findreplace': 18, 'duplicates': 19, 'logs': 20, 'analytics-johrei': 21, 'reports-guia': 22, 'essencia-guia': 23 }[tab];
-      document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
-      document.getElementById(`tab-${tab}`).classList.add('active');
+      // Acha a aba ativa pelo data-tab (antes era um índice posicional frágil).
+      const navItem = document.querySelector('.admin-nav-item[data-tab="' + tab + '"]');
+      if (navItem) navItem.classList.add('active');
+      const pane = document.getElementById('tab-' + tab);
+      if (pane) pane.classList.add('active');
+      if (window.closeAdminDrawer) window.closeAdminDrawer();
       if (tab === 'analytics') {
         loadAnalytics();
         if (_onlineRefreshInterval) clearInterval(_onlineRefreshInterval);

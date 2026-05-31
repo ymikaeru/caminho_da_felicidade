@@ -6,7 +6,7 @@
   <title>Admin — Caminho da Felicidade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.min.css?v=148">
-  <link rel="stylesheet" href="css/admin.min.css?v=5">
+  <link rel="stylesheet" href="css/admin.min.css?v=6">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 
@@ -48,90 +48,90 @@
       <div class="glass-pane">
         <div class="admin-wrap">
 
-          <div class="index-header"
-            style="margin-bottom:24px; display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap;">
-            <div style="text-align:left;">
-              <span class="section-label"
-                style="color:var(--accent); font-weight:600; letter-spacing:2px; text-align:left; margin-bottom:0;">ADMIN</span>
-              <h1 class="index-title" style="margin-top:12px; margin-bottom:0; text-align:left; padding:0;">Painel
-                Administrativo</h1>
-            </div>
-            <button class="btn-zen" type="button" onclick="changeAdminPin()" style="font-size:.8rem;"
-              title="Trocar o PIN exigido para entrar no painel">🔑 Trocar PIN</button>
-          </div>
+          <!-- Hambúrguer + scrim (só aparecem no mobile) -->
+          <button class="admin-hamburger" id="adminHamburger" type="button" aria-label="Abrir menu">&#9776;</button>
+          <div class="admin-scrim" id="adminScrim"></div>
 
-          <!-- Seção picker -->
-          <div class="admin-section-picker"
-            style="margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-            <label for="adminSectionSel"
-              style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.14em;font-weight:600;">Seção</label>
-            <select id="adminSectionSel" onchange="switchAdminSection(this.value)"
-              style="background:var(--surface);color:var(--text);border:1px solid var(--border);padding:9px 14px;border-radius:10px;font-size:.92rem;min-width:240px;cursor:pointer;font-weight:500;">
-              <option value="landing">Landing Page</option>
-              <option value="caminho" selected>Caminho da Felicidade</option>
-              <option value="johrei">Guia do Johrei</option>
-            </select>
-          </div>
+          <!-- Menu lateral -->
+          <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-sidebar-brand">
+              <div class="admin-sidebar-eyebrow">ADMIN</div>
+              <div class="admin-sidebar-title">Painel</div>
+            </div>
 
-          <!-- Tabs -->
-          <div class="admin-tabs" style="align-items:flex-end;">
-            <div class="tab-group" data-section="landing">
-              <div class="tab-group-tabs">
-                <div class="admin-tab" onclick="switchTab('analytics-landing')">📊 Analytics</div>
-                <div class="admin-tab" onclick="switchTab('calendar')">📅 Calendário</div>
-                <div class="admin-tab" onclick="switchTab('access')">📍 Localização</div>
-                <div class="admin-tab" onclick="switchTab('announcements')">📢 Comunicados</div>
-              </div>
+            <div class="admin-sidebar-section">
+              <label for="adminSectionSel" class="admin-sidebar-seclabel">Seção</label>
+              <select id="adminSectionSel" class="admin-sidebar-select" onchange="switchAdminSection(this.value)">
+                <option value="landing">Landing Page</option>
+                <option value="caminho" selected>Caminho da Felicidade</option>
+                <option value="johrei">Guia do Johrei</option>
+              </select>
             </div>
-            <div class="tab-group" data-section="caminho">
-              <div class="tab-group-label">Análise</div>
-              <div class="tab-group-tabs">
-                <div class="admin-tab" onclick="switchTab('analytics')">📊 Geral</div>
-                <div class="admin-tab" onclick="switchTab('analytics-disciples')">📊 Discípulos</div>
-                <div class="admin-tab" onclick="switchTab('analytics-poetry')">📜 Poesia</div>
-                <div class="admin-tab" onclick="switchTab('analytics-search')">🔎 Buscas</div>
+
+            <nav class="admin-nav">
+              <!-- ===== CAMINHO DA FELICIDADE ===== -->
+              <div class="admin-nav-section" data-section="caminho">
+                <div class="admin-nav-group">
+                  <div class="admin-nav-grouplabel">Análise</div>
+                  <div class="admin-nav-item active" data-tab="analytics" onclick="switchTab('analytics')"><span class="admin-nav-ico">📊</span><span class="admin-nav-txt">Geral</span></div>
+                  <div class="admin-nav-item" data-tab="analytics-disciples" onclick="switchTab('analytics-disciples')"><span class="admin-nav-ico">📊</span><span class="admin-nav-txt">Discípulos</span></div>
+                  <div class="admin-nav-item" data-tab="analytics-poetry" onclick="switchTab('analytics-poetry')"><span class="admin-nav-ico">📜</span><span class="admin-nav-txt">Poesia</span></div>
+                  <div class="admin-nav-item" data-tab="analytics-search" onclick="switchTab('analytics-search')"><span class="admin-nav-ico">🔎</span><span class="admin-nav-txt">Buscas</span></div>
+                  <div class="admin-nav-item" data-tab="destaques" onclick="switchTab('destaques')"><span class="admin-nav-ico">⭐</span><span class="admin-nav-txt">Destaques</span></div>
+                  <div class="admin-nav-item" data-tab="saved" onclick="switchTab('saved')"><span class="admin-nav-ico">🔖</span><span class="admin-nav-txt">Salvos</span></div>
+                </div>
+                <div class="admin-nav-group">
+                  <div class="admin-nav-grouplabel">Curadoria</div>
+                  <div class="admin-nav-item" data-tab="recommendations" onclick="switchTab('recommendations')"><span class="admin-nav-ico">📤</span><span class="admin-nav-txt">Recomendações</span></div>
+                  <div class="admin-nav-item" data-tab="recommend-audio" onclick="switchTab('recommend-audio')"><span class="admin-nav-ico">🎵</span><span class="admin-nav-txt">Recomendar Áudio</span></div>
+                  <div class="admin-nav-item" data-tab="inbox" onclick="switchTab('inbox')"><span class="admin-nav-ico">📬</span><span class="admin-nav-txt">Caixa de Entrada</span></div>
+                  <div class="admin-nav-item" data-tab="mural" onclick="switchTab('mural')"><span class="admin-nav-ico">🌸</span><span class="admin-nav-txt">Mural</span></div>
+                  <div class="admin-nav-item" data-tab="reports" onclick="switchTab('reports')"><span class="admin-nav-ico">⚠</span><span class="admin-nav-txt">Relatórios</span><span class="tab-badge empty" id="reportsTabBadge">0</span></div>
+                </div>
+                <div class="admin-nav-group">
+                  <div class="admin-nav-grouplabel">Edição</div>
+                  <div class="admin-nav-item" data-tab="poetry-versions" onclick="switchTab('poetry-versions')"><span class="admin-nav-ico">🌸</span><span class="admin-nav-txt">Poemas</span></div>
+                  <div class="admin-nav-item" data-tab="partial-citations" onclick="switchTab('partial-citations')"><span class="admin-nav-ico">🔗</span><span class="admin-nav-txt">Citações</span></div>
+                </div>
+                <div class="admin-nav-group">
+                  <div class="admin-nav-grouplabel">Sistema</div>
+                  <div class="admin-nav-item" data-tab="users" onclick="switchTab('users')"><span class="admin-nav-ico">👤</span><span class="admin-nav-txt">Usuários</span></div>
+                  <div class="admin-nav-item" data-tab="logs" onclick="switchTab('logs')"><span class="admin-nav-ico">📋</span><span class="admin-nav-txt">Logs</span></div>
+                  <div class="admin-nav-item" data-tab="findreplace" onclick="switchTab('findreplace')" style="display:none"><span class="admin-nav-ico">✏️</span><span class="admin-nav-txt">Buscar &amp; Substituir</span></div>
+                  <div class="admin-nav-item" data-tab="duplicates" onclick="switchTab('duplicates')" style="display:none"><span class="admin-nav-ico">📑</span><span class="admin-nav-txt">Duplicatas</span><span class="tab-badge empty" id="duplicatesTabBadge">0</span></div>
+                </div>
               </div>
-            </div>
-            <div class="tab-group" data-section="caminho">
-              <div class="tab-group-label">Curadoria</div>
-              <div class="tab-group-tabs">
-                <div class="admin-tab" onclick="switchTab('destaques')">⭐ Destaques</div>
-                <div class="admin-tab" onclick="switchTab('saved')">🔖 Salvos</div>
-                <div class="admin-tab" onclick="switchTab('recommendations')">📤 Recomendações</div>
-                <div class="admin-tab" onclick="switchTab('recommend-audio')">🎵 Recomendar Áudio</div>
-                <div class="admin-tab" onclick="switchTab('inbox')">📬 Caixa de Entrada</div>
-                <div class="admin-tab" onclick="switchTab('mural')">🌸 Mural</div>
+
+              <!-- ===== LANDING PAGE ===== -->
+              <div class="admin-nav-section" data-section="landing" style="display:none">
+                <div class="admin-nav-group">
+                  <div class="admin-nav-grouplabel">Landing Page</div>
+                  <div class="admin-nav-item" data-tab="analytics-landing" onclick="switchTab('analytics-landing')"><span class="admin-nav-ico">📊</span><span class="admin-nav-txt">Analytics</span></div>
+                  <div class="admin-nav-item" data-tab="calendar" onclick="switchTab('calendar')"><span class="admin-nav-ico">📅</span><span class="admin-nav-txt">Calendário</span></div>
+                  <div class="admin-nav-item" data-tab="access" onclick="switchTab('access')"><span class="admin-nav-ico">📍</span><span class="admin-nav-txt">Localização</span></div>
+                  <div class="admin-nav-item" data-tab="announcements" onclick="switchTab('announcements')"><span class="admin-nav-ico">📢</span><span class="admin-nav-txt">Comunicados</span></div>
+                </div>
               </div>
-            </div>
-            <div class="tab-group" data-section="caminho">
-              <div class="tab-group-label">Edição</div>
-              <div class="tab-group-tabs">
-                <div class="admin-tab" onclick="switchTab('reports')">⚠ Relatórios <span class="tab-badge empty"
-                    id="reportsTabBadge">0</span></div>
-                <div class="admin-tab" onclick="switchTab('poetry-versions')">🌸 Poemas</div>
-                <div class="admin-tab" onclick="switchTab('partial-citations')">🔗 Citações</div>
+
+              <!-- ===== GUIA DO JOHREI ===== -->
+              <div class="admin-nav-section" data-section="johrei" style="display:none">
+                <div class="admin-nav-group">
+                  <div class="admin-nav-grouplabel">Guia do Johrei</div>
+                  <div class="admin-nav-item" data-tab="analytics-johrei" onclick="switchTab('analytics-johrei')"><span class="admin-nav-ico">📊</span><span class="admin-nav-txt">Analytics</span></div>
+                  <div class="admin-nav-item" data-tab="reports-guia" onclick="switchTab('reports-guia')"><span class="admin-nav-ico">⚠</span><span class="admin-nav-txt">Relatórios</span><span class="tab-badge empty" id="guiaReportsTabBadge">0</span></div>
+                  <div class="admin-nav-item" data-tab="essencia-guia" onclick="switchTab('essencia-guia')" style="display:none"><span class="admin-nav-ico">📌</span><span class="admin-nav-txt">Essência</span></div>
+                </div>
               </div>
+            </nav>
+
+            <div class="admin-sidebar-foot">
+              <button class="btn-zen" type="button" onclick="changeAdminPin()" style="font-size:.78rem;width:100%;"
+                title="Trocar o PIN exigido para entrar no painel">🔑 Trocar PIN</button>
             </div>
-            <div class="tab-group" data-section="caminho">
-              <div class="tab-group-label">Admin</div>
-              <div class="tab-group-tabs">
-                <div class="admin-tab active" onclick="switchTab('users')">👤 Usuários</div>
-                <div class="admin-tab" onclick="switchTab('findreplace')" style="display:none">✏️ Buscar &amp;
-                  Substituir</div>
-                <div class="admin-tab" onclick="switchTab('duplicates')" style="display:none">📑 Duplicatas <span
-                    class="tab-badge empty" id="duplicatesTabBadge">0</span></div>
-                <div class="admin-tab" onclick="switchTab('logs')">📋 Logs</div>
-              </div>
-            </div>
-            <div class="tab-group" data-section="johrei">
-              <div class="tab-group-tabs">
-                <div class="admin-tab" onclick="switchTab('analytics-johrei')">📊 Analytics</div>
-                <div class="admin-tab" onclick="switchTab('reports-guia')">⚠ Relatórios <span class="tab-badge empty"
-                    id="guiaReportsTabBadge">0</span></div>
-                <div class="admin-tab" onclick="switchTab('essencia-guia')" style="display:none">📌 Essência</div>
-              </div>
-            </div>
-          </div><!-- /admin-tabs -->
+          </aside>
+
+          <!-- Conteúdo das abas (coluna principal ao lado do menu) -->
+          <div class="admin-main">
 
           <!-- Users Tab -->
           <div class="tab-content active" id="tab-users">
@@ -1092,7 +1092,7 @@
                 ativos.</p>
             </div>
             <div class="admin-section">
-              <h2>Novo Comunicado</h2>
+              <h2 id="ann-form-title">Novo Comunicado</h2>
               <div class="add-user-form">
                 <div class="form-group" style="grid-column:1/-1;">
                   <label for="ann-title">Título</label>
@@ -1100,6 +1100,11 @@
                 </div>
                 <div class="form-group" style="grid-column:1/-1;">
                   <label for="ann-body">Corpo (use linha em branco para separar parágrafos)</label>
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                    <button type="button" onclick="annBold()" title="Negrito — selecione um trecho e clique"
+                      style="padding:3px 11px; border:1px solid var(--border); border-radius:6px; background:var(--surface,#fff); color:var(--text); font-weight:700; cursor:pointer;">B</button>
+                    <span style="font-size:0.78rem; color:var(--text-muted);">Selecione um trecho e clique <strong>B</strong> — ou escreva <code>**texto**</code> para deixar em negrito.</span>
+                  </div>
                   <textarea id="ann-body" rows="5"
                     style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:0.9rem; background:var(--surface, #fff); color:var(--text);"
                     placeholder="Texto do comunicado..."></textarea>
@@ -1107,7 +1112,11 @@
                 <div class="form-group">
                   <label><input type="checkbox" id="ann-active" checked> Ativo (visível no site)</label>
                 </div>
-                <button id="ann-add-btn" onclick="addAnnouncement()">Publicar</button>
+                <div style="grid-column:1/-1; display:flex; gap:8px; align-items:center;">
+                  <button id="ann-add-btn" onclick="saveAnnouncement()">Publicar</button>
+                  <button id="ann-cancel-btn" onclick="resetAnnouncementForm()"
+                    style="display:none; padding:9px 16px; border:1px solid var(--border); border-radius:8px; background:none; color:var(--text-muted); font-size:0.9rem; cursor:pointer;">Cancelar edição</button>
+                </div>
               </div>
               <div id="ann-msg" class="msg"></div>
             </div>
@@ -1396,6 +1405,7 @@
             </div>
           </div>
 
+          </div><!-- /admin-main -->
         </div>
       </div>
     </div>
@@ -1531,7 +1541,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=81"></script>
+  <script type="module" src="js/admin.js?v=82"></script>
 
 </body>
 

@@ -119,7 +119,7 @@
   }
 
   // ── compositor ──
-  function _open(topicIdx, poemMeta) {
+  function _open(topicIdx, poemMeta, excerptOverride) {
     if (typeof isLoggedIn === 'function' && !isLoggedIn()) return;
     if (typeof buildDescobertaModal === 'function') buildDescobertaModal();
     const overlay = document.getElementById('descobertaModal');
@@ -138,10 +138,16 @@
         alert(lang === 'ja' ? '教えを特定できませんでした。' : 'Não consegui identificar o Ensinamento atual.');
         return;
       }
-      _ctx = { vol: m.vol, file: m.file, topic_idx: m.topic_idx, poem_topic_id: null, excerpt: null, title: m.title };
+      _ctx = { vol: m.vol, file: m.file, topic_idx: m.topic_idx, poem_topic_id: null, excerpt: excerptOverride || null, title: m.title };
     }
     const ctxEl = document.getElementById('descobertaContext');
     if (ctxEl) ctxEl.textContent = _ctx.title || (lang === 'ja' ? '(無題)' : '(sem título)');
+    // Trecho grifado (quando vem do menu de seleção) — citação no composer.
+    const exEl = document.getElementById('descobertaExcerpt');
+    if (exEl) {
+      if (_ctx.excerpt) { exEl.textContent = _ctx.excerpt; exEl.style.display = 'block'; }
+      else { exEl.style.display = 'none'; exEl.textContent = ''; }
+    }
     const body = document.getElementById('descobertaBody');
     if (body) body.value = '';
     const msg = document.getElementById('descobertaMsg');
@@ -316,6 +322,7 @@
 
   window.openPublicarDescoberta = _open;                          // (topicIdx)
   window.openPublicarDescobertaPoem = (meta) => _open(null, meta);
+  window.openReflexaoFromSelection = (excerpt, topicIdx) => _open(topicIdx, null, excerpt);
   window.submitDescoberta = _submit;
   window.closeDescobertaModal = _close;
   window.initMuralBadge = _initBadge;

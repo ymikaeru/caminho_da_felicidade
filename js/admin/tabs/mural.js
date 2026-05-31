@@ -66,7 +66,7 @@ function _card(p) {
   const statusTag = `<span style="display:inline-block; font-size:0.65rem; font-weight:600; padding:1px 7px; border-radius:3px; background:${st.bg}; color:${st.c}; margin-left:8px;">${st.t}</span>`;
 
   // Poema aparece inline (o que o feed mostraria); ensinamento mostra só o ref.
-  const excerptHtml = (isPoem && p.excerpt)
+  const excerptHtml = p.excerpt
     ? `<div style="margin-top:8px; padding-left:12px; border-left:2px solid var(--accent); font-family:'Crimson Pro',Georgia,serif; font-style:italic; white-space:pre-line; line-height:1.6; color:var(--text-main); font-size:0.9rem;">${_escHtml(p.excerpt)}</div>`
     : '';
 

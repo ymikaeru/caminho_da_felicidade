@@ -7,8 +7,9 @@
 // reusando admin_create_recommendation_all (ensinamentos).
 //
 // Backend: study_messages.sql (admin_get_messages / admin_reply_message /
-// admin_delete_message). Repassar poema fica pra fase 2 (a RPC bulk de
-// poesia pede lista de ids + poem_number/text que a mensagem não guarda).
+// admin_delete_message). Repassar: Ensinamento via admin_create_recommendation_all;
+// poema via admin_create_poetry_recommendations_bulk (todos os ids; sem o texto
+// do poema, que a mensagem não guarda — o link resolve ao abrir).
 // ============================================================
 import { supabase } from '../../supabase-config.js';
 import { _escHtml } from '../shared/helpers.js';
@@ -82,10 +83,8 @@ function _renderCard(m, now) {
       </div>`;
   }
 
-  // Repassar a todos — só ensinamento na v1 (ver cabeçalho).
-  const repassarBtn = isPoem
-    ? ''
-    : `<button onclick="inboxRepassar('${_escHtml(m.id)}')" style="background:none; border:1px solid var(--accent); color:var(--accent); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer; white-space:nowrap;" title="Recomendar este ensinamento a todos os usuários">↗ Repassar a todos</button>`;
+  // Repassar a todos — Ensinamento e poema (ver cabeçalho).
+  const repassarBtn = `<button onclick="inboxRepassar('${_escHtml(m.id)}')" style="background:none; border:1px solid var(--accent); color:var(--accent); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer; white-space:nowrap;" title="Repassar a todos os ministros (vira recomendação)">↗ Repassar a todos</button>`;
 
   return `
     <div style="padding:12px 14px; background:var(--surface, var(--bg)); border:1px solid var(--border); border-radius:6px;">
@@ -125,10 +124,34 @@ async function inboxReply(id) {
 async function inboxRepassar(id) {
   const m = _inboxMessages.find(x => x.id === id);
   if (!m) return;
-  if (m.vol === 'poetry') { alert('Repasse de poema ainda não disponível.'); return; }
+  const titulo = m.title_pt || m.title_snapshot || (m.vol === 'poetry' ? 'este poema' : 'este Ensinamento');
   const note = prompt('Nota opcional para a recomendação (deixe vazio para nenhuma):', '');
   if (note === null) return; // cancelou
-  if (!confirm(`Recomendar "${m.title_pt || m.title_snapshot || 'este ensinamento'}" para TODOS os usuários?\n\nCada um receberá uma cópia. Não dá pra desfazer em massa.`)) return;
+  if (!confirm(`Recomendar "${titulo}" para TODOS os ministros?\n\nCada um receberá uma cópia. Não dá pra desfazer em massa.`)) return;
+
+  if (m.vol === 'poetry') {
+    // Poesia não tem RPC "_all" — mandamos a lista de todos os ministros ao bulk.
+    const { data: users, error: ue } = await supabase.rpc('admin_get_users');
+    if (ue) { alert('Erro ao carregar destinatários: ' + ue.message); return; }
+    const ids = (users || []).map(u => u.id).filter(Boolean);
+    if (!ids.length) { alert('Nenhum destinatário encontrado.'); return; }
+    // O número do poema já vai embutido em title_snapshot (= poem_title);
+    // poem_number=0 evita parsing frágil do título.
+    const { data, error } = await supabase.rpc('admin_create_poetry_recommendations_bulk', {
+      p_user_ids: ids,
+      p_collection: m.file,
+      p_poem_number: 0,
+      p_poem_topic_id: m.poem_topic_id,
+      p_poem_title: m.title_snapshot || '(poema)',
+      p_poem_text: null,
+      p_note: note.trim() || null,
+      p_expires_at: null,
+    });
+    if (error) { alert('Erro: ' + error.message); return; }
+    alert(`Repassado para ${data} ministro${data === 1 ? '' : 's'}.`);
+    return;
+  }
+
   const { data, error } = await supabase.rpc('admin_create_recommendation_all', {
     p_vol: m.vol,
     p_file: m.file,
@@ -137,7 +160,7 @@ async function inboxRepassar(id) {
     p_expires_at: null,
   });
   if (error) { alert('Erro: ' + error.message); return; }
-  alert(`Repassado para ${data} usuário${data === 1 ? '' : 's'}.`);
+  alert(`Repassado para ${data} ministro${data === 1 ? '' : 's'}.`);
 }
 
 async function inboxDelete(id) {

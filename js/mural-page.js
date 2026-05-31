@@ -54,7 +54,7 @@
 
     const ctxLabel = isPoem ? (lang === 'ja' ? '詩' : 'Poema') : (lang === 'ja' ? '教え' : 'Ensinamento');
     // Poema curto → aparece inline (aberto). Ensinamento → só título + link.
-    const inline = (isPoem && p.excerpt) ? `<div class="mural-poem">${_esc(p.excerpt)}</div>` : '';
+    const inline = p.excerpt ? `<div class="mural-poem">${_esc(p.excerpt)}</div>` : '';
     const openLbl = lang === 'ja' ? '開く →' : 'abrir →';
     const reacted = p.i_reacted ? ' reacted' : '';
 

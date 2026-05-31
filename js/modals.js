@@ -288,6 +288,7 @@ function buildDescobertaModal() {
       '<div style="padding: 4px 24px 24px;">' +
         '<div style="font-size:0.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); font-weight:600; margin-bottom:6px; font-family:var(--font-ui);">' + aboutLabel + '</div>' +
         '<div id="descobertaContext" style="font-family:\'Crimson Pro\',Georgia,serif; font-size:1.1rem; font-weight:600; color:var(--text-main); line-height:1.3; margin-bottom:16px;"></div>' +
+        '<div id="descobertaExcerpt" style="display:none; font-family:\'Crimson Pro\',Georgia,serif; font-style:italic; color:var(--text-main); line-height:1.6; border-left:2px solid var(--accent); padding:4px 0 4px 14px; margin-bottom:16px;"></div>' +
         '<textarea id="descobertaBody" rows="5" placeholder="' + placeholder + '" style="width:100%; padding:12px 14px; font-size:0.95rem; border:1px solid var(--border); border-radius:6px; resize:vertical; font-family:inherit; background:var(--bg,#fff); color:inherit; box-sizing:border-box;"></textarea>' +
         '<div style="font-size:0.72rem; color:var(--text-muted); margin-top:8px; line-height:1.5;">' + guideline + '</div>' +
         '<div id="descobertaMsg" style="font-size:0.82rem; min-height:1.2em; margin-top:8px;"></div>' +

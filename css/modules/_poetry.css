@@ -658,6 +658,17 @@
   color: var(--text-muted);
 }
 
+/* Data de composição da seção (data_jp + ano gregoriano). Empurrada à
+   direita na linha de baseline do cabeçalho. */
+.poetry-section-heading__date {
+  margin-left: auto;
+  align-self: baseline;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 .poetry-section-heading__rule {
   height: 1px;
   background: var(--border);
@@ -700,6 +711,28 @@
 .poetry-card__original    { grid-area: original; }
 .poetry-card__reading     { grid-area: reading; }
 .poetry-card__translation { grid-area: translation; align-self: start; }
+
+/* ── Modo japonês imersivo ─────────────────────────────────────
+   No modo JP a tradução (PT) e o romaji ficam escondidos via .lang-pt
+   (ver poetry-*.js); mostra-se só kanji + leitura em hiragana. Como a
+   coluna da direita (tradução) some, o card colapsa pra 1 coluna pra o
+   japonês ocupar a largura toda. A especificidade (0,2,1) vence tanto a
+   base quanto o override ≤1200px, em qualquer largura. */
+html[lang="ja"] .poetry-card {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "head"
+    "original"
+    "reading";
+}
+/* Leitura em hiragana: fonte JP e sem itálico, pra harmonizar com o kanji
+   do original (o romaji usa serif itálico). */
+.poetry-card__reading--hira {
+  font-family: 'Noto Serif JP', serif;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  word-break: keep-all;
+}
 
 .poetry-card:last-child {
   border-bottom: none;

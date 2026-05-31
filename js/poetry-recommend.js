@@ -142,8 +142,11 @@
     const poemTitle = titleEl ? titleEl.textContent.trim() : '';
     const origEl = card.querySelector('.poetry-card__original');
     const transEl = card.querySelector('.poetry-card__translation');
-    const original = origEl ? origEl.innerText.trim() : '';
-    const translation = transEl ? transEl.innerText.trim() : '';
+    // textContent (não innerText): no modo japonês a tradução fica display:none,
+    // e innerText de elemento oculto retorna '' em alguns Chromium — o que gravaria
+    // uma recomendação sem o texto PT. textContent independe da visibilidade.
+    const original = origEl ? origEl.textContent.trim() : '';
+    const translation = transEl ? transEl.textContent.trim() : '';
     const poemText = [original, translation].filter(Boolean).join('\n');
     if (!topicId) {
       alert('Não consegui identificar o poema (sem âncora). Recarregue a página.');

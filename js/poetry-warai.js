@@ -292,8 +292,8 @@
           ${hlBtn}
         </div>
         <div class="poetry-card__original">${_highlight(p.original, _query)}</div>
-        ${p.reading ? `<div class="poetry-card__reading">${_highlight(p.reading, _query)}</div>` : ''}
-        ${p.translation_pt ? `<div class="poetry-card__translation">${_highlight(p.translation_pt, _query)}</div>` : ''}
+        ${p.reading ? `<div class="poetry-card__reading lang-pt">${_highlight(p.reading, _query)}</div>` : ''}
+        ${p.translation_pt ? `<div class="poetry-card__translation lang-pt">${_highlight(p.translation_pt, _query)}</div>` : ''}
       </article>
     `;
   }

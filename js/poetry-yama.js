@@ -68,6 +68,7 @@
     return (
       (p.original || '').toLowerCase().includes(q) ||
       (p.reading || '').toLowerCase().includes(q) ||
+      (p.reading_hira || '').toLowerCase().includes(q) ||
       (p.translation || '').toLowerCase().includes(q) ||
       (p.title || '').toLowerCase().includes(q)
     );
@@ -131,7 +132,10 @@
   function _renderPoem(p, sectionTitle) {
     const num = p.number != null ? String(p.number).padStart(3, '0') : '';
     const title = p.title ? `<span class="poetry-card__title">${_highlight(p.title, _query)}</span>` : '';
-    const reading = p.reading ? `<div class="poetry-card__reading">${_highlight(p.reading, _query)}</div>` : '';
+    // Romaji no modo PT; hiragana (furigana do rattail) no modo JP.
+    const reading =
+      (p.reading ? `<div class="poetry-card__reading lang-pt">${_highlight(p.reading, _query)}</div>` : '') +
+      (p.reading_hira ? `<div class="poetry-card__reading poetry-card__reading--hira lang-ja" style="display:none">${_highlight(p.reading_hira, _query)}</div>` : '');
     const topicId = `yama_n${p.number}`;
     const hlBtn = window._poetryHighlights ? window._poetryHighlights.renderCardButton() : '';
     return `
@@ -143,7 +147,7 @@
         </div>
         <div class="poetry-card__original">${_highlight(p.original, _query)}</div>
         ${reading}
-        ${p.translation ? `<div class="poetry-card__translation">${_highlight(p.translation, _query)}</div>` : ''}
+        ${p.translation ? `<div class="poetry-card__translation lang-pt">${_highlight(p.translation, _query)}</div>` : ''}
       </article>
     `;
   }
@@ -164,6 +168,7 @@
           <span class="lang-pt">${_esc(sec.title_jp)}</span>
           <span class="lang-ja" style="display:none">${_esc(sec.title_pt)}</span>
         </div>
+        ${sec.date_jp ? `<div class="poetry-section-heading__date"><span>${_esc(sec.date_jp)}${sec.year_iso ? ` <span style="opacity:.6">(${sec.year_iso})</span>` : ''}</span></div>` : ''}
         <div class="poetry-section-heading__rule"></div>
       </header>
       <div class="poetry-list">

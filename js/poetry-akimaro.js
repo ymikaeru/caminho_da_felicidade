@@ -75,6 +75,7 @@
     return (
       (p.original || '').toLowerCase().includes(q) ||
       (p.reading || '').toLowerCase().includes(q) ||
+      (p.reading_hira || '').toLowerCase().includes(q) ||
       (p.translation || '').toLowerCase().includes(q) ||
       (p.title || '').toLowerCase().includes(q)
     );
@@ -201,9 +202,14 @@
     const title = p.title
       ? `<span class="poetry-card__title">${_highlight(p.title, _query)}</span>`
       : '';
-    const reading = p.reading
-      ? `<div class="poetry-card__reading">${_highlight(p.reading, _query)}</div>`
-      : '';
+    // Romaji no modo PT; hiragana no modo JP (alternados via .lang-pt/.lang-ja).
+    const reading =
+      (p.reading
+        ? `<div class="poetry-card__reading lang-pt">${_highlight(p.reading, _query)}</div>`
+        : '') +
+      (p.reading_hira
+        ? `<div class="poetry-card__reading poetry-card__reading--hira lang-ja" style="display:none">${_highlight(p.reading_hira, _query)}</div>`
+        : '');
     const dateStr = _formatDate(p.date);
     const dateStrCompact = _formatDateCompact(p.date);
     const dateTag = dateStr
@@ -215,7 +221,7 @@
     const topicId = `akimaro_n${p.number}`;
     const hlBtn = (window._poetryHighlights && !pending) ? window._poetryHighlights.renderCardButton() : '';
     const transBlock = p.translation
-      ? `<div class="poetry-card__translation">${_highlight(p.translation, _query)}</div>`
+      ? `<div class="poetry-card__translation lang-pt">${_highlight(p.translation, _query)}</div>`
       : '';
     return `
       <article class="poetry-card${pending ? ' poetry-card--pending' : ''}" data-poem-topic-id="${_esc(topicId)}" data-poem-index="${p.number}">

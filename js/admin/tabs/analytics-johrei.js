@@ -173,6 +173,7 @@ async function loadJohreiAnalytics() {
   const cmPlaySessions = new Set();
   const cmPlayAnons = new Set();
   let cmCompletedCount = 0;
+  const cmCompletedByAnon = {};
   cmAudio.forEach(r => {
     if (r.event_type === 'audio_play') {
       cmPlaySessions.add(r.session_id);
@@ -182,9 +183,16 @@ async function loadJohreiAnalytics() {
     const total = Number((r.props || {}).total_played_seconds) || 0;
     const prev = cmPlayedBySession[r.session_id] || 0;
     if (total > prev) cmPlayedBySession[r.session_id] = total;
-    if (r.event_type === 'audio_ended') cmCompletedCount++;
+    if (r.event_type === 'audio_ended') { cmCompletedCount++; cmCompletedByAnon[r.anon_id] = (cmCompletedByAnon[r.anon_id] || 0) + 1; }
   });
   const cmAudioSessions = cmPlaySessions.size;
+  const cmCompletedCounts = Object.values(cmCompletedByAnon);
+  const cmCompletedUniques = cmCompletedCounts.length;
+  const cmComp1x     = cmCompletedCounts.filter(n => n === 1).length;
+  const cmComp2to5   = cmCompletedCounts.filter(n => n >= 2 && n <= 5).length;
+  const cmComp6plus  = cmCompletedCounts.filter(n => n >= 6).length;
+  const cmComp6plusListens = cmCompletedCounts.filter(n => n >= 6).reduce((a, b) => a + b, 0);
+  const cmComp6plusPct = cmCompletedCount ? Math.round(cmComp6plusListens / cmCompletedCount * 100) : 0;
   const cmAvgListenedSec = cmAudioSessions
     ? Object.values(cmPlayedBySession).reduce((a, b) => a + b, 0) / cmAudioSessions
     : 0;
@@ -315,11 +323,13 @@ async function loadJohreiAnalytics() {
         ${engCard(cmAudioSessions, 'Sessões que ouviram')}
         ${engCard(cmAvgListenedSec > 0 ? fmtTime(cmAvgListenedSec) : '—',
           'Escuta média' + (cmAvgListenedPct != null && cmAvgListenedPct > 0 ? ` (${cmAvgListenedPct}%)` : ''))}
+        ${card(cmCompletedCount, 'Escutas completas', cmCompletedUniques)}
         ${card(cmDownloadCount, 'Downloads (ZIP)', cmDownloadUniques)}
       </div>
+      ${cmCompletedUniques > 0 ? `<p style="font-size:.74rem;color:var(--text);margin:14px 0 0;">Das <strong>${cmCompletedUniques}</strong> pessoa(s) que ouviram até o fim: <strong>${cmComp1x}</strong> ouviram 1×, <strong>${cmComp2to5}</strong> voltaram (2–5×), <strong>${cmComp6plus}</strong> recorrente(s) (6+×)${cmComp6plus > 0 ? ` — que concentram <strong>${cmComp6plusListens}</strong> das <strong>${cmCompletedCount}</strong> escutas (${cmComp6plusPct}%)` : ''}.</p>` : ''}
       <p style="font-size:.72rem;color:var(--text-muted);margin:14px 0 0;">
         ${cmHasData
-          ? `Permanência captada via heartbeats (granularidade ~30s, leituras curtas podem não aparecer). Escuta média = média do total ouvido por sessão que apertou play. Downloads = cliques no botão "Baixar" que geraram o ZIP com PDF + MP3.${cmCompletedCount > 0 ? ` <strong>${cmCompletedCount}</strong> escuta(s) completa(s).` : ''}`
+          ? `Permanência captada via heartbeats (granularidade ~30s, leituras curtas podem não aparecer). Escuta média = média do total ouvido por sessão que apertou play. Escutas completas = áudio ouvido até o fim (conta repetições, por isso pode passar de "sessões que ouviram"). Downloads = cliques no botão "Baixar" que geraram o ZIP com PDF + MP3.`
           : 'Sem dados ainda no período selecionado. Confirme que o tracking foi deployado em <code>guia_johrei</code> e que alguém abriu o modal.'}
       </p>
     </div>`;

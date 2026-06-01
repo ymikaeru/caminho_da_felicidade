@@ -149,6 +149,12 @@ function _initMobileNav() {
           <span class="rec-badge" style="display:none; margin-left:auto; min-width:18px; height:18px; padding:0 5px; background:var(--accent); color:#fff; border-radius:9px; font-size:0.7rem; font-weight:700; align-items:center; justify-content:center; line-height:1;">0</span>
         </button>
 
+        <button class="mobile-nav-link" id="mobileNavLinkConversations" style="display:none; position:relative;" onclick="closeMobileNav(); if (typeof openMyConversations === 'function') openMyConversations();">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span class="link-text">${t.conversations || 'Minhas conversas'}</span>
+          <span class="conv-badge" style="display:none; margin-left:auto; min-width:18px; height:18px; padding:0 5px; background:var(--accent); color:#fff; border-radius:9px; font-size:0.7rem; font-weight:700; align-items:center; justify-content:center; line-height:1;">0</span>
+        </button>
+
         <button class="mobile-nav-link" id="mobileNavLinkPlaylists" style="display:none;" onclick="closeMobileNav(); if (typeof openPlaylistManager === 'function') openPlaylistManager();">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           <span class="link-text">Minhas playlists</span>
@@ -343,6 +349,30 @@ function _initMobileNav() {
     headerActions.insertBefore(recHeaderBtn, searchBtn);
   } else {
     headerActions.insertBefore(recHeaderBtn, hamburgerBtn);
+  }
+
+  // Botão "Minhas conversas" — balão no header. initStudyMessages() em
+  // study-messages.js liga display:flex quando o usuário já enviou ≥1
+  // mensagem; badge = respostas não-vistas. Ícone distinto do envelope
+  // (recomendações) de propósito.
+  const convHeaderBtn = document.createElement('button');
+  convHeaderBtn.className = 'mobile-fav-btn';
+  convHeaderBtn.id = 'headerConversationsBtn';
+  convHeaderBtn.setAttribute('aria-label', 'Minhas conversas com o Reverendo');
+  convHeaderBtn.setAttribute('title', 'Minhas conversas com o Reverendo');
+  convHeaderBtn.style.cssText = 'display:none; position:relative;';
+  convHeaderBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+  </svg>
+  <span class="conv-badge" style="display:none; position:absolute; top:2px; right:2px; min-width:16px; height:16px; padding:0 4px; background:var(--accent); color:#fff; border-radius:8px; font-size:0.62rem; font-weight:700; align-items:center; justify-content:center; line-height:1; box-sizing:border-box;">0</span>`;
+  convHeaderBtn.addEventListener('click', () => {
+    if (typeof openMyConversations === 'function') openMyConversations();
+  });
+  if (searchBtn) {
+    headerActions.insertBefore(convHeaderBtn, searchBtn);
+  } else {
+    headerActions.insertBefore(convHeaderBtn, hamburgerBtn);
   }
 
   const highlightBtn = document.createElement('button');

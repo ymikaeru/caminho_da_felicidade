@@ -75,14 +75,18 @@ async function recLoadList() {
   const container = document.getElementById('rec-list');
   if (!_recSelectedUser) return;
   container.innerHTML = '<div class="loading" style="padding:16px;">Carregando...</div>';
-  const { data, error } = await supabase.rpc('admin_get_user_recommendations', {
-    p_user_id: _recSelectedUser.id,
-  });
+  const [{ data, error }, listensRes] = await Promise.all([
+    supabase.rpc('admin_get_user_recommendations', { p_user_id: _recSelectedUser.id }),
+    supabase.rpc('admin_get_user_audio_listens', { p_user_id: _recSelectedUser.id }),
+  ]);
   if (error) {
     container.innerHTML = `<div class="msg err">Erro: ${_escHtml(error.message)}</div>`;
     return;
   }
   const recs = data || [];
+  // Escutas de áudio do usuário (audio_path → {max_percent, completed}) p/ o selo.
+  const listenByPath = {};
+  (listensRes && listensRes.data ? listensRes.data : []).forEach(l => { listenByPath[l.audio_path] = l; });
   if (recs.length === 0) {
     container.innerHTML = '<div style="padding:16px; color:var(--text-muted); font-size:0.85rem; text-align:center;">Nenhuma recomendação ativa.</div>';
     return;
@@ -127,6 +131,15 @@ async function recLoadList() {
     const noteHtml = r.note ? `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px; font-style:italic;">"${_escHtml(r.note)}"</div>` : '';
     const created = new Date(r.created_at).toLocaleDateString('pt-BR');
 
+    // Selo de escuta (só áudio): casa a rec com audio_listens pelo audio_path.
+    // max_percent = ponto máximo alcançado (high-water mark).
+    const listenHtml = isAudio ? (() => {
+      const l = listenByPath[r.audio_path];
+      if (!l || !l.max_percent) return ` <span style="opacity:0.4;">·</span> <span style="color:var(--accent);">🎧 não ouviu</span>`;
+      if (l.completed || l.max_percent >= 95) return ` <span style="opacity:0.4;">·</span> <span style="color:#2c8a3e;" title="Chegou ao fim">🎧 ouviu completo</span>`;
+      return ` <span style="opacity:0.4;">·</span> <span style="color:#c80;" title="Ponto máximo alcançado">🎧 ouviu ${l.max_percent}%</span>`;
+    })() : '';
+
     let stateTag = '';
     if (archived) {
       const archDate = new Date(r.archived_at).toLocaleDateString('pt-BR');
@@ -153,7 +166,7 @@ async function recLoadList() {
         <div style="display:flex; align-items:flex-start; gap:8px;">
           <div style="flex:1;">
             <div style="font-size:0.88rem; font-weight:500;">${_escHtml(title)}${stateTag}</div>
-            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${refLine} · criado ${created} · <span style="color:${seenColor};">${seenLabel}</span>${readHtml}${expiresHtml}</div>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${refLine} · criado ${created} · <span style="color:${seenColor};">${seenLabel}</span>${readHtml}${listenHtml}${expiresHtml}</div>
             ${noteHtml}
           </div>
           <div style="display:flex; gap:6px; flex-shrink:0;">
@@ -374,9 +387,49 @@ function _recRenderCurrentAudio() {
   // desktop). Player nativo dentro de um flex-row encolhe demais no mobile
   // e o Chrome esconde a barra de progresso — por isso fica empilhado.
   box.innerHTML =
-    `<div style="font-size:0.9rem; font-weight:600; color:var(--text-main);">🎵 ${_escHtml(t)}</div>` +
+    `<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">` +
+      `<div style="font-size:0.9rem; font-weight:600; color:var(--text-main);">🎵 ${_escHtml(t)}</div>` +
+      `<button onclick="recRenameAudio()" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:3px 10px; font-size:0.72rem; border-radius:4px; cursor:pointer; white-space:nowrap;" title="Renomear o título do áudio guardado (não reenvia nada)">✏️ Renomear</button>` +
+    `</div>` +
     (url ? `<audio controls preload="none" src="${_escHtml(url)}" style="display:block; width:100%; max-width:420px; margin-top:8px;"></audio>` : '') +
     `<div style="font-size:0.76rem; color:var(--text-muted); margin-top:8px;">Recomende este áudio quantas vezes quiser, para quem quiser, sem subir de novo. Para trocar, escolha um arquivo novo abaixo.</div>`;
+}
+
+// Renomeia o título do áudio guardado (RPC v14) — não toca no arquivo do
+// Storage nem reenvia; atualiza o título para todos que já têm a recomendação.
+// Usa edição inline (não prompt(), que alguns navegadores suprimem).
+function recRenameAudio() {
+  if (!_recCurrentAudio) return;
+  const box = document.getElementById('rec-audio-current');
+  if (!box) return;
+  const atual = _recCurrentAudio.audio_title || '';
+  box.innerHTML =
+    `<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">` +
+      `<input id="rec-audio-rename-input" type="text" value="${_escHtml(atual)}" style="flex:1; min-width:240px; padding:7px 10px; font-size:0.9rem; border:1px solid var(--accent); border-radius:5px; background:var(--bg,#fff); color:inherit; box-sizing:border-box;">` +
+      `<button onclick="recRenameAudioSave()" style="padding:7px 14px; font-size:0.82rem; background:var(--accent); color:#fff; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Salvar</button>` +
+      `<button onclick="recRenameAudioCancel()" style="padding:7px 12px; font-size:0.82rem; background:none; border:1px solid var(--border); color:var(--text-muted); border-radius:5px; cursor:pointer;">Cancelar</button>` +
+    `</div>` +
+    `<div id="rec-audio-rename-msg" style="font-size:0.78rem; min-height:1em; margin-top:6px; color:var(--text-muted);"></div>`;
+  const inp = document.getElementById('rec-audio-rename-input');
+  if (inp) { inp.focus(); inp.select(); inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') recRenameAudioSave(); if (e.key === 'Escape') recRenameAudioCancel(); }); }
+}
+
+async function recRenameAudioSave() {
+  const inp = document.getElementById('rec-audio-rename-input');
+  const msg = document.getElementById('rec-audio-rename-msg');
+  if (!inp || !_recCurrentAudio) return;
+  const t = inp.value.trim();
+  if (!t) { if (msg) { msg.style.color = '#c00'; msg.textContent = 'O título não pode ficar vazio.'; } return; }
+  if (t === (_recCurrentAudio.audio_title || '')) { _recRenderCurrentAudio(); return; }
+  if (msg) { msg.style.color = 'var(--text-muted)'; msg.textContent = 'Salvando...'; }
+  const { data, error } = await supabase.rpc('admin_rename_current_audio', { p_title: t });
+  if (error) { if (msg) { msg.style.color = '#c00'; msg.textContent = 'Erro: ' + error.message; } return; }
+  _recCurrentAudio.audio_title = t;
+  _recRenderCurrentAudio();
+}
+
+function recRenameAudioCancel() {
+  _recRenderCurrentAudio();
 }
 
 function _recAudioFilteredUsers() {
@@ -603,5 +656,8 @@ Object.assign(window, {
   recAudioToggleAll,
   recAudioValidate,
   recCreateAudio,
-  recClearAudioForm
+  recClearAudioForm,
+  recRenameAudio,
+  recRenameAudioSave,
+  recRenameAudioCancel
 });

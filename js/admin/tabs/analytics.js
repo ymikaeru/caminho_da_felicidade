@@ -935,8 +935,9 @@ async function loadDailyActivityChart(days, since) {
     .order('created_at', { ascending: true });
   const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
+  const chartEl = document.getElementById('daily-activity-chart');
   if (!data.length) {
-    document.getElementById('daily-activity-chart').innerHTML = '<div class="loading">Sem dados.</div>';
+    chartEl.innerHTML = '<div class="loading">Sem dados.</div>';
     return;
   }
 
@@ -957,12 +958,14 @@ async function loadDailyActivityChart(days, since) {
   const entries = Object.entries(dayMap);
   const values = entries.map(e => e[1]);
   const maxVal = Math.max(...values, 1);
-  const chartH = 160;
+  const chartH = 220;
   const padL = 40;
   const padR = 10;
   const padT = 10;
   const padB = 30;
-  const svgW = 800;
+  // Largura = largura real do container, então o SVG renderiza ~1:1 (altura fixa ≈ svgH),
+  // em vez de escalar junto com a tela e ficar gigante em telas largas.
+  const svgW = Math.max((chartEl && chartEl.clientWidth) || 900, 320);
   const svgH = chartH + padT + padB;
   const plotW = svgW - padL - padR;
   const plotH = chartH;
@@ -982,7 +985,7 @@ async function loadDailyActivityChart(days, since) {
     const y = padT + (i / yTicks) * plotH;
     const val = Math.round(maxVal * (1 - i / yTicks));
     yLines += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
-    yLines += `<text x="${padL - 6}" y="${y + 4}" text-anchor="end" fill="var(--text-muted)" font-size="10">${val}</text>`;
+    yLines += `<text x="${padL - 6}" y="${y + 4}" text-anchor="end" fill="var(--text-muted)" font-size="12">${val}</text>`;
   }
 
   const labelCount = Math.min(entries.length, 7);
@@ -991,12 +994,12 @@ async function loadDailyActivityChart(days, since) {
   for (let i = 0; i < entries.length; i += labelStep) {
     const p = points[i];
     const label = entries[i][0].slice(5);
-    xLabels += `<text x="${p.x}" y="${svgH - 4}" text-anchor="middle" fill="var(--text-muted)" font-size="9">${label}</text>`;
+    xLabels += `<text x="${p.x}" y="${svgH - 6}" text-anchor="middle" fill="var(--text-muted)" font-size="11">${label}</text>`;
   }
 
-  const dots = points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="3" fill="var(--accent)" opacity="0.8"><title>${p.date}: ${p.val} views</title></circle>`).join('');
+  const dots = points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="var(--accent)" opacity="0.8"><title>${p.date}: ${p.val} views</title></circle>`).join('');
 
-  document.getElementById('daily-activity-chart').innerHTML = `
+  chartEl.innerHTML = `
     <div class="line-chart-container">
       <svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet">
         ${yLines}

@@ -111,7 +111,7 @@
             <polygon points="22 2 15 22 11 13 2 9 22 2"/>
           </svg>
           <div style="flex:1; min-width:0;">
-            <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; font-weight:600;">Recomendar este ensinamento</div>
+            <div id="recPickerKicker" style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; font-weight:600;">Recomendar este ensinamento</div>
             <div id="recPickerTeachingTitle" style="font-size:1.05rem; font-weight:600; margin-top:3px; line-height:1.3; color:var(--text-main); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;"></div>
             <div id="recPickerTeaching" style="font-size:0.72rem; color:var(--text-muted); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
           </div>
@@ -253,26 +253,60 @@
     }
   }
 
-  async function _open(explicitTopicIdx) {
-    if (typeof isAdminUser === 'function' && !isAdminUser()) return;
+  async function _open(arg) {
+    // arg pode ser:
+    //   • número    → topic_idx explícito; o resto da meta vem da página atual
+    //   • objeto    → alvo explícito {vol,file,topic_idx,title,...} — ex.: Caixa
+    //                 de Entrada do admin, onde não há ensinamento aberto na tela
+    //   • undefined → meta 100% da página de leitura atual
+    const explicit = arg && typeof arg === 'object';
+    // No fluxo da página de leitura só admin abre; no fluxo explícito o painel
+    // admin já é gated, então não dependemos de isAdminUser() aqui.
+    if (!explicit && typeof isAdminUser === 'function' && !isAdminUser()) return;
     _build();
     _selectedUserIds.clear();
-    const meta = _currentTeachingMeta();
-    // Quando passado (ex: botão abaixo de um título específico), sobrepõe
-    // a detecção por scroll — desambigua em páginas com múltiplos tópicos.
-    if (typeof explicitTopicIdx === 'number' && !isNaN(explicitTopicIdx)) {
-      meta.topic_idx = explicitTopicIdx;
+
+    let meta, preselectAll = false;
+    if (explicit) {
+      const isPoetry = arg.vol === 'poetry' || !!arg.isPoetry;
+      meta = {
+        vol: arg.vol || '',
+        file: arg.file || '',
+        topic_idx: Number.isInteger(arg.topic_idx) ? arg.topic_idx : 0,
+        title: arg.title || '',
+        isPoetry,
+        poemTopicId: arg.poemTopicId || arg.poem_topic_id || null,
+        poemTitle: arg.poemTitle || arg.title || '',
+      };
+      preselectAll = !!arg.preselectAll;
+    } else {
+      meta = _currentTeachingMeta();
+      meta.isPoetry = false;
+      // Quando passado (ex: botão abaixo de um título específico), sobrepõe
+      // a detecção por scroll — desambigua em páginas com múltiplos tópicos.
+      if (typeof arg === 'number' && !isNaN(arg)) meta.topic_idx = arg;
     }
-    if (!meta.vol || !meta.file) {
+
+    if (meta.isPoetry) {
+      if (!meta.file || !meta.poemTopicId) { alert('Não consegui identificar o poema a recomendar.'); return; }
+    } else if (!meta.vol || !meta.file) {
       alert('Não consegui identificar o ensinamento atual. Esta página tem vol e file na URL?');
       return;
     }
-    _modal.dataset.vol = meta.vol;
-    _modal.dataset.file = meta.file;
-    _modal.dataset.topicIdx = String(meta.topic_idx);
-    document.getElementById('recPickerTeachingTitle').textContent = meta.title || '(sem título)';
-    document.getElementById('recPickerTeaching').textContent =
-      `${meta.vol} · ${meta.file}#${meta.topic_idx}`;
+
+    _modal.dataset.isPoetry    = meta.isPoetry ? '1' : '';
+    _modal.dataset.vol         = meta.vol;
+    _modal.dataset.file        = meta.file;
+    _modal.dataset.topicIdx    = String(meta.topic_idx);
+    _modal.dataset.poemTopicId = meta.poemTopicId || '';
+    _modal.dataset.poemTitle   = meta.poemTitle || '';
+
+    const kicker = document.getElementById('recPickerKicker');
+    if (kicker) kicker.textContent = meta.isPoetry ? 'Recomendar este poema' : 'Recomendar este ensinamento';
+    document.getElementById('recPickerTeachingTitle').textContent = meta.title || (meta.isPoetry ? '(poema)' : '(sem título)');
+    document.getElementById('recPickerTeaching').textContent = meta.isPoetry
+      ? `Poesia · ${meta.file}`
+      : `${meta.vol} · ${meta.file}#${meta.topic_idx}`;
     document.getElementById('recPickerUserSearch').value = '';
     document.getElementById('recPickerNote').value = '';
     document.getElementById('recPickerExpires').value = '';
@@ -281,6 +315,9 @@
     _modal.style.display = 'flex';
     document.getElementById('recPickerUserList').innerHTML = '<div style="grid-column:1/-1; padding:14px; color:var(--text-muted); font-size:0.85rem;">Carregando usuários...</div>';
     await _loadUsers();
+    // "Repassar a todos" (Caixa de Entrada) já chega com todos marcados —
+    // o admin clicou pra repassar a todos; ainda pode desmarcar quem quiser.
+    if (preselectAll) _users.forEach(u => { if (u.id) _selectedUserIds.add(u.id); });
     _applyLayout();
     _refresh();
     document.getElementById('recPickerUserSearch').focus();
@@ -334,14 +371,26 @@
     msg.style.color = 'var(--text-muted)';
     msg.textContent = `Enviando pra ${ids.length} usuário${ids.length === 1 ? '' : 's'}...`;
     const note = document.getElementById('recPickerNote').value.trim();
-    const { data, error } = await supa.rpc('admin_create_recommendations_bulk', {
-      p_user_ids: ids,
-      p_vol: _modal.dataset.vol,
-      p_file: _modal.dataset.file,
-      p_topic_idx: parseInt(_modal.dataset.topicIdx, 10) || 0,
-      p_note: note || null,
-      p_expires_at: _expiresIso(),
-    });
+    const isPoetry = _modal.dataset.isPoetry === '1';
+    const { data, error } = isPoetry
+      ? await supa.rpc('admin_create_poetry_recommendations_bulk', {
+          p_user_ids: ids,
+          p_collection: _modal.dataset.file,
+          p_poem_number: 0,
+          p_poem_topic_id: _modal.dataset.poemTopicId,
+          p_poem_title: _modal.dataset.poemTitle || '(poema)',
+          p_poem_text: null,
+          p_note: note || null,
+          p_expires_at: _expiresIso(),
+        })
+      : await supa.rpc('admin_create_recommendations_bulk', {
+          p_user_ids: ids,
+          p_vol: _modal.dataset.vol,
+          p_file: _modal.dataset.file,
+          p_topic_idx: parseInt(_modal.dataset.topicIdx, 10) || 0,
+          p_note: note || null,
+          p_expires_at: _expiresIso(),
+        });
     if (error) {
       msg.innerHTML = `<span style="color:#c00;">Erro: ${_esc(error.message)}</span>`;
       btn.disabled = false;

@@ -189,8 +189,78 @@ function buildHighlightsModal() {
   document.body.appendChild(el);
 }
 
+// Compositor "Compartilhar com o Reverendo" — usado por study-messages.js.
+// Lazy-built no primeiro openShareWithReverendo(). O título do ensinamento
+// (#shareTeachingTitle) é preenchido via textContent pelo JS.
+function buildShareModal() {
+  if (_modalExists('shareModal')) return;
+  const lang = localStorage.getItem('site_lang') || 'pt';
+  const title = lang === 'ja' ? 'ご住職に共有' : 'Compartilhar com o Reverendo';
+  const aboutLabel = lang === 'ja' ? 'この御教えについて' : 'Sobre este Ensinamento';
+  const placeholder = lang === 'ja'
+    ? 'ご住職へのご感想やご質問をお書きください...'
+    : 'Escreva sua reflexão ou pergunta ao Reverendo...';
+  const guideline = lang === 'ja'
+    ? 'メッセージは非公開です（ご住職のみが見ます）。敬意と向上の心で書いてください。'
+    : 'Sua mensagem é privada — só o Reverendo vê. Escreva com respeito e espírito de edificação.';
+  const cancelLabel = lang === 'ja' ? 'キャンセル' : 'Cancelar';
+  const sendLabel = lang === 'ja' ? '送信' : 'Enviar';
+
+  const el = document.createElement('div');
+  el.className = 'search-modal-overlay';
+  el.id = 'shareModal';
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-modal', 'true');
+  el.setAttribute('aria-labelledby', 'shareModalTitle');
+  el.innerHTML =
+    '<div class="search-modal" style="max-width:560px;">' +
+      '<button class="modal-close-btn" onclick="closeShareModal()">&times;</button>' +
+      '<div class="search-header">' +
+        '<h2 id="shareModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
+      '</div>' +
+      '<div style="padding: 4px 24px 24px;">' +
+        '<div style="font-size:0.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); font-weight:600; margin-bottom:6px; font-family:var(--font-ui);">' + aboutLabel + '</div>' +
+        '<div id="shareTeachingTitle" style="font-family:\'Crimson Pro\',Georgia,serif; font-size:1.1rem; font-weight:600; color:var(--text-main); line-height:1.3; margin-bottom:16px;"></div>' +
+        '<textarea id="shareBody" rows="5" placeholder="' + placeholder + '" style="width:100%; padding:12px 14px; font-size:0.95rem; border:1px solid var(--border); border-radius:6px; resize:vertical; font-family:inherit; background:var(--bg,#fff); color:inherit; box-sizing:border-box;"></textarea>' +
+        '<div style="font-size:0.72rem; color:var(--text-muted); margin-top:8px; line-height:1.5;">' + guideline + '</div>' +
+        '<div id="shareMsg" style="font-size:0.82rem; min-height:1.2em; margin-top:8px;"></div>' +
+        '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">' +
+          '<button onclick="closeShareModal()" style="padding:8px 16px; font-size:0.85rem; background:none; border:1px solid var(--border); border-radius:6px; cursor:pointer; color:inherit;">' + cancelLabel + '</button>' +
+          '<button id="shareSubmit" onclick="submitShareWithReverendo()" style="padding:8px 20px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">' + sendLabel + '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(el);
+}
+
+// "Minhas conversas com o Reverendo" — lista enviadas + respostas.
+// Lazy-built no primeiro openMyConversations(); preenchido por study-messages.js.
+function buildMyConversationsModal() {
+  if (_modalExists('myConversationsModal')) return;
+  const lang = localStorage.getItem('site_lang') || 'pt';
+  const title = lang === 'ja' ? 'ご住職との会話' : 'Minhas conversas com o Reverendo';
+
+  const el = document.createElement('div');
+  el.className = 'search-modal-overlay';
+  el.id = 'myConversationsModal';
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-modal', 'true');
+  el.setAttribute('aria-labelledby', 'myConversationsModalTitle');
+  el.innerHTML =
+    '<div class="search-modal">' +
+      '<button class="modal-close-btn" onclick="closeMyConversations()">&times;</button>' +
+      '<div class="search-header">' +
+        '<h2 id="myConversationsModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
+      '</div>' +
+      '<ul class="search-results" id="myConversationsResults" aria-live="polite"></ul>' +
+    '</div>';
+  document.body.appendChild(el);
+}
+
 window.buildSearchModal = buildSearchModal;
 window.buildHistoryModal = buildHistoryModal;
 window.buildFavoritesModal = buildFavoritesModal;
 window.buildHighlightsModal = buildHighlightsModal;
 window.buildRecommendationsModal = buildRecommendationsModal;
+window.buildShareModal = buildShareModal;
+window.buildMyConversationsModal = buildMyConversationsModal;

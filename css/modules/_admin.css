@@ -1,11 +1,10 @@
-    /* Override global content-wrapper / glass-pane caps for the admin page (desktop only).
-       Admin tem muito conteúdo tabular (analytics, listas de usuários,
-       editor de poesia, etc.), então 1800px no desktop dá folga sem
-       ficar exagerado em ultrawides. min(1800, viewport-48) garante
-       que em telas menores (1366) o limite efetivo seja a viewport. */
-    @media (min-width: 1025px) {
-      main.main > .content-wrapper { max-width: min(1800px, calc(100vw - 48px)) !important; }
-      main.main > .content-wrapper > .glass-pane { padding: 32px !important; }
+    /* Admin full-bleed (desktop): o layout ocupa a tela inteira — o menu lateral
+       fixo + o conteúdo ficam encostados, sem cap de largura nem centralização.
+       Mantém só o respiro vertical do glass-pane; horizontal vai a zero. */
+    @media (min-width: 861px) {
+      main.main { padding-left: 0 !important; padding-right: 0 !important; }
+      main.main > .content-wrapper { max-width: 100% !important; width: 100% !important; }
+      main.main > .content-wrapper > .glass-pane { padding: 32px 0 !important; }
     }
     .admin-wrap { max-width: 100%; margin: 0 auto; padding: 40px 0 120px; }
     .admin-section { margin-bottom: 40px; }
@@ -932,3 +931,72 @@
       transition: opacity .2s, color .2s, border-color .2s, background .2s;
     }
     .admin-idle-timer.warn { opacity: 1; color: #c0392b; border-color: #c0392b; background: rgba(192,57,43,0.08); }
+
+    /* ============================================================
+       MENU LATERAL DO ADMIN (sidebar) — unificado + full-screen.
+       Sidebar fixo à esquerda (acompanha a rolagem) + conteúdo preenchendo
+       o resto da largura, encostados, ocupando a tela inteira (sem cap, sem
+       colapso). Mobile (<=860): o menu vira gaveta + scrim.
+       ============================================================ */
+    .admin-wrap { display: block; padding: 0 !important; }
+
+    .admin-sidebar {
+      position: fixed; top: var(--nav-height, 60px); left: 0; bottom: 0; width: 256px; z-index: 1000;
+      background: var(--surface); border-right: 1px solid var(--border);
+      padding: 18px 16px; display: flex; flex-direction: column; gap: 16px;
+      overflow-y: auto; overflow-x: hidden;
+    }
+    .admin-main { margin-left: 256px; min-width: 0; padding: 32px 34px 80px; }
+
+    .admin-sidebar-eyebrow { font-size: .66rem; letter-spacing: .2em; color: var(--accent); font-weight: 600; }
+    .admin-sidebar-title { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 600; line-height: 1.05; margin-top: 1px; }
+    .admin-sidebar-seclabel { display: block; font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; }
+    .admin-sidebar-select {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surface); color: var(--text-main); font-family: inherit; font-size: .85rem; cursor: pointer;
+    }
+    .admin-sidebar-foot { margin-top: auto; border-top: 1px solid var(--border); padding-top: 12px; }
+
+    /* ☰ flutuante — só no mobile (abre a gaveta) */
+    .admin-hamburger {
+      display: none;
+      position: fixed; top: calc(var(--nav-height, 60px) + 10px); right: 14px; z-index: 1100;
+      align-items: center; justify-content: center;
+      width: 40px; height: 40px; font-size: 1.15rem; line-height: 1;
+      background: var(--surface); color: var(--text-main);
+      border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
+      box-shadow: var(--shadow-sm, 0 1px 8px rgba(0,0,0,.06));
+    }
+
+    .admin-nav { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; flex: 1; margin: 0 -4px; padding: 0 4px; }
+    .admin-nav-section[data-section] { display: flex; flex-direction: column; gap: 16px; }
+    .admin-nav-group { display: flex; flex-direction: column; }
+    .admin-nav-grouplabel { font-size: .62rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); padding: 0 8px 6px; }
+    .admin-nav-item {
+      display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 8px;
+      color: var(--text-main); font-size: .86rem; cursor: pointer;
+      border-left: 3px solid transparent; transition: background .12s, color .12s;
+    }
+    .admin-nav-item:hover { background: var(--accent-soft); }
+    .admin-nav-item.active { background: var(--accent-mid); color: var(--accent); font-weight: 600; border-left-color: var(--accent); }
+    .admin-nav-ico { width: 18px; text-align: center; font-size: .95rem; flex-shrink: 0; }
+    .admin-nav-txt { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* badge usa .tab-badge já existente (toggle .empty) — herda posição no flex */
+
+    .admin-scrim { display: none; }
+
+    /* ===== Mobile (<=860): menu vira gaveta com scrim ===== */
+    @media (max-width: 860px) {
+      .admin-main { margin-left: 0; padding: 64px 14px 80px; }
+      .admin-sidebar {
+        top: 0; width: 270px; z-index: 1200; box-shadow: var(--shadow-premium);
+        transform: translateX(-100%); transition: transform .22s ease;
+      }
+      .admin-sidebar.is-open { transform: translateX(0); }
+      .admin-hamburger { display: inline-flex; }
+      .admin-scrim {
+        display: block; position: fixed; inset: 0; z-index: 1150;
+        background: rgba(0,0,0,.38); opacity: 0; pointer-events: none; transition: opacity .2s;
+      }
+      .admin-scrim.show { opacity: 1; pointer-events: auto; }
+    }

@@ -120,7 +120,7 @@ function _buildTopicSaveBar(topicIdx, lang) {
     if (typeof isAdminUser === 'function' && isAdminUser()) {
         const plLabel = lang === 'ja' ? 'プレイリストに追加' : 'Adicionar à playlist';
         const plIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
-        const recLabel = lang === 'ja' ? 'この教えを推薦' : 'Recomendar este ensinamento';
+        const recLabel = lang === 'ja' ? 'この教えを推薦' : 'Recomendar este Ensinamento';
         const recIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
         adminBtns =
             `<button type="button" class="topic-save-btn topic-playlist-btn" data-topic-idx="${topicIdx}" title="${plLabel}" aria-label="${plLabel}" onclick="if (typeof openPlaylistAddPicker === 'function') openPlaylistAddPicker(${topicIdx});">` +
@@ -131,11 +131,26 @@ function _buildTopicSaveBar(topicIdx, lang) {
             `</button>`;
     }
 
+    // Botão do usuário logado (não-admin): compartilhar em privado com o
+    // Reverendo. Gate síncrono via isLoggedIn(). O admin não vê — ele é o
+    // Reverendo/curador.
+    let shareBtn = '';
+    if (typeof isLoggedIn === 'function' && isLoggedIn()
+        && !(typeof isAdminUser === 'function' && isAdminUser())) {
+        const shLabel = lang === 'ja' ? 'ご住職に共有' : 'Compartilhar com o Reverendo';
+        const shIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
+        shareBtn =
+            `<button type="button" class="topic-save-btn topic-share-btn" data-topic-idx="${topicIdx}" title="${shLabel}" aria-label="${shLabel}" onclick="if (typeof openShareWithReverendo === 'function') openShareWithReverendo(${topicIdx});">` +
+                shIcon +
+            `</button>`;
+    }
+
     return `<div class="topic-save-bar" data-topic-idx="${topicIdx}">` +
         `<button type="button" class="topic-save-btn" data-topic-idx="${topicIdx}" title="${l.save}" aria-label="${l.save}" onclick="window.toggleFavorite(${topicIdx})">` +
             icon +
             `<span class="topic-save-label" data-save="${l.save}" data-saved="${l.saved}">${l.save}</span>` +
         `</button>` +
+        shareBtn +
         adminBtns +
     `</div>`;
 }
@@ -387,8 +402,38 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             const rawJa = _stripHeader(topicData.content || '');
             const rawPt = _stripHeader(topicData.content_ptbr || topicData.content_pt || topicData.content || '');
             const splitRaw = (raw) => raw.split(/<br\s*\/?>[\s\n]*/gi).filter(s => s.trim());
-            const jaSegs = splitRaw(rawJa);
-            const ptSegs = splitRaw(rawPt);
+
+            // Mescla um segmento que é SÓ um cabeçalho de parte ("Parte I" /
+            // "第　一") com o segmento seguinte, dos dois lados. Em algumas
+            // publicações (1º tópico, que carrega o título+data da publicação)
+            // o cabeçalho fica isolado num <br> só de um lado e colado ao corpo
+            // do outro — isso empurrava o pareamento por índice em uma posição
+            // (era o caso do "Parte I" do JG1). Mesclar realinha sem tocar nos
+            // dados nem no modo de leitura normal.
+            const PART_HEADING_RE = /^(?:第\s*[一二三四五六七八九十百千\d]+|Parte\s+(?:[IVXLCDM]+|\d+))$/i;
+            const isPartHeading = (seg) => {
+                const txt = seg.replace(/<[^>]+>/g, '').replace(/[\s　]+/g, ' ').trim();
+                return !!txt && txt.length <= 20 && PART_HEADING_RE.test(txt);
+            };
+            const mergeHeadings = (segs) => {
+                const out = [];
+                for (let i = 0; i < segs.length; i++) {
+                    if (isPartHeading(segs[i]) && i + 1 < segs.length) { out.push(segs[i] + ' ' + segs[i + 1]); i++; }
+                    else out.push(segs[i]);
+                }
+                return out;
+            };
+            let jaSegs = mergeHeadings(splitRaw(rawJa));
+            let ptSegs = mergeHeadings(splitRaw(rawPt));
+
+            // Se mesmo após a mescla os dois lados não têm o mesmo número de
+            // parágrafos (tradução com quebras diferentes do japonês — muito
+            // comum), o pareamento por índice mostraria linhas desalinhadas
+            // (uma "empurrando" a outra) ou células vazias. Em vez disso cai
+            // num pareamento grosso: bloco inteiro JA | bloco inteiro PT numa
+            // linha só. Nunca desalinha; no pior caso fica menos granular.
+            if (jaSegs.length !== ptSegs.length) { jaSegs = [rawJa]; ptSegs = [rawPt]; }
+
             const maxLen = Math.max(jaSegs.length, ptSegs.length);
             let gridHtml = '', interleavedHtml = '';
             for (let pi = 0; pi < maxLen; pi++) {

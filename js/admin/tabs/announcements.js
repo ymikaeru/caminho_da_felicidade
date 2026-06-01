@@ -4,70 +4,102 @@
 import { supabase } from '../../supabase-config.js';
 import { _escapeCmu } from '../shared/helpers.js';
 
-async function loadAnnouncements() {
-  const list = document.getElementById('ann-list');
-  const count = document.getElementById('ann-count');
-  list.innerHTML = '<div class="loading">Carregando...</div>';
-  const { data, error } = await supabase
-    .from('announcements')
-    .select('id, title, body, published_at, is_active')
-    .order('published_at', { ascending: false })
-    .limit(200);
-  if (error) {
-    list.innerHTML = `<div class="msg err">Erro: ${_escapeCmu(error.message)}</div>`;
-    return;
-  }
-  count.textContent = `(${data.length})`;
-  if (!data.length) {
-    list.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Nenhum comunicado publicado.</p>';
-    return;
-  }
-  list.innerHTML = `
-    <table class="data-table">
-      <thead><tr><th>Publicado</th><th>Título</th><th>Status</th><th></th></tr></thead>
-      <tbody>
-        ${data.map(a => `
-          <tr>
-            <td style="white-space:nowrap; font-variant-numeric:tabular-nums;">${new Date(a.published_at).toLocaleDateString('pt-BR')}</td>
-            <td>
-              <strong>${_escapeCmu(a.title)}</strong>
-              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px; max-width:480px;">${_escapeCmu((a.body || '').slice(0, 140))}${(a.body || '').length > 140 ? '…' : ''}</div>
-            </td>
-            <td>
-              <label style="display:inline-flex; gap:6px; align-items:center; cursor:pointer;">
-                <input type="checkbox" ${a.is_active ? 'checked' : ''} onchange="toggleAnnouncement('${a.id}', this.checked)">
-                ${a.is_active ? '<span style="color:var(--accent); font-size:0.8rem;">Ativo</span>' : '<span style="color:var(--text-muted); font-size:0.8rem;">Inativo</span>'}
-              </label>
-            </td>
-            <td><button class="editor-btn-cancel" onclick="deleteAnnouncement('${a.id}')" style="padding:4px 10px; font-size:0.8rem;">Excluir</button></td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
+let _editingAnnId = null;
+let _announcementsMap = {};
+
+function _collectAnnForm() {
+  return {
+    title:     document.getElementById('ann-title').value.trim(),
+    body:      document.getElementById('ann-body').value.trim(),
+    is_active: document.getElementById('ann-active').checked,
+  };
 }
 
-async function addAnnouncement() {
-  const title = document.getElementById('ann-title').value.trim();
-  const body = document.getElementById('ann-body').value.trim();
-  const is_active = document.getElementById('ann-active').checked;
+function resetAnnouncementForm() {
+  _editingAnnId = null;
+  document.getElementById('ann-form-title').textContent = 'Novo Comunicado';
+  document.getElementById('ann-title').value = '';
+  document.getElementById('ann-body').value = '';
+  document.getElementById('ann-active').checked = true;
+  document.getElementById('ann-add-btn').textContent = 'Publicar';
+  document.getElementById('ann-cancel-btn').style.display = 'none';
   const msg = document.getElementById('ann-msg');
-  if (!title || !body) {
+  msg.className = 'msg';
+  msg.textContent = '';
+}
+
+function editAnnouncement(id) {
+  const a = _announcementsMap[id];
+  if (!a) return;
+  _editingAnnId = id;
+  document.getElementById('ann-form-title').textContent = 'Editando comunicado';
+  document.getElementById('ann-title').value = a.title || '';
+  document.getElementById('ann-body').value = a.body || '';
+  document.getElementById('ann-active').checked = a.is_active;
+  document.getElementById('ann-add-btn').textContent = 'Atualizar';
+  document.getElementById('ann-cancel-btn').style.display = '';
+  document.getElementById('ann-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Envolve a seleção do textarea em ** ** (negrito). Sem seleção, insere
+// **** e posiciona o cursor no meio para o admin digitar.
+function annBold() {
+  const ta = document.getElementById('ann-body');
+  if (!ta) return;
+  const s = ta.selectionStart, e = ta.selectionEnd, v = ta.value;
+  const sel = v.slice(s, e);
+  if (sel) {
+    ta.value = v.slice(0, s) + '**' + sel + '**' + v.slice(e);
+    ta.setSelectionRange(s + 2, e + 2);
+  } else {
+    ta.value = v.slice(0, s) + '****' + v.slice(s);
+    ta.setSelectionRange(s + 2, s + 2);
+  }
+  ta.focus();
+}
+
+// Envolve a seleção do textarea em * * (itálico). Sem seleção, insere
+// ** e posiciona o cursor no meio para o admin digitar.
+function annItalic() {
+  const ta = document.getElementById('ann-body');
+  if (!ta) return;
+  const s = ta.selectionStart, e = ta.selectionEnd, v = ta.value;
+  const sel = v.slice(s, e);
+  if (sel) {
+    ta.value = v.slice(0, s) + '*' + sel + '*' + v.slice(e);
+    ta.setSelectionRange(s + 1, e + 1);
+  } else {
+    ta.value = v.slice(0, s) + '**' + v.slice(s);
+    ta.setSelectionRange(s + 1, s + 1);
+  }
+  ta.focus();
+}
+
+async function saveAnnouncement() {
+  const payload = _collectAnnForm();
+  const msg = document.getElementById('ann-msg');
+  if (!payload.title || !payload.body) {
     msg.className = 'msg err';
     msg.textContent = 'Título e corpo são obrigatórios.';
     return;
   }
-  const { error } = await supabase.from('announcements').insert({ title, body, is_active });
+  const btn = document.getElementById('ann-add-btn');
+  btn.disabled = true;
+  let error;
+  if (_editingAnnId) {
+    ({ error } = await supabase.from('announcements').update(payload).eq('id', _editingAnnId));
+  } else {
+    ({ error } = await supabase.from('announcements').insert(payload));
+  }
+  btn.disabled = false;
   if (error) {
     msg.className = 'msg err';
     msg.textContent = 'Erro: ' + error.message;
     return;
   }
   msg.className = 'msg ok';
-  msg.textContent = 'Comunicado publicado.';
-  document.getElementById('ann-title').value = '';
-  document.getElementById('ann-body').value = '';
-  document.getElementById('ann-active').checked = true;
+  msg.textContent = _editingAnnId ? 'Comunicado atualizado.' : 'Comunicado publicado.';
+  resetAnnouncementForm();
   loadAnnouncements();
 }
 
@@ -81,12 +113,68 @@ async function deleteAnnouncement(id) {
   if (!confirm('Excluir este comunicado?')) return;
   const { error } = await supabase.from('announcements').delete().eq('id', id);
   if (error) { alert('Erro: ' + error.message); return; }
+  if (_editingAnnId === id) resetAnnouncementForm();
   loadAnnouncements();
 }
 
+async function loadAnnouncements() {
+  const list = document.getElementById('ann-list');
+  const count = document.getElementById('ann-count');
+  list.innerHTML = '<div class="loading">Carregando...</div>';
+  const { data, error } = await supabase
+    .from('announcements')
+    .select('id, title, body, published_at, is_active')
+    .order('published_at', { ascending: false })
+    .limit(200);
+  if (error) {
+    list.innerHTML = `<div class="msg err">Erro: ${_escapeCmu(error.message)}</div>`;
+    return;
+  }
+  _announcementsMap = {};
+  (data || []).forEach(a => { _announcementsMap[a.id] = a; });
+  count.textContent = `(${data.length})`;
+  if (!data.length) {
+    list.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Nenhum comunicado publicado.</p>';
+    return;
+  }
+  list.innerHTML = `
+    <table class="data-table">
+      <thead><tr><th>Publicado</th><th>Título</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(a => {
+          // Tira os marcadores ** e * só para o preview ficar legível na lista.
+          const preview = (a.body || '').replace(/\*\*/g, '').replace(/\*/g, '');
+          return `
+          <tr>
+            <td style="white-space:nowrap; font-variant-numeric:tabular-nums;">${new Date(a.published_at).toLocaleDateString('pt-BR')}</td>
+            <td>
+              <strong style="color:var(--accent);">${_escapeCmu(a.title)}</strong>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px; max-width:480px;">${_escapeCmu(preview.slice(0, 140))}${preview.length > 140 ? '…' : ''}</div>
+            </td>
+            <td>
+              <label style="display:inline-flex; gap:6px; align-items:center; cursor:pointer;">
+                <input type="checkbox" ${a.is_active ? 'checked' : ''} onchange="toggleAnnouncement('${a.id}', this.checked)">
+                ${a.is_active ? '<span style="color:var(--accent); font-size:0.8rem;">Ativo</span>' : '<span style="color:var(--text-muted); font-size:0.8rem;">Inativo</span>'}
+              </label>
+            </td>
+            <td style="white-space:nowrap;">
+              <button class="reset-btn" onclick="editAnnouncement('${a.id}')">Editar</button>
+              <button class="delete-btn" onclick="deleteAnnouncement('${a.id}')">Excluir</button>
+            </td>
+          </tr>
+        `;}).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
 Object.assign(window, {
-  loadAnnouncements,
-  addAnnouncement,
+  resetAnnouncementForm,
+  editAnnouncement,
+  annBold,
+  annItalic,
+  saveAnnouncement,
   toggleAnnouncement,
-  deleteAnnouncement
+  deleteAnnouncement,
+  loadAnnouncements
 });

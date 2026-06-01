@@ -1,4 +1,4 @@
-﻿    import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
+    import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
     import Chart from 'chart.js/auto';
     // Estado compartilhado entre admin.js e abas extraídas
     import {
@@ -11,24 +11,30 @@
     import { _loadAdminIds, _escHtml, logAdminAction } from './admin/shared/helpers.js';
     // Abas extraídas — registram suas funções em window.*
     import './admin/tabs/admin-logs.js';
-    import './admin/tabs/calendar.js';
-    import './admin/tabs/announcements.js';
+    import './admin/tabs/calendar.js?v=6';
+    import './admin/tabs/announcements.js?v=2';
     import './admin/tabs/access-info.js';
     import './admin/tabs/find-replace.js';
     import './admin/tabs/duplicates.js';
     import './admin/tabs/analytics-search.js';
     import './admin/tabs/analytics-disciples.js';
     import './admin/tabs/analytics-poetry.js';
-    import './admin/tabs/analytics-johrei.js?v=2';
+    import './admin/tabs/analytics-johrei.js?v=5';
     import './admin/tabs/analytics-landing.js';
+    import './admin/tabs/analytics-audio.js?v=3';
     import './admin/tabs/highlights-saved.js';
     import './admin/tabs/users-permissions.js';
-    import './admin/tabs/analytics.js';
+    import './admin/tabs/analytics.js?v=2';
     import './admin/tabs/translation-review.js';
     import './admin/tabs/translation-review-guia.js';
     import './admin/tabs/partial-citations.js?v=24';
-    import './admin/tabs/recommendations.js?v=7';
+    import './admin/tabs/recommendations.js?v=10';
+    import './admin/tabs/inbox.js';
     import './admin/tabs/poetry-versions.js?v=2';
+
+    // Expõe o client no window pra scripts não-módulo (ex.: reader-recommend.js,
+    // o modal do aviãozinho reusado em "Repassar a todos" na Caixa de Entrada).
+    window.supabase = supabase;
 
     const VOLUMES = [
       { key: 'mioshiec1', name: 'Volume 1 — Mundo Espiritual' },
@@ -91,7 +97,7 @@
     // (importado no topo deste arquivo)
 
     window.switchAdminSection = function(section) {
-      document.querySelectorAll('.tab-group[data-section]').forEach(g => {
+      document.querySelectorAll('.admin-nav-section[data-section]').forEach(g => {
         g.style.display = g.dataset.section === section ? '' : 'none';
       });
       try { localStorage.setItem('admin_section', section); } catch (e) {}
@@ -109,12 +115,35 @@
       } catch (e) { setTimeout(() => window.switchAdminSection('caminho'), 0); }
     })();
 
+    // Menu lateral: sempre visível no desktop; vira gaveta no mobile.
+    window.openAdminDrawer = function () {
+      const sb = document.getElementById('adminSidebar');
+      const sc = document.getElementById('adminScrim');
+      if (sb) sb.classList.add('is-open');
+      if (sc) sc.classList.add('show');
+    };
+    window.closeAdminDrawer = function () {
+      const sb = document.getElementById('adminSidebar');
+      const sc = document.getElementById('adminScrim');
+      if (sb) sb.classList.remove('is-open');
+      if (sc) sc.classList.remove('show');
+    };
+    (function _wireAdminDrawer() {
+      const h = document.getElementById('adminHamburger');
+      const sc = document.getElementById('adminScrim');
+      if (h) h.addEventListener('click', window.openAdminDrawer);
+      if (sc) sc.addEventListener('click', window.closeAdminDrawer);
+    })();
+
     window.switchTab = function(tab) {
-      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.admin-nav-item').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const tabIndex = { 'analytics-landing': 0, 'calendar': 1, 'access': 2, 'announcements': 3, 'analytics': 4, 'analytics-disciples': 5, 'analytics-poetry': 6, 'analytics-search': 7, 'destaques': 8, 'saved': 9, 'recommendations': 10, 'recommend-audio': 11, 'reports': 12, 'poetry-versions': 13, 'partial-citations': 14, 'users': 15, 'findreplace': 16, 'duplicates': 17, 'logs': 18, 'analytics-johrei': 19, 'reports-guia': 20, 'essencia-guia': 21 }[tab];
-      document.querySelectorAll('.admin-tab')[tabIndex].classList.add('active');
-      document.getElementById(`tab-${tab}`).classList.add('active');
+      // Acha a aba ativa pelo data-tab (antes era um índice posicional frágil).
+      const navItem = document.querySelector('.admin-nav-item[data-tab="' + tab + '"]');
+      if (navItem) navItem.classList.add('active');
+      const pane = document.getElementById('tab-' + tab);
+      if (pane) pane.classList.add('active');
+      if (window.closeAdminDrawer) window.closeAdminDrawer();
       if (tab === 'analytics') {
         loadAnalytics();
         if (_onlineRefreshInterval) clearInterval(_onlineRefreshInterval);
@@ -132,6 +161,7 @@
       if (tab === 'duplicates') loadDuplicates();
       if (tab === 'recommendations') loadRecommendationsTab();
       if (tab === 'recommend-audio') loadRecommendAudioTab();
+      if (tab === 'inbox') loadInboxTab();
       if (tab === 'poetry-versions') loadPoetryVersions();
       if (tab === 'partial-citations') loadPartialCitations();
       if (tab === 'analytics-johrei') loadJohreiAnalytics();
@@ -140,6 +170,7 @@
       if (tab === 'analytics-disciples') loadDisciplesAnalytics();
       if (tab === 'analytics-poetry') loadPoetryAnalytics();
       if (tab === 'analytics-search') loadSearchAnalytics();
+      if (tab === 'audio') loadAudioAnalytics();
     };
 
     // Calendar Events: extraído para ./admin/tabs/calendar.js

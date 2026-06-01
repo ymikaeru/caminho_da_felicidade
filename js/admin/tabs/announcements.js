@@ -6,6 +6,7 @@ import { _escapeCmu } from '../shared/helpers.js';
 
 let _editingAnnId = null;
 let _announcementsMap = {};
+let _annSkin = 'c'; // skin GLOBAL dos comunicados (a/b/c) — vale pra todos
 
 // ── Pré-visualização ──────────────────────────────────────────
 // Espelha a renderização da landing (js/landing.js do repo ymikaeru.github.io:
@@ -53,6 +54,7 @@ function _wireAnnPreview() {
   t.addEventListener('input', renderAnnPreview);
   b.addEventListener('input', renderAnnPreview);
   setAnnPreviewDevice('desktop');
+  loadAnnSkin();
   _annPreviewWired = true;
 }
 
@@ -69,6 +71,49 @@ function setAnnPreviewDevice(device) {
   document.querySelectorAll('.ann-device-btn').forEach(b => {
     b.classList.toggle('is-active', b.dataset.device === device);
   });
+}
+
+// ── Skin GLOBAL dos comunicados (a/b/c) ───────────────────────
+// Guardado em public.landing_config (id=1). A escolha vale pra TODOS os
+// comunicados; a landing lê o mesmo registro e aplica .comunicados--X.
+const _ANN_SKINS = ['a', 'b', 'c'];
+function _applyAnnSkin(skin) {
+  if (!_ANN_SKINS.includes(skin)) skin = 'c';
+  _annSkin = skin;
+  const wrap = document.getElementById('ann-preview-wrap');
+  if (wrap) {
+    wrap.classList.remove('comunicados--a', 'comunicados--b', 'comunicados--c');
+    wrap.classList.add('comunicados--' + skin);
+  }
+  document.querySelectorAll('.ann-skin-btn').forEach(b => {
+    b.classList.toggle('is-active', b.dataset.skin === skin);
+  });
+}
+async function loadAnnSkin() {
+  try {
+    const { data, error } = await supabase
+      .from('landing_config').select('comunicados_skin').eq('id', 1).maybeSingle();
+    _applyAnnSkin(!error && data ? data.comunicados_skin : 'c');
+  } catch (e) {
+    _applyAnnSkin('c');
+  }
+}
+async function setAnnSkin(skin) {
+  _applyAnnSkin(skin);
+  const m = document.getElementById('ann-skin-msg');
+  if (m) { m.textContent = 'Salvando…'; m.style.color = 'var(--text-muted)'; }
+  const { error } = await supabase.from('landing_config')
+    .upsert({ id: 1, comunicados_skin: _annSkin, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+  if (!m) return;
+  if (error) {
+    m.textContent = /landing_config|relation|exist/i.test(error.message || '')
+      ? 'Rode a migração landing_config.sql no Supabase.'
+      : 'Erro: ' + error.message;
+    m.style.color = '#c0392b';
+  } else {
+    m.textContent = '✓ Skin salvo — vale pra todos os comunicados';
+    m.style.color = '#2c8a3e';
+  }
 }
 
 function _collectAnnForm() {
@@ -247,5 +292,6 @@ Object.assign(window, {
   toggleAnnouncement,
   deleteAnnouncement,
   loadAnnouncements,
-  setAnnPreviewDevice
+  setAnnPreviewDevice,
+  setAnnSkin
 });

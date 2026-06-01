@@ -7,6 +7,70 @@ import { _escapeCmu } from '../shared/helpers.js';
 let _editingAnnId = null;
 let _announcementsMap = {};
 
+// ── Pré-visualização ──────────────────────────────────────────
+// Espelha a renderização da landing (js/landing.js do repo ymikaeru.github.io:
+// formatarBody / aplicarFormatacao / escapar). Mantenha em sincronia se a
+// landing mudar as regras: parágrafos por linha em branco, **negrito** e
+// *itálico*, com escape de HTML antes de tudo.
+function _annEscapar(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+function _annAplicarFormatacao(s) {
+  return s
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>');
+}
+function _annFormatarBody(texto) {
+  return _annEscapar(texto || '')
+    .split(/\n{2,}/)
+    .map(p => `<p>${_annAplicarFormatacao(p.replace(/\n/g, '<br>'))}</p>`)
+    .join('');
+}
+// Atualiza o preview a partir dos campos do form (título sem markdown, igual
+// à landing; corpo com a formatação completa).
+function renderAnnPreview() {
+  const titleEl = document.getElementById('ann-prev-title');
+  const bodyEl  = document.getElementById('ann-prev-body');
+  if (!titleEl || !bodyEl) return;
+  const title = (document.getElementById('ann-title')?.value || '').trim();
+  const body  = (document.getElementById('ann-body')?.value || '').trim();
+  titleEl.textContent = title;
+  bodyEl.innerHTML = body ? _annFormatarBody(body) : '';
+  const hasContent = !!(title || body);
+  const kickerEl = document.getElementById('ann-prev-kicker');
+  if (kickerEl) kickerEl.style.display = hasContent ? '' : 'none';
+  const emptyEl = document.getElementById('ann-prev-empty');
+  if (emptyEl) emptyEl.style.display = hasContent ? 'none' : '';
+}
+let _annPreviewWired = false;
+function _wireAnnPreview() {
+  if (_annPreviewWired) return;
+  const t = document.getElementById('ann-title');
+  const b = document.getElementById('ann-body');
+  if (!t || !b) return;
+  t.addEventListener('input', renderAnnPreview);
+  b.addEventListener('input', renderAnnPreview);
+  setAnnPreviewDevice('desktop');
+  _annPreviewWired = true;
+}
+
+// Larguras de simulação do preview (px). Troca o max-width do card e aplica
+// o estado .dev-mobile (que espelha a media query dos comunicados na landing).
+const _ANN_DEVICE_W = { mobile: 390, tablet: 768, desktop: 1040 };
+function setAnnPreviewDevice(device) {
+  const wrap = document.getElementById('ann-preview-wrap');
+  if (!wrap) return;
+  const w = _ANN_DEVICE_W[device] || _ANN_DEVICE_W.desktop;
+  wrap.style.maxWidth = w + 'px';
+  wrap.classList.remove('dev-mobile', 'dev-tablet', 'dev-desktop');
+  wrap.classList.add('dev-' + device);
+  document.querySelectorAll('.ann-device-btn').forEach(b => {
+    b.classList.toggle('is-active', b.dataset.device === device);
+  });
+}
+
 function _collectAnnForm() {
   return {
     title:     document.getElementById('ann-title').value.trim(),
@@ -26,6 +90,7 @@ function resetAnnouncementForm() {
   const msg = document.getElementById('ann-msg');
   msg.className = 'msg';
   msg.textContent = '';
+  renderAnnPreview();
 }
 
 function editAnnouncement(id) {
@@ -39,6 +104,7 @@ function editAnnouncement(id) {
   document.getElementById('ann-add-btn').textContent = 'Atualizar';
   document.getElementById('ann-cancel-btn').style.display = '';
   document.getElementById('ann-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  renderAnnPreview();
 }
 
 // Envolve a seleção do textarea em ** ** (negrito). Sem seleção, insere
@@ -55,6 +121,7 @@ function annBold() {
     ta.value = v.slice(0, s) + '****' + v.slice(s);
     ta.setSelectionRange(s + 2, s + 2);
   }
+  renderAnnPreview();
   ta.focus();
 }
 
@@ -72,6 +139,7 @@ function annItalic() {
     ta.value = v.slice(0, s) + '**' + v.slice(s);
     ta.setSelectionRange(s + 1, s + 1);
   }
+  renderAnnPreview();
   ta.focus();
 }
 
@@ -118,6 +186,8 @@ async function deleteAnnouncement(id) {
 }
 
 async function loadAnnouncements() {
+  _wireAnnPreview();
+  renderAnnPreview();
   const list = document.getElementById('ann-list');
   const count = document.getElementById('ann-count');
   list.innerHTML = '<div class="loading">Carregando...</div>';
@@ -176,5 +246,6 @@ Object.assign(window, {
   saveAnnouncement,
   toggleAnnouncement,
   deleteAnnouncement,
-  loadAnnouncements
+  loadAnnouncements,
+  setAnnPreviewDevice
 });

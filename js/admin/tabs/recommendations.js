@@ -75,14 +75,18 @@ async function recLoadList() {
   const container = document.getElementById('rec-list');
   if (!_recSelectedUser) return;
   container.innerHTML = '<div class="loading" style="padding:16px;">Carregando...</div>';
-  const { data, error } = await supabase.rpc('admin_get_user_recommendations', {
-    p_user_id: _recSelectedUser.id,
-  });
+  const [{ data, error }, listensRes] = await Promise.all([
+    supabase.rpc('admin_get_user_recommendations', { p_user_id: _recSelectedUser.id }),
+    supabase.rpc('admin_get_user_audio_listens', { p_user_id: _recSelectedUser.id }),
+  ]);
   if (error) {
     container.innerHTML = `<div class="msg err">Erro: ${_escHtml(error.message)}</div>`;
     return;
   }
   const recs = data || [];
+  // Escutas de áudio do usuário (audio_path → {max_percent, completed}) p/ o selo.
+  const listenByPath = {};
+  (listensRes && listensRes.data ? listensRes.data : []).forEach(l => { listenByPath[l.audio_path] = l; });
   if (recs.length === 0) {
     container.innerHTML = '<div style="padding:16px; color:var(--text-muted); font-size:0.85rem; text-align:center;">Nenhuma recomendação ativa.</div>';
     return;
@@ -127,6 +131,15 @@ async function recLoadList() {
     const noteHtml = r.note ? `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px; font-style:italic;">"${_escHtml(r.note)}"</div>` : '';
     const created = new Date(r.created_at).toLocaleDateString('pt-BR');
 
+    // Selo de escuta (só áudio): casa a rec com audio_listens pelo audio_path.
+    // max_percent = ponto máximo alcançado (high-water mark).
+    const listenHtml = isAudio ? (() => {
+      const l = listenByPath[r.audio_path];
+      if (!l || !l.max_percent) return ` <span style="opacity:0.4;">·</span> <span style="color:var(--accent);">🎧 não ouviu</span>`;
+      if (l.completed || l.max_percent >= 95) return ` <span style="opacity:0.4;">·</span> <span style="color:#2c8a3e;" title="Chegou ao fim">🎧 ouviu completo</span>`;
+      return ` <span style="opacity:0.4;">·</span> <span style="color:#c80;" title="Ponto máximo alcançado">🎧 ouviu ${l.max_percent}%</span>`;
+    })() : '';
+
     let stateTag = '';
     if (archived) {
       const archDate = new Date(r.archived_at).toLocaleDateString('pt-BR');
@@ -153,7 +166,7 @@ async function recLoadList() {
         <div style="display:flex; align-items:flex-start; gap:8px;">
           <div style="flex:1;">
             <div style="font-size:0.88rem; font-weight:500;">${_escHtml(title)}${stateTag}</div>
-            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${refLine} · criado ${created} · <span style="color:${seenColor};">${seenLabel}</span>${readHtml}${expiresHtml}</div>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${refLine} · criado ${created} · <span style="color:${seenColor};">${seenLabel}</span>${readHtml}${listenHtml}${expiresHtml}</div>
             ${noteHtml}
           </div>
           <div style="display:flex; gap:6px; flex-shrink:0;">

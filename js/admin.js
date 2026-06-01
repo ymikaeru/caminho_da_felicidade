@@ -11,7 +11,7 @@
     import { _loadAdminIds, _escHtml, logAdminAction } from './admin/shared/helpers.js';
     // Abas extraídas — registram suas funções em window.*
     import './admin/tabs/admin-logs.js';
-    import './admin/tabs/calendar.js';
+    import './admin/tabs/calendar.js?v=5';
     import './admin/tabs/announcements.js?v=2';
     import './admin/tabs/access-info.js';
     import './admin/tabs/find-replace.js';
@@ -21,13 +21,14 @@
     import './admin/tabs/analytics-poetry.js';
     import './admin/tabs/analytics-johrei.js?v=2';
     import './admin/tabs/analytics-landing.js';
+    import './admin/tabs/analytics-audio.js?v=3';
     import './admin/tabs/highlights-saved.js';
     import './admin/tabs/users-permissions.js';
     import './admin/tabs/analytics.js';
     import './admin/tabs/translation-review.js';
     import './admin/tabs/translation-review-guia.js';
     import './admin/tabs/partial-citations.js?v=24';
-    import './admin/tabs/recommendations.js?v=9';
+    import './admin/tabs/recommendations.js?v=10';
     import './admin/tabs/inbox.js';
     import './admin/tabs/mural.js';
     import './admin/tabs/poetry-versions.js?v=2';
@@ -111,7 +112,7 @@
       } catch (e) { setTimeout(() => window.switchAdminSection('caminho'), 0); }
     })();
 
-    // Gaveta lateral (mobile): abre/fecha o menu + o scrim de fundo.
+    // Menu lateral: sempre visível no desktop; vira gaveta no mobile.
     window.openAdminDrawer = function () {
       const sb = document.getElementById('adminSidebar');
       const sc = document.getElementById('adminScrim');
@@ -167,6 +168,7 @@
       if (tab === 'analytics-disciples') loadDisciplesAnalytics();
       if (tab === 'analytics-poetry') loadPoetryAnalytics();
       if (tab === 'analytics-search') loadSearchAnalytics();
+      if (tab === 'audio') loadAudioAnalytics();
     };
 
     // Calendar Events: extraído para ./admin/tabs/calendar.js

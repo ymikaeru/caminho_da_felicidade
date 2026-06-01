@@ -1,11 +1,10 @@
-    /* Override global content-wrapper / glass-pane caps for the admin page (desktop only).
-       Admin tem muito conteúdo tabular (analytics, listas de usuários,
-       editor de poesia, etc.), então 1800px no desktop dá folga sem
-       ficar exagerado em ultrawides. min(1800, viewport-48) garante
-       que em telas menores (1366) o limite efetivo seja a viewport. */
-    @media (min-width: 1025px) {
-      main.main > .content-wrapper { max-width: min(1800px, calc(100vw - 48px)) !important; }
-      main.main > .content-wrapper > .glass-pane { padding: 32px !important; }
+    /* Admin full-bleed (desktop): o layout ocupa a tela inteira — o menu lateral
+       fixo + o conteúdo ficam encostados, sem cap de largura nem centralização.
+       Mantém só o respiro vertical do glass-pane; horizontal vai a zero. */
+    @media (min-width: 861px) {
+      main.main { padding-left: 0 !important; padding-right: 0 !important; }
+      main.main > .content-wrapper { max-width: 100% !important; width: 100% !important; }
+      main.main > .content-wrapper > .glass-pane { padding: 32px 0 !important; }
     }
     .admin-wrap { max-width: 100%; margin: 0 auto; padding: 40px 0 120px; }
     .admin-section { margin-bottom: 40px; }
@@ -934,23 +933,21 @@
     .admin-idle-timer.warn { opacity: 1; color: #c0392b; border-color: #c0392b; background: rgba(192,57,43,0.08); }
 
     /* ============================================================
-       MENU LATERAL DO ADMIN (sidebar) — FIXO + colapsável.
-       Classes prefixadas "admin-" p/ não colidir com o CSS do site.
-       Desktop: .admin-sidebar é position:fixed; .admin-main tem margin-left.
-       Esconder (body.admin-sidebar-collapsed): o menu desliza p/ fora e o
-       conteúdo ocupa a largura toda. Mobile (<=860): vira gaveta + scrim.
+       MENU LATERAL DO ADMIN (sidebar) — unificado + full-screen.
+       Sidebar fixo à esquerda (acompanha a rolagem) + conteúdo preenchendo
+       o resto da largura, encostados, ocupando a tela inteira (sem cap, sem
+       colapso). Mobile (<=860): o menu vira gaveta + scrim.
        ============================================================ */
     .admin-wrap { display: block; padding: 0 !important; }
-    .admin-main { margin-left: 256px; min-width: 0; padding: 34px 30px 80px; transition: margin-left .22s ease; }
 
     .admin-sidebar {
       position: fixed; top: var(--nav-height, 60px); left: 0; bottom: 0; width: 256px; z-index: 1000;
       background: var(--surface); border-right: 1px solid var(--border);
       padding: 18px 16px; display: flex; flex-direction: column; gap: 16px;
       overflow-y: auto; overflow-x: hidden;
-      transform: translateX(0); transition: transform .22s ease;
     }
-    .admin-sidebar-brand { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .admin-main { margin-left: 256px; min-width: 0; padding: 32px 34px 80px; }
+
     .admin-sidebar-eyebrow { font-size: .66rem; letter-spacing: .2em; color: var(--accent); font-weight: 600; }
     .admin-sidebar-title { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 600; line-height: 1.05; margin-top: 1px; }
     .admin-sidebar-seclabel { display: block; font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; }
@@ -960,20 +957,10 @@
     }
     .admin-sidebar-foot { margin-top: auto; border-top: 1px solid var(--border); padding-top: 12px; }
 
-    /* Botão « (esconder) no topo do menu */
-    .admin-sidebar-collapse {
-      flex-shrink: 0; width: 28px; height: 28px;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 1.05rem; line-height: 1; color: var(--text-muted);
-      background: transparent; border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
-      transition: background .12s, color .12s, border-color .12s;
-    }
-    .admin-sidebar-collapse:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
-
-    /* Botão ☰ flutuante (mostrar) — só aparece com o menu escondido */
+    /* ☰ flutuante — só no mobile (abre a gaveta) */
     .admin-hamburger {
       display: none;
-      position: fixed; top: calc(var(--nav-height, 60px) + 12px); left: 12px; z-index: 1100;
+      position: fixed; top: calc(var(--nav-height, 60px) + 10px); right: 14px; z-index: 1100;
       align-items: center; justify-content: center;
       width: 40px; height: 40px; font-size: 1.15rem; line-height: 1;
       background: var(--surface); color: var(--text-main);
@@ -998,19 +985,15 @@
 
     .admin-scrim { display: none; }
 
-    /* ===== Desktop (>860): comportamento de esconder ===== */
-    @media (min-width: 861px) {
-      body.admin-sidebar-collapsed .admin-sidebar { transform: translateX(-100%); }
-      body.admin-sidebar-collapsed .admin-main { margin-left: 0; }
-      body.admin-sidebar-collapsed .admin-hamburger { display: inline-flex; }
-    }
-
-    /* ===== Mobile (<=860): vira gaveta com scrim ===== */
+    /* ===== Mobile (<=860): menu vira gaveta com scrim ===== */
     @media (max-width: 860px) {
-      .admin-main { margin-left: 0 !important; padding: 64px 4px 80px; }
-      .admin-sidebar { top: 0; width: 270px; z-index: 1200; box-shadow: var(--shadow-premium); transform: translateX(-100%); }
+      .admin-main { margin-left: 0; padding: 64px 14px 80px; }
+      .admin-sidebar {
+        top: 0; width: 270px; z-index: 1200; box-shadow: var(--shadow-premium);
+        transform: translateX(-100%); transition: transform .22s ease;
+      }
       .admin-sidebar.is-open { transform: translateX(0); }
-      .admin-hamburger { display: inline-flex; top: calc(var(--nav-height, 60px) + 10px); left: auto; right: 14px; }
+      .admin-hamburger { display: inline-flex; }
       .admin-scrim {
         display: block; position: fixed; inset: 0; z-index: 1150;
         background: rgba(0,0,0,.38); opacity: 0; pointer-events: none; transition: opacity .2s;

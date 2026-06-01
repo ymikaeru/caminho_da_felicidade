@@ -6,7 +6,7 @@
   <title>Admin — Caminho da Felicidade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.min.css?v=148">
-  <link rel="stylesheet" href="css/admin.min.css?v=6">
+  <link rel="stylesheet" href="css/admin.min.css?v=13">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 
@@ -49,7 +49,7 @@
         <div class="admin-wrap">
 
           <!-- Hambúrguer + scrim (só aparecem no mobile) -->
-          <button class="admin-hamburger" id="adminHamburger" type="button" aria-label="Abrir menu">&#9776;</button>
+          <button class="admin-hamburger" id="adminHamburger" type="button" aria-label="Mostrar menu" title="Mostrar menu">&#9776;</button>
           <div class="admin-scrim" id="adminScrim"></div>
 
           <!-- Menu lateral -->
@@ -77,6 +77,7 @@
                   <div class="admin-nav-item" data-tab="analytics-disciples" onclick="switchTab('analytics-disciples')"><span class="admin-nav-ico">📊</span><span class="admin-nav-txt">Discípulos</span></div>
                   <div class="admin-nav-item" data-tab="analytics-poetry" onclick="switchTab('analytics-poetry')"><span class="admin-nav-ico">📜</span><span class="admin-nav-txt">Poesia</span></div>
                   <div class="admin-nav-item" data-tab="analytics-search" onclick="switchTab('analytics-search')"><span class="admin-nav-ico">🔎</span><span class="admin-nav-txt">Buscas</span></div>
+                  <div class="admin-nav-item" data-tab="audio" onclick="switchTab('audio')"><span class="admin-nav-ico">🎧</span><span class="admin-nav-txt">Áudio</span></div>
                   <div class="admin-nav-item" data-tab="destaques" onclick="switchTab('destaques')"><span class="admin-nav-ico">⭐</span><span class="admin-nav-txt">Destaques</span></div>
                   <div class="admin-nav-item" data-tab="saved" onclick="switchTab('saved')"><span class="admin-nav-ico">🔖</span><span class="admin-nav-txt">Salvos</span></div>
                 </div>
@@ -132,6 +133,15 @@
 
           <!-- Conteúdo das abas (coluna principal ao lado do menu) -->
           <div class="admin-main">
+
+          <!-- 🎧 Áudio Analytics Tab -->
+          <div class="tab-content" id="tab-audio">
+            <div class="admin-section">
+              <h2>Analytics de Áudio</h2>
+              <p style="margin:-8px 0 18px; font-size:.82rem; color:var(--text-muted);">Quem ouviu os áudios recomendados e até onde chegou.</p>
+              <div id="audio-analytics"></div>
+            </div>
+          </div>
 
           <!-- Users Tab -->
           <div class="tab-content active" id="tab-users">
@@ -1003,6 +1013,25 @@
                 pública (cmu.org.br).</p>
             </div>
             <div class="admin-section">
+              <h2>Sugestões do mês</h2>
+              <p style="font-size:0.82rem; color:var(--text-muted); margin:0 0 12px;">Gera os eventos
+                recorrentes da CMU já preenchidos. Edite o que precisar e clique em Adicionar.</p>
+              <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px;">
+                <select id="cal-sug-mes"
+                  style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;"></select>
+                <select id="cal-sug-ano"
+                  style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;"></select>
+                <button type="button" onclick="gerarSugestoesCalendario()">Gerar sugestões</button>
+                <button type="button" onclick="aplicarTodasSugestoes()"
+                  style="background:none; border:1px solid var(--border); color:var(--text);">Adicionar
+                  todos</button>
+              </div>
+              <div id="cal-sug-msg" class="msg"></div>
+              <div id="cal-sug-list"
+                style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:10px; align-items:start;">
+              </div>
+            </div>
+            <div class="admin-section">
               <h2>Novo Evento</h2>
               <div class="add-user-form"
                 style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start;">
@@ -1543,8 +1572,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=83"></script>
-
+  <script type="module" src="js/admin.js?v=90"></script>
 </body>
 
 </html>

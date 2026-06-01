@@ -310,6 +310,25 @@
       if (!audio || !btn || !track) return;
       let lastSaved = -10;
 
+      // ── Analytics de escuta (Recomendar Áudio) ──────────────────────
+      // Loga o % MÁXIMO alcançado (high-water mark) pelo CAMINHO estável do
+      // áudio (data-audio-path) — NUNCA a signed URL, senão o join no admin
+      // dá zero. Flush no pause/ended e a cada 15s tocando (cobre fechar a
+      // aba sem pausar). Só envia se subiu; fire-and-forget; logado só.
+      const audioPath = p.dataset.audioPath || '';
+      let maxPct = 0, flushedPct = -1, flushedDone = false, flushTimer = null;
+      const _logFlush = (done) => {
+        if (!audioPath) return;
+        const pct = Math.max(0, Math.min(100, Math.round(maxPct)));
+        if (pct <= flushedPct && (!done || flushedDone)) return;
+        flushedPct = pct; if (done) flushedDone = true;
+        const supa = _supa();
+        if (!supa) return;
+        try { supa.rpc('log_audio_progress', { p_audio_path: audioPath, p_percent: pct, p_completed: !!done }); } catch (e) {}
+      };
+      const _logStart = () => { if (!flushTimer) flushTimer = setInterval(() => _logFlush(false), 15000); };
+      const _logStop = () => { if (flushTimer) { clearInterval(flushTimer); flushTimer = null; } };
+
       // Ao ter metadados: mostra duração e RETOMA de onde parou (se houver
       // posição salva). Não dá play sozinho — o navegador bloqueia após
       // navegação; só posiciona, e a pessoa toca pra continuar.
@@ -329,15 +348,17 @@
         const d = audio.duration || 0;
         if (fill) fill.style.width = d ? (audio.currentTime / d * 100) + '%' : '0%';
         if (cur) cur.textContent = _zfmtTime(audio.currentTime);
+        if (d > 0) { const pct = audio.currentTime / d * 100; if (pct > maxPct) maxPct = pct; }
         if (Math.abs(audio.currentTime - lastSaved) >= 5) { lastSaved = audio.currentTime; _zSavePos(src, audio.currentTime); }
       });
       audio.addEventListener('play', () => {
         document.querySelectorAll('.zaudio audio').forEach(a => { if (a !== audio && !a.paused) a.pause(); });
         p.classList.add('is-playing');
         btn.setAttribute('aria-label', 'Pausar');
+        _logStart();
       });
-      audio.addEventListener('pause', () => { p.classList.remove('is-playing'); btn.setAttribute('aria-label', 'Tocar'); _zSavePos(src, audio.currentTime); });
-      audio.addEventListener('ended', () => { p.classList.remove('is-playing'); if (fill) fill.style.width = '0%'; _zClearPos(src); });
+      audio.addEventListener('pause', () => { p.classList.remove('is-playing'); btn.setAttribute('aria-label', 'Tocar'); _zSavePos(src, audio.currentTime); _logStop(); _logFlush(false); });
+      audio.addEventListener('ended', () => { p.classList.remove('is-playing'); if (fill) fill.style.width = '0%'; _zClearPos(src); _logStop(); _logFlush(true); });
 
       btn.addEventListener('click', () => { if (audio.paused) audio.play(); else audio.pause(); });
       _zBindTrack(track, (ratio) => {
@@ -580,7 +601,7 @@
           const aNote = r.note ? `<div style="font-family:'Crimson Pro',Georgia,serif;font-size:0.96rem;color:var(--text-muted);font-style:italic;line-height:1.45;">"${_esc(r.note)}"</div>` : '';
           const mt = i > 0 ? 'margin-top:22px;' : '';
           return src ? `
-            <div class="zaudio" data-src="${_esc(src)}"
+            <div class="zaudio" data-src="${_esc(src)}" data-audio-path="${_esc(r.audio_path)}"
               style="${mt}padding:0;border:none;box-shadow:none;background:transparent;border-radius:0;gap:18px;align-items:flex-start;">
               <audio preload="metadata" src="${_esc(src)}"></audio>
               <button type="button" class="zaudio__btn" aria-label="Tocar"

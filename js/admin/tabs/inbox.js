@@ -119,48 +119,36 @@ async function inboxReply(id) {
   loadInboxTab();
 }
 
-// Repassa o ensinamento a TODOS os usuários, virando uma Recomendação do
-// Reverendo (curada — a nota é dele, não o texto privado do usuário).
-async function inboxRepassar(id) {
+// Repassa o ensinamento/poema reusando o modal do aviãozinho
+// (reader-recommend.js): lista de ministros já pré-selecionados, nota e
+// auto-arquivar — em vez de prompt/confirm nativos. A nota é do Reverendo
+// (curada); o texto privado do usuário NÃO é compartilhado.
+function inboxRepassar(id) {
   const m = _inboxMessages.find(x => x.id === id);
   if (!m) return;
-  const titulo = m.title_pt || m.title_snapshot || (m.vol === 'poetry' ? 'este poema' : 'este Ensinamento');
-  const note = prompt('Nota opcional para a recomendação (deixe vazio para nenhuma):', '');
-  if (note === null) return; // cancelou
-  if (!confirm(`Recomendar "${titulo}" para TODOS os ministros?\n\nCada um receberá uma cópia. Não dá pra desfazer em massa.`)) return;
-
-  if (m.vol === 'poetry') {
-    // Poesia não tem RPC "_all" — mandamos a lista de todos os ministros ao bulk.
-    const { data: users, error: ue } = await supabase.rpc('admin_get_users');
-    if (ue) { alert('Erro ao carregar destinatários: ' + ue.message); return; }
-    const ids = (users || []).map(u => u.id).filter(Boolean);
-    if (!ids.length) { alert('Nenhum destinatário encontrado.'); return; }
-    // O número do poema já vai embutido em title_snapshot (= poem_title);
-    // poem_number=0 evita parsing frágil do título.
-    const { data, error } = await supabase.rpc('admin_create_poetry_recommendations_bulk', {
-      p_user_ids: ids,
-      p_collection: m.file,
-      p_poem_number: 0,
-      p_poem_topic_id: m.poem_topic_id,
-      p_poem_title: m.title_snapshot || '(poema)',
-      p_poem_text: null,
-      p_note: note.trim() || null,
-      p_expires_at: null,
-    });
-    if (error) { alert('Erro: ' + error.message); return; }
-    alert(`Repassado para ${data} ministro${data === 1 ? '' : 's'}.`);
+  if (typeof window.openRecommendPicker !== 'function') {
+    alert('O modal de recomendação não carregou nesta página. Recarregue e tente de novo.');
     return;
   }
-
-  const { data, error } = await supabase.rpc('admin_create_recommendation_all', {
-    p_vol: m.vol,
-    p_file: m.file,
-    p_topic_idx: m.topic_idx || 0,
-    p_note: note.trim() || null,
-    p_expires_at: null,
-  });
-  if (error) { alert('Erro: ' + error.message); return; }
-  alert(`Repassado para ${data} ministro${data === 1 ? '' : 's'}.`);
+  const titulo = m.title_pt || m.title_snapshot || (m.vol === 'poetry' ? 'este poema' : 'este Ensinamento');
+  if (m.vol === 'poetry') {
+    window.openRecommendPicker({
+      vol: 'poetry',
+      file: m.file,
+      title: titulo,
+      poemTopicId: m.poem_topic_id,
+      poemTitle: m.title_snapshot || titulo,
+      preselectAll: true,
+    });
+  } else {
+    window.openRecommendPicker({
+      vol: m.vol,
+      file: m.file,
+      topic_idx: m.topic_idx || 0,
+      title: titulo,
+      preselectAll: true,
+    });
+  }
 }
 
 async function inboxDelete(id) {

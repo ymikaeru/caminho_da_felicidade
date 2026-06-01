@@ -32,6 +32,10 @@
     import './admin/tabs/inbox.js';
     import './admin/tabs/poetry-versions.js?v=2';
 
+    // Expõe o client no window pra scripts não-módulo (ex.: reader-recommend.js,
+    // o modal do aviãozinho reusado em "Repassar a todos" na Caixa de Entrada).
+    window.supabase = supabase;
+
     const VOLUMES = [
       { key: 'mioshiec1', name: 'Volume 1 — Mundo Espiritual' },
       { key: 'mioshiec2', name: 'Volume 2 — Método Divino de Saúde' },

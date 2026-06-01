@@ -131,10 +131,10 @@ function _buildTopicSaveBar(topicIdx, lang) {
             `</button>`;
     }
 
-    // Botões do usuário logado (não-admin): compartilhar em privado com o
-    // Reverendo, ou publicar uma descoberta (anônima) no mural. Gate síncrono
-    // via isLoggedIn(). O admin não vê — ele é o Reverendo/curador.
-    let shareBtn = '', descobertaBtn = '';
+    // Botão do usuário logado (não-admin): compartilhar em privado com o
+    // Reverendo. Gate síncrono via isLoggedIn(). O admin não vê — ele é o
+    // Reverendo/curador.
+    let shareBtn = '';
     if (typeof isLoggedIn === 'function' && isLoggedIn()
         && !(typeof isAdminUser === 'function' && isAdminUser())) {
         const shLabel = lang === 'ja' ? 'ご住職に共有' : 'Compartilhar com o Reverendo';
@@ -142,12 +142,6 @@ function _buildTopicSaveBar(topicIdx, lang) {
         shareBtn =
             `<button type="button" class="topic-save-btn topic-share-btn" data-topic-idx="${topicIdx}" title="${shLabel}" aria-label="${shLabel}" onclick="if (typeof openShareWithReverendo === 'function') openShareWithReverendo(${topicIdx});">` +
                 shIcon +
-            `</button>`;
-        const dsLabel = lang === 'ja' ? '感想を共有' : 'Compartilhar uma reflexão';
-        const dsIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>';
-        descobertaBtn =
-            `<button type="button" class="topic-save-btn topic-discover-btn" data-topic-idx="${topicIdx}" title="${dsLabel}" aria-label="${dsLabel}" onclick="if (typeof openPublicarDescoberta === 'function') openPublicarDescoberta(${topicIdx});">` +
-                dsIcon +
             `</button>`;
     }
 
@@ -157,7 +151,6 @@ function _buildTopicSaveBar(topicIdx, lang) {
             `<span class="topic-save-label" data-save="${l.save}" data-saved="${l.saved}">${l.save}</span>` +
         `</button>` +
         shareBtn +
-        descobertaBtn +
         adminBtns +
     `</div>`;
 }

@@ -305,14 +305,6 @@
     ).join('');
 
     const reportLabel = lang === 'ja' ? '翻訳エラーを報告' : 'Reportar erro de tradução';
-    // Botão "Compartilhar uma reflexão" — só p/ ministro logado (não-admin),
-    // mesmo gate do save-bar. Leva o trecho selecionado ao composer do mural.
-    const canReflect = (typeof isLoggedIn === 'function' && isLoggedIn())
-      && !(typeof isAdminUser === 'function' && isAdminUser());
-    const reflectLabel = lang === 'ja' ? '感想を共有' : 'Compartilhar uma reflexão';
-    const reflectBtnHTML = canReflect
-      ? `<button class="tr-report-btn" id="highlightReflectBtn"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>${reflectLabel}</button>`
-      : '';
 
     _tooltipEl.innerHTML =
       `<div class="highlight-colors">${colorBtnsHTML}</div>` +
@@ -325,7 +317,6 @@
         `</div>` +
       `</div>` +
       `<div class="highlight-tooltip-divider" style="margin-top:4px"></div>` +
-      reflectBtnHTML +
       `<button class="tr-report-btn" id="highlightReportBtn">` +
         `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>` +
         `${reportLabel}` +
@@ -399,18 +390,6 @@
         }
       });
     }
-
-    const reflectBtn = document.getElementById('highlightReflectBtn');
-    if (reflectBtn) {
-      reflectBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const sel = _currentSelection;
-        if (sel && typeof window.openReflexaoFromSelection === 'function') {
-          _hideTooltip();
-          window.openReflexaoFromSelection(sel.text, sel.topicIndex);
-        }
-      });
-    }
   }
 
   function _hideTooltip() {
@@ -443,12 +422,6 @@
 
     const commentPlaceholder = lang === 'ja' ? 'コメントを追加...' : 'Adicionar comentário...';
     const reportLabel = lang === 'ja' ? '翻訳エラーを報告' : 'Reportar erro de tradução';
-    const canReflect = (typeof isLoggedIn === 'function' && isLoggedIn())
-      && !(typeof isAdminUser === 'function' && isAdminUser());
-    const reflectLabel = lang === 'ja' ? '感想を共有' : 'Compartilhar uma reflexão';
-    const reflectBtnHTML = canReflect
-      ? `<button class="tr-report-btn tr-report-btn--mobile" id="highlightMobileReflectBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>${reflectLabel}</button>`
-      : '';
 
     _mobileBarEl.innerHTML =
       `<div class="highlight-mobile-bar-content">` +
@@ -461,7 +434,6 @@
           `<button class="highlight-save-btn" id="highlightMobileSaveBtn">${highlightLabel}</button>` +
         `</div>` +
         `<div class="highlight-tooltip-divider" style="margin: 2px 0"></div>` +
-        reflectBtnHTML +
         `<button class="tr-report-btn tr-report-btn--mobile" id="highlightMobileReportBtn">` +
           `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>` +
           `${reportLabel}` +
@@ -499,18 +471,6 @@
             vol: _getParams().volId,
             file: _getParams().filename
           });
-        }
-      });
-    }
-
-    const mobileReflectBtn = document.getElementById('highlightMobileReflectBtn');
-    if (mobileReflectBtn) {
-      mobileReflectBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const sel = _currentSelection;
-        if (sel && typeof window.openReflexaoFromSelection === 'function') {
-          _hideMobileBar();
-          window.openReflexaoFromSelection(sel.text, sel.topicIndex);
         }
       });
     }

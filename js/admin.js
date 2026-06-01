@@ -11,7 +11,7 @@
     import { _loadAdminIds, _escHtml, logAdminAction } from './admin/shared/helpers.js';
     // Abas extraídas — registram suas funções em window.*
     import './admin/tabs/admin-logs.js';
-    import './admin/tabs/calendar.js?v=5';
+    import './admin/tabs/calendar.js?v=6';
     import './admin/tabs/announcements.js?v=2';
     import './admin/tabs/access-info.js';
     import './admin/tabs/find-replace.js';
@@ -19,18 +19,17 @@
     import './admin/tabs/analytics-search.js';
     import './admin/tabs/analytics-disciples.js';
     import './admin/tabs/analytics-poetry.js';
-    import './admin/tabs/analytics-johrei.js?v=2';
+    import './admin/tabs/analytics-johrei.js?v=5';
     import './admin/tabs/analytics-landing.js';
     import './admin/tabs/analytics-audio.js?v=3';
     import './admin/tabs/highlights-saved.js';
     import './admin/tabs/users-permissions.js';
-    import './admin/tabs/analytics.js';
+    import './admin/tabs/analytics.js?v=2';
     import './admin/tabs/translation-review.js';
     import './admin/tabs/translation-review-guia.js';
     import './admin/tabs/partial-citations.js?v=24';
     import './admin/tabs/recommendations.js?v=10';
     import './admin/tabs/inbox.js';
-    import './admin/tabs/mural.js';
     import './admin/tabs/poetry-versions.js?v=2';
 
     const VOLUMES = [
@@ -159,7 +158,6 @@
       if (tab === 'recommendations') loadRecommendationsTab();
       if (tab === 'recommend-audio') loadRecommendAudioTab();
       if (tab === 'inbox') loadInboxTab();
-      if (tab === 'mural') loadMuralTab();
       if (tab === 'poetry-versions') loadPoetryVersions();
       if (tab === 'partial-citations') loadPartialCitations();
       if (tab === 'analytics-johrei') loadJohreiAnalytics();

@@ -86,11 +86,10 @@
                   <div class="admin-nav-item" data-tab="recommendations" onclick="switchTab('recommendations')"><span class="admin-nav-ico">📤</span><span class="admin-nav-txt">Recomendações</span></div>
                   <div class="admin-nav-item" data-tab="recommend-audio" onclick="switchTab('recommend-audio')"><span class="admin-nav-ico">🎵</span><span class="admin-nav-txt">Recomendar Áudio</span></div>
                   <div class="admin-nav-item" data-tab="inbox" onclick="switchTab('inbox')"><span class="admin-nav-ico">📬</span><span class="admin-nav-txt">Caixa de Entrada</span></div>
-                  <div class="admin-nav-item" data-tab="mural" onclick="switchTab('mural')"><span class="admin-nav-ico">🌸</span><span class="admin-nav-txt">Mural</span></div>
-                  <div class="admin-nav-item" data-tab="reports" onclick="switchTab('reports')"><span class="admin-nav-ico">⚠</span><span class="admin-nav-txt">Relatórios</span><span class="tab-badge empty" id="reportsTabBadge">0</span></div>
                 </div>
                 <div class="admin-nav-group">
                   <div class="admin-nav-grouplabel">Edição</div>
+                  <div class="admin-nav-item" data-tab="reports" onclick="switchTab('reports')"><span class="admin-nav-ico">⚠</span><span class="admin-nav-txt">Relatórios</span><span class="tab-badge empty" id="reportsTabBadge">0</span></div>
                   <div class="admin-nav-item" data-tab="poetry-versions" onclick="switchTab('poetry-versions')"><span class="admin-nav-ico">🌸</span><span class="admin-nav-txt">Poemas</span></div>
                   <div class="admin-nav-item" data-tab="partial-citations" onclick="switchTab('partial-citations')"><span class="admin-nav-ico">🔗</span><span class="admin-nav-txt">Citações</span></div>
                 </div>
@@ -657,21 +656,6 @@
             </div>
           </div>
 
-          <!-- Mural Tab (moderação do Mural de Descobertas) -->
-          <div class="tab-content" id="tab-mural">
-            <div style="margin-bottom:20px;">
-              <h2
-                style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
-                Mural de Reflexões</h2>
-              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Reflexões que os ministros compartilharam
-                (anônimas). Pré-moderação: cada uma entra como pendente — <strong>aprove</strong> para aparecer no Mural,
-                ou oculte/apague.</p>
-            </div>
-            <div id="mural-mod-list">
-              <div class="loading" style="padding:16px;">Selecione a aba para carregar.</div>
-            </div>
-          </div>
-
           <div class="tab-content" id="tab-recommendations">
             <div style="margin-bottom:20px;">
               <h2
@@ -1014,6 +998,16 @@
             </div>
             <div class="admin-section">
               <h2>Sugestões do mês</h2>
+              <style>
+                #tab-calendar .sug-btn, #tab-calendar .sug-btn-ghost {
+                  padding: 9px 18px; border-radius: 8px; font-size: 0.9rem; font-weight: 600;
+                  cursor: pointer; transition: opacity .15s, background .15s, color .15s;
+                }
+                #tab-calendar .sug-btn { border: none; background: var(--accent); color: #fff; }
+                #tab-calendar .sug-btn:hover { opacity: .85; }
+                #tab-calendar .sug-btn-ghost { border: 1px solid var(--accent); background: transparent; color: var(--accent); }
+                #tab-calendar .sug-btn-ghost:hover { background: var(--accent); color: #fff; }
+              </style>
               <p style="font-size:0.82rem; color:var(--text-muted); margin:0 0 12px;">Gera os eventos
                 recorrentes da CMU já preenchidos. Edite o que precisar e clique em Adicionar.</p>
               <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px;">
@@ -1021,14 +1015,12 @@
                   style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;"></select>
                 <select id="cal-sug-ano"
                   style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;"></select>
-                <button type="button" onclick="gerarSugestoesCalendario()">Gerar sugestões</button>
-                <button type="button" onclick="aplicarTodasSugestoes()"
-                  style="background:none; border:1px solid var(--border); color:var(--text);">Adicionar
-                  todos</button>
+                <button type="button" class="sug-btn" onclick="gerarSugestoesCalendario()">Gerar sugestões</button>
+                <button type="button" class="sug-btn-ghost" onclick="aplicarTodasSugestoes()">Adicionar todos</button>
               </div>
               <div id="cal-sug-msg" class="msg"></div>
               <div id="cal-sug-list"
-                style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:10px; align-items:start;">
+                style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:10px; grid-auto-rows:1fr;">
               </div>
             </div>
             <div class="admin-section">

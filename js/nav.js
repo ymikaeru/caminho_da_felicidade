@@ -155,12 +155,6 @@ function _initMobileNav() {
           <span class="conv-badge" style="display:none; margin-left:auto; min-width:18px; height:18px; padding:0 5px; background:var(--accent); color:#fff; border-radius:9px; font-size:0.7rem; font-weight:700; align-items:center; justify-content:center; line-height:1;">0</span>
         </button>
 
-        <button class="mobile-nav-link" id="mobileNavLinkMural" style="display:none; position:relative;" onclick="closeMobileNav(); window.location.href = (window.location.pathname.includes('/mioshiec') ? '../' : '') + 'mural.html';">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>
-          <span class="link-text">${t.mural || 'Mural de Reflexões'}</span>
-          <span class="mural-dot" style="display:none; margin-left:auto; width:9px; height:9px; border-radius:50%; background:var(--accent);"></span>
-        </button>
-
         <button class="mobile-nav-link" id="mobileNavLinkPlaylists" style="display:none;" onclick="closeMobileNav(); if (typeof openPlaylistManager === 'function') openPlaylistManager();">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           <span class="link-text">Minhas playlists</span>
@@ -379,26 +373,6 @@ function _initMobileNav() {
     headerActions.insertBefore(convHeaderBtn, searchBtn);
   } else {
     headerActions.insertBefore(convHeaderBtn, hamburgerBtn);
-  }
-
-  // Botão "Mural de Descobertas" — estrela no header; navega p/ mural.html.
-  // initMuralBadge() (mural.js) liga display:flex quando logado e mostra
-  // o ponto .mural-dot quando há descoberta nova desde a última visita.
-  const muralHeaderBtn = document.createElement('button');
-  muralHeaderBtn.className = 'mobile-fav-btn';
-  muralHeaderBtn.id = 'headerMuralBtn';
-  muralHeaderBtn.setAttribute('aria-label', 'Mural de Reflexões');
-  muralHeaderBtn.setAttribute('title', 'Mural de Reflexões');
-  muralHeaderBtn.style.cssText = 'display:none; position:relative;';
-  muralHeaderBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>
-  <span class="mural-dot" style="display:none; position:absolute; top:3px; right:3px; width:8px; height:8px; border-radius:50%; background:var(--accent); box-sizing:border-box;"></span>`;
-  muralHeaderBtn.addEventListener('click', () => {
-    window.location.href = (window.location.pathname.includes('/mioshiec') ? '../' : '') + 'mural.html';
-  });
-  if (searchBtn) {
-    headerActions.insertBefore(muralHeaderBtn, searchBtn);
-  } else {
-    headerActions.insertBefore(muralHeaderBtn, hamburgerBtn);
   }
 
   const highlightBtn = document.createElement('button');

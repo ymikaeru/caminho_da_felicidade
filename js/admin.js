@@ -12,7 +12,7 @@
     // Abas extraídas — registram suas funções em window.*
     import './admin/tabs/admin-logs.js';
     import './admin/tabs/calendar.js?v=6';
-    import './admin/tabs/announcements.js?v=2';
+    import './admin/tabs/announcements.js?v=3';
     import './admin/tabs/access-info.js';
     import './admin/tabs/find-replace.js';
     import './admin/tabs/duplicates.js';

@@ -402,8 +402,38 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             const rawJa = _stripHeader(topicData.content || '');
             const rawPt = _stripHeader(topicData.content_ptbr || topicData.content_pt || topicData.content || '');
             const splitRaw = (raw) => raw.split(/<br\s*\/?>[\s\n]*/gi).filter(s => s.trim());
-            const jaSegs = splitRaw(rawJa);
-            const ptSegs = splitRaw(rawPt);
+
+            // Mescla um segmento que é SÓ um cabeçalho de parte ("Parte I" /
+            // "第　一") com o segmento seguinte, dos dois lados. Em algumas
+            // publicações (1º tópico, que carrega o título+data da publicação)
+            // o cabeçalho fica isolado num <br> só de um lado e colado ao corpo
+            // do outro — isso empurrava o pareamento por índice em uma posição
+            // (era o caso do "Parte I" do JG1). Mesclar realinha sem tocar nos
+            // dados nem no modo de leitura normal.
+            const PART_HEADING_RE = /^(?:第\s*[一二三四五六七八九十百千\d]+|Parte\s+(?:[IVXLCDM]+|\d+))$/i;
+            const isPartHeading = (seg) => {
+                const txt = seg.replace(/<[^>]+>/g, '').replace(/[\s　]+/g, ' ').trim();
+                return !!txt && txt.length <= 20 && PART_HEADING_RE.test(txt);
+            };
+            const mergeHeadings = (segs) => {
+                const out = [];
+                for (let i = 0; i < segs.length; i++) {
+                    if (isPartHeading(segs[i]) && i + 1 < segs.length) { out.push(segs[i] + ' ' + segs[i + 1]); i++; }
+                    else out.push(segs[i]);
+                }
+                return out;
+            };
+            let jaSegs = mergeHeadings(splitRaw(rawJa));
+            let ptSegs = mergeHeadings(splitRaw(rawPt));
+
+            // Se mesmo após a mescla os dois lados não têm o mesmo número de
+            // parágrafos (tradução com quebras diferentes do japonês — muito
+            // comum), o pareamento por índice mostraria linhas desalinhadas
+            // (uma "empurrando" a outra) ou células vazias. Em vez disso cai
+            // num pareamento grosso: bloco inteiro JA | bloco inteiro PT numa
+            // linha só. Nunca desalinha; no pior caso fica menos granular.
+            if (jaSegs.length !== ptSegs.length) { jaSegs = [rawJa]; ptSegs = [rawPt]; }
+
             const maxLen = Math.max(jaSegs.length, ptSegs.length);
             let gridHtml = '', interleavedHtml = '';
             for (let pi = 0; pi < maxLen; pi++) {

@@ -239,7 +239,9 @@ export async function pullCloudToLocal() {
 
       if (!local) {
         localHist.push({
-          title: cp.file.replace('.html', ''),
+          // Sem título: a tabela reading_positions não guarda o título do
+          // artigo. renderHistory() resolve via SECTION_MAP na exibição.
+          title: '',
           vol: cp.volume,
           file: cp.file,
           time: cloudTime,

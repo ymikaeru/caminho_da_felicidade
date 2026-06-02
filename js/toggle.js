@@ -160,6 +160,43 @@ function _filterAccessible(items) {
   });
 }
 
+// Resolve o título legível de um item do histórico a partir dos mapas
+// canônicos do índice (SECTION_MAP / GLOBAL_INDEX_TITLES) — os MESMOS que
+// o reader usa para exibir o título. Assim o histórico mostra "Deus e o
+// Plano Divino 1" em vez do nome do arquivo ("keirin1"). Retorna null se
+// não encontrar; o chamador decide o fallback.
+function _resolveHistoryTitle(item, lang) {
+  if (!item || !item.vol || !item.file) return null;
+  const isJa = lang === 'ja';
+  try {
+    const e = (window.SECTION_MAP || {})[item.vol]?.[item.file];
+    if (e) return isJa ? (e.ja || e.pt) : (e.pt || e.ja);
+  } catch (_) {}
+  try {
+    const g = (window.GLOBAL_INDEX_TITLES || {})[`${item.vol}/${item.file}`];
+    if (g) return isJa ? (g.ja || g.pt) : (g.pt || g.ja);
+  } catch (_) {}
+  return null;
+}
+
+// Carrega o SECTION_MAP sob demanda (~250KB) e re-renderiza o histórico
+// quando chegar. Só é acionado quando há entrada cujo título salvo é o
+// próprio nome do arquivo (entradas reconstruídas da nuvem em sync.js, que
+// não guarda título). Usuários no mesmo aparelho já têm título bom e não
+// pagam o download.
+let _titleMapLoading = false;
+function _ensureSectionMap(onReady) {
+  if (window.SECTION_MAP) { onReady(); return; }
+  if (_titleMapLoading) return; // já injetado; o onload pendente re-renderiza
+  _titleMapLoading = true;
+  const basePath = window.location.pathname.includes('/mioshiec') ? '../' : './';
+  const s = document.createElement('script');
+  s.src = `${basePath}site_data/section_map.js?v=1`;
+  s.onload = () => { _titleMapLoading = false; onReady(); };
+  s.onerror = () => { _titleMapLoading = false; }; // falhou: mantém fallback
+  document.head.appendChild(s);
+}
+
 function renderHistory() {
   const resultsEl = document.getElementById('historyResults');
   if (!resultsEl) return;
@@ -167,6 +204,15 @@ function renderHistory() {
   const history = _filterAccessible(JSON.parse(localStorage.getItem('readHistory') || '[]'));
   const basePath = window.location.pathname.includes('/mioshiec') ? '../' : './';
   const currentLang = localStorage.getItem('site_lang') || 'pt';
+
+  // Se alguma entrada tem o nome do arquivo no lugar do título (reconstruída
+  // da nuvem), carrega o SECTION_MAP sob demanda e re-renderiza. Sem entradas
+  // assim, não baixa nada.
+  const _needsMap = !window.SECTION_MAP && history.some(it => {
+    const base = (it.file || '').replace('.html', '');
+    return !it.title || it.title === base || it.title === it.file;
+  });
+  if (_needsMap) _ensureSectionMap(renderHistory);
 
   if (history.length === 0) {
     const emptyMsg = currentLang === 'ja' ? '履歴なし。' : 'Nenhum histórico.';
@@ -179,6 +225,10 @@ function renderHistory() {
   resultsEl.innerHTML = history.map(item => {
     const vNum = item.vol.replace('mioshiec', '');
     const fBase = item.file.replace('.html', '');
+    // Título do índice (mapa) > título salvo bom > nome do arquivo.
+    const _resolved = _resolveHistoryTitle(item, currentLang);
+    const _storedGood = item.title && item.title !== fBase && item.title !== item.file;
+    const _displayTitle = _resolved || (_storedGood ? item.title : null) || item.file;
     let href = `${basePath}reader.html#v${vNum}/${fBase}`;
     if (item.topic && item.topic > 0) {
       href = `${basePath}reader.html?vol=${item.vol}&file=${item.file}&topic=${item.topic}`;
@@ -200,7 +250,7 @@ function renderHistory() {
       </div>`;
     }
 
-    return `<li><a href="${href}" class="search-result-item" onclick="closeHistory()"><div class="search-result-title">${item.title || item.file} <span style="font-size:0.8rem; color:var(--text-muted);">(Vol ${vNum})</span></div><div class="search-result-context">${date}</div>${progressHtml}</a></li>`;
+    return `<li><a href="${href}" class="search-result-item" onclick="closeHistory()"><div class="search-result-title">${_displayTitle} <span style="font-size:0.8rem; color:var(--text-muted);">(Vol ${vNum})</span></div><div class="search-result-context">${date}</div>${progressHtml}</a></li>`;
   }).join('');
 }
 

@@ -324,7 +324,13 @@
         flushedPct = pct; if (done) flushedDone = true;
         const supa = _supa();
         if (!supa) return;
-        try { supa.rpc('log_audio_progress', { p_audio_path: audioPath, p_percent: pct, p_completed: !!done }); } catch (e) {}
+        // IMPORTANTE: a query do supabase-js é lazy — o request HTTP só sai
+        // com .then()/await. Um `supa.rpc(...)` solto NUNCA executa (foi esse o
+        // bug: o player montava a chamada e descartava sem enviar). O .then
+        // dispara o envio e ainda expõe erro (antes sumia em silêncio).
+        supa.rpc('log_audio_progress', { p_audio_path: audioPath, p_percent: pct, p_completed: !!done })
+          .then(({ error }) => { if (error) console.warn('[audio log] falhou:', error.message); })
+          .catch((e) => { console.warn('[audio log] erro de rede:', e && e.message); });
       };
       const _logStart = () => { if (!flushTimer) flushTimer = setInterval(() => _logFlush(false), 15000); };
       const _logStop = () => { if (flushTimer) { clearInterval(flushTimer); flushTimer = null; } };

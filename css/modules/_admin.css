@@ -960,7 +960,7 @@
     /* ☰ flutuante — só no mobile (abre a gaveta) */
     .admin-hamburger {
       display: none;
-      position: fixed; top: calc(var(--nav-height, 60px) + 10px); right: 14px; z-index: 1100;
+      position: fixed; top: calc(var(--nav-height, 60px) + 10px); left: 14px; z-index: 1100;
       align-items: center; justify-content: center;
       width: 40px; height: 40px; font-size: 1.15rem; line-height: 1;
       background: var(--surface); color: var(--text-main);

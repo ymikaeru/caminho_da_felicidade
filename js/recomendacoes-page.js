@@ -149,7 +149,7 @@
         const src = r._audioUrl || '';
         // Player compacto: [▶] Título ━━━━━━ 0:00/65:05
         const compactPlayer = src ? `
-          <div class="zaudio" data-src="${_esc(src)}"
+          <div class="zaudio" data-src="${_esc(src)}" data-audio-path="${_esc(r.audio_path)}"
             style="margin-top:0;padding:0;border:none;box-shadow:none;background:transparent;gap:10px;align-items:center;">
             <audio preload="metadata" src="${_esc(src)}"></audio>
             <button type="button" class="zaudio__btn" aria-label="Tocar"

@@ -137,7 +137,13 @@ async function loadJohreiAnalytics() {
   // Filtra opens client-side por props.label (todos os cta vieram).
   const cmOpens = (cmOpensRes.data || []).filter(r => (r.props || {}).label === 'culto_mensal_open');
   const cmHeartbeats = cmHeartbeatsRes.data || [];
-  const cmAudio = cmAudioRes.data || [];
+  // Discriminador entre os dois áudios do Guia. A MESMA string vive no player:
+  // guia_johrei/js/orientacao-dirigente.js → props.audio. Eventos antigos do
+  // Culto não têm props.audio → caem no Culto (filtro !==), sem regressão.
+  const DIR_AUDIO_KEY = 'orientacao_dirigente_1983';
+  const cmAudioAll = cmAudioRes.data || [];
+  const cmAudio = cmAudioAll.filter(r => (r.props || {}).audio !== DIR_AUDIO_KEY);
+  const dirAudio = cmAudioAll.filter(r => (r.props || {}).audio === DIR_AUDIO_KEY);
 
   console.log('[jr-culto-mensal]', {
     opens: cmOpens.length,
@@ -216,6 +222,41 @@ async function loadJohreiAnalytics() {
   const cmDownloads = cmDownloadsRes.data || [];
   const cmDownloadCount = cmDownloads.length;
   const cmDownloadUniques = new Set(cmDownloads.map(r => r.anon_id)).size;
+
+  // ── Orientação do Dirigente Espiritual (áudio só-player) ────
+  // Mesmo modelo do Culto, mas só pra dirAudio. Abrir/baixar são cta no Guia
+  // (data-track) e reusam cmOpensRes — labels orientacao_dirigente_open/_download.
+  const dirOpens = (cmOpensRes.data || []).filter(r => (r.props || {}).label === 'orientacao_dirigente_open');
+  const dirOpenCount = dirOpens.length;
+  const dirOpenUniques = new Set(dirOpens.map(r => r.anon_id)).size;
+  const dirDownloads = (cmOpensRes.data || []).filter(r => (r.props || {}).label === 'orientacao_dirigente_download');
+  const dirDownloadCount = dirDownloads.length;
+  const dirDownloadUniques = new Set(dirDownloads.map(r => r.anon_id)).size;
+
+  const dirPlayedBySession = {};
+  const dirPlaySessions = new Set();
+  let dirCompletedCount = 0;
+  const dirCompletedByAnon = {};
+  dirAudio.forEach(r => {
+    if (r.event_type === 'audio_play') { dirPlaySessions.add(r.session_id); return; }
+    const total = Number((r.props || {}).total_played_seconds) || 0;
+    const prev = dirPlayedBySession[r.session_id] || 0;
+    if (total > prev) dirPlayedBySession[r.session_id] = total;
+    if (r.event_type === 'audio_ended') {
+      const dur = Number((r.props || {}).duration_seconds) || 0;
+      if (dur && total < dur * CM_COMPLETE_MIN_RATIO) return; // ouviu pouco: não conta
+      dirCompletedCount++;
+      dirCompletedByAnon[r.anon_id] = (dirCompletedByAnon[r.anon_id] || 0) + 1;
+    }
+  });
+  const dirAudioSessions = dirPlaySessions.size;
+  const dirPlayCount = dirAudio.filter(r => r.event_type === 'audio_play').length; // total bruto de plays
+  const dirCompletedUniques = Object.keys(dirCompletedByAnon).length;
+  const dirAvgListenedSec = dirAudioSessions
+    ? Object.values(dirPlayedBySession).reduce((a, b) => a + b, 0) / dirAudioSessions
+    : 0;
+  const dirDuration = (dirAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
+  const dirAvgListenedPct = dirDuration ? Math.round((dirAvgListenedSec / dirDuration) * 100) : null;
 
   // ── Helpers ─────────────────────────────────────────────────
   const esc = s => String(s ?? '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
@@ -343,6 +384,27 @@ async function loadJohreiAnalytics() {
         ${cmHasData
           ? `Permanência captada via heartbeats (granularidade ~30s, leituras curtas podem não aparecer). Escuta média = média do total ouvido por sessão que apertou play. Escutas completas = áudio ouvido até o fim (conta repetições, por isso pode passar de "sessões que ouviram"). Downloads = cliques no botão "Baixar" que geraram o ZIP com PDF + MP3.`
           : 'Sem dados ainda no período selecionado. Confirme que o tracking foi deployado em <code>guia_johrei</code> e que alguém abriu o modal.'}
+      </p>
+    </div>`;
+
+  // Bloco da Orientação do Dirigente Espiritual: sempre renderiza (mesmo zerado).
+  const dirHasData = dirOpenCount > 0 || dirAudioSessions > 0 || dirDownloadCount > 0;
+  const dirBlock = `
+    <div class="jr-chart-wrap" style="margin-bottom:24px;">
+      <h3>🎧 Orientação do Dirigente Espiritual · 14/04/1983 (${data.days_back}d)</h3>
+      <div class="jr-cards" style="margin-bottom:0;">
+        ${card(dirOpenCount, 'Aberturas', dirOpenUniques)}
+        ${engCard(dirPlayCount, 'Plays')}
+        ${engCard(dirAudioSessions, 'Sessões que ouviram')}
+        ${engCard(dirAvgListenedSec > 0 ? fmtTime(dirAvgListenedSec) : '—',
+          'Escuta média' + (dirAvgListenedPct != null && dirAvgListenedPct > 0 ? ` (${dirAvgListenedPct}%)` : ''))}
+        ${card(dirCompletedCount, 'Escutas completas', dirCompletedUniques)}
+        ${card(dirDownloadCount, 'Downloads (MP3)', dirDownloadUniques)}
+      </div>
+      <p style="font-size:.72rem;color:var(--text-muted);margin:14px 0 0;">
+        ${dirHasData
+          ? 'Áudio só-player (sem transcrição). Aberturas = cliques no item do menu. Sessões que ouviram = apertaram play. Escuta média = total ouvido por sessão. Escutas completas = ouviu ≥80% até o fim. Downloads = cliques em "Baixar áudio".'
+          : 'Sem dados ainda no período. Confirme que o tracking (guia_johrei) e este painel (caminho) foram deployados e que alguém abriu o áudio pelo menu "Orientações".'}
       </p>
     </div>`;
 
@@ -478,6 +540,7 @@ async function loadJohreiAnalytics() {
     ${tabsBlock}
     ${focalBlock}
     ${cmBlock}
+    ${dirBlock}
     ${essBlock}
     ${apBlock}
     <div class="jr-chart-wrap">

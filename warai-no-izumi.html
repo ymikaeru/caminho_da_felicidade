@@ -187,6 +187,7 @@
                         if (data?.session) {
                             window.supabaseAuth.logAccess(POEM_VOL, POEM_FILE, 'view')?.catch?.(() => {});
                             window._readTimeTracker?.start?.(POEM_VOL, POEM_FILE);
+                            import('./js/scroll-progress.js?v=1').then(m => m.startScrollTracking?.(POEM_VOL, POEM_FILE)).catch(() => {});
                             return;
                         }
                     } catch (_) {}

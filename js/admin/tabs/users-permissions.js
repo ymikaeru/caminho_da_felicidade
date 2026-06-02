@@ -257,12 +257,18 @@ async function openUserDetail(userId) {
     // "Dificuldade" = ficou bastante tempo mas leu pouco do texto.
     // Usa max_scroll_pct (high-water mark de scroll), não progress_pct
     // (este é por tópicos navegados — ruidoso). Régua: ≥10 min ativo e
-    // <40% scrollado. Score = min/(scrollPct+1).
+    // rolagem registrada entre 1% e 39%.
+    // IMPORTANTE: scrollPct === 0 = SEM DADO de rolagem, NÃO "leu nada".
+    // A captura de scroll só foi ao ar em 13/05/2026 (~3 semanas depois do
+    // time_spent_seconds, que é cumulativo all-time) e alguns leitores ainda
+    // não capturavam. Exigir scrollPct > 0 evita falso positivo em leituras
+    // antigas / sem captura (era o que pintava de vermelho quem só tinha
+    // tempo acumulado anterior à feature).
     const scored = positions.map(p => {
       const sec = Number(p.time_spent_seconds) || 0;
       const scrollPct = Number(p.max_scroll_pct) || 0;
       const topicPct = Number(p.progress_pct) || 0;
-      const struggling = sec >= 10 * 60 && scrollPct < 40;
+      const struggling = sec >= 10 * 60 && scrollPct > 0 && scrollPct < 40;
       return { ...p, _sec: sec, _scrollPct: scrollPct, _topicPct: topicPct, _struggling: struggling };
     }).sort((a, b) => {
       const ta = a.updated_at ? new Date(a.updated_at).getTime() : 0;
@@ -275,13 +281,17 @@ async function openUserDetail(userId) {
       ? `<span style="color:#c0392b; font-weight:600;"> — ${strugglingCount} com possível dificuldade</span>`
       : '';
     html += `<h4 style="margin:16px 0 8px; font-size:0.85rem;">Progresso de Leitura${note}</h4>`;
-    html += `<p style="font-size:0.75rem; color:var(--text-muted); margin:0 0 8px;">"Leu" = scroll máximo (quanto do texto foi exposto). "Tópicos" = navegação. Linhas em vermelho: ≥10 min com &lt;40% de scroll.</p>`;
-    html += `<table class="data-table"><thead><tr><th>Volume</th><th>Ensinamento</th><th title="Scroll máximo no texto">Leu</th><th title="Tópicos navegados (não confiável p/ artigos curtos)">Tópicos</th><th>Tempo</th><th>Última leitura</th></tr></thead><tbody>`;
+    html += `<p style="font-size:0.75rem; color:var(--text-muted); margin:0 0 8px;">"Leu" = scroll máximo (quanto do texto foi exposto); "—" = sem dados de rolagem (leitura antiga ou leitor sem captura). "Tempo" é o <strong>total acumulado de todas as sessões</strong>, não de uma única leitura. Linhas em vermelho: ≥10 min com rolagem registrada &lt;40%.</p>`;
+    html += `<table class="data-table"><thead><tr><th>Volume</th><th>Ensinamento</th><th title="Scroll máximo no texto">Leu</th><th title="Tópicos navegados (não confiável p/ artigos curtos)">Tópicos</th><th title="Total acumulado de todas as sessões — não é uma leitura única">Tempo total</th><th>Última leitura</th></tr></thead><tbody>`;
     scored.forEach(p => {
       const rowStyle = p._struggling ? ' style="background:rgba(192,57,43,0.08);"' : '';
       const readStyle = p._struggling ? ' style="color:#c0392b; font-weight:600;"' : '';
       const last = p.updated_at ? new Date(p.updated_at).toLocaleDateString('pt-BR') : '—';
-      html += `<tr${rowStyle}><td>${VOL_SHORT[p.volume] || p.volume}</td><td style="font-size:0.82rem;" title="${_escHtml(p.file || '')}">${_escHtml(getFileTitle(p.volume, p.file))}</td><td${readStyle}>${p._scrollPct}%</td><td style="color:var(--text-muted);">${p._topicPct}%</td><td>${fmtDur(p._sec)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${last}</td></tr>`;
+      // scrollPct === 0 = sem captura de rolagem (≠ "leu 0%"): mostra "—".
+      const leuCell = p._scrollPct > 0
+        ? `${p._scrollPct}%`
+        : `<span style="color:var(--text-muted);" title="Sem dados de rolagem (leitura anterior a 13/05/2026 ou leitor sem captura de scroll)">—</span>`;
+      html += `<tr${rowStyle}><td>${VOL_SHORT[p.volume] || p.volume}</td><td style="font-size:0.82rem;" title="${_escHtml(p.file || '')}">${_escHtml(getFileTitle(p.volume, p.file))}</td><td${readStyle}>${leuCell}</td><td style="color:var(--text-muted);">${p._topicPct}%</td><td>${fmtDur(p._sec)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${last}</td></tr>`;
     });
     html += `</tbody></table>`;
   }

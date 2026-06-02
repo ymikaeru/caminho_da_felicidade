@@ -46,19 +46,42 @@ async function _loadAudioListeners(cell, path) {
     + rows.map(_audioListenerRow).join('') + '</div>';
 }
 
-async function loadAudioAnalytics() {
+let _audioRefreshTimer = null;
+let _lastAudioSnapshot = null;
+
+// Re-agenda o auto-refresh (30s). Auto-encerra sozinho quando a aba 🎧 sai de
+// foco (não precisa hook no switchTab) — não vaza timer em background.
+function _scheduleAudioRefresh() {
+  if (_audioRefreshTimer) clearTimeout(_audioRefreshTimer);
+  _audioRefreshTimer = setTimeout(() => {
+    _audioRefreshTimer = null;
+    const pane = document.getElementById('tab-audio');
+    if (!pane || !pane.classList.contains('active')) return; // saiu da aba → para
+    loadAudioAnalytics({ silent: true });
+  }, 30000);
+}
+
+async function loadAudioAnalytics(opts) {
+  const silent = !!(opts && opts.silent);
   const host = document.getElementById('audio-analytics');
   if (!host) return;
-  host.innerHTML = '<div class="loading" style="padding:24px;color:var(--text-muted);">Carregando…</div>';
+  if (!silent) host.innerHTML = '<div class="loading" style="padding:24px;color:var(--text-muted);">Carregando…</div>';
 
   const { data, error } = await supabase.rpc('admin_get_audio_listens');
   if (error) {
-    host.innerHTML = `<div class="msg err" style="margin:0;">Erro ao carregar: ${_escHtml(error.message)}</div>`;
+    if (!silent) host.innerHTML = `<div class="msg err" style="margin:0;">Erro ao carregar: ${_escHtml(error.message)}</div>`;
+    _scheduleAudioRefresh();
     return;
   }
   const rows = data || [];
+  // Auto-refresh suave: no tick silencioso, só re-renderiza se os números
+  // mudaram (evita piscar a tela e perder o estado de expandir/recolher).
+  const snapshot = JSON.stringify(rows);
+  if (silent && snapshot === _lastAudioSnapshot) { _scheduleAudioRefresh(); return; }
+  _lastAudioSnapshot = snapshot;
   if (rows.length === 0) {
     host.innerHTML = '<div style="padding:28px;color:var(--text-muted);font-size:.9rem;">Nenhum áudio foi recomendado ainda — quando houver, aqui aparece quem ouviu e quanto.</div>';
+    _scheduleAudioRefresh();
     return;
   }
 
@@ -91,6 +114,10 @@ async function loadAudioAnalytics() {
   }).join('');
 
   host.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:12px;">
+      <span style="font-size:.7rem;color:var(--text-muted);">atualiza sozinho a cada 30s</span>
+      <button id="audio-refresh-btn" type="button" style="padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-main);font-family:inherit;font-size:.78rem;cursor:pointer;">↻ Atualizar</button>
+    </div>
     <div class="stats-grid">
       ${stat(nAudios, 'Áudios recomendados')}
       ${stat(nComAlgumOuvinte, 'Com algum ouvinte')}
@@ -144,6 +171,11 @@ async function loadAudioAnalytics() {
       }
     });
   }
+
+  // Botão "↻ Atualizar" + auto-refresh: vê números novos sem trocar de aba.
+  const refreshBtn = document.getElementById('audio-refresh-btn');
+  if (refreshBtn) refreshBtn.addEventListener('click', () => loadAudioAnalytics());
+  _scheduleAudioRefresh();
 }
 
 Object.assign(window, { loadAudioAnalytics });

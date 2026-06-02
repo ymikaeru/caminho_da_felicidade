@@ -174,6 +174,13 @@ async function loadJohreiAnalytics() {
   const cmPlayAnons = new Set();
   let cmCompletedCount = 0;
   const cmCompletedByAnon = {};
+  // Só conta 'audio_ended' como escuta completa se a maior parte do áudio foi
+  // de fato ouvida. Sem isso, um navegador que dispara 'ended' em rajada
+  // (arrastar a barra até o fim, ou bug de browser) inflava a contagem — ex.:
+  // em 2026-06 o anon 04f7… gerou 99 de 148 "completas" com <50% ouvido e
+  // ended(99) >> play(18). Eventos sem duration_seconds são mantidos (não dá
+  // pra aferir; melhor não descartar dados legítimos antigos).
+  const CM_COMPLETE_MIN_RATIO = 0.8;
   cmAudio.forEach(r => {
     if (r.event_type === 'audio_play') {
       cmPlaySessions.add(r.session_id);
@@ -183,7 +190,12 @@ async function loadJohreiAnalytics() {
     const total = Number((r.props || {}).total_played_seconds) || 0;
     const prev = cmPlayedBySession[r.session_id] || 0;
     if (total > prev) cmPlayedBySession[r.session_id] = total;
-    if (r.event_type === 'audio_ended') { cmCompletedCount++; cmCompletedByAnon[r.anon_id] = (cmCompletedByAnon[r.anon_id] || 0) + 1; }
+    if (r.event_type === 'audio_ended') {
+      const dur = Number((r.props || {}).duration_seconds) || 0;
+      if (dur && total < dur * CM_COMPLETE_MIN_RATIO) return; // ouviu pouco: não é escuta completa
+      cmCompletedCount++;
+      cmCompletedByAnon[r.anon_id] = (cmCompletedByAnon[r.anon_id] || 0) + 1;
+    }
   });
   const cmAudioSessions = cmPlaySessions.size;
   const cmCompletedCounts = Object.values(cmCompletedByAnon);

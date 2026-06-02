@@ -18,11 +18,15 @@ function _audioListenerRow(u) {
     : done
       ? '<span style="color:#2c8a3e;">✓ completo</span>'
       : `<span style="color:var(--text-muted);">${pct}%</span>`;
+  const archived = u.archived_at
+    ? `<span title="Arquivou em ${new Date(u.archived_at).toLocaleDateString('pt-BR')}" style="color:#b06a00;">🗄 arquivou</span>`
+    : '';
   return `
-    <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;">
-      <span style="flex:0 0 210px;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_escHtml(name)}</span>
-      <div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${bar};"></div></div>
-      <span style="flex:0 0 92px;text-align:right;font-variant-numeric:tabular-nums;">${status}</span>
+    <div class="al-row">
+      <span class="al-name">${_escHtml(name)}</span>
+      <div class="al-bar"><div style="width:${pct}%;height:100%;background:${bar};"></div></div>
+      <span class="al-arch">${archived}</span>
+      <span class="al-status">${status}</span>
     </div>`;
 }
 
@@ -75,10 +79,10 @@ async function loadAudioAnalytics() {
       <tr class="audio-row" data-path="${_escHtml(path)}" style="cursor:pointer;">
         <td style="font-weight:500;"><span class="audio-caret" style="display:inline-block;width:14px;color:var(--text-muted);transition:transform .15s;transform:rotate(90deg);">▸</span> 🎵 ${_escHtml(title)}</td>
         <td style="text-align:center;font-variant-numeric:tabular-nums;">${listeners} <span style="color:var(--text-muted);">/ ${recd}</span></td>
-        <td style="min-width:180px;">
-          <div style="display:flex;align-items:center;gap:9px;">
-            <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--accent);"></div></div>
-            <span style="font-variant-numeric:tabular-nums;font-size:.8rem;color:var(--text-muted);min-width:34px;text-align:right;">${pct}%</span>
+        <td class="audio-prog-cell">
+          <div class="audio-prog">
+            <div class="audio-prog-bar"><div style="width:${pct}%;height:100%;background:var(--accent);"></div></div>
+            <span class="audio-prog-pct">${pct}%</span>
           </div>
         </td>
         <td style="text-align:center;font-variant-numeric:tabular-nums;">${completed}</td>

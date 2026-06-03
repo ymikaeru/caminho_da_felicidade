@@ -13,10 +13,11 @@ function _audioListenerRow(u) {
   const pct = u.max_percent || 0;
   const done = !!u.completed;
   const bar = done ? '#2c8a3e' : 'var(--accent)';
+  const reps = u.completions || 0;
   const status = pct === 0
     ? '<span style="color:var(--text-muted);">— não ouviu</span>'
     : done
-      ? '<span style="color:#2c8a3e;">✓ completo</span>'
+      ? `<span style="color:#2c8a3e;">✓ completo${reps > 1 ? ' ×' + reps : ''}</span>`
       : `<span style="color:var(--text-muted);">${pct}%</span>`;
   const archived = u.archived_at
     ? `<span title="Arquivou em ${new Date(u.archived_at).toLocaleDateString('pt-BR')}" style="color:#b06a00;">🗄 arquivou</span>`
@@ -98,6 +99,10 @@ async function loadAudioAnalytics(opts) {
     const listeners = r.listeners || 0;
     const pct = Math.round(Number(r.avg_percent) || 0);
     const completed = r.completed || 0;
+    const totalComp = r.total_completions || 0;
+    // "Completaram" = nº de pessoas; (N×) = total de conclusões (com repetições).
+    const compCell = completed + (totalComp > completed
+      ? ' <span style="color:var(--text-muted);font-size:.85em;">(' + totalComp + '×)</span>' : '');
     return `
       <tr class="audio-row" data-path="${_escHtml(path)}" style="cursor:pointer;">
         <td style="font-weight:500;"><span class="audio-caret" style="display:inline-block;width:14px;color:var(--text-muted);transition:transform .15s;transform:rotate(90deg);">▸</span> 🎵 ${_escHtml(title)}</td>
@@ -108,7 +113,7 @@ async function loadAudioAnalytics(opts) {
             <span class="audio-prog-pct">${pct}%</span>
           </div>
         </td>
-        <td style="text-align:center;font-variant-numeric:tabular-nums;">${completed}</td>
+        <td style="text-align:center;font-variant-numeric:tabular-nums;">${compCell}</td>
       </tr>
       <tr class="audio-detail" data-path="${_escHtml(path)}"><td colspan="4" style="background:var(--bg-color);padding:0;"></td></tr>`;
   }).join('');
@@ -137,7 +142,7 @@ async function loadAudioAnalytics(opts) {
     <p style="margin:14px 2px 0;font-size:.72rem;color:var(--text-muted);line-height:1.5;">
       Clique num áudio pra ver quem recebeu e quanto cada um ouviu. "Ponto máx." = ponto mais
       distante alcançado (arrastar até o fim conta como 100%) — leia como "chegou a", não
-      "ouviu na íntegra".
+      "ouviu na íntegra". "✓ completo ×N" = ouviu até o fim N vezes (conta a partir de agora).
     </p>`;
 
   // Abre todos os detalhes por padrão (poucos áudios por enquanto) e carrega

@@ -102,7 +102,9 @@
       });
       try { localStorage.setItem('admin_section', section); } catch (e) {}
       const firstTab = { 'landing': 'calendar', 'caminho': 'users', 'johrei': 'analytics-johrei' }[section];
-      if (firstTab && window.switchTab) window.switchTab(firstTab);
+      // keepDrawerOpen=true: trocar de setor NÃO fecha a gaveta no mobile — o
+      // usuário continua no menu até escolher de fato uma seção (aba).
+      if (firstTab && window.switchTab) window.switchTab(firstTab, true);
     };
 
     (function _restoreAdminSection() {
@@ -135,7 +137,7 @@
       if (sc) sc.addEventListener('click', window.closeAdminDrawer);
     })();
 
-    window.switchTab = function(tab) {
+    window.switchTab = function(tab, keepDrawerOpen) {
       document.querySelectorAll('.admin-nav-item').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       // Acha a aba ativa pelo data-tab (antes era um índice posicional frágil).
@@ -143,7 +145,9 @@
       if (navItem) navItem.classList.add('active');
       const pane = document.getElementById('tab-' + tab);
       if (pane) pane.classList.add('active');
-      if (window.closeAdminDrawer) window.closeAdminDrawer();
+      // Só fecha a gaveta quando o usuário escolhe uma aba de verdade (não ao
+      // trocar de setor, que passa keepDrawerOpen=true).
+      if (!keepDrawerOpen && window.closeAdminDrawer) window.closeAdminDrawer();
       if (tab === 'analytics') {
         loadAnalytics();
         if (_onlineRefreshInterval) clearInterval(_onlineRefreshInterval);

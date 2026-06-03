@@ -1,7 +1,7 @@
     /* Admin full-bleed (desktop): o layout ocupa a tela inteira — o menu lateral
        fixo + o conteúdo ficam encostados, sem cap de largura nem centralização.
        Mantém só o respiro vertical do glass-pane; horizontal vai a zero. */
-    @media (min-width: 861px) {
+    @media (min-width: 1025px) {
       main.main { padding-left: 0 !important; padding-right: 0 !important; }
       main.main > .content-wrapper { max-width: 100% !important; width: 100% !important; }
       main.main > .content-wrapper > .glass-pane { padding: 32px 0 !important; }
@@ -1007,8 +1007,8 @@
 
     .admin-scrim { display: none; }
 
-    /* ===== Mobile (<=860): menu vira gaveta com scrim ===== */
-    @media (max-width: 860px) {
+    /* ===== Mobile + tablet (<=1024): menu vira gaveta com scrim ===== */
+    @media (max-width: 1024px) {
       .admin-main { margin-left: 0; padding: 64px 14px 80px; }
       .admin-sidebar {
         top: 0; width: 270px; z-index: 1200; box-shadow: var(--shadow-premium);

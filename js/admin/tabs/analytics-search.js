@@ -36,7 +36,7 @@ async function loadSearchAnalytics() {
     }
     if (genAt) {
       const since = new Date(data.since);
-      genAt.textContent = `Período: últimos ${days} dia(s) — desde ${since.toLocaleDateString('pt-BR')}`;
+      genAt.textContent = `Período: últimos ${days} dia(s) — desde ${since.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;
     }
 
     // Latency cards
@@ -64,7 +64,7 @@ async function loadSearchAnalytics() {
       zeroEl.innerHTML = '<div class="loading">Nenhuma busca sem resultado no período. 🎉</div>';
     } else {
       zeroEl.innerHTML = zero.map(({ query, count, last_seen }) => {
-        const ago = last_seen ? new Date(last_seen).toLocaleDateString('pt-BR') : '';
+        const ago = last_seen ? new Date(last_seen).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '';
         return `<span class="search-tag" title="Última: ${_escHtml(ago)}" style="background:rgba(224,82,82,0.08); color:#c44; border-color:rgba(224,82,82,0.25);">${_escHtml(query)} (${count})</span>`;
       }).join('');
     }
@@ -116,7 +116,7 @@ async function loadSearchAnalytics() {
           .slice(0, 15);
 
         const maxTotal = topSearchers[0]?.total || 1;
-        const fmtDate = iso => iso ? new Date(iso).toLocaleDateString('pt-BR') : '—';
+        const fmtDate = iso => iso ? new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '—';
 
         searchersEl.innerHTML = `
           <p style="font-size:0.75rem; color:var(--text-muted); margin:-8px 0 12px;">Buscas no período por usuário (excluindo admins). Zero = buscas sem resultado.</p>
@@ -165,7 +165,7 @@ async function loadSearchAnalytics() {
                   <td style="padding:7px 12px 7px 0; border-bottom:1px solid var(--border); color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_escHtml(name)}</td>
                   <td style="padding:7px 12px 7px 0; border-bottom:1px solid var(--border); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; ${isZero ? 'color:var(--text-muted);' : ''}">${_escHtml(r.query)}</td>
                   <td style="padding:7px 0; border-bottom:1px solid var(--border); text-align:right; font-weight:${isZero ? '600' : '400'}; color:${isZero ? '#c44' : 'var(--accent)'};">${isZero ? '0' : (r.results_count ?? '—')}</td>
-                  <td style="padding:7px 0 7px 12px; border-bottom:1px solid var(--border); text-align:right; font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">${new Date(r.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</td>
+                  <td style="padding:7px 0 7px 12px; border-bottom:1px solid var(--border); text-align:right; font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">${new Date(r.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</td>
                 </tr>`;
               }).join('')}
             </tbody>

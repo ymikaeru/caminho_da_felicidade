@@ -103,7 +103,7 @@ async function loadJohreiAnalytics() {
 
   console.log('[jr-analytics] totals:', t, 'daily.length:', daily.length, 'daily[0..2]:', daily.slice(0, 3));
 
-  if (genAt) genAt.textContent = `Atualizado em ${new Date(data.generated_at).toLocaleString('pt-BR')}`;
+  if (genAt) genAt.textContent = `Atualizado em ${new Date(data.generated_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;
 
   if (!(t.all_time_visits > 0)) {
     dash.innerHTML = '<div class="loading">Ainda não há visitas registradas.</div>';
@@ -125,7 +125,7 @@ async function loadJohreiAnalytics() {
     }
     const l = ((p.lang || '').split('-')[0].toLowerCase()) || '?';
     langMap[l] = (langMap[l] || 0) + 1;
-    hours[new Date(r.created_at).getHours()]++;
+    hours[(new Date(r.created_at).getUTCHours() + 24 - 3) % 24]++; // hora de São Paulo (UTC-3 fixo)
   });
 
   const deviceTotal = Object.values(devices).reduce((a, b) => a + b, 0) || 1;

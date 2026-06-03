@@ -20,7 +20,7 @@ function _audioListenerRow(u) {
       ? `<span style="color:#2c8a3e;">✓ completo${reps > 1 ? ' ×' + reps : ''}</span>`
       : `<span style="color:var(--text-muted);">${pct}%</span>`;
   const archived = u.archived_at
-    ? `<span title="Arquivou em ${new Date(u.archived_at).toLocaleDateString('pt-BR')}" style="color:#b06a00;">🗄 arquivou</span>`
+    ? `<span title="Arquivou em ${new Date(u.archived_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}" style="color:#b06a00;">🗄 arquivou</span>`
     : '';
   return `
     <div class="al-row">

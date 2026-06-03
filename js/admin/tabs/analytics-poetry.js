@@ -51,7 +51,7 @@ async function loadPoetryAnalytics() {
     const positions = (posRes.data || []).filter(p => !_adminIds.has(p.user_id));
     const savedHl = (savedRes.data || []).filter(h => !_adminIds.has(h.user_id));
 
-    if (genAt) genAt.textContent = `Atualizado em ${new Date().toLocaleString('pt-BR')}`;
+    if (genAt) genAt.textContent = `Atualizado em ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;
 
     if (!logs.length && !positions.length) {
       dash.innerHTML = '<div class="loading">Ainda não há leitura registrada nas obras poéticas.</div>';
@@ -153,7 +153,7 @@ async function loadPoetryAnalytics() {
       const m = Math.round((secs - h * 3600) / 60);
       return m ? `${h}h ${m}min` : `${h}h`;
     };
-    const fmtDate = iso => iso ? new Date(iso).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—';
+    const fmtDate = iso => iso ? new Date(iso).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—';
     const card = (v, label, sub) => `<div class="dc-card">
       <div class="v">${typeof v === 'number' ? v.toLocaleString('pt-BR') : (v ?? '—')}</div>
       <div class="s">${label}</div>

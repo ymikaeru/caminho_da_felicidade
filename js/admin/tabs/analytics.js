@@ -640,7 +640,8 @@ async function loadHeatmap(days, since) {
 
   const hourCounts = new Array(24).fill(0);
   data.forEach(d => {
-    const h = new Date(d.created_at).getHours();
+    // Hora em São Paulo (UTC-3 fixo, sem horário de verão) — não depende do fuso do navegador
+    const h = (new Date(d.created_at).getUTCHours() + 24 - 3) % 24;
     hourCounts[h]++;
   });
 
@@ -714,11 +715,20 @@ async function _appendMoreRecentActivity() {
     if (_recentActivityCtx.cursor) q = q.lt('created_at', _recentActivityCtx.cursor);
     const { data } = await q;
     if (!data || data.length === 0) { _recentActivityCtx.exhausted = true; break; }
-    _recentActivityCtx.cursor = data[data.length - 1].created_at;
     const remaining = target - (_recentActivityCtx.items.length - before);
-    const filtered = data.filter(d => !_adminIds.has(d.user_id)).slice(0, remaining);
-    _recentActivityCtx.items = _recentActivityCtx.items.concat(filtered);
-    if (data.length < BATCH) _recentActivityCtx.exhausted = true;
+    const nonAdmin = data.filter(d => !_adminIds.has(d.user_id));
+    const kept = nonAdmin.slice(0, remaining);
+    _recentActivityCtx.items = _recentActivityCtx.items.concat(kept);
+    if (kept.length < nonAdmin.length) {
+      // Cortamos não-admins neste lote (slice) → ainda há linhas nesta janela.
+      // Avança o cursor só até a última REALMENTE incluída; avançar pro fim do lote
+      // (como era antes) pulava as linhas descartadas e fazia dias inteiros sumirem.
+      _recentActivityCtx.cursor = kept[kept.length - 1].created_at;
+    } else {
+      // Incluímos todas as não-admins do lote → pode avançar pro fim do lote.
+      _recentActivityCtx.cursor = data[data.length - 1].created_at;
+      if (data.length < BATCH) _recentActivityCtx.exhausted = true;
+    }
   }
 
   await _renderRecentActivity();
@@ -754,7 +764,7 @@ async function _renderRecentActivity() {
       <thead><tr><th>Usuário</th><th>Ação</th><th>Volume</th><th>Ensinamento</th><th>Data</th></tr></thead>
       <tbody>${data.map(d => {
         const date = new Date(d.created_at);
-        const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' ' + date.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
         const title = d.file ? getFileTitle(d.volume, d.file) : '—';
         return `<tr><td>${_escHtml(nameMap[d.user_id] || 'Desconhecido')}</td><td>${_escHtml(d.action || '')}</td><td>${VOL_SHORT[d.volume] || d.volume}</td><td style="font-size:0.82rem;" title="${_escHtml(d.file || '')}">${_escHtml(title)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</td></tr>`;
       }).join('')}</tbody>
@@ -829,7 +839,7 @@ async function loadContentProtection(days, since) {
         <thead><tr><th>Usuário</th><th>Cópias</th><th>Impressões</th><th>Última Ação</th><th>Último Ensinamento</th></tr></thead>
         <tbody>${sortedUsers.map(([uid, u]) => {
           const date = new Date(u.last);
-          const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          const dateStr = date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' ' + date.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
           const title = u.lastFile ? getFileTitle(u.lastVol, u.lastFile) : '—';
           return `<tr>
             <td>${_escHtml(nameMap[uid] || 'Desconhecido')}</td>
@@ -853,7 +863,7 @@ async function loadContentProtection(days, since) {
         <div style="display:flex; flex-direction:column; gap:10px; max-height:520px; overflow-y:auto; padding-right:6px;">
           ${recentCopies.map(r => {
             const date = new Date(r.created_at);
-            const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const dateStr = date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' ' + date.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
             const title = r.file ? getFileTitle(r.volume, r.file) : '—';
             const text = r.metadata.text || '';
             const length = r.metadata.length || text.length;

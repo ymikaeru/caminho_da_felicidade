@@ -69,6 +69,9 @@ revoke all on function public.log_audio_progress(text, smallint, boolean) from p
 grant execute on function public.log_audio_progress(text, smallint, boolean) to authenticated;
 
 -- 3) Agregado por áudio: + total de conclusões (soma) -------------------------
+-- DROP necessário: a assinatura de retorno mudou (+ total_completions).
+drop function if exists public.admin_get_audio_listens();
+
 create or replace function public.admin_get_audio_listens()
 returns table(
   audio_path text,

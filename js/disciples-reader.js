@@ -129,6 +129,15 @@
 
   // ── Fetch helpers ──
   async function fetchBookJson(filename) {
+    // DEV: em localhost lê direto de data/books/ (sem auth/Supabase) — revisar
+    // rascunhos local, logado ou não, sempre a versão mais recente. Produção: Storage.
+    const h = location.hostname;
+    if (h === 'localhost' || h === '127.0.0.1' || h === '') {
+      try {
+        const r = await fetch(`data/books/${filename}`, { cache: 'no-store' });
+        if (r.ok) return await r.json();
+      } catch (_) { /* cai pro fluxo normal abaixo */ }
+    }
     if (!window.supabaseStorageFetch) throw new Error('Authentication required');
     return window.supabaseStorageFetch(`books/${filename}`);
   }

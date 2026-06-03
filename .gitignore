@@ -17,6 +17,9 @@ supabase/.temp/
 # Espelho local do Storage para edição em massa (storage-pull / push)
 .local-edits/
 
+# Cópia local de livros p/ revisar deslogado (fallback site_data) — NÃO publicar
+site_data/books/
+
 # Backups do banco — contêm dados sensíveis, nunca commitar
 backups/
 *.sql.gz

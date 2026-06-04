@@ -6,7 +6,7 @@
   <title>Admin — Caminho da Felicidade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.min.css?v=148">
-  <link rel="stylesheet" href="css/admin.min.css?v=16">
+  <link rel="stylesheet" href="css/admin.min.css?v=18">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 
@@ -217,7 +217,7 @@
               <h2>Usuários <span id="user-count"
                   style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
               <div class="user-search">
-                <input type="text" id="user-search" placeholder="Buscar por nome ou email..." oninput="filterUsers()">
+                <input type="text" id="user-search" aria-label="Buscar usuário por nome ou email" placeholder="Buscar por nome ou email..." oninput="filterUsers()">
               </div>
               <div id="user-list-container">
                 <div class="loading">Carregando usuários...</div>
@@ -461,7 +461,7 @@
                 usuário.</p>
             </div>
             <div style="display:flex; gap:10px; margin-bottom:12px;">
-              <input type="text" id="hl-user-search" placeholder="Buscar usuário por nome ou email..."
+              <input type="text" id="hl-user-search" aria-label="Buscar usuário por nome ou email" placeholder="Buscar usuário por nome ou email..."
                 oninput="filterHlUsers()"
                 style="flex:1; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; box-sizing:border-box;">
             </div>
@@ -485,7 +485,7 @@
                 salvou nos favoritos.</p>
             </div>
             <div style="display:flex; gap:10px; margin-bottom:12px;">
-              <input type="text" id="sv-user-search" placeholder="Buscar usuário por nome ou email..."
+              <input type="text" id="sv-user-search" aria-label="Buscar usuário por nome ou email" placeholder="Buscar usuário por nome ou email..."
                 oninput="filterSavedUsers()"
                 style="flex:1; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem; box-sizing:border-box;">
             </div>
@@ -669,7 +669,7 @@
               style="display:grid; grid-template-columns:minmax(260px, 320px) 1fr; gap:24px; align-items:start;">
               <!-- Coluna esquerda: seletor de usuário -->
               <div>
-                <input type="text" id="rec-user-search" placeholder="Buscar usuário..."
+                <input type="text" id="rec-user-search" aria-label="Buscar usuário" placeholder="Buscar usuário..."
                   style="width:100%; padding:8px 10px; font-size:0.85rem; margin-bottom:10px; box-sizing:border-box;"
                   oninput="renderRecUserList()">
                 <div id="rec-user-list"
@@ -694,7 +694,7 @@
                       style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">
                       Nova recomendação</div>
                     <div style="position:relative; margin-bottom:10px;">
-                      <input type="text" id="rec-teaching-search" placeholder="Buscar ensinamento por título..."
+                      <input type="text" id="rec-teaching-search" aria-label="Buscar ensinamento por título" placeholder="Buscar ensinamento por título..."
                         style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box;"
                         autocomplete="off" oninput="recDebounceTeachingSearch()">
                       <div id="rec-teaching-suggestions"
@@ -802,7 +802,7 @@
                       style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer; padding:0; text-decoration:underline;">Selecionar
                       todos</button>
                   </div>
-                  <input type="text" id="rec-audio-user-search" placeholder="Buscar usuário por nome ou email..."
+                  <input type="text" id="rec-audio-user-search" aria-label="Buscar usuário por nome ou email" placeholder="Buscar usuário por nome ou email..."
                     style="width:100%; padding:7px 10px; font-size:0.82rem; box-sizing:border-box; margin-bottom:8px;"
                     oninput="renderRecAudioUserList()">
                   <div id="rec-audio-user-list"
@@ -1427,7 +1427,7 @@
                   Ensinamento em destaque
                 </label>
                 <div id="ess-search-wrap" style="position:relative;margin-bottom:6px;">
-                  <input id="ess-search" type="search" autocomplete="off" placeholder="Buscar título do ensinamento..."
+                  <input id="ess-search" type="search" autocomplete="off" aria-label="Buscar título do ensinamento" placeholder="Buscar título do ensinamento..."
                     style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.95rem;">
                   <div id="ess-results"
                     style="position:absolute;top:100%;left:0;right:0;max-height:280px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;z-index:10;display:none;">
@@ -1511,16 +1511,16 @@
   </main>
 
   <!-- User Detail Modal -->
-  <div class="user-detail-modal" id="user-detail-modal" onclick="if(event.target===this)closeUserDetail()">
+  <div class="user-detail-modal" id="user-detail-modal" role="dialog" aria-modal="true" aria-labelledby="modal-user-name" onclick="if(event.target===this)closeUserDetail()">
     <div class="user-detail-card">
-      <button class="user-detail-close" onclick="closeUserDetail()">✕</button>
+      <button class="user-detail-close" onclick="closeUserDetail()" aria-label="Fechar">✕</button>
       <h3 id="modal-user-name"></h3>
       <div id="modal-user-content"></div>
     </div>
   </div>
 
   <!-- Highlight Reader Modal (read-only) -->
-  <div class="hl-reader-modal" id="hl-reader-modal" onclick="if(event.target===this)closeHlReader()">
+  <div class="hl-reader-modal" id="hl-reader-modal" role="dialog" aria-modal="true" aria-labelledby="hl-reader-title" onclick="if(event.target===this)closeHlReader()">
     <div class="hl-reader-card">
       <div class="hl-reader-header">
         <div style="flex:1; min-width:0;">
@@ -1537,12 +1537,12 @@
   </div>
 
   <!-- Guia do Johrei — Editor inline (Phase 3) -->
-  <div class="editor-modal" id="guia-editor-modal" onclick="if(event.target===this)closeGuiaEditor()">
+  <div class="editor-modal" id="guia-editor-modal" role="dialog" aria-modal="true" aria-label="Editor de artigo do Guia do Johrei" onclick="if(event.target===this)closeGuiaEditor()">
     <div class="editor-card">
       <div class="editor-header">
         <h3 class="editor-title">Editar artigo do Guia: <span class="editor-subtitle"
             id="guia-editor-article-title">—</span></h3>
-        <button class="user-detail-close" onclick="closeGuiaEditor()" style="margin:0; float:none;">✕</button>
+        <button class="user-detail-close" onclick="closeGuiaEditor()" style="margin:0; float:none;" aria-label="Fechar">✕</button>
       </div>
       <div class="editor-body">
         <div class="editor-search-hint" style="margin-bottom:14px;">
@@ -1603,12 +1603,12 @@
   </div>
 
   <!-- Raw File Editor Modal -->
-  <div class="editor-modal" id="editor-modal" onclick="if(event.target===this)closeEditor()">
+  <div class="editor-modal" id="editor-modal" role="dialog" aria-modal="true" aria-label="Editor de arquivo" onclick="if(event.target===this)closeEditor()">
     <div class="editor-card">
       <div class="editor-header">
         <h3 class="editor-title">Editar Arquivo HTML.JSON <span class="editor-subtitle" id="editor-target-file"></span>
         </h3>
-        <button class="user-detail-close" onclick="closeEditor()" style="margin:0; float:none;">✕</button>
+        <button class="user-detail-close" onclick="closeEditor()" style="margin:0; float:none;" aria-label="Fechar">✕</button>
       </div>
       <div class="editor-body">
         <div class="editor-search-hint" id="editor-search-hint">💡 <strong>Dica:</strong> Use <b>Ctrl+F</b> para
@@ -1642,7 +1642,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=104"></script>
+  <script type="module" src="js/admin.js?v=105"></script>
 </body>
 
 </html>

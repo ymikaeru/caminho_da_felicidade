@@ -137,12 +137,34 @@
       if (sc) sc.addEventListener('click', window.closeAdminDrawer);
     })();
 
+    // A11y do menu lateral: os itens eram <div onclick> só-mouse (sem role,
+    // sem tabindex, sem teclado). Aqui viram focáveis e operáveis por teclado
+    // (Enter/Espaço ativam), com role=button e marcação do ativo via
+    // aria-current. Os itens são estáticos no HTML, e admin.js é módulo
+    // (deferido), então a DOM já existe quando isto roda. (WCAG 2.1.1/4.1.2)
+    (function initNavA11y() {
+      const items = document.querySelectorAll('.admin-nav-item');
+      items.forEach(el => {
+        el.setAttribute('role', 'button');
+        if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+        if (el.classList.contains('active')) el.setAttribute('aria-current', 'page');
+      });
+      const nav = document.querySelector('.admin-nav');
+      if (nav) nav.addEventListener('keydown', e => {
+        if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+        const item = e.target.closest('.admin-nav-item');
+        if (!item) return;
+        e.preventDefault();
+        item.click();
+      });
+    })();
+
     window.switchTab = function(tab, keepDrawerOpen) {
-      document.querySelectorAll('.admin-nav-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.admin-nav-item').forEach(t => { t.classList.remove('active'); t.removeAttribute('aria-current'); });
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       // Acha a aba ativa pelo data-tab (antes era um índice posicional frágil).
       const navItem = document.querySelector('.admin-nav-item[data-tab="' + tab + '"]');
-      if (navItem) navItem.classList.add('active');
+      if (navItem) { navItem.classList.add('active'); navItem.setAttribute('aria-current', 'page'); }
       const pane = document.getElementById('tab-' + tab);
       if (pane) pane.classList.add('active');
       // Só fecha a gaveta quando o usuário escolhe uma aba de verdade (não ao

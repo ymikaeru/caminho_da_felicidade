@@ -1,3 +1,35 @@
+    /* ============================================================
+       Tokens do admin — aliases pra fechar lacunas do tema.
+       O admin (HTML + _admin.css) referencia --text e --bg ~110×, mas esses
+       tokens NUNCA foram definidos (os reais são --text-main e --bg-color).
+       Resultado: color:var(--text) só funcionava por herança e
+       background:var(--bg) caía pra TRANSPARENTE (inputs/selects sem fundo).
+       Tema vive no <html> (= :root), então aliasar aqui resolve por tema.
+       --accent-soft/--accent-mid eram fixos no :root claro (rgba do gold claro)
+       e não acompanhavam o --accent de cada tema — derivamos do --accent atual
+       via color-mix (já usado em _disciples/_poetry) pra ficarem theme-aware. */
+    :root {
+      --text: var(--text-main);
+      --bg: var(--bg-color);
+      --bg-quiet: var(--surface);
+      --accent-soft: color-mix(in srgb, var(--accent) 6%, transparent);
+      --accent-mid: color-mix(in srgb, var(--accent) 14%, transparent);
+    }
+
+    /* Foco visível por teclado — o admin não tinha NENHUM :focus-visible e ainda
+       zerava outline em vários campos. Anel dourado consistente pra quem navega
+       por teclado (WCAG 2.4.7). O outline acompanha o border-radius do elemento. */
+    .admin-sidebar :focus-visible,
+    .admin-main :focus-visible,
+    .admin-hamburger:focus-visible,
+    .editor-modal :focus-visible,
+    .user-detail-modal :focus-visible,
+    .hl-reader-modal :focus-visible,
+    .admin-pin-modal :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
     /* Admin full-bleed (desktop): o layout ocupa a tela inteira — o menu lateral
        fixo + o conteúdo ficam encostados, sem cap de largura nem centralização.
        Mantém só o respiro vertical do glass-pane; horizontal vai a zero. */
@@ -92,6 +124,37 @@
     .data-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--border); color: var(--text-muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
     .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
     .data-table tr:hover td { background: var(--hover, rgba(255,255,255,0.04)); }
+
+    /* ============================================================
+       Tabelas do admin no MOBILE — scroll horizontal local.
+       html e body usam overflow-x:clip (_reset.css) pra impedir scroll
+       lateral da página inteira. Por isso tabelas largas (progresso de
+       leitura, pontos focais, top leitores, etc.) eram CORTADAS na borda
+       direita em vez de rolarem — colunas inteiras ficavam inacessíveis.
+       Solução universal: transformar cada <table> dentro do conteúdo do
+       admin num container de scroll próprio (display:block + overflow-x).
+       Não depende do wrapper de cada aba, então cobre TODAS as ~26 tabelas
+       (inclusive as injetadas via JS e futuras) numa regra só.
+       NB: não force white-space:nowrap aqui — tabelas estreitas (ex.: 2
+       colunas dos pontos focais) devem quebrar e caber sem scroll. ============================================================ */
+    @media (max-width: 700px) {
+      .admin-main table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      /* Tabelas densas (discípulos/poesia, 7 colunas): cada célula numa linha
+         só — rolam na horizontal de forma limpa em vez de quebrar o título do
+         livro em 5 linhas e deixar as linhas altíssimas. */
+      #tab-analytics-disciples table th, #tab-analytics-disciples table td,
+      #tab-analytics-poetry table th, #tab-analytics-poetry table td {
+        white-space: nowrap;
+      }
+      /* NB: o override mobile do td.ell (pontos focais / landing) fica DEPOIS
+         das regras-base de .ell, mais abaixo no arquivo — mesma especificidade,
+         então precisa vir por último na cascata pra vencer. */
+    }
 
     /* Analytics de Áudio — célula de progresso (linha-mãe) + drill-down por usuário.
        Widths em classes (não inline) pra poderem encolher no mobile via @media. */
@@ -858,6 +921,14 @@
     #tab-analytics-landing tr:last-child td { border-bottom:none; }
     #tab-analytics-landing td.num { text-align:right; color:var(--accent); font-weight:600; }
     #tab-analytics-landing td.ell { max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    /* Mobile: a condição longa QUEBRA e a tabela de 2 colunas (pontos focais /
+       landing) cabe sem scroll horizontal — o cap fixo de 280px estourava a
+       largura num celular e empurrava a coluna "Consultas" pra fora. Precisa
+       vir DEPOIS das regras-base acima (mesma especificidade → vence por ordem). */
+    @media (max-width: 700px) {
+      #tab-analytics-johrei td.ell,
+      #tab-analytics-landing td.ell { max-width: none; white-space: normal; }
+    }
 
     #tab-analytics-disciples .dc-cards, #tab-analytics-poetry .dc-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:16px; margin-bottom:28px; }
     #tab-analytics-disciples .dc-section, #tab-analytics-poetry .dc-section { margin-top:32px; padding-top:24px; border-top:1px solid var(--border); }
@@ -915,7 +986,7 @@
     /* Admin PIN gate */
     .admin-pin-modal {
       display: none; position: fixed; inset: 0; z-index: 100000;
-      background: rgba(255,255,255,0.96); backdrop-filter: blur(8px);
+      background: color-mix(in srgb, var(--bg-color) 96%, transparent); backdrop-filter: blur(8px);
       align-items: center; justify-content: center;
     }
     .admin-pin-modal.open { display: flex; }

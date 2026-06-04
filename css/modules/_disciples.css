@@ -595,10 +595,20 @@ body.disciples-active #backToIndexBtn svg {
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
 }
 
-/* Collapsed = slide off-screen to the right entirely */
-body.disciples-active.disciples-sidebar-collapsed .disciples-sidebar-panel {
-  transform: translateX(100%);
-  box-shadow: none;
+/* Collapsed = slide off-screen to the right entirely.
+   Desktop-only: o "collapsed" é o toggle de recolher a sidebar no desktop.
+   No mobile o body já nasce com `disciples-sidebar-collapsed` (default
+   fechado), e essa regra global (especificidade 0,3,1) vencia a regra de
+   drawer aberto `body.disciples-sidebar-open ...` (0,2,1, dentro de media
+   query — que não soma especificidade). Resultado: ao tocar "Índice" o
+   backdrop aparecia (blur) mas o painel ficava fora da tela. Escopar pro
+   desktop deixa o drawer mobile abrir; no mobile o ocultar default já é
+   feito por `body.disciples-active .disciples-sidebar-panel`. */
+@media (min-width: 901px) {
+  body.disciples-active.disciples-sidebar-collapsed .disciples-sidebar-panel {
+    transform: translateX(100%);
+    box-shadow: none;
+  }
 }
 
 /* Main content stays centered — sidebar overlays without reflowing text */

@@ -700,37 +700,47 @@ async function loadRecentActivity(days, since) {
 }
 
 async function _appendMoreRecentActivity() {
-  if (!_recentActivityCtx || _recentActivityCtx.exhausted) return;
+  // Captura o contexto da carga atual. loadRecentActivity reatribui
+  // _recentActivityCtx a um objeto NOVO a cada (re)carga; um clique rápido em
+  // "Atualizar" dispara cargas concorrentes que, ao retomar após o await,
+  // enxergavam o ctx da OUTRA pelo global e poluíam .items entre si — o que
+  // levava a remaining<=0, kept=[] e crash em kept[kept.length-1].created_at.
+  // Operar sobre `ctx` (local) isola cada carga; o guard pós-await descarta a
+  // que foi superada por uma mais nova.
+  const ctx = _recentActivityCtx;
+  if (!ctx || ctx.exhausted) return;
   const BATCH = 200;
   const target = RECENT_ACTIVITY_PAGE_SIZE;
-  const before = _recentActivityCtx.items.length;
+  const before = ctx.items.length;
 
-  while (_recentActivityCtx.items.length - before < target && !_recentActivityCtx.exhausted) {
+  while (ctx.items.length - before < target && !ctx.exhausted) {
     let q = supabase
       .from('access_logs')
       .select('user_id, volume, file, action, created_at')
       .order('created_at', { ascending: false })
       .limit(BATCH);
-    if (_recentActivityCtx.since) q = q.gte('created_at', _recentActivityCtx.since);
-    if (_recentActivityCtx.cursor) q = q.lt('created_at', _recentActivityCtx.cursor);
+    if (ctx.since) q = q.gte('created_at', ctx.since);
+    if (ctx.cursor) q = q.lt('created_at', ctx.cursor);
     const { data } = await q;
-    if (!data || data.length === 0) { _recentActivityCtx.exhausted = true; break; }
-    const remaining = target - (_recentActivityCtx.items.length - before);
+    if (_recentActivityCtx !== ctx) return; // uma carga mais nova assumiu — aborta
+    if (!data || data.length === 0) { ctx.exhausted = true; break; }
+    const remaining = target - (ctx.items.length - before);
     const nonAdmin = data.filter(d => !_adminIds.has(d.user_id));
     const kept = nonAdmin.slice(0, remaining);
-    _recentActivityCtx.items = _recentActivityCtx.items.concat(kept);
+    ctx.items = ctx.items.concat(kept);
     if (kept.length < nonAdmin.length) {
       // Cortamos não-admins neste lote (slice) → ainda há linhas nesta janela.
       // Avança o cursor só até a última REALMENTE incluída; avançar pro fim do lote
       // (como era antes) pulava as linhas descartadas e fazia dias inteiros sumirem.
-      _recentActivityCtx.cursor = kept[kept.length - 1].created_at;
+      ctx.cursor = kept[kept.length - 1].created_at;
     } else {
       // Incluímos todas as não-admins do lote → pode avançar pro fim do lote.
-      _recentActivityCtx.cursor = data[data.length - 1].created_at;
-      if (data.length < BATCH) _recentActivityCtx.exhausted = true;
+      ctx.cursor = data[data.length - 1].created_at;
+      if (data.length < BATCH) ctx.exhausted = true;
     }
   }
 
+  if (_recentActivityCtx !== ctx) return; // não renderiza estado obsoleto
   await _renderRecentActivity();
 }
 

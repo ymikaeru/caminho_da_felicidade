@@ -24,7 +24,7 @@
     import './admin/tabs/analytics-audio.js?v=8';
     import './admin/tabs/highlights-saved.js';
     import './admin/tabs/users-permissions.js?v=1';
-    import './admin/tabs/analytics.js?v=4';
+    import './admin/tabs/analytics.js?v=5';
     import './admin/tabs/translation-review.js';
     import './admin/tabs/translation-review-guia.js';
     import './admin/tabs/partial-citations.js?v=24';
@@ -197,6 +197,20 @@
       if (tab === 'analytics-poetry') loadPoetryAnalytics();
       if (tab === 'analytics-search') loadSearchAnalytics();
       if (tab === 'audio') loadAudioAnalytics();
+    };
+
+    // Botão "Atualizar" da save-bar (canto inferior direito): recarrega os dados
+    // da ABA ATIVA. Antes era hardcoded `loadUsers()`, então só fazia algo na aba
+    // Usuários — nas demais (analytics, johrei, etc.) parecia "não funcionar".
+    // Reusa o dispatch do switchTab pra recarregar a aba atual; a aba "users" é
+    // carregada fora do switchTab (no bootstrap), então tratamos o caso à parte.
+    window.refreshActiveTab = function () {
+      const active =
+        document.querySelector('.admin-nav-item.active')?.dataset.tab ||
+        document.querySelector('.tab-content.active')?.id?.replace(/^tab-/, '');
+      if (!active || active === 'users') { if (window.loadUsers) window.loadUsers(); return; }
+      if (window.switchTab) window.switchTab(active, true);
+      else if (window.loadUsers) window.loadUsers();
     };
 
     // Calendar Events: extraído para ./admin/tabs/calendar.js

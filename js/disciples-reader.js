@@ -87,8 +87,57 @@
                      .replace(/\n\n/g, '</p><p>');
   }
 
+  // ── Ensinamento estruturado (apostila Shin Dendō) ──
+  // Notas: marcadores [^n] no texto viram chips com o texto da nota no hover.
+  function discRenderNotas(text, notas) {
+    const m = {}; (notas || []).forEach(x => { m[x.n] = x.texto; });
+    return esc(text || '')
+      .replace(/\[\^(\d+)\]/g, (_, n) =>
+        `<sup class="ens-fn" tabindex="0" title="${esc(m[n] || '')}">${n}</sup>`)
+      .replace(/\n{2,}/g, '<br><br>')   // gaps de parágrafo (texto preserva \n\n; HTML colapsaria)
+      .replace(/\n/g, '<br>');
+  }
+  function discBlock(cls, summary, html) {
+    return `<details class="${cls}" open><summary>${summary}</summary><div class="ens-db">${html}</div></details>`;
+  }
+  function discExpBlock(html, notas) {
+    return discBlock('ens-exp', '解説 · Comentário do editor — Explicação', discRenderNotas(html, notas));
+  }
+  function renderEnsinamento(e) {
+    if (!e) return '';
+    const verso = e.tipo === 'salmo' ? ' ens-verso' : '';
+    let h = '';
+    if (e.fonte) h += `<div class="ens-fonte">📜 ${esc(e.fonte)}</div>`;
+    if (e.preambulo) h += discBlock('ens-pre', '▸ Contexto anterior — Trecho do Preâmbulo', discRenderNotas(e.preambulo, e.notas));
+    if (e.texto) h += `<div class="ens-texto${verso}">${discRenderNotas(e.texto, e.notas)}</div>`;
+    if (e.data) h += `<div class="ens-data">— ${esc(e.data)}</div>`;
+    if (e.posfacio) h += discBlock('ens-pre', '▸ Trecho do Posfácio', discRenderNotas(e.posfacio, e.notas));
+    if (e.resumo) h += discBlock('ens-resumo', 'Resumo', discRenderNotas(e.resumo, e.notas));
+    if (Array.isArray(e.referencias) && e.referencias.length) {
+      h += `<div class="ens-refs">` + e.referencias.map((r, i) =>
+        (i === 0 && /:\s*$/.test(r)) ? `<div class="ens-refs-h">${esc(r)}</div>` : `<div class="ens-ref">${esc(r)}</div>`
+      ).join('') + `</div>`;
+    }
+    if (e.explicacao) h += discExpBlock(e.explicacao, e.notas);
+    if (Array.isArray(e.anexo) && e.anexo.length) {
+      h += e.anexo.map(a => discBlock('ens-anexo', '➕ ' + esc(a.titulo || 'Anexo'),
+        discRenderNotas(a.texto, e.notas).replace(/\n/g, '<br>'))).join('');
+    }
+    if (e.tipo === 'jp-pendente') h += `<div class="ens-jp-flag">⚠ trecho em japonês — tradução pendente</div>`;
+    return h;
+  }
+
   // ── Fetch helpers ──
   async function fetchBookJson(filename) {
+    // DEV: em localhost lê direto de data/books/ (sem auth/Supabase) — revisar
+    // rascunhos local, logado ou não, sempre a versão mais recente. Produção: Storage.
+    const h = location.hostname;
+    if (h === 'localhost' || h === '127.0.0.1' || h === '') {
+      try {
+        const r = await fetch(`data/books/${filename}`, { cache: 'no-store' });
+        if (r.ok) return await r.json();
+      } catch (_) { /* cai pro fluxo normal abaixo */ }
+    }
     if (!window.supabaseStorageFetch) throw new Error('Authentication required');
     return window.supabaseStorageFetch(`books/${filename}`);
   }
@@ -141,6 +190,28 @@
     for (const s of sections) walk(s, []);
     if (pages.length === 0) return sections.slice();
     return pages;
+  }
+
+  // Apostila Shin Dendō: paginação por ITEM (cada Item = uma página rolável com
+  // toda a sua subárvore de Ensinamentos), + a intro do Capítulo (explicação)
+  // como página própria. A árvore lateral navega pra qualquer Ensinamento dentro.
+  function flattenApostila(sections) {
+    const pages = [];
+    for (const cap of sections) {
+      if (cap.ensinamento || cap.explicacao || cap.subtitulo) {
+        pages.push(Object.assign({}, cap, { children: [], _ancestors: [] }));
+      }
+      for (const item of (cap.children || [])) {
+        pages.push(Object.assign({}, item, { _ancestors: [cap] }));
+      }
+    }
+    return pages.length ? pages : sections.slice();
+  }
+
+  function flattenForBook(bookId, sections) {
+    return bookId === 'shin-dendo-tebiki'
+      ? flattenApostila(sections)
+      : flattenDiscChapters(sections);
   }
 
   function saveDiscChapterPos(bookId, idx) {
@@ -337,7 +408,7 @@
     const cachedCounts = (() => {
       try { return JSON.parse(localStorage.getItem('disciples_book_counts') || '{}'); } catch { return {}; }
     })();
-    const cardsHtml = _disciplesIndex.books.map(b => buildCard(b, cachedCounts[b.id])).join('');
+    const cardsHtml = _disciplesIndex.books.filter(b => !b.draft).map(b => buildCard(b, cachedCounts[b.id])).join('');
 
     container.innerHTML = `<div class="reader-content disciples-overview"><div class="disciples-overview-header"><span class="disciples-overview-kicker">${isPt ? 'Acervo Complementar' : '補足の蔵書'}</span><h1>${isPt ? 'Publicações de Discípulos' : '弟子の著作'}</h1><p class="disciples-overview-desc">${isPt ? 'Livros e coletâneas dos discípulos de Meishu-Sama' : 'メイシュ様の弟子たちの著作'}</p></div>${continueBannerHtml}<div class="disciples-book-grid">${cardsHtml}</div></div>`;
 
@@ -354,11 +425,11 @@
         }
         return n;
       };
-      await Promise.all(_disciplesIndex.books.map(async (b) => {
+      await Promise.all(_disciplesIndex.books.filter(b => !b.draft).map(async (b) => {
         try {
           const full = await fetchBookJson(b.file);
           const sections = full.sections || [];
-          const flat = flattenDiscChapters(sections);
+          const flat = flattenForBook(b.id, sections);
           fresh[b.id] = { chapters: flat.length, sections: countAllSections(sections) };
         } catch (_) {}
       }));
@@ -397,7 +468,7 @@
       titleJa: book.titleJa,
       author: book.author,
     };
-    _flatChapters = flattenDiscChapters(book.sections || []);
+    _flatChapters = flattenForBook(book.id, book.sections || []);
     _currentChapterIndex = loadDiscChapterPos(book.id);
     if (_currentChapterIndex >= _flatChapters.length) _currentChapterIndex = 0;
     saveDiscChapterPos(book.id, _currentChapterIndex);
@@ -441,14 +512,20 @@
       let contentHtml = section.content ? renderMd(section.content) : '';
       if (section.content) contentHtml = addPersonNameIds(contentHtml, section.content);
       contentHtml = makePersonParagraphsCollapsible(contentHtml);
+      // Apostila Shin Dendō: subtítulo + ensinamento estruturado + explicação de nó-pai
+      let ensHtml = '';
+      if (section.subtitulo) ensHtml += `<div class="ens-subtitulo">―― ${esc(section.subtitulo)} ――</div>`;
+      if (section.ensinamento) ensHtml += renderEnsinamento(section.ensinamento);
+      else if (section.explicacao) ensHtml += discExpBlock(section.explicacao, null);
       let childrenHtml = '';
       if (section.children?.length) {
         for (const c of section.children) childrenHtml += renderSection(c);
       }
+      const body = ensHtml + (contentHtml ? `<div class="disciples-section-content">${contentHtml}</div>` : '');
       if (section.level === 1) {
-        return `<div class="${cls}" id="sec-${section.id}"><${tag}>${esc(title)}</${tag}>${contentHtml ? `<div class="disciples-section-content">${contentHtml}</div>` : ''}${childrenHtml}</div>`;
+        return `<div class="${cls}" id="sec-${section.id}"><${tag}>${esc(title)}</${tag}>${body}${childrenHtml}</div>`;
       }
-      return `<section class="${cls}" id="sec-${section.id}"><${tag} class="disciples-section-title">${esc(title)}</${tag}>${contentHtml ? `<div class="disciples-section-content">${contentHtml}</div>` : ''}${childrenHtml}</section>`;
+      return `<section class="${cls}" id="sec-${section.id}"><${tag} class="disciples-section-title">${esc(title)}</${tag}>${body}${childrenHtml}</section>`;
     }
 
     // Breadcrumb: capítulo > subcapítulo > [trecho atual]. Mostra apenas
@@ -483,9 +560,10 @@
 
   function _railHtmlForBookList(isPt) {
     if (!_disciplesIndex) return '';
+    const books = _disciplesIndex.books.filter(b => !b.draft);
     let html = '';
-    for (let i = 0; i < _disciplesIndex.books.length; i++) {
-      const b = _disciplesIndex.books[i];
+    for (let i = 0; i < books.length; i++) {
+      const b = books[i];
       const url = `reader.html?pub=disciples&book=${encodeURIComponent(b.id)}`;
       html += `<a class="disciples-sb-rail-item" href="${url}" title="${esc(b.title)}" aria-label="${esc(b.title)}"><span>${i + 1}</span></a>`;
     }
@@ -518,11 +596,12 @@
         return;
       }
       let navHtml = '';
-      for (const book of _disciplesIndex.books) {
+      const listed = _disciplesIndex.books.filter(b => !b.draft);
+      for (const book of listed) {
         const url = `reader.html?pub=disciples&book=${encodeURIComponent(book.id)}`;
         navHtml += `<a class="disciples-sb-book-link" href="${url}"><span class="disciples-sb-book-title">${esc(book.title)}</span></a>`;
       }
-      sidebar.innerHTML = `<div class="disciples-sidebar"><div class="disciples-sb-fixed-header"><div class="disciples-sb-header-row"><div class="disciples-sb-header-titles"><div style="font-size:0.78rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent)">${isPt ? 'Publicações de Discípulos' : '弟子の著作'}</div><div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px">${_disciplesIndex.books.length} ${isPt ? 'obras' : '作品'}</div></div>${_collapseToggleHtml(isPt)}</div></div><div class="disciples-sb-scrollable">${navHtml}</div><div class="disciples-sb-rail">${_railHtmlForBookList(isPt)}</div></div>`;
+      sidebar.innerHTML = `<div class="disciples-sidebar"><div class="disciples-sb-fixed-header"><div class="disciples-sb-header-row"><div class="disciples-sb-header-titles"><div style="font-size:0.78rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent)">${isPt ? 'Publicações de Discípulos' : '弟子の著作'}</div><div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px">${listed.length} ${isPt ? 'obras' : '作品'}</div></div>${_collapseToggleHtml(isPt)}</div></div><div class="disciples-sb-scrollable">${navHtml}</div><div class="disciples-sb-rail">${_railHtmlForBookList(isPt)}</div></div>`;
       requestAnimationFrame(() => attachSidebarBehaviors(sidebar));
       return;
     }

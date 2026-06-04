@@ -1,6 +1,17 @@
 {
   "books": [
     {
+      "id": "shin-dendo-tebiki",
+      "title": "Novo Manual de Difusão",
+      "titleJa": "新・伝道の手引き",
+      "author": "Comitê de Compilação das Escrituras",
+      "kickerLabel": "Apostila para Ministros",
+      "file": "shin-dendo-tebiki.json",
+      "description": "Manual doutrinário para ministros: os Ensinamentos de Meishu-Sama como critério de fé e de difusão. Fonte, preâmbulo, texto, data, explicação e notas para cada Ensinamento.",
+      "cover": null,
+      "draft": true
+    },
+    {
       "id": "keigyou",
       "title": "Keigyou",
       "titleJa": "景仰",

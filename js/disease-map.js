@@ -10,7 +10,7 @@
   const VOL = (DATA && DATA.vol) || 'mioshiec2';
 
   // Estado: eixo atual + grupo aberto
-  let currentAxis = 'condicao'; // 'condicao' | 'causa'
+  let currentAxis = 'perguntas'; // 'perguntas' | 'condicao' | 'causa' | 'tema' — abre pela provocação
   let openGroupId = null;
 
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
@@ -32,6 +32,9 @@
 
   const tags = () => DATA.tags || [];
   const tagById = (id) => tags().find((t) => t.id === id);
+  const perguntas = () => DATA.perguntas || [];
+  const perguntaById = (id) => perguntas().find((q) => q.id === id);
+  const articleByF = (f) => DATA.articles.find((a) => a.f === f);
 
   function articlesForGroup(groupId) {
     return DATA.articles.filter((a) => a.g.includes(groupId));
@@ -105,10 +108,56 @@
       `</div>`;
   }
 
+  // Pergunta provocativa: o cabeçalho é a pergunta + uma provocação curta + um
+  // selo de status. Ao abrir: as lições que iluminam (iluminada) OU um convite
+  // ao estudo (em aberto). A resposta vive no Ensinamento, não numa nota minha.
+  function renderPergunta(q) {
+    const isOpen = q.id === openGroupId;
+    const aberta = q.status === 'aberta';
+    const chevron =
+      `<svg class="dm-group__chev" width="18" height="18" viewBox="0 0 24 24" fill="none" ` +
+      `stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">` +
+      `<polyline points="6 9 12 15 18 9"></polyline></svg>`;
+    // Só as perguntas EM ABERTO exibem selo. Nas demais, esconder que há resposta
+    // preserva o mistério — a pessoa precisa abrir para descobrir.
+    const status = aberta
+      ? `<span class="dm-status dm-status--aberta">${bi('Em aberto', '未解明')}</span>`
+      : '';
+    const teaser = q.teaser
+      ? `<span class="dm-group__label"><span class="lang-pt">${esc(q.teaser)}</span></span>` : '';
+
+    let body;
+    if (aberta) {
+      const convite = q.convite
+        ? `<p class="dm-convite lang-pt">${esc(q.convite)}</p>` : '';
+      body = `<div class="dm-articles dm-articles--aberta">${convite}</div>`;
+    } else {
+      const arts = (q.licoes || []).map(articleByF).filter(Boolean);
+      body = `<div class="dm-articles">${arts.map((a) => renderArticle(a, 'tema')).join('')}</div>`;
+    }
+
+    return `<div class="dm-group dm-group--pergunta${aberta ? ' is-aberta' : ''}${isOpen ? ' is-open' : ''}" data-group="${q.id}">` +
+      `<button type="button" class="dm-group__head" aria-expanded="${isOpen}">` +
+      `<span class="dm-group__body">` +
+      `<span class="dm-group__pergunta">${bi(q.pt, q.ja)}</span>` +
+      teaser +
+      status +
+      `</span>` +
+      chevron +
+      `</button>` +
+      body +
+      `</div>`;
+  }
+
   function render() {
     const grid = $('#dm-groups');
     if (!grid) return;
-    if (currentAxis === 'tema') {
+    if (currentAxis === 'perguntas') {
+      const qs = perguntas();
+      grid.innerHTML = qs.length
+        ? qs.map(renderPergunta).join('')
+        : `<div class="dm-empty">Nenhuma pergunta.</div>`;
+    } else if (currentAxis === 'tema') {
       const ts = tags();
       grid.innerHTML = ts.length
         ? ts.map(renderTag).join('')
@@ -176,19 +225,19 @@
       }
     });
 
-    // Permite chegar direto num grupo (#B1, #A3, …) ou tema (#morte) via hash
+    // Deep-link via hash: grupo (#B1,#A3), tema (#morte) ou pergunta (#q-rir)
     const hash = location.hash.replace('#', '');
-    if (hash && groupById(hash)) {
-      gotoGroup(hash);
-    } else if (hash && tagById(hash)) {
-      currentAxis = 'tema';
-      openGroupId = hash;
+    const openViaHash = (axis, id) => {
+      currentAxis = axis;
+      openGroupId = id;
       render();
-      const el = document.querySelector(`.dm-group[data-group="${hash}"]`);
+      const el = document.querySelector(`.dm-group[data-group="${id}"]`);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      render();
-    }
+    };
+    if (hash && groupById(hash)) gotoGroup(hash);
+    else if (hash && tagById(hash)) openViaHash('tema', hash);
+    else if (hash.startsWith('q-') && perguntaById(hash.slice(2))) openViaHash('perguntas', hash.slice(2));
+    else render();
   }
 
   if (document.readyState === 'loading') {

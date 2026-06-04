@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&display=swap">
-    <link rel="stylesheet" href="css/styles.min.css?v=149">
+    <link rel="stylesheet" href="css/styles.min.css?v=151">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <!-- SEO -->
@@ -62,12 +62,15 @@
                 </div>
 
                 <div class="dm-intro">
-                    <p class="lang-pt">Uma apostila interativa para o estudo dos Ensinamentos de Meishu-Sama sobre a origem espiritual das doenças. Entre por uma <strong>condição</strong> ou por uma <strong>causa espiritual</strong> e aprofunde-se nos próprios Ensinamentos.</p>
-                    <p class="lang-ja" style="display:none">病気の霊的な原因についての明主様の御教えを学ぶための、インタラクティブな教本です。「症状」から、あるいは「霊的原因」から入り、御教えそのものを深くお学びください。</p>
+                    <p class="lang-pt">E se algo que você vê como <em>normal</em> — ou <em>estranho</em> — tiver uma causa espiritual que ninguém parou para pensar? Comece por uma <strong>pergunta</strong>; ou explore os Ensinamentos de Meishu-Sama por condição, causa ou tema.</p>
+                    <p class="lang-ja" style="display:none">「普通」あるいは「奇妙」と見ているものに、誰も考えなかった霊的な原因があるとしたら？ まず<strong>問い</strong>から始め、あるいは明主様の御教えを症状・原因・テーマから探ってください。</p>
                 </div>
 
                 <div class="dm-axis-toggle" role="tablist" aria-label="Eixo de exploração">
-                    <button type="button" class="dm-axis-btn is-active" data-axis="condicao" role="tab">
+                    <button type="button" class="dm-axis-btn is-active" data-axis="perguntas" role="tab">
+                        <span class="lang-pt">Perguntas</span><span class="lang-ja" style="display:none">問い</span>
+                    </button>
+                    <button type="button" class="dm-axis-btn" data-axis="condicao" role="tab">
                         <span class="lang-pt">Por condição</span><span class="lang-ja" style="display:none">症状から</span>
                     </button>
                     <button type="button" class="dm-axis-btn" data-axis="causa" role="tab">
@@ -91,8 +94,8 @@
     <script type="module" src="js/login.js?v=8"></script>
     <script src="js/access.js?v=6"></script>
     <script src="js/modals.js?v=9"></script>
-    <script src="site_data/disease_map.js?v=2"></script>
-    <script src="js/disease-map.js?v=2" defer></script>
+    <script src="site_data/disease_map.js?v=8"></script>
+    <script src="js/disease-map.js?v=5" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof buildSearchModal === 'function') buildSearchModal();

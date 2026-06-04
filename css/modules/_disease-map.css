@@ -179,6 +179,47 @@
 }
 .dm-xref:hover { border-color: var(--accent); color: var(--text-main); }
 
+/* ---- Perguntas (organização provocativa) ---- */
+/* O teaser é uma provocação curta: itálico discreto, não accent. */
+.dm-group--pergunta .dm-group__label {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 13.5px;
+  letter-spacing: 0;
+}
+
+/* Selo de status (responde / em aberto) */
+.dm-status {
+  display: inline-block;
+  margin-top: 8px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.dm-status--aberta {
+  color: var(--accent);
+}
+
+/* Perguntas em aberto: leve realce de borda à esquerda (a fronteira do estudo). */
+.dm-group--pergunta.is-aberta {
+  border-left: 3px solid var(--accent);
+}
+
+/* Convite ao estudo (corpo das perguntas em aberto) */
+.dm-articles--aberta { padding-top: 0; }
+.dm-convite {
+  margin: 0;
+  padding: 4px 2px 4px;
+  font-family: var(--font-serif);
+  font-size: 15.5px;
+  font-style: italic;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
 .dm-empty {
   text-align: center;
   color: var(--text-muted);

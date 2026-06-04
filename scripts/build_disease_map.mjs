@@ -175,6 +175,76 @@ for (const [tagId, files] of Object.entries(TAG_FILES)) {
   }
 }
 
+// ---- 3c. Perguntas (4º modo: organização PROVOCATIVA — gera sede de estudo) ---
+// Não prescreve caminho: provoca. Cada pergunta abre uma curiosidade (fenômenos
+// estranhos cuja causa é espiritual e "ninguém parou para pensar") e aponta para
+// o Ensinamento que a ilumina. Algumas ficam EM ABERTO — a fronteira do estudo.
+//   status 'iluminada' -> licoes:[arquivos que respondem]
+//   status 'aberta'    -> convite (sem licoes): pergunta de observação/reflexão
+// teaser = provocação curta, SEM entregar a resposta. licoes[].f sem .html.
+const PERGUNTAS = [
+  { id: 'rir', status: 'iluminada', licoes: ['warauS'],
+    pt: 'Por que alguém ri sem conseguir parar?', ja: '笑いが止まらないのはなぜか？',
+    teaser: 'Uma alegria que não é alegria.' },
+  { id: 'getemono', status: 'iluminada', licoes: ['getemono'],
+    pt: 'Por que alguém deseja comer o que não é alimento?', ja: '食べ物でないものを食べたくなるのはなぜか？',
+    teaser: 'Um apetite que não vem do corpo.' },
+  { id: 'choro-noturno', status: 'iluminada', licoes: ['yonaki'],
+    pt: 'Por que um bebê chora toda noite, sempre na mesma hora?', ja: '赤ちゃんが毎晩同じ時刻に泣くのはなぜか？',
+    teaser: 'O choro tem um relógio — e uma razão.' },
+  { id: 'sono', status: 'iluminada', licoes: ['negoto'],
+    pt: 'O que se revela enquanto dormimos — falar, ranger os dentes, roncar?', ja: '眠っている間に現れるもの（寝言・歯ぎしり・いびき）は何を表すか？',
+    teaser: 'O sono não cala o que está oculto.' },
+  { id: 'medo-agua', status: 'iluminada', licoes: ['suisi'],
+    pt: 'Um medo de água sem explicação pode vir de outra vida?', ja: '理由のない水への恐れは、前世から来るのか？',
+    teaser: 'Há quem tema o que nunca viveu — nesta vida.' },
+  { id: 'pele', status: 'iluminada', licoes: ['aza', 'hage'],
+    pt: 'Manchas de nascença e calvície podem ter raiz espiritual?', ja: '生まれつきの痣や脱毛にも霊的な原因があるか？',
+    teaser: 'Nem tudo na pele começa na pele.' },
+  { id: 'odor', status: 'iluminada', licoes: ['wakiga'],
+    pt: 'Existe causa espiritual até para o odor do corpo?', ja: '体臭にさえ霊的な原因があるか？',
+    teaser: 'O corpo exala mais do que imaginamos.' },
+  { id: 'cegueira-noturna', status: 'iluminada', licoes: ['sikimou'],
+    pt: 'Por que alguém enxerga de dia, mas não ao anoitecer?', ja: '昼は見えても夕暮れに見えなくなるのはなぜか？',
+    teaser: 'A visão que falha tem hora marcada.' },
+  { id: 'petrificar', status: 'iluminada', licoes: ['bokuseki'],
+    pt: "O que faz uma pessoa 'endurecer', como madeira ou pedra?", ja: '人が木や石のように「固まる」のは何によるのか？',
+    teaser: 'Uma rigidez que não é do corpo.' },
+  { id: 'purificacao', status: 'iluminada', licoes: ['BH1', 'BH5'],
+    pt: 'E se aquela reação estranha do corpo for, na verdade, uma purificação?', ja: 'その奇妙な体の反応は、実は浄化ではないか？',
+    teaser: 'O que parece doença pode ser limpeza.' },
+  // ----- Respostas que revelam POSSESSÃO ESPIRITUAL (a presença de outro) -----
+  { id: 'muda-personalidade', status: 'iluminada', licoes: ['seisinbyou1', 'zinrei1'],
+    pt: 'Por que alguém muda de personalidade, como se fosse outra pessoa?', ja: '人が別人のように人格が変わるのはなぜか？',
+    teaser: 'Quando o caráter muda sem aviso, pode não ser só ela ali.' },
+  { id: 'age-como-animal', status: 'iluminada', licoes: ['seisinbyou2', 'doubutuREI'],
+    pt: 'Por que uma pessoa passa a agir como um animal?', ja: '人が動物のように振る舞うのはなぜか？',
+    teaser: 'O corpo é humano; o comportamento, de outro.' },
+  { id: 'enfeiticado', status: 'iluminada', licoes: ['kitune', 'SK1'],
+    pt: "O que há por trás de alguém que parece 'enfeitiçado'?", ja: '「憑かれた」ように見えるのは何によるのか？',
+    teaser: 'A raposa tem fama antiga — e os Ensinamentos dizem por quê.' },
+  { id: 'furia-subita', status: 'iluminada', licoes: ['kyoubouS', 'seisinbyou1'],
+    pt: 'O que leva alguém pacífico a uma fúria súbita e incontrolável?', ja: '穏やかな人が突然、抑えられない怒りに駆られるのはなぜか？',
+    teaser: 'Há fúrias que parecem vir de fora.' },
+  { id: 'contorcoes-serpente', status: 'iluminada', licoes: ['hebi1', 'hebi2'],
+    pt: 'Por que o corpo de alguém se retorce como uma serpente?', ja: '体が蛇のようにくねるのはなぜか？',
+    teaser: 'Certos movimentos denunciam quem os move.' },
+  // ----- Mais mistérios do cotidiano (resposta nos Ensinamentos) -----
+  { id: 'sonambulo', status: 'iluminada', licoes: ['muyuu'],
+    pt: 'Quem caminha dormindo — para onde, afinal, está indo?', ja: '夢遊病者は、いったいどこへ向かっているのか？',
+    teaser: 'O corpo anda; e o resto?' },
+  { id: 'gemeos', status: 'iluminada', licoes: ['souseizi'],
+    pt: 'Por que gêmeos? Haveria algo espiritual em nascer em dois?', ja: 'なぜ双子なのか。二人で生まれることに霊的な意味があるのか？',
+    teaser: 'Dois corpos — e uma pergunta antiga.' },
+  { id: 'cacador', status: 'iluminada', licoes: ['ryousi', 'doubutuREItatari'],
+    pt: 'Por que quem tira a vida de animais adoece de um modo próprio?', ja: '生き物の命を奪う者が、特有の病にかかるのはなぜか？',
+    teaser: 'O que se faz a um ser vivo, retorna.' },
+];
+// Normaliza arquivos das perguntas (adiciona .html)
+for (const q of PERGUNTAS) {
+  if (q.licoes) q.licoes = q.licoes.map((f) => (f.endsWith('.html') ? f : `${f}.html`));
+}
+
 // ---- 4. Monta os artigos -----------------------------------------------------
 const articles = [];
 const missing = [];
@@ -217,11 +287,22 @@ for (const t of TAGS) {
 }
 const tagsSorted = [...TAGS].sort((a, b) => tagCount(b.id) - tagCount(a.id));
 
+// Valida perguntas: cada lição apontada existe
+for (const q of PERGUNTAS) {
+  for (const f of (q.licoes || [])) {
+    if (!knownFiles.has(f)) console.error(`⚠️  Pergunta "${q.id}" referencia arquivo inexistente: ${f}`);
+  }
+  if (q.status === 'iluminada' && !(q.licoes && q.licoes.length)) {
+    console.error(`⚠️  Pergunta "${q.id}" é 'iluminada' mas sem lições.`);
+  }
+}
+
 // ---- 6. Emite o arquivo ------------------------------------------------------
 const out = `// GERADO por scripts/build_disease_map.mjs — NÃO editar à mão.
-// Taxonomia da Análise Espiritual das Doenças (${VOL}): 2 eixos + temas transversais.
-window.DISEASE_MAP = ${JSON.stringify({ vol: VOL, groups: GROUPS, tags: tagsSorted, articles }, null, 1)};
+// Análise Espiritual das Doenças (${VOL}): 2 eixos + temas transversais + perguntas.
+window.DISEASE_MAP = ${JSON.stringify({ vol: VOL, groups: GROUPS, tags: tagsSorted, perguntas: PERGUNTAS, articles }, null, 1)};
 `;
 writeFileSync(join(ROOT, 'site_data', 'disease_map.js'), out, 'utf8');
-console.log(`✓ site_data/disease_map.js — ${articles.length} artigos, ${GROUPS.length} grupos, ${TAGS.length} temas.`);
+const abertas = PERGUNTAS.filter(q => q.status === 'aberta').length;
+console.log(`✓ site_data/disease_map.js — ${articles.length} artigos, ${GROUPS.length} grupos, ${TAGS.length} temas, ${PERGUNTAS.length} perguntas (${abertas} em aberto).`);
 console.log('  Temas:', tagsSorted.map(t => `${t.pt}(${tagCount(t.id)})`).join(', '));

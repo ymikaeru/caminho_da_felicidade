@@ -1,5 +1,5 @@
 // GERADO por scripts/build_disease_map.mjs — NÃO editar à mão.
-// Taxonomia da Análise Espiritual das Doenças (mioshiec2): 2 eixos + temas transversais.
+// Análise Espiritual das Doenças (mioshiec2): 2 eixos + temas transversais + perguntas.
 window.DISEASE_MAP = {
  "vol": "mioshiec2",
  "groups": [
@@ -200,6 +200,196 @@ window.DISEASE_MAP = {
    "id": "veneno",
    "pt": "Veneno",
    "ja": "毒"
+  }
+ ],
+ "perguntas": [
+  {
+   "id": "rir",
+   "status": "iluminada",
+   "licoes": [
+    "warauS.html"
+   ],
+   "pt": "Por que alguém ri sem conseguir parar?",
+   "ja": "笑いが止まらないのはなぜか？",
+   "teaser": "Uma alegria que não é alegria."
+  },
+  {
+   "id": "getemono",
+   "status": "iluminada",
+   "licoes": [
+    "getemono.html"
+   ],
+   "pt": "Por que alguém deseja comer o que não é alimento?",
+   "ja": "食べ物でないものを食べたくなるのはなぜか？",
+   "teaser": "Um apetite que não vem do corpo."
+  },
+  {
+   "id": "choro-noturno",
+   "status": "iluminada",
+   "licoes": [
+    "yonaki.html"
+   ],
+   "pt": "Por que um bebê chora toda noite, sempre na mesma hora?",
+   "ja": "赤ちゃんが毎晩同じ時刻に泣くのはなぜか？",
+   "teaser": "O choro tem um relógio — e uma razão."
+  },
+  {
+   "id": "sono",
+   "status": "iluminada",
+   "licoes": [
+    "negoto.html"
+   ],
+   "pt": "O que se revela enquanto dormimos — falar, ranger os dentes, roncar?",
+   "ja": "眠っている間に現れるもの（寝言・歯ぎしり・いびき）は何を表すか？",
+   "teaser": "O sono não cala o que está oculto."
+  },
+  {
+   "id": "medo-agua",
+   "status": "iluminada",
+   "licoes": [
+    "suisi.html"
+   ],
+   "pt": "Um medo de água sem explicação pode vir de outra vida?",
+   "ja": "理由のない水への恐れは、前世から来るのか？",
+   "teaser": "Há quem tema o que nunca viveu — nesta vida."
+  },
+  {
+   "id": "pele",
+   "status": "iluminada",
+   "licoes": [
+    "aza.html",
+    "hage.html"
+   ],
+   "pt": "Manchas de nascença e calvície podem ter raiz espiritual?",
+   "ja": "生まれつきの痣や脱毛にも霊的な原因があるか？",
+   "teaser": "Nem tudo na pele começa na pele."
+  },
+  {
+   "id": "odor",
+   "status": "iluminada",
+   "licoes": [
+    "wakiga.html"
+   ],
+   "pt": "Existe causa espiritual até para o odor do corpo?",
+   "ja": "体臭にさえ霊的な原因があるか？",
+   "teaser": "O corpo exala mais do que imaginamos."
+  },
+  {
+   "id": "cegueira-noturna",
+   "status": "iluminada",
+   "licoes": [
+    "sikimou.html"
+   ],
+   "pt": "Por que alguém enxerga de dia, mas não ao anoitecer?",
+   "ja": "昼は見えても夕暮れに見えなくなるのはなぜか？",
+   "teaser": "A visão que falha tem hora marcada."
+  },
+  {
+   "id": "petrificar",
+   "status": "iluminada",
+   "licoes": [
+    "bokuseki.html"
+   ],
+   "pt": "O que faz uma pessoa 'endurecer', como madeira ou pedra?",
+   "ja": "人が木や石のように「固まる」のは何によるのか？",
+   "teaser": "Uma rigidez que não é do corpo."
+  },
+  {
+   "id": "purificacao",
+   "status": "iluminada",
+   "licoes": [
+    "BH1.html",
+    "BH5.html"
+   ],
+   "pt": "E se aquela reação estranha do corpo for, na verdade, uma purificação?",
+   "ja": "その奇妙な体の反応は、実は浄化ではないか？",
+   "teaser": "O que parece doença pode ser limpeza."
+  },
+  {
+   "id": "muda-personalidade",
+   "status": "iluminada",
+   "licoes": [
+    "seisinbyou1.html",
+    "zinrei1.html"
+   ],
+   "pt": "Por que alguém muda de personalidade, como se fosse outra pessoa?",
+   "ja": "人が別人のように人格が変わるのはなぜか？",
+   "teaser": "Quando o caráter muda sem aviso, pode não ser só ela ali."
+  },
+  {
+   "id": "age-como-animal",
+   "status": "iluminada",
+   "licoes": [
+    "seisinbyou2.html",
+    "doubutuREI.html"
+   ],
+   "pt": "Por que uma pessoa passa a agir como um animal?",
+   "ja": "人が動物のように振る舞うのはなぜか？",
+   "teaser": "O corpo é humano; o comportamento, de outro."
+  },
+  {
+   "id": "enfeiticado",
+   "status": "iluminada",
+   "licoes": [
+    "kitune.html",
+    "SK1.html"
+   ],
+   "pt": "O que há por trás de alguém que parece 'enfeitiçado'?",
+   "ja": "「憑かれた」ように見えるのは何によるのか？",
+   "teaser": "A raposa tem fama antiga — e os Ensinamentos dizem por quê."
+  },
+  {
+   "id": "furia-subita",
+   "status": "iluminada",
+   "licoes": [
+    "kyoubouS.html",
+    "seisinbyou1.html"
+   ],
+   "pt": "O que leva alguém pacífico a uma fúria súbita e incontrolável?",
+   "ja": "穏やかな人が突然、抑えられない怒りに駆られるのはなぜか？",
+   "teaser": "Há fúrias que parecem vir de fora."
+  },
+  {
+   "id": "contorcoes-serpente",
+   "status": "iluminada",
+   "licoes": [
+    "hebi1.html",
+    "hebi2.html"
+   ],
+   "pt": "Por que o corpo de alguém se retorce como uma serpente?",
+   "ja": "体が蛇のようにくねるのはなぜか？",
+   "teaser": "Certos movimentos denunciam quem os move."
+  },
+  {
+   "id": "sonambulo",
+   "status": "iluminada",
+   "licoes": [
+    "muyuu.html"
+   ],
+   "pt": "Quem caminha dormindo — para onde, afinal, está indo?",
+   "ja": "夢遊病者は、いったいどこへ向かっているのか？",
+   "teaser": "O corpo anda; e o resto?"
+  },
+  {
+   "id": "gemeos",
+   "status": "iluminada",
+   "licoes": [
+    "souseizi.html"
+   ],
+   "pt": "Por que gêmeos? Haveria algo espiritual em nascer em dois?",
+   "ja": "なぜ双子なのか。二人で生まれることに霊的な意味があるのか？",
+   "teaser": "Dois corpos — e uma pergunta antiga."
+  },
+  {
+   "id": "cacador",
+   "status": "iluminada",
+   "licoes": [
+    "ryousi.html",
+    "doubutuREItatari.html"
+   ],
+   "pt": "Por que quem tira a vida de animais adoece de um modo próprio?",
+   "ja": "生き物の命を奪う者が、特有の病にかかるのはなぜか？",
+   "teaser": "O que se faz a um ser vivo, retorna."
   }
  ],
  "articles": [

@@ -1119,3 +1119,33 @@ sup.ens-fn {
   color: #fff; background: var(--accent); border-radius: .7em; cursor: help; font-family: var(--font-ui);
 }
 sup.ens-fn:hover, sup.ens-fn:focus { filter: brightness(1.18); outline: none; }
+
+/* ===== Hierarquia da apostila: marcador colorido por nível + recuo por profundidade ===== */
+/* Marcador (1. / ③ / A. / i.) colorido — só aparece na apostila (tem .ens-mk). */
+.ens-mk { font-weight: 700; font-variant-numeric: tabular-nums; margin-right: .18em; }
+.ens-mk-numero    { color: #2f74c0; }   /* número  — azul   */
+.ens-mk-circulo   { color: #138f81; }   /* ①②③    — teal   */
+.ens-mk-romano    { color: #7c4dd6; }   /* i. ii.  — violeta */
+.ens-mk-letra     { color: #c2710f; }   /* A. B.   — âmbar  */
+.ens-mk-letra_min { color: #8a7d6a; }   /* a. b.   — neutro */
+.ens-mk-parte     { color: #4f86d6; }
+.ens-mk-item, .ens-mk-capitulo { color: var(--accent); }
+
+/* Recuo + borda-esquerda crescendo com a profundidade (escopado à apostila). */
+.book-shin-dendo .disciples-section { margin-top: 1.7rem; }
+.book-shin-dendo .disciples-section--deep {
+  border-left: 2px solid var(--border);
+  padding-left: 1.1rem; margin-left: .15rem;
+}
+.book-shin-dendo .disciples-section--depth-4 { border-left-color: #138f81; }   /* círculo */
+.book-shin-dendo .disciples-section--depth-5 { border-left-color: #7c4dd6; }   /* romano  */
+.book-shin-dendo .disciples-section--depth-6 { border-left-color: #c2710f; }   /* letra   */
+.book-shin-dendo .disciples-section--depth-7 { border-left-color: #8a7d6a; }
+/* Título escala por nível (número > círculo > romano/letra). */
+.book-shin-dendo .disciples-section--child > .disciples-section-title { font-size: 1.3rem; }
+.book-shin-dendo .disciples-section--depth-4 > .disciples-section-title { font-size: 1.12rem; }
+.book-shin-dendo .disciples-section--deep.disciples-section--depth-5 > .disciples-section-title,
+.book-shin-dendo .disciples-section--deep.disciples-section--depth-6 > .disciples-section-title,
+.book-shin-dendo .disciples-section--deep.disciples-section--depth-7 > .disciples-section-title { font-size: 1rem; color: var(--text-muted); }
+/* Largura de leitura confortável pro texto do ensinamento. */
+.book-shin-dendo .ens-texto, .book-shin-dendo .ens-db, .book-shin-dendo .ens-refs { max-width: 64ch; }

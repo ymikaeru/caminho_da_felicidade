@@ -87,6 +87,20 @@
                      .replace(/\n\n/g, '</p><p>');
   }
 
+  // ── Rótulo do marcador por nível (apostila): 1. / ③ / A. / i. / Capítulo 1 ──
+  const CIRC = n => String.fromCharCode(0x2460 + (Number(n) - 1));   // 1->①, 2->②, …
+  function discMkLabel(n) {
+    if (!n || !n.marcador) return '';                 // keigyou/ashita não têm marcador
+    if (n.nivel === 'circulo') return CIRC(n.marcador);
+    if (n.nivel === 'capitulo' || n.nivel === 'item') return n.marcador;  // "Capítulo 1" / "Item 1"
+    return n.marcador + '.';                          // "1." / "A." / "i." / "a."
+  }
+  function discTitleWithMk(n) {
+    const t = (n.title || '').replace(/\*{1,3}/g, '').replace(/\\\./g, '');
+    const mk = discMkLabel(n);
+    return mk ? (mk + ' ' + t) : t;
+  }
+
   // ── Ensinamento estruturado (apostila Shin Dendō) ──
   // Notas: marcadores [^n] no texto viram chips com o texto da nota no hover.
   function discRenderNotas(text, notas) {
@@ -195,16 +209,23 @@
   // Apostila Shin Dendō: paginação por ITEM (cada Item = uma página rolável com
   // toda a sua subárvore de Ensinamentos), + a intro do Capítulo (explicação)
   // como página própria. A árvore lateral navega pra qualquer Ensinamento dentro.
+  // Paginação por ENSINAMENTO (nivel 'numero'): cada "1." / "2." vira uma página
+  // com TODA a sua subárvore (círculo ①②③, romano, letra…) rolável dentro dela.
+  // Intros de Capítulo/Item/Parte (subtítulo/explicação) viram páginas próprias.
   function flattenApostila(sections) {
+    const hasIntro = n => !!(n.ensinamento || n.explicacao || n.subtitulo);
     const pages = [];
-    for (const cap of sections) {
-      if (cap.ensinamento || cap.explicacao || cap.subtitulo) {
-        pages.push(Object.assign({}, cap, { children: [], _ancestors: [] }));
+    const walk = (node, ancestors) => {
+      if (node.nivel === 'numero') {
+        pages.push(Object.assign({}, node, { _ancestors: ancestors.slice() }));
+        return;                                  // subárvore fica dentro desta página (scroll)
       }
-      for (const item of (cap.children || [])) {
-        pages.push(Object.assign({}, item, { _ancestors: [cap] }));
+      if (hasIntro(node)) {
+        pages.push(Object.assign({}, node, { children: [], _ancestors: ancestors.slice() }));
       }
-    }
+      for (const c of (node.children || [])) walk(c, ancestors.concat([node]));
+    };
+    for (const s of sections) walk(s, []);
     return pages.length ? pages : sections.slice();
   }
 
@@ -316,7 +337,8 @@
     const hasChildren = section.children?.length;
     const childCount = hasChildren ? section.children.length : 0;
     const lvl = section.level;
-    const cleanTitle = section.title.replace(/\*\*\*/g, '').replace(/\*\*/g, '').replace(/\\\./g, '');
+    const _mk = discMkLabel(section);   // marcador na árvore: "1." / "③" / "A." / "i."
+    const cleanTitle = (_mk ? _mk + ' ' : '') + section.title.replace(/\*\*\*/g, '').replace(/\*\*/g, '').replace(/\\\./g, '');
 
     if (lvl === 1) {
       let body = '';
@@ -460,6 +482,7 @@
   // ── Render specific book ──
   function renderDisciplesBook(book) {
     _currentDisciplesBook = book;
+    document.body.classList.toggle('book-shin-dendo', book.id === 'shin-dendo-tebiki');  // escopo do estilo de hierarquia
     // Expõe pro highlights.js poder mostrar "Destaques em <livro>"
     // e contexto de seção em cada item.
     window._disciplesActiveBook = {
@@ -508,7 +531,9 @@
     function renderSection(section) {
       const tag = headingTag(section.level);
       const cls = sectionClass(section.level);
-      const title = (section.title || '').replace(/\*{1,3}/g, '').replace(/\\\./g, '');
+      const mk = discMkLabel(section);
+      const titleText = (section.title || '').replace(/\*{1,3}/g, '').replace(/\\\./g, '');
+      const headInner = (mk ? `<span class="ens-mk ens-mk-${section.nivel || ''}">${esc(mk)}</span> ` : '') + esc(titleText);
       let contentHtml = section.content ? renderMd(section.content) : '';
       if (section.content) contentHtml = addPersonNameIds(contentHtml, section.content);
       contentHtml = makePersonParagraphsCollapsible(contentHtml);
@@ -523,9 +548,9 @@
       }
       const body = ensHtml + (contentHtml ? `<div class="disciples-section-content">${contentHtml}</div>` : '');
       if (section.level === 1) {
-        return `<div class="${cls}" id="sec-${section.id}"><${tag}>${esc(title)}</${tag}>${body}${childrenHtml}</div>`;
+        return `<div class="${cls}" id="sec-${section.id}"><${tag}>${headInner}</${tag}>${body}${childrenHtml}</div>`;
       }
-      return `<section class="${cls}" id="sec-${section.id}"><${tag} class="disciples-section-title">${esc(title)}</${tag}>${body}${childrenHtml}</section>`;
+      return `<section class="${cls}" id="sec-${section.id}"><${tag} class="disciples-section-title">${headInner}</${tag}>${body}${childrenHtml}</section>`;
     }
 
     // Breadcrumb: capítulo > subcapítulo > [trecho atual]. Mostra apenas
@@ -533,7 +558,7 @@
     const ancestors = chapter._ancestors || [];
     const breadcrumbHtml = ancestors.length
       ? `<nav class="disciples-breadcrumb" aria-label="${isPt ? 'Localização' : '現在地'}">${ancestors.map((a, i) => {
-          const t = (a.title || '').replace(/\*{1,3}/g, '').replace(/\\\./g, '');
+          const t = discTitleWithMk(a);
           const sep = i < ancestors.length - 1 ? '<span class="disciples-breadcrumb__sep" aria-hidden="true">›</span>' : '';
           return `<span class="disciples-breadcrumb__crumb">${esc(t)}</span>${sep}`;
         }).join('')}</nav>`

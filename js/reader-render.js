@@ -375,27 +375,45 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         if (!headerHTML) {
             const contentAlreadyHasTitle = /^\s*<b[\s>]/i.test(rawContent.trim()) || /^\s*<font[\s>]/i.test(rawContent.trim());
             if (contentAlreadyHasTitle) {
-                // Título no formato <font size="+2"><b>Título</b></font> (font POR
-                // FORA do bold) SEM data embutida. O regex de data (l.354) não pega
-                // e o titleMatch abaixo exige <b> primeiro — então sem isto o título
-                // cairia dentro do corpo (tamanho normal, ABAIXO da barra de ações).
-                // Promove a cabeçalho real (font +2, acima da barra) e, como o
-                // caminho da data, passa por _formatQuotedTitle (tira aspas) e anexa
-                // a data do tópico convertida pra PT.
-                const fontTitleMatch = rawContent.match(/^(\s*<font[^>]*><b[^>]*>([^<]*)<\/b><\/font>)\s*/i);
-                const titleMatch = rawContent.match(/^(\s*<b[^>]*>(?:<font[^>]*>)?([^<]*)(?:<\/font>)?<\/b>)\s*/);
-                if (fontTitleMatch && fontTitleMatch[2].trim()) {
-                    const pt2 = _formatQuotedTitle(fontTitleMatch[2].trim()).replace(/^\*\*|\*\*$/g, '');
-                    const _dt = isPt ? _formatShowaDatePt(topicData.date) : topicData.date;
-                    const displayDate = topicData.date && topicData.date !== 'Unknown' ? `<br/>(${_dt})` : '';
-                    headerHTML = `<b><font size="+2">${pt2.charAt(0).toUpperCase() + pt2.slice(1)}</font></b>${displayDate}<br/><br/>`;
-                    rawContent = rawContent.substring(fontTitleMatch[0].length).replace(/^([\s\n]*<br\s*\/?>[\s\n]*)+/gi, '');
-                } else if (titleMatch && titleMatch[2].trim()) {
-                    const t = titleMatch[2].trim();
-                    headerHTML = `<b><font size="+2">${t.charAt(0).toUpperCase() + t.slice(1)}</font></b><br/>`;
-                    rawContent = rawContent.substring(titleMatch[0].length).replace(/^([\s\n]*<br\s*\/?>[\s\n]*)+/gi, '');
-                } else {
-                    rawContent = rawContent.replace(/^(\s*<b[^>]*>(?:<font[^>]*>)?[^<]*(?:<\/font>)?<\/b>)\s+/, '$1<br/>');
+                // Extrai o título já embutido como cabeçalho (negrito/fonte grande) no
+                // começo do conteúdo — sem data ASCII embutida (essa já foi tratada em
+                // l.354). Três estruturas aparecem nos dados:
+                //   <b><font>Título</font></b> · <font><b>Título</b></font> · <font>Título</font>
+                // 1º tenta match ESTRITO (texto de título limpo, sem tags internas) —
+                // garantidamente um título, então SEM guardas (não regride títulos
+                // curtos tipo "祝 詞" nem com "Sr."/"etc."). Se falhar (título com
+                // <i>/<em>/<font> aninhado, ou <font> sem <b>), cai num match TOLERANTE
+                // a tags — aí com guardas, pra não promover parágrafo do corpo a título.
+                // Sem isto o título cairia no corpo (tamanho normal, ABAIXO da barra).
+                const strictFontB = rawContent.match(/^(\s*<font[^>]*><b[^>]*>([^<]*)<\/b><\/font>)/i);
+                const strictB = rawContent.match(/^(\s*<b[^>]*>(?:<font[^>]*>)?([^<]*)(?:<\/font>)?<\/b>)/i);
+                let block = null, titleSrc = '', needGuard = false;
+                if (strictFontB && strictFontB[2].trim()) { block = strictFontB; titleSrc = strictFontB[2]; }
+                else if (strictB && strictB[2].trim()) { block = strictB; titleSrc = strictB[2]; }
+                else {
+                    const lazy = rawContent.match(/^(\s*<b[^>]*>(?:<font[^>]*>)?[\s\S]*?(?:<\/font>)?<\/b>(?:<\/font>)?)/i)
+                        || rawContent.match(/^(\s*<font[^>]*><b[^>]*>[\s\S]*?<\/b><\/font>)/i)
+                        || rawContent.match(/^(\s*<font[^>]*>[\s\S]*?<\/font>)/i);
+                    if (lazy) { block = lazy; titleSrc = lazy[1].replace(/<[^>]+>/g, ''); needGuard = true; }
+                }
+                if (block) {
+                    const tt = titleSrc.replace(/\s+/g, ' ').trim();
+                    const okGuard = !needGuard || (tt.length > 3 && tt.length < 250 && !tt.includes('。') && !/\.\s/.test(tt));
+                    if (tt && okGuard) {
+                        const pt2 = _formatQuotedTitle(tt).replace(/^\*\*|\*\*$/g, '');
+                        // remove <br>/tags-órfãs (ex.: </font></font> duplicado no fonte) do início do corpo
+                        let newBody = rawContent.substring(block[1].length).replace(/^([\s\n]*(?:<br\s*\/?>|<\/font>|<\/b>)[\s\n]*)+/gi, '');
+                        // Não duplica a data: muitos tópicos já trazem a data no início do
+                        // corpo entre parênteses (inclusive fullwidth （）, que o regex ASCII
+                        // de l.354 não pegou). Só anexa a data do campo quando o corpo NÃO
+                        // começa com data — e só em PT (em JA ela já está no corpo).
+                        const bodyHasDate = /^\s*[（(][^）)]*\d{4}[^）)]*[）)]/.test(newBody);
+                        const _dt = (isPt && topicData.date && topicData.date !== 'Unknown' && !bodyHasDate)
+                            ? _formatShowaDatePt(topicData.date) : null;
+                        const displayDate = _dt ? `<br/>(${_dt})` : '';
+                        headerHTML = `<b><font size="+2">${pt2.charAt(0).toUpperCase() + pt2.slice(1)}</font></b>${displayDate}<br/><br/>`;
+                        rawContent = newBody;
+                    }
                 }
             }
             if (activeTitle && rawContent.trim() && !genericRegex.test(activeTitle) && !contentAlreadyHasTitle) {

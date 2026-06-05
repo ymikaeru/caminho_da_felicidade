@@ -7,6 +7,28 @@
 // ============================================================
 import SUPABASE_CONFIG, { supabase } from './supabase-config.js';
 
+// Detecta o tipo de dispositivo a partir do user-agent (+ touch points para
+// pegar iPad/iPadOS 13+, que se anuncia como "Macintosh"). Sem chamadas
+// externas, sem permissão. Resultado vai pro metadata de cada access_log.
+function _detectDevice() {
+  try {
+    const ua = navigator.userAgent || '';
+    const touch = navigator.maxTouchPoints || 0;
+    // Tablet: iPad explícito, Android sem "Mobile", ou Mac com touch (iPadOS).
+    if (/\bipad\b/i.test(ua) ||
+        (/android/i.test(ua) && !/mobile/i.test(ua)) ||
+        (/macintosh/i.test(ua) && touch > 1)) {
+      return 'tablet';
+    }
+    if (/mobile|iphone|ipod|android|blackberry|iemobile|opera mini|windows phone/i.test(ua)) {
+      return 'mobile';
+    }
+    return 'desktop';
+  } catch (_) {
+    return 'desconhecido';
+  }
+}
+
 let supabaseSession = null;
 let userPermissions = null;
 let isAdminRole = false;
@@ -293,8 +315,12 @@ window.supabaseAuth = {
     // FUNCTION log_access_dedup(text, text, text, jsonb)). Assim deploy
     // do cliente NÃO depende da RPC nova estar aplicada (view/print
     // continuam funcionando) — só copies precisam da RPC atualizada.
-    const params = { p_volume: volume, p_file: file, p_action: action };
-    if (metadata != null) params.p_metadata = metadata;
+    // Sempre anexa o device ao metadata (a RPC de 4 args com p_metadata jsonb
+    // já está deployada e persiste isto em access_logs.metadata). Preserva
+    // qualquer metadata existente (ex.: texto copiado em content-protection).
+    const meta = (metadata != null) ? { ...metadata } : {};
+    meta.device = _detectDevice();
+    const params = { p_volume: volume, p_file: file, p_action: action, p_metadata: meta };
     const { error } = await supabase.rpc('log_access_dedup', params);
     if (error) console.warn('[logAccess] Falha ao registrar acesso:', error.message);
   }

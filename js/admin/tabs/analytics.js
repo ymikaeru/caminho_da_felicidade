@@ -33,6 +33,7 @@ async function loadAnalytics() {
   loadCompletionRates(days, since);
   loadRecentActivity(days, since);
   loadContentProtection(days, since);
+  loadDeviceBreakdown(days, since);
   loadSyncStats();
   loadRoleDistribution();
   loadDailyActivityChart(days, since);
@@ -902,6 +903,111 @@ async function loadContentProtection(days, since) {
   }
 
   container.innerHTML = cardsHtml + tableHtml + copiesListHtml;
+}
+
+// ============================================================
+// Device Breakdown (desktop / celular / tablet)
+// ============================================================
+// Lê metadata.device dos access_logs (action='view') no período. O device é
+// capturado no logAccess (login.js) a partir de 05/06/2026 — acessos
+// anteriores não têm o campo e caem no balde "desconhecido".
+async function loadDeviceBreakdown(days, since) {
+  const container = document.getElementById('device-breakdown');
+  if (!container) return;
+
+  let q = supabase
+    .from('access_logs')
+    .select('user_id, metadata, created_at')
+    .eq('action', 'view');
+  if (since) q = q.gte('created_at', since);
+  const { data: raw, error } = await q;
+  if (error) {
+    container.innerHTML = `<div class="msg err" style="display:block;">Falha ao carregar: ${_escHtml(error.message)}</div>`;
+    return;
+  }
+
+  const rows = (raw || []).filter(r => !_adminIds.has(r.user_id));
+  if (rows.length === 0) {
+    container.innerHTML = '<div class="loading">Sem acessos no período.</div>';
+    return;
+  }
+
+  const LABELS = { desktop: '🖥️ Desktop', mobile: '📱 Celular', tablet: '📲 Tablet', desconhecido: '❔ Desconhecido' };
+  const ORDER = ['desktop', 'mobile', 'tablet', 'desconhecido'];
+  const norm = (d) => (d === 'desktop' || d === 'mobile' || d === 'tablet') ? d : 'desconhecido';
+
+  const agg = {};
+  ORDER.forEach(k => { agg[k] = { accesses: 0, users: new Set() }; });
+  const byUser = new Map();
+  rows.forEach(r => {
+    const d = norm(r.metadata?.device);
+    agg[d].accesses++;
+    agg[d].users.add(r.user_id);
+    if (!byUser.has(r.user_id)) byUser.set(r.user_id, { devices: {}, last: r.created_at, lastDevice: d });
+    const u = byUser.get(r.user_id);
+    u.devices[d] = (u.devices[d] || 0) + 1;
+    if (r.created_at > u.last) { u.last = r.created_at; u.lastDevice = d; }
+  });
+
+  const totalAccesses = rows.length;
+  const present = ORDER.filter(k => agg[k].accesses > 0);
+
+  // Cards: usuários únicos por device + total de acessos no rótulo.
+  const cardsHtml = `
+    <div class="stats-grid" style="margin-bottom:20px;">
+      ${present.map(k => `
+        <div class="stat-card">
+          <div class="stat-value">${agg[k].users.size}</div>
+          <div class="stat-label">${LABELS[k]}</div>
+          <div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">${agg[k].accesses} acesso(s)</div>
+        </div>`).join('')}
+    </div>`;
+
+  // Barras proporcionais por nº de acessos.
+  const max = Math.max(...present.map(k => agg[k].accesses), 1);
+  const barsHtml = present.map(k => {
+    const pct = Math.round(agg[k].accesses / max * 100);
+    const pctTotal = Math.round(agg[k].accesses / totalAccesses * 100);
+    return `
+      <div class="chart-bar">
+        <div class="chart-bar-label">${LABELS[k]}</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%"></div></div>
+        <div class="chart-bar-value">${agg[k].accesses} (${pctTotal}%)</div>
+      </div>`;
+  }).join('');
+
+  // Nomes para a tabela por usuário.
+  let nameMap = {};
+  const userIds = [...byUser.keys()];
+  if (userIds.length) {
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('id, display_name')
+      .in('id', userIds);
+    (profiles || []).forEach(p => { nameMap[p.id] = p.display_name; });
+  }
+
+  const sortedUsers = [...byUser.entries()].sort((a, b) => new Date(b[1].last) - new Date(a[1].last));
+  const tableHtml = `
+    <h3 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted); margin:24px 0 12px; font-weight:600;">Por usuário <span style="font-weight:400; text-transform:none; letter-spacing:0;">(destacado = último usado)</span></h3>
+    <table class="data-table">
+      <thead><tr><th>Usuário</th><th>Dispositivos usados</th><th>Último acesso</th></tr></thead>
+      <tbody>${sortedUsers.map(([uid, u]) => {
+        const date = new Date(u.last);
+        const dateStr = date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' ' + date.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
+        const devs = ORDER.filter(k => u.devices[k]).map(k => {
+          const isLast = k === u.lastDevice;
+          return `<span style="display:inline-block; font-size:0.78rem; padding:2px 8px; margin:1px 4px 1px 0; border-radius:6px; background:var(--bg); border:1px solid var(--border); ${isLast ? 'font-weight:600; color:var(--accent);' : 'color:var(--text-muted);'}">${LABELS[k]} ${u.devices[k]}</span>`;
+        }).join('');
+        return `<tr>
+          <td>${_escHtml(nameMap[uid] || 'Desconhecido')}</td>
+          <td>${devs}</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+  container.innerHTML = cardsHtml + barsHtml + tableHtml;
 }
 
 async function loadSyncStats() {

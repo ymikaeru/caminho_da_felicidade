@@ -32,6 +32,26 @@ function _formatQuotedTitle(rawTitle) {
         : quoteMatch[1];
 }
 
+// Converte uma data japonesa da era Shōwa (ex.: 昭和11年1月21日) para o
+// formato em português ("21 de janeiro de 1936"). Usada só no modo PT — o
+// modo japonês mantém o original. Mês ou dia ausentes degradam para "janeiro
+// de 1936" ou só "1936". Qualquer string que NÃO seja uma data Shōwa é
+// devolvida intacta (ex.: data já em português, ou "(1948)" numérica).
+const _MESES_PT = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+function _formatShowaDatePt(jp) {
+    if (!jp) return jp;
+    // \s tolerante: dateText extraído da prosa pode ter espaços (inclusive 　).
+    const m = jp.trim().match(/^昭和\s*(\d+)\s*年(?:\s*(\d+)\s*月)?(?:\s*(\d+)\s*日)?$/);
+    if (!m) return jp;
+    const year = 1925 + parseInt(m[1], 10); // 昭和元年 = 1926 → Ocidental = 1925 + N
+    const month = m[2] ? parseInt(m[2], 10) : null;
+    const day = m[3] ? parseInt(m[3], 10) : null;
+    if (day && month) return `${day} de ${_MESES_PT[month - 1]} de ${year}`;
+    if (month) return `${_MESES_PT[month - 1]} de ${year}`;
+    return String(year);
+}
+
 // Carrega manual_citation_links.json (Supabase Storage com fallback local)
 // em background na primeira chamada. Resultado merge no window._partialCitations.
 let _manualCitationsPromise = null;
@@ -346,7 +366,8 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             if (!_insideTag && pureTitle.length > 3 && pureTitle.length < 250 && !pureTitle.includes('。') && !pureTitle.includes('. ')) {
                 pureTitle = _formatQuotedTitle(pureTitle);
                 const pt0 = pureTitle.replace(/^\*\*|\*\*$/g, '');
-                headerHTML = `<b><font size="+2">${pt0.charAt(0).toUpperCase() + pt0.slice(1)}</font></b><br/>(${dateText})<br/><br/>`;
+                const dateDisp = isPt ? _formatShowaDatePt(dateText) : dateText;
+                headerHTML = `<b><font size="+2">${pt0.charAt(0).toUpperCase() + pt0.slice(1)}</font></b><br/>(${dateDisp})<br/><br/>`;
                 rawContent = rawContent.substring(headerMatch[0].length).replace(/^([\s\n]*<br\s*\/?>[\s\n]*)+/gi, '');
             }
         }
@@ -368,7 +389,8 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
                 const cStart = rawContent.substring(0, 500).replace(/<[^>]+>/g, '').replace(/[\u3000\s\d\W]/g, '').toLowerCase();
                 if (cTitle.length > 5 && !cStart.includes(cTitle)) {
                     let pureTitle = _formatQuotedTitle(activeTitle);
-                    const displayDate = topicData.date && topicData.date !== 'Unknown' ? `<br/>\n(${topicData.date})` : '';
+                    const _dt = isPt ? _formatShowaDatePt(topicData.date) : topicData.date;
+                    const displayDate = topicData.date && topicData.date !== 'Unknown' ? `<br/>\n(${_dt})` : '';
                     const pt1 = pureTitle.replace(/^\*\*|\*\*$/g, '');
                     headerHTML = `<b><font size="+2">${pt1.charAt(0).toUpperCase() + pt1.slice(1)}</font></b>${displayDate}<br/><br/>`;
                 }

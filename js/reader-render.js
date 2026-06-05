@@ -375,8 +375,22 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         if (!headerHTML) {
             const contentAlreadyHasTitle = /^\s*<b[\s>]/i.test(rawContent.trim()) || /^\s*<font[\s>]/i.test(rawContent.trim());
             if (contentAlreadyHasTitle) {
+                // Título no formato <font size="+2"><b>Título</b></font> (font POR
+                // FORA do bold) SEM data embutida. O regex de data (l.354) não pega
+                // e o titleMatch abaixo exige <b> primeiro — então sem isto o título
+                // cairia dentro do corpo (tamanho normal, ABAIXO da barra de ações).
+                // Promove a cabeçalho real (font +2, acima da barra) e, como o
+                // caminho da data, passa por _formatQuotedTitle (tira aspas) e anexa
+                // a data do tópico convertida pra PT.
+                const fontTitleMatch = rawContent.match(/^(\s*<font[^>]*><b[^>]*>([^<]*)<\/b><\/font>)\s*/i);
                 const titleMatch = rawContent.match(/^(\s*<b[^>]*>(?:<font[^>]*>)?([^<]*)(?:<\/font>)?<\/b>)\s*/);
-                if (titleMatch && titleMatch[2].trim()) {
+                if (fontTitleMatch && fontTitleMatch[2].trim()) {
+                    const pt2 = _formatQuotedTitle(fontTitleMatch[2].trim()).replace(/^\*\*|\*\*$/g, '');
+                    const _dt = isPt ? _formatShowaDatePt(topicData.date) : topicData.date;
+                    const displayDate = topicData.date && topicData.date !== 'Unknown' ? `<br/>(${_dt})` : '';
+                    headerHTML = `<b><font size="+2">${pt2.charAt(0).toUpperCase() + pt2.slice(1)}</font></b>${displayDate}<br/><br/>`;
+                    rawContent = rawContent.substring(fontTitleMatch[0].length).replace(/^([\s\n]*<br\s*\/?>[\s\n]*)+/gi, '');
+                } else if (titleMatch && titleMatch[2].trim()) {
                     const t = titleMatch[2].trim();
                     headerHTML = `<b><font size="+2">${t.charAt(0).toUpperCase() + t.slice(1)}</font></b><br/>`;
                     rawContent = rawContent.substring(titleMatch[0].length).replace(/^([\s\n]*<br\s*\/?>[\s\n]*)+/gi, '');

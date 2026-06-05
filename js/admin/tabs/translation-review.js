@@ -30,7 +30,9 @@ async function loadReports(forceReload = false) {
     return;
   }
 
-  _allReports = data || [];
+  // Discípulos têm aba própria (disciples-reports.js) com editor próprio —
+  // exclui aqui pra não aparecerem em dois lugares. Poesia continua nesta aba.
+  _allReports = (data || []).filter(r => r.vol !== 'disciples');
 
   // Carrega notas de todos os reports em uma query só
   if (_allReports.length) {
@@ -239,10 +241,20 @@ function _renderReports() {
       byVol[r.vol].push(r);
     });
     let out = '';
-    for (const vol of ['mioshiec1','mioshiec2','mioshiec3','mioshiec4']) {
+    // Ordem conhecida primeiro; QUALQUER outra chave de volume presente nos
+    // dados (disciples, poetry, ou futuras) é anexada — antes só os 4 volumes
+    // do College eram iterados, então reportes de "Disc"/Poesia eram contados
+    // no card "Volume c/ mais reportes" mas NUNCA renderizados na lista.
+    const KNOWN_ORDER = ['mioshiec1','mioshiec2','mioshiec3','mioshiec4','disciples','poetry'];
+    const VOL_GROUP_NAME = { disciples: 'Livros de Discípulos', poetry: 'Poesia' };
+    const orderedVols = [
+      ...KNOWN_ORDER.filter(v => byVol[v]),
+      ...Object.keys(byVol).filter(v => !KNOWN_ORDER.includes(v)).sort()
+    ];
+    for (const vol of orderedVols) {
       const group = byVol[vol];
       if (!group || group.length === 0) continue;
-      const volName = VOLUMES.find(v => v.key === vol)?.name || vol;
+      const volName = VOLUMES.find(v => v.key === vol)?.name || VOL_GROUP_NAME[vol] || VOL_SHORT[vol] || vol;
       out += `<div class="report-group-label" style="${opts.labelStyle || ''}">${headerPrefix} ${volName} — ${group.length}</div>`;
       group.forEach(r => { out += buildCard(r, state); });
     }

@@ -25,8 +25,9 @@
     import './admin/tabs/highlights-saved.js';
     import './admin/tabs/users-permissions.js?v=1';
     import './admin/tabs/analytics.js?v=5';
-    import './admin/tabs/translation-review.js';
+    import './admin/tabs/translation-review.js?v=2';
     import './admin/tabs/translation-review-guia.js';
+    import './admin/tabs/disciples-reports.js?v=2';
     import './admin/tabs/partial-citations.js?v=24';
     import './admin/tabs/recommendations.js?v=10';
     import './admin/tabs/inbox.js';
@@ -178,6 +179,7 @@
         if (_onlineRefreshInterval) { clearInterval(_onlineRefreshInterval); _onlineRefreshInterval = null; }
       }
       if (tab === 'reports') loadReports();
+      if (tab === 'reports-disc') loadDisciplesReports();
       if (tab === 'destaques') initHlTab();
       if (tab === 'saved') initSavedTab();
       if (tab === 'calendar') loadCalendarEvents();

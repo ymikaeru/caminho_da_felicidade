@@ -1486,10 +1486,23 @@ async function loadRetentionRate(days, since) {
     </table>` : ''}`;
 }
 
-// Só loadAnalytics e loadOnlineUsers são expostos: loadAnalytics é o entry
-// point chamado pelo switchTab; loadOnlineUsers é re-disparado a cada 60s
-// pelo intervalo setado em switchTab (admin.js).
+// Dropdown "Tabelas detalhadas": alterna a visibilidade entre Ensinamentos
+// Mais Lidos / Qualidade / Atividade Recente / Favoritos & Destaques (todos
+// já carregados por loadAnalytics — o select só troca qual aparece).
+const _ANALYTICS_TABLE_IDS = ['top-teachings', 'article-quality', 'recent-activity', 'popular-favorites'];
+function selectAnalyticsTable(id) {
+  _ANALYTICS_TABLE_IDS.forEach(x => {
+    const el = document.getElementById(x);
+    if (el) el.style.display = (x === id) ? '' : 'none';
+  });
+}
+
+// Só loadAnalytics, loadOnlineUsers e selectAnalyticsTable são expostos:
+// loadAnalytics é o entry point chamado pelo switchTab; loadOnlineUsers é
+// re-disparado a cada 60s pelo intervalo setado em switchTab (admin.js);
+// selectAnalyticsTable é o onchange do dropdown de tabelas detalhadas.
 Object.assign(window, {
   loadAnalytics,
-  loadOnlineUsers
+  loadOnlineUsers,
+  selectAnalyticsTable
 });

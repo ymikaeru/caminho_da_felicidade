@@ -359,18 +359,28 @@
                 </div>
               </div>
 
-              <!-- Top Teachings -->
+              <!-- Tabelas detalhadas (unificadas num dropdown) -->
               <div class="admin-section">
-                <h2>Ensinamentos Mais Lidos</h2>
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+                  <h2 style="margin:0;">Tabelas detalhadas</h2>
+                  <select class="period-select" id="analytics-table-selector"
+                    onchange="selectAnalyticsTable(this.value)">
+                    <option value="top-teachings" selected>Ensinamentos Mais Lidos</option>
+                    <option value="article-quality">💎 Qualidade por Ensinamento</option>
+                    <option value="recent-activity">Atividade Recente</option>
+                    <option value="popular-favorites">⭐ Favoritos &amp; Destaques Populares</option>
+                  </select>
+                </div>
                 <div id="top-teachings">
                   <div class="loading">Carregando...</div>
                 </div>
-              </div>
-
-              <!-- Article Quality -->
-              <div class="admin-section">
-                <h2>💎 Qualidade por Ensinamento</h2>
-                <div id="article-quality">
+                <div id="article-quality" style="display:none;">
+                  <div class="loading">Carregando...</div>
+                </div>
+                <div id="recent-activity" style="display:none;">
+                  <div class="loading">Carregando...</div>
+                </div>
+                <div id="popular-favorites" style="display:none;">
                   <div class="loading">Carregando...</div>
                 </div>
               </div>
@@ -391,14 +401,6 @@
                   <div id="completion-chart">
                     <div class="loading">Carregando...</div>
                   </div>
-                </div>
-              </div>
-
-              <!-- Recent Activity -->
-              <div class="admin-section">
-                <h2>Atividade Recente</h2>
-                <div id="recent-activity">
-                  <div class="loading">Carregando...</div>
                 </div>
               </div>
 
@@ -465,14 +467,6 @@
               <div class="admin-section">
                 <h2>📊 Engajamento por Volume</h2>
                 <div id="engagement-by-volume">
-                  <div class="loading">Carregando...</div>
-                </div>
-              </div>
-
-              <!-- Popular Favorites & Highlights -->
-              <div class="admin-section">
-                <h2>⭐ Favoritos & Destaques Populares</h2>
-                <div id="popular-favorites">
                   <div class="loading">Carregando...</div>
                 </div>
               </div>
@@ -2036,7 +2030,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=111"></script>
+  <script type="module" src="js/admin.js?v=112"></script>
 </body>
 
 </html>

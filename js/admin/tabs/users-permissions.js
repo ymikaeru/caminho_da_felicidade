@@ -207,7 +207,7 @@ async function openUserDetail(userId) {
     { data: perms }
   ] = await Promise.all([
     supabase.from('access_logs')
-      .select('volume, file, action, created_at')
+      .select('volume, file, action, created_at, metadata')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(50),
@@ -245,6 +245,33 @@ async function openUserDetail(userId) {
       <strong>Restrições:</strong> ${(perms || []).map(p => `${VOL_SHORT[p.volume] || p.volume}: ${p.files === null ? 'todos' : p.files.length + ' arquivos'}`).join(', ') || 'Nenhuma'}
     </p>
   `;
+
+  // Dispositivos usados — device vem de access_logs.metadata.device (coletado
+  // a partir de 05/06/2026). Deriva dos logs recentes; o mais novo (logs[0],
+  // ordenado desc) é o "último usado". Esconde se só houver dado desconhecido.
+  {
+    const DEV_LABELS = { desktop: '🖥️ Desktop', mobile: '📱 Celular', tablet: '📲 Tablet', desconhecido: '❔ Desconhecido' };
+    const DEV_ORDER = ['desktop', 'mobile', 'tablet', 'desconhecido'];
+    const devNorm = (d) => (d === 'desktop' || d === 'mobile' || d === 'tablet') ? d : 'desconhecido';
+    const devCounts = {};
+    let lastDevice = null;
+    (logs || []).forEach((l, i) => {
+      const d = devNorm(l.metadata?.device);
+      devCounts[d] = (devCounts[d] || 0) + 1;
+      if (i === 0) lastDevice = d;
+    });
+    const present = DEV_ORDER.filter(k => devCounts[k]);
+    const hasReal = present.some(k => k !== 'desconhecido');
+    if (present.length && hasReal) {
+      const chips = present.map(k => {
+        const isLast = k === lastDevice;
+        return `<span style="font-size:0.8rem; padding:3px 10px; border-radius:6px; background:var(--bg); border:1px solid var(--border); ${isLast ? 'font-weight:600; color:var(--accent);' : 'color:var(--text-muted);'}">${DEV_LABELS[k]} · ${devCounts[k]}</span>`;
+      }).join('');
+      html += `
+        <h4 style="margin:16px 0 8px; font-size:0.85rem;">Dispositivos <span style="font-weight:400; color:var(--text-muted); font-size:0.72rem;">(destacado = último usado · últimos ${(logs || []).length} acessos)</span></h4>
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">${chips}</div>`;
+    }
+  }
 
   if (positions && positions.length > 0) {
     const fmtDur = (s) => {

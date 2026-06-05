@@ -910,14 +910,15 @@ async function loadContentProtection(days, since) {
 // ============================================================
 // Lê metadata.device dos access_logs (action='view') no período. O device é
 // capturado no logAccess (login.js) a partir de 05/06/2026 — acessos
-// anteriores não têm o campo e caem no balde "desconhecido".
+// anteriores não têm o campo e caem no balde "desconhecido". A quebra por
+// usuário fica no modal de detalhe da aba Usuários (openUserDetail).
 async function loadDeviceBreakdown(days, since) {
   const container = document.getElementById('device-breakdown');
   if (!container) return;
 
   let q = supabase
     .from('access_logs')
-    .select('user_id, metadata, created_at')
+    .select('user_id, metadata')
     .eq('action', 'view');
   if (since) q = q.gte('created_at', since);
   const { data: raw, error } = await q;
@@ -938,15 +939,10 @@ async function loadDeviceBreakdown(days, since) {
 
   const agg = {};
   ORDER.forEach(k => { agg[k] = { accesses: 0, users: new Set() }; });
-  const byUser = new Map();
   rows.forEach(r => {
     const d = norm(r.metadata?.device);
     agg[d].accesses++;
     agg[d].users.add(r.user_id);
-    if (!byUser.has(r.user_id)) byUser.set(r.user_id, { devices: {}, last: r.created_at, lastDevice: d });
-    const u = byUser.get(r.user_id);
-    u.devices[d] = (u.devices[d] || 0) + 1;
-    if (r.created_at > u.last) { u.last = r.created_at; u.lastDevice = d; }
   });
 
   const totalAccesses = rows.length;
@@ -976,38 +972,7 @@ async function loadDeviceBreakdown(days, since) {
       </div>`;
   }).join('');
 
-  // Nomes para a tabela por usuário.
-  let nameMap = {};
-  const userIds = [...byUser.keys()];
-  if (userIds.length) {
-    const { data: profiles } = await supabase
-      .from('user_profiles')
-      .select('id, display_name')
-      .in('id', userIds);
-    (profiles || []).forEach(p => { nameMap[p.id] = p.display_name; });
-  }
-
-  const sortedUsers = [...byUser.entries()].sort((a, b) => new Date(b[1].last) - new Date(a[1].last));
-  const tableHtml = `
-    <h3 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted); margin:24px 0 12px; font-weight:600;">Por usuário <span style="font-weight:400; text-transform:none; letter-spacing:0;">(destacado = último usado)</span></h3>
-    <table class="data-table">
-      <thead><tr><th>Usuário</th><th>Dispositivos usados</th><th>Último acesso</th></tr></thead>
-      <tbody>${sortedUsers.map(([uid, u]) => {
-        const date = new Date(u.last);
-        const dateStr = date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' ' + date.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
-        const devs = ORDER.filter(k => u.devices[k]).map(k => {
-          const isLast = k === u.lastDevice;
-          return `<span style="display:inline-block; font-size:0.78rem; padding:2px 8px; margin:1px 4px 1px 0; border-radius:6px; background:var(--bg); border:1px solid var(--border); ${isLast ? 'font-weight:600; color:var(--accent);' : 'color:var(--text-muted);'}">${LABELS[k]} ${u.devices[k]}</span>`;
-        }).join('');
-        return `<tr>
-          <td>${_escHtml(nameMap[uid] || 'Desconhecido')}</td>
-          <td>${devs}</td>
-          <td style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</td>
-        </tr>`;
-      }).join('')}</tbody>
-    </table>`;
-
-  container.innerHTML = cardsHtml + barsHtml + tableHtml;
+  container.innerHTML = cardsHtml + barsHtml;
 }
 
 async function loadSyncStats() {

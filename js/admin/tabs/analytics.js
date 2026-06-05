@@ -1486,12 +1486,16 @@ async function loadRetentionRate(days, since) {
     </table>` : ''}`;
 }
 
-// Dropdown "Tabelas detalhadas": alterna a visibilidade entre Ensinamentos
-// Mais Lidos / Qualidade / Atividade Recente / Favoritos & Destaques (todos
-// já carregados por loadAnalytics — o select só troca qual aparece).
-const _ANALYTICS_TABLE_IDS = ['top-teachings', 'article-quality', 'recent-activity', 'popular-favorites', 'top-users-ranking', 'top-users-time'];
-function selectAnalyticsTable(id) {
-  _ANALYTICS_TABLE_IDS.forEach(x => {
+// Dois dropdowns independentes — "Conteúdo" e "Usuários" — alternam qual
+// tabela do grupo aparece (todas já carregadas por loadAnalytics; o select só
+// troca a vista). Cada grupo é toggleado isoladamente p/ não esconder a tabela
+// do outro dropdown.
+const _ANALYTICS_TABLE_GROUPS = {
+  content: ['top-teachings', 'article-quality', 'popular-favorites'],
+  users: ['recent-activity', 'top-users-ranking', 'top-users-time']
+};
+function selectAnalyticsTable(group, id) {
+  (_ANALYTICS_TABLE_GROUPS[group] || []).forEach(x => {
     const el = document.getElementById(x);
     if (el) el.style.display = (x === id) ? '' : 'none';
   });

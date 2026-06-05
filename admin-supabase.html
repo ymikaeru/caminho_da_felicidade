@@ -359,18 +359,15 @@
                 </div>
               </div>
 
-              <!-- Tabelas detalhadas (unificadas num dropdown) -->
+              <!-- Tabelas de Conteúdo (dropdown) -->
               <div class="admin-section">
                 <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
-                  <h2 style="margin:0;">Tabelas detalhadas</h2>
-                  <select class="period-select" id="analytics-table-selector"
-                    onchange="selectAnalyticsTable(this.value)">
+                  <h2 style="margin:0;">Conteúdo</h2>
+                  <select class="period-select" id="content-table-selector"
+                    onchange="selectAnalyticsTable('content', this.value)">
                     <option value="top-teachings" selected>Ensinamentos Mais Lidos</option>
                     <option value="article-quality">💎 Qualidade por Ensinamento</option>
-                    <option value="recent-activity">Atividade Recente</option>
                     <option value="popular-favorites">⭐ Favoritos &amp; Destaques Populares</option>
-                    <option value="top-users-ranking">👥 Ranking de Usuários Mais Ativos</option>
-                    <option value="top-users-time">⏳ Tempo Total no Site por Usuário</option>
                   </select>
                 </div>
                 <div id="top-teachings">
@@ -379,10 +376,23 @@
                 <div id="article-quality" style="display:none;">
                   <div class="loading">Carregando...</div>
                 </div>
-                <div id="recent-activity" style="display:none;">
+                <div id="popular-favorites" style="display:none;">
                   <div class="loading">Carregando...</div>
                 </div>
-                <div id="popular-favorites" style="display:none;">
+              </div>
+
+              <!-- Tabelas de Usuários (dropdown) -->
+              <div class="admin-section">
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+                  <h2 style="margin:0;">Usuários</h2>
+                  <select class="period-select" id="users-table-selector"
+                    onchange="selectAnalyticsTable('users', this.value)">
+                    <option value="recent-activity" selected>Atividade Recente</option>
+                    <option value="top-users-ranking">👥 Ranking de Usuários Mais Ativos</option>
+                    <option value="top-users-time">⏳ Tempo Total no Site por Usuário</option>
+                  </select>
+                </div>
+                <div id="recent-activity">
                   <div class="loading">Carregando...</div>
                 </div>
                 <div id="top-users-ranking" style="display:none;">
@@ -2020,7 +2030,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=114"></script>
+  <script type="module" src="js/admin.js?v=115"></script>
 </body>
 
 </html>

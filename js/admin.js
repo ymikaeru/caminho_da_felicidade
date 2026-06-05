@@ -24,7 +24,7 @@
     import './admin/tabs/analytics-audio.js?v=8';
     import './admin/tabs/highlights-saved.js';
     import './admin/tabs/users-permissions.js?v=2';
-    import './admin/tabs/analytics.js?v=9';
+    import './admin/tabs/analytics.js?v=10';
     import './admin/tabs/translation-review.js?v=2';
     import './admin/tabs/translation-review-guia.js';
     import './admin/tabs/disciples-reports.js?v=2';

@@ -869,8 +869,8 @@ async function loadContentProtection(days, since) {
   if (copyRows.length > 0) {
     const recentCopies = copyRows.slice(0, 50);
     copiesListHtml = `
-      <div style="margin-top:24px;">
-        <h3 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted); margin:0 0 12px; font-weight:600;">📋 Trechos copiados (últimos ${recentCopies.length} de ${copyRows.length})</h3>
+      <details style="margin-top:24px;">
+        <summary style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted); margin:0 0 12px; font-weight:600; cursor:pointer; user-select:none;">📋 Trechos copiados (últimos ${recentCopies.length} de ${copyRows.length})</summary>
         <div style="display:flex; flex-direction:column; gap:10px; max-height:520px; overflow-y:auto; padding-right:6px;">
           ${recentCopies.map(r => {
             const date = new Date(r.created_at);
@@ -894,7 +894,7 @@ async function loadContentProtection(days, since) {
             `;
           }).join('')}
         </div>
-      </div>`;
+      </details>`;
   } else if (copies.length > 0) {
     copiesListHtml = `
       <div style="margin-top:24px; padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:10px; font-size:0.82rem; color:var(--text-muted);">

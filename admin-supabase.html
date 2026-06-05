@@ -369,6 +369,8 @@
                     <option value="article-quality">💎 Qualidade por Ensinamento</option>
                     <option value="recent-activity">Atividade Recente</option>
                     <option value="popular-favorites">⭐ Favoritos &amp; Destaques Populares</option>
+                    <option value="top-users-ranking">👥 Ranking de Usuários Mais Ativos</option>
+                    <option value="top-users-time">⏳ Tempo Total no Site por Usuário</option>
                   </select>
                 </div>
                 <div id="top-teachings">
@@ -381,6 +383,12 @@
                   <div class="loading">Carregando...</div>
                 </div>
                 <div id="popular-favorites" style="display:none;">
+                  <div class="loading">Carregando...</div>
+                </div>
+                <div id="top-users-ranking" style="display:none;">
+                  <div class="loading">Carregando...</div>
+                </div>
+                <div id="top-users-time" style="display:none;">
                   <div class="loading">Carregando...</div>
                 </div>
               </div>
@@ -441,24 +449,6 @@
               <div class="admin-section">
                 <h2>⏱️ Sessions de Leitura</h2>
                 <div id="session-stats">
-                  <div class="loading">Carregando...</div>
-                </div>
-              </div>
-
-              <!-- Top Users Ranking -->
-              <div class="admin-section">
-                <h2>👥 Ranking de Usuários Mais Ativos</h2>
-                <div id="top-users-ranking">
-                  <div class="loading">Carregando...</div>
-                </div>
-              </div>
-
-              <!-- Top Users by Total Time -->
-              <div class="admin-section">
-                <h2>⏳ Tempo Total no Site por Usuário <span
-                    style="font-size:0.7rem; color:var(--text-muted); font-weight:400; text-transform:none; letter-spacing:0;">(acumulado
-                    all-time)</span></h2>
-                <div id="top-users-time">
                   <div class="loading">Carregando...</div>
                 </div>
               </div>
@@ -2030,7 +2020,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=112"></script>
+  <script type="module" src="js/admin.js?v=113"></script>
 </body>
 
 </html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preview — RETRADUÇÃO alinhada ao &lt;br&gt; (kuni3)</title>
+<!-- mesmas libs do leitor, p/ render fiel (_normalizeContent + marked) -->
+<script src="/js/marked.min.js"></script>
+<script src="/js/reader-content.js?v=4"></script>
+<style>
+  body { font-family: Georgia, 'Times New Roman', serif; max-width: 1280px; margin: 0 auto; padding: 24px; color: #222; line-height: 1.55; background:#faf8f4; }
+  h1 { font-size: 1.25rem; color:#8a6d3b; }
+  h2 { font-size: 1rem; margin-top: 26px; border-bottom: 2px solid #e0d8c8; padding-bottom: 6px; color:#6b5836; }
+  .muted { color:#999; font-size:.85rem; }
+  .box { background:#fff; border:1px solid #e0d8c8; border-radius:10px; padding:14px 18px; margin:10px 0; }
+  .box p { margin: 0 0 0.9em; }
+  .box b, .box strong { color:#7a1f1f; }
+  .pill { display:inline-block; background:#e8f5e9; color:#1f8a3f; border-radius:6px; padding:2px 8px; font-size:.78rem; }
+  .pill.bad { background:#fdecea; color:#b3261e; }
+  /* alinhamento 1:1 JA x PT (novo) */
+  .align { display:grid; grid-template-columns: 1fr 1fr; gap:0; border:1px solid #e0d8c8; border-radius:10px; overflow:hidden; margin-top:8px; }
+  .align .hd { background:#f0ebe0; font-weight:bold; padding:8px 12px; font-size:.85rem; color:#6b5836; position:sticky; top:0; }
+  .align .cell { padding:9px 12px; border-bottom:1px solid #eee; font-size:.9rem; vertical-align:top; }
+  .align .ja { border-right:2px solid #d8cdb4; color:#555; background:#fcfaf5; }
+  .align .num { color:#b08d57; font-weight:bold; font-size:.8rem; }
+</style>
+</head>
+<body>
+<h1>Retradução alinhada ao &lt;br&gt; — kuni3, "O Risshun de 1954 é o Primeiro Dia do Juízo Final"</h1>
+<p class="muted" id="meta">carregando…</p>
+
+<h2>① ANTES — PT atual (como o leitor mostra hoje)</h2>
+<p class="muted">175 parágrafos <code>\n\n</code> que o leitor achata → vira <b>1 bloco</b> (monólogo sem rótulo de fala = paredão).</p>
+<div class="box" id="antes">…</div>
+
+<h2>② DEPOIS — PT retraduzido bloco-a-bloco, &lt;br/&gt; nas MESMAS posições do japonês</h2>
+<p class="muted">Mesmos N parágrafos do japonês. Alinhamento garantido por construção (1 bloco JA → 1 bloco PT).</p>
+<div class="box" id="depois">…</div>
+
+<h2>③ Alinhamento 1:1 (a régua: cada bloco do japonês = um parágrafo do português)</h2>
+<div class="align" id="align"><div class="hd">日本語 (fonte — intocada)</div><div class="hd">Português (retraduzido)</div></div>
+
+<script>
+(async function () {
+  const meta = document.getElementById('meta');
+  try {
+    const data = await (await fetch('./kuni3_t1_retrad.json?' + Date.now())).json();
+    let ptAtual = '';
+    try { ptAtual = await (await fetch('./_kuni3_t1_ptAtual.txt?' + Date.now())).text(); } catch (e) {}
+
+    const norm = (s) => (typeof _normalizeContent === 'function') ? _normalizeContent(s) : (s || '').replace(/<br\s*\/?>/gi, '</p><p>');
+    const countP = (h) => (h.match(/<p[ >]/gi) || []).length;
+    const onlyWords = (s) => (s || '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    const strip = (s) => (s || '').replace(/<[^>]+>/g, '').trim();
+
+    const beforeHtml = norm(ptAtual);
+    const afterHtml  = norm(data.ptApplied);
+    document.getElementById('antes').innerHTML = beforeHtml || '<i>(PT atual não carregado)</i>';
+    document.getElementById('depois').innerHTML = afterHtml;
+
+    // tabela de alinhamento bloco-a-bloco
+    const ja = data.jaBlocks || [], pt = data.blocks || [];
+    const n = Math.max(ja.length, pt.length);
+    const al = document.getElementById('align');
+    for (let i = 0; i < n; i++) {
+      const c1 = document.createElement('div'); c1.className = 'cell ja';
+      c1.innerHTML = '<span class="num">JA[' + i + ']</span><br>' + strip(ja[i] || '');
+      const c2 = document.createElement('div'); c2.className = 'cell';
+      c2.innerHTML = '<span class="num">PT[' + i + ']</span><br>' + strip(pt[i] || '');
+      al.appendChild(c1); al.appendChild(c2);
+    }
+
+    const jaBreaks = ja.length, ptBreaks = (data.ptApplied.match(/<br\s*\/?>/gi) || []).length + 1;
+    const aligned = jaBreaks === ptBreaks;
+    meta.innerHTML =
+      'ANTES: <b>' + countP(beforeHtml) + '</b> parágrafo(s) renderizado(s) · '
+      + 'DEPOIS: <b>' + countP(afterHtml) + '</b> · '
+      + 'blocos JA: <b>' + jaBreaks + '</b> = blocos PT: <b>' + ptBreaks + '</b> '
+      + '<span class="pill' + (aligned ? '' : ' bad') + '">' + (aligned ? '✓ &lt;br&gt; alinhado por construção' : '✗ desalinhado') + '</span>';
+  } catch (e) {
+    meta.textContent = 'Erro ao carregar amostra: ' + e.message;
+  }
+})();
+</script>
+</body>
+</html>

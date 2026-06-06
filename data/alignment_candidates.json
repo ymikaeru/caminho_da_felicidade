@@ -1,0 +1,6182 @@
+{
+  "generated_for": "mioshiec (College)",
+  "count": 617,
+  "stats": {
+    "total": 17222,
+    "walls": 617,
+    "untranslated": 5707,
+    "files": 1506
+  },
+  "candidates": [
+    {
+      "vol": "mioshiec1",
+      "file": "kuni3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Palestra de Meishu-Sama no Culto de Risshun: \"O Risshun de 1954 é o Primeiro Dia do Juízo Final\"",
+      "intended": 175,
+      "rendered": 11,
+      "gain": 164
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "yudaya3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Palestra de Meishu-Sama - \"Todas as religiões que deixam as pessoas pobres ao crerem são do judaísmo\"",
+      "intended": 159,
+      "rendered": 1,
+      "gain": 158
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "nihon4YUUSHUU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Palestra de Meishu-Sama: \"O Motivo de os Japoneses Serem os Mais Excelentes do Mundo é Porque Pertencem ao Sistema Solar",
+      "intended": 130,
+      "rendered": 1,
+      "gain": 129
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "yudaya4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Palestra de Meishu-Sama - \"O Plano dos Jashin é o Enfraquecimento das Nações Culturais Através dos Remédios\"",
+      "intended": 130,
+      "rendered": 5,
+      "gain": 125
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tengoku1ZIGOKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Palestra de Meishu-Sama - \"A Verdadeira Essência do Bem e do Mal e a Construção do Mundo da Luz\"",
+      "intended": 111,
+      "rendered": 2,
+      "gain": 109
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SsiMAE.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Relato de Experiência: Salva no Paraíso",
+      "intended": 102,
+      "rendered": 1,
+      "gain": 101
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"O espírito de Hirokichi\"",
+      "intended": 99,
+      "rendered": 2,
+      "gain": 97
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zyasin1KEIKAKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Palestra de Meishu-Sama: \"O Plano dos Jashin é o Enfraquecimento Humano Através dos Remédios\"",
+      "intended": 91,
+      "rendered": 1,
+      "gain": 90
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tengoku2ZIGOKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"Paraíso e Inferno\"",
+      "intended": 84,
+      "rendered": 2,
+      "gain": 82
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zyasin2BOUGAI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Voz dos Leitores - Fenômenos Anormais no Mundo Espiritual",
+      "intended": 82,
+      "rendered": 2,
+      "gain": 80
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "touhou1HIKARI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Palestra de Meishu-Sama: \"Quando o Paraíso Terrestre for estabelecido em Jerusalém, o mundo será unificado\"",
+      "intended": 88,
+      "rendered": 9,
+      "gain": 79
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "eiyuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Palestra de Meishu-Sama: \"Os Heróis do Passado Cometeram Pecados Consideráveis\"",
+      "intended": 78,
+      "rendered": 1,
+      "gain": 77
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kasozouka1HUNOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Transição da Noite para o Dia e o Juízo Final",
+      "intended": 77,
+      "rendered": 1,
+      "gain": 76
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuni4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Palestra de Meishu-Sama: \"Kunitokotachi no Mikoto se Manifesta como o Enma Deste Mundo\"",
+      "intended": 70,
+      "rendered": 1,
+      "gain": 69
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tengoku1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Relato de Experiência - \"Muito Obrigado\"",
+      "intended": 70,
+      "rendered": 1,
+      "gain": 69
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "eiyuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Palestra de Meishu-Sama: \"O Herói do Bem\"",
+      "intended": 69,
+      "rendered": 1,
+      "gain": 68
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuni3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Palestra de Meishu-Sama: \"Kunitokotachi no Mikoto se Manifesta na Superfície\"",
+      "intended": 73,
+      "rendered": 5,
+      "gain": 68
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "aku2BU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Palestra de Meishu-Sama: \"O enfraquecimento do ser humano pelos remédios foi um mal necessário\"",
+      "intended": 67,
+      "rendered": 1,
+      "gain": 66
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuni4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Palestra de Meishu-Sama: \"A Pintura do Grande Rei Enma Chegou no Dia do Risshun\"",
+      "intended": 67,
+      "rendered": 1,
+      "gain": 66
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "nihon1REI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Considerações Espirituais sobre a Raça Japonesa (Parte III)\"",
+      "intended": 68,
+      "rendered": 2,
+      "gain": 66
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "yudaya4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Palestra de Meishu-Sama - \"A Estratégia da Maçonaria\"",
+      "intended": 69,
+      "rendered": 3,
+      "gain": 66
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRgosingyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Relato de Experiência - O Mundo Espiritual é o Mundo Miroku",
+      "intended": 65,
+      "rendered": 1,
+      "gain": 64
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tizyou1TENGOKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"A Luz Ansiosamente Aguardada por Toda a Humanidade - A Manifestação da Força do Grande e Sa",
+      "intended": 65,
+      "rendered": 2,
+      "gain": 63
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Prostituta",
+      "intended": 63,
+      "rendered": 1,
+      "gain": 62
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kamiHYOUI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Palestra de Meishu-Sama: \"Deuses elevados não encostam em pessoas importantes no Mundo Material\"",
+      "intended": 61,
+      "rendered": 1,
+      "gain": 60
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "yudaya4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Palestra de Meishu-Sama - \"Os Jashin enganaram os seres humanos fazendo o veneno parecer remédio e os fizeram beber\"",
+      "intended": 65,
+      "rendered": 7,
+      "gain": 58
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "yudaya2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"A Força Invisível\"",
+      "intended": 58,
+      "rendered": 2,
+      "gain": 56
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "nihon2REI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"A Linhagem Espiritual dos Japoneses\"",
+      "intended": 70,
+      "rendered": 15,
+      "gain": 55
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Orientação de Meishu-Sama - \"Como Assentar o Deus Dragão Esculpido em Madeira\"",
+      "intended": 65,
+      "rendered": 11,
+      "gain": 54
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "korei6.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Não acredite nas ameaças dos espíritos de raposa\"",
+      "intended": 56,
+      "rendered": 4,
+      "gain": 52
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reii.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"Ondas Espirituais (Reiha) e Veste Espiritual (Reii)\"",
+      "intended": 54,
+      "rendered": 2,
+      "gain": 52
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Relato de Experiência: Mulher desenganada pelos médicos é salva após três dias de convulsões",
+      "intended": 53,
+      "rendered": 1,
+      "gain": 52
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama: \"Tuberculose Pulmonar\"",
+      "intended": 53,
+      "rendered": 1,
+      "gain": 52
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Orientação de Meishu-Sama - \"Como Construir o Santuário do Deus Dragão\"",
+      "intended": 56,
+      "rendered": 4,
+      "gain": 52
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBsahou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Relato de Experiência: Ouvindo os Espíritos",
+      "intended": 52,
+      "rendered": 1,
+      "gain": 51
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SbyoubuKYUUREI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Relato de Experiência: Ouvindo um Espírito",
+      "intended": 52,
+      "rendered": 1,
+      "gain": 51
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssison2SINKOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 20,
+      "title": "Relato de Experiência - Ouvindo um Espírito",
+      "intended": 52,
+      "rendered": 1,
+      "gain": 51
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "nihon1YUUSHUU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Palestra de Meishu-Sama: \"Os Japoneses Possuem a Posição Mais Elevada\"",
+      "intended": 49,
+      "rendered": 1,
+      "gain": 48
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "chou2SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Palestra de Meishu-Sama: \"Surgiram Centenas de Milhares de Pessoas que Realizam Milagres como Cristo\"",
+      "intended": 48,
+      "rendered": 1,
+      "gain": 47
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRnyuusin.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"O Presente do Mundo Espiritual\"",
+      "intended": 48,
+      "rendered": 2,
+      "gain": 46
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "yudaya4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Palestra de Meishu-Sama - \"A Estratégia da Maçonaria\"",
+      "intended": 48,
+      "rendered": 2,
+      "gain": 46
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"Os espíritos de raposa e a velha\"",
+      "intended": 47,
+      "rendered": 2,
+      "gain": 45
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SsiMAE.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Relato de Experiência - A Graça da Morte Serena (2)",
+      "intended": 46,
+      "rendered": 1,
+      "gain": 45
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reii.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Espírito e Corpo\"",
+      "intended": 46,
+      "rendered": 2,
+      "gain": 44
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"Medicina Materialista e Medicina Espiritual\"",
+      "intended": 45,
+      "rendered": 1,
+      "gain": 44
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "speed2SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Palestra de Meishu-Sama: \"Na aquisição de obras de arte, os habitantes do Mundo Espiritual estão trabalhando\"",
+      "intended": 44,
+      "rendered": 1,
+      "gain": 43
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamasiiKOKORO.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"A Essência da Doença é a Alma\"",
+      "intended": 50,
+      "rendered": 7,
+      "gain": 43
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "otohime.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Palestra de Meishu-Sama - De \"A Verdadeira Identidade de Kanzeon\"",
+      "intended": 55,
+      "rendered": 13,
+      "gain": 42
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuni3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Palestra de Meishu-Sama: \"Kunitokotachi no Mikoto Tem o Poder de Julgamento e Izunome no Ookami Tem o Poder de Salvação\"",
+      "intended": 46,
+      "rendered": 5,
+      "gain": 41
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Stien.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"Possessão pelo espírito de um idoso que morava anteriormente no mesmo terreno\"",
+      "intended": 44,
+      "rendered": 4,
+      "gain": 40
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que a tuberculose foi curada instantaneamente pelo culto à mãe\"",
+      "intended": 42,
+      "rendered": 3,
+      "gain": 39
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamasiiKOKORO.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Palestra de Meishu-Sama: \"Alma, Mente e Corpo Espiritual\"",
+      "intended": 45,
+      "rendered": 6,
+      "gain": 39
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tizyou1TENGOKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"O Mundo da Grande Luz, Objetivo do Movimento de Kannon, é o Mundo Onde o Bem Prospera\"",
+      "intended": 41,
+      "rendered": 2,
+      "gain": 39
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssison3SINKOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Ensinamento de Meishu-Sama: \"A medicina é realmente uma arte benevolente?\"",
+      "intended": 39,
+      "rendered": 1,
+      "gain": 38
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamasiiKOKORO.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"O Espírito Precede a Matéria (Reishu-Taiju)\"",
+      "intended": 41,
+      "rendered": 3,
+      "gain": 38
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "S1dai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Palestra de Meishu-Sama: \"A seita Nichiren é o Hokke de uma geração\"",
+      "intended": 37,
+      "rendered": 1,
+      "gain": 36
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssison3SINKOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que a categoria divina do Espírito Guardião Principal se elevou graças à fé do desc",
+      "intended": 40,
+      "rendered": 4,
+      "gain": 36
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"Transtorno de alteração mental\"",
+      "intended": 42,
+      "rendered": 7,
+      "gain": 35
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiSAHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que o uso de médium foi considerado bom\"",
+      "intended": 39,
+      "rendered": 4,
+      "gain": 35
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "chou2SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Palestra de Meishu-Sama: \"Surgiram Centenas de Milhares de Cristos\"",
+      "intended": 35,
+      "rendered": 1,
+      "gain": 34
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ikiryou3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Da Conversa Franca de Jikan",
+      "intended": 41,
+      "rendered": 7,
+      "gain": 34
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SZ.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"O grande poder do Kototama\"",
+      "intended": 36,
+      "rendered": 2,
+      "gain": 34
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "chou1SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"O que é a Igreja Messiânica\"",
+      "intended": 35,
+      "rendered": 2,
+      "gain": 33
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - \"As diversas facetas dos espíritos encostados\"",
+      "intended": 38,
+      "rendered": 5,
+      "gain": 33
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "yudaya2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"O Mundo dos Malfeitores\"",
+      "intended": 35,
+      "rendered": 2,
+      "gain": 33
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Orientação de Meishu-Sama - \"Doença Causada pelo Encosto de um Deus Dragão\"",
+      "intended": 36,
+      "rendered": 4,
+      "gain": 32
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Syukuehumei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"Johrei para purificar o espírito de uma pessoa desaparecida\"",
+      "intended": 35,
+      "rendered": 3,
+      "gain": 32
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN9kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 29,
+      "title": "Ensinamento de Meishu-Sama - \"Deficiência visual causada por espírito vingativo de cobra\"",
+      "intended": 36,
+      "rendered": 5,
+      "gain": 31
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SZmongon.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Palestra de Meishu-Sama: \"O Daisen Sanzen Sekai da oração Zenguen Sandji\"",
+      "intended": 32,
+      "rendered": 1,
+      "gain": 31
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "chou2SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Palestra de Meishu-Sama: \"A Revolução Médica é uma Revolução de Toda a Humanidade\"",
+      "intended": 31,
+      "rendered": 1,
+      "gain": 30
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kamiHYOUI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"A verdadeira possessão divina é muito simples\"",
+      "intended": 31,
+      "rendered": 1,
+      "gain": 30
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiSAHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama - \"Encostos longos e insistentes são espíritos de raposa\"",
+      "intended": 32,
+      "rendered": 2,
+      "gain": 30
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Stien.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que o espírito de um senhor de terras que se tornou um espírito de raposa pediu of",
+      "intended": 33,
+      "rendered": 3,
+      "gain": 30
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tengoku1ZIGOKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Palestra de Meishu-Sama - \"O Estado de Vida e Morte das Pessoas\"",
+      "intended": 31,
+      "rendered": 1,
+      "gain": 30
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "depart.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama \"A Causa Principal do Desenvolvimento de Nossa Religião\"",
+      "intended": 31,
+      "rendered": 2,
+      "gain": 29
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"Espíritos encostados de natureza grotesca\"",
+      "intended": 37,
+      "rendered": 8,
+      "gain": 29
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Diabetes insipidus causada pelo encosto do falecido pai que se tornou uma cobra\"",
+      "intended": 33,
+      "rendered": 4,
+      "gain": 29
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SsiMAE.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Relato de Experiência: O Poder da oração Zenguen Sandji",
+      "intended": 30,
+      "rendered": 1,
+      "gain": 29
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Syukuehumei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que se orientou investigar e cultuar pessoas que tiveram morte não natural ou desa",
+      "intended": 32,
+      "rendered": 3,
+      "gain": 29
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamasiiKOKORO.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"Pecados, Impurezas e Doenças\"",
+      "intended": 36,
+      "rendered": 7,
+      "gain": 29
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 20,
+      "title": "Ensinamento de Meishu-Sama: \"Quanto Mais Elevado o Espírito, Mais se Comunica pelos Olhos\"",
+      "intended": 31,
+      "rendered": 3,
+      "gain": 28
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbunke.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que se orientou a fazer a tabuleta memorial de uma família filial de três gerações ",
+      "intended": 31,
+      "rendered": 3,
+      "gain": 28
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Orientação de Meishu-Sama - \"Sensação de Fadiga Causada pelo Ressentimento de um Deus Dragão\"",
+      "intended": 32,
+      "rendered": 4,
+      "gain": 28
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbyoubu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Relato de Experiência: O Caminho para a Fé (Despertar Através da Morte da Filha)",
+      "intended": 28,
+      "rendered": 1,
+      "gain": 27
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Orientação de Meishu-Sama - \"Transferência do Deus Dragão para um Santuário\"",
+      "intended": 31,
+      "rendered": 4,
+      "gain": 27
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamanuki.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama - \"Transferência de espírito de cobra\"",
+      "intended": 31,
+      "rendered": 4,
+      "gain": 27
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 27,
+      "title": "Ensinamento de Meishu-Sama: Extraído de \"A Luz Divina\" (*Goreikou*)",
+      "intended": 27,
+      "rendered": 1,
+      "gain": 26
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamanuki.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"Transferência de Deus Dragão para um santuário\"",
+      "intended": 30,
+      "rendered": 4,
+      "gain": 26
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "yudaya2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama - \"A Maçonaria e o Comunismo\"",
+      "intended": 30,
+      "rendered": 4,
+      "gain": 26
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "chou1SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Nossa Igreja e Eu\"",
+      "intended": 27,
+      "rendered": 2,
+      "gain": 25
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "nihon1YUUSHUU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Palestra de Meishu-Sama: \"Os Japoneses São Espiritualmente os Mais Superiores\"",
+      "intended": 26,
+      "rendered": 1,
+      "gain": 25
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiSAHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama - \"Medidas a tomar quando o espírito se manifesta\"",
+      "intended": 29,
+      "rendered": 4,
+      "gain": 25
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN9kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 28,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que a cobra mãe pediu a salvação da cobra filha\"",
+      "intended": 35,
+      "rendered": 10,
+      "gain": 25
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "depart.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama \"Eu Desejo Ardentemente\"",
+      "intended": 26,
+      "rendered": 2,
+      "gain": 24
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "eiyuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Palestra de Meishu-Sama: \"A Diferença entre Meishu-Sama e os Heróis do Passado\"",
+      "intended": 25,
+      "rendered": 1,
+      "gain": 24
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaimyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 28,
+      "title": "Ensinamento de Meishu-Sama - \"O Mundo Búdico já não existe\"",
+      "intended": 32,
+      "rendered": 8,
+      "gain": 24
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaishuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Palestra de Meishu-Sama: \"Sobre a Conversão Religiosa\"",
+      "intended": 25,
+      "rendered": 1,
+      "gain": 24
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tengoku1ZIGOKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Palestra de Meishu-Sama - \"A Verdadeira Imagem dos Três Mundos: Divino, Sombrio e Material\"",
+      "intended": 25,
+      "rendered": 1,
+      "gain": 24
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "yoruhiruSOKUZIKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Palavras de Meishu-Sama: \"No Mundo do Dia, as leis diminuirão\"",
+      "intended": 26,
+      "rendered": 2,
+      "gain": 24
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 23,
+      "title": "Ensinamento de Meishu-Sama: 'Encosto de um missionário alemão'",
+      "intended": 27,
+      "rendered": 4,
+      "gain": 23
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuni2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 17,
+      "title": "Palestra de Meishu-Sama: \"De Leste para Oeste é o Correto\"",
+      "intended": 24,
+      "rendered": 1,
+      "gain": 23
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuni2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 18,
+      "title": "Palestra de Meishu-Sama: \"A Divindade Chamada Kunitokotachi no Mikoto é Realmente Rigorosa\"",
+      "intended": 27,
+      "rendered": 4,
+      "gain": 23
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiKOUHEI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - Extraído de \"A Estrutura do Mundo Espiritual\"",
+      "intended": 25,
+      "rendered": 2,
+      "gain": 23
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Relato de Experiência: O Grandioso Poder (2)",
+      "intended": 24,
+      "rendered": 1,
+      "gain": 23
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Relato de Experiência: O Mundo Espiritual Certamente Existe",
+      "intended": 24,
+      "rendered": 1,
+      "gain": 23
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN9kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 27,
+      "title": "Ensinamento de Meishu-Sama - \"Paralisia infantil e ofício memorial para cobra\"",
+      "intended": 26,
+      "rendered": 3,
+      "gain": 23
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRgosingyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"A Atuação dos Habitantes do Mundo Espiritual é a que Tem Mais Força\"",
+      "intended": 27,
+      "rendered": 4,
+      "gain": 23
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tengoku1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"Espíritos Divinos, Espíritos Budistas e Espíritos Humanos\"",
+      "intended": 25,
+      "rendered": 2,
+      "gain": 23
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiKOUHEI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Palestra de Meishu-Sama - \"O Inferno é Justo\"",
+      "intended": 23,
+      "rendered": 1,
+      "gain": 22
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Stien.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que o espírito de um samurai enterrado sob a propriedade pediu ofícios religiosos\"",
+      "intended": 25,
+      "rendered": 3,
+      "gain": 22
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SenkoNASI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"Ofícios religiosos para os espíritos de túmulos antigos\"",
+      "intended": 24,
+      "rendered": 3,
+      "gain": 21
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Relato de Experiência - Espírito de afogado é salvo pela Luz Divina",
+      "intended": 22,
+      "rendered": 1,
+      "gain": 21
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ikiryou3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que se manifestou o espírito vivo de um amor não correspondido desejando suicídio ",
+      "intended": 26,
+      "rendered": 6,
+      "gain": 20
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ikiryou3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Relato de Experiência - Um Sonho Misterioso",
+      "intended": 21,
+      "rendered": 1,
+      "gain": 20
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SbyoubuKYUUREI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Relato de Experiência: A Ineficácia da Medicina e Meu Marido Salvo no Mundo Espiritual",
+      "intended": 21,
+      "rendered": 1,
+      "gain": 20
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssenpu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"O marido falecido deve ser cultuado mesmo após a remoção do registro familiar\"",
+      "intended": 23,
+      "rendered": 3,
+      "gain": 20
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reii.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Explicação sobre a Luz Espiritual (Reiko)\"",
+      "intended": 21,
+      "rendered": 2,
+      "gain": 19
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "S1dai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama: \"Todos os objetos relacionados à seita Nichiren devem ser descartados\"",
+      "intended": 23,
+      "rendered": 4,
+      "gain": 19
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"Epilepsia causada por encosto de espírito de parente próximo que faleceu de derrame\"",
+      "intended": 22,
+      "rendered": 3,
+      "gain": 19
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama: \"Doença pulmonar e encosto espiritual\"",
+      "intended": 22,
+      "rendered": 3,
+      "gain": 19
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SbyoubuSAHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama: \"Manuseio da Imagem de Kannon em Biombo e outros itens devolvidos\"",
+      "intended": 36,
+      "rendered": 17,
+      "gain": 19
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaishuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Doença Mental\"",
+      "intended": 21,
+      "rendered": 2,
+      "gain": 19
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Orientação de Meishu-Sama - \"Como Construir o Santuário do Deus Dragão\"",
+      "intended": 25,
+      "rendered": 6,
+      "gain": 19
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Causa das Pessoas com Deficiências Congênitas\"",
+      "intended": 23,
+      "rendered": 4,
+      "gain": 19
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sboti.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama - \"Meningite causada por espírito rancoroso de cemitério e ressentimento de cobra\"",
+      "intended": 21,
+      "rendered": 3,
+      "gain": 18
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SbyoubuKYUUREI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Voz dos Leitores: Conhecendo o Mundo Após a Morte",
+      "intended": 19,
+      "rendered": 1,
+      "gain": 18
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tanuki.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Orientação de Meishu-Sama - \"A vontade de rir é encosto de espírito de texugo (tanuki)\"",
+      "intended": 22,
+      "rendered": 4,
+      "gain": 18
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "banko.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Palestra de Meishu-Sama - \"A China era governada pela linhagem do Imperador Divino Pangu\"",
+      "intended": 18,
+      "rendered": 1,
+      "gain": 17
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - \"A boneca assombrada\"",
+      "intended": 19,
+      "rendered": 2,
+      "gain": 17
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "korei5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 18,
+      "title": "Ensinamento de Meishu-Sama: \"O espírito que diz ver Meishu-Sama, loucura divina\"",
+      "intended": 24,
+      "rendered": 7,
+      "gain": 17
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "nihon2REI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - \"O Fogo é a Raça Yamato, a Água é a Raça Coreana, a Terra é a Raça Chinesa\"",
+      "intended": 20,
+      "rendered": 3,
+      "gain": 17
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "nihon3REI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"Os Japoneses Têm Natureza Yang, Por Isso Apreciam a Quietude\"",
+      "intended": 21,
+      "rendered": 4,
+      "gain": 17
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "nitirenKOREI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Palestra de Meishu-Sama - \"Enganar as Pessoas Faz com que se Torne uma Raposa no Mundo Espiritual\"",
+      "intended": 18,
+      "rendered": 1,
+      "gain": 17
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reisi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"A Partícula Mais Fina Entre os Reishi é o Shinreishi\"",
+      "intended": 21,
+      "rendered": 4,
+      "gain": 17
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SsiMAE.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Referência: Ensinamento de Meishu-Sama - \"Entronização da Imagem da Luz Divina para ser salvo no Mundo Espiritual\"",
+      "intended": 27,
+      "rendered": 10,
+      "gain": 17
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamasiiKOKORO.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Registro de Palestras de Meishu-Sama: Extraído de \"Arte Médica Estilo Japonês\"",
+      "intended": 19,
+      "rendered": 2,
+      "gain": 17
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamasiiKOKORO.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: Extraído de \"O Princípio do Johrei - A Medicina Revelada por Deus\"",
+      "intended": 20,
+      "rendered": 3,
+      "gain": 17
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 24,
+      "title": "Ensinamento de Meishu-Sama: 'Encosto de um americano morto por um antepassado nos Mares do Sul'",
+      "intended": 20,
+      "rendered": 4,
+      "gain": 16
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "otohime.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"Otohime apegou-se à matéria e tornou-se um dragão\"",
+      "intended": 20,
+      "rendered": 4,
+      "gain": 16
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiSHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Orientação de Meishu-Sama - \"O Paradeiro dos Fundadores do Budismo\"",
+      "intended": 20,
+      "rendered": 4,
+      "gain": 16
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "S1dai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"A seita Nichiren é o Hokke de uma geração\"",
+      "intended": 20,
+      "rendered": 4,
+      "gain": 16
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 16,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que o Filho Rasgou a Imagem da Luz Divina em um Ataque Súbito\"",
+      "intended": 20,
+      "rendered": 4,
+      "gain": 16
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SZ.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"oração Amatsu Norito e oração Zenguen Sandji durante a ministração de Johrei\"",
+      "intended": 26,
+      "rendered": 10,
+      "gain": 16
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tengoku1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - \"A História de Ter Cruzado a Linha da Morte\"",
+      "intended": 18,
+      "rendered": 2,
+      "gain": 16
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 19,
+      "title": "Ensinamento de Meishu-Sama: \"Fobia de raios\"",
+      "intended": 17,
+      "rendered": 1,
+      "gain": 16
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "chou1SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Suprarrelogião\"",
+      "intended": 17,
+      "rendered": 2,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 16,
+      "title": "Ensinamento de Meishu-Sama: \"Caso de tirar o Ohikari do invólucro durante o sono\"",
+      "intended": 18,
+      "rendered": 3,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuda.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Orientação de Meishu-Sama - \"A Esfera Preciosa Onde a Raposa de Tubo Encosta\"",
+      "intended": 22,
+      "rendered": 7,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiKOUHEI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Palestra de Meishu-Sama - \"O Mais Doloroso é a Injustiça\"",
+      "intended": 16,
+      "rendered": 1,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiSHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Palestra de Meishu-Sama - \"A Seita Nichiren é um plano do Dragão Maligno\"",
+      "intended": 16,
+      "rendered": 1,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Palestra de Meishu-Sama: Extraído de \"Inferno\"",
+      "intended": 16,
+      "rendered": 1,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaishuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Palestra de Meishu-Sama: \"Antepassados que se irritam com a conversão religiosa podem até causar doenças nos descendente",
+      "intended": 16,
+      "rendered": 1,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Ensinamento de Meishu-Sama: \"Trabalhar muito tempo como gueixa faz a pessoa se tornar um gato\"",
+      "intended": 19,
+      "rendered": 4,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "speed2SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Palestra de Meishu-Sama: \"Realizar de uma só vez o que Buda e Cristo levaram dois mil anos para fazer\"",
+      "intended": 16,
+      "rendered": 1,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssison3SINKOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que o espírito antepassado pôde beber chá graças à fé do descendente em Meishu-Sama",
+      "intended": 17,
+      "rendered": 2,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssison3SINKOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Palestra de Meishu-Sama: \"O Espírito Guardião Principal recebe graças divinas através do acúmulo de virtudes das pessoas",
+      "intended": 16,
+      "rendered": 1,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "yudaya2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"A Conspiração da Maçonaria\"",
+      "intended": 19,
+      "rendered": 4,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 24,
+      "title": "Ensinamento de Meishu-Sama: \"Fobia de sons\"",
+      "intended": 18,
+      "rendered": 3,
+      "gain": 15
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "3gai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Ensinamento de Meishu-Sama - \"Kannon-Sama Também Realiza o Trabalho de Kakuriyo no Ookami\"",
+      "intended": 18,
+      "rendered": 4,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ikiryou3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"Encosto de um espírito vivo que planeja assassinato por meio de maldição\"",
+      "intended": 18,
+      "rendered": 4,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ikiryou3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama - \"A Irradiação do Espírito\"",
+      "intended": 17,
+      "rendered": 3,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuniIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Sobre o Ano Novo\"",
+      "intended": 17,
+      "rendered": 3,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama: \"A Idade no Mundo Espiritual\"",
+      "intended": 17,
+      "rendered": 3,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 19,
+      "title": "Ensinamento de Meishu-Sama: \"Quanto Mais Elevado o Espírito, Mais se Comunica pelos Olhos\"",
+      "intended": 17,
+      "rendered": 3,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai2SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"A Posição Espiritual do Casal\"",
+      "intended": 18,
+      "rendered": 4,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: Extraído de \"A Estrutura do Mundo Espiritual\"",
+      "intended": 15,
+      "rendered": 1,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SbyoubuSAHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Quando há múltiplas seitas em uma família, deve-se assentar múltiplas Imagens de Kannon em ",
+      "intended": 17,
+      "rendered": 3,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SenkoNASI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"Ofícios religiosos para o senhor feudal que era superior do antepassado\"",
+      "intended": 19,
+      "rendered": 5,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaishuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Os antepassados se irritam com a conversão religiosa\"",
+      "intended": 17,
+      "rendered": 3,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Palestra de Meishu-Sama - \"Deve-se pedir perdão a Deus pelo pecado do aborto provocado\"",
+      "intended": 15,
+      "rendered": 1,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "StamasiiEIEN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Quando o antepassado que está sendo cultuado já reencarnou no Mundo Material\"",
+      "intended": 17,
+      "rendered": 3,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 17,
+      "title": "Ensinamento de Meishu-Sama: \"Surdez, Prisão de Ventre e Difteria - A Doença e o Espírito VIII\"",
+      "intended": 16,
+      "rendered": 2,
+      "gain": 14
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "3gai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama - \"O Deus Kakuriyo no Ookami Domina Diretamente o Mundo Sombrio\"",
+      "intended": 17,
+      "rendered": 4,
+      "gain": 13
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "3sekai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama - \"Mudança na Obra Divina: Não Haverá Mais Guerra Nuclear\"",
+      "intended": 17,
+      "rendered": 4,
+      "gain": 13
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 19,
+      "title": "Ensinamento de Meishu-Sama: 'Caqui oferecido cai e coelhos morrem, dor de barriga na família (Morte misteriosa de coelho",
+      "intended": 17,
+      "rendered": 4,
+      "gain": 13
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 21,
+      "title": "Ensinamento de Meishu-Sama: 'Encosto de espírito ancestral que se autodenomina Deus'",
+      "intended": 17,
+      "rendered": 4,
+      "gain": 13
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kamiSUKUU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"A Igreja Messiânica Salva as Divindades de Nível Inferior\"",
+      "intended": 21,
+      "rendered": 8,
+      "gain": 13
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuda.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Orientação de Meishu-Sama - \"Sobre a Raposa de Tubo\"",
+      "intended": 17,
+      "rendered": 4,
+      "gain": 13
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai2SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"O Encontro do Casal no Mundo Espiritual\"",
+      "intended": 15,
+      "rendered": 2,
+      "gain": 13
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 19,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que os Espíritos Antepassados Usaram um Gato para Quebrar o Kojin-Sama\"",
+      "intended": 17,
+      "rendered": 4,
+      "gain": 13
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "speed2SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Realizar em cerca de dez anos o que levaria mil anos\"",
+      "intended": 25,
+      "rendered": 12,
+      "gain": 13
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssison2SINKOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 19,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que a pessoa se tornou propensa a chorar após a entronização da Imagem da Luz Divi",
+      "intended": 17,
+      "rendered": 4,
+      "gain": 13
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que a Causa Espiritual da Ambliopia Vem da Vida Anterior\"",
+      "intended": 21,
+      "rendered": 8,
+      "gain": 13
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama: \"A Osteomalácia Infantil é a Reencarnação de uma Cobra\"",
+      "intended": 16,
+      "rendered": 3,
+      "gain": 13
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "3gai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama - \"O Mundo Espiritual, o Mundo Obscuro e os Sonhos\"",
+      "intended": 16,
+      "rendered": 4,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama: \"Após o ingresso na fé, falecimento da mãe, oposição do irmão e declínio dos negócios da fam",
+      "intended": 15,
+      "rendered": 3,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 22,
+      "title": "Ensinamento de Meishu-Sama: 'Encosto de espírito guardião que se autodenomina Kobo Daishi'",
+      "intended": 16,
+      "rendered": 4,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ido.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Ensinamento de Meishu-Sama - \"Mudança no volume de água do poço devido ao pensamento\"",
+      "intended": 15,
+      "rendered": 3,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuni2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 16,
+      "title": "Ensinamento de Meishu-Sama: \"Sobre o Daishogun\"",
+      "intended": 15,
+      "rendered": 3,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - Extraído de \"O Espírito de Hirokichi\"",
+      "intended": 14,
+      "rendered": 2,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai2SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: Extraído de \"Ego e Apego\"",
+      "intended": 13,
+      "rendered": 1,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ryuuzinKATUDOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 20,
+      "title": "Ensinamento de Meishu-Sama: O Deus Dragão que avisa que Kannon deve ser assentada e a cidade de Iwayado",
+      "intended": 16,
+      "rendered": 4,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama: \"Deve-se cultuar rapidamente o suicida por enforcamento que está encostado\"",
+      "intended": 15,
+      "rendered": 3,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBreihai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"Método de culto no oratório budista\"",
+      "intended": 16,
+      "rendered": 4,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBsahou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Ensinamento de Meishu-Sama: \"Sobre o sino do oratório budista\"",
+      "intended": 16,
+      "rendered": 4,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 22,
+      "title": "Ensinamento de Meishu-Sama: \"Método de ofício religioso para bois\"",
+      "intended": 15,
+      "rendered": 3,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 28,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que um antepassado de quatro gerações atrás assassinou brutalmente um cachorro\"",
+      "intended": 15,
+      "rendered": 3,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Shukushuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama - \"Casos em que se deve retornar à seita Jodo Shinshu original - Exemplo de ingresso na Butsu",
+      "intended": 15,
+      "rendered": 3,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Ensinamento de Meishu-Sama: \"Túmulo Antigo em Ruínas de Antigo Campo de Batalha\"",
+      "intended": 16,
+      "rendered": 4,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que o antepassado de quatro gerações atrás assassinou brutalmente um cão\"",
+      "intended": 16,
+      "rendered": 4,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Orientação de Meishu-Sama - \"Na Mudança, o Santuário do Deus Dragão Também Deve Ser Levado\"",
+      "intended": 16,
+      "rendered": 4,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Orientação de Meishu-Sama - \"Como Assentar a Pedra Imóvel Onde um Deus Dragão Está Encostado\"",
+      "intended": 16,
+      "rendered": 4,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Szibaku1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama - \"Mesmo para vítimas de atropelamento, se os familiares realizarem cultos póstumos reverente",
+      "intended": 17,
+      "rendered": 5,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamasii.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Sobre as Quatro Almas\"",
+      "intended": 16,
+      "rendered": 4,
+      "gain": 12
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "3sekai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Palestra de Meishu-Sama - \"A Lógica da Guerra e da Doença é a Mesma\"",
+      "intended": 12,
+      "rendered": 1,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "buxtusituREIKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que uma cobra se espiritualizou através do Johrei e da oração Zenguen Sandji\"",
+      "intended": 14,
+      "rendered": 3,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "rinneKIOKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Nem mesmo a própria alma sabe sobre a vida passada\"",
+      "intended": 15,
+      "rendered": 4,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Sensação anormal de insetos rastejando causada por encosto de espírito do Inferno do Lago d",
+      "intended": 14,
+      "rendered": 3,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama - \"Deve-se Colocar Hashi nas Oferendas do Altar Familiar\"",
+      "intended": 17,
+      "rendered": 6,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 21,
+      "title": "Ensinamento de Meishu-Sama: \"Caçadores devem realizar ofício religioso para suas presas cerca de uma vez por ano\"",
+      "intended": 14,
+      "rendered": 3,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 24,
+      "title": "Ensinamento de Meishu-Sama: \"Deve-se realizar ofício religioso uma vez por ano para bois abatidos\"",
+      "intended": 14,
+      "rendered": 3,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SmaisouTIEN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"Os ossos devem ser descartados rapidamente\"",
+      "intended": 18,
+      "rendered": 7,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN10kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"Epilepsia causada por encosto de cachorro (ataques apenas à noite)\"",
+      "intended": 14,
+      "rendered": 3,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN9kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 30,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que ocorreram incêndio e doenças por terem maltratado um antepassado que se tornou",
+      "intended": 14,
+      "rendered": 3,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN9kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 32,
+      "title": "Ensinamento de Meishu-Sama - \"Etiqueta para o enterro de cobras\"",
+      "intended": 14,
+      "rendered": 3,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN9kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 33,
+      "title": "Ensinamento de Meishu-Sama - \"Entoar a Oração constantemente eleva o nível espiritual da cobra\"",
+      "intended": 14,
+      "rendered": 3,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRsanpai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Ensinamento de Meishu-Sama - \"Os Espíritos Abaixo de Yachimata Não Podem Ouvir as Histórias do Mundo Material Sem Passar",
+      "intended": 15,
+      "rendered": 4,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssounen.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"O Culto aos Antepassados Deve Ser Realizado com o Coração\"",
+      "intended": 16,
+      "rendered": 5,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "yoruhiruSOKUZIKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Da Conversa ao Pé da Lareira no Ano Novo em Atami",
+      "intended": 12,
+      "rendered": 1,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 38,
+      "title": "Ensinamento de Meishu-Sama: \"Os Ancestrais dos Ainus São da Linhagem Russa\"",
+      "intended": 14,
+      "rendered": 3,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"Pescoço que se Estica no Meio da Noite\"",
+      "intended": 14,
+      "rendered": 3,
+      "gain": 11
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "buxtusituREIKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"A lesma realiza a espiritualização da matéria e a materialização do espírito\"",
+      "intended": 13,
+      "rendered": 3,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama: \"A oposição da família à fé deve ser deixada como está\"",
+      "intended": 13,
+      "rendered": 3,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 20,
+      "title": "Ensinamento de Meishu-Sama: 'Encosto espiritual peculiar'",
+      "intended": 14,
+      "rendered": 4,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 32,
+      "title": "Ensinamento de Meishu-Sama: 'Purificação após sediar uma Reunião de Iniciação'",
+      "intended": 14,
+      "rendered": 4,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "korei5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Ensinamento de Meishu-Sama: \"Espírito de raposa que se intitula Deus\"",
+      "intended": 16,
+      "rendered": 6,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuni2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Ensinamento de Meishu-Sama: \"Sobre o Daishogun\"",
+      "intended": 17,
+      "rendered": 7,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama: \"Idade, Camadas e Sabedoria e Iluminação no Mundo Espiritual\"",
+      "intended": 13,
+      "rendered": 3,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Ensinamento de Meishu-Sama: \"Casa em local de antigo cemitério - Sangramento da mulher residente\"",
+      "intended": 13,
+      "rendered": 3,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sboti.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Ensinamento de Meishu-Sama - \"Hemorragia em mulher que reside em casa construída sobre antigo cemitério\"",
+      "intended": 13,
+      "rendered": 3,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBsahou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"O manuseio do oratório budista em residência que também serve como casa de difusão\"",
+      "intended": 16,
+      "rendered": 6,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBsanka.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Salmos de Meishu-Sama - \"Salvação de Espíritos\"",
+      "intended": 11,
+      "rendered": 1,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"Para aqueles com quem se teve contato pessoal, faz-se a tabuleta memorial\"",
+      "intended": 13,
+      "rendered": 3,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama - \"Caso a tabuleta memorial tenha sido entregue ao templo, deve-se fazer uma nova para a famí",
+      "intended": 13,
+      "rendered": 3,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sitai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Orientação de Meishu-Sama: \"O Motivo Pelo Qual os Fiéis Continuam Quentes Mesmo Após a Morte\"",
+      "intended": 14,
+      "rendered": 4,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que os Espíritos Antepassados Usaram um Espírito de Raposa para Derrubar o Registro",
+      "intended": 14,
+      "rendered": 4,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skirisuto.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Ensinamento de Meishu-Sama: \"O Cristianismo Também Passará a Assentar os Antepassados no Futuro\"",
+      "intended": 14,
+      "rendered": 4,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama: \"Cobras aparecem frequentemente nos sonhos do zelador de um hospital de isolamento\"",
+      "intended": 14,
+      "rendered": 4,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 18,
+      "title": "Ensinamento de Meishu-Sama: \"Gato que come cobras\"",
+      "intended": 19,
+      "rendered": 9,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 19,
+      "title": "Ensinamento de Meishu-Sama - \"Encosto de feto: mulher que chora continuamente e saliva\"",
+      "intended": 13,
+      "rendered": 3,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRgosingyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"Os Antepassados dos Fiéis da Igreja Messiânica Vêm à Sede e às Filiais para Atuar\"",
+      "intended": 12,
+      "rendered": 2,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"Encosto de Deus Dragão\"",
+      "intended": 12,
+      "rendered": 2,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - Extraído de \"Mundo dos Deuses Dragões\"",
+      "intended": 12,
+      "rendered": 2,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Orientação de Meishu-Sama - \"A Pedra que Causa Doença ao Ser Pisada (A Posição e a Elevação do Deus Dragão)\"",
+      "intended": 14,
+      "rendered": 4,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Orientação de Meishu-Sama - \"Santuário do Dragão da Terra\"",
+      "intended": 14,
+      "rendered": 4,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SZmongon.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Daisen Sekai e Sanzen Sekai\"",
+      "intended": 12,
+      "rendered": 2,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tanuki.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Orientação de Meishu-Sama - \"Espírito de texugo e arrotos\"",
+      "intended": 14,
+      "rendered": 4,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Reencarnação de Cobra que Deseja Ovos Crus e Água\"",
+      "intended": 17,
+      "rendered": 7,
+      "gain": 10
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "3gai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama - \"A Relação entre Kannon-Sama e o Deus Kakuriyo no Ookami\"",
+      "intended": 15,
+      "rendered": 6,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "buxtusituREIKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama: \"O desaparecimento da imagem de Kannon entronizada\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku2SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Ensinamento de Meishu-Sama: \"Ação Nervosa e Espírito Secundário\"",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ido.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama - \"Melhoria da qualidade da água do poço\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "korei5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama: \"A atual Kishimojin é raposa ou texugo\"",
+      "intended": 15,
+      "rendered": 6,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuniIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"A Origem do Setsubun\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "otohime.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"Kannon significa observar o mundo governado por Otohime\"",
+      "intended": 16,
+      "rendered": 7,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiBUXTUSITUKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"Parto sem sangramento e massa vermelho-escura que não queima\"",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ryuuzinKISHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama: O mistério do Santuário Suwa - Suicídios incessantes",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ryuuzinKISHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama: O fenômeno estranho da prece por chuva",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "S1dai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"A seita Nichiren é para apenas uma geração\"",
+      "intended": 15,
+      "rendered": 6,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que se orientou cultuar urgentemente um espírito não cultuado para um paciente com ",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbextusi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 16,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que a necessidade de assentamento separado foi negada\"",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama - \"Oferendas no Altar Familiar\"",
+      "intended": 11,
+      "rendered": 2,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SbyoubuSOSOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"Caso se suje o rosto da Imagem de Kannon em Biombo com cera\"",
+      "intended": 21,
+      "rendered": 12,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SbyoubuSOSOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Ensinamento de Meishu-Sama: \"Purificação por pedir a outra pessoa que recebesse a Imagem de Kannon em Biombo - Aviso dos",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBzengensanzi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama - \"Entoar a oração Zenguen Sandji no altar dos antepassados em dias de falecimento, etc.\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 19,
+      "title": "Ensinamento de Meishu-Sama: \"Necessidade de ofício religioso para criação de raposas\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 36,
+      "title": "Ensinamento de Meishu-Sama: \"Doente e gato (Ofício religioso para gato-monstro)\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sikotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Orientação de Meishu-Sama: \"É Bom Assentar os Restos Mortais no Tokonoma\"",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Advertência dos Espíritos Antepassados - Purificação nos Ouvidos ao Pedir a Outra Pessoa pa",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama: \"Lápide em Forma Humana Cai Várias Vezes\"",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skirisuto.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"O Culto aos Espíritos Ancestrais do Xintoísmo, Budismo e Cristianismo\"",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 17,
+      "title": "Ensinamento de Meishu-Sama: \"Doentes e gatos (Gato-monstro)\"",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SmaisouTIEN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Se o sepultamento for negligenciado, o morto não poderá ir para o Mundo Espiritual\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 20,
+      "title": "Ensinamento de Meishu-Sama - \"Encosto de feto: enurese noturna, valvulopatia cardíaca, amenorreia, subdesenvolvimento\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN10kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama - \"Doente e gato (Gato-monstro)\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRgosingyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"Os Habitantes do Mundo Espiritual que Receberam a Iniciação Trabalham Intensamente\"",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssenpu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama: \"Sobre o culto ao ex-marido\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssison3SINKOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Os espíritos antepassados dos fiéis da Igreja Messiânica vêm à Sede e às filiais\"",
+      "intended": 11,
+      "rendered": 2,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssounen.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - Extraído de \"Diversos Aspectos dos Espíritos Encostados\"",
+      "intended": 11,
+      "rendered": 2,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssounen.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"No Culto aos Antepassados, o Pensamento Também é Fundamental\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Stien.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"Possessão pelo espírito do tio do proprietário que cometeu suicídio\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamanuki.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"É perigoso remover espíritos animais\"",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama: \"Deficiência Congênita no Rosto\"",
+      "intended": 13,
+      "rendered": 4,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 38,
+      "title": "Ensinamento de Meishu-Sama: \"Deformidade semelhante a um pato (Morte por queda)\"",
+      "intended": 12,
+      "rendered": 3,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 17,
+      "title": "Ensinamento de Meishu-Sama: \"O odor nas axilas é reencarnação de animal\"",
+      "intended": 15,
+      "rendered": 6,
+      "gain": 9
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "3gai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Orientação de Meishu-Sama - \"Sobre o Divino, Espiritual e Material, Mundo Etéreo, Mundo do Pensamento e Mundo do Espírit",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "bunrei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Apenas os Deuses de alto nível dividem seus espíritos\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "bunrei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Divisão do espírito e encarnação\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "buxtusituREIKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"A espiritualização de gatos é frequente\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "buxtusituREIKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que um espírito de raposa roubou dinheiro\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 23,
+      "title": "Ensinamento de Meishu-Sama: \"Nas pessoas de hoje, o espírito guardião secundário é o que mais se manifesta\"",
+      "intended": 13,
+      "rendered": 5,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"O espírito guardião secundário também pode obstruir o ingresso na fé\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama: \"Oposição do pai e do irmão à fé\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ido.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama - \"Causa da água turva em toda uma vila\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ido.html.json",
+      "theme_idx": 0,
+      "topic_idx": 16,
+      "title": "Ensinamento de Meishu-Sama - \"Gosto de ferro no poço\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "korei6.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"Deve-se contrariar as ordens dos espíritos de raposa\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "korei6.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Acreditar no que o espírito de raposa diz faz com que ele não se afaste\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Palavras de Luz de Meishu-Sama - \"Os Cinco Sentidos do Espírito\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Relato de Experiência: O Mundo Espiritual é o Mundo Miroku",
+      "intended": 9,
+      "rendered": 1,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbextusi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - \"A necessidade de cultos separados - Oomoto e Jodo Shinshu\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbextusi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"A necessidade de cultos separados - Konkokyo e seita Zen\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbextusi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama - \"A necessidade de cultos separados - Xintoísmo e Budismo\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbon.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama: \"Sobre a necessidade de visitar o túmulo no Finados (Obon)\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sboti.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama - \"É superstição dizer que a criação de um novo cemitério causa mortes\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBsanka.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"Os Salmos no altar dos antepassados\"",
+      "intended": 13,
+      "rendered": 5,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SbyoubuKYUUREI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Os Espíritos Antepassados Recebem a Luz da Imagem de Kannon em Biombo\"",
+      "intended": 10,
+      "rendered": 2,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 26,
+      "title": "Ensinamento de Meishu-Sama: \"Encosto de boi e cachorro que morreram queimados\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 33,
+      "title": "Ensinamento de Meishu-Sama: \"Caso de ataque por espírito de gato\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sitai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Orientação de Meishu-Sama: \"Não Tocar em Cadáveres\"",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que a Transferência do Túmulo Causou o Aparecimento de Várias Pessoas com Deficiênc",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skirisuto.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"O Significado do Nome Póstumo e o Cristianismo\"",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skirisuto.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"O Assentamento de Espíritos de Cristãos\"",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Sonho em que a filha que cometeu suicídio queima a cabeça de uma cobra com incenso\"",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SmaisouTIEN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama: \"Dificuldade de fala e febre devido ao atraso no sepultamento\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama - \"O pecado do aborto provocado é uma fração do assassinato comum\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRgosingyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que o Antepassado Ajudou no Johrei\"",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Orientação de Meishu-Sama - \"Transferência do Deus Dragão\"",
+      "intended": 10,
+      "rendered": 2,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Orientação de Meishu-Sama - \"O Deus Dragão Não Deve Ser Assentado Dentro de Casa\"",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Orientação de Meishu-Sama - \"Como Assentar uma Cabeça de Dragão Encontrada\"",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Orientação de Meishu-Sama - \"A Ascensão do Dragão aos Céus e a Entronização da Imagem Divina\"",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssenpu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Sobre o acerto de assentar o ex-marido na família do atual casamento\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SZ.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Palestra de Meishu-Sama: \"O significado da oração Zenguen Sandji\"",
+      "intended": 9,
+      "rendered": 1,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SZ.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que os clientes pararam de vir após a entoação da oração Zenguen Sandji\"",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Szibaku1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - Extraído de \"Diversos Aspectos do Pós-Morte\"",
+      "intended": 9,
+      "rendered": 1,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SZmongon.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"O significado de Sandoku e Gojoku\"",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tanuki.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Orientação de Meishu-Sama - \"Doença mental de rir - Encosto de espírito de texugo (tanuki)\"",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "yoruhiruSOKUZIKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama: \"No Mundo do Dia, as más ações são descobertas rapidamente\"",
+      "intended": 10,
+      "rendered": 2,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama: \"Criança Sem Ossos\"",
+      "intended": 11,
+      "rendered": 3,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 30,
+      "title": "Ensinamento de Meishu-Sama: \"Causa da mola hidatiforme\"",
+      "intended": 12,
+      "rendered": 4,
+      "gain": 8
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "3gai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama - \"O Mundo Sombrio e o Deus Kakuriyo no Ookami\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama: \"A Cura do Ranger de Dentes, Falar Dormindo e Ronco\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 21,
+      "title": "Ensinamento de Meishu-Sama: \"Disputa entre espíritos encostados\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 26,
+      "title": "Ensinamento de Meishu-Sama: \"O ser humano também pode reencarnar e se tornar um espírito secundário\"",
+      "intended": 8,
+      "rendered": 1,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 27,
+      "title": "Ensinamento de Meishu-Sama: \"O nível do espírito guardião secundário é proporcional à classe espiritual do ser humano\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Há casos em que o espírito guardião secundário detesta a fé em Meishu-Sama\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Há casos em que o espírito guardião secundário interfere na fé em Meishu-Sama\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Ensinamento de Meishu-Sama: \"Quando a casa é purificada, os espíritos malignos também se arrependem\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ido.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que a água do poço ficou preta\"",
+      "intended": 17,
+      "rendered": 10,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ido.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama - \"Oração quando a água do poço não sai\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ikiryou3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"Doença mental complexa\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "korei7.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Espírito de raposa se opõe à fé em Meishu-Sama\"",
+      "intended": 14,
+      "rendered": 7,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "otohime.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama - \"Otohime já se tornou um Jashin devido ao apego da ganância\"",
+      "intended": 9,
+      "rendered": 2,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reii.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"A Elevação da Alma e a Veste Espiritual\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reisi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Reishi e Átomo\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ryuuzinKISHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: Área marítima onde as mergulhadoras não conseguem mergulhar",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Referência - Ensinamento de Meishu-Sama: \"Repurificação de tuberculose (Solução através do culto espiritual)\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbosho.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama - \"É um erro sepultar a esposa na casa dos pais dela\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sboti.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama - \"Antigo túmulo de abandono de cadáveres\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBreihai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama: \"O número de palmas ao orar no altar budista é duas\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBreihai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Ensinamento de Meishu-Sama: \"A oração e as palmas no altar budista\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBsahou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 16,
+      "title": "Referência: Ensinamento de Meishu-Sama: \"Aulas de Iniciação no Mundo Espiritual - O caso do dinheiro oferecido no oratór",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbunke.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"Culto ao falecido marido que havia estabelecido uma família filial apenas no registro famil",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbyoubu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Amida é a Mãe de Kannon\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SbyoubuMI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Não é permitida a entronização da Imagem de Kannon em Biombo por não membros\"",
+      "intended": 13,
+      "rendered": 6,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBzengensanzi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama - \"A oração Zenguen Sandji e o dia de falecimento\"",
+      "intended": 18,
+      "rendered": 11,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 34,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que a garganta coçava devido ao espírito rancoroso de um gato\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Shukushuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"Casos em que é permitido retornar ao Budismo original - Mudança de religião há cem anos po",
+      "intended": 13,
+      "rendered": 6,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sitai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 16,
+      "title": "Orientação de Meishu-Sama: \"A Autópsia de Cadáveres é Absolutamente Proibida\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que os Espíritos Antepassados Usaram Ratos para Sujar os Registros Mortuários\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skasou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"Casa construída em terreno de antigo crematório\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skirisuto.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama: \"O Cristianismo é Infeliz por Não Assentar os Antepassados\"",
+      "intended": 12,
+      "rendered": 5,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Ensinamento de Meishu-Sama: \"Sonho em que o filho falecido tinha o corpo de enguia do pescoço para baixo\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 22,
+      "title": "Ensinamento de Meishu-Sama: \"Sonho com um sacerdote xintoísta que se tornou uma raposa\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN10kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que a garganta coçava devido ao espírito vingativo de um gato\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN10kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama - \"As doenças de caçadores são difíceis de curar\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN9kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 31,
+      "title": "Ensinamento de Meishu-Sama - \"Matar cobras atrai maldição\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRgosingyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - Extraído de \"Crítica aos Relatos de Graças\"",
+      "intended": 9,
+      "rendered": 2,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRgosingyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"Os Antepassados Salvos Trabalham na Obra Divina no Mundo Espiritual\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRsanpai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Palestra de Meishu-Sama - Extraído de \"A Verdadeira Essência do Bem e do Mal e a Construção do Mundo de Luz\"",
+      "intended": 8,
+      "rendered": 1,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssison3SINKOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"Somente os fiéis de nossa religião podem ir para o Mundo Divino\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SZ.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Relato de Experiência: Espinha de peixe removida através da oração",
+      "intended": 8,
+      "rendered": 1,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Szibaku1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - Extraído de \"Espíritos Rancorosos e Espíritos Presos à Terra\"",
+      "intended": 8,
+      "rendered": 1,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamanuki.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"Transferência de Deus Dragão\"",
+      "intended": 9,
+      "rendered": 2,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamasiiKOKORO.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama: \"O Corpo Inteiro é a Mente, a Própria Mente é o Nervo\"",
+      "intended": 38,
+      "rendered": 31,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tanuki.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Orientação de Meishu-Sama - \"Doença mental de rir - O espírito de texugo é difícil de curar\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tikara1SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Diálogo de um Certo Dia\"",
+      "intended": 9,
+      "rendered": 2,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tikara2SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Palestra de Meishu-Sama: \"A Religião da Força\"",
+      "intended": 8,
+      "rendered": 1,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 22,
+      "title": "Ensinamento de Meishu-Sama: \"Mudo que detesta sair, move os pauzinhos rápido e mexe os dedos\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama: \"Cabeça Aumentada, Vazio no Corpo Humano\"",
+      "intended": 11,
+      "rendered": 4,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama: \"Nódulos nos dedos: Maldição por pecados cometidos com os dedos\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama: \"Reencarnação de Urso\"",
+      "intended": 10,
+      "rendered": 3,
+      "gain": 7
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "buxtusituREIKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"O ser humano também pode se espiritualizar\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "buxtusituREIKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama: \"A lebre e a luz do luar\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku2SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 20,
+      "title": "Ensinamento de Meishu-Sama: \"A Obstinação pelo Ateísmo é Obra do Espírito Guardião Secundário\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 24,
+      "title": "Ensinamento de Meishu-Sama: \"O espírito guardião primário observa as más ações do espírito secundário para eliminar os a",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 25,
+      "title": "Ensinamento de Meishu-Sama: \"Habitantes do Mundo Espiritual também podem usar o espírito guardião secundário para dar av",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"O espírito secundário também pode obstruir o ingresso na fé\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama: \"Há casos em que o espírito guardião secundário interfere na fé em Meishu-Sama\"",
+      "intended": 7,
+      "rendered": 1,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 34,
+      "title": "Ensinamento de Meishu-Sama: 'O próprio espírito não encosta em si mesmo'",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ido.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"Causa da turbidez da água do poço\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "nihon2REI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"A Raça Yamato é a Linhagem de Amaterasu-Oomikami\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiBUXTUSITUKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"Cadáver que fica preto, com bolhas de água e pele rompida\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Palavras de Luz de Meishu-Sama - \"A Idade no Mundo Espiritual\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiSHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Orientação de Meishu-Sama - \"O Local de Origem da Religião e a Afiliação dos Fiéis Após a Morte\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiSAHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama - \"Etiqueta no diálogo com espíritos durante o Johrei\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "rinne2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 18,
+      "title": "Ensinamento de Meishu-Sama: \"O caso de reencarnação do Mundo Espiritual para o Mundo Material\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "rinneKIOKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Não se sabe sobre a vida passada\"",
+      "intended": 14,
+      "rendered": 8,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ryuuzinKATUDOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 21,
+      "title": "Ensinamento de Meishu-Sama: O desbravamento de Iwate e o Deus Dragão Dourado (Revelação espiritual através do encosto de",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ryuuzinKISHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama: A coleta de água - A natureza do Deus Dragão",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ryuuzinKISHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama: O santuário que odeia mulheres",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "S1dai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Praticar a seita Nichiren por duas ou três gerações leva a família à ruína\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama: \"Doença Pulmonar Espiritual\"",
+      "intended": 7,
+      "rendered": 1,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbextusi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"A necessidade de cultos separados - Oomoto e Budismo\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbextusi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"A necessidade de cultos separados - Tenrikyo e Budismo\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"O significado das oferendas\"",
+      "intended": 7,
+      "rendered": 1,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Ensinamento de Meishu-Sama - \"Oferendas no Altar Familiar\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Ensinamento de Meishu-Sama - \"A Oferenda de Água é Absolutamente Necessária Diante dos Antepassados\"",
+      "intended": 8,
+      "rendered": 2,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbon.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama: \"Sobre a necessidade de visitar o túmulo no Finados (Obon)\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sboti.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama - \"O erro de transformar as ruínas de um santuário xintoísta em cemitério\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBsahou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama: \"Os utensílios de oferenda do oratório budista devem ser laqueados\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbunke.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Aqueles que estabeleceram uma família filial também devem assentar um altar budista imediat",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbunke.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que a família principal se opõe ao sepultamento no túmulo da família filial\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SbyoubuKYUUREI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"Uma Massa Negra Emana da Imagem em Biombo\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SbyoubuSOSOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que o espírito da falecida esposa, que não desejava o novo casamento do marido, der",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 18,
+      "title": "Ensinamento de Meishu-Sama: \"Método de ofício religioso para avicultores\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama - \"Tabuleta memorial de espírito divorciado por desavenças\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SIzyunzyo.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama: \"Ordem dos Oratórios - Primeira e Segunda Esposa\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SIzyunzyo.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama: \"Ordem dos Oratórios - Primeira e Segunda Esposa\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Aviso Através da Fumaça do Incenso\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que os Espíritos Antepassados Fizeram Ratos e Cobras Aparecerem no Altar dos Antepa",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama: \"Se o Túmulo Não For Mantido Limpo, Haverá Avisos dos Antepassados\"",
+      "intended": 8,
+      "rendered": 2,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 18,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que os Espíritos Antepassados Usaram um Gato para Bagunçar o Altar Divino\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaimyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama - \"O nome póstumo não deve ser alterado\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaishuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Os antepassados se irritam com a conversão religiosa\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaishuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Ensinamento de Meishu-Sama: \"Os antepassados se irritam com a conversão religiosa\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaishuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama: \"Os antepassados se irritam com a conversão religiosa\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Sonho com a filha com o corpo coberto de escamas e o rosto invisível\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama: \"O Deus Cão é um ser humano que caiu no Caminho das Bestas e se tornou um cão\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 16,
+      "title": "Ensinamento de Meishu-Sama: \"Prostitutas tornam-se raposas, gueixas tornam-se gatos\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN10kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama - \"Epilepsia em que a pessoa fica de quatro\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Srikon.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"O assentamento de um espírito divorciado por desavenças\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRsanpai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama - \"A Purificação Fica Mais Leve Durante a Visita de Culto (Antepassados)\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sryuuzin2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Orientação de Meishu-Sama - \"O Deus Dragão é Assentado do Lado de Fora\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssensai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Ordem das Tabuletas Memoriais - Primeira e segunda esposa\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssensai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Ordem das Tabuletas Memoriais - Primeira e segunda esposa\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssounen.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - \"Oferendas e Pensamento\"",
+      "intended": 8,
+      "rendered": 2,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssounen.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Se os Descendentes Não Tiverem o Sentimento de Reverenciar os Antepassados, os Espíritos Nã",
+      "intended": 7,
+      "rendered": 1,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "StamasiiEIEN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama: \"Pode-se cultuar pessoas desaparecidas ou cujo estado de vida ou morte é desconhecido\"",
+      "intended": 15,
+      "rendered": 9,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Szibaku1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"Para os espíritos presos à terra, os familiares devem realizar cultos póstumos reverentes\"",
+      "intended": 9,
+      "rendered": 3,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamanuki.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - \"Espíritos animais não devem ser expulsos, mas enfraquecidos\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tanuki.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Orientação de Meishu-Sama - \"Doença mental de rir - Encosto de espírito de texugo (tanuki)\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tikara1SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"A Visão sobre a Religião\"",
+      "intended": 8,
+      "rendered": 2,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Causa de Criança com Deficiência Intelectual\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Sobre o Cretinismo\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 16,
+      "title": "Ensinamento de Meishu-Sama: \"Contração e Dilatação das Pupilas\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Ensinamento de Meishu-Sama: \"A língua se dividir em duas é causado por ter mentido na encarnação anterior\"",
+      "intended": 11,
+      "rendered": 5,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama: \"Adesão Congênita dos Dedos é Reencarnação de Pássaro\"",
+      "intended": 13,
+      "rendered": 7,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 35,
+      "title": "Ensinamento de Meishu-Sama: \"Reencarnação de sapo - Epilepsia tipo sapo\"",
+      "intended": 10,
+      "rendered": 4,
+      "gain": 6
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "3gai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama - \"A Relação entre Kannon-Sama e o Deus Kakuriyo no Ookami\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "3sekai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama - \"Mesmo que Haja a Terceira Guerra Mundial, o Japão Não Sofrerá\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku2SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 17,
+      "title": "Ensinamento de Meishu-Sama: \"A Causa de Comer Incenso é o Espírito Guardião Secundário\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Ensinamento de Meishu-Sama: \"Falar dormindo é ação do espírito guardião secundário\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 19,
+      "title": "Ensinamento de Meishu-Sama: \"Os sonhos são, na maioria das vezes, criados pelo espírito guardião secundário\"",
+      "intended": 10,
+      "rendered": 5,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama: \"Através dos elos espirituais, os espíritos opositores também são purificados\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 18,
+      "title": "Ensinamento de Meishu-Sama: 'Local onde se é atacado por espíritos dentro do barco - Espírito de afogado'",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 35,
+      "title": "Ensinamento de Meishu-Sama: 'Espíritos não encostam em tatuagens de nomes póstumos'",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 36,
+      "title": "Ensinamento de Meishu-Sama: 'Existem muitos espíritos que têm medo de objetos cortantes'",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kamiHYOUI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Os Deuses encostam mais frequentemente em pessoas anônimas\"",
+      "intended": 12,
+      "rendered": 7,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "korei5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Espírito de raposa com intenção assassina deseja a morte\"",
+      "intended": 11,
+      "rendered": 6,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "korei6.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"A ameaça do espírito de raposa de tirar a vida\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuda.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - Extraído de \"Espírito Vivo\"",
+      "intended": 7,
+      "rendered": 2,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuni2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama: \"A Divindade que Presidirá o Mundo Divino Será Definida Daqui para Frente\"",
+      "intended": 10,
+      "rendered": 5,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "otohime.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"A Relação entre Senju Kannon-Sama e Otohime\"",
+      "intended": 12,
+      "rendered": 7,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Palavras de Luz de Meishu-Sama - \"A Idade no Mundo Espiritual\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama: \"No Mundo Espiritual Não Há Tempo\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiKOUHEI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Palavras de Luz de Meishu-Sama - \"No Mundo Espiritual, a Posição e a Honra do Mundo Material Não Têm Utilidade\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiKOUHEI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Palavras de Luz de Meishu-Sama - \"O Nome Póstumo Budista (Kaimyou) Não Tem Relação com a Posição no Mundo Espiritual\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiSHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Palestra de Meishu-Sama - Extraído de \"A Realidade dos Três Mundos: Divino, Espiritual e Material\"",
+      "intended": 6,
+      "rendered": 1,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikaiSHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Orientação de Meishu-Sama - \"O pós-morte dos fiéis cristãos japoneses\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "rinneKIOKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama: \"Eles mantêm a memória do Mundo Material?\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ryuuzinKISHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama: Rios e arrozais onde surgem doentes",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ryuuzinKISHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama: Ao plantar arroz, surgem inchaços e torna-se impossível trabalhar",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que se orientou entronizar o altar familiar urgentemente\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sb1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que a doença foi curada pelo culto aos antepassados da família de origem da esposa\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbextusi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"A necessidade de cultos separados - Tenrikyo e Budismo\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: Extraído de \"Os Espíritos Antepassados e a Preparação para o Pós-Morte\"",
+      "intended": 6,
+      "rendered": 1,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"O sino do altar budista é o sinal de que a refeição está sendo oferecida\"",
+      "intended": 6,
+      "rendered": 1,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama - \"Oferendas no Altar Familiar\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbon.html.json",
+      "theme_idx": 0,
+      "topic_idx": 17,
+      "title": "Ensinamento de Meishu-Sama: \"Afinidade de doenças na época do Higan\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBreihai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama: \"O número de palmas ao orar no altar budista\"",
+      "intended": 6,
+      "rendered": 1,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbunke.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Culto ao falecido marido que estabeleceu uma família filial apenas no registro familiar\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 31,
+      "title": "Ensinamento de Meishu-Sama: \"Método de ofício religioso para gatos\"",
+      "intended": 10,
+      "rendered": 5,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 37,
+      "title": "Ensinamento de Meishu-Sama: \"Dor de cabeça devido à maldição de um gato\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SenkoNASI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que se orientou cultuar o espírito de Hojo Tokimune\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SenkoNASI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama - \"Possessão pelo espírito de Sakura Sogoro\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Shukushuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama - \"Casos em que se deve retornar à seita Shingon original - Exemplo de mudança para a seita Z",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Shukushuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama - \"Casos em que se deve retornar à religião original - Exemplo de ingresso na Rissho Kosei-ka",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"Sem tabuleta memorial, torna-se um espírito sem vínculos\"",
+      "intended": 7,
+      "rendered": 2,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - \"Sem tabuleta memorial, os antepassados não podem vir\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sitai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Orientação de Meishu-Sama: \"O Motivo Pelo Qual os Fiéis Continuam Quentes Mesmo Após a Morte\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sitai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Orientação de Meishu-Sama: \"Sobre o Johrei no Cadáver\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sitai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 17,
+      "title": "Orientação de Meishu-Sama: \"A Autópsia de Cadáveres Não é Permitida\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sitai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 21,
+      "title": "Orientação de Meishu-Sama: \"A Mumificação Não é um Método de Sepultamento Recomendável\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SIzyunzyo.html.json",
+      "theme_idx": 0,
+      "topic_idx": 21,
+      "title": "Ensinamento de Meishu-Sama: \"Ordem dos Oratórios - Ao Assentar os Espíritos dos Antepassados de Cada Cônjuge no Mesmo Al",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Manter o Registro Mortuário de Madeira Branca Causa Avisos dos Antepassados\"",
+      "intended": 7,
+      "rendered": 2,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaimyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 29,
+      "title": "Ensinamento de Meishu-Sama - \"O Declínio do Mundo Búdico e a Necessidade do Nome Póstumo\"",
+      "intended": 11,
+      "rendered": 6,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skirisuto.html.json",
+      "theme_idx": 0,
+      "topic_idx": 16,
+      "title": "Ensinamento de Meishu-Sama: \"O Pós-Morte dos Fiéis Cristãos Japoneses\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 21,
+      "title": "Ensinamento de Meishu-Sama: \"Salvação de um espírito humano que reencarnou como boi\"",
+      "intended": 11,
+      "rendered": 6,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smaisou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama: \"A mumificação não é desejável como método de sepultamento\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SmaisouTIEN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Os espíritos detestam quando os ossos não são sepultados\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 24,
+      "title": "Ensinamento de Meishu-Sama - \"Encosto de bebê: dor nas costas em um dos gêmeos\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"O aborto provocado é assassinato\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"O aborto induzido é um grande erro\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRgosingyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama - \"É Mais Eficaz Salvar os Espíritos\"",
+      "intended": 7,
+      "rendered": 2,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Srikon.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Ordem das Tabuletas Memoriais - Casal e pais divorciados\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Srikon.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"O túmulo de uma mulher que se casou novamente\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRsanpai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"Os Espíritos Não Podem Fazer Visitas de Culto por Conta Própria\"",
+      "intended": 13,
+      "rendered": 8,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SsiATO.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - \"Sobre o Johrei no cadáver\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssounen.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama: \"Água de Beber dos Habitantes do Mundo Espiritual e Pensamento\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssounen.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama: \"O Pensamento da Pessoa que Realiza o Culto Influencia Grandemente a Salvação do Espírito\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "StamasiiEIEN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Deve-se cultuar também aqueles que são antigos e cuja época é desconhecida\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Syukuehumei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"Ofícios religiosos para a mãe desaparecida\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SZmongon.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"O significado de Jippo Sekai\"",
+      "intended": 7,
+      "rendered": 2,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tanuki.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Orientação de Meishu-Sama - \"Doença mental de chorar e rir - Encosto conjunto de raposa e texugo\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 21,
+      "title": "Ensinamento de Meishu-Sama: \"Fobia de multidões e outros medos\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Causa Espiritual do Cretinismo\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama: \"Causa de Deformidade (Lábio Superior Imóvel, Rosto Direito Repuxado)\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama: \"Cordão umbilical enrolado no rosto (Pecado do rosto)\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama: \"Causa espiritual do estrabismo\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Exemplo Real de Rokurokubi (Metade Humano, Metade Cobra)\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 36,
+      "title": "Ensinamento de Meishu-Sama: \"Criança com Linguagem Obscura - Reencarnação de Espírito Animal\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Seis Dedos - Reencarnação de Pássaro\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama: \"A Vida Anterior de Pessoas Peludas era de Feras\"",
+      "intended": 8,
+      "rendered": 3,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 18,
+      "title": "Ensinamento de Meishu-Sama: \"Odor nas axilas e cirurgia\"",
+      "intended": 9,
+      "rendered": 4,
+      "gain": 5
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "buxtusituREIKA.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"Os cadáveres de animais domésticos não se espiritualizam\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "chou2SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"A Causa Principal do Desenvolvimento de Nossa Igreja\"",
+      "intended": 6,
+      "rendered": 2,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Durante o Sono, a Força do Espírito Guardião Secundário Aumenta\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 10,
+      "title": "Ensinamento de Meishu-Sama: \"Ranger de Dentes, Ronco, Falar Dormindo e a Força de Controle do Espírito Primário\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 28,
+      "title": "Ensinamento de Meishu-Sama: \"O nível espiritual do espírito guardião secundário\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku3SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 29,
+      "title": "Ensinamento de Meishu-Sama: \"O Mundo das Trevas e o espírito secundário (O Mundo do Dia e a ação do espírito secundário)",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama: \"Oposição do pai - Encosto de um espírito que detesta o Johrei\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Ensinamento de Meishu-Sama: \"A causa de se sentir aversão ao ministrar Johrei\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 19,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que o peito fica pesado e oprimido ao colocar o Ohikari\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "huku4SHUGOSIN.html.json",
+      "theme_idx": 0,
+      "topic_idx": 20,
+      "title": "Ensinamento de Meishu-Sama: \"Causa de sentir sono durante o culto de adoração\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 17,
+      "title": "Ensinamento de Meishu-Sama: 'Caso de calafrios no Santuário Meiji'",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 25,
+      "title": "Ensinamento de Meishu-Sama: 'Ataques espirituais não ocorrem durante a difusão'",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 27,
+      "title": "Ensinamento de Meishu-Sama: 'Sentir calafrios no meio da Oração é encosto de espírito ancestral'",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 28,
+      "title": "Ensinamento de Meishu-Sama: 'Encosto de espírito ancestral que deseja ouvir a oração Zenguen Sandji'",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "hyourei4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 33,
+      "title": "Ensinamento de Meishu-Sama: 'Afinidade com espíritos encostados'",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ido.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama - \"Solução para o esgotamento da água do poço\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ido.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Ensinamento de Meishu-Sama - \"Como lidar com o gosto de ferro no poço\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "korei5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Espírito de raposa que visa a vida\"",
+      "intended": 10,
+      "rendered": 6,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "kuni2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama: \"Sobre o Futuro de Ushitora no Konjin e Hitsujisaru no Konjin\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "otohime.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - \"O Conto de Fadas de Urashima Taro\"",
+      "intended": 11,
+      "rendered": 7,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Palavras de Luz de Meishu-Sama - \"A Idade no Mundo Espiritual\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama: \"Os Habitantes do Mundo Espiritual Não Dormem\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai1SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 18,
+      "title": "Ensinamento de Meishu-Sama: \"Os Habitantes do Mundo Espiritual se Comunicam pelos Olhos\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reikai2SEIKATU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"O Encontro do Casal no Mundo Espiritual\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiSAHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama - \"Tratamento sobre fenômenos mediúnicos\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiSAHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Ensinamento de Meishu-Sama - \"A atitude do espírito encostado difere de acordo com o nível espiritual de quem ministra o",
+      "intended": 10,
+      "rendered": 6,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiSAHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Ensinamento de Meishu-Sama - \"Não confie no que os espíritos dizem\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "reiSAHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 16,
+      "title": "Ensinamento de Meishu-Sama - \"Método de investigação espiritual e treinamento\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "rinneKIOKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"O motivo de não haver memória da vida no Mundo Espiritual\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "ryuuzinKISHOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Ensinamento de Meishu-Sama: O fenômeno estranho da ascensão do Dragão da Montanha aos céus - Fumaça branca da montanha",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbextusi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama - \"A necessidade de cultos separados - Maruyamakyo e Budismo\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbextusi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 15,
+      "title": "Ensinamento de Meishu-Sama: \"Mesmo que os descendentes se convertam ao Cristianismo, o oratório budista é necessário par",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBkumotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 22,
+      "title": "Ensinamento de Meishu-Sama - \"Ao Reduzir a Frequência das Oferendas, Deve-se Avisar Previamente aos Antepassados\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbosho.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama - \"O túmulo deve ser em um único local\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbosho.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"Compra de túmulo de seita diferente\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBreihai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Método de culto no oratório budista\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBreihai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 17,
+      "title": "Ensinamento de Meishu-Sama: \"Sobre fazer pedidos aos espíritos antepassados\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBsahou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"As portas do oratório budista devem ser mantidas sempre abertas\"",
+      "intended": 10,
+      "rendered": 6,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbyoubu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama: \"O Motivo de Amida Estar na Coroa da Imagem de Kannon em Biombo\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sbyoubu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Ensinamento de Meishu-Sama: \"A Imagem de Kannon em Biombo se Move\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SBzengensanzi.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"Entoar a oração Zenguen Sandji no Altar Familiar Apenas nos Cultos\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 25,
+      "title": "Ensinamento de Meishu-Sama: \"Encosto de boi e cachorro que morreram queimados\"",
+      "intended": 9,
+      "rendered": 5,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 32,
+      "title": "Ensinamento de Meishu-Sama: \"Espírito de gato que sobe no cobertor\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sdoubutu1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 35,
+      "title": "Ensinamento de Meishu-Sama: \"Maldição de gato\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Shukushuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 8,
+      "title": "Ensinamento de Meishu-Sama - \"Todos os itens relacionados à Reiyukai devem ser descartados\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SI.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"A tabuleta memorial é a moradia\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sikotu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Orientação de Meishu-Sama: \"Ossos Brancos Transformam-se em Água\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sitai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Orientação de Meishu-Sama: \"O Motivo Pelo Qual os Fiéis Continuam Quentes Mesmo Após a Morte\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Sitai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 19,
+      "title": "Orientação de Meishu-Sama: \"A Conservação de Cadáveres em Álcool é um Erro\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SIzyunzyo.html.json",
+      "theme_idx": 0,
+      "topic_idx": 14,
+      "title": "Ensinamento de Meishu-Sama: \"Ordem dos Oratórios - Esposa de Fato, Esposa Legítima, Segunda Esposa\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaikoku4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que a Tuberculose foi Causada por um Registro Mortuário com Nomes Póstumos de Pesso",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaimyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama - \"O nome póstumo não tem relação com a posição no Mundo Espiritual\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaimyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama - \"O nome póstumo não deve ser alterado\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaimyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 23,
+      "title": "Ensinamento de Meishu-Sama - \"O caractere 'Ryo' no nome póstumo e os infortúnios na família\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaimyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 24,
+      "title": "Ensinamento de Meishu-Sama - \"Caso em que o monge se recusou a criar um nome póstumo\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaimyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 26,
+      "title": "Ensinamento de Meishu-Sama - \"O nome póstumo é desnecessário para os cristãos\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skaishuu.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: Extraído de \"Os Espíritos dos Antepassados e a Preparação para o Pós-Morte\"",
+      "intended": 6,
+      "rendered": 2,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skirisuto.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"Mesmo que os Descendentes se Convertam ao Cristianismo, o Oratório Budista é Necessário pa",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skirisuto.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama: \"O Cristianismo e o Culto aos Antepassados\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skirisuto.html.json",
+      "theme_idx": 0,
+      "topic_idx": 13,
+      "title": "Ensinamento de Meishu-Sama: \"O Cristianismo é Infeliz por Não Assentar os Antepassados\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skongou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Ensinamento de Meishu-Sama: \"Os espíritos se incomodam com o assentamento misto\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skongou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que se realizou o assentamento misto no passado\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama: \"O Deus Cão é um sujeito que caiu no Caminho das Bestas e nasceu como cão\"",
+      "intended": 10,
+      "rendered": 6,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Skozin2DATIKU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 20,
+      "title": "Ensinamento de Meishu-Sama: \"Caso em que um rato do sonho apareceu na realidade\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smaisou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama: \"A ordem para o sepultamento dos ossos\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Smizuko3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 21,
+      "title": "Ensinamento de Meishu-Sama - \"Encosto de feto: só ingere líquidos\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN10kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama - \"Maldição de gato\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN10kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama - \"Espírito vingativo de gato que sobe no futon\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN9kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 26,
+      "title": "Ensinamento de Meishu-Sama - \"Ofício memorial para uma cobra que viveu muito tempo na casa\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SN9kyuurei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 34,
+      "title": "Ensinamento de Meishu-Sama - \"Deve-se fazer com que o antepassado reencarnado como cobra ouça a Oração\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRgosingyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama - \"Os Habitantes do Mundo Espiritual Estão Fazendo a Propaganda da Igreja Messiânica\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "SRgosingyou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Ensinamento de Meishu-Sama - \"A Obra Divina no Mundo Espiritual de um Missionário que Faleceu Prematuramente\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssensai.html.json",
+      "theme_idx": 0,
+      "topic_idx": 6,
+      "title": "Ensinamento de Meishu-Sama: \"Ordem das Tabuletas Memoriais - Esposa em união estável, esposa legítima e segunda esposa\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssintou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 5,
+      "title": "Ensinamento de Meishu-Sama - \"Como Escrever o Reishiro no Xintoísmo\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssintou.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama - \"O Descarte de um Pequeno Santuário Separado (Espírito Ancestral Xintoísta)\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Ssounen.html.json",
+      "theme_idx": 0,
+      "topic_idx": 11,
+      "title": "Ensinamento de Meishu-Sama: \"Os Espíritos dos Antepassados Detestam o Excesso de Cerimônia\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Stien.html.json",
+      "theme_idx": 0,
+      "topic_idx": 1,
+      "title": "Ensinamento de Meishu-Sama - \"Comportamento anormal devido à possessão pelo espírito de uma pessoa assassinada e enterra",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "Syukuehumei.html.json",
+      "theme_idx": 0,
+      "topic_idx": 3,
+      "title": "Ensinamento de Meishu-Sama - \"Incapacidade física devido à possessão pelo espírito de um filho desaparecido\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tamasiiKOKORO.html.json",
+      "theme_idx": 0,
+      "topic_idx": 7,
+      "title": "Ensinamento de Meishu-Sama: \"A Localização da Alma no Corpo Humano\"",
+      "intended": 12,
+      "rendered": 8,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tengoku1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 2,
+      "title": "Ensinamento de Meishu-Sama - \"Acréscimo de Vida\"",
+      "intended": 6,
+      "rendered": 2,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "tikara2SHUUKYOU.html.json",
+      "theme_idx": 0,
+      "topic_idx": 0,
+      "title": "Palestra de Meishu-Sama: \"A Verdadeira Força\"",
+      "intended": 5,
+      "rendered": 1,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 27,
+      "title": "Ensinamento de Meishu-Sama: \"Causa espiritual de criança que tem medo ao ver a cor vermelha\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 28,
+      "title": "Ensinamento de Meishu-Sama: \"Criança que detesta arroz cozido\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense1.html.json",
+      "theme_idx": 0,
+      "topic_idx": 33,
+      "title": "Ensinamento de Meishu-Sama: \"Criança que Gosta de Dias Chuvosos (Morte Acidental ou Espírito do Inferno)\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense2.html.json",
+      "theme_idx": 0,
+      "topic_idx": 41,
+      "title": "Ensinamento de Meishu-Sama: \"Letras escritas na mão do falecido aparecem no recém-nascido\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 4,
+      "title": "Ensinamento de Meishu-Sama: \"Canhotos\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense3.html.json",
+      "theme_idx": 0,
+      "topic_idx": 41,
+      "title": "Ensinamento de Meishu-Sama: \"Reencarnação de Negros e Cabelos Crespos\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 9,
+      "title": "Referência - Ensinamento de Meishu-Sama: \"Albino por Maldição de Coelho\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense4.html.json",
+      "theme_idx": 0,
+      "topic_idx": 35,
+      "title": "Ensinamento de Meishu-Sama: \"Língua Curta\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 12,
+      "title": "Ensinamento de Meishu-Sama: \"Os Pelos de Todo o Corpo Trocam Anualmente\"",
+      "intended": 7,
+      "rendered": 3,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 21,
+      "title": "Ensinamento de Meishu-Sama: \"Apreciador de comer fezes é reencarnação de cachorro\"",
+      "intended": 6,
+      "rendered": 2,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 33,
+      "title": "Ensinamento de Meishu-Sama: \"Mulher com verrugas por todo o corpo\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    },
+    {
+      "vol": "mioshiec1",
+      "file": "zense5.html.json",
+      "theme_idx": 0,
+      "topic_idx": 36,
+      "title": "Ensinamento de Meishu-Sama: \"Dificuldade de locomoção devido à reencarnação de sapo\"",
+      "intended": 8,
+      "rendered": 4,
+      "gain": 4
+    }
+  ]
+}

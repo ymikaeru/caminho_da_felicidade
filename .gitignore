@@ -36,3 +36,6 @@ supabase/.temp
 *.json.tmp
 # Arquivos organizacionais — backups locais, scripts one-shot ja executados
 Backup/
+
+# Staging da retraducao em lote (617 paredoes) — undo vive no content_ptbr_prev (Storage) + disco local
+scripts/retrad_staging/

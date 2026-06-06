@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revisão da retradução — 617 paredões</title>
+<!-- mesmas libs do leitor, p/ render fiel (_normalizeContent + marked) -->
+<script src="/js/marked.min.js"></script>
+<script src="/js/reader-content.js?v=4"></script>
+<style>
+  :root { --b:#e3e3e6; --mut:#6b7280; --ok:#34c759; --flag:#f59e0b; --err:#ef4444; --bg:#fafafa; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.6 -apple-system,Segoe UI,Roboto,sans-serif; color:#1d1d1f; background:var(--bg); }
+  header { padding:14px 20px; border-bottom:1px solid var(--b); background:#fff; position:sticky; top:0; z-index:5; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:16px; margin:0; }
+  .kpis { display:flex; gap:8px; font-size:13px; }
+  .kpi { padding:3px 9px; border-radius:20px; background:#f1f1f4; }
+  .kpi b { font-variant-numeric:tabular-nums; }
+  .layout { display:grid; grid-template-columns:340px 1fr; height:calc(100vh - 58px); }
+  .side { border-right:1px solid var(--b); overflow:auto; background:#fff; }
+  .filters { padding:10px; border-bottom:1px solid var(--b); position:sticky; top:0; background:#fff; }
+  .filters input { width:100%; padding:7px 9px; border:1px solid var(--b); border-radius:8px; margin-bottom:7px; }
+  .chips { display:flex; gap:6px; }
+  .chip { padding:4px 10px; border:1px solid var(--b); border-radius:20px; cursor:pointer; font-size:13px; background:#fff; }
+  .chip.on { background:#1d1d1f; color:#fff; border-color:#1d1d1f; }
+  .row { padding:9px 12px; border-bottom:1px solid #f0f0f2; cursor:pointer; display:flex; gap:8px; align-items:flex-start; }
+  .row:hover { background:#f6f6f8; }
+  .row.sel { background:#eef6ff; }
+  .dot { width:8px; height:8px; border-radius:50%; margin-top:6px; flex:0 0 auto; }
+  .dot.ok{background:var(--ok)} .dot.flagged{background:var(--flag)} .dot.error{background:var(--err)} .dot.skip{background:#9ca3af}
+  .row .t { font-size:13px; }
+  .row .m { font-size:11px; color:var(--mut); }
+  .flagtag { display:inline-block; font-size:10px; background:#fff5e6; color:#92600a; border:1px solid #f3d8a0; border-radius:4px; padding:0 5px; margin-right:3px; }
+  .main { overflow:auto; padding:18px 22px; }
+  .pair { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .col { border:1px solid var(--b); border-radius:12px; background:#fff; padding:14px 16px; }
+  .col h3 { margin:0 0 4px; font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--mut); }
+  .col .cnt { font-size:12px; color:var(--mut); margin-bottom:10px; }
+  .col.new { border-color:#bfe6c9; }
+  .doc p { margin:0 0 .8em; }
+  .empty { color:var(--mut); padding:40px; text-align:center; }
+  .titlebar { margin-bottom:12px; }
+  .titlebar .ttl { font-size:15px; font-weight:600; }
+  .titlebar .sub { font-size:12px; color:var(--mut); }
+  .warn { background:#fff5e6; border:1px solid #f3d8a0; color:#92600a; padding:7px 11px; border-radius:8px; font-size:13px; margin-bottom:12px; }
+  @media (max-width:900px){ .pair{grid-template-columns:1fr} .layout{grid-template-columns:1fr; height:auto} .side{max-height:40vh} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Revisão da retradução</h1>
+  <div class="kpis" id="kpis"></div>
+  <span style="font-size:12px;color:var(--mut)">staging local · nada publicado</span>
+</header>
+<div class="layout">
+  <aside class="side">
+    <div class="filters">
+      <input id="q" placeholder="Buscar por título/arquivo…">
+      <div class="chips">
+        <span class="chip on" data-f="all">Todos</span>
+        <span class="chip" data-f="flagged">Flagged</span>
+        <span class="chip" data-f="ok">OK</span>
+      </div>
+    </div>
+    <div id="list"></div>
+  </aside>
+  <main class="main" id="main"><div class="empty">Selecione um artigo à esquerda.</div></main>
+</div>
+<script>
+const DIR = '/scripts/retrad_staging/';
+let INDEX = [], filter = 'all', q = '', sel = null;
+const norm = (s) => (typeof _normalizeContent === 'function') ? _normalizeContent(s || '') : (s || '');
+const countP = (h) => (h.match(/<p[ >]/gi) || []).length;
+const esc = (s) => (s || '').replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+async function boot() {
+  INDEX = await (await fetch(DIR + '_index.json?' + Date.now())).json();
+  const by = (s) => INDEX.filter((x) => x.status === s).length;
+  document.getElementById('kpis').innerHTML =
+    `<span class="kpi">Total <b>${INDEX.length}</b></span>
+     <span class="kpi">OK <b style="color:var(--ok)">${by('ok')}</b></span>
+     <span class="kpi">Flagged <b style="color:var(--flag)">${by('flagged')}</b></span>
+     <span class="kpi">Erro <b style="color:var(--err)">${by('error')}</b></span>`;
+  renderList();
+}
+function renderList() {
+  const ql = q.toLowerCase();
+  const rows = INDEX.filter((x) => (filter === 'all' || x.status === filter) &&
+    (!ql || (x.title || '').toLowerCase().includes(ql) || (x.file || '').toLowerCase().includes(ql)));
+  document.getElementById('list').innerHTML = rows.map((x) => `
+    <div class="row ${sel === x.key ? 'sel' : ''}" onclick="open_('${x.key}')">
+      <span class="dot ${x.status}"></span>
+      <div>
+        <div class="t">${esc(x.title || x.file)}</div>
+        <div class="m">${esc(x.file)} · t${x.topic_idx} · ${x.ptBlocks}/${x.nJa} blocos
+          ${(x.flags || []).map((f) => `<span class="flagtag">${esc(f)}</span>`).join('')}</div>
+      </div>
+    </div>`).join('') || '<div class="empty">Nada neste filtro.</div>';
+}
+async function open_(key) {
+  sel = key; renderList();
+  const main = document.getElementById('main');
+  main.innerHTML = '<div class="empty">Carregando…</div>';
+  const r = await (await fetch(DIR + key + '?' + Date.now())).json();
+  const before = norm(r.old_ptbr), after = norm(r.new_ptbr);
+  const flagWarn = (r.flags && r.flags.length)
+    ? `<div class="warn">⚠ ${r.flags.join(' · ')} — confira antes de publicar este.</div>` : '';
+  main.innerHTML = `
+    <div class="titlebar">
+      <div class="ttl">${esc(r.title || r.file)}</div>
+      <div class="sub">${esc(r.vol)}/${esc(r.file)} · t${r.topic_idx} · JA tem <b>${r.nJa}</b> blocos · status <b>${r.status}</b></div>
+    </div>
+    ${flagWarn}
+    <div class="pair">
+      <div class="col"><h3>Antes (atual no site)</h3><div class="cnt">${countP(before)} parágrafos renderizados</div><div class="doc">${before}</div></div>
+      <div class="col new"><h3>Depois (retradução)</h3><div class="cnt">${countP(after)} parágrafos renderizados</div><div class="doc">${after}</div></div>
+    </div>`;
+}
+document.getElementById('q').addEventListener('input', (e) => { q = e.target.value; renderList(); });
+document.querySelectorAll('.chip').forEach((c) => c.addEventListener('click', () => {
+  document.querySelectorAll('.chip').forEach((x) => x.classList.remove('on'));
+  c.classList.add('on'); filter = c.dataset.f; renderList();
+}));
+window.open_ = open_;
+boot();
+</script>
+</body>
+</html>

@@ -33,6 +33,31 @@
   // ele veria a seleção já colapsada e fecharia nossa barra na hora.
   let _justCaptured = false;
 
+  // ── Instrumentação on-device (gated por ?hldebug=1) ────────────────────────
+  // Console do Android é impraticável; este overlay registra eventos de seleção
+  // pra diagnosticar por que a barra nativa do OS aparece em vez da nossa.
+  // Inerte (no-op) sem o parâmetro. Remover quando o bug do destaque fechar.
+  let _hlDebugEl = null;
+  const _HL_DEBUG = (() => {
+    try { return /[?&]hldebug=1\b/.test(window.location.search); } catch (_) { return false; }
+  })();
+  function _dbg(msg) {
+    if (!_HL_DEBUG) return;
+    try {
+      if (!_hlDebugEl) {
+        _hlDebugEl = document.createElement('div');
+        _hlDebugEl.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:2147483647;max-height:42vh;overflow:auto;background:rgba(0,0,0,.86);color:#7CFC00;font:11px/1.35 monospace;padding:6px 8px;white-space:pre-wrap;border-top:2px solid #7CFC00;';
+        document.body.appendChild(_hlDebugEl);
+      }
+      const sel = window.getSelection();
+      const selLen = sel && !sel.isCollapsed ? String(sel.toString().trim().length) : '0';
+      const line = document.createElement('div');
+      line.textContent = `${msg}  [sel=${selLen}]`;
+      _hlDebugEl.insertBefore(line, _hlDebugEl.firstChild);
+      while (_hlDebugEl.childNodes.length > 40) _hlDebugEl.removeChild(_hlDebugEl.lastChild);
+    } catch (_) { /* noop */ }
+  }
+
   function _lang() {
     return localStorage.getItem('site_lang') || 'pt';
   }
@@ -815,6 +840,78 @@
   // Event Handlers
   // ============================================================
 
+  // Lê a seleção nativa atual, valida (≥2 chars, dentro de um tópico) e preenche
+  // _currentSelection. Retorna o range (p/ posicionar o tooltip no desktop) ou
+  // null se não houver seleção aproveitável. Compartilhado entre o gatilho de
+  // desktop (_handleSelection) e o de mobile (selectionchange).
+  function _captureSelectionFromDOM() {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) return null;
+    const text = sel.toString().trim();
+    if (text.length < 2) return null;
+
+    const range = sel.getRangeAt(0);
+    const topicId = _getTopicIdFromNode(range.startContainer);
+    if (!topicId) return null;
+
+    const topicEl = document.getElementById(topicId);
+    const topicIndex = topicId.startsWith('topic-')
+      ? parseInt(topicId.replace('topic-', ''), 10)
+      : -1;
+    let topicTitle = '';
+    if (topicIndex >= 0 && window._currentTopics && window._currentTopics[topicIndex]) {
+      const lang = _lang();
+      topicTitle = (lang === 'pt'
+        ? (window._currentTopics[topicIndex].title_ptbr || window._currentTopics[topicIndex].title_pt || window._currentTopics[topicIndex].title || '')
+        : (window._currentTopics[topicIndex].title_ja || window._currentTopics[topicIndex].title || '')
+      ).replace(/<[^>]+>/g, '').trim();
+    } else if (topicEl) {
+      // Disciples mode: pull title from the section's heading
+      const heading = topicEl.querySelector('h1, h2, h3, h4, h5, h6, .disciples-section-title');
+      topicTitle = (heading?.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+    }
+
+    const { startChar, endChar } = _getCharOffsetsFromSelection(range, topicEl);
+    _currentSelection = { topicId, topicIndex, topicTitle, text, startChar, endChar };
+    return range;
+  }
+
+  // Mostra a barra mobile e DISPENSA a seleção nativa. No Android, manter a
+  // seleção viva faz o OS desenhar sua própria janela (Copiar/Compartilhar/
+  // Buscar) sobre o texto. Como já guardamos tudo em _currentSelection (e
+  // _saveSelection não relê window.getSelection), limpar a seleção derruba a
+  // janela do sistema e deixa só a nossa barra. _justCaptured ignora o evento
+  // fantasma (mouseup sintético / selectionchange) gerado pela própria limpeza.
+  function _showMobileBarAndClear() {
+    _showMobileBar();
+    _dbg('  ↳ _showMobileBar() + removeAllRanges()');
+    _justCaptured = true;
+    const live = window.getSelection();
+    if (live) live.removeAllRanges();
+    setTimeout(() => { _justCaptured = false; }, 350);
+  }
+
+  // Gatilho de seleção no MOBILE. O Android consome o long-press e NÃO entrega
+  // touchend/mouseup pro nosso handler (confirmado on-device via ?hldebug=1) —
+  // só dispara selectionchange. Debounce no "settle" pra não capturar/limpar no
+  // meio do gesto: o usuário faz long-press numa palavra, PAUSA, e arrasta a
+  // alça pra estender. Um settle curto dispararia na pausa e arrancaria a
+  // seleção. 800ms tolera a pausa típica; ajustável conforme teste on-device.
+  const _SEL_SETTLE_MS = 800;
+  let _selSettleTimer = null;
+  function _onMobileSelectionSettle() {
+    clearTimeout(_selSettleTimer);
+    _selSettleTimer = setTimeout(() => {
+      if (_justCaptured) return;
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed) return; // ignora o selectionchange da limpeza
+      const range = _captureSelectionFromDOM();
+      if (!range) return;
+      _dbg(`  ↳ [selchange settle] captura OK len=${_currentSelection.text.length}`);
+      _showMobileBarAndClear();
+    }, _SEL_SETTLE_MS);
+  }
+
   function _handleSelection(e) {
     const clickedInsideTooltip = e && e.target && e.target.closest('.highlight-tooltip');
     const clickedInsidePopup = e && e.target && e.target.closest('.highlight-comment-popup');
@@ -823,75 +920,35 @@
     if (clickedInsideTooltip || clickedInsidePopup || clickedOnHighlight || clickedInsideMobileBar) return;
 
     setTimeout(() => {
+      _dbg(`_handleSelection fire (${e ? e.type : '?'}) justCap=${_justCaptured}`);
       // Ignora o mouseup sintético que o Android dispara após o touchend
       // (já capturamos e limpamos a seleção — ver _isMobile abaixo).
-      if (_justCaptured) return;
+      if (_justCaptured) { _dbg('  ↳ skip: _justCaptured'); return; }
 
       const tooltip = document.getElementById('highlightTooltip');
       if (tooltip && tooltip.contains(document.activeElement)) return;
 
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || !sel.rangeCount) {
+        _dbg('  ↳ exit: seleção vazia/colapsada');
         if (_tooltipEl) _hideTooltip();
         if (_mobileBarEl) _hideMobileBar();
         return;
       }
 
-      const text = sel.toString().trim();
-      if (text.length < 2) {
+      const range = _captureSelectionFromDOM();
+      if (!range) {
         if (_tooltipEl) _hideTooltip();
         if (_mobileBarEl) _hideMobileBar();
         return;
       }
 
-      const range = sel.getRangeAt(0);
-      const topicId = _getTopicIdFromNode(range.startContainer);
-      if (!topicId) {
-        _hideTooltip();
-        _hideMobileBar();
-        return;
-      }
-
-      const topicEl = document.getElementById(topicId);
-      const topicIndex = topicId.startsWith('topic-')
-        ? parseInt(topicId.replace('topic-', ''), 10)
-        : -1;
-      let topicTitle = '';
-      if (topicIndex >= 0 && window._currentTopics && window._currentTopics[topicIndex]) {
-        const lang = _lang();
-        topicTitle = (lang === 'pt'
-          ? (window._currentTopics[topicIndex].title_ptbr || window._currentTopics[topicIndex].title_pt || window._currentTopics[topicIndex].title || '')
-          : (window._currentTopics[topicIndex].title_ja || window._currentTopics[topicIndex].title || '')
-        ).replace(/<[^>]+>/g, '').trim();
-      } else if (topicEl) {
-        // Disciples mode: pull title from the section's heading
-        const heading = topicEl.querySelector('h1, h2, h3, h4, h5, h6, .disciples-section-title');
-        topicTitle = (heading?.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
-      }
-
-      const { startChar, endChar } = _getCharOffsetsFromSelection(range, topicEl);
-
-      _currentSelection = {
-        topicId,
-        topicIndex,
-        topicTitle,
-        text,
-        startChar,
-        endChar,
-      };
-
+      _dbg(`  ↳ captura OK (isMobile=${_isMobile}, len=${_currentSelection.text.length})`);
+      // No mobile o gatilho real é selectionchange (_onMobileSelectionSettle) —
+      // o Android não entrega touchend/mouseup com seleção ativa. Este ramo só
+      // roda no raro caso de o evento chegar mesmo assim; reusa o mesmo caminho.
       if (_isMobile) {
-        _showMobileBar();
-        // No Android/Samsung, manter a seleção nativa viva faz o sistema abrir
-        // sua própria janela (Copiar / Compartilhar / Buscar / Bixby) sobre o
-        // texto, atrapalhando o destaque. Não existe flag de CSS/JS que esconda
-        // essa janela. Como já guardamos tudo em _currentSelection (e
-        // _saveSelection não relê window.getSelection), limpamos a seleção pra
-        // dispensar a janela do sistema e deixar só a nossa barra inferior.
-        _justCaptured = true;
-        const _liveSel = window.getSelection();
-        if (_liveSel) _liveSel.removeAllRanges();
-        setTimeout(() => { _justCaptured = false; }, 350);
+        _showMobileBarAndClear();
       } else {
         _showTooltip(range);
       }
@@ -1063,9 +1120,28 @@
 
     _isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 
+    if (_HL_DEBUG) {
+      _dbg(`init: isMobile=${_isMobile} innerW=${window.innerWidth} UA=${(navigator.userAgent || '').slice(0, 60)}`);
+      // Captura crua: registra CADA evento relevante, mesmo que _handleSelection
+      // não rode, pra distinguir "evento não dispara" de "ramo não executa".
+      ['touchstart', 'touchend', 'mouseup', 'contextmenu'].forEach(ev =>
+        document.addEventListener(ev, () => _dbg(`evt:${ev}`), true));
+      let _scTimer = null;
+      document.addEventListener('selectionchange', () => {
+        clearTimeout(_scTimer);
+        _scTimer = setTimeout(() => _dbg('evt:selectionchange (settle)'), 150);
+      }, true);
+    }
+
     document.addEventListener('mouseup', _handleSelection);
     document.addEventListener('touchend', _handleSelection);
     document.addEventListener('click', _handleClick);
+
+    // Mobile: o Android não dispara touchend/mouseup com seleção ativa (consome
+    // o long-press), então o gatilho real é selectionchange. Ver _onMobileSelectionSettle.
+    if (_isMobile) {
+      document.addEventListener('selectionchange', _onMobileSelectionSettle);
+    }
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {

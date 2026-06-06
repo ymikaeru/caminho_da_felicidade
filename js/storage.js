@@ -20,18 +20,29 @@ const CACHE_TTL = 30 * 60 * 1000;
 // erro normal — mostra "Erro ao carregar" em vez de tela travada.
 const FETCH_TIMEOUT_MS = 8000;
 
+// Contador de fetches concorrentes — instrumentação do "fetch múltiplo"
+// (?navdebug=1). Revela se o hang do iOS 17 coincide com >1 fetch em voo.
+let _inflight = 0;
 async function _fetchWithTimeout(url, options = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  const short = (url.split('/').pop() || url).slice(0, 40);
+  const t0 = Date.now();
+  _inflight++;
+  window._navlog?.(`fetch START ${short} (inflight=${_inflight})`);
   try {
-    return await fetch(url, { ...options, signal: controller.signal });
+    const r = await fetch(url, { ...options, signal: controller.signal });
+    window._navlog?.(`fetch OK ${short} ${Date.now() - t0}ms status=${r.status}`);
+    return r;
   } catch (err) {
+    window._navlog?.(`fetch ${err.name === 'AbortError' ? 'ABORT(timeout)' : 'ERR(' + err.name + ')'} ${short} ${Date.now() - t0}ms`);
     if (err.name === 'AbortError') {
       throw new Error(`Fetch timeout após ${FETCH_TIMEOUT_MS}ms: ${url}`);
     }
     throw err;
   } finally {
     clearTimeout(timer);
+    _inflight--;
   }
 }
 
@@ -51,9 +62,11 @@ async function getSession() {
  */
 export async function storageFetch(path) {
   const hit = _cache.get(path);
-  if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
+  if (hit && Date.now() - hit.ts < CACHE_TTL) { window._navlog?.('storageFetch CACHE-HIT ' + path.split('/').pop()); return hit.data; }
 
+  window._navlog?.('getSession START ' + path.split('/').pop());
   const session = await getSession();
+  window._navlog?.('getSession OK hasSession=' + !!session);
 
   let data;
   if (!session) {

@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function initReader(ovrVol, ovrFile, searchTopicTitle) {
         const { volId, filename, searchQuery, topicTitle, topicIdx, highlightId, hlScroll } = getParams(ovrVol, ovrFile);
+        window._navlog?.('initReader() vol=' + volId + ' file=' + filename + ' search=' + (searchQuery || '-'));
         const finalTopicTitle = searchTopicTitle || topicTitle;
         if (!volId || !filename) {
             container.innerHTML = `<div class="error">Selecione um ensinamento no índice.</div>`;
@@ -136,7 +137,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let resolvedParagraphIdx = null;
         if (resolvedTopicIdx === null && window._cloudSync) {
             try {
+                window._navlog?.('getLastPosition START (não protegido por timeout)');
                 const pos = await window._cloudSync.getLastPosition(volId, filename);
+                window._navlog?.('getLastPosition OK');
                 if (pos && pos.topic_index > 0) {
                     resolvedTopicIdx = pos.topic_index;
                 }
@@ -146,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pos && Number.isInteger(pos.paragraph_index)) {
                     resolvedParagraphIdx = pos.paragraph_index;
                 }
-            } catch (e) { /* fallback to 0 */ }
+            } catch (e) { window._navlog?.('getLastPosition ERR ' + (e && e.message)); }
         }
 
         // When loading to a specific topic, create a temporary overlay so content
@@ -174,7 +177,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 : fetchJSON(`${volId}_nav.json`).then(j => { window._volNavCache[volId] = j; return j; });
 
             const [navJson, articleJson] = await Promise.all([navPromise, _getOrFetchArticle(articleKey)]);
+            window._navlog?.('fetch OK key=' + articleKey + ' -> renderReader');
             renderReader(volId, filename, articleJson, navJson, searchQuery, finalTopicTitle, hlScroll);
+            window._navlog?.('renderReader RETURNED, container len=' + (container.innerHTML || '').length);
             _prefetchAdjacent(volId, navJson, filename);
 
             // Log access for analytics (fire-and-forget)
@@ -212,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 600);
             }
         } catch (err) {
+            window._navlog?.('initReader CATCH: ' + (err && err.message ? err.message : err));
             console.error('Reader Error:', err);
             container.innerHTML = `<div class="error">Erro ao carregar o ensinamento.</div>`;
         }
@@ -319,6 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
     _lastInitKey = _currentInitKey();
     window.addEventListener('popstate', () => {
         const k = _currentInitKey();
+        window._navlog?.('popstate k=' + k + ' last=' + _lastInitKey + ' -> ' + (k !== _lastInitKey ? 'initReader' : 'skip'));
         if (k !== _lastInitKey) {
             _lastInitKey = k;
             initReader();

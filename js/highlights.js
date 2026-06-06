@@ -27,6 +27,11 @@
   let _highlightRegistry = null;
   let _isMobile = false;
   let _savedRange = null;
+  // No Android/Samsung, ao limpar a seleção nativa (pra dispensar a barra do
+  // sistema) o navegador ainda dispara um mouseup sintético logo depois. Esse
+  // flag faz _handleSelection ignorar esse evento fantasma por uns ms, senão
+  // ele veria a seleção já colapsada e fecharia nossa barra na hora.
+  let _justCaptured = false;
 
   function _lang() {
     return localStorage.getItem('site_lang') || 'pt';
@@ -818,6 +823,10 @@
     if (clickedInsideTooltip || clickedInsidePopup || clickedOnHighlight || clickedInsideMobileBar) return;
 
     setTimeout(() => {
+      // Ignora o mouseup sintético que o Android dispara após o touchend
+      // (já capturamos e limpamos a seleção — ver _isMobile abaixo).
+      if (_justCaptured) return;
+
       const tooltip = document.getElementById('highlightTooltip');
       if (tooltip && tooltip.contains(document.activeElement)) return;
 
@@ -873,6 +882,16 @@
 
       if (_isMobile) {
         _showMobileBar();
+        // No Android/Samsung, manter a seleção nativa viva faz o sistema abrir
+        // sua própria janela (Copiar / Compartilhar / Buscar / Bixby) sobre o
+        // texto, atrapalhando o destaque. Não existe flag de CSS/JS que esconda
+        // essa janela. Como já guardamos tudo em _currentSelection (e
+        // _saveSelection não relê window.getSelection), limpamos a seleção pra
+        // dispensar a janela do sistema e deixar só a nossa barra inferior.
+        _justCaptured = true;
+        const _liveSel = window.getSelection();
+        if (_liveSel) _liveSel.removeAllRanges();
+        setTimeout(() => { _justCaptured = false; }, 350);
       } else {
         _showTooltip(range);
       }

@@ -29,6 +29,82 @@ function _detectDevice() {
   }
 }
 
+// Sistema operacional + versão a partir do user-agent. Windows NT 10.0 cobre
+// tanto Win 10 quanto 11 (o UA não distingue) → "10/11". iOS/macOS usam "_"
+// como separador de versão; normaliza pra ".".
+function _detectOS(ua, touch) {
+  if (/windows nt/i.test(ua)) {
+    const v = (ua.match(/Windows NT ([\d.]+)/i) || [])[1] || '';
+    const map = { '10.0': '10/11', '6.3': '8.1', '6.2': '8', '6.1': '7', '6.0': 'Vista', '5.1': 'XP' };
+    return { os: 'Windows', os_version: map[v] || v };
+  }
+  if (/android/i.test(ua)) {
+    return { os: 'Android', os_version: (ua.match(/Android ([\d.]+)/i) || [])[1] || '' };
+  }
+  if (/iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && touch > 1)) {
+    const v = (ua.match(/OS (\d+[_\d]*)/) || [])[1] || '';
+    return { os: 'iOS', os_version: v.replace(/_/g, '.') };
+  }
+  if (/cros/i.test(ua)) return { os: 'ChromeOS', os_version: '' };
+  if (/mac os x/i.test(ua)) {
+    const v = (ua.match(/Mac OS X (\d+[_.\d]*)/) || [])[1] || '';
+    return { os: 'macOS', os_version: v.replace(/_/g, '.') };
+  }
+  if (/linux/i.test(ua)) return { os: 'Linux', os_version: '' };
+  return { os: '', os_version: '' };
+}
+
+// Navegador + versão. Ordem importa: Edge/Samsung/Opera embutem "Chrome" e
+// "Safari" no UA, então precisam ser testados ANTES dos genéricos. CriOS/FxiOS
+// são Chrome/Firefox no iOS (rodam sobre WebKit, mas mantêm a marca).
+function _detectBrowser(ua) {
+  let m;
+  if (m = ua.match(/Edg(?:A|iOS)?\/([\d.]+)/)) return { browser: 'Edge', browser_version: m[1] };
+  if (m = ua.match(/SamsungBrowser\/([\d.]+)/)) return { browser: 'Samsung Internet', browser_version: m[1] };
+  if (m = ua.match(/OPR\/([\d.]+)/)) return { browser: 'Opera', browser_version: m[1] };
+  if (m = ua.match(/CriOS\/([\d.]+)/)) return { browser: 'Chrome', browser_version: m[1] };
+  if (m = ua.match(/FxiOS\/([\d.]+)/)) return { browser: 'Firefox', browser_version: m[1] };
+  if (m = ua.match(/Firefox\/([\d.]+)/)) return { browser: 'Firefox', browser_version: m[1] };
+  if (m = ua.match(/Chrome\/([\d.]+)/)) return { browser: 'Chrome', browser_version: m[1] };
+  if (/Safari/i.test(ua) && (m = ua.match(/Version\/([\d.]+)/))) return { browser: 'Safari', browser_version: m[1] };
+  return { browser: '', browser_version: '' };
+}
+
+// Coleta tudo: tipo + SO + navegador + modelo. Async porque o modelo do
+// aparelho no Chrome com "User-Agent Reduction" some do UA (vira "K") e só
+// volta via Client Hints de alta entropia (navigator.userAgentData). iOS NUNCA
+// expõe o modelo (Apple oculta por privacidade) — fica vazio nesses casos.
+async function _detectDeviceInfo() {
+  try {
+    const ua = navigator.userAgent || '';
+    const touch = navigator.maxTouchPoints || 0;
+    const info = {
+      device: _detectDevice(),
+      ..._detectOS(ua, touch),
+      ..._detectBrowser(ua)
+    };
+    // Modelo (só Android): token após a versão do Android, antes de ")"/"Build".
+    let model = '';
+    const m = ua.match(/Android [\d.]+; ?([^;)]+?)(?: Build\/[^)]*)?\)/i);
+    if (m) model = m[1].trim().replace(/\s+wv$/i, '');
+    // UA reduzido anonimiza o modelo p/ "K" → tenta Client Hints de alta entropia.
+    // Só no Android: desktop nunca tem modelo e iOS nunca expõe via CH, então
+    // evita um hop async inútil antes da RPC em todo logAccess de desktop.
+    if (/android/i.test(ua) && (!model || model === 'K') && navigator.userAgentData?.getHighEntropyValues) {
+      try {
+        const h = await navigator.userAgentData.getHighEntropyValues(['model', 'platformVersion']);
+        if (h.model) model = h.model;
+        // platformVersion do CH é mais preciso que o UA p/ Windows/Android.
+        if (h.platformVersion && !info.os_version) info.os_version = h.platformVersion;
+      } catch (_) { /* CH indisponível: segue com o que tem */ }
+    }
+    if (model) info.model = model;
+    return info;
+  } catch (_) {
+    return { device: 'desconhecido' };
+  }
+}
+
 let supabaseSession = null;
 let userPermissions = null;
 let isAdminRole = false;
@@ -319,7 +395,9 @@ window.supabaseAuth = {
     // já está deployada e persiste isto em access_logs.metadata). Preserva
     // qualquer metadata existente (ex.: texto copiado em content-protection).
     const meta = (metadata != null) ? { ...metadata } : {};
-    meta.device = _detectDevice();
+    // Anexa device (string, p/ compat) + os/os_version/browser/browser_version/
+    // model. Campos novos a partir de 06/06/2026; logs anteriores só têm device.
+    Object.assign(meta, await _detectDeviceInfo());
     const params = { p_volume: volume, p_file: file, p_action: action, p_metadata: meta };
     const { error } = await supabase.rpc('log_access_dedup', params);
     if (error) console.warn('[logAccess] Falha ao registrar acesso:', error.message);

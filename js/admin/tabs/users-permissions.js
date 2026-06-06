@@ -270,6 +270,23 @@ async function openUserDetail(userId) {
       html += `
         <h4 style="margin:16px 0 8px; font-size:0.85rem;">Dispositivos <span style="font-weight:400; color:var(--text-muted); font-size:0.72rem;">(destacado = último usado · últimos ${(logs || []).length} acessos)</span></h4>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">${chips}</div>`;
+
+      // Aparelho detalhado (os/navegador/modelo) — campos novos a partir de
+      // 06/06/2026. Pega o log mais recente que já os tenha. iPhone/iPad não
+      // expõem modelo (Apple oculta). Só renderiza se houver algum dado real.
+      const detailed = (logs || []).find(l => l.metadata && (l.metadata.os || l.metadata.browser || l.metadata.model));
+      if (detailed) {
+        const md = detailed.metadata;
+        const join = (a, b) => [a, b].filter(Boolean).join(' ');
+        const parts = [
+          md.model ? `📦 ${_escHtml(md.model)}` : '',
+          join(md.os, md.os_version) ? `💠 ${_escHtml(join(md.os, md.os_version))}` : '',
+          join(md.browser, md.browser_version) ? `🌐 ${_escHtml(join(md.browser, md.browser_version))}` : ''
+        ].filter(Boolean);
+        if (parts.length) {
+          html += `<p style="font-size:0.78rem; color:var(--text-muted); margin:0 0 8px; display:flex; flex-wrap:wrap; gap:12px;">${parts.map(p => `<span>${p}</span>`).join('')}</p>`;
+        }
+      }
     }
   }
 

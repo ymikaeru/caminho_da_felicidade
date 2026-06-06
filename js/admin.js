@@ -25,13 +25,14 @@
     import './admin/tabs/highlights-saved.js';
     import './admin/tabs/users-permissions.js?v=2';
     import './admin/tabs/analytics.js?v=11';
-    import './admin/tabs/translation-review.js?v=2';
+    import './admin/tabs/translation-review.js?v=4';
     import './admin/tabs/translation-review-guia.js';
     import './admin/tabs/disciples-reports.js?v=2';
     import './admin/tabs/partial-citations.js?v=24';
     import './admin/tabs/recommendations.js?v=10';
     import './admin/tabs/inbox.js';
     import './admin/tabs/poetry-versions.js?v=2';
+    import './admin/tabs/alignment.js?v=19';
 
     // Expõe o client no window pra scripts não-módulo (ex.: reader-recommend.js,
     // o modal do aviãozinho reusado em "Repassar a todos" na Caixa de Entrada).
@@ -192,6 +193,7 @@
       if (tab === 'inbox') loadInboxTab();
       if (tab === 'poetry-versions') loadPoetryVersions();
       if (tab === 'partial-citations') loadPartialCitations();
+      if (tab === 'alignment') loadAlignment();
       if (tab === 'analytics-johrei') loadJohreiAnalytics();
       if (tab === 'reports-guia') loadGuiaReports();
       if (tab === 'analytics-landing') loadLandingAnalytics();

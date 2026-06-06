@@ -6,7 +6,7 @@
   <title>Admin — Caminho da Felicidade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.min.css?v=148">
-  <link rel="stylesheet" href="css/admin.min.css?v=18">
+  <link rel="stylesheet" href="css/admin.min.css?v=25">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 
@@ -114,6 +114,9 @@
                   </div>
                   <div class="admin-nav-item" data-tab="findreplace" onclick="switchTab('findreplace')"><span
                       class="admin-nav-ico">✏️</span><span class="admin-nav-txt">Buscar &amp; Substituir</span></div>
+                  <div class="admin-nav-item" data-tab="alignment" onclick="switchTab('alignment')"><span
+                      class="admin-nav-ico">↺</span><span class="admin-nav-txt">Comparação (anterior)</span><span
+                      class="tab-badge empty" id="alignmentTabBadge">0</span></div>
                 </div>
                 <div class="admin-nav-group">
                   <div class="admin-nav-grouplabel">Sistema</div>
@@ -702,6 +705,15 @@
 
             <div class="tab-content" id="tab-partial-citations">
               <div id="pc-container">
+                <div class="loading">Selecione a aba para carregar.</div>
+              </div>
+            </div>
+
+            <!-- Comparação (versão anterior): os 617 artigos do Vol 1 retraduzidos;
+                 mostra a tradução ANTERIOR (content_ptbr_prev) × ATUAL ao vivo do
+                 Storage, com copiar-trecho pra garimpar frases boas da versão antiga. -->
+            <div class="tab-content" id="tab-alignment">
+              <div id="align-container">
                 <div class="loading">Selecione a aba para carregar.</div>
               </div>
             </div>
@@ -2030,7 +2042,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=115"></script>
+  <script type="module" src="js/admin.js?v=118"></script>
 </body>
 
 </html>

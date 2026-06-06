@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preview — PT com novas quebras (kuni3)</title>
+<!-- mesmas libs do leitor, p/ render fiel (_normalizeContent + marked) -->
+<script src="/js/marked.min.js"></script>
+<script src="/js/reader-content.js?v=4"></script>
+<style>
+  body { font-family: Georgia, 'Times New Roman', serif; max-width: 1100px; margin: 0 auto; padding: 24px; color: #222; line-height: 1.6; background:#faf8f4; }
+  h1 { font-size: 1.2rem; color:#8a6d3b; }
+  h2 { font-size: 1rem; margin-top: 28px; border-bottom: 2px solid #e0d8c8; padding-bottom: 6px; color:#6b5836; }
+  .box { background:#fff; border:1px solid #e0d8c8; border-radius:10px; padding:14px 18px; margin:10px 0; }
+  .box p { margin: 0 0 0.9em; }
+  .box b, .box strong { color:#7a1f1f; }
+  .muted { color:#999; font-size:.85rem; }
+  .cmp { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid #e0d8c8; border-radius:10px; overflow:hidden; }
+  .cmp .h { background:#f0ebe0; font-weight:bold; padding:8px 12px; font-size:.85rem; color:#6b5836; }
+  .cmp .row { display:contents; }
+  .cmp .cell { padding:9px 12px; border-bottom:1px solid #eee; font-size:.92rem; }
+  .cmp .ja { border-right:1px solid #e0d8c8; color:#555; }
+  .pill { display:inline-block; background:#e8f5e9; color:#1f8a3f; border-radius:6px; padding:2px 8px; font-size:.78rem; }
+</style>
+</head>
+<body>
+<h1>Preview — kuni3: PT com as novas quebras aplicadas</h1>
+<p class="muted" id="meta">carregando…</p>
+
+<h2>① ANTES — PT atual (como o leitor mostra hoje = paredão)</h2>
+<div class="box" id="antes">…</div>
+
+<h2>② DEPOIS — conserto <code>\n\n→&lt;br&gt;</code> (mesmo texto, parágrafos aparecem)</h2>
+<div class="box" id="depois">…</div>
+
+<script>
+(async function () {
+  const meta = document.getElementById('meta');
+  try {
+    const data = await (await fetch('./kuni3_t1_retrad.json?' + Date.now())).json();
+    const norm = (s) => (typeof _normalizeContent === 'function') ? _normalizeContent(s) : (s || '').replace(/<br\s*\/?>/gi, '</p><p>');
+    const countP = (h) => (h.match(/<p[ >]/gi) || []).length;
+    const onlyWords = (s) => (s || '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    // conserto determinístico de paredão: \n\n e <br> → <br/> reais (preserva texto)
+    const wallFix = (s) => (s || '').split(/\s*(?:<br\s*\/?>\s*)+|\n{2,}/g).map(x => x.trim()).filter(Boolean).join('<br/>');
+
+    const pt = data.ptAtual;
+    const ptFixed = wallFix(pt);
+    const beforeHtml = norm(pt), afterHtml = norm(ptFixed);
+    document.getElementById('antes').innerHTML = beforeHtml;
+    document.getElementById('depois').innerHTML = afterHtml;
+    const same = onlyWords(pt) === onlyWords(ptFixed);
+    meta.innerHTML = `Antes: <b>${countP(beforeHtml)}</b> parágrafo(s) · Depois: <b>${countP(afterHtml)}</b> · `
+      + `<span class="pill">${same ? '✓ texto idêntico (só separadores mudaram)' : '✗ texto mudou'}</span>`;
+  } catch (e) {
+    meta.textContent = 'Erro ao carregar amostra: ' + e.message;
+  }
+})();
+</script>
+</body>
+</html>

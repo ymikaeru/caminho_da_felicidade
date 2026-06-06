@@ -10,10 +10,21 @@ import { allUsers, volumeCategories, _myUid, _reportNotes } from '../shared/stat
 
 let _reportsLoaded = false;
 let _allReports = [];
+let _prevSet = null; // Set "vol/file/topic_idx" dos artigos com content_ptbr_prev (retraduzidos)
+
+// manifesto leve dos artigos que têm versão anterior arquivada (data/retrad_prev_index.json)
+async function _ensurePrevSet() {
+  if (_prevSet) return;
+  try {
+    const arr = await (await fetch('data/retrad_prev_index.json?' + Date.now())).json();
+    _prevSet = new Set(arr.map((x) => `${x.vol}/${x.file}/${x.topic_idx}`));
+  } catch (_) { _prevSet = new Set(); }
+}
 
 async function loadReports(forceReload = false) {
   if (_reportsLoaded && !forceReload) return;
   _reportsLoaded = true;
+  await _ensurePrevSet();
 
   const container = document.getElementById('reportsContainer');
   const summary = document.getElementById('reportsSummary');
@@ -207,6 +218,7 @@ function _renderReports() {
           <span class="report-vol">${VOL_SHORT[r.vol] || r.vol}</span>
           <span class="report-file" title="${_escHtml(r.file || '')}">${_escHtml(fileLabel)}</span>
           ${topicIdx !== '' ? `<span class="report-topic-idx" title="Índice do tópico (data-p-idx)">#${topicIdx}</span>` : ''}
+          ${(_prevSet && _prevSet.has(`${r.vol}/${r.file}/${topicIdx}`)) ? `<span class="report-prev-chip" title="Este artigo foi retraduzido — abra o editor para ver/comparar a versão anterior" onclick="openEditorFromReport('${r.id}')">↺ versão anterior</span>` : ''}
           <span class="report-lang">${langLabel}</span>
           <span class="report-user">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -443,7 +455,7 @@ async function deleteReportNote(noteId, reportId) {
   if (thread) thread.innerHTML = _buildNotesThread(reportId);
 }
 
-const TRANSLATION_GUIDELINES = `Você é um revisor sênior brasileiro, devoto da Sekaikyūseikyō, com conhecimento profundo do registro religioso e doutrinário em português brasileiro. Sua tradução deve soar como Meishu-sama falando diretamente com discípulos brasileiros.
+export const TRANSLATION_GUIDELINES = `Você é um revisor sênior brasileiro, devoto da Sekaikyūseikyō, com conhecimento profundo do registro religioso e doutrinário em português brasileiro. Sua tradução deve soar como Meishu-sama falando diretamente com discípulos brasileiros.
 
 PRINCÍPIO DOUTRINÁRIO FUNDAMENTAL: aquilo que o mundo chama de "doença" é, sob a ótica de Meishu-sama, purificação se manifestando. O frame deve ser sempre espiritual, nunca clínico. Quando o autor descreve o fenômeno externo, é legítimo usar "doença"; quando a perspectiva é doutrinária, preferir "purificação", "manifestação" ou "afecção".
 
@@ -1233,11 +1245,33 @@ function renderStructuredEditor(jsonData) {
          `;
       }
 
+      const prevPt = (topic.content_ptbr_prev || '').trim();
+      const hasPrev = prevPt && prevPt !== ptContent.trim();
+      const prevChip = hasPrev
+        ? `<button class="prev-toggle" onclick="_togglePrevPanel('${pathPrefix}')" title="Esta tradução foi substituída — ver a versão anterior para conferência/garimpo de trechos">↺ versão anterior</button>`
+        : '';
+      let prevPanel = '';
+      if (hasPrev) {
+        const prevParas = prevPt.split(/\n\n+|<br\s*\/?>/i).map((s) => s.trim()).filter(Boolean);
+        const rows = prevParas.map((p) => `
+          <div class="prev-seg-row">
+            <button class="prev-copy" title="Copiar este trecho" onclick="_copyPrevSeg(this)">⧉</button>
+            <div class="prev-seg-text">${_escHtml(p)}</div>
+          </div>`).join('');
+        prevPanel = `
+          <div class="topic-prev-panel" id="prev-panel-${pathPrefix}" style="display:none">
+            <div class="prev-panel-head">Versão anterior (substituída) — ${prevParas.length} trecho(s). Use ⧉ para copiar e colar na edição atual.</div>
+            ${rows}
+          </div>`;
+      }
+
       html += `
         <div class="topic-edit-block">
           <div class="topic-edit-header">
             <span>Tópico ${pIdx + 1}</span>
+            ${prevChip}
           </div>
+          ${prevPanel}
           ${segmentsHtml}
         </div>
       `;
@@ -1574,6 +1608,27 @@ async function saveEditor() {
   btn.textContent = '💾 Salvar na Nuvem';
 }
 
+// ---- Versão anterior (content_ptbr_prev) — comparar/garimpar trechos inline ----
+function _togglePrevPanel(pathPrefix) {
+  const panel = document.getElementById(`prev-panel-${pathPrefix}`);
+  if (!panel) return;
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  const chip = document.querySelector(`.prev-toggle[onclick*="'${pathPrefix}'"]`);
+  if (chip) chip.classList.toggle('on', !open);
+}
+async function _copyPrevSeg(btnEl) {
+  const txt = btnEl.parentElement.querySelector('.prev-seg-text')?.innerText || '';
+  try {
+    await navigator.clipboard.writeText(txt);
+    const old = btnEl.textContent; btnEl.textContent = '✓';
+    setTimeout(() => { btnEl.textContent = old; }, 900);
+  } catch (_) {
+    const r = document.createRange(); r.selectNodeContents(btnEl.parentElement.querySelector('.prev-seg-text'));
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+}
+
 Object.assign(window, {
   // Reports
   toggleVerifiedSection,
@@ -1601,6 +1656,9 @@ Object.assign(window, {
   openEditor,
   closeEditor,
   saveEditor,
+  // Versão anterior (content_ptbr_prev)
+  _togglePrevPanel,
+  _copyPrevSeg,
   // Reports loader (chamado por switchTab)
   loadReports,
   // _wrapAllMatchesInElement — também usado por openHlReader (highlights-saved.js)

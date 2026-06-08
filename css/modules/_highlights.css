@@ -9,7 +9,13 @@ mark.user-highlight {
   padding: 1px 2px;
   cursor: pointer;
   transition: filter 0.15s ease;
-  line-break: anywhere;
+  /* NÃO usar line-break/word-break aqui: forçar quebra entre cada caractere do
+     trecho grifado faz a linha re-quebrar no instante em que o <mark> entra —
+     e, com o texto justificado (--reader-text-align:justify), respaça o
+     parágrafo inteiro ("o texto fica espaçado e muda a formatação", relato
+     iPad iOS17). O container .topic-content já tem word-break:break-word +
+     overflow-wrap:anywhere, então um <mark> sem regra de quebra envolve o
+     texto exatamente como ele já quebrava, sem reflow. */
 }
 
 mark.user-highlight:hover {
@@ -286,6 +292,24 @@ mark.temp-selection {
   border-color: var(--accent);
 }
 
+.highlight-copy-btn {
+  padding: 8px 12px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-main);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.highlight-copy-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
 /* ============================================================
    Mobile Floating Action Bar
    ============================================================ */
@@ -344,9 +368,35 @@ mark.temp-selection {
 }
 
 .highlight-mobile-bar-actions .highlight-cancel-btn,
+.highlight-mobile-bar-actions .highlight-copy-btn,
 .highlight-mobile-bar-actions .highlight-save-btn {
   padding: 10px 16px;
   font-size: 0.9rem;
+}
+
+/* Toast de confirmação ("Texto copiado") da barra de destaque mobile */
+.hl-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  z-index: 9900;
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(20, 20, 20, 0.92);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.hl-toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* ============================================================

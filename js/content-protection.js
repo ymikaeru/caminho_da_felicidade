@@ -57,14 +57,13 @@
   // o audit trail. Não sobrevive refresh (caso de uso intencional: re-visita).
   let _lastCopy = { text: '', ts: 0 };
 
-  function _onCopy(e) {
-    const inProtected = _inProtectedContent(e.target);
-    const isAdmin = (typeof isAdminUser === 'function' && isAdminUser());
-    console.log('[content-protection] copy event:', { type: e.type, inProtected, isAdmin, target: e.target?.tagName });
-    if (!inProtected) return;
-    const sel = (window.getSelection && window.getSelection().toString()) || '';
-    console.log('[content-protection] seleção:', { length: sel.length, preview: sel.slice(0, 40) });
-    const selTrim = sel.trim();
+  // Registra uma cópia no audit log com dedupe (<5s sobre a mesma seleção).
+  // Usado tanto pelo evento nativo `copy`/`cut` quanto pelo botão "Copiar" da
+  // barra de destaque no mobile: lá a seleção nativa é limpa pra derrubar a
+  // janela do sistema (ver highlights.js _showMobileBarAndClear), então o
+  // evento `copy` nativo nunca dispara e o log precisa vir do botão.
+  function _recordCopy(rawText, kind) {
+    const selTrim = (rawText || '').trim();
     if (!selTrim) return;
 
     const now = Date.now();
@@ -75,9 +74,23 @@
     _lastCopy = { text: selTrim, ts: now };
 
     // Captura o texto copiado (cap em 2000 chars; preserva tamanho original)
-    const text = sel.length > 2000 ? sel.slice(0, 2000) + '…' : sel;
-    _logAction('copy', { text, length: sel.length, kind: e.type });
+    const text = rawText.length > 2000 ? rawText.slice(0, 2000) + '…' : rawText;
+    _logAction('copy', { text, length: rawText.length, kind: kind || 'copy' });
   }
+
+  function _onCopy(e) {
+    const inProtected = _inProtectedContent(e.target);
+    const isAdmin = (typeof isAdminUser === 'function' && isAdminUser());
+    console.log('[content-protection] copy event:', { type: e.type, inProtected, isAdmin, target: e.target?.tagName });
+    if (!inProtected) return;
+    const sel = (window.getSelection && window.getSelection().toString()) || '';
+    console.log('[content-protection] seleção:', { length: sel.length, preview: sel.slice(0, 40) });
+    _recordCopy(sel, e.type);
+  }
+
+  // Exposto pra barra de destaque do mobile logar a cópia feita pelo seu
+  // próprio botão (a seleção nativa já foi limpa, então não há evento `copy`).
+  window.logManualCopy = _recordCopy;
 
   function _blockKeyboardShortcuts(e) {
     const active = document.activeElement;

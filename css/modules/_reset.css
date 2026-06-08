@@ -11,6 +11,11 @@ html {
   scroll-padding-top: calc(var(--nav-height) + 24px);
   overflow-x: clip;
   width: 100%;
+  /* Impede o "text autosizing" do iOS/Safari de re-inflar a fonte de um bloco
+     quando seu DOM muda (ex.: ao inserir um <mark> de destaque), o que
+     reflowava o parágrafo no iPad iOS17. Mantém o tamanho fiel ao CSS. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {

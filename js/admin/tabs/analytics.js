@@ -1108,8 +1108,10 @@ async function loadDailyActivityChart(days, since) {
 
 async function loadTopUsersRanking(days, since) {
   // Conta leituras "reais" por TEMPO ATIVO (estilo YouTube): só conta quem
-  // ficou ≥ 60 s na página com aba visível e atividade recente.
-  const MIN_READ_SECONDS = 20;
+  // ficou ≥ 30 s na página com aba visível e atividade recente.
+  // (30s = fundo do vale na distribuição de tempos: corta o "abriu, passou
+  //  o olho e fechou" em 0-20s sem penalizar leitura real de textos curtos.)
+  const MIN_READ_SECONDS = 30;
   const { data: raw } = await supabase
     .from('reading_positions')
     .select('user_id, volume, file, time_spent_seconds')

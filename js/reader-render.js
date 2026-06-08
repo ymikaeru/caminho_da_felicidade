@@ -425,6 +425,14 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
                     const displayDate = topicData.date && topicData.date !== 'Unknown' ? `<br/>\n(${_dt})` : '';
                     const pt1 = pureTitle.replace(/^\*\*|\*\*$/g, '');
                     headerHTML = `<b><font size="+2">${pt1.charAt(0).toUpperCase() + pt1.slice(1)}</font></b>${displayDate}<br/><br/>`;
+                    // Retradução-paredão (Vol 1): o título embutido foi removido mas a
+                    // data entre parênteses ficou no início do corpo. Como a data já
+                    // entra no cabeçalho acima (campo topicData.date), remove-a do corpo
+                    // p/ não duplicar. SÓ quando há data no cabeçalho (displayDate) — se
+                    // a data for "Unknown", o corpo é a única fonte e não pode sumir.
+                    if (displayDate) {
+                        rawContent = rawContent.replace(/^\s*(?:<[^>]+>\s*)*[（(][^）)]*\d{4}[^）)]*[）)][　\s]*/, '');
+                    }
                 }
             }
         }

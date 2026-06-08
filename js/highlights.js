@@ -441,6 +441,7 @@
     const lang = _lang();
     const highlightLabel = lang === 'ja' ? 'ハイライト' : 'Destacar';
     const cancelLabel = lang === 'ja' ? 'キャンセル' : 'Cancelar';
+    const copyLabel = lang === 'ja' ? 'コピー' : 'Copiar';
 
     _mobileBarEl = document.createElement('div');
     _mobileBarEl.className = 'highlight-mobile-bar';
@@ -461,6 +462,7 @@
         `</div>` +
         `<div class="highlight-mobile-bar-actions">` +
           `<button class="highlight-cancel-btn" id="highlightMobileCancelBtn">${cancelLabel}</button>` +
+          `<button class="highlight-copy-btn" id="highlightMobileCopyBtn">${copyLabel}</button>` +
           `<button class="highlight-save-btn" id="highlightMobileSaveBtn">${highlightLabel}</button>` +
         `</div>` +
         `<div class="highlight-tooltip-divider" style="margin: 2px 0"></div>` +
@@ -489,6 +491,28 @@
     document.getElementById('highlightMobileCancelBtn').addEventListener('click', _hideMobileBar);
     document.getElementById('highlightMobileSaveBtn').addEventListener('click', _saveSelection);
 
+    // Botão "Copiar": no mobile a barra de seleção nativa do OS (que tinha o
+    // Copiar) foi derrubada pra liberar nossa barra de destaque — ver
+    // _showMobileBarAndClear. Este botão devolve a cópia e loga o evento no
+    // audit trail via window.logManualCopy (content-protection.js), já que o
+    // evento `copy` nativo não dispara com a seleção limpa.
+    const mobileCopyBtn = document.getElementById('highlightMobileCopyBtn');
+    if (mobileCopyBtn) {
+      mobileCopyBtn.addEventListener('click', () => {
+        const text = _currentSelection && _currentSelection.text;
+        if (!text) { _hideMobileBar(); return; }
+        const copiedMsg = lang === 'ja' ? 'コピーしました' : 'Texto copiado';
+        // Não loga cópia de admin (paridade com o evento `copy` nativo, que
+        // pula admins via _inProtectedContent em content-protection.js).
+        const isAdmin = (typeof isAdminUser === 'function' && isAdminUser());
+        _copyToClipboard(text).then(() => {
+          if (!isAdmin && typeof window.logManualCopy === 'function') window.logManualCopy(text, 'copy');
+          _showHlToast(copiedMsg);
+          _hideMobileBar();
+        });
+      });
+    }
+
     const mobileReportBtn = document.getElementById('highlightMobileReportBtn');
     if (mobileReportBtn) {
       mobileReportBtn.addEventListener('click', (e) => {
@@ -512,6 +536,49 @@
       _mobileBarEl = null;
     }
     _currentSelection = null;
+  }
+
+  // Copia texto pro clipboard. Usa a Clipboard API (suportada no iOS 13.4+ e
+  // Android Chrome) com fallback execCommand pra navegadores antigos. Chamado
+  // dentro do gesto de toque do botão, então tem ativação do usuário.
+  function _copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(() => _legacyCopy(text));
+    }
+    return Promise.resolve(_legacyCopy(text));
+  }
+
+  function _legacyCopy(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch (e) { /* noop */ }
+  }
+
+  // Toast efêmero de confirmação ("Texto copiado"). Self-contained pra não
+  // depender de outro módulo; CSS em _highlights.css (.hl-toast).
+  let _hlToastEl = null;
+  let _hlToastTimer = null;
+  function _showHlToast(message) {
+    if (_hlToastEl) _hlToastEl.remove();
+    const toast = document.createElement('div');
+    toast.className = 'hl-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    _hlToastEl = toast;
+    requestAnimationFrame(() => toast.classList.add('hl-toast--visible'));
+    clearTimeout(_hlToastTimer);
+    _hlToastTimer = setTimeout(() => {
+      toast.classList.remove('hl-toast--visible');
+      setTimeout(() => { toast.remove(); if (_hlToastEl === toast) _hlToastEl = null; }, 300);
+    }, 2200);
   }
 
   // ============================================================

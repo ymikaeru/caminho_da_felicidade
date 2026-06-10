@@ -18,6 +18,14 @@ html {
   text-size-adjust: 100%;
 }
 
+/* Indicador de foco visível em TODO elemento interativo (navegação por
+   teclado / switch control). :focus-visible não dispara em toque/clique,
+   então não suja a UI de mouse. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 body {
   font-family: var(--font-ui);
   background: var(--bg-color);

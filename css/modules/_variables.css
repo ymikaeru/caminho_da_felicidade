@@ -7,7 +7,8 @@
   --surface: #FFFFFF;
   --surface-rgb: 255, 255, 255;
   --text-main: #1C1C1A;
-  --text-muted: #8C8A86;
+  /* 4.9:1 sobre --bg-color (WCAG AA; o antigo #8C8A86 dava 3.1:1) */
+  --text-muted: #6B6964;
   --accent: #9B7209;
   --accent-soft: rgba(155, 114, 9, 0.06);
   --accent-mid: rgba(155, 114, 9, 0.14);
@@ -144,7 +145,8 @@
   --surface: #36332E;
   --surface-rgb: 54, 51, 46;
   --text-main: #C0B9A8;
-  --text-muted: #8F8877;
+  /* 5.0:1 sobre --bg-color (WCAG AA; o antigo #8F8877 dava 4.2:1) */
+  --text-muted: #9C9482;
   --accent: #D4AF37;
   --border: #4A463F;
 }
@@ -164,7 +166,8 @@
   --surface: #4A4032;
   --surface-rgb: 74, 64, 50;
   --text-main: #D4C4B0;
-  --text-muted: #9A8A7A;
+  /* 5.0:1 sobre --bg-color (WCAG AA; o antigo #9A8A7A dava 3.7:1) */
+  --text-muted: #B3A28F;
   --accent: #D4AF37;
   --border: #5A4E3E;
 }

@@ -238,7 +238,7 @@ async function openUserDetail(userId) {
     <div class="stats-grid" style="margin-bottom:24px;">
       <div class="stat-card"><div class="stat-value">${totalViews}</div><div class="stat-label">Visualizações</div></div>
       <div class="stat-card"><div class="stat-value">${uniqueTeachings}</div><div class="stat-label">Ensinamentos</div></div>
-      <div class="stat-card"><div class="stat-value">${(favs || []).length}</div><div class="stat-label">Favoritos</div></div>
+      <div class="stat-card"><div class="stat-value">${(favs || []).length}</div><div class="stat-label">Salvos</div></div>
       <div class="stat-card"><div class="stat-value">${(highlights || []).length}</div><div class="stat-label">Destaques</div></div>
     </div>
     <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">

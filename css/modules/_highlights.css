@@ -616,3 +616,120 @@ mark.temp-selection {
     max-width: 280px;
   }
 }
+
+/* ============================================================
+   Modo grifar (tap-to-highlight)
+   ============================================================ */
+
+/* Botão de alternância no header (ativo = realçado, igual ao #highlightBtn) */
+.hl-tapmode-btn.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Enquanto o modo está ativo: desliga a seleção nativa (mata o menu do OS) e
+   sinaliza que o conteúdo é "clicável". */
+body.hl-tap-mode .topic-content,
+body.hl-tap-mode .disciples-section-content {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* Frases tocadas em preview (ainda não salvas) — cor escolhida + contorno
+   tracejado pra deixar claro que ainda não foi confirmado. */
+mark.hl-pending {
+  border-radius: 3px;
+  padding: 1px 2px;
+  outline: 2px dashed var(--accent);
+  outline-offset: 1px;
+  cursor: pointer;
+}
+
+mark.hl-pending.highlight-yellow { background-color: #fff3a1; }
+mark.hl-pending.highlight-green  { background-color: #a8e6cf; }
+mark.hl-pending.highlight-blue   { background-color: #a0c4ff; }
+mark.hl-pending.highlight-pink   { background-color: #ffb3c6; }
+mark.hl-pending.highlight-purple { background-color: #d4a5f5; }
+mark.hl-pending.highlight-orange { background-color: #ffd6a5; }
+
+[data-mode="dark"] mark.hl-pending.highlight-yellow { background-color: #6b5f00; color: #fff; }
+[data-mode="dark"] mark.hl-pending.highlight-green  { background-color: #1a5c3a; color: #fff; }
+[data-mode="dark"] mark.hl-pending.highlight-blue   { background-color: #1a3a6b; color: #fff; }
+[data-mode="dark"] mark.hl-pending.highlight-pink   { background-color: #6b1a3a; color: #fff; }
+[data-mode="dark"] mark.hl-pending.highlight-purple { background-color: #4a1a6b; color: #fff; }
+[data-mode="dark"] mark.hl-pending.highlight-orange { background-color: #6b4a00; color: #fff; }
+
+/* Barra inferior do modo grifar (reusa o visual da barra mobile de destaque) */
+.highlight-taps-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 6000;
+  background: var(--bg-card, #fff);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+  padding: 10px 16px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  animation: highlightMobileBarIn 0.2s ease-out;
+}
+
+.highlight-taps-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+}
+
+/* ============================================================
+   Título → "Salvar este Ensinamento?" (em vez de grifar o título)
+   ============================================================ */
+
+.title-save-prompt {
+  position: absolute;
+  z-index: 6100;
+  min-width: 240px;
+  max-width: 300px;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-premium, 0 8px 28px rgba(0, 0, 0, 0.16));
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: highlightTooltipIn 0.15s ease-out;
+}
+
+.title-save-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--accent);
+}
+
+.title-save-body {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.title-save-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.title-save-actions .highlight-save-btn {
+  flex: 1 1 auto;
+}
+
+.title-save-actions .highlight-cancel-btn {
+  flex: 0 0 auto;
+}

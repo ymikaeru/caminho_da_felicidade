@@ -789,15 +789,19 @@
         .catch(err => console.warn('Failed to remove highlight from cloud:', err));
     }
 
-    const mark = document.querySelector(`mark.user-highlight[data-highlight-id="${id}"]`);
-    if (mark) {
+    // Um destaque que cruza vários nós de texto (ex.: passa por um <i>) é
+    // renderizado em VÁRIAS marcas: a 1ª com data-highlight-id, as demais com
+    // data-highlight-group. Desfaz TODAS — antes só a 1ª saía e sobravam órfãs.
+    const marks = document.querySelectorAll(
+      `mark.user-highlight[data-highlight-id="${id}"], mark.user-highlight[data-highlight-group="${id}"]`
+    );
+    marks.forEach(mark => {
       const parent = mark.parentNode;
-      while (mark.firstChild) {
-        parent.insertBefore(mark.firstChild, mark);
-      }
+      if (!parent) return;
+      while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
       parent.removeChild(mark);
       parent.normalize();
-    }
+    });
 
     _updateHighlightBadge();
   }
@@ -967,6 +971,7 @@
   const _SEL_SETTLE_MS = 800;
   let _selSettleTimer = null;
   function _onMobileSelectionSettle() {
+    if (_tapMode) return; // no modo grifar a seleção nativa fica desligada
     clearTimeout(_selSettleTimer);
     _selSettleTimer = setTimeout(() => {
       if (_justCaptured) return;
@@ -975,11 +980,20 @@
       const range = _captureSelectionFromDOM();
       if (!range) return;
       _dbg(`  ↳ [selchange settle] captura OK len=${_currentSelection.text.length}`);
+
+      // Seleção inteira no título → oferece SALVAR (também derruba o menu do OS).
+      const titleHit = _selectionTitleHit(range);
+      if (titleHit) {
+        _showSavePrompt(titleHit.topicIdx, range.getBoundingClientRect());
+        return;
+      }
+
       _showMobileBarAndClear();
     }, _SEL_SETTLE_MS);
   }
 
   function _handleSelection(e) {
+    if (_tapMode) return; // no modo grifar a seleção nativa fica desligada
     const clickedInsideTooltip = e && e.target && e.target.closest('.highlight-tooltip');
     const clickedInsidePopup = e && e.target && e.target.closest('.highlight-comment-popup');
     const clickedOnHighlight = e && e.target && e.target.closest('mark.user-highlight');
@@ -1011,6 +1025,14 @@
       }
 
       _dbg(`  ↳ captura OK (isMobile=${_isMobile}, len=${_currentSelection.text.length})`);
+
+      // Seleção inteira no título → oferece SALVAR em vez de grifar.
+      const titleHit = _selectionTitleHit(range);
+      if (titleHit) {
+        _showSavePrompt(titleHit.topicIdx, range.getBoundingClientRect());
+        return;
+      }
+
       // No mobile o gatilho real é selectionchange (_onMobileSelectionSettle) —
       // o Android não entrega touchend/mouseup com seleção ativa. Este ramo só
       // roda no raro caso de o evento chegar mesmo assim; reusa o mesmo caminho.
@@ -1036,6 +1058,538 @@
     if (popup && !popup.contains(e.target) && !e.target.classList.contains('user-highlight')) {
       _hideCommentPopup();
     }
+  }
+
+  // ============================================================
+  // MODO GRIFAR (tap-to-highlight) — opt-in pelo ícone do header
+  // ------------------------------------------------------------
+  // Alternativa ao long-press: o usuário ativa o modo, TOCA numa frase e ela
+  // entra em preview; vai tocando em quantas quiser e só então confirma em
+  // "Adicionar". Resolve os 2 atritos do mobile: (1) não precisa arrastar as
+  // alças de seleção; (2) um toque curto NÃO dispara o menu nativo do OS
+  // (só o long-press dispara), e enquanto o modo está ativo desligamos a
+  // seleção nativa (user-select:none) — então a janela do sistema some.
+  //
+  // Reaproveita toda a infra de offset-por-caractere (_collectTextNodes) e o
+  // salvamento na nuvem já existentes. A ÚNICA peça frágil (e só testável
+  // on-device) é "qual frase foi tocada", isolada em _tapRange — se a
+  // detecção de frase falhar no aparelho, trocar _TAP_GRANULARITY p/ 'paragraph'
+  // resolve sem mexer no resto.
+  // ============================================================
+
+  let _tapMode = false;
+  let _pendingTaps = [];        // [{ topicId, startChar, endChar, text }]
+  let _tapBarEl = null;
+
+  // Granularidade do toque. 'sentence' = frase (padrão); 'paragraph' = bloco
+  // inteiro (reserva à prova de bala — não depende de detectar pontuação nem
+  // do caretRangeFromPoint). Único ajuste necessário pra trocar o comportamento.
+  const _TAP_GRANULARITY = 'sentence';
+
+  // Terminadores de frase: PT (. ! ? …) + JA (。！？). Aspas/parênteses de
+  // fechamento logo após o ponto entram na mesma frase.
+  const _SENT_END = '.!?…。！？';
+  const _CLOSERS = '"\'”’»)]';
+
+  function _topicFullText(textNodes) {
+    let s = '';
+    for (const tn of textNodes) s += tn.node.textContent;
+    return s;
+  }
+
+  // node+offset → offset global de caractere dentro do tópico.
+  function _caretGlobalOffset(topicEl, x, y) {
+    let node = null, offset = 0;
+    if (document.caretRangeFromPoint) {            // WebKit/Blink (iOS, Android Chrome)
+      const r = document.caretRangeFromPoint(x, y);
+      if (r) { node = r.startContainer; offset = r.startOffset; }
+    } else if (document.caretPositionFromPoint) {  // padrão (Firefox)
+      const p = document.caretPositionFromPoint(x, y);
+      if (p) { node = p.offsetNode; offset = p.offset; }
+    }
+    if (!node) return -1;
+    // Se o caret caiu num elemento (entre nós), desce pro primeiro texto.
+    if (node.nodeType !== Node.TEXT_NODE) {
+      const start = node.childNodes[offset] || node.childNodes[offset - 1] || node;
+      const w = document.createTreeWalker(start, NodeFilter.SHOW_TEXT, null);
+      const t = w.nextNode();
+      if (!t) return -1;
+      node = t; offset = 0;
+    }
+    const textNodes = _collectTextNodes(topicEl);
+    for (const tn of textNodes) {
+      if (tn.node === node) return tn.startChar + offset;
+    }
+    return -1;
+  }
+
+  // Limites da frase que contém `pos` no texto completo do tópico.
+  function _sentenceBounds(fullText, pos) {
+    const n = fullText.length;
+    if (pos < 0) pos = 0;
+    if (pos > n) pos = n;
+
+    let start = 0;
+    for (let i = Math.min(pos, n); i > 0; i--) {
+      if (_SENT_END.indexOf(fullText[i - 1]) !== -1) { start = i; break; }
+    }
+    // pula fechamentos/espaço no começo
+    while (start < n && (_CLOSERS.indexOf(fullText[start]) !== -1 || /\s/.test(fullText[start]))) start++;
+
+    let end = n;
+    for (let i = pos; i < n; i++) {
+      if (_SENT_END.indexOf(fullText[i]) !== -1) {
+        end = i + 1;
+        while (end < n && _CLOSERS.indexOf(fullText[end]) !== -1) end++;
+        break;
+      }
+    }
+    return { start, end };
+  }
+
+  // Limites do bloco (parágrafo/item) que contém o nó tocado.
+  function _blockBounds(topicEl, node) {
+    let el = node && node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+    const block = el && el.closest
+      ? el.closest('p, li, blockquote, h1, h2, h3, h4, h5, h6, pre')
+      : null;
+    const target = (block && topicEl.contains(block)) ? block : topicEl;
+    const textNodes = _collectTextNodes(topicEl);
+    let start = -1, end = -1;
+    for (const tn of textNodes) {
+      if (target.contains(tn.node)) {
+        if (start < 0) start = tn.startChar;
+        end = tn.endChar;
+      }
+    }
+    return { start, end };
+  }
+
+  function _finishRange(fullText, start, end) {
+    while (start < end && /\s/.test(fullText[start])) start++;
+    while (end > start && /\s/.test(fullText[end - 1])) end--;
+    if (end - start < 2) return null;
+    return { startChar: start, endChar: end, text: fullText.slice(start, end) };
+  }
+
+  // Resolve o que o toque (x,y / nó) deve grifar → {startChar,endChar,text}.
+  function _tapRange(topicEl, x, y, node) {
+    const textNodes = _collectTextNodes(topicEl);
+    if (!textNodes.length) return null;
+    const fullText = _topicFullText(textNodes);
+
+    if (_TAP_GRANULARITY === 'paragraph') {
+      const b = _blockBounds(topicEl, node);
+      return b.start < 0 ? null : _finishRange(fullText, b.start, b.end);
+    }
+
+    const off = _caretGlobalOffset(topicEl, x, y);
+    if (off < 0) {
+      // Reserva: caret indisponível → grifa o bloco tocado.
+      const b = _blockBounds(topicEl, node);
+      return b.start < 0 ? null : _finishRange(fullText, b.start, b.end);
+    }
+    const s = _sentenceBounds(fullText, off);
+    return _finishRange(fullText, s.start, s.end);
+  }
+
+  function _resolveTopicTitle(topicId, topicEl, topicIndex) {
+    let topicTitle = '';
+    if (topicIndex >= 0 && window._currentTopics && window._currentTopics[topicIndex]) {
+      const lang = _lang();
+      topicTitle = (lang === 'pt'
+        ? (window._currentTopics[topicIndex].title_ptbr || window._currentTopics[topicIndex].title_pt || window._currentTopics[topicIndex].title || '')
+        : (window._currentTopics[topicIndex].title_ja || window._currentTopics[topicIndex].title || '')
+      ).replace(/<[^>]+>/g, '').trim();
+    } else if (topicEl) {
+      const heading = topicEl.querySelector('h1, h2, h3, h4, h5, h6, .disciples-section-title');
+      topicTitle = (heading?.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+    }
+    return topicTitle;
+  }
+
+  // Marca pendente ⇄ desmarca (toque sobre uma frase já pendente a remove).
+  function _togglePending(topicId, range) {
+    const idx = _pendingTaps.findIndex(p => p.topicId === topicId &&
+      !(range.endChar <= p.startChar || range.startChar >= p.endChar));
+    if (idx >= 0) {
+      _pendingTaps.splice(idx, 1);
+    } else {
+      _pendingTaps.push({ topicId, startChar: range.startChar, endChar: range.endChar, text: range.text });
+    }
+  }
+
+  function _clearPendingPreview() {
+    document.querySelectorAll('mark.hl-pending').forEach(m => {
+      const parent = m.parentNode;
+      while (m.firstChild) parent.insertBefore(m.firstChild, m);
+      parent.removeChild(m);
+      parent.normalize();
+    });
+  }
+
+  // Envolve os trechos pendentes de UM tópico em <mark.hl-pending> (preview).
+  // Achata todos os segmentos e processa da direita p/ esquerda pra não
+  // invalidar offsets quando dois trechos caem no mesmo nó de texto.
+  function _wrapPendingMarks(topicEl, ranges) {
+    const textNodes = _collectTextNodes(topicEl);
+    if (!textNodes.length) return;
+    const totalChars = textNodes[textNodes.length - 1].endChar;
+
+    const segs = [];
+    ranges.forEach(rg => {
+      if (rg.startChar < 0 || rg.endChar <= rg.startChar || rg.endChar > totalChars + 1) return;
+      for (const tn of textNodes) {
+        const os = Math.max(tn.startChar, rg.startChar);
+        const oe = Math.min(tn.endChar, rg.endChar);
+        if (os < oe) segs.push({ node: tn.node, s: os - tn.startChar, e: oe - tn.startChar, g: os });
+      }
+    });
+    segs.sort((a, b) => b.g - a.g);
+    for (const seg of segs) {
+      try {
+        const r = document.createRange();
+        r.setStart(seg.node, seg.s);
+        r.setEnd(seg.node, seg.e);
+        const mark = document.createElement('mark');
+        mark.className = `hl-pending highlight-${_selectedColor}`;
+        r.surroundContents(mark);
+      } catch (_) { /* noop */ }
+    }
+  }
+
+  function _renderPendingPreview() {
+    _clearPendingPreview();
+    const byTopic = {};
+    _pendingTaps.forEach(p => { (byTopic[p.topicId] = byTopic[p.topicId] || []).push(p); });
+    for (const topicId in byTopic) {
+      const topicEl = document.getElementById(topicId);
+      if (topicEl) _wrapPendingMarks(topicEl, byTopic[topicId]);
+    }
+  }
+
+  function _confirmPending() {
+    if (!_pendingTaps.length) return;
+    if (!window._cloudSync) {
+      alert('Você precisa estar online para criar destaques.');
+      return;
+    }
+    // Cada frase tocada vira um destaque SEPARADO (não fundimos contíguas) —
+    // assim o usuário apaga frase a frase. Fundir num só fazia "apagar uma
+    // frase" remover o trecho inteiro.
+    const items = _pendingTaps.slice();
+    const { volId, filename } = _getParams();
+    _clearPendingPreview();
+
+    items.forEach(p => {
+      const topicEl = document.getElementById(p.topicId);
+      const topicIndex = p.topicId.startsWith('topic-')
+        ? parseInt(p.topicId.replace('topic-', ''), 10)
+        : -1;
+      const topicTitle = _resolveTopicTitle(p.topicId, topicEl, topicIndex);
+      const highlight = {
+        id: 'hl_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+        vol: volId,
+        file: filename,
+        topicId: p.topicId,
+        topicIndex: topicIndex,
+        topicTitle: topicTitle,
+        color: _selectedColor,
+        comment: '',
+        text: p.text,
+        startChar: p.startChar,
+        endChar: p.endChar,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      };
+      _highlights.unshift(highlight);
+      window._cloudSync.saveHighlight(
+        highlight.vol, highlight.file, highlight.topicId, highlight.topicIndex,
+        highlight.topicTitle, highlight.color, highlight.comment, highlight.text,
+        highlight.startChar, highlight.endChar
+      );
+      if (topicEl) _applyHighlightsToTopic(topicEl, [highlight]);
+    });
+
+    _saveHighlights();
+    const n = items.length;
+    _pendingTaps = [];
+    _hideTapBar();
+    _updateHighlightBadge();
+    const lang = _lang();
+    _showHlToast(lang === 'ja'
+      ? 'ハイライトを追加しました'
+      : (n === 1 ? 'Destaque adicionado' : `${n} destaques adicionados`));
+  }
+
+  function _showTapBar() {
+    const lang = _lang();
+    if (!_tapBarEl) {
+      const addLabel = lang === 'ja' ? '追加' : 'Adicionar';
+      const clearLabel = lang === 'ja' ? 'クリア' : 'Limpar';
+      const hint = lang === 'ja' ? '文をタップしてハイライト' : 'Toque nas frases para grifar';
+
+      _tapBarEl = document.createElement('div');
+      _tapBarEl.className = 'highlight-taps-bar';
+      _tapBarEl.id = 'highlightTapsBar';
+      const colorBtnsHTML = COLORS.map(c =>
+        `<button class="highlight-color-btn color-${c}" data-color="${c}"></button>`
+      ).join('');
+      _tapBarEl.innerHTML =
+        `<div class="highlight-mobile-bar-content">` +
+          `<div class="highlight-taps-hint">${hint}</div>` +
+          `<div class="highlight-colors">${colorBtnsHTML}</div>` +
+          `<div class="highlight-mobile-bar-actions">` +
+            `<button class="highlight-cancel-btn" id="hlTapsClearBtn">${clearLabel}</button>` +
+            `<button class="highlight-save-btn" id="hlTapsAddBtn">${addLabel} (<span id="hlTapsCount">0</span>)</button>` +
+          `</div>` +
+        `</div>`;
+      document.body.appendChild(_tapBarEl);
+
+      _tapBarEl.querySelectorAll('.highlight-color-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          _tapBarEl.querySelectorAll('.highlight-color-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          _selectedColor = btn.dataset.color;
+          _renderPendingPreview();
+        });
+      });
+      const activeC = _tapBarEl.querySelector(`.highlight-color-btn.color-${_selectedColor}`)
+        || _tapBarEl.querySelector('.highlight-color-btn');
+      if (activeC) { activeC.classList.add('selected'); _selectedColor = activeC.dataset.color; }
+
+      document.getElementById('hlTapsClearBtn').addEventListener('click', () => {
+        _pendingTaps = [];
+        _clearPendingPreview();
+        _hideTapBar();
+      });
+      document.getElementById('hlTapsAddBtn').addEventListener('click', _confirmPending);
+    }
+    _updateTapBarCount();
+  }
+
+  function _updateTapBarCount() {
+    const el = document.getElementById('hlTapsCount');
+    if (el) el.textContent = String(_pendingTaps.length);
+  }
+
+  function _hideTapBar() {
+    if (_tapBarEl) { _tapBarEl.remove(); _tapBarEl = null; }
+  }
+
+  function _setTapMode(on) {
+    _tapMode = !!on;
+    document.body.classList.toggle('hl-tap-mode', _tapMode);
+    const btn = document.getElementById('hlTapModeBtn');
+    if (btn) btn.classList.toggle('active', _tapMode);
+
+    if (_tapMode) {
+      // Derruba qualquer UI de seleção nativa e limpa a seleção.
+      _hideTooltip();
+      _hideMobileBar();
+      const sel = window.getSelection();
+      if (sel) sel.removeAllRanges();
+      const lang = _lang();
+      _showHlToast(lang === 'ja' ? '文をタップしてハイライト' : 'Toque nas frases para grifar');
+    } else {
+      _pendingTaps = [];
+      _clearPendingPreview();
+      _hideTapBar();
+    }
+  }
+
+  function _handleTapModeClick(e) {
+    if (!_tapMode) return;
+    // Toques na própria barra/botão e em elementos interativos (Salvar, links,
+    // CTAs) seguem o fluxo normal — não os engolimos como "grifar".
+    if (e.target.closest('.highlight-taps-bar') || e.target.closest('#hlTapModeBtn')) return;
+    if (e.target.closest('button, a, .topic-save-bar, .title-save-prompt')) return;
+
+    const topicId = _getTopicIdFromNode(e.target);
+    if (!topicId) return;                 // tocou fora do conteúdo
+    const topicEl = document.getElementById(topicId);
+    if (!topicEl) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Tocou no título → oferece SALVAR em vez de grifar.
+    const titleHit = _nodeTitleHit(e.target);
+    if (titleHit) {
+      const rect = e.target.getBoundingClientRect ? e.target.getBoundingClientRect() : null;
+      _showSavePrompt(titleHit.topicIdx, rect);
+      return;
+    }
+
+    const range = _tapRange(topicEl, e.clientX, e.clientY, e.target);
+    if (!range) { _dbg('tap: sem range'); return; }
+    _dbg(`tap: [${range.startChar},${range.endChar}] "${range.text.slice(0, 24)}"`);
+
+    _togglePending(topicId, range);
+    _renderPendingPreview();
+    if (_pendingTaps.length) _showTapBar(); else _hideTapBar();
+  }
+
+  // Injeta o botão de "modo grifar" no header do leitor. Fica AQUI (não no
+  // nav.js) de propósito: nav.js é compartilhado por 16 páginas e mexer nele
+  // espalha o cache-bump; este botão só importa no reader.html.
+  function _injectTapModeBtn() {
+    if (!window.location.pathname.includes('reader.html')) return true;
+    const actions = document.querySelector('.header__actions');
+    if (!actions) return false;           // header ainda não montado
+
+    // Remove o antigo botão "Destaques" (lápis) do header — pedido do usuário:
+    // dois ícones de caneta lado a lado confundiam. A lista de destaques segue
+    // acessível pelo menu lateral ("Central de Destaques"). Criado no nav.js;
+    // removido aqui pra manter o cache-bump só no reader.html (ver nota no
+    // _injectTapModeBtn original sobre não mexer no nav.js).
+    const oldHlBtn = document.getElementById('mobileHighlightBtn');
+    if (oldHlBtn) oldHlBtn.remove();
+
+    if (document.getElementById('hlTapModeBtn')) return true;
+
+    const isComparison = localStorage.getItem('reader_comparison') === 'true';
+    const btn = document.createElement('button');
+    btn.id = 'hlTapModeBtn';
+    btn.className = 'mobile-fav-btn hl-tapmode-btn';
+    btn.setAttribute('aria-label', 'Modo grifar');
+    btn.setAttribute('title', 'Modo grifar — toque para destacar');
+    btn.style.display = isComparison ? 'none' : 'flex';
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m9 11-6 6v3h9l3-3"/>
+      <path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/>
+    </svg>`;
+    btn.addEventListener('click', () => _setTapMode(!_tapMode));
+
+    // Posiciona onde ficava o lápis de Destaques: antes da busca (fallback: o
+    // hambúrguer). Não ancorar no #mobileHighlightBtn — ele acabou de ser removido.
+    const ref = actions.querySelector('button[aria-label="Buscar"]')
+      || actions.querySelector('.mobile-menu-btn');
+    if (ref) actions.insertBefore(btn, ref); else actions.appendChild(btn);
+    return true;
+  }
+
+  // ============================================================
+  // TÍTULO → "Salvar este Ensinamento?"
+  // ------------------------------------------------------------
+  // Muitos usuários grifam o TÍTULO achando que isso guarda o artigo. Quando a
+  // seleção (ou o toque, no modo grifar) cai inteira no cabeçalho do tópico —
+  // tudo que vem ANTES da .topic-save-bar — interceptamos e oferecemos salvar
+  // de verdade via window.toggleFavorite (que já avisa "Salvo em Ensinamentos
+  // Salvos"). Só vale no leitor normal (ids topic-N); disciples não tem favorito.
+  // ============================================================
+
+  function _nodeTitleHit(node) {
+    if (!node) return null;
+    const topicId = _getTopicIdFromNode(node);
+    if (!topicId || !/^topic-\d+$/.test(topicId)) return null;
+    const topicEl = document.getElementById(topicId);
+    const saveBar = topicEl && topicEl.querySelector('.topic-save-bar');
+    if (!saveBar) return null;
+    // node ANTES da save-bar (em ordem de documento) = está no cabeçalho/título
+    const pos = saveBar.compareDocumentPosition(node);
+    if (pos & Node.DOCUMENT_POSITION_PRECEDING) {
+      return { topicId, topicIdx: parseInt(topicId.replace('topic-', ''), 10) };
+    }
+    return null;
+  }
+
+  // Só dispara quando a seleção INTEIRA está no cabeçalho. Se vaza pro corpo
+  // (usuário grifando título + parágrafos de propósito), segue o fluxo normal.
+  function _selectionTitleHit(range) {
+    if (!range) return null;
+    const startHit = _nodeTitleHit(range.startContainer);
+    if (!startHit) return null;
+    const endHit = _nodeTitleHit(range.endContainer);
+    if (!endHit || endHit.topicId !== startHit.topicId) return null;
+    return startHit;
+  }
+
+  let _savePromptEl = null;
+  function _savePromptOutside(e) {
+    if (_savePromptEl && !_savePromptEl.contains(e.target)) _hideSavePrompt();
+  }
+  function _hideSavePrompt() {
+    if (_savePromptEl) { _savePromptEl.remove(); _savePromptEl = null; }
+    document.removeEventListener('click', _savePromptOutside, true);
+  }
+
+  function _showSavePrompt(topicIdx, rect) {
+    _hideSavePrompt();
+    _hideTooltip();
+    _hideMobileBar();
+    const sel = window.getSelection(); if (sel) sel.removeAllRanges();
+
+    const lang = _lang();
+    const topicEl = document.getElementById('topic-' + topicIdx);
+    const saveBtn = topicEl && topicEl.querySelector('.topic-save-btn');
+    const alreadySaved = !!(saveBtn && saveBtn.classList.contains('active'));
+
+    const t = lang === 'ja'
+      ? { head: alreadySaved ? 'この教えは保存済みです' : 'この教えを保存しますか？',
+          body: alreadySaved ? '「保存した教え」（メニュー）にあります。' : '「保存した教え」に追加すると、あとで読み返せます。',
+          save: alreadySaved ? '「保存した教え」を開く' : '保存する',
+          cancel: 'キャンセル' }
+      : { head: alreadySaved ? 'Ensinamento já salvo' : 'Salvar este Ensinamento?',
+          body: alreadySaved ? 'Ele já está em Ensinamentos Salvos (no menu).' : 'Para reler depois, guarde em Ensinamentos Salvos.',
+          save: alreadySaved ? 'Abrir Ensinamentos Salvos' : 'Salvar',
+          cancel: 'Cancelar' };
+
+    const saveIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+
+    const el = document.createElement('div');
+    el.className = 'title-save-prompt';
+    el.innerHTML =
+      `<div class="title-save-head">${saveIcon}<span>${t.head}</span></div>` +
+      `<div class="title-save-body">${t.body}</div>` +
+      `<div class="title-save-actions">` +
+        `<button class="highlight-save-btn" data-act="save">${t.save}</button>` +
+        `<button class="highlight-cancel-btn" data-act="cancel">${t.cancel}</button>` +
+      `</div>`;
+    document.body.appendChild(el);
+    _savePromptEl = el;
+
+    // Posiciona perto do título, com clamp no viewport (igual ao tooltip).
+    const pr = el.getBoundingClientRect();
+    let left, top;
+    if (rect) {
+      left = rect.left + (rect.width / 2) - (pr.width / 2);
+      top = rect.bottom + 10 + window.scrollY;
+      if (left < 8) left = 8;
+      if (left + pr.width > window.innerWidth - 8) left = window.innerWidth - pr.width - 8;
+      if (top + pr.height > window.scrollY + window.innerHeight - 8) {
+        top = rect.top - pr.height - 10 + window.scrollY;
+      }
+      if (top < window.scrollY + 8) top = window.scrollY + 8;
+    } else {
+      left = Math.max(8, (window.innerWidth - pr.width) / 2);
+      top = window.scrollY + 80;
+    }
+    el.style.left = left + 'px';
+    el.style.top = top + 'px';
+
+    el.addEventListener('click', (e) => {
+      const actEl = e.target.closest('[data-act]');
+      if (!actEl) return;
+      e.stopPropagation();
+      const act = actEl.dataset.act;
+      if (act === 'save') {
+        _hideSavePrompt();
+        if (alreadySaved) {
+          if (typeof window.openFavorites === 'function') window.openFavorites();
+        } else if (typeof window.toggleFavorite === 'function') {
+          window.toggleFavorite(topicIdx); // já mostra "Salvo em Ensinamentos Salvos"
+        } else {
+          _showHlToast(lang === 'ja' ? '保存しました' : 'Salvo em Ensinamentos Salvos');
+        }
+      } else {
+        _hideSavePrompt();
+      }
+    });
+
+    // Fecha ao tocar fora (no próximo tick, pra não pegar o próprio gesto).
+    setTimeout(() => document.addEventListener('click', _savePromptOutside, true), 0);
   }
 
   // ============================================================
@@ -1204,6 +1758,19 @@
     document.addEventListener('touchend', _handleSelection);
     document.addEventListener('click', _handleClick);
 
+    // Modo grifar: intercepta o toque em fase de captura (antes dos handlers de
+    // <mark> e do _handleClick) pra grifar a frase e barrar o clique normal.
+    // Inerte enquanto _tapMode estiver desligado.
+    document.addEventListener('click', _handleTapModeClick, true);
+
+    // Botão "modo grifar" no header. O header é montado pelo nav.js também no
+    // DOMContentLoaded, então pode ainda não existir — observa e injeta quando aparecer.
+    if (!_injectTapModeBtn()) {
+      const obs = new MutationObserver(() => { if (_injectTapModeBtn()) obs.disconnect(); });
+      obs.observe(document.body, { childList: true, subtree: true });
+      setTimeout(() => obs.disconnect(), 5000);
+    }
+
     // Mobile: o Android não dispara touchend/mouseup com seleção ativa (consome
     // o long-press), então o gatilho real é selectionchange. Ver _onMobileSelectionSettle.
     if (_isMobile) {
@@ -1212,9 +1779,11 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        if (_tapMode) _setTapMode(false);
         _hideTooltip();
         _hideCommentPopup();
         _hideMobileBar();
+        _hideSavePrompt();
       }
     });
   };

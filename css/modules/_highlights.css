@@ -644,13 +644,12 @@ body.hl-tap-mode .disciples-section-content {
   cursor: pointer;
 }
 
-/* Frases tocadas em preview (ainda não salvas) — cor escolhida + contorno
-   tracejado pra deixar claro que ainda não foi confirmado. */
+/* Frases tocadas em preview (ainda não salvas) — só a cor escolhida; o
+   "ainda não confirmado" fica por conta da barra "Adicionar (N)". (Tinha um
+   contorno tracejado, removido a pedido: gritava demais no mobile.) */
 mark.hl-pending {
   border-radius: 3px;
   padding: 1px 2px;
-  outline: 2px dashed var(--accent);
-  outline-offset: 1px;
   cursor: pointer;
 }
 

@@ -1097,6 +1097,19 @@
     return s;
   }
 
+  // Nó de texto sob o ponto (x,y) — null se a API de caret não existir.
+  function _caretNodeFromPoint(x, y) {
+    if (document.caretRangeFromPoint) {            // WebKit/Blink (iOS, Android Chrome)
+      const r = document.caretRangeFromPoint(x, y);
+      return r ? r.startContainer : null;
+    }
+    if (document.caretPositionFromPoint) {         // padrão (Firefox)
+      const p = document.caretPositionFromPoint(x, y);
+      return p ? p.offsetNode : null;
+    }
+    return null;
+  }
+
   // node+offset → offset global de caractere dentro do tópico.
   function _caretGlobalOffset(topicEl, x, y) {
     let node = null, offset = 0;
@@ -1204,32 +1217,56 @@
     return _finishRange(fullText, start, end);
   }
 
+  // Primeiro caractere do CORPO do tópico: depois do cabeçalho (título/data),
+  // da .topic-save-bar e do CTA de citação parcial. Necessário porque muitos
+  // corpos são formatados só com <br> (sem <p> — _normalizeContent converte
+  // parágrafos em <br>): aí não existe fronteira de bloco e a "frase" da 1ª
+  // linha recuaria até o char 0, selecionando o título junto.
+  function _bodyStartChar(topicEl, textNodes) {
+    const saveBar = topicEl.querySelector('.topic-save-bar');
+    if (!saveBar) return 0;
+    let start = 0;
+    for (const tn of textNodes) {
+      const el = tn.node.parentNode;
+      const inHeaderZone =
+        (saveBar.compareDocumentPosition(tn.node) & Node.DOCUMENT_POSITION_PRECEDING) ||
+        saveBar.contains(tn.node) ||
+        !!(el && el.closest && el.closest('.topic-partial-cta'));
+      if (inHeaderZone) { start = tn.endChar; }
+      else break;                  // nós vêm em ordem: achou o corpo, para
+    }
+    return start;
+  }
+
   // Resolve o que o toque (x,y / nó) deve grifar → {startChar,endChar,text}.
   function _tapRange(topicEl, x, y, node) {
     const textNodes = _collectTextNodes(topicEl);
     if (!textNodes.length) return null;
     const fullText = _topicFullText(textNodes);
+    const bodyStart = _bodyStartChar(topicEl, textNodes);
 
     if (_TAP_GRANULARITY === 'paragraph') {
       const b = _blockBounds(topicEl, node);
-      return b.start < 0 ? null : _finishRange(fullText, b.start, b.end);
+      return b.start < 0 ? null : _finishRange(fullText, Math.max(b.start, bodyStart), b.end);
     }
 
     const off = _caretGlobalOffset(topicEl, x, y);
     if (off < 0) {
       // Reserva: caret indisponível → grifa o bloco tocado.
       const b = _blockBounds(topicEl, node);
-      return b.start < 0 ? null : _finishRange(fullText, b.start, b.end);
+      return b.start < 0 ? null : _finishRange(fullText, Math.max(b.start, bodyStart), b.end);
     }
     const s = _sentenceBounds(fullText, off);
-    // Clampa a frase ao bloco (<p>/li/...) tocado: o cabeçalho do tópico não
-    // tem pontuação, então a "frase" inicial do corpo recuaria até o char 0 e
+    // Clampa a frase ao bloco (<p>/li/...) tocado E ao início do corpo: o
+    // cabeçalho não tem pontuação, então a 1ª frase recuaria até o char 0 e
     // englobaria título + data + rótulos da save-bar (e aí o grifo de título
-    // e o da 1ª frase se sobreporiam, um toggle derrubando o outro). Se o
-    // toque não está num bloco (bloco = tópico inteiro), o clamp é no-op.
+    // e o da 1ª frase se sobreporiam, um toggle derrubando o outro). O clamp
+    // de bloco sozinho NÃO basta: corpo só-<br> não tem bloco (vira o tópico
+    // inteiro) — daí o bodyStart.
     const b = _blockBounds(topicEl, node);
-    const cs = b.start >= 0 ? Math.max(s.start, b.start) : s.start;
+    let cs = b.start >= 0 ? Math.max(s.start, b.start) : s.start;
     const ce = b.end >= 0 ? Math.min(s.end, b.end) : s.end;
+    cs = Math.max(cs, bodyStart);
     return _finishRange(fullText, cs, ce);
   }
 
@@ -1453,10 +1490,21 @@
     e.preventDefault();
     e.stopPropagation();
 
-    // Tocou no título → seleciona o CABEÇALHO INTEIRO pra grifar, em um toque
-    // só (pedido de usuário; antes abria o card de salvar, que aqui no modo
+    // Alvo REAL do toque: em corpos só-<br> (sem <p>) os nós de texto são
+    // filhos diretos da div do tópico, então e.target = a PRÓPRIA div — tanto
+    // no título quanto no corpo (e a div "precede" a save-bar por ser
+    // ancestral ⇒ TODO toque viraria título). Resolve pelo caret qual texto
+    // está sob o dedo antes de decidir.
+    let hitNode = e.target;
+    if (hitNode === topicEl) {
+      const cn = _caretNodeFromPoint(e.clientX, e.clientY);
+      if (cn && topicEl.contains(cn) && cn !== topicEl) hitNode = cn;
+    }
+
+    // Tocou no título → seleciona o TÍTULO pra grifar, em um toque só
+    // (pedido de usuário; antes abria o card de salvar, que aqui no modo
     // grifar atrapalhava — fora do modo grifar o card continua).
-    const titleHit = _nodeTitleHit(e.target);
+    const titleHit = _nodeTitleHit(hitNode);
     if (titleHit) {
       const trange = _titleRange(topicEl);
       if (trange) {

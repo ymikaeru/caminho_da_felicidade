@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;600;700&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,200..600,30..100;1,9..144,300..500,30..100&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
-    <link rel="stylesheet" href="css/styles.min.css?v=155">
+    <link rel="stylesheet" href="css/styles.min.css?v=158">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <script src="js/toggle.js?v=40" defer></script>
@@ -19,7 +19,7 @@
     <script src="js/theme.js?v=1" defer></script>
     <script src="js/language.js?v=7" defer></script>
     <script src="js/typography.js?v=1" defer></script>
-    <script src="js/search.js?v=22" defer></script>
+    <script src="js/search.min.js?v=22" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';
@@ -137,7 +137,7 @@
     <script type="importmap">
     {"imports":{"@supabase/supabase-js":"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"}}</script>
     <script type="module">
-        import { storageFetch, storageList } from './js/storage.js?v=3';
+        import { storageFetch, storageList } from './js/storage.js?v=4';
         window.supabaseStorageFetch = storageFetch;
         window.supabaseStorageList = storageList;
     </script>
@@ -147,7 +147,7 @@
         window._readTimeTracker = { start: startTracking, stop: stopTracking };
     </script>
     <script type="module">
-        import * as cloudSync from './js/sync.js?v=5';
+        import * as cloudSync from './js/sync.js?v=6';
         window._cloudSync = cloudSync;
     </script>
     <script type="module">
@@ -157,7 +157,7 @@
     </script>
     <script src="js/access.js?v=6"></script>
     <script src="js/modals.js?v=9"></script>
-    <script src="js/playlists.js?v=21" defer></script>
+    <script src="js/playlists-loader.js?v=1" defer></script>
     <script src="js/recommendations.js?v=54" defer></script>
     <script src="js/study-messages.js?v=2" defer></script>
     <script>document.addEventListener("DOMContentLoaded", () => { if (typeof buildRecommendationsModal === "function") buildRecommendationsModal(); if (typeof initRecommendations === "function") initRecommendations(); if (typeof initStudyMessages === "function") initStudyMessages(); });</script>

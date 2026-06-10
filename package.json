@@ -6,8 +6,10 @@
   "scripts": {
     "build:css": "postcss css/styles.css --config postcss.config.cjs -o css/styles.min.css",
     "build:admin-css": "postcss css/admin.css --config postcss.config.cjs -o css/admin.min.css",
+    "build:js": "esbuild js/playlists.js js/highlights.js js/disciples-reader.js js/reader-render.js js/search.js --minify --charset=utf8 --outdir=js --out-extension:.js=.min.js",
     "watch:css": "postcss css/styles.css --config postcss.config.cjs -o css/styles.min.css --watch",
-    "build": "npm run build:css && npm run build:admin-css",
+    "build": "npm run build:css && npm run build:admin-css && npm run build:js",
+    "versions": "node scripts/bump-versions.mjs",
     "split:index": "node scripts/split_search_index.js",
     "storage:pull": "node scripts/storage-pull.mjs",
     "storage:status": "node scripts/storage-status.mjs",
@@ -23,6 +25,7 @@
   "type": "commonjs",
   "devDependencies": {
     "cssnano": "^7.1.4",
+    "esbuild": "^0.28.0",
     "postcss": "^8.5.8",
     "postcss-cli": "^11.0.1",
     "postcss-import": "^16.1.1"

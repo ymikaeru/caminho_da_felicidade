@@ -40,10 +40,11 @@
 .modal-close-btn,
 .search-close {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 36px;
-  height: 36px;
+  top: 8px;
+  right: 8px;
+  /* 44px = alvo de toque mínimo (WCAG 2.5.5 / HIG) — público inclui idosos */
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: none;
   background: transparent;
@@ -481,10 +482,11 @@
 
   .modal-close-btn,
   .search-close {
-    top: 8px;
-    right: 8px;
-    width: 32px;
-    height: 32px;
+    top: 4px;
+    right: 4px;
+    /* manter ≥44px no touch (antes 32px — difícil p/ mãos idosas) */
+    width: 44px;
+    height: 44px;
   }
 
   .search-ghost {

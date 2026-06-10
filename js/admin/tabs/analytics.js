@@ -985,7 +985,7 @@ async function loadSyncStats() {
   document.getElementById('sync-stats').innerHTML = `
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-value">${posRes.count || 0}</div><div class="stat-label">Posições Salvas</div></div>
-      <div class="stat-card"><div class="stat-value">${favRes.count || 0}</div><div class="stat-label">Favoritos</div></div>
+      <div class="stat-card"><div class="stat-value">${favRes.count || 0}</div><div class="stat-label">Salvos</div></div>
       <div class="stat-card"><div class="stat-value">${hlRes.count || 0}</div><div class="stat-label">Destaques</div></div>
     </div>`;
 }
@@ -1369,7 +1369,7 @@ async function loadPopularFavorites(days, since) {
 
   document.getElementById('popular-favorites').innerHTML = `
     <table class="data-table">
-      <thead><tr><th>#</th><th>Ensinamento</th><th>Volume</th><th>⭐ Favoritos</th><th>🖍 Destaques</th><th>Total</th></tr></thead>
+      <thead><tr><th>#</th><th>Ensinamento</th><th>Volume</th><th>⭐ Salvos</th><th>🖍 Destaques</th><th>Total</th></tr></thead>
       <tbody>${sorted.map((item, i) => {
         const total = item.favs + item.highlights;
         const pct = Math.round(total / maxTotal * 100);

@@ -133,6 +133,21 @@ function _buildTopicSaveBar(topicIdx, lang) {
     const l = { pt: { save: 'Salvar esta publicação', saved: 'Publicação salva' }, ja: { save: 'この教えを保存', saved: '保存済み' } }[lang] || { save: 'Salvar esta publicação', saved: 'Publicação salva' };
     const icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
 
+    // Botão "Marcar como lido" — controle pessoal do usuário (fase 1 da
+    // Central de Ensinamentos Lidos). Estado/active e a tarja com a data são
+    // aplicados por window.updateReadIndicators (render → updateReadIndicators).
+    const lr = { pt: { read: 'Marcar como lido' }, ja: { read: '読了として記録' } }[lang] || { read: 'Marcar como lido' };
+    const readIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>';
+    const readBtn =
+        `<button type="button" class="topic-save-btn topic-read-btn" data-topic-idx="${topicIdx}" title="${lr.read}" aria-label="${lr.read}" aria-pressed="false" onclick="if (typeof window.toggleReadMark === 'function') window.toggleReadMark(${topicIdx});">` +
+            readIcon +
+        `</button>`;
+    // Tarja "Você leu este Ensinamento em ..." — span VAZIO, texto via CSS
+    // content:attr(data-label). NÃO pode virar nó de texto: os offsets de
+    // caractere dos destaques (_collectTextNodes em highlights.js) varrem o
+    // tópico inteiro, e texto condicional deslocaria grifos existentes.
+    const readBadge = `<span class="topic-read-badge" data-topic-idx="${topicIdx}" aria-hidden="true"></span>`;
+
     // Botões admin: "Adicionar à playlist" + "Recomendar este ensinamento".
     // Ambos passam topic_idx explícito pros pickers — desambigua qual
     // ensinamento está sendo agido em páginas com múltiplos tópicos.
@@ -170,8 +185,10 @@ function _buildTopicSaveBar(topicIdx, lang) {
             icon +
             `<span class="topic-save-label" data-save="${l.save}" data-saved="${l.saved}">${l.save}</span>` +
         `</button>` +
+        readBtn +
         shareBtn +
         adminBtns +
+        readBadge +
     `</div>`;
 }
 
@@ -603,6 +620,41 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         }
     };
     window.updateFavIndicators();
+
+    // Indicadores de "lido" — botão aceso + tarja com a data dentro da
+    // save-bar. Lê do localStorage (readMarks); o pull do login hidrata.
+    window.updateReadIndicators = function () {
+        let marks = [];
+        try { marks = JSON.parse(localStorage.getItem('readMarks') || '[]'); } catch (e) { }
+        const markMap = new Map(marks.filter(m => m.vol === volId && m.file === filename).map(m => [m.topic || 0, m]));
+        const lr = isPt
+            ? { read: 'Marcar como lido', readDone: 'Lido — toque para desmarcar', badge: (d) => `Você leu este Ensinamento em ${d}` }
+            : { read: '読了として記録', readDone: '読了済み — タップで解除', badge: (d) => `${d} に読了` };
+        const totalTopics = window._currentTotalTopics || 1;
+        for (let i = 0; i < totalTopics; i++) {
+            const topicEl = document.getElementById(`topic-${i}`);
+            if (!topicEl) continue;
+            const mark = markMap.get(i);
+            const btn = topicEl.querySelector('.topic-read-btn');
+            if (btn) {
+                btn.classList.toggle('active', !!mark);
+                btn.setAttribute('title', mark ? lr.readDone : lr.read);
+                btn.setAttribute('aria-label', mark ? lr.readDone : lr.read);
+                btn.setAttribute('aria-pressed', mark ? 'true' : 'false');
+            }
+            const badge = topicEl.querySelector('.topic-read-badge');
+            if (badge) {
+                if (mark) {
+                    const dateStr = new Date(mark.time || Date.now()).toLocaleDateString(isPt ? 'pt-BR' : 'ja-JP');
+                    badge.dataset.label = lr.badge(dateStr);
+                    badge.classList.add('visible');
+                } else {
+                    badge.classList.remove('visible');
+                }
+            }
+        }
+    };
+    window.updateReadIndicators();
 
     // Search highlighting
     if (searchQuery) {

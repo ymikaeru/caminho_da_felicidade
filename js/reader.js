@@ -303,6 +303,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // "Marcar como lido" — espelha o toggleFavorite: localStorage primeiro
+    // (UI instantânea, funciona offline), cloud em seguida sem bloquear.
+    window.toggleReadMark = async function (explicitTopicIndex) {
+        const { volId, filename } = getParams();
+        let marks = [];
+        try { marks = JSON.parse(localStorage.getItem('readMarks') || '[]'); } catch (e) { }
+        const topicIndex = Number.isInteger(explicitTopicIndex) ? explicitTopicIndex : getVisibleTopicIndex();
+
+        let topicTitle = '';
+        const topics = window._currentTopics || [];
+        if (topics[topicIndex]) {
+            const lang0 = localStorage.getItem('site_lang') || 'pt';
+            topicTitle = (lang0 === 'pt'
+                ? (topics[topicIndex].title_ptbr || topics[topicIndex].title_pt || topics[topicIndex].title || '')
+                : (topics[topicIndex].title_ja || topics[topicIndex].title || '')
+            ).replace(/<[^>]+>/g, '').trim();
+        }
+
+        const wasRead = marks.some(m => m.vol === volId && m.file === filename && (m.topic || 0) === topicIndex);
+        if (wasRead) {
+            marks = marks.filter(m => !(m.vol === volId && m.file === filename && (m.topic || 0) === topicIndex));
+        } else {
+            marks.unshift({ vol: volId, file: filename, topic: topicIndex, topicTitle, time: Date.now() });
+        }
+        try { localStorage.setItem('readMarks', JSON.stringify(marks)); } catch (e) { }
+
+        // UI primeiro (instantânea); nuvem em seguida SEM await — falha de
+        // rede/RLS não pode atrasar nem bloquear o feedback.
+        const lang = localStorage.getItem('site_lang') || 'pt';
+        if (typeof window.updateReadIndicators === 'function') window.updateReadIndicators();
+
+        if (window._cloudSync) {
+            const op = wasRead
+                ? window._cloudSync.removeReadMark(volId, filename, topicIndex)
+                : window._cloudSync.saveReadMark(volId, filename, topicIndex, topicTitle);
+            Promise.resolve(op).catch(e => console.warn('[read-marks] cloud sync failed, salvo apenas local:', e));
+        }
+
+        const tooltip = document.getElementById('saveTooltip');
+        if (tooltip) {
+            const statusText = {
+                pt: { marked: '✓ Marcado como lido', unmarked: '✕ Marca de lido removida' },
+                ja: { marked: '✓ 読了として記録しました', unmarked: '✕ 読了の記録を解除しました' }
+            }[lang] || { marked: '✓ Marcado como lido', unmarked: '✕ Marca de lido removida' };
+            const title = document.title.replace('Meishu-Sama: ', '').replace(' - Caminho da Felicidade', '');
+            const rawTitle = topicTitle || title;
+            const cleanTitle = rawTitle.replace(/^(Ensinamento|Orientação|Palestra) de (Meishu-Sama|Moisés)\s*[-:]\s*/i, '').replace(/^["'](.*?)["']$/, '$1').trim();
+            document.getElementById('saveTooltipTitle').textContent = cleanTitle;
+            document.getElementById('saveTooltipStatus').textContent = wasRead ? statusText.unmarked : statusText.marked;
+            tooltip.classList.add('show');
+            clearTimeout(window._saveTooltipTimer);
+            window._saveTooltipTimer = setTimeout(() => tooltip.classList.remove('show'), 2800);
+        }
+    };
+
     window.renderContent = () => initReader();
 
     const shareBtn = document.getElementById('shareBtn');

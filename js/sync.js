@@ -178,6 +178,56 @@ export async function isFavorite(volume, file, topicIndex) {
 }
 
 // ============================================================
+// Read marks — "Ensinamentos Lidos" (marcação manual por tópico)
+// Mesmo modelo dos favoritos: gravação direta no toggle (sem bulk
+// local→cloud, pra remoção não ressuscitar), union no pull.
+// ============================================================
+
+export async function saveReadMark(volume, file, topicIndex, topicTitle) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return;
+
+  await supabase
+    .from('read_marks')
+    .upsert({
+      user_id: session.user.id,
+      volume,
+      file,
+      topic_index: topicIndex,
+      topic_title: topicTitle,
+      created_at: new Date().toISOString()
+    }, { onConflict: 'user_id,volume,file,topic_index' });
+}
+
+export async function removeReadMark(volume, file, topicIndex) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return;
+
+  await supabase
+    .from('read_marks')
+    .delete()
+    .eq('user_id', session.user.id)
+    .eq('volume', volume)
+    .eq('file', file)
+    .eq('topic_index', topicIndex);
+}
+
+export async function loadReadMarks() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return [];
+
+  // Sem .limit() baixo: a Central (fase 2) precisa do conjunto inteiro.
+  const { data } = await supabase
+    .from('read_marks')
+    .select('volume, file, topic_index, topic_title, created_at')
+    .eq('user_id', session.user.id)
+    .order('created_at', { ascending: false })
+    .limit(5000);
+
+  return data || [];
+}
+
+// ============================================================
 // Pull cloud → local (hydrate localStorage on new devices)
 // Favorites: union by (vol, file, topic).
 // Reading positions: last-write-wins per (vol, file) by updated_at.
@@ -264,6 +314,34 @@ export async function pullCloudToLocal() {
     console.warn('pullCloudToLocal positions failed:', e);
   }
 
+  let readMarksAdded = 0;
+  try {
+    const cloudMarks = await loadReadMarks();
+    let localMarks = [];
+    try { localMarks = JSON.parse(localStorage.getItem('readMarks') || '[]'); } catch (e) {}
+
+    const localKeys = new Set(localMarks.map(m => `${m.vol}:${m.file}:${m.topic || 0}`));
+    for (const cm of cloudMarks) {
+      const key = `${cm.volume}:${cm.file}:${cm.topic_index}`;
+      if (!localKeys.has(key)) {
+        localMarks.push({
+          vol: cm.volume,
+          file: cm.file,
+          topic: cm.topic_index,
+          topicTitle: cm.topic_title || '',
+          time: new Date(cm.created_at).getTime(),
+        });
+        readMarksAdded++;
+      }
+    }
+    if (readMarksAdded > 0) {
+      localMarks.sort((a, b) => (b.time || 0) - (a.time || 0));
+      localStorage.setItem('readMarks', JSON.stringify(localMarks));
+    }
+  } catch (e) {
+    console.warn('pullCloudToLocal read marks failed:', e);
+  }
+
   let highlightsAdded = 0;
   try {
     const cloudHighlights = await loadAllHighlights();
@@ -304,7 +382,7 @@ export async function pullCloudToLocal() {
     console.warn('pullCloudToLocal highlights failed:', e);
   }
 
-  return { favorites: favAdded, positions: posMerged, highlights: highlightsAdded };
+  return { favorites: favAdded, positions: posMerged, highlights: highlightsAdded, readMarks: readMarksAdded };
 }
 
 // ============================================================

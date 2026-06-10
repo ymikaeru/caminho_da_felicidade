@@ -103,6 +103,38 @@
   display: none;
 }
 
+/* O ícone do "lido" é circle-check em stroke: o fill:currentColor herdado de
+   .topic-save-btn.active svg preencheria o círculo e engoliria o check. */
+.topic-save-btn.topic-read-btn.active svg {
+  fill: none;
+}
+
+/* Tarja "Você leu este Ensinamento em ..." (botão Marcar como lido).
+   O texto vem de content:attr(data-label) DE PROPÓSITO: um nó de texto real
+   dentro do tópico deslocaria os offsets de caractere dos destaques
+   (highlights.js varre todos os text nodes do tópico). Não trocar por
+   textContent. */
+.topic-read-badge {
+  display: none;
+}
+
+.topic-read-badge.visible {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  font-size: 0.78rem;
+  font-family: var(--font-ui);
+  color: var(--accent);
+  background: var(--accent-soft, rgba(184, 134, 11, 0.12));
+  border: 1px solid var(--accent-soft, rgba(184, 134, 11, 0.25));
+  border-radius: 999px;
+  padding: 3px 12px;
+}
+
+.topic-read-badge.visible::before {
+  content: attr(data-label);
+}
+
 @media print {
   .topic-save-bar { display: none; }
 }

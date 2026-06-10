@@ -244,6 +244,7 @@ function showLoginOverlay() {
         localStorage.removeItem('userHighlights');
         localStorage.removeItem('readHistory');
         localStorage.removeItem('savedFavorites');
+        localStorage.removeItem('readMarks');
         localStorage.removeItem('highlightDeletedKeys');
         localStorage.removeItem('favDeletedKeys');
         localStorage.removeItem('mioshieSyncQueue');
@@ -256,6 +257,8 @@ function showLoginOverlay() {
           await window._cloudSync.syncLocalStorageToCloud();
           if (typeof renderFavorites === 'function') renderFavorites();
           if (typeof renderHistory === 'function') renderHistory();
+          if (typeof window.updateFavIndicators === 'function') window.updateFavIndicators();
+          if (typeof window.updateReadIndicators === 'function') window.updateReadIndicators();
         } catch (e) {
           console.warn('Cloud sync failed:', e);
           // Non-fatal: login proceeds with local data, but warn the user so
@@ -444,6 +447,8 @@ function stopHeartbeat() {
           window._cloudSync.syncLocalStorageToCloud();
           if (typeof renderFavorites === 'function') renderFavorites();
           if (typeof renderHistory === 'function') renderHistory();
+          if (typeof window.updateFavIndicators === 'function') window.updateFavIndicators();
+          if (typeof window.updateReadIndicators === 'function') window.updateReadIndicators();
         } catch (e) { console.warn('Cloud sync failed:', e); }
       }
       if (typeof revealPage === 'function') revealPage();

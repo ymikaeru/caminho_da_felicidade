@@ -1,5 +1,7 @@
     import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
     import Chart from 'chart.js/auto';
+    // Defaults do Chart.js a partir do tema atual (modo noturno do admin)
+    import './admin/chart-theme.js?v=2';
     // Estado compartilhado entre admin.js e abas extraídas
     import {
       allUsers, setAllUsers,
@@ -11,9 +13,9 @@
     import { _loadAdminIds, _escHtml, logAdminAction } from './admin/shared/helpers.js';
     // Abas extraídas — registram suas funções em window.*
     import './admin/tabs/admin-logs.js?v=2';
-    import './admin/tabs/calendar.js?v=6';
-    import './admin/tabs/announcements.js?v=6';
-    import './admin/tabs/access-info.js';
+    import './admin/tabs/calendar.js?v=7';
+    import './admin/tabs/announcements.js?v=7';
+    import './admin/tabs/access-info.js?v=2';
     import './admin/tabs/find-replace.js';
     import './admin/tabs/duplicates.js';
     import './admin/tabs/analytics-search.js?v=2';
@@ -23,13 +25,13 @@
     import './admin/tabs/analytics-landing.js?v=2';
     import './admin/tabs/analytics-audio.js?v=8';
     import './admin/tabs/highlights-saved.js?v=2';
-    import './admin/tabs/users-permissions.js?v=4';
-    import './admin/tabs/analytics.js?v=13';
+    import './admin/tabs/users-permissions.js?v=5';
+    import './admin/tabs/analytics.js?v=14';
     import './admin/tabs/translation-review.js?v=4';
     import './admin/tabs/translation-review-guia.js';
     import './admin/tabs/disciples-reports.js?v=2';
     import './admin/tabs/partial-citations.js?v=24';
-    import './admin/tabs/recommendations.js?v=11';
+    import './admin/tabs/recommendations.js?v=12';
     import './admin/tabs/inbox.js?v=2';
     import './admin/tabs/poetry-versions.js?v=2';
     import './admin/tabs/alignment.js?v=19';

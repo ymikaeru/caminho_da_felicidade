@@ -4,6 +4,151 @@
 import { supabase } from '../../supabase-config.js';
 import { _escapeCmu } from '../shared/helpers.js';
 
+// ── Markup da aba (movido de admin-supabase.html p/ manter o HTML enxuto) ──
+// Injetado no import do módulo: roda antes do corpo de admin.js (imports são
+// hoisted) e antes de qualquer interação — o DOM final é idêntico ao antigo.
+const _TAB_MARKUP = `
+              <div style="margin-bottom:24px;">
+                <h2
+                  style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                  Dados de Acesso</h2>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Informações de difusões e casas de
+                  Johrei
+                  exibidas na landing pública.</p>
+              </div>
+              <div class="admin-section">
+                <h2 id="access-form-title">Novo Registro</h2>
+                <div class="add-user-form" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                  <div class="form-group">
+                    <label for="access-category">Categoria</label>
+                    <select id="access-category"
+                      style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                      <option value="sede">Sede Central</option>
+                      <option value="regional">Regional</option>
+                      <option value="difusao">Difusão</option>
+                      <option value="johrei">Casa de Johrei</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="access-nome">Nome</label>
+                    <input type="text" id="access-nome" placeholder="Ex: Sede Central">
+                  </div>
+                  <div class="form-group" style="grid-column:1/-1;">
+                    <label for="access-endereco">Endereço</label>
+                    <input type="text" id="access-endereco" placeholder="Ex: Rua das Flores, 123 — São Paulo/SP">
+                  </div>
+                  <div class="form-group">
+                    <label for="access-dias">Dias de funcionamento</label>
+                    <input type="text" id="access-dias" placeholder="Ex: Terças e Quintas">
+                  </div>
+                  <div class="form-group">
+                    <label>Horário</label>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <select id="access-horario-ini"
+                        style="flex:1; padding:9px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                        <option value="">—</option>
+                        <optgroup label="Manhã">
+                          <option>7h00</option>
+                          <option>7h30</option>
+                          <option>8h00</option>
+                          <option>8h30</option>
+                          <option>9h00</option>
+                          <option>9h30</option>
+                          <option>10h00</option>
+                          <option>10h30</option>
+                          <option>11h00</option>
+                          <option>11h30</option>
+                        </optgroup>
+                        <optgroup label="Tarde">
+                          <option>13h00</option>
+                          <option>13h30</option>
+                          <option>14h00</option>
+                          <option>14h30</option>
+                          <option>15h00</option>
+                          <option>15h30</option>
+                          <option>16h00</option>
+                          <option>17h00</option>
+                        </optgroup>
+                        <optgroup label="Noite">
+                          <option>18h00</option>
+                          <option>18h30</option>
+                          <option>19h00</option>
+                          <option>19h30</option>
+                          <option>20h00</option>
+                          <option>20h30</option>
+                        </optgroup>
+                      </select>
+                      <span style="color:var(--text-muted); font-size:0.85rem; flex-shrink:0;">às</span>
+                      <select id="access-horario-fim"
+                        style="flex:1; padding:9px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                        <option value="">—</option>
+                        <optgroup label="Manhã">
+                          <option>7h00</option>
+                          <option>7h30</option>
+                          <option>8h00</option>
+                          <option>8h30</option>
+                          <option>9h00</option>
+                          <option>9h30</option>
+                          <option>10h00</option>
+                          <option>10h30</option>
+                          <option>11h00</option>
+                          <option>11h30</option>
+                        </optgroup>
+                        <optgroup label="Tarde">
+                          <option>13h00</option>
+                          <option>13h30</option>
+                          <option>14h00</option>
+                          <option>14h30</option>
+                          <option>15h00</option>
+                          <option>15h30</option>
+                          <option>16h00</option>
+                          <option>17h00</option>
+                        </optgroup>
+                        <optgroup label="Noite">
+                          <option>18h00</option>
+                          <option>18h30</option>
+                          <option>19h00</option>
+                          <option>19h30</option>
+                          <option>20h00</option>
+                          <option>20h30</option>
+                        </optgroup>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="access-telefone">Telefone</label>
+                    <input type="text" id="access-telefone" placeholder="Ex: (11) 99999-9999">
+                  </div>
+                  <div class="form-group">
+                    <label for="access-sort">Ordem</label>
+                    <input type="number" id="access-sort" value="0" min="0"
+                      style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                  </div>
+                  <div class="form-group" style="display:flex; align-items:flex-end; padding-bottom:2px;">
+                    <label><input type="checkbox" id="access-active" checked> Ativo (visível no site)</label>
+                  </div>
+                  <div style="grid-column:1/-1; display:flex; gap:8px; align-items:center;">
+                    <button id="access-add-btn" onclick="saveAccessInfo()">Adicionar</button>
+                    <button id="access-cancel-btn" onclick="resetAccessForm()"
+                      style="display:none; padding:9px 16px; border:1px solid var(--border); border-radius:8px; background:none; color:var(--text-muted); font-size:0.9rem; cursor:pointer;">Cancelar
+                      edição</button>
+                  </div>
+                </div>
+                <div id="access-msg" class="msg"></div>
+              </div>
+              <div class="admin-section">
+                <h2>Registros <span id="access-count"
+                    style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
+                <div id="access-list">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+            `;
+{
+  const _tabEl = document.getElementById('tab-access');
+  if (_tabEl && !_tabEl.firstElementChild) _tabEl.innerHTML = _TAB_MARKUP;
+}
+
 let _editingAccessId = null;
 let _accessInfoMap = {};
 

@@ -9,6 +9,99 @@ import { _escHtml } from '../shared/helpers.js';
 import { VOL_SHORT } from '../shared/constants.js';
 import { allUsers, setAllUsers } from '../shared/state.js';
 
+// ── Markup da aba (movido de admin-supabase.html p/ manter o HTML enxuto) ──
+// Injetado no import do módulo: roda antes do corpo de admin.js (imports são
+// hoisted) e antes de qualquer interação — o DOM final é idêntico ao antigo.
+const _TAB_MARKUP = `
+              <div style="margin-bottom:20px;">
+                <h2
+                  style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                  Recomendações para Estudo</h2>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Indique ensinamentos a usuários
+                  individuais com uma nota opcional. O usuário vê um botão na home e no menu apenas se tiver
+                  recomendações.</p>
+              </div>
+              <div class="rec-layout-grid"
+                style="display:grid; grid-template-columns:minmax(260px, 320px) 1fr; gap:24px; align-items:start;">
+                <!-- Coluna esquerda: seletor de usuário -->
+                <div>
+                  <input type="text" id="rec-user-search" aria-label="Buscar usuário" placeholder="Buscar usuário..."
+                    style="width:100%; padding:8px 10px; font-size:0.85rem; margin-bottom:10px; box-sizing:border-box;"
+                    oninput="renderRecUserList()">
+                  <div id="rec-user-list"
+                    style="height:calc(100vh - 260px); min-height:520px; overflow-y:auto; border:1px solid var(--border); border-radius:6px;">
+                    <div class="loading" style="padding:16px;">Carregando...</div>
+                  </div>
+                </div>
+                <!-- Coluna direita: gestão das recs do usuário selecionado -->
+                <div>
+                  <div id="rec-detail-empty"
+                    style="padding:40px 20px; text-align:center; color:var(--text-muted); font-size:0.9rem; border:1px dashed var(--border); border-radius:6px;">
+                    Selecione um usuário à esquerda.</div>
+                  <div id="rec-detail" style="display:none;">
+                    <div style="margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+                      <div style="font-size:0.95rem; font-weight:600;" id="rec-detail-name">—</div>
+                      <div style="font-size:0.78rem; color:var(--text-muted);" id="rec-detail-email">—</div>
+                    </div>
+                    <!-- Form: novo ensinamento -->
+                    <div
+                      style="background:var(--surface, var(--bg)); border:1px solid var(--border); border-radius:6px; padding:14px; margin-bottom:18px;">
+                      <div
+                        style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">
+                        Nova recomendação</div>
+                      <div style="position:relative; margin-bottom:10px;">
+                        <input type="text" id="rec-teaching-search" aria-label="Buscar ensinamento por título"
+                          placeholder="Buscar ensinamento por título..."
+                          style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box;"
+                          autocomplete="off" oninput="recDebounceTeachingSearch()">
+                        <div id="rec-teaching-suggestions"
+                          style="position:absolute; top:100%; left:0; right:0; background:var(--surface, #fff); border:1px solid var(--border); border-top:none; border-radius:0 0 6px 6px; max-height:240px; overflow-y:auto; display:none; z-index:100; box-shadow:0 6px 18px rgba(0,0,0,0.12);">
+                        </div>
+                      </div>
+                      <div id="rec-teaching-picked"
+                        style="display:none; padding:8px 10px; background:var(--accent-soft, rgba(184,134,11,0.1)); border:1px solid var(--accent); border-radius:4px; font-size:0.8rem; margin-bottom:10px;">
+                      </div>
+                      <textarea id="rec-note"
+                        placeholder="Nota opcional (ex.: 'pra refletir sobre paciência esta semana')" rows="2"
+                        style="width:100%; padding:8px 10px; font-size:0.85rem; box-sizing:border-box; font-family:inherit; resize:vertical; margin-bottom:10px;"></textarea>
+                      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                        <label
+                          style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">Auto-arquivar:</label>
+                        <select id="rec-expires"
+                          style="flex:1; padding:6px 10px; font-size:0.82rem; box-sizing:border-box;">
+                          <option value="">Sem prazo</option>
+                          <option value="7">Em 7 dias</option>
+                          <option value="15">Em 15 dias</option>
+                          <option value="30">Em 30 dias</option>
+                          <option value="90">Em 90 dias</option>
+                        </select>
+                      </div>
+                      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn-primary" onclick="recCreate()" id="rec-create-btn"
+                          style="font-size:0.82rem; padding:6px 16px;" disabled>Recomendar</button>
+                        <button class="btn-secondary" onclick="recCreateAll()" id="rec-create-all-btn"
+                          style="font-size:0.82rem; padding:6px 16px;" disabled
+                          title="Recomenda este ensinamento pra TODOS os usuários cadastrados agora">📢 Para
+                          todos</button>
+                        <button class="btn-secondary" onclick="recClearForm()"
+                          style="font-size:0.82rem; padding:6px 16px;">Limpar</button>
+                      </div>
+                    </div>
+                    <div
+                      style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">
+                      Recomendações ativas</div>
+                    <div id="rec-list">
+                      <div class="loading" style="padding:16px;">Carregando...</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+{
+  const _tabEl = document.getElementById('tab-recommendations');
+  if (_tabEl && !_tabEl.firstElementChild) _tabEl.innerHTML = _TAB_MARKUP;
+}
+
 let _recSelectedUser = null;     // {id, display_name, email}
 let _recPickedTeaching = null;   // {vol, file, topic_idx, title_pt, title_ja}
 let _recTeachingSearchTimer = null;

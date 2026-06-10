@@ -13,6 +13,229 @@ import { _escHtml, _loadAdminIds, getFileTitle } from '../shared/helpers.js';
 import { VOLUMES, VOL_SHORT } from '../shared/constants.js';
 import { allUsers, _adminIds, volumeCategories } from '../shared/state.js';
 
+// ── Markup da aba (movido de admin-supabase.html p/ manter o HTML enxuto) ──
+// Injetado no import do módulo: roda antes do corpo de admin.js (imports são
+// hoisted) e antes de qualquer interação — o DOM final é idêntico ao antigo.
+const _TAB_MARKUP = `
+              <div style="display:flex; align-items:center; margin-bottom:24px;">
+                <h2 style="margin:0;">Analytics</h2>
+                <select class="period-select" id="analytics-period" onchange="loadAnalytics()">
+                  <option value="7">Últimos 7 dias</option>
+                  <option value="30" selected>Últimos 30 dias</option>
+                  <option value="90">Últimos 90 dias</option>
+                  <option value="365">Último ano</option>
+                </select>
+              </div>
+
+              <!-- Online Users -->
+              <div class="online-card" id="online-users-card">
+                <div class="online-header">
+                  <div class="online-dot"></div>
+                  <span class="online-title">Usuários Online / Recentes</span>
+                  <span class="online-count" id="online-count">—</span>
+                </div>
+                <div class="online-list" id="online-list">
+                  <div class="loading">Verificando...</div>
+                </div>
+              </div>
+
+              <!-- Overview -->
+              <div class="admin-section">
+                <h2>Visão Geral</h2>
+                <div class="stats-grid" id="stats-cards">
+                  <div class="stat-card">
+                    <div class="stat-value" id="stat-total-users">—</div>
+                    <div class="stat-label">Total Usuários</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value" id="stat-active-users">—</div>
+                    <div class="stat-label">Ativos (período)</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value" id="stat-new-users">—</div>
+                    <div class="stat-label">Novos (período)</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value" id="stat-total-views">—</div>
+                    <div class="stat-label">Visualizações</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value" id="stat-teachings-read">—</div>
+                    <div class="stat-label">Ensinamentos Únicos</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value" id="stat-avg-session">—</div>
+                    <div class="stat-label">Média/User</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Engagement Funnel -->
+              <div class="admin-section">
+                <h2>🎯 Funil de Engajamento</h2>
+                <div id="engagement-funnel">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <!-- User Segmentation -->
+              <div class="admin-section">
+                <h2>🧭 Segmentação de Usuários</h2>
+                <div id="user-segmentation">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <!-- Volume Popularity -->
+              <div class="admin-section">
+                <h2>Popularidade por Volume</h2>
+                <div id="volume-chart">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <!-- Tabelas de Conteúdo (dropdown) -->
+              <div class="admin-section">
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+                  <h2 style="margin:0;">Conteúdo</h2>
+                  <select class="period-select" id="content-table-selector"
+                    onchange="selectAnalyticsTable('content', this.value)">
+                    <option value="top-teachings" selected>Ensinamentos Mais Lidos</option>
+                    <option value="article-quality">💎 Qualidade por Ensinamento</option>
+                    <option value="popular-favorites">⭐ Salvos &amp; Destaques Populares</option>
+                  </select>
+                </div>
+                <div id="top-teachings">
+                  <div class="loading">Carregando...</div>
+                </div>
+                <div id="article-quality" style="display:none;">
+                  <div class="loading">Carregando...</div>
+                </div>
+                <div id="popular-favorites" style="display:none;">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <!-- Tabelas de Usuários (dropdown) -->
+              <div class="admin-section">
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+                  <h2 style="margin:0;">Usuários</h2>
+                  <select class="period-select" id="users-table-selector"
+                    onchange="selectAnalyticsTable('users', this.value)">
+                    <option value="recent-activity" selected>Atividade Recente</option>
+                    <option value="top-users-ranking">👥 Ranking de Usuários Mais Ativos</option>
+                    <option value="top-users-time">⏳ Tempo Total no Site por Usuário</option>
+                  </select>
+                </div>
+                <div id="recent-activity">
+                  <div class="loading">Carregando...</div>
+                </div>
+                <div id="top-users-ranking" style="display:none;">
+                  <div class="loading">Carregando...</div>
+                </div>
+                <div id="top-users-time" style="display:none;">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <!-- Two col: Heatmap + Completion -->
+              <div class="two-col">
+                <div class="admin-section">
+                  <h2>Atividade por Hora do Dia</h2>
+                  <div id="heatmap-chart">
+                    <div class="loading">Carregando...</div>
+                  </div>
+                  <div class="heatmap-labels">
+                    <span>00h</span><span>06h</span><span>12h</span><span>18h</span><span>23h</span>
+                  </div>
+                </div>
+                <div class="admin-section">
+                  <h2>Taxa de Conclusão por Volume</h2>
+                  <div id="completion-chart">
+                    <div class="loading">Carregando...</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Content Protection (print / copy) -->
+              <div class="admin-section">
+                <h2>🛡️ Cópias e Impressões</h2>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">
+                  Cópias e impressões registradas no período. Cada evento de cópia (Ctrl+C, recortar ou clique-direito)
+                  e
+                  cada impressão é contado individualmente.
+                </p>
+                <div id="content-protection-stats">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <!-- Device Breakdown (desktop / mobile / tablet) -->
+              <div class="admin-section">
+                <h2>📱 Dispositivos de Acesso</h2>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">
+                  De qual tipo de aparelho os discípulos acessam (desktop, celular ou tablet), no período. Coletado a
+                  partir de 05/06/2026 — acessos anteriores aparecem como “Desconhecido”.
+                </p>
+                <div id="device-breakdown">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <!-- Daily Activity Line Chart -->
+              <div class="admin-section">
+                <h2>📈 Atividade Diária</h2>
+                <div id="daily-activity-chart">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <!-- Session Stats -->
+              <div class="admin-section">
+                <h2>⏱️ Sessions de Leitura</h2>
+                <div id="session-stats">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <!-- Engagement by Volume -->
+              <div class="admin-section">
+                <h2>📊 Engajamento por Volume</h2>
+                <div id="engagement-by-volume">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <!-- Retention Rate -->
+              <div class="admin-section">
+                <h2>🔄 Taxa de Retenção</h2>
+                <div id="retention-rate">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <!-- Storage & Sync Stats -->
+              <div class="two-col">
+                <div class="admin-section">
+                  <h2>Dados Sincronizados</h2>
+                  <div id="sync-stats">
+                    <div class="loading">Carregando...</div>
+                  </div>
+                </div>
+                <div class="admin-section">
+                  <h2>Distribuição por Perfil</h2>
+                  <div id="role-distribution">
+                    <div class="loading">Carregando...</div>
+                  </div>
+                </div>
+              </div>
+
+            `;
+{
+  const _tabEl = document.getElementById('tab-analytics');
+  if (_tabEl && !_tabEl.firstElementChild) _tabEl.innerHTML = _TAB_MARKUP;
+}
+
 function getPeriodDays() {
   return parseInt(document.getElementById('analytics-period')?.value || '30');
 }

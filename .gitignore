@@ -1,17 +1,34 @@
+# ── Dependências e ferramentas ──
 node_modules/
-.env
-.env.local
-.env.*
-auth-config.json
-*.pyc
 __pycache__/
+*.pyc
 .agent/
 .claude
+.cli-latest
 
-# Dados de processamento local — não vão ao repo
+# ── Segredos — NUNCA commitar ──
+.env
+.env.*
+.env.local
+auth-config.json
+
+# ── Backups e arquivos temporários ──
+# Backup/ = arquivo morto local (snapshots, protótipos, notas)
+# backups/ = dumps do banco (scripts/backup-db.ps1) — dados sensíveis
+Backup/
+backups/
+*.bak
+*.bkp
+*.tmp
+*.sql.gz
+*.sql.zip
+backup-*.sql
+
+# ── Dados de processamento local — não vão ao repo ──
 scripts/storage_update/
 scripts/storage_update2/
 scripts/storage_update3/
+scripts/retrad_staging/
 supabase/.temp/
 
 # Espelho local do Storage para edição em massa (storage-pull / push)
@@ -19,23 +36,3 @@ supabase/.temp/
 
 # Cópia local de livros p/ revisar deslogado (fallback site_data) — NÃO publicar
 site_data/books/
-
-# Backups do banco — contêm dados sensíveis, nunca commitar
-backups/
-*.sql.gz
-*.sql.zip
-backup-*.sql
-
-.env.local
-ComandosUteis
-.cli-latest
-supabase/.temp
-
-# Backups e arquivos temporários gerados pelo translate_akimaro_gemini.py
-*.json.bak
-*.json.tmp
-# Arquivos organizacionais — backups locais, scripts one-shot ja executados
-Backup/
-
-# Staging da retraducao em lote (617 paredoes) — undo vive no content_ptbr_prev (Storage) + disco local
-scripts/retrad_staging/

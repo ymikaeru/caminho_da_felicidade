@@ -4,6 +4,7 @@
 // ============================================================
 import Chart from 'chart.js/auto';
 import { supabase } from '../../supabase-config.js';
+import { fetchAll } from '../fetch-all.js';
 import { _escHtml, _loadAdminIds } from '../shared/helpers.js';
 import { _adminIds } from '../shared/state.js';
 import { DISCIPLES_BOOK_TITLES } from '../shared/constants.js';
@@ -22,16 +23,16 @@ async function loadDisciplesAnalytics() {
   const since = new Date(Date.now() - days * 86400000).toISOString();
 
   try {
+    // (o antigo .limit(5000) não funcionava: PostgREST corta em 1000 — fetchAll pagina)
     const [logsRes, posRes] = await Promise.all([
-      supabase.from('access_logs')
+      fetchAll(() => supabase.from('access_logs')
         .select('user_id, file, action, created_at')
         .eq('volume', 'disciples')
         .gte('created_at', since)
-        .order('created_at', { ascending: false })
-        .limit(5000),
-      supabase.from('reading_positions')
+        .order('created_at', { ascending: false }), null),
+      fetchAll(() => supabase.from('reading_positions')
         .select('user_id, file, time_spent_seconds, topic_index, total_topics, progress_pct, updated_at')
-        .eq('volume', 'disciples')
+        .eq('volume', 'disciples'), 'updated_at')
     ]);
 
     if (logsRes.error || posRes.error) {

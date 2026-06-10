@@ -4,6 +4,7 @@
 // ============================================================
 import Chart from 'chart.js/auto';
 import { supabase } from '../../supabase-config.js';
+import { fetchAll } from '../fetch-all.js';
 import { _escHtml, _loadAdminIds } from '../shared/helpers.js';
 import { _adminIds } from '../shared/state.js';
 import { POETRY_BOOK_TITLES } from '../shared/constants.js';
@@ -22,22 +23,22 @@ async function loadPoetryAnalytics() {
   const since = new Date(Date.now() - days * 86400000).toISOString();
 
   try {
+    // (os antigos .limit(5000)/.limit(10000) não funcionavam: o PostgREST
+    // corta em 1000 de qualquer jeito — fetchAll pagina até o fim)
     const [logsRes, posRes, savedRes] = await Promise.all([
-      supabase.from('access_logs')
+      fetchAll(() => supabase.from('access_logs')
         .select('user_id, file, action, created_at')
         .eq('volume', 'poetry')
         .gte('created_at', since)
-        .order('created_at', { ascending: false })
-        .limit(5000),
-      supabase.from('reading_positions')
+        .order('created_at', { ascending: false }), null),
+      fetchAll(() => supabase.from('reading_positions')
         .select('user_id, file, time_spent_seconds, updated_at')
-        .eq('volume', 'poetry'),
+        .eq('volume', 'poetry'), 'updated_at'),
       // Poemas salvos: agrega all-time (não filtra por período — salvar
       // é uma intenção persistente, não um sinal de atividade recente).
-      supabase.from('user_highlights')
+      fetchAll(() => supabase.from('user_highlights')
         .select('user_id, file, topic_id, topic_title, text, updated_at')
-        .eq('volume', 'poetry')
-        .limit(10000),
+        .eq('volume', 'poetry'), 'updated_at'),
     ]);
 
     if (logsRes.error || posRes.error) {

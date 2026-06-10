@@ -4,6 +4,7 @@
 // ============================================================
 import Chart from 'chart.js/auto';
 import { supabase } from '../../supabase-config.js';
+import { fetchAll } from '../fetch-all.js';
 
 let _lpChart = null;
 
@@ -18,7 +19,7 @@ async function loadLandingAnalytics() {
 
   const [rpcRes, rawRes] = await Promise.all([
     supabase.rpc('admin_get_site_analytics', { p_site: 'landing', days_back: days }),
-    supabase.from('site_events').select('props,created_at').eq('site','landing').eq('event_type','pageview').gte('created_at', since)
+    fetchAll(() => supabase.from('site_events').select('props,created_at').eq('site','landing').eq('event_type','pageview').gte('created_at', since))
   ]);
 
   if (rpcRes.error) {

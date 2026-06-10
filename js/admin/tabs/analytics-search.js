@@ -3,6 +3,7 @@
 // zero-result, top usuários por volume de buscas).
 // ============================================================
 import { supabase } from '../../supabase-config.js';
+import { fetchAll } from '../fetch-all.js';
 import { _escHtml, _loadAdminIds } from '../shared/helpers.js';
 import { _adminIds } from '../shared/state.js';
 
@@ -80,12 +81,12 @@ async function loadSearchAnalytics() {
       const { data: { session } } = await supabase.auth.getSession();
       const myUid = session?.user?.id;
 
-      const { data: logs } = await supabase
+      // (o antigo .limit(2000) não funcionava: PostgREST corta em 1000 — fetchAll pagina)
+      const { data: logs } = await fetchAll(() => supabase
         .from('search_logs')
         .select('user_id, query, results_count, created_at')
         .gte('created_at', since)
-        .order('created_at', { ascending: false })
-        .limit(2000);
+        .order('created_at', { ascending: false }), null);
 
       // Exclui admins (por role) e o próprio usuário logado
       const filtered = (logs || []).filter(r =>

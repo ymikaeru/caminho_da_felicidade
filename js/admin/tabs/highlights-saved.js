@@ -4,6 +4,7 @@
 // (lista de usuários à esquerda + detalhes à direita).
 // ============================================================
 import { supabase } from '../../supabase-config.js';
+import { fetchAll } from '../fetch-all.js';
 import { _escHtml, logAdminAction, getFileTitle } from '../shared/helpers.js';
 import { VOL_SHORT } from '../shared/constants.js';
 import { allUsers, volumeCategories } from '../shared/state.js';
@@ -16,7 +17,8 @@ async function _loadHighlightCounts() {
   const counts = new Map();
   try {
     // Traz só user_id (campo leve) — contagem client-side agrupada por usuário
-    const { data, error } = await supabase.from('user_highlights').select('user_id');
+    // (fetchAll: all-time já passa de 1000 linhas e o PostgREST truncaria)
+    const { data, error } = await fetchAll(() => supabase.from('user_highlights').select('user_id'), 'updated_at');
     if (error) throw error;
     (data || []).forEach(h => counts.set(h.user_id, (counts.get(h.user_id) || 0) + 1));
   } catch (e) {
@@ -144,7 +146,7 @@ async function loadUserHighlights(userId, userName) {
         </div>
         <div style="display:flex; flex-direction:column; gap:10px;">
           ${group.items.map(h => {
-            const date = new Date(h.updated_at).toLocaleDateString('pt-BR');
+            const date = new Date(h.updated_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
             if (isPoetry) {
               // Poemas salvos não têm cor (sempre yellow fixo) nem comentário;
               // mostra o número/seção e o texto do poema (original + tradução).
@@ -308,7 +310,7 @@ async function _loadFavoriteCounts() {
   if (_favCountByUser) return _favCountByUser;
   const counts = new Map();
   try {
-    const { data, error } = await supabase.from('synced_favorites').select('user_id');
+    const { data, error } = await fetchAll(() => supabase.from('synced_favorites').select('user_id'));
     if (error) throw error;
     (data || []).forEach(f => counts.set(f.user_id, (counts.get(f.user_id) || 0) + 1));
   } catch (e) {
@@ -375,11 +377,11 @@ async function loadUserSaved(userId, userName) {
     try { await window.loadVolumeFiles(); } catch (e) { console.warn('loadVolumeFiles falhou:', e); }
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await fetchAll(() => supabase
     .from('synced_favorites')
     .select('volume, file, topic_index, topic_title, snippet, created_at')
     .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }), null);
 
   if (error) {
     container.innerHTML = `<div class="msg err">Erro ao carregar: ${_escHtml(error.message)}</div>`;
@@ -415,7 +417,7 @@ async function loadUserSaved(userId, userName) {
         </div>
         <div style="display:flex; flex-direction:column; gap:10px;">
           ${group.items.map(f => {
-            const date = f.created_at ? new Date(f.created_at).toLocaleDateString('pt-BR') : '';
+            const date = f.created_at ? new Date(f.created_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '';
             return `
               <div style="padding:10px 14px; background:var(--surface); border-radius:8px; border:1px solid var(--border);">
                 ${f.topic_title ? `<div style="font-size:0.82rem; color:var(--text); font-weight:600; margin-bottom:4px;">${_escHtml(f.topic_title)}</div>` : ''}

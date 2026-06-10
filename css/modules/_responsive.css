@@ -108,10 +108,6 @@
     display: none !important;
   }
 
-  .topic-list {
-    grid-template-columns: 1fr !important;
-  }
-
   .topic-list>a.topic-card[style] {
     padding: 20px !important;
   }
@@ -200,6 +196,17 @@
   .section-header {
     font-size: 18px;
     margin: 28px 0 12px;
+  }
+}
+
+/* Cards da home (grade auto-fit minmax(320px)): no TABLET ficam 2 colunas
+   como no desktop (a auto-fit colapsa sozinha quando falta espaço). Este
+   override de 1 coluna vale só pra CELULAR — antes vivia no bloco de
+   max-width:1024px e forçava 1 coluna no tablet inteiro; abaixo de 600px
+   ele ainda protege telas estreitas (<360px) de overflow do minmax(320px). */
+@media (max-width: 600px) {
+  .topic-list {
+    grid-template-columns: 1fr !important;
   }
 }
 

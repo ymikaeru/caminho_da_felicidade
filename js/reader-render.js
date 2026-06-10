@@ -619,6 +619,27 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
 
     container.classList.toggle('comparison-active', localStorage.getItem('reader_comparison') === 'true');
 
+    // O <hr> separador de publicações vive no FIM do content de cada tópico
+    // (menos o último). O botão "Marcar como lido" do fim é emitido DEPOIS da
+    // div do tópico, então ficava abaixo da linha — parecendo pertencer ao
+    // PRÓXIMO Ensinamento. Move o <hr> final pra depois do botão (ordem:
+    // texto → botão → linha). Mover o hr é seguro pros offsets dos destaques:
+    // ele não tem nós de texto. Pula sobras vazias no fim (P/BR sem texto e
+    // sem imagem); se o tópico não termina em hr (último, comparação), no-op.
+    container.querySelectorAll('.topic-read-endbar').forEach(bar => {
+        let prev = bar.previousElementSibling;
+        while (prev && !(prev.classList && prev.classList.contains('topic-content'))) prev = prev.previousElementSibling;
+        if (!prev) return;
+        let el = prev.lastElementChild;
+        while (el && el.tagName !== 'HR'
+            && /^(P|BR|DIV)$/.test(el.tagName)
+            && el.textContent.trim() === ''
+            && !el.querySelector('img')) {
+            el = el.previousElementSibling;
+        }
+        if (el && el.tagName === 'HR') bar.after(el);
+    });
+
     // Fav indicators
     window.updateFavIndicators = function () {
         let favs = [];

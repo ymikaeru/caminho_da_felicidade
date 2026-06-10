@@ -98,6 +98,9 @@
                 <option value="caminho" selected>Caminho da Felicidade</option>
                 <option value="johrei">Guia do Johrei</option>
               </select>
+              <button class="btn-zen" type="button" id="adminModeBtn" onclick="toggleAdminMode()"
+                style="font-size:.78rem;width:100%;margin-top:8px;"
+                title="Alternar entre modo claro e noturno (só no admin)">🌙 Modo noturno</button>
             </div>
 
             <nav class="admin-nav">
@@ -195,9 +198,6 @@
             </nav>
 
             <div class="admin-sidebar-foot">
-              <button class="btn-zen" type="button" id="adminModeBtn" onclick="toggleAdminMode()"
-                style="font-size:.78rem;width:100%;margin-bottom:8px;"
-                title="Alternar entre modo claro e noturno (só no admin)">🌙 Modo noturno</button>
               <button class="btn-zen" type="button" onclick="changeAdminPin()" style="font-size:.78rem;width:100%;"
                 title="Trocar o PIN exigido para entrar no painel">🔑 Trocar PIN</button>
             </div>

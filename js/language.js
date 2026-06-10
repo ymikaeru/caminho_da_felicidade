@@ -58,6 +58,7 @@ function setLanguage(lang, triggerRender = true) {
     updateLabel('mobileNavLabelComplementary', t.discipulos || 'Discípulos');
     updateLink('mobileNavLinkHistory', t.history);
     updateLink('mobileNavLinkFavorites', t.saved);
+    updateLink('mobileNavLinkReadCentral', t.readCentral || 'Ensinamentos Lidos');
     updateLink('mobileNavLinkLang', t.lang);
     updateLink('mobileNavLinkTheme', t.theme);
     updateLink('mobileNavLinkPoetry', t.poetry || 'Obras Poéticas');

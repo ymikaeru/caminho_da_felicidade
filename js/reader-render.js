@@ -192,6 +192,22 @@ function _buildTopicSaveBar(topicIdx, lang) {
     `</div>`;
 }
 
+// Botão discreto "Marcar como lido" no FIM do Ensinamento (pedido de usuário:
+// quem termina a leitura não precisa voltar ao topo). Fica FORA da div
+// .topic-content de propósito: o rótulo muda com o estado (Marcar ↔ Lido em
+// data), e nós de texto dentro do tópico deslocariam os offsets de caractere
+// dos destaques. Estado aplicado por window.updateReadIndicators.
+function _buildTopicReadEndBar(topicIdx, lang) {
+    const lr = { pt: { read: 'Marcar como lido' }, ja: { read: '読了として記録' } }[lang] || { read: 'Marcar como lido' };
+    const readIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>';
+    return `<div class="topic-read-endbar" data-topic-idx="${topicIdx}">` +
+        `<button type="button" class="topic-read-endbtn" data-topic-idx="${topicIdx}" aria-pressed="false" onclick="if (typeof window.toggleReadMark === 'function') window.toggleReadMark(${topicIdx});">` +
+            readIcon +
+            `<span class="topic-read-endlabel">${lr.read}</span>` +
+        `</button>` +
+    `</div>`;
+}
+
 function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicTitle, hlScroll) {
     const container = window._readerContainer;
     const genericRegex = window._genericRegex;
@@ -351,13 +367,21 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     }
 
     let contentHtml = '';
+    // Índice do Ensinamento "raiz" da cadeia atual (fragmentos
+    // continues_previous pertencem a ele) — usado pelo botão de fim.
+    let readChainBase = 0;
     topicsFound.forEach((topicData, index) => {
         const topicId = `topic-${index}`;
+        const nextTopic = topicsFound[index + 1];
+        const chainEnds = !nextTopic || !nextTopic.continues_previous;
         if (topicData._mergedAway) {
             // Conteúdo já reanexado ao tópico-raiz acima (texto contínuo).
             // Âncora invisível só preserva #topic-${index} pro getElementById
             // (scroll/posição) sem inserir um bloco que quebraria o fluxo.
             contentHtml += `<div id="${topicId}" class="topic-continuation-anchor" style="margin:0;padding:0;"></div>`;
+            // Fim de cadeia que termina num fragmento mesclado: o botão
+            // "Marcar como lido" do fim ainda precisa sair (marca a raiz).
+            if (chainEnds) contentHtml += _buildTopicReadEndBar(readChainBase, lang);
             return;
         }
         let rawContent = isPt ? (topicData.content_ptbr || topicData.content_pt || topicData.content || '') : (topicData.content || '');
@@ -472,6 +496,7 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         // no tópico anterior. IMPORTANTE: o tópico CONTINUA no array (mesmo
         // topic_idx) — só some visualmente; favoritos/posições/grifos não mudam.
         const isCont = !!topicData.continues_previous;
+        if (!isCont) readChainBase = index;
         const topMargin = isCont ? '0' : (index > 0 ? '40px' : '0');
         const topHeader = isCont ? '' : `${headerHTML}\n${_buildTopicSaveBar(index, lang)}\n${_buildPartialCitationCTA(volId, filename, index, lang)}`;
         const contClass = isCont ? ' topic-continuation' : '';
@@ -530,6 +555,9 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         } else {
             contentHtml += `<div id="${topicId}" class="topic-content${contClass}" style="margin-top: ${topMargin};">\n${topHeader}\n${formatted}\n</div>`;
         }
+        // Fim do Ensinamento (não há fragmento continuando) → botão de lido,
+        // FORA da div do tópico (ver _buildTopicReadEndBar).
+        if (chainEnds) contentHtml += _buildTopicReadEndBar(readChainBase, lang);
     });
 
     const bl = { pt: { home: 'Início', volume: 'Volume' }, ja: { home: 'トップ', volume: '巻' } }[lang] || { home: 'Início', volume: 'Volume' };
@@ -628,13 +656,14 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         try { marks = JSON.parse(localStorage.getItem('readMarks') || '[]'); } catch (e) { }
         const markMap = new Map(marks.filter(m => m.vol === volId && m.file === filename).map(m => [m.topic || 0, m]));
         const lr = isPt
-            ? { read: 'Marcar como lido', readDone: 'Lido — toque para desmarcar', badge: (d) => `Você leu este Ensinamento em ${d}` }
-            : { read: '読了として記録', readDone: '読了済み — タップで解除', badge: (d) => `${d} に読了` };
+            ? { read: 'Marcar como lido', readDone: 'Lido — toque para desmarcar', badge: (d) => `Você leu este Ensinamento em ${d}`, endDone: (d) => `Lido em ${d}` }
+            : { read: '読了として記録', readDone: '読了済み — タップで解除', badge: (d) => `${d} に読了`, endDone: (d) => `${d} に読了` };
         const totalTopics = window._currentTotalTopics || 1;
         for (let i = 0; i < totalTopics; i++) {
             const topicEl = document.getElementById(`topic-${i}`);
             if (!topicEl) continue;
             const mark = markMap.get(i);
+            const dateStr = mark ? new Date(mark.time || Date.now()).toLocaleDateString(isPt ? 'pt-BR' : 'ja-JP') : '';
             const btn = topicEl.querySelector('.topic-read-btn');
             if (btn) {
                 btn.classList.toggle('active', !!mark);
@@ -645,12 +674,20 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             const badge = topicEl.querySelector('.topic-read-badge');
             if (badge) {
                 if (mark) {
-                    const dateStr = new Date(mark.time || Date.now()).toLocaleDateString(isPt ? 'pt-BR' : 'ja-JP');
                     badge.dataset.label = lr.badge(dateStr);
                     badge.classList.add('visible');
                 } else {
                     badge.classList.remove('visible');
                 }
+            }
+            // Botão do FIM do Ensinamento (fora da div do tópico)
+            const endBtn = document.querySelector(`.topic-read-endbtn[data-topic-idx="${i}"]`);
+            if (endBtn) {
+                endBtn.classList.toggle('active', !!mark);
+                endBtn.setAttribute('title', mark ? lr.readDone : lr.read);
+                endBtn.setAttribute('aria-pressed', mark ? 'true' : 'false');
+                const lbl = endBtn.querySelector('.topic-read-endlabel');
+                if (lbl) lbl.textContent = mark ? lr.endDone(dateStr) : lr.read;
             }
         }
     };

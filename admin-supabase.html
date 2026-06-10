@@ -5,8 +5,30 @@
   <meta charset="UTF-8">
   <title>Admin — Caminho da Felicidade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // Modo noturno do admin: segue o modo do site (site_mode) salvo override
+    // próprio (admin_mode). Roda ANTES do CSS pra não piscar claro.
+    // Os tokens [data-mode="dark"] já vêm do styles.min.css do site.
+    (function () {
+      var m;
+      try { m = localStorage.getItem('admin_mode') || localStorage.getItem('site_mode') || 'light'; } catch (_) { m = 'light'; }
+      if (m !== 'dark') m = 'light';
+      document.documentElement.setAttribute('data-mode', m);
+      document.addEventListener('DOMContentLoaded', function () {
+        var btn = document.getElementById('adminModeBtn');
+        if (btn && m === 'dark') btn.textContent = '☀️ Modo claro';
+      });
+    })();
+    function toggleAdminMode() {
+      var next = document.documentElement.getAttribute('data-mode') === 'dark' ? 'light' : 'dark';
+      try { localStorage.setItem('admin_mode', next); } catch (_) {}
+      // Reload: os gráficos (Chart.js) leem as cores do tema na criação —
+      // recarregar re-renderiza tudo já no modo novo.
+      location.reload();
+    }
+  </script>
   <link rel="stylesheet" href="css/styles.min.css?v=159">
-  <link rel="stylesheet" href="css/admin.min.css?v=25">
+  <link rel="stylesheet" href="css/admin.min.css?v=26">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 
@@ -164,6 +186,9 @@
             </nav>
 
             <div class="admin-sidebar-foot">
+              <button class="btn-zen" type="button" id="adminModeBtn" onclick="toggleAdminMode()"
+                style="font-size:.78rem;width:100%;margin-bottom:8px;"
+                title="Alternar entre modo claro e noturno (só no admin)">🌙 Modo noturno</button>
               <button class="btn-zen" type="button" onclick="changeAdminPin()" style="font-size:.78rem;width:100%;"
                 title="Trocar o PIN exigido para entrar no painel">🔑 Trocar PIN</button>
             </div>
@@ -1028,7 +1053,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=121"></script>
+  <script type="module" src="js/admin.js?v=122"></script>
 </body>
 
 </html>

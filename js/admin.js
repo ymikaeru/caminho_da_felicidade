@@ -1,5 +1,7 @@
     import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
     import Chart from 'chart.js/auto';
+    // Defaults do Chart.js a partir do tema atual (modo noturno do admin)
+    import './admin/chart-theme.js?v=1';
     // Estado compartilhado entre admin.js e abas extraídas
     import {
       allUsers, setAllUsers,

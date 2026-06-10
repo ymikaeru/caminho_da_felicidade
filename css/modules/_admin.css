@@ -358,7 +358,7 @@
     .prev-panel-head { font-size:.74rem; color:var(--text-muted, #888); margin-bottom:10px; }
     .prev-seg-row { display:flex; gap:8px; align-items:flex-start; padding:5px 0; border-top:1px solid rgba(184,134,11,0.08); }
     .prev-seg-row:first-of-type { border-top:none; }
-    .prev-copy { flex:0 0 auto; margin-top:2px; padding:1px 7px; font-size:.8rem; line-height:1.4; color:#8a6d3b; background:#fff; border:1px solid rgba(184,134,11,0.35); border-radius:5px; cursor:pointer; }
+    .prev-copy { flex:0 0 auto; margin-top:2px; padding:1px 7px; font-size:.8rem; line-height:1.4; color:#8a6d3b; background:var(--surface); border:1px solid rgba(184,134,11,0.35); border-radius:5px; cursor:pointer; }
     .prev-copy:hover { background:rgba(184,134,11,0.12); }
     .prev-seg-text { font-size:.86rem; line-height:1.55; color:var(--text-main, #333); white-space:pre-wrap; }
     .report-prev-chip { font-size:.68rem; font-weight:600; color:#8a6d3b; background:rgba(184,134,11,0.12); border:1px solid rgba(184,134,11,0.35); border-radius:20px; padding:2px 9px; cursor:pointer; white-space:nowrap; }
@@ -662,7 +662,9 @@
     /* Grifa o selected_text dentro do parágrafo "Antes" pra reviewer
        localizar visualmente o trecho exato que o usuário reportou. */
     mark.diff-needle {
-      background: #fff3a1; color: var(--text);
+      /* fundo amarelo claro nos DOIS modos → texto escuro fixo (var(--text)
+         no modo noturno é claro e sumia sobre o amarelo) */
+      background: #fff3a1; color: #2a2200;
       padding: 1px 3px; border-radius: 3px;
       box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.45);
       font-weight: 500;
@@ -703,7 +705,7 @@
       font-style: italic; color: var(--text); word-break: break-word;
     }
     .report-text mark.report-selected {
-      background: #fff3a1; color: var(--text);
+      background: #fff3a1; color: #2a2200;
       padding: 1px 3px; border-radius: 3px;
       font-style: normal; font-weight: 500;
       box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.35);

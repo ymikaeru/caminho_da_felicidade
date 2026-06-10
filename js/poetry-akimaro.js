@@ -196,11 +196,37 @@
     return `${mm}/${yy}`;
   }
 
+  // Modo japonês mantém a era: "S11. 1. 1" → "昭和11年1月1日"; "S15. 5.**" → "昭和15年5月"
+  function _formatDateShowa(s) {
+    if (!s) return '';
+    const m = s.match(/^S(\d+)\.\s*(\d+)\.\s*(\d+|\*+)$/);
+    if (!m) return s;
+    const era = parseInt(m[1], 10);
+    const month = parseInt(m[2], 10);
+    const day = m[3];
+    if (/^\d+$/.test(day)) return `昭和${era}年${month}月${parseInt(day, 10)}日`;
+    return `昭和${era}年${month}月`;
+  }
+
+  // Compacto japonês: "S11. 1. 1" → "昭11.1.1"; "S15. 5.**" → "昭15.5"
+  function _formatDateShowaCompact(s) {
+    if (!s) return '';
+    const m = s.match(/^S(\d+)\.\s*(\d+)\.\s*(\d+|\*+)$/);
+    if (!m) return s;
+    const era = parseInt(m[1], 10);
+    const month = parseInt(m[2], 10);
+    const day = m[3];
+    if (/^\d+$/.test(day)) return `昭${era}.${month}.${parseInt(day, 10)}`;
+    return `昭${era}.${month}`;
+  }
+
   function _renderPoem(p) {
     const num = p.number != null ? String(p.number).padStart(3, '0') : '';
     const pending = !!p.translation_pending;
+    // Título só no modo PT: é um título editorial criado na tradução —
+    // o tanka original não tem título individual (pedido de usuário).
     const title = p.title
-      ? `<span class="poetry-card__title">${_highlight(p.title, _query)}</span>`
+      ? `<span class="poetry-card__title lang-pt">${_highlight(p.title, _query)}</span>`
       : '';
     // Romaji no modo PT; hiragana no modo JP (alternados via .lang-pt/.lang-ja).
     const reading =
@@ -212,8 +238,16 @@
         : '');
     const dateStr = _formatDate(p.date);
     const dateStrCompact = _formatDateCompact(p.date);
+    // Data por idioma: PT ocidental, JP mantém a era Shōwa (pedido de
+    // usuário). full/compact alternam por viewport (CSS); lang-pt/lang-ja
+    // por idioma (setLanguage re-roda após cada _render).
     const dateTag = dateStr
-      ? `<span class="poetry-card__tag" title="${_esc(p.date)}"><span class="poetry-card__tag-full">${_esc(dateStr)}</span><span class="poetry-card__tag-compact">${_esc(dateStrCompact)}</span></span>`
+      ? `<span class="poetry-card__tag" title="${_esc(p.date)}">` +
+          `<span class="poetry-card__tag-full lang-pt">${_esc(dateStr)}</span>` +
+          `<span class="poetry-card__tag-full lang-ja" style="display:none">${_esc(_formatDateShowa(p.date))}</span>` +
+          `<span class="poetry-card__tag-compact lang-pt">${_esc(dateStrCompact)}</span>` +
+          `<span class="poetry-card__tag-compact lang-ja" style="display:none">${_esc(_formatDateShowaCompact(p.date))}</span>` +
+        `</span>`
       : '';
     const pendingTag = pending
       ? `<span class="poetry-card__tag poetry-card__tag--pending" title="Aguardando tradução"><span class="lang-pt">tradução pendente</span><span class="lang-ja" style="display:none">未訳</span></span>`

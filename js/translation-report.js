@@ -245,7 +245,7 @@
         padding: 6px 10px;
         margin-top: 6px;
         background: transparent;
-        border: 1px solid var(--border-color, rgba(0,0,0,0.12));
+        border: 1px solid var(--border, rgba(0,0,0,0.12));
         border-radius: 6px;
         color: var(--text-muted, #888);
         font-size: 11.5px;
@@ -257,7 +257,7 @@
       .tr-report-btn:hover {
         background: rgba(255, 180, 0, 0.08);
         border-color: rgba(255, 160, 0, 0.4);
-        color: var(--text-color, #333);
+        color: var(--text-main, #333);
       }
       .tr-report-btn svg {
         flex-shrink: 0;

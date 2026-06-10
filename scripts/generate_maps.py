@@ -2,7 +2,9 @@ import os
 import re
 import json
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
+# O script vive em scripts/, mas os caminhos (mioshiecN/, site_data/) são
+# relativos à raiz do projeto — um nível acima.
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 vols = ["mioshiec1", "mioshiec2", "mioshiec3", "mioshiec4"]
 
 section_map = {}

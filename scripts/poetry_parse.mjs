@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ============================================================
-// poetry_parse.mjs — parse dos 3 markdowns em "Poemas markdown/"
+// poetry_parse.mjs — parse dos 3 markdowns em data/poetry/markdown/
 // e geração de JSONs esqueleto em data/poetry/.
 //
 // Não chama API alguma — só extrai estrutura (seções, poemas,
@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 
-const MD_DIR = join(ROOT, 'Poemas markdown');
+const MD_DIR = join(ROOT, 'data', 'poetry', 'markdown');
 const OUT_DIR_DEFAULT = join(ROOT, 'data', 'poetry');
 
 const FILES = [

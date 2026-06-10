@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    Highlights — user text highlights
    CSS Custom Highlight API + traditional marks
    ============================================================ */
@@ -152,7 +152,7 @@ mark.temp-selection {
 .highlight-tooltip {
   position: absolute;
   z-index: 5000;
-  background: var(--bg-card, #fff);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-premium);
@@ -275,6 +275,14 @@ mark.temp-selection {
   opacity: 0.88;
 }
 
+/* Nos temas de fundo escuro o acento é dourado CLARO (#D4AF37 etc.) —
+   texto branco em cima dele fica ilegível; usa texto escuro. */
+[data-theme="dark"] .highlight-save-btn,
+[data-theme="quiet"] .highlight-save-btn,
+[data-mode="dark"] .highlight-save-btn {
+  color: #1C1C1A;
+}
+
 .highlight-cancel-btn {
   padding: 8px 12px;
   background: none;
@@ -320,7 +328,7 @@ mark.temp-selection {
   left: 0;
   right: 0;
   z-index: 6000;
-  background: var(--bg-card, #fff);
+  background: var(--surface);
   border-top: 1px solid var(--border);
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
   padding: 12px 16px;
@@ -535,7 +543,7 @@ mark.temp-selection {
 .highlight-comment-popup {
   position: absolute;
   z-index: 5000;
-  background: var(--bg-card, #fff);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
@@ -667,7 +675,7 @@ mark.hl-pending.highlight-orange { background-color: #ffd6a5; }
   left: 0;
   right: 0;
   z-index: 6000;
-  background: var(--bg-card, #fff);
+  background: var(--surface);
   border-top: 1px solid var(--border);
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
   padding: 10px 16px;
@@ -691,7 +699,7 @@ mark.hl-pending.highlight-orange { background-color: #ffd6a5; }
   z-index: 6100;
   min-width: 240px;
   max-width: 300px;
-  background: var(--bg-card, #fff);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: var(--shadow-premium, 0 8px 28px rgba(0, 0, 0, 0.16));

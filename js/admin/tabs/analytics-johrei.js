@@ -5,6 +5,7 @@
 // ============================================================
 import Chart from 'chart.js/auto';
 import { supabase } from '../../supabase-config.js';
+import { fetchAll } from '../fetch-all.js';
 
 let _jrChart = null;
 
@@ -17,69 +18,71 @@ async function loadJohreiAnalytics() {
 
   const since = new Date(Date.now() - days * 86400000).toISOString();
 
-  // Fetch RPC and extra raw data in parallel
+  // Fetch RPC and extra raw data in parallel.
+  // TODOS os selects de site_events passam por fetchAll — em 30d o site já
+  // passa de 1000 eventos e o PostgREST truncaria silenciosamente.
   const [rpcRes, rawRes, cmOpensRes, cmHeartbeatsRes, cmAudioRes, cmDownloadsRes, essShownRes, essSuppRes, essSkippedRes, apostilaPrintRes, sectionRes] = await Promise.all([
     supabase.rpc('admin_get_site_analytics', { p_site: 'johrei', days_back: days }),
-    supabase.from('site_events').select('props,created_at').eq('site','johrei').eq('event_type','pageview').gte('created_at', since),
+    fetchAll(() => supabase.from('site_events').select('props,created_at').eq('site','johrei').eq('event_type','pageview').gte('created_at', since)),
     // Culto Mensal: aberturas. Fetcha todos os cta de johrei e
     // filtra client-side por props.label — evita depender da sintaxe
     // de JSON path do PostgREST, que varia entre versões.
-    supabase.from('site_events')
+    fetchAll(() => supabase.from('site_events')
       .select('anon_id,session_id,props')
       .eq('site','johrei')
       .eq('event_type','cta')
-      .gte('created_at', since),
+      .gte('created_at', since)),
     // Culto Mensal: heartbeats enquanto o modal estava aberto (dwell time)
-    supabase.from('site_events')
+    fetchAll(() => supabase.from('site_events')
       .select('session_id,props')
       .eq('site','johrei')
       .eq('event_type','heartbeat')
       .ilike('path','%modal=culto-mensal%')
-      .gte('created_at', since),
+      .gte('created_at', since)),
     // Culto Mensal: eventos de áudio (play/pause/ended)
-    supabase.from('site_events')
+    fetchAll(() => supabase.from('site_events')
       .select('event_type,session_id,anon_id,props,created_at')
       .eq('site','johrei')
       .in('event_type', ['audio_play','audio_pause','audio_ended'])
-      .gte('created_at', since),
+      .gte('created_at', since)),
     // Culto Mensal: downloads (ZIP com PDF + MP3)
-    supabase.from('site_events')
+    fetchAll(() => supabase.from('site_events')
       .select('anon_id,session_id,props,created_at')
       .eq('site','johrei')
       .eq('event_type','download_zip')
-      .gte('created_at', since),
+      .gte('created_at', since)),
     // Essência: modal de boas-vindas exibido
-    supabase.from('site_events')
+    fetchAll(() => supabase.from('site_events')
       .select('anon_id,props')
       .eq('site','johrei')
       .eq('event_type','essencia_shown')
-      .gte('created_at', since),
+      .gte('created_at', since)),
     // Essência: usuário marcou "não exibir mais"
-    supabase.from('site_events')
+    fetchAll(() => supabase.from('site_events')
       .select('anon_id,props')
       .eq('site','johrei')
       .eq('event_type','essencia_suppressed')
-      .gte('created_at', since),
+      .gte('created_at', since)),
     // Essência: visita chegou com modal já suprimido (não exibiu)
-    supabase.from('site_events')
+    fetchAll(() => supabase.from('site_events')
       .select('anon_id,props')
       .eq('site','johrei')
       .eq('event_type','essencia_skipped')
-      .gte('created_at', since),
+      .gte('created_at', since)),
     // Apostila: impressões
-    supabase.from('site_events')
+    fetchAll(() => supabase.from('site_events')
       .select('anon_id,props,created_at')
       .eq('site','johrei')
       .eq('event_type','apostila_print')
-      .gte('created_at', since),
+      .gte('created_at', since)),
     // Acessos por aba: cada troca de aba emite um `section` com props.tab.
     // (Pontos focais reusam o fetch de cta acima — cmOpensRes — filtrando
     // client-side por props.label === 'focal_point'.)
-    supabase.from('site_events')
+    fetchAll(() => supabase.from('site_events')
       .select('anon_id,props')
       .eq('site','johrei')
       .eq('event_type','section')
-      .gte('created_at', since)
+      .gte('created_at', since))
   ]);
 
   if (rpcRes.error) {
@@ -211,12 +214,21 @@ async function loadJohreiAnalytics() {
   const cmComp6plus  = cmCompletedCounts.filter(n => n >= 6).length;
   const cmComp6plusListens = cmCompletedCounts.filter(n => n >= 6).reduce((a, b) => a + b, 0);
   const cmComp6plusPct = cmCompletedCount ? Math.round(cmComp6plusListens / cmCompletedCount * 100) : 0;
-  const cmAvgListenedSec = cmAudioSessions
-    ? Object.values(cmPlayedBySession).reduce((a, b) => a + b, 0) / cmAudioSessions
+  // Média sobre as sessões que TÊM tempo medido (pause/ended) — dividir o
+  // somatório delas pela contagem de sessões com play (conjuntos diferentes)
+  // inflava a média. Mediana junto: recorrentes que deixam repetindo (>100%
+  // legítimo, total_played acumula re-escutas) puxam a média pra cima.
+  const cmMeasuredTotals = Object.values(cmPlayedBySession);
+  const cmAvgListenedSec = cmMeasuredTotals.length
+    ? cmMeasuredTotals.reduce((a, b) => a + b, 0) / cmMeasuredTotals.length
+    : 0;
+  const cmMedianListenedSec = cmMeasuredTotals.length
+    ? [...cmMeasuredTotals].sort((a, b) => a - b)[Math.floor(cmMeasuredTotals.length / 2)]
     : 0;
   // duration_seconds vem nos eventos; usamos o mais comum/qualquer válido
   const cmDuration = (cmAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
   const cmAvgListenedPct = cmDuration ? Math.round((cmAvgListenedSec / cmDuration) * 100) : null;
+  const cmMedianListenedPct = cmDuration ? Math.round((cmMedianListenedSec / cmDuration) * 100) : null;
 
   // Downloads do ZIP (PDF + MP3) — 1 evento por clique no botão "Baixar"
   const cmDownloads = cmDownloadsRes.data || [];
@@ -252,11 +264,16 @@ async function loadJohreiAnalytics() {
   const dirAudioSessions = dirPlaySessions.size;
   const dirPlayCount = dirAudio.filter(r => r.event_type === 'audio_play').length; // total bruto de plays
   const dirCompletedUniques = Object.keys(dirCompletedByAnon).length;
-  const dirAvgListenedSec = dirAudioSessions
-    ? Object.values(dirPlayedBySession).reduce((a, b) => a + b, 0) / dirAudioSessions
+  const dirMeasuredTotals = Object.values(dirPlayedBySession);
+  const dirAvgListenedSec = dirMeasuredTotals.length
+    ? dirMeasuredTotals.reduce((a, b) => a + b, 0) / dirMeasuredTotals.length
+    : 0;
+  const dirMedianListenedSec = dirMeasuredTotals.length
+    ? [...dirMeasuredTotals].sort((a, b) => a - b)[Math.floor(dirMeasuredTotals.length / 2)]
     : 0;
   const dirDuration = (dirAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
   const dirAvgListenedPct = dirDuration ? Math.round((dirAvgListenedSec / dirDuration) * 100) : null;
+  const dirMedianListenedPct = dirDuration ? Math.round((dirMedianListenedSec / dirDuration) * 100) : null;
 
   // ── Helpers ─────────────────────────────────────────────────
   const esc = s => String(s ?? '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
@@ -265,9 +282,10 @@ async function loadJohreiAnalytics() {
     <div class="s">${label}</div>
     ${uniques != null ? `<div class="u">${uniques.toLocaleString('pt-BR')} únicos</div>` : ''}
   </div>`;
-  const engCard = (v, label, suffix) => `<div class="jr-card">
+  const engCard = (v, label, suffix, sub) => `<div class="jr-card">
     <div class="v">${v == null ? '—' : (typeof v === 'number' ? v.toLocaleString('pt-BR') : v)}${suffix || ''}</div>
     <div class="s">${label}</div>
+    ${sub ? `<div class="u">${sub}</div>` : ''}
   </div>`;
   const fmtTime = s => {
     const n = Number(s);
@@ -375,14 +393,16 @@ async function loadJohreiAnalytics() {
         ${engCard(cmAvgDwell > 0 ? fmtTime(cmAvgDwell) : '—', 'Permanência média')}
         ${engCard(cmAudioSessions, 'Sessões que ouviram')}
         ${engCard(cmAvgListenedSec > 0 ? fmtTime(cmAvgListenedSec) : '—',
-          'Escuta média' + (cmAvgListenedPct != null && cmAvgListenedPct > 0 ? ` (${cmAvgListenedPct}%)` : ''))}
+          'Escuta média' + (cmAvgListenedPct != null && cmAvgListenedPct > 0 ? ` (${cmAvgListenedPct}%)` : ''),
+          null,
+          cmMedianListenedSec > 0 ? `mediana ${fmtTime(cmMedianListenedSec)}${cmMedianListenedPct != null ? ` (${cmMedianListenedPct}%)` : ''}` : null)}
         ${card(cmCompletedCount, 'Escutas completas', cmCompletedUniques)}
         ${card(cmDownloadCount, 'Downloads (ZIP)', cmDownloadUniques)}
       </div>
       ${cmCompletedUniques > 0 ? `<p style="font-size:.74rem;color:var(--text);margin:14px 0 0;">Das <strong>${cmCompletedUniques}</strong> pessoa(s) que ouviram até o fim: <strong>${cmComp1x}</strong> ouviram 1×, <strong>${cmComp2to5}</strong> voltaram (2–5×), <strong>${cmComp6plus}</strong> recorrente(s) (6+×)${cmComp6plus > 0 ? ` — que concentram <strong>${cmComp6plusListens}</strong> das <strong>${cmCompletedCount}</strong> escutas (${cmComp6plusPct}%)` : ''}.</p>` : ''}
       <p style="font-size:.72rem;color:var(--text-muted);margin:14px 0 0;">
         ${cmHasData
-          ? `Permanência captada via heartbeats (granularidade ~30s, leituras curtas podem não aparecer). Escuta média = média do total ouvido por sessão que apertou play. Escutas completas = áudio ouvido até o fim (conta repetições, por isso pode passar de "sessões que ouviram"). Downloads = cliques no botão "Baixar" que geraram o ZIP com PDF + MP3.`
+          ? `Permanência captada via heartbeats (granularidade ~30s, leituras curtas podem não aparecer). Escuta média = média do total ouvido por sessão com tempo medido; re-escutas acumulam, então pode passar de 100% — a mediana é mais estável contra recorrentes. Escutas completas = áudio ouvido até o fim (conta repetições, por isso pode passar de "sessões que ouviram"). Downloads = cliques no botão "Baixar" que geraram o ZIP com PDF + MP3.`
           : 'Sem dados ainda no período selecionado. Confirme que o tracking foi deployado em <code>guia_johrei</code> e que alguém abriu o modal.'}
       </p>
     </div>`;
@@ -397,7 +417,9 @@ async function loadJohreiAnalytics() {
         ${engCard(dirPlayCount, 'Plays')}
         ${engCard(dirAudioSessions, 'Sessões que ouviram')}
         ${engCard(dirAvgListenedSec > 0 ? fmtTime(dirAvgListenedSec) : '—',
-          'Escuta média' + (dirAvgListenedPct != null && dirAvgListenedPct > 0 ? ` (${dirAvgListenedPct}%)` : ''))}
+          'Escuta média' + (dirAvgListenedPct != null && dirAvgListenedPct > 0 ? ` (${dirAvgListenedPct}%)` : ''),
+          null,
+          dirMedianListenedSec > 0 ? `mediana ${fmtTime(dirMedianListenedSec)}${dirMedianListenedPct != null ? ` (${dirMedianListenedPct}%)` : ''}` : null)}
         ${card(dirCompletedCount, 'Escutas completas', dirCompletedUniques)}
         ${card(dirDownloadCount, 'Downloads (MP3)', dirDownloadUniques)}
       </div>

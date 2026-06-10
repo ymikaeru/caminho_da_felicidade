@@ -122,14 +122,14 @@ async function recLoadList() {
     // "lida"  = acessou o reader do ensinamento depois da criação
     //          da rec (cruzamento com access_logs no RPC v6).
     const seenLabel = r.seen_at
-      ? `vista em ${new Date(r.seen_at).toLocaleDateString('pt-BR')}`
+      ? `vista em ${new Date(r.seen_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`
       : 'não vista';
     const seenColor = r.seen_at ? 'var(--text-muted)' : 'var(--accent)';
     const readHtml = r.read_at
-      ? ` <span style="opacity:0.4;">·</span> <span style="color:#2c8a3e;" title="Acessou o ensinamento em ${new Date(r.read_at).toLocaleString('pt-BR')}">📖 lida em ${new Date(r.read_at).toLocaleDateString('pt-BR')}</span>`
+      ? ` <span style="opacity:0.4;">·</span> <span style="color:#2c8a3e;" title="Acessou o ensinamento em ${new Date(r.read_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}">📖 lida em ${new Date(r.read_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</span>`
       : '';
     const noteHtml = r.note ? `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px; font-style:italic;">"${_escHtml(r.note)}"</div>` : '';
-    const created = new Date(r.created_at).toLocaleDateString('pt-BR');
+    const created = new Date(r.created_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 
     // Selo de escuta (só áudio): casa a rec com audio_listens pelo audio_path.
     // max_percent = ponto máximo alcançado (high-water mark).
@@ -142,10 +142,10 @@ async function recLoadList() {
 
     let stateTag = '';
     if (archived) {
-      const archDate = new Date(r.archived_at).toLocaleDateString('pt-BR');
+      const archDate = new Date(r.archived_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
       stateTag = ` <span title="Usuário arquivou em ${archDate}" style="display:inline-block; font-size:0.65rem; font-weight:600; padding:1px 6px; border-radius:3px; background:rgba(150,150,150,0.18); color:var(--text-muted); margin-left:6px;">📁 arquivada por usuário</span>`;
     } else if (expired) {
-      const expDate = new Date(r.expires_at).toLocaleDateString('pt-BR');
+      const expDate = new Date(r.expires_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
       stateTag = ` <span title="Prazo expirou em ${expDate}" style="display:inline-block; font-size:0.65rem; font-weight:600; padding:1px 6px; border-radius:3px; background:rgba(150,150,150,0.18); color:var(--text-muted); margin-left:6px;">⏱ expirada</span>`;
     }
 

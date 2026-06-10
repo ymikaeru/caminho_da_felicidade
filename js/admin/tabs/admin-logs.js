@@ -65,7 +65,7 @@ function renderAdminLogs(logs) {
     <tbody>${logs.map(log => {
       const info = ACTION_LABELS[log.action] || { label: log.action, color: 'var(--text-muted)' };
       const dt = new Date(log.created_at);
-      const dtStr = dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const dtStr = dt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
       const details = log.details || {};
       const detailStr = Object.entries(details)
         .map(([k, v]) => `<span style="color:var(--text-muted);font-size:0.75rem;">${_escHtml(k)}:</span> <strong>${_escHtml(String(v))}</strong>`)

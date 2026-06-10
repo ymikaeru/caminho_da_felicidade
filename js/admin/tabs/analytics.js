@@ -8,6 +8,7 @@
 // retention).
 // ============================================================
 import { supabase } from '../../supabase-config.js';
+import { fetchAll } from '../fetch-all.js';
 import { _escHtml, _loadAdminIds, getFileTitle } from '../shared/helpers.js';
 import { VOLUMES, VOL_SHORT } from '../shared/constants.js';
 import { allUsers, _adminIds, volumeCategories } from '../shared/state.js';
@@ -152,10 +153,10 @@ async function loadOverviewStats(days, since) {
     .neq('role', 'admin');
   document.getElementById('stat-total-users').textContent = totalUserCount || 0;
 
-  const { data: activeUsers } = await supabase
+  const { data: activeUsers } = await fetchAll(() => supabase
     .from('access_logs')
     .select('user_id, volume, file')
-    .gte('created_at', since);
+    .gte('created_at', since));
   const activeFiltered = (activeUsers || []).filter(u => !_adminIds.has(u.user_id));
   const uniqueActive = new Set(activeFiltered.map(u => u.user_id));
   document.getElementById('stat-active-users').textContent = uniqueActive.size;
@@ -184,8 +185,8 @@ async function loadEngagementFunnel(days, since) {
   const container = document.getElementById('engagement-funnel');
 
   const [logsRes, posRes] = await Promise.all([
-    supabase.from('access_logs').select('user_id, volume, file').gte('created_at', since),
-    supabase.from('reading_positions').select('user_id, volume, file, time_spent_seconds, progress_pct').gte('updated_at', since)
+    fetchAll(() => supabase.from('access_logs').select('user_id, volume, file').gte('created_at', since)),
+    fetchAll(() => supabase.from('reading_positions').select('user_id, volume, file, time_spent_seconds, progress_pct').gte('updated_at', since), 'updated_at')
   ]);
 
   const logs = (logsRes.data || []).filter(r => !_adminIds.has(r.user_id));
@@ -260,10 +261,10 @@ async function loadUserSegmentation(days, since) {
   const container = document.getElementById('user-segmentation');
 
   const [logsRes, posRes, hlRes, favRes] = await Promise.all([
-    supabase.from('access_logs').select('user_id, created_at').gte('created_at', since),
-    supabase.from('reading_positions').select('user_id, time_spent_seconds').gte('updated_at', since),
-    supabase.from('user_highlights').select('user_id').gte('updated_at', since),
-    supabase.from('synced_favorites').select('user_id').gte('created_at', since),
+    fetchAll(() => supabase.from('access_logs').select('user_id, created_at').gte('created_at', since)),
+    fetchAll(() => supabase.from('reading_positions').select('user_id, time_spent_seconds').gte('updated_at', since), 'updated_at'),
+    fetchAll(() => supabase.from('user_highlights').select('user_id').gte('updated_at', since), 'updated_at'),
+    fetchAll(() => supabase.from('synced_favorites').select('user_id').gte('created_at', since)),
   ]);
 
   const logs = (logsRes.data || []).filter(r => !_adminIds.has(r.user_id));
@@ -365,10 +366,10 @@ async function loadArticleQuality(days, since) {
   const container = document.getElementById('article-quality');
 
   const [logsRes, posRes, hlRes, favRes] = await Promise.all([
-    supabase.from('access_logs').select('user_id, volume, file').gte('created_at', since),
-    supabase.from('reading_positions').select('user_id, volume, file, time_spent_seconds, progress_pct').gte('updated_at', since),
-    supabase.from('user_highlights').select('user_id, volume, file').gte('updated_at', since),
-    supabase.from('synced_favorites').select('user_id, volume, file').gte('created_at', since),
+    fetchAll(() => supabase.from('access_logs').select('user_id, volume, file').gte('created_at', since)),
+    fetchAll(() => supabase.from('reading_positions').select('user_id, volume, file, time_spent_seconds, progress_pct').gte('updated_at', since), 'updated_at'),
+    fetchAll(() => supabase.from('user_highlights').select('user_id, volume, file').gte('updated_at', since), 'updated_at'),
+    fetchAll(() => supabase.from('synced_favorites').select('user_id, volume, file').gte('created_at', since)),
   ]);
 
   const logs = (logsRes.data || []).filter(r => !_adminIds.has(r.user_id));
@@ -481,11 +482,11 @@ async function loadSessionStats(days, since) {
   const container = document.getElementById('session-stats');
   const GAP_MS = 30 * 60 * 1000;
 
-  const { data: raw } = await supabase
+  const { data: raw } = await fetchAll(() => supabase
     .from('access_logs')
     .select('user_id, created_at, volume, file')
     .gte('created_at', since)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true }), null);
 
   const logs = (raw || []).filter(r => !_adminIds.has(r.user_id));
 
@@ -564,10 +565,10 @@ async function loadSessionStats(days, since) {
 }
 
 async function loadVolumePopularity(days, since) {
-  const { data } = await supabase
+  const { data } = await fetchAll(() => supabase
     .from('access_logs')
     .select('volume, user_id')
-    .gte('created_at', since);
+    .gte('created_at', since));
 
   const filtered = (data || []).filter(d => !_adminIds.has(d.user_id));
   if (filtered.length === 0) {
@@ -594,10 +595,10 @@ async function loadVolumePopularity(days, since) {
 }
 
 async function loadTopTeachings(days, since) {
-  const { data: raw } = await supabase
+  const { data: raw } = await fetchAll(() => supabase
     .from('access_logs')
     .select('volume, file, user_id')
-    .gte('created_at', since);
+    .gte('created_at', since));
   const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
   if (!data.length) {
@@ -628,10 +629,10 @@ async function loadTopTeachings(days, since) {
 }
 
 async function loadHeatmap(days, since) {
-  const { data: raw } = await supabase
+  const { data: raw } = await fetchAll(() => supabase
     .from('access_logs')
     .select('created_at, user_id')
-    .gte('created_at', since);
+    .gte('created_at', since));
   const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
   if (!data.length) {
@@ -658,10 +659,10 @@ async function loadHeatmap(days, since) {
 }
 
 async function loadCompletionRates(days, since) {
-  const { data: raw } = await supabase
+  const { data: raw } = await fetchAll(() => supabase
     .from('reading_positions')
     .select('volume, progress_pct, user_id')
-    .gte('updated_at', since);
+    .gte('updated_at', since), 'updated_at');
   const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
   if (!data.length) {
@@ -793,14 +794,18 @@ async function loadContentProtection(days, since) {
   const container = document.getElementById('content-protection-stats');
   if (!container) return;
 
-  let q = supabase
-    .from('access_logs')
-    .select('user_id, volume, file, action, created_at, metadata')
-    .in('action', ['print', 'copy'])
-    .order('created_at', { ascending: false })
-    .limit(2000);
-  if (since) q = q.gte('created_at', since);
-  const { data: raw, error } = await q;
+  // (o antigo .limit(2000) não funcionava: o PostgREST corta em 1000 de
+  // qualquer jeito — fetchAll pagina; print/copy são eventos raros)
+  const buildQ = () => {
+    let q = supabase
+      .from('access_logs')
+      .select('user_id, volume, file, action, created_at, metadata')
+      .in('action', ['print', 'copy'])
+      .order('created_at', { ascending: false });
+    if (since) q = q.gte('created_at', since);
+    return q;
+  };
+  const { data: raw, error } = await fetchAll(buildQ, null);
   if (error) {
     container.innerHTML = `<div class="msg err" style="display:block;">Falha ao carregar: ${_escHtml(error.message)}</div>`;
     return;
@@ -916,12 +921,14 @@ async function loadDeviceBreakdown(days, since) {
   const container = document.getElementById('device-breakdown');
   if (!container) return;
 
-  let q = supabase
-    .from('access_logs')
-    .select('user_id, metadata')
-    .eq('action', 'view');
-  if (since) q = q.gte('created_at', since);
-  const { data: raw, error } = await q;
+  const { data: raw, error } = await fetchAll(() => {
+    let q = supabase
+      .from('access_logs')
+      .select('user_id, metadata')
+      .eq('action', 'view');
+    if (since) q = q.gte('created_at', since);
+    return q;
+  });
   if (error) {
     container.innerHTML = `<div class="msg err" style="display:block;">Falha ao carregar: ${_escHtml(error.message)}</div>`;
     return;
@@ -1019,11 +1026,11 @@ async function loadRoleDistribution() {
 // ============================================================
 
 async function loadDailyActivityChart(days, since) {
-  const { data: raw } = await supabase
+  const { data: raw } = await fetchAll(() => supabase
     .from('access_logs')
     .select('created_at, user_id')
     .gte('created_at', since)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true }), null);
   const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
   const chartEl = document.getElementById('daily-activity-chart');
@@ -1112,11 +1119,11 @@ async function loadTopUsersRanking(days, since) {
   // (30s = fundo do vale na distribuição de tempos: corta o "abriu, passou
   //  o olho e fechou" em 0-20s sem penalizar leitura real de textos curtos.)
   const MIN_READ_SECONDS = 30;
-  const { data: raw } = await supabase
+  const { data: raw } = await fetchAll(() => supabase
     .from('reading_positions')
     .select('user_id, volume, file, time_spent_seconds')
     .gte('updated_at', since)
-    .gte('time_spent_seconds', MIN_READ_SECONDS);
+    .gte('time_spent_seconds', MIN_READ_SECONDS), 'updated_at');
   const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
   if (!data.length) {
@@ -1187,10 +1194,10 @@ async function loadTopUsersByTime(days, since) {
     return m ? `${h}h ${m}min` : `${h}h`;
   };
 
-  const { data: raw } = await supabase
+  const { data: raw } = await fetchAll(() => supabase
     .from('reading_positions')
     .select('user_id, volume, file, time_spent_seconds, updated_at')
-    .gt('time_spent_seconds', 0);
+    .gt('time_spent_seconds', 0), 'updated_at');
   const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
 
   if (!data.length) {
@@ -1261,8 +1268,8 @@ async function loadTopUsersByTime(days, since) {
 
 async function loadEngagementByVolume(days, since) {
   const [logsRes, posRes] = await Promise.all([
-    supabase.from('access_logs').select('volume, user_id').gte('created_at', since),
-    supabase.from('reading_positions').select('volume, progress_pct, user_id').gte('updated_at', since)
+    fetchAll(() => supabase.from('access_logs').select('volume, user_id').gte('created_at', since)),
+    fetchAll(() => supabase.from('reading_positions').select('volume, progress_pct, user_id').gte('updated_at', since), 'updated_at')
   ]);
 
   const logs = (logsRes.data || []).filter(d => !_adminIds.has(d.user_id));
@@ -1332,8 +1339,8 @@ async function loadPopularFavorites(days, since) {
   // gera novo created_at, então filtrar por período subestima popularidade.
   // Highlights: filtrado por updated_at, refletindo atividade no período.
   const [favRes, hlRes] = await Promise.all([
-    supabase.from('synced_favorites').select('volume, file, topic_title, user_id'),
-    supabase.from('user_highlights').select('volume, file, user_id').gte('updated_at', since)
+    fetchAll(() => supabase.from('synced_favorites').select('volume, file, topic_title, user_id')),
+    fetchAll(() => supabase.from('user_highlights').select('volume, file, user_id').gte('updated_at', since), 'updated_at')
   ]);
 
   const favs = (favRes.data || []).filter(d => !_adminIds.has(d.user_id));
@@ -1392,11 +1399,11 @@ async function loadPopularFavorites(days, since) {
 
 async function loadRetentionRate(days, since) {
   // Busca apenas o período selecionado para evitar trazer a tabela inteira
-  const { data: rawLogs } = await supabase
+  const { data: rawLogs } = await fetchAll(() => supabase
     .from('access_logs')
     .select('user_id, created_at')
     .gte('created_at', since)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true }), null);
   const allLogs = (rawLogs || []).filter(d => !_adminIds.has(d.user_id));
 
   if (!allLogs.length) {

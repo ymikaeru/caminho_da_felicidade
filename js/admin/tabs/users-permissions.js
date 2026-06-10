@@ -5,6 +5,7 @@
 // pré-requisito do editor de restrições.
 // ============================================================
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from '../../supabase-config.js';
+import { fetchAll } from '../fetch-all.js';
 import { _escHtml, logAdminAction, getFileTitle } from '../shared/helpers.js';
 import { VOLUMES, VOL_SHORT } from '../shared/constants.js';
 import {
@@ -149,20 +150,20 @@ function renderUserList() {
     const emailDisplay = _escHtml(u.email || '—');
     const initial = _escHtml((u.display_name || 'U')[0].toUpperCase());
     const roleEsc = _escHtml(u.role || '');
-    const createdEsc = _escHtml(new Date(u.created_at).toLocaleDateString('pt-BR'));
+    const createdEsc = _escHtml(new Date(u.created_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }));
     const days = Number(u.active_days || 0);
     // active_days conta dias com action='view' (abertura de ensinamento).
     // last_seen_at é heartbeat de presença, gravado a partir do login.
     // Distinguir: nunca logou × logou mas não leu × leu N dias.
     const lastSeenStr = u.last_seen_at
-      ? _escHtml(new Date(u.last_seen_at).toLocaleDateString('pt-BR'))
+      ? _escHtml(new Date(u.last_seen_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }))
       : null;
     const daysLabel = days === 0
       ? (lastSeenStr ? `Sem leituras · acessou ${lastSeenStr}` : 'Nunca acessou')
       : days === 1 ? '1 dia ativo'
       : `${days} dias ativos`;
     const lastVisitStr = (days > 0 && u.last_visit)
-      ? ` · último: ${_escHtml(new Date(u.last_visit).toLocaleDateString('pt-BR'))}`
+      ? ` · último: ${_escHtml(new Date(u.last_visit).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }))}`
       : '';
     return `
     <div class="user-row ${u.id === selectedUserId ? 'active' : ''}" onclick="selectUser('${idEsc}')">
@@ -198,13 +199,19 @@ async function openUserDetail(userId) {
 
   document.getElementById('modal-user-name').textContent = user.display_name || 'Usuário';
 
-  // 5 queries em paralelo — reduz latência de abertura do modal
+  // Queries em paralelo — reduz latência de abertura do modal.
+  // As listas usam .limit() de propósito ("últimos N"); os STAT CARDS não
+  // podem usar essas listas (ficavam travados em 50/20) — usam contagens
+  // exatas (head:true) e o conjunto completo de pares volume/file (fetchAll).
   const [
     { data: logs },
     { data: positions },
     { data: favs },
     { data: highlights },
-    { data: perms }
+    { data: perms },
+    { data: allLogPairs },
+    { count: favCount },
+    { count: hlCount }
   ] = await Promise.all([
     supabase.from('access_logs')
       .select('volume, file, action, created_at, metadata')
@@ -228,18 +235,27 @@ async function openUserDetail(userId) {
       .limit(20),
     supabase.from('user_permissions')
       .select('volume, files')
+      .eq('user_id', userId),
+    fetchAll(() => supabase.from('access_logs')
+      .select('volume, file')
+      .eq('user_id', userId)),
+    supabase.from('synced_favorites')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId),
+    supabase.from('user_highlights')
+      .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
   ]);
 
-  const totalViews = (logs || []).length;
-  const uniqueTeachings = new Set((logs || []).map(l => `${l.volume}/${l.file}`)).size;
+  const totalViews = (allLogPairs || []).length;
+  const uniqueTeachings = new Set((allLogPairs || []).map(l => `${l.volume}/${l.file}`)).size;
 
   let html = `
     <div class="stats-grid" style="margin-bottom:24px;">
       <div class="stat-card"><div class="stat-value">${totalViews}</div><div class="stat-label">Visualizações</div></div>
       <div class="stat-card"><div class="stat-value">${uniqueTeachings}</div><div class="stat-label">Ensinamentos</div></div>
-      <div class="stat-card"><div class="stat-value">${(favs || []).length}</div><div class="stat-label">Salvos</div></div>
-      <div class="stat-card"><div class="stat-value">${(highlights || []).length}</div><div class="stat-label">Destaques</div></div>
+      <div class="stat-card"><div class="stat-value">${favCount || 0}</div><div class="stat-label">Salvos</div></div>
+      <div class="stat-card"><div class="stat-value">${hlCount || 0}</div><div class="stat-label">Destaques</div></div>
     </div>
     <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
       <strong>Restrições:</strong> ${(perms || []).map(p => `${VOL_SHORT[p.volume] || p.volume}: ${p.files === null ? 'todos' : p.files.length + ' arquivos'}`).join(', ') || 'Nenhuma'}
@@ -330,7 +346,7 @@ async function openUserDetail(userId) {
     scored.forEach(p => {
       const rowStyle = p._struggling ? ' style="background:rgba(192,57,43,0.08);"' : '';
       const readStyle = p._struggling ? ' style="color:#c0392b; font-weight:600;"' : '';
-      const last = p.updated_at ? new Date(p.updated_at).toLocaleDateString('pt-BR') : '—';
+      const last = p.updated_at ? new Date(p.updated_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '—';
       // scrollPct === 0 = sem captura de rolagem (≠ "leu 0%"): mostra "—".
       const leuCell = p._scrollPct > 0
         ? `${p._scrollPct}%`

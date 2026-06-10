@@ -57,7 +57,7 @@ function _renderCard(m, now) {
 
   const sender = _escHtml(m.sender_name || 'Sem nome');
   const email = _escHtml(m.sender_email || '—');
-  const created = new Date(m.created_at).toLocaleString('pt-BR');
+  const created = new Date(m.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
   const answered = !!m.admin_reply;
 
   const stateTag = answered
@@ -67,7 +67,7 @@ function _renderCard(m, now) {
   // Resposta já dada, ou caixa de resposta.
   let replyBlock;
   if (answered) {
-    const repliedAt = m.replied_at ? new Date(m.replied_at).toLocaleDateString('pt-BR') : '';
+    const repliedAt = m.replied_at ? new Date(m.replied_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '';
     replyBlock = `
       <div style="margin-top:10px; padding:10px 12px; background:rgba(44,138,62,0.07); border-left:3px solid #2c8a3e; border-radius:4px;">
         <div style="font-size:0.68rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#2c8a3e; margin-bottom:4px;">Sua resposta${repliedAt ? ' · ' + repliedAt : ''}</div>

@@ -22,9 +22,18 @@
     function toggleAdminMode() {
       var next = document.documentElement.getAttribute('data-mode') === 'dark' ? 'light' : 'dark';
       try { localStorage.setItem('admin_mode', next); } catch (_) {}
-      // Reload: os gráficos (Chart.js) leem as cores do tema na criação —
-      // recarregar re-renderiza tudo já no modo novo.
-      location.reload();
+      // SEM reload: o gate de PIN é exigido a cada load (design de segurança),
+      // então recarregar deslogava o admin. Troca ao vivo: re-aplica os
+      // defaults do Chart.js e re-renderiza a aba ativa (o loader recria os
+      // gráficos já no modo novo).
+      document.documentElement.setAttribute('data-mode', next);
+      var btn = document.getElementById('adminModeBtn');
+      if (btn) btn.textContent = next === 'dark' ? '☀️ Modo claro' : '🌙 Modo noturno';
+      if (typeof window._applyChartTheme === 'function') window._applyChartTheme();
+      var active = document.querySelector('.admin-nav-item.active');
+      if (active && active.dataset.tab && typeof window.switchTab === 'function') {
+        window.switchTab(active.dataset.tab);
+      }
     }
   </script>
   <link rel="stylesheet" href="css/styles.min.css?v=159">
@@ -1053,7 +1062,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=122"></script>
+  <script type="module" src="js/admin.js?v=123"></script>
 </body>
 
 </html>

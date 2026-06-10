@@ -1172,6 +1172,38 @@
     return { startChar: start, endChar: end, text: fullText.slice(start, end) };
   }
 
+  // Range do TÍTULO do tópico — só o <b> do cabeçalho, SEM a linha de data
+  // "(Publicado em ...)" (pedido de usuário). Usado pelo modo grifar quando o
+  // toque cai no cabeçalho: um toque seleciona o título completo, como
+  // _tapRange faz com frases. Reserva: sem <b> antes da save-bar, cai no
+  // cabeçalho inteiro (tudo antes da .topic-save-bar).
+  function _titleRange(topicEl) {
+    const saveBar = topicEl.querySelector('.topic-save-bar');
+    if (!saveBar) return null;
+    const textNodes = _collectTextNodes(topicEl);
+    if (!textNodes.length) return null;
+    const fullText = _topicFullText(textNodes);
+    const bold = topicEl.querySelector('b');
+    const titleEl = (bold && (saveBar.compareDocumentPosition(bold) & Node.DOCUMENT_POSITION_PRECEDING))
+      ? bold : null;
+    let start = -1, end = -1;
+    for (const tn of textNodes) {
+      if (titleEl) {
+        if (titleEl.contains(tn.node)) { if (start < 0) start = tn.startChar; end = tn.endChar; }
+        else if (start >= 0) break;   // já passou do título (nós são em ordem)
+      } else {
+        // textNodes vem em ordem de documento: para no primeiro nó que não
+        // precede a save-bar (os de dentro dela são "contained", não preceding).
+        if (saveBar.compareDocumentPosition(tn.node) & Node.DOCUMENT_POSITION_PRECEDING) {
+          if (start < 0) start = tn.startChar;
+          end = tn.endChar;
+        } else break;
+      }
+    }
+    if (start < 0 || end <= start) return null;
+    return _finishRange(fullText, start, end);
+  }
+
   // Resolve o que o toque (x,y / nó) deve grifar → {startChar,endChar,text}.
   function _tapRange(topicEl, x, y, node) {
     const textNodes = _collectTextNodes(topicEl);
@@ -1190,7 +1222,15 @@
       return b.start < 0 ? null : _finishRange(fullText, b.start, b.end);
     }
     const s = _sentenceBounds(fullText, off);
-    return _finishRange(fullText, s.start, s.end);
+    // Clampa a frase ao bloco (<p>/li/...) tocado: o cabeçalho do tópico não
+    // tem pontuação, então a "frase" inicial do corpo recuaria até o char 0 e
+    // englobaria título + data + rótulos da save-bar (e aí o grifo de título
+    // e o da 1ª frase se sobreporiam, um toggle derrubando o outro). Se o
+    // toque não está num bloco (bloco = tópico inteiro), o clamp é no-op.
+    const b = _blockBounds(topicEl, node);
+    const cs = b.start >= 0 ? Math.max(s.start, b.start) : s.start;
+    const ce = b.end >= 0 ? Math.min(s.end, b.end) : s.end;
+    return _finishRange(fullText, cs, ce);
   }
 
   function _resolveTopicTitle(topicId, topicEl, topicIndex) {
@@ -1413,11 +1453,18 @@
     e.preventDefault();
     e.stopPropagation();
 
-    // Tocou no título → oferece SALVAR em vez de grifar.
+    // Tocou no título → seleciona o CABEÇALHO INTEIRO pra grifar, em um toque
+    // só (pedido de usuário; antes abria o card de salvar, que aqui no modo
+    // grifar atrapalhava — fora do modo grifar o card continua).
     const titleHit = _nodeTitleHit(e.target);
     if (titleHit) {
-      const rect = e.target.getBoundingClientRect ? e.target.getBoundingClientRect() : null;
-      _showSavePrompt(titleHit.topicIdx, rect);
+      const trange = _titleRange(topicEl);
+      if (trange) {
+        _dbg(`tap título: [${trange.startChar},${trange.endChar}] "${trange.text.slice(0, 24)}"`);
+        _togglePending(topicId, trange);
+        _renderPendingPreview();
+        if (_pendingTaps.length) _showTapBar(); else _hideTapBar();
+      }
       return;
     }
 
@@ -1474,10 +1521,12 @@
   // TÍTULO → "Salvar este Ensinamento?"
   // ------------------------------------------------------------
   // Muitos usuários grifam o TÍTULO achando que isso guarda o artigo. Quando a
-  // seleção (ou o toque, no modo grifar) cai inteira no cabeçalho do tópico —
-  // tudo que vem ANTES da .topic-save-bar — interceptamos e oferecemos salvar
-  // de verdade via window.toggleFavorite (que já avisa "Salvo em Ensinamentos
-  // Salvos"). Só vale no leitor normal (ids topic-N); disciples não tem favorito.
+  // seleção (long-press/desktop) cai inteira no cabeçalho do tópico — tudo que
+  // vem ANTES da .topic-save-bar — interceptamos e oferecemos salvar de
+  // verdade via window.toggleFavorite (que já avisa "Salvo em Ensinamentos
+  // Salvos"). Só vale no leitor normal (ids topic-N); disciples não tem
+  // favorito. EXCEÇÃO: no modo grifar o toque no título NÃO abre este card —
+  // seleciona o cabeçalho inteiro pra grifar (_titleRange), a pedido de usuário.
   // ============================================================
 
   function _nodeTitleHit(node) {

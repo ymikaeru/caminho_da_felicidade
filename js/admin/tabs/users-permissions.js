@@ -14,6 +14,113 @@ import {
   volumeCategories
 } from '../shared/state.js';
 
+// ── Markup da aba (movido de admin-supabase.html p/ manter o HTML enxuto) ──
+// Injetado no import do módulo: roda antes do corpo de admin.js (imports são
+// hoisted) e antes de qualquer interação — o DOM final é idêntico ao antigo.
+const _TAB_MARKUP = `
+
+              <!-- Default Permissions Panel — oculto por enquanto (não em uso); remover o display:none para reativar -->
+              <div class="default-perm-panel" id="default-perm-panel" style="display:none;">
+                <div class="default-perm-header" id="default-perm-header" onclick="toggleDefaultPermPanel()">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.1rem;">🚫</span>
+                    <div>
+                      <h3
+                        style="margin:0; font-size:0.95rem; font-weight:600; color:var(--text); display:flex; align-items:center; gap:6px;">
+                        Restrição Padrão para Todos
+                      </h3>
+                      <p style="margin:2px 0 0; font-size:0.75rem; color:var(--text-muted);">
+                        Configure e aplique uma restrição padrão para todos os usuários cadastrados
+                      </p>
+                    </div>
+                  </div>
+                  <span class="default-perm-chevron" id="default-perm-chevron">▼</span>
+                </div>
+                <div class="default-perm-body" id="default-perm-body">
+                  <div class="default-perm-warning">
+                    <span style="font-size:1.1rem; flex-shrink:0;">⚠</span>
+                    <p style="margin:0; font-size:0.8rem; line-height:1.4;">
+                      Esta ação <strong>sobrescreve as restrições de todos os usuários</strong> (exceto admins) com a
+                      configuração abaixo. A ação não pode ser desfeita automaticamente.
+                    </p>
+                  </div>
+                  <div id="default-perm-volumes" class="perm-volumes" style="margin-bottom:16px;"></div>
+                  <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                    <button class="apply-all-btn" id="apply-all-btn" onclick="applyDefaultPermissions()">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                      Aplicar Restrições para Todos os Usuários
+                    </button>
+                    <span id="apply-all-msg" class="msg" style="margin:0; padding:6px 12px;"></span>
+                  </div>
+                  <div class="apply-all-progress" id="apply-all-progress">
+                    <div class="apply-all-progress-bar" id="apply-all-bar"></div>
+                    <div class="apply-all-progress-label" id="apply-all-label">Preparando...</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add User -->
+              <div class="admin-section">
+                <h2>Adicionar Usuário</h2>
+                <div class="add-user-form">
+                  <div class="form-group">
+                    <label for="new-name">Nome</label>
+                    <input type="text" id="new-name" placeholder="Nome do usuário">
+                  </div>
+                  <div class="form-group">
+                    <label for="new-email">Email</label>
+                    <input type="email" id="new-email" placeholder="email@exemplo.com">
+                  </div>
+                  <div class="form-group">
+                    <label for="new-password">Senha temporária</label>
+                    <input type="password" id="new-password" placeholder="Minimo 6 caracteres">
+                  </div>
+                  <button id="add-user-btn" onclick="addUser()">Adicionar</button>
+                </div>
+                <div id="add-user-msg" class="msg"></div>
+              </div>
+
+              <!-- User List -->
+              <div class="admin-section">
+                <h2>Usuários <span id="user-count"
+                    style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
+                <div class="user-search">
+                  <input type="text" id="user-search" aria-label="Buscar usuário por nome ou email"
+                    placeholder="Buscar por nome ou email..." oninput="filterUsers()">
+                </div>
+                <div id="user-list-container">
+                  <div class="loading">Carregando usuários...</div>
+                </div>
+              </div>
+
+              <!-- Permission Editor -->
+              <div class="perm-editor" id="perm-editor">
+                <h3 id="perm-editor-title">Restrições de Acesso</h3>
+                <p>Selecione os volumes e arquivos que este usuário <strong>NÃO PODERÁ</strong> ver. (Deixe desmarcado
+                  para permitir o acesso livre).</p>
+                <div id="perm-volumes" class="perm-volumes"></div>
+                <div style="margin-top:16px; display:flex; gap:10px;">
+                  <button class="login-submit-btn" style="width:auto; padding:10px 24px;" onclick="savePermissions()">💾
+                    Salvar Restrições</button>
+                  <button
+                    style="padding:10px 24px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); cursor:pointer;"
+                    onclick="closePermEditor()">Cancelar</button>
+                </div>
+                <div id="save-perm-msg" class="msg" style="margin-top:12px;"></div>
+              </div>
+
+            `;
+{
+  const _tabEl = document.getElementById('tab-users');
+  if (_tabEl && !_tabEl.firstElementChild) _tabEl.innerHTML = _TAB_MARKUP;
+}
+
 // ── Volume files for permission editor ────────────────────────
 
 function parseSectionMapText(text) {

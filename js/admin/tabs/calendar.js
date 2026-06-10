@@ -4,6 +4,151 @@
 import { supabase } from '../../supabase-config.js';
 import { _escapeCmu } from '../shared/helpers.js';
 
+// ── Markup da aba (movido de admin-supabase.html p/ manter o HTML enxuto) ──
+// Injetado no import do módulo: roda antes do corpo de admin.js (imports são
+// hoisted) e antes de qualquer interação — o DOM final é idêntico ao antigo.
+const _TAB_MARKUP = `
+              <div style="margin-bottom:24px;">
+                <h2
+                  style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                  Calendário CMU</h2>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Eventos exibidos no calendário da
+                  landing
+                  pública (cmu.org.br).</p>
+              </div>
+              <div class="admin-section">
+                <h2>Sugestões do mês</h2>
+                <style>
+                  #tab-calendar .sug-btn,
+                  #tab-calendar .sug-btn-ghost {
+                    padding: 9px 18px;
+                    border-radius: 8px;
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: opacity .15s, background .15s, color .15s;
+                  }
+
+                  #tab-calendar .sug-btn {
+                    border: none;
+                    background: var(--accent);
+                    color: #fff;
+                  }
+
+                  #tab-calendar .sug-btn:hover {
+                    opacity: .85;
+                  }
+
+                  #tab-calendar .sug-btn-ghost {
+                    border: 1px solid var(--accent);
+                    background: transparent;
+                    color: var(--accent);
+                  }
+
+                  #tab-calendar .sug-btn-ghost:hover {
+                    background: var(--accent);
+                    color: #fff;
+                  }
+                </style>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin:0 0 12px;">Gera os eventos
+                  recorrentes da CMU já preenchidos. Edite o que precisar e clique em Adicionar.</p>
+                <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px;">
+                  <select id="cal-sug-mes"
+                    style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;"></select>
+                  <select id="cal-sug-ano"
+                    style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;"></select>
+                  <button type="button" class="sug-btn" onclick="gerarSugestoesCalendario()">Gerar sugestões</button>
+                  <button type="button" class="sug-btn-ghost" onclick="aplicarTodasSugestoes()">Adicionar todos</button>
+                </div>
+                <div id="cal-sug-msg" class="msg"></div>
+                <div id="cal-sug-list"
+                  style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:10px; grid-auto-rows:1fr;">
+                </div>
+              </div>
+              <div class="admin-section">
+                <h2>Novo Evento</h2>
+                <div class="add-user-form"
+                  style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start;">
+                  <div class="form-group">
+                    <label for="cal-date">Data</label>
+                    <input type="date" id="cal-date">
+                    <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:6px;">
+                      <button type="button" onclick="calAtalho(0)"
+                        style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Hoje</button>
+                      <button type="button" onclick="calAtalho(1)"
+                        style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Amanhã</button>
+                      <button type="button" onclick="calAtalho('sab')"
+                        style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Próx.
+                        sábado</button>
+                      <button type="button" onclick="calAtalho('dom')"
+                        style="font-size:0.72rem; padding:3px 8px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-muted); cursor:pointer;">Próx.
+                        domingo</button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="cal-horario">Horário de funcionamento</label>
+                    <select id="cal-horario"
+                      style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.9rem;">
+                      <option value="">— sem horário —</option>
+                      <optgroup label="Manhã">
+                        <option>7h00</option>
+                        <option>7h30</option>
+                        <option>8h00</option>
+                        <option>8h30</option>
+                        <option>9h00</option>
+                        <option>9h30</option>
+                        <option>10h00</option>
+                        <option>10h30</option>
+                        <option>11h00</option>
+                        <option>11h30</option>
+                      </optgroup>
+                      <optgroup label="Tarde">
+                        <option>13h00</option>
+                        <option>13h30</option>
+                        <option>14h00</option>
+                        <option>14h30</option>
+                        <option>15h00</option>
+                        <option>15h30</option>
+                        <option>16h00</option>
+                        <option>17h00</option>
+                      </optgroup>
+                      <optgroup label="Noite">
+                        <option>18h00</option>
+                        <option>18h30</option>
+                        <option>19h00</option>
+                        <option>19h30</option>
+                        <option>20h00</option>
+                        <option>20h30</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div class="form-group" style="grid-column:1/-1;">
+                    <label for="cal-title">Título do evento</label>
+                    <input type="text" id="cal-title" placeholder="Ex: Reunião mensal">
+                  </div>
+                  <div class="form-group" style="grid-column:1/-1;">
+                    <label for="cal-desc">Observações (opcional)</label>
+                    <input type="text" id="cal-desc" placeholder="Informações adicionais">
+                  </div>
+                  <div style="grid-column:1/-1;">
+                    <button id="cal-add-btn" onclick="addCalendarEvent()">Adicionar Evento</button>
+                  </div>
+                </div>
+                <div id="cal-msg" class="msg"></div>
+              </div>
+              <div class="admin-section">
+                <h2>Eventos <span id="cal-count"
+                    style="font-weight:400; color:var(--text-muted); font-size:0.85rem;"></span></h2>
+                <div id="cal-list">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+            `;
+{
+  const _tabEl = document.getElementById('tab-calendar');
+  if (_tabEl && !_tabEl.firstElementChild) _tabEl.innerHTML = _TAB_MARKUP;
+}
+
 async function loadCalendarEvents() {
   const list = document.getElementById('cal-list');
   const count = document.getElementById('cal-count');

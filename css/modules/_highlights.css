@@ -689,54 +689,5 @@ mark.hl-pending.highlight-orange { background-color: #ffd6a5; }
   font-family: var(--font-ui);
 }
 
-/* ============================================================
-   Título → "Salvar este Ensinamento?" (em vez de grifar o título)
-   ============================================================ */
-
-.title-save-prompt {
-  position: absolute;
-  z-index: 6100;
-  min-width: 240px;
-  max-width: 300px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow-premium, 0 8px 28px rgba(0, 0, 0, 0.16));
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  animation: highlightTooltipIn 0.15s ease-out;
-}
-
-.title-save-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-ui);
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: var(--accent);
-}
-
-.title-save-body {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  line-height: 1.45;
-}
-
-.title-save-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 4px;
-}
-
-.title-save-actions .highlight-save-btn {
-  flex: 1 1 auto;
-}
-
-.title-save-actions .highlight-cancel-btn {
-  flex: 0 0 auto;
-}
+/* [12/06] O card "Salvar este Ensinamento?" (.title-save-prompt) foi removido:
+   a seleção no título agora segue o fluxo normal de grifo. */

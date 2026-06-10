@@ -981,13 +981,9 @@
       if (!range) return;
       _dbg(`  ↳ [selchange settle] captura OK len=${_currentSelection.text.length}`);
 
-      // Seleção inteira no título → oferece SALVAR (também derruba o menu do OS).
-      const titleHit = _selectionTitleHit(range);
-      if (titleHit) {
-        _showSavePrompt(titleHit.topicIdx, range.getBoundingClientRect());
-        return;
-      }
-
+      // Título segue o fluxo NORMAL de grifo (mudou 12/06: usuários grifam o
+      // título de propósito como marca pessoal; o card "Salvar?" que existia
+      // aqui virou estorvo — quem quer registrar leitura tem o botão Lido).
       _showMobileBarAndClear();
     }, _SEL_SETTLE_MS);
   }
@@ -1026,12 +1022,8 @@
 
       _dbg(`  ↳ captura OK (isMobile=${_isMobile}, len=${_currentSelection.text.length})`);
 
-      // Seleção inteira no título → oferece SALVAR em vez de grifar.
-      const titleHit = _selectionTitleHit(range);
-      if (titleHit) {
-        _showSavePrompt(titleHit.topicIdx, range.getBoundingClientRect());
-        return;
-      }
+      // Título segue o fluxo NORMAL de grifo (mudou 12/06 — ver nota no
+      // _onMobileSelectionSettle).
 
       // No mobile o gatilho real é selectionchange (_onMobileSelectionSettle) —
       // o Android não entrega touchend/mouseup com seleção ativa. Este ramo só
@@ -1480,7 +1472,7 @@
     // Toques na própria barra/botão e em elementos interativos (Salvar, links,
     // CTAs) seguem o fluxo normal — não os engolimos como "grifar".
     if (e.target.closest('.highlight-taps-bar') || e.target.closest('#hlTapModeBtn')) return;
-    if (e.target.closest('button, a, .topic-save-bar, .title-save-prompt')) return;
+    if (e.target.closest('button, a, .topic-save-bar')) return;
 
     const topicId = _getTopicIdFromNode(e.target);
     if (!topicId) return;                 // tocou fora do conteúdo
@@ -1566,15 +1558,13 @@
   }
 
   // ============================================================
-  // TÍTULO → "Salvar este Ensinamento?"
+  // DETECÇÃO DE TÍTULO (cabeçalho do tópico)
   // ------------------------------------------------------------
-  // Muitos usuários grifam o TÍTULO achando que isso guarda o artigo. Quando a
-  // seleção (long-press/desktop) cai inteira no cabeçalho do tópico — tudo que
-  // vem ANTES da .topic-save-bar — interceptamos e oferecemos salvar de
-  // verdade via window.toggleFavorite (que já avisa "Salvo em Ensinamentos
-  // Salvos"). Só vale no leitor normal (ids topic-N); disciples não tem
-  // favorito. EXCEÇÃO: no modo grifar o toque no título NÃO abre este card —
-  // seleciona o cabeçalho inteiro pra grifar (_titleRange), a pedido de usuário.
+  // Usada pelo MODO GRIFAR: toque no cabeçalho seleciona o título inteiro
+  // via _titleRange. [Histórico: até 12/06 a seleção no título abria um card
+  // "Salvar este Ensinamento?" — removido; usuários grifam o título de
+  // propósito como marca pessoal, e o registro de leitura agora é o botão
+  // "Marcar como lido".] Só leitor normal (ids topic-N).
   // ============================================================
 
   function _nodeTitleHit(node) {
@@ -1590,103 +1580,6 @@
       return { topicId, topicIdx: parseInt(topicId.replace('topic-', ''), 10) };
     }
     return null;
-  }
-
-  // Só dispara quando a seleção INTEIRA está no cabeçalho. Se vaza pro corpo
-  // (usuário grifando título + parágrafos de propósito), segue o fluxo normal.
-  function _selectionTitleHit(range) {
-    if (!range) return null;
-    const startHit = _nodeTitleHit(range.startContainer);
-    if (!startHit) return null;
-    const endHit = _nodeTitleHit(range.endContainer);
-    if (!endHit || endHit.topicId !== startHit.topicId) return null;
-    return startHit;
-  }
-
-  let _savePromptEl = null;
-  function _savePromptOutside(e) {
-    if (_savePromptEl && !_savePromptEl.contains(e.target)) _hideSavePrompt();
-  }
-  function _hideSavePrompt() {
-    if (_savePromptEl) { _savePromptEl.remove(); _savePromptEl = null; }
-    document.removeEventListener('click', _savePromptOutside, true);
-  }
-
-  function _showSavePrompt(topicIdx, rect) {
-    _hideSavePrompt();
-    _hideTooltip();
-    _hideMobileBar();
-    const sel = window.getSelection(); if (sel) sel.removeAllRanges();
-
-    const lang = _lang();
-    const topicEl = document.getElementById('topic-' + topicIdx);
-    const saveBtn = topicEl && topicEl.querySelector('.topic-save-btn');
-    const alreadySaved = !!(saveBtn && saveBtn.classList.contains('active'));
-
-    const t = lang === 'ja'
-      ? { head: alreadySaved ? 'この教えは保存済みです' : 'この教えを保存しますか？',
-          body: alreadySaved ? '「保存した教え」（メニュー）にあります。' : '「保存した教え」に追加すると、あとで読み返せます。',
-          save: alreadySaved ? '「保存した教え」を開く' : '保存する',
-          cancel: 'キャンセル' }
-      : { head: alreadySaved ? 'Ensinamento já salvo' : 'Salvar este Ensinamento?',
-          body: alreadySaved ? 'Ele já está em Ensinamentos Salvos (no menu).' : 'Para reler depois, guarde em Ensinamentos Salvos.',
-          save: alreadySaved ? 'Abrir Ensinamentos Salvos' : 'Salvar',
-          cancel: 'Cancelar' };
-
-    const saveIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
-
-    const el = document.createElement('div');
-    el.className = 'title-save-prompt';
-    el.innerHTML =
-      `<div class="title-save-head">${saveIcon}<span>${t.head}</span></div>` +
-      `<div class="title-save-body">${t.body}</div>` +
-      `<div class="title-save-actions">` +
-        `<button class="highlight-save-btn" data-act="save">${t.save}</button>` +
-        `<button class="highlight-cancel-btn" data-act="cancel">${t.cancel}</button>` +
-      `</div>`;
-    document.body.appendChild(el);
-    _savePromptEl = el;
-
-    // Posiciona perto do título, com clamp no viewport (igual ao tooltip).
-    const pr = el.getBoundingClientRect();
-    let left, top;
-    if (rect) {
-      left = rect.left + (rect.width / 2) - (pr.width / 2);
-      top = rect.bottom + 10 + window.scrollY;
-      if (left < 8) left = 8;
-      if (left + pr.width > window.innerWidth - 8) left = window.innerWidth - pr.width - 8;
-      if (top + pr.height > window.scrollY + window.innerHeight - 8) {
-        top = rect.top - pr.height - 10 + window.scrollY;
-      }
-      if (top < window.scrollY + 8) top = window.scrollY + 8;
-    } else {
-      left = Math.max(8, (window.innerWidth - pr.width) / 2);
-      top = window.scrollY + 80;
-    }
-    el.style.left = left + 'px';
-    el.style.top = top + 'px';
-
-    el.addEventListener('click', (e) => {
-      const actEl = e.target.closest('[data-act]');
-      if (!actEl) return;
-      e.stopPropagation();
-      const act = actEl.dataset.act;
-      if (act === 'save') {
-        _hideSavePrompt();
-        if (alreadySaved) {
-          if (typeof window.openFavorites === 'function') window.openFavorites();
-        } else if (typeof window.toggleFavorite === 'function') {
-          window.toggleFavorite(topicIdx); // já mostra "Salvo em Ensinamentos Salvos"
-        } else {
-          _showHlToast(lang === 'ja' ? '保存しました' : 'Salvo em Ensinamentos Salvos');
-        }
-      } else {
-        _hideSavePrompt();
-      }
-    });
-
-    // Fecha ao tocar fora (no próximo tick, pra não pegar o próprio gesto).
-    setTimeout(() => document.addEventListener('click', _savePromptOutside, true), 0);
   }
 
   // ============================================================
@@ -1880,7 +1773,6 @@
         _hideTooltip();
         _hideCommentPopup();
         _hideMobileBar();
-        _hideSavePrompt();
       }
     });
   };

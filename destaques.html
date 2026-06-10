@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&display=swap">
-    <link rel="stylesheet" href="css/styles.min.css?v=165">
+    <link rel="stylesheet" href="css/styles.min.css?v=166">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <style>
@@ -296,6 +296,139 @@
             font-size: 0.8rem;
             padding: 6px 14px;
         }
+
+        /* ── Toolbar de filtros (busca + cores + títulos) ── */
+        .dq-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+            padding: 12px 14px;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .dq-search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1 1 220px;
+            min-width: 180px;
+            padding: 7px 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .dq-search svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+        .dq-search input {
+            flex: 1;
+            min-width: 0;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            font-family: "Outfit", sans-serif;
+            font-size: 0.88rem;
+            outline: none;
+        }
+
+        .dq-colors { display: flex; align-items: center; gap: 6px; }
+        .dq-chip {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            background: var(--chip, var(--surface));
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.12s ease, border-color 0.12s ease;
+        }
+        .dq-chip:hover { transform: scale(1.12); }
+        .dq-chip.is-active { border-color: var(--accent); transform: scale(1.1); }
+        .dq-chip--all {
+            width: auto;
+            height: auto;
+            border-radius: 999px;
+            padding: 3px 10px;
+            font-family: "Outfit", sans-serif;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+        .dq-chip--all.is-active { color: var(--accent); border-color: var(--accent); }
+
+        .dq-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            font-family: "Outfit", sans-serif;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            user-select: none;
+        }
+        .dq-toggle input { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; }
+
+        .dq-count {
+            margin-left: auto;
+            font-family: "Outfit", sans-serif;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* ── Hierarquia Volume → publicação ── */
+        .notebook-volume { margin-bottom: 48px; }
+        .notebook-volume-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            font-family: "Outfit", sans-serif;
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+            margin-bottom: 22px;
+        }
+        .notebook-volume-count {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .notebook-group-link {
+            color: inherit;
+            text-decoration: none;
+        }
+        .notebook-group-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+        .notebook-group-count {
+            margin-left: auto;
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .notebook-tag-title {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 999px;
+            padding: 0 6px;
+            margin-right: 6px;
+            vertical-align: 1px;
+        }
+
+        @media (max-width: 600px) {
+            .dq-count { margin-left: 0; width: 100%; }
+        }
     </style>
 
     <script src="js/toggle.js?v=41" defer></script>
@@ -304,8 +437,9 @@
     <script src="js/language.js?v=8" defer></script>
     <script src="js/typography.js?v=1" defer></script>
     <script src="js/search.min.js?v=22" defer></script>
-    <script src="js/highlights.min.js?v=23" defer></script>
-    <script src="js/destaques-page.js?v=4" defer></script>
+    <script src="js/highlights.min.js?v=24" defer></script>
+    <script src="site_data/global_index_titles.js?v=1" defer></script>
+    <script src="js/destaques-page.js?v=5" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';
@@ -356,6 +490,8 @@
                         </button>
                     </div>
                 </div>
+
+                <div id="notebook-toolbar"></div>
 
                 <div id="notebook-container">
                     <div class="notebook-empty">Carregando...</div>

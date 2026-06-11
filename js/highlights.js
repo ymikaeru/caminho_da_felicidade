@@ -1782,6 +1782,35 @@
     _updateHighlightBadge();
   };
 
+  // Pinta TRECHOS RECOMENDADOS (que NÃO são destaques salvos do usuário) e
+  // scrolla até o primeiro. Usado pelo reader quando a URL traz
+  // &excerpt=s:e[,s:e...] (recomendação com trechos do admin — migration
+  // v15). ranges = [[start,end],...]; aceita também (topicIdx, s, e) por
+  // conveniência. Os marks usam ids sintéticos que não existem em
+  // _highlights, então o clique não abre popup nem permite apagar; somem
+  // naturalmente no próximo re-render.
+  window.flashExcerptRange = function (topicIdx, ranges, maybeEnd) {
+    if (typeof ranges === 'number' && typeof maybeEnd === 'number') ranges = [[ranges, maybeEnd]];
+    if (!Array.isArray(ranges) || !ranges.length) return false;
+    const topicEl = document.getElementById(`topic-${topicIdx}`);
+    if (!topicEl) return false;
+    if (!document.querySelector('mark[data-highlight-id="rec-excerpt-0"]')) {
+      _applyHighlightsToTopic(topicEl, ranges.map((p, i) => ({
+        id: `rec-excerpt-${i}`,
+        color: 'yellow',
+        startChar: Number(p[0]),
+        endChar: Number(p[1]),
+        comment: ''
+      })));
+    }
+    const first = document.querySelector('mark[data-highlight-id="rec-excerpt-0"]');
+    if (first) {
+      first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return true;
+    }
+    return false;
+  };
+
   window.getHighlightsForPage = function () {
     const { volId, filename } = _getParams();
     return _highlights.filter(h => h.vol === volId && h.file === filename);

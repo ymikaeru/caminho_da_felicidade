@@ -585,8 +585,21 @@
       const idx = r.topic_idx != null ? r.topic_idx : 0;
       let href = `${basePath}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
       if (idx > 0) href += `&topic=${idx}`;
+      // Trechos recomendados (v15): excerpt_ranges = [[start,end],...] — o
+      // leitor pinta os intervalos e scrolla até o primeiro.
+      const ranges = (Array.isArray(r.excerpt_ranges) && r.excerpt_ranges.length) ? r.excerpt_ranges : null;
+      if (ranges) href += `&excerpt=${ranges.map(p => `${p[0]}:${p[1]}`).join(',')}`;
       if (lang === 'ja') href += '&lang=ja';
-      return groupHdr + card({ title, titleHref: href, meta, below: noteHtml, recId: r.id });
+      let excerptHtml = '';
+      if (ranges && r.excerpt_text) {
+        excerptHtml = `<div style="font-size:0.92rem;color:var(--text-muted);font-family:'Crimson Pro',Georgia,serif;font-style:italic;line-height:1.55;border-left:2px solid var(--accent);padding-left:10px;">${_esc(r.excerpt_text.length > 260 ? r.excerpt_text.slice(0, 260) + '…' : r.excerpt_text)}</div>`;
+      } else if (ranges) {
+        const nLbl = lang === 'ja'
+          ? `${ranges.length} 箇所のハイライト付き`
+          : (ranges.length === 1 ? 'com 1 trecho destacado' : `com ${ranges.length} trechos destacados`);
+        excerptHtml = `<div style="font-size:0.78rem;color:var(--accent);font-family:var(--font-ui);letter-spacing:.02em;">✦ ${nLbl}</div>`;
+      }
+      return groupHdr + card({ title, titleHref: href, meta, below: excerptHtml + noteHtml, recId: r.id });
     }).join('');
 
     // ── footer de áudio (fixo, compacto, acima de "Gerenciar todas") ────

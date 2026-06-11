@@ -17,6 +17,12 @@
   let _users = [];
   let _selectedUserIds = new Set();
   let _cols = 2;
+  // Fluxos de trecho (v15): "Recomendar trecho" (Central de Destaques) traz
+  // _excerptRanges fixos; "Recomendar este Ensinamento" oferece checkbox de
+  // incluir os destaques do admin no tópico (_inclHlCandidates).
+  let _excerptRanges = null;     // [[start,end],...] do fluxo trecho-único
+  let _excerptText = '';         // citação exibida no card do usuário
+  let _inclHlCandidates = [];    // [[start,end],...] dos destaques do admin no tópico
 
   function _esc(s) {
     return String(s ?? '')
@@ -277,6 +283,15 @@
         isPoetry,
         poemTopicId: arg.poemTopicId || arg.poem_topic_id || null,
         poemTitle: arg.poemTitle || arg.title || '',
+        // Trecho grifado (Central de Destaques → "Recomendar trecho"):
+        // lista [[start,end],...] de offsets do tópico (mesmos dos
+        // user_highlights). Aceita também o par avulso por conveniência.
+        excerptRanges: Array.isArray(arg.excerptRanges) && arg.excerptRanges.length
+          ? arg.excerptRanges
+          : (Number.isInteger(arg.excerptStartChar) && Number.isInteger(arg.excerptEndChar)
+              ? [[arg.excerptStartChar, arg.excerptEndChar]]
+              : null),
+        excerptText: arg.excerptText || '',
       };
       preselectAll = !!arg.preselectAll;
     } else {
@@ -300,13 +315,80 @@
     _modal.dataset.topicIdx    = String(meta.topic_idx);
     _modal.dataset.poemTopicId = meta.poemTopicId || '';
     _modal.dataset.poemTitle   = meta.poemTitle || '';
+    // Trecho fixo (fluxo "Recomendar trecho") em variáveis de módulo,
+    // zeradas a cada abertura sem trecho.
+    _excerptRanges = (!meta.isPoetry && Array.isArray(meta.excerptRanges) && meta.excerptRanges.length) ? meta.excerptRanges : null;
+    _excerptText = _excerptRanges ? (meta.excerptText || '') : '';
 
+    const hasExcerpt = !!_excerptRanges;
     const kicker = document.getElementById('recPickerKicker');
-    if (kicker) kicker.textContent = meta.isPoetry ? 'Recomendar este poema' : 'Recomendar este ensinamento';
+    if (kicker) kicker.textContent = meta.isPoetry ? 'Recomendar este poema' : (hasExcerpt ? 'Recomendar este trecho' : 'Recomendar este ensinamento');
     document.getElementById('recPickerTeachingTitle').textContent = meta.title || (meta.isPoetry ? '(poema)' : '(sem título)');
     document.getElementById('recPickerTeaching').textContent = meta.isPoetry
       ? `Poesia · ${meta.file}`
       : `${meta.vol} · ${meta.file}#${meta.topic_idx}`;
+
+    // Preview do trecho grifado (criado sob demanda; some sem trecho).
+    let exPrev = document.getElementById('recPickerExcerpt');
+    if (!exPrev) {
+      const anchor = document.getElementById('recPickerTeaching');
+      if (anchor && anchor.parentNode) {
+        exPrev = document.createElement('div');
+        exPrev.id = 'recPickerExcerpt';
+        exPrev.style.cssText = 'margin-top:8px; padding:8px 12px; border-left:3px solid var(--accent); background:var(--accent-soft, rgba(184,134,11,0.08)); font-size:0.85rem; font-style:italic; color:var(--text-main); border-radius:0 6px 6px 0; max-height:90px; overflow:hidden;';
+        anchor.parentNode.insertBefore(exPrev, anchor.nextSibling);
+      }
+    }
+    if (exPrev) {
+      if (hasExcerpt && _excerptText) {
+        const t = _excerptText.length > 220 ? _excerptText.slice(0, 220) + '…' : _excerptText;
+        exPrev.textContent = `“${t}”`;
+        exPrev.style.display = '';
+      } else {
+        exPrev.style.display = 'none';
+      }
+    }
+
+    // "Incluir meus destaques" — fluxo Recomendar este Ensinamento: se o
+    // admin tem grifos NESTE tópico (localStorage userHighlights), oferece
+    // mandá-los junto (o usuário verá os trechos pintados ao abrir).
+    _inclHlCandidates = [];
+    if (!meta.isPoetry && !hasExcerpt) {
+      try {
+        const all = JSON.parse(localStorage.getItem('userHighlights') || '[]');
+        _inclHlCandidates = all
+          .filter(x => x.vol === meta.vol && x.file === meta.file
+            && (x.topicIndex ?? 0) === meta.topic_idx
+            && typeof x.startChar === 'number' && typeof x.endChar === 'number')
+          .sort((a, b) => a.startChar - b.startChar)
+          .map(x => [x.startChar, x.endChar]);
+      } catch (_) {}
+    }
+    let inclWrap = document.getElementById('recPickerInclHl');
+    if (!inclWrap) {
+      const anchor = document.getElementById('recPickerExcerpt') || document.getElementById('recPickerTeaching');
+      if (anchor && anchor.parentNode) {
+        inclWrap = document.createElement('label');
+        inclWrap.id = 'recPickerInclHl';
+        inclWrap.style.cssText = 'display:flex; align-items:center; gap:8px; margin-top:8px; font-size:0.83rem; color:var(--text-muted); cursor:pointer; user-select:none; font-family:var(--font-ui);';
+        inclWrap.innerHTML = '<input type="checkbox" id="recPickerInclHlCb" style="accent-color:var(--accent); width:15px; height:15px; cursor:pointer;"><span id="recPickerInclHlLbl"></span>';
+        anchor.parentNode.insertBefore(inclWrap, anchor.nextSibling);
+      }
+    }
+    if (inclWrap) {
+      const cb = document.getElementById('recPickerInclHlCb');
+      if (cb) cb.checked = false;   // opt-in a cada envio
+      if (_inclHlCandidates.length) {
+        const n = _inclHlCandidates.length;
+        const lbl = document.getElementById('recPickerInclHlLbl');
+        if (lbl) lbl.textContent = n === 1
+          ? 'Incluir meu destaque deste Ensinamento (o usuário verá o trecho pintado)'
+          : `Incluir meus ${n} destaques deste Ensinamento (o usuário verá os trechos pintados)`;
+        inclWrap.style.display = 'flex';
+      } else {
+        inclWrap.style.display = 'none';
+      }
+    }
     document.getElementById('recPickerUserSearch').value = '';
     document.getElementById('recPickerNote').value = '';
     document.getElementById('recPickerExpires').value = '';
@@ -372,7 +454,21 @@
     msg.textContent = `Enviando pra ${ids.length} usuário${ids.length === 1 ? '' : 's'}...`;
     const note = document.getElementById('recPickerNote').value.trim();
     const isPoetry = _modal.dataset.isPoetry === '1';
-    const { data, error } = isPoetry
+    // Trechos a anexar: o trecho fixo (fluxo Recomendar trecho) OU os
+    // destaques do admin no tópico, se o checkbox estiver marcado.
+    const inclCb = document.getElementById('recPickerInclHlCb');
+    const ranges = _excerptRanges
+      || ((inclCb && inclCb.checked && _inclHlCandidates.length) ? _inclHlCandidates : null);
+    const baseParams = {
+      p_user_ids: ids,
+      p_vol: _modal.dataset.vol,
+      p_file: _modal.dataset.file,
+      p_topic_idx: parseInt(_modal.dataset.topicIdx, 10) || 0,
+      p_note: note || null,
+      p_expires_at: _expiresIso(),
+    };
+    let excerptDropped = false;
+    let { data, error } = isPoetry
       ? await supa.rpc('admin_create_poetry_recommendations_bulk', {
           p_user_ids: ids,
           p_collection: _modal.dataset.file,
@@ -383,14 +479,17 @@
           p_note: note || null,
           p_expires_at: _expiresIso(),
         })
-      : await supa.rpc('admin_create_recommendations_bulk', {
-          p_user_ids: ids,
-          p_vol: _modal.dataset.vol,
-          p_file: _modal.dataset.file,
-          p_topic_idx: parseInt(_modal.dataset.topicIdx, 10) || 0,
-          p_note: note || null,
-          p_expires_at: _expiresIso(),
-        });
+      : await supa.rpc('admin_create_recommendations_bulk', ranges
+          ? { ...baseParams,
+              p_excerpt_ranges: ranges,
+              p_excerpt_text: _excerptText || null }
+          : baseParams);
+    // Migration v15 ainda não aplicada (assinatura antiga da RPC): reenvia
+    // SEM os trechos pra não bloquear o admin, mas avisa que foram dropados.
+    if (error && ranges && /admin_create_recommendations_bulk/i.test(error.message || '')) {
+      excerptDropped = true;
+      ({ data, error } = await supa.rpc('admin_create_recommendations_bulk', baseParams));
+    }
     if (error) {
       msg.innerHTML = `<span style="color:#c00;">Erro: ${_esc(error.message)}</span>`;
       btn.disabled = false;
@@ -400,8 +499,9 @@
     const created = typeof data === 'number' ? data : ids.length;
     const skipped = ids.length - created;
     const suffix = skipped > 0 ? ` (${skipped} ignorados — usuário(s) não encontrado(s))` : '';
-    msg.innerHTML = `<span style="color:#0a7;">✓ Enviado pra ${created} usuário${created === 1 ? '' : 's'}${suffix}.</span>`;
-    setTimeout(_close, 1100);
+    const dropNote = excerptDropped ? ' <span style="color:#c80;">Atenção: o trecho NÃO foi incluído (migration v15 pendente no banco).</span>' : '';
+    msg.innerHTML = `<span style="color:#0a7;">✓ Enviado pra ${created} usuário${created === 1 ? '' : 's'}${suffix}.</span>${dropNote}`;
+    setTimeout(_close, excerptDropped ? 3500 : 1100);
   }
 
   window.recPickerToggleUser = function(uid) {

@@ -284,6 +284,11 @@ function _renderCard(h, lang) {
     const shortTitle = _esc(_truncate(h.topicTitle || (lang === 'ja' ? 'その他' : 'Outros'), 40));
     const shortText = _esc(_truncate(h.text, 120));
     const commentPreview = h.comment ? `<div class="notebook-comment-preview">📝 ${_esc(_truncate(h.comment, 60))}</div>` : '';
+    // Admin: recomendar o trecho deste destaque aos usuários (abre o picker
+    // do reader-recommend.js com o intervalo do grifo embutido).
+    const recBtn = (typeof isAdminUser === 'function' && isAdminUser() && typeof window.openRecommendPicker === 'function')
+        ? `<button class="notebook-btn" onclick="event.stopPropagation(); recommendExcerpt('${h.id}')">${lang === 'ja' ? '推薦' : 'Recomendar'}</button>`
+        : '';
 
     return `
     <div class="notebook-card" data-id="${h.id}" onclick="openHighlightDetail('${h.id}')">
@@ -295,11 +300,31 @@ function _renderCard(h, lang) {
             <span>${date}</span>
             <div class="notebook-actions">
                 <a href="${articleUrl}" class="notebook-btn link" style="text-decoration:none;" onclick="event.stopPropagation();">${lang === 'ja' ? '読む' : 'Abrir'}</a>
+                ${recBtn}
                 <button class="notebook-btn delete" onclick="event.stopPropagation(); deleteNotebookHighlight('${h.id}')">${lang === 'ja' ? '削除' : 'Apagar'}</button>
             </div>
         </div>
     </div>`;
 }
+
+// Admin: abre o picker de recomendação com o TRECHO do destaque embutido
+// (excerpt_* — quem receber abre o ensinamento direto no trecho grifado).
+window.recommendExcerpt = function (id) {
+    if (typeof window.openRecommendPicker !== 'function') return;
+    const h = _dqGetAll().find(x => x.id === id);
+    if (!h) return;
+    const lang = _dqLang();
+    window.openRecommendPicker({
+        vol: h.vol,
+        file: h.file,
+        topic_idx: Number.isInteger(h.topicIndex) ? h.topicIndex : 0,
+        title: h.topicTitle || _pubTitle(h, lang),
+        excerptRanges: (typeof h.startChar === 'number' && typeof h.endChar === 'number')
+            ? [[h.startChar, h.endChar]]
+            : null,
+        excerptText: h.text || ''
+    });
+};
 
 // id do destaque atualmente aberto no modal de detalhe. Os listeners dos
 // botões são criados UMA vez (na criação do overlay) — antes eles prendiam

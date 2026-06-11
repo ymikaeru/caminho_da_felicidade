@@ -419,11 +419,13 @@
     footer.innerHTML = `
       <button id="mgrRecommend" style="padding:8px 14px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📤 Recomendar esta playlist</button>
       <button id="mgrPrint" style="padding:8px 14px; font-size:0.85rem; background:none; color:inherit; border:1px solid var(--border); border-radius:6px; cursor:pointer;">🖨️ Imprimir apostila</button>
+      <button id="mgrWord" style="padding:8px 14px; font-size:0.85rem; background:none; color:inherit; border:1px solid var(--border); border-radius:6px; cursor:pointer;">📄 Exportar Word</button>
       <button id="mgrRename" style="padding:8px 14px; font-size:0.85rem; background:none; color:inherit; border:1px solid var(--border); border-radius:6px; cursor:pointer;">Renomear</button>
       <button id="mgrDelete" style="padding:8px 14px; font-size:0.85rem; background:none; color:#c00; border:1px solid var(--border); border-radius:6px; cursor:pointer;">Apagar</button>
     `;
     document.getElementById('mgrRecommend').onclick = () => _openRecommend();
     document.getElementById('mgrPrint').onclick = _mgrPrintApostila;
+    document.getElementById('mgrWord').onclick = _mgrExportWord;
     document.getElementById('mgrRename').onclick = _mgrRename;
     document.getElementById('mgrDelete').onclick = _mgrDelete;
     const supa = _supa();
@@ -762,6 +764,43 @@
     _mgrMsg('✓ Renomeada');
   }
 
+  // Baixa o conteúdo de todos os itens da playlist (cache por arquivo) e
+  // devolve [{title, content}] na ordem da playlist. Compartilhado por
+  // "Imprimir apostila" e "Exportar Word". Retorna null em erro de client
+  // (mensagem já exibida); itens com arquivo/tópico inválido são pulados.
+  async function _mgrCollectEntries() {
+    const supa = _supa();
+    if (!supa) {
+      _mgrMsg('Erro: cliente Supabase indisponível.', true);
+      return null;
+    }
+    const fileCache = new Map();
+    const entries = [];
+    for (const it of _mgrCurrentItems) {
+      const key = `${it.vol}/${it.file}`;
+      if (!fileCache.has(key)) {
+        try {
+          const fileWithJson = it.file.endsWith('.json') ? it.file : `${it.file}.json`;
+          const { data, error } = await supa.storage.from('teachings').download(`${it.vol}/${fileWithJson}`);
+          if (error) throw error;
+          fileCache.set(key, JSON.parse(await data.text()));
+        } catch (e) {
+          console.warn('[playlists export] skip', key, e);
+          fileCache.set(key, null);
+        }
+      }
+      const full = fileCache.get(key);
+      if (!full) continue;
+      const topics = _flattenTopics(full);
+      const topic = topics[it.topic_idx || 0];
+      if (!topic) continue;
+      const content = topic.content_ptbr || topic.content_pt || topic.content || topic.content_ja || '';
+      const title = it.title_pt || (topics[it.topic_idx || 0]?.title_ptbr) || it.file;
+      entries.push({ title, content });
+    }
+    return entries;
+  }
+
   // Imprime apostila usando window.print() em nova aba — mesma abordagem
   // do printCurrentTeaching do header (content-protection.js). Browser
   // renderiza o HTML nativamente e oferece o diálogo de impressão (que
@@ -775,37 +814,10 @@
     if (btn) { btn.disabled = true; btn.textContent = 'Preparando…'; }
     _mgrMsg('Carregando ensinamentos…');
 
-    const supa = _supa();
-    if (!supa) {
-      _mgrMsg('Erro: cliente Supabase indisponível.', true);
+    const entries = await _mgrCollectEntries();
+    if (!entries) {
       if (btn) { btn.disabled = false; btn.textContent = '🖨️ Imprimir apostila'; }
       return;
-    }
-
-    // Fetcha todos os arquivos (cache por arquivo).
-    const fileCache = new Map();
-    const entries = [];
-    for (const it of _mgrCurrentItems) {
-      const key = `${it.vol}/${it.file}`;
-      if (!fileCache.has(key)) {
-        try {
-          const fileWithJson = it.file.endsWith('.json') ? it.file : `${it.file}.json`;
-          const { data, error } = await supa.storage.from('teachings').download(`${it.vol}/${fileWithJson}`);
-          if (error) throw error;
-          fileCache.set(key, JSON.parse(await data.text()));
-        } catch (e) {
-          console.warn('[playlists print] skip', key, e);
-          fileCache.set(key, null);
-        }
-      }
-      const full = fileCache.get(key);
-      if (!full) continue;
-      const topics = _flattenTopics(full);
-      const topic = topics[it.topic_idx || 0];
-      if (!topic) continue;
-      const content = topic.content_ptbr || topic.content_pt || topic.content || topic.content_ja || '';
-      const title = it.title_pt || (topics[it.topic_idx || 0]?.title_ptbr) || it.file;
-      entries.push({ title, content });
     }
 
     if (entries.length === 0) {
@@ -885,6 +897,79 @@ ${entries.map(e => `<section class="teaching">${e.content}</section>`).join('\n'
 
     _mgrMsg('✓ Janela de impressão aberta');
     if (btn) { btn.disabled = false; btn.textContent = '🖨️ Imprimir apostila'; }
+  }
+
+  // Converte o HTML legado do conteúdo pra algo que o WORD formata bem ao
+  // abrir: o Word ignora seletores CSS de atributo (font[size="+2"]) e :has(),
+  // então os títulos e labels viram tags com estilo inline. Cores legadas de
+  // <font color> caem fora (documento preto, como no print).
+  function _wordifyContent(html) {
+    let s = String(html || '');
+    // Título do ensinamento (<b><font size="+2">…</font></b> ou sem o <b>)
+    s = s.replace(/<b>\s*<font[^>]*size="\+2"[^>]*>([\s\S]*?)<\/font>\s*<\/b>/gi,
+      '<h2 style="font-size:16pt; line-height:1.3; margin:18pt 0 10pt; font-weight:bold;">$1</h2>');
+    s = s.replace(/<font[^>]*size="\+2"[^>]*>([\s\S]*?)<\/font>/gi,
+      '<h2 style="font-size:16pt; line-height:1.3; margin:18pt 0 10pt; font-weight:bold;">$1</h2>');
+    // Labels de seção / ênfase (+1) → negrito itálico
+    s = s.replace(/<font[^>]*size="\+1"[^>]*>([\s\S]*?)<\/font>/gi, '<b><i>$1</i></b>');
+    // Demais <font> (cores/tamanhos legados) viram span neutro
+    s = s.replace(/<font[^>]*>/gi, '<span>').replace(/<\/font>/gi, '</span>');
+    return s;
+  }
+
+  // Exporta a playlist como .doc (HTML-de-Word): o Word abre nativamente,
+  // já formatado — capa + um ensinamento por página. Sem bibliotecas.
+  async function _mgrExportWord() {
+    if (!_mgrCurrentColl || !_mgrCurrentItems || _mgrCurrentItems.length === 0) {
+      _mgrMsg('Playlist vazia — adicione ensinamentos antes de exportar.', true);
+      return;
+    }
+    const btn = document.getElementById('mgrWord');
+    if (btn) { btn.disabled = true; btn.textContent = 'Preparando…'; }
+    _mgrMsg('Carregando ensinamentos…');
+
+    const entries = await _mgrCollectEntries();
+    if (!entries || entries.length === 0) {
+      if (entries) _mgrMsg('Nenhum ensinamento válido pra exportar.', true);
+      if (btn) { btn.disabled = false; btn.textContent = '📄 Exportar Word'; }
+      return;
+    }
+
+    const safeTitle = String(_mgrCurrentColl.name).replace(/[<>&"']/g, '');
+    const date = new Date().toLocaleDateString('pt-BR');
+    // Quebra de página clássica do Word-HTML (CSS page-break-* em div também
+    // funciona, mas este marcador é o mais confiável entre versões do Word).
+    const pageBreak = '<br clear="all" style="mso-special-character:line-break; page-break-before:always;">';
+    const docHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>${_esc(safeTitle)}</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+<style>
+  body { font-family: Georgia, "Times New Roman", serif; font-size: 12pt; line-height: 1.6; color: #000; }
+  p { margin: 0 0 8pt; }
+  hr { border: none; border-top: 1px solid #999; margin: 14pt 0; }
+  b { font-weight: bold; }
+  i { font-style: italic; }
+</style></head><body>
+<div style="text-align:center; margin-top:140pt;">
+  <h1 style="font-size:26pt; line-height:1.2; margin:0 0 18pt;">${_esc(safeTitle)}</h1>
+  <p style="color:#555555; font-size:11pt;">${entries.length} ensinamento${entries.length === 1 ? '' : 's'} · gerado em ${date}</p>
+</div>
+${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>').join('\n')}
+</body></html>`;
+
+    // BOM na frente: sem ele o Word abre os acentos quebrados.
+    const blob = new Blob(['\ufeff', docHtml], { type: 'application/msword;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(safeTitle || 'apostila').replace(/[\\/:*?"<>|]/g, '_')}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    _mgrMsg('✓ Documento Word baixado');
+    if (btn) { btn.disabled = false; btn.textContent = '📄 Exportar Word'; }
   }
 
   async function _mgrDelete() {

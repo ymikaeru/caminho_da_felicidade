@@ -961,6 +961,20 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         const delay = (searchTopicTitle || (topicIdx !== null && topicIdx > 0)) ? 150 : 50;
         setTimeout(() => {
             window.applyHighlightsOnPage();
+            // Trechos RECOMENDADOS (&excerpt=s:e[,s:e...] — recomendação com
+            // trecho(s) do admin, v15): pinta destaques sintéticos e scrolla
+            // até o primeiro.
+            const excerptParam = _urlParams.get('excerpt');
+            if (excerptParam && /^\d+:\d+(,\d+:\d+)*$/.test(excerptParam) && typeof window.flashExcerptRange === 'function') {
+                const exTopic = topicIdx !== null ? topicIdx : 0;
+                const exRanges = excerptParam.split(',').map(p => p.split(':').map(Number));
+                setTimeout(() => {
+                    const ok = window.flashExcerptRange(exTopic, exRanges);
+                    // Conteúdo/imagens podem reacomodar — segunda tentativa.
+                    if (!ok) setTimeout(() => window.flashExcerptRange(exTopic, exRanges), 800);
+                    _revealGate();
+                }, 200);
+            }
             // Only scroll to highlight when explicitly requested from the highlights modal (hlScroll=true)
             if (hlScroll && highlightIdParam) {
                 setTimeout(() => {

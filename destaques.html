@@ -437,9 +437,9 @@
     <script src="js/language.js?v=8" defer></script>
     <script src="js/typography.js?v=1" defer></script>
     <script src="js/search.min.js?v=22" defer></script>
-    <script src="js/highlights.min.js?v=24" defer></script>
+    <script src="js/highlights.min.js?v=26" defer></script>
     <script src="site_data/global_index_titles.js?v=1" defer></script>
-    <script src="js/destaques-page.js?v=5" defer></script>
+    <script src="js/destaques-page.js?v=7" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';
@@ -505,6 +505,9 @@
     <script type="module">
       import * as cloudSync from './js/sync.js?v=7';
       window._cloudSync = cloudSync;
+      // Picker de recomendação (admin) usa RPCs via este client
+      import { supabase } from './js/supabase-config.js';
+      window._supabaseClient = supabase;
     </script>
     <script type="module">
       import { initSyncQueue, queueSaveHighlight, queueRemoveHighlight, getQueueStatus } from './js/sync-queue.js';
@@ -513,8 +516,9 @@
     </script>
     <script type="module" src="js/login.js?v=11"></script>
     <script src="js/access.js?v=6"></script>
+    <script src="js/reader-recommend.js?v=9" defer></script>
     <script src="js/modals.js?v=9"></script>
-    <script src="js/playlists-loader.js?v=1" defer></script>
+    <script src="js/playlists-loader.js?v=2" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             buildSearchModal(); buildHistoryModal(); buildFavoritesModal(); buildHighlightsModal();

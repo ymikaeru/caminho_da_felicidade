@@ -945,6 +945,34 @@
     }
   }
 
+  // Deep-link da Central de Destaques: &sec=sec-xxx[&highlight=hl_id].
+  // Abre o capítulo que CONTÉM a seção (pode ser nó aninhado, não só
+  // capítulo-página), rola até o mark do grifo (já pintado pelo
+  // applyHighlightsOnPage do render) e dá um flash nele.
+  function _gotoHighlightFromUrl() {
+    const secParam = urlParams.get('sec');
+    if (!secParam) return;
+    const sectionId = secParam.replace(/^sec-/, '');
+    const hlId = urlParams.get('highlight') || '';
+    const findIn = (s, tid) => s.id === tid || ((s.children || []).some(c => findIn(c, tid)));
+    const idx = _flatChapters.findIndex(ch => findIn(ch, sectionId));
+    if (idx === -1) return;
+    if (idx !== _currentChapterIndex) navigateToChapter(idx);
+    setTimeout(() => {
+      let mark = null;
+      try { mark = hlId ? document.querySelector(`mark.user-highlight[data-highlight-id="${CSS.escape(hlId)}"]`) : null; } catch (_) {}
+      const el = mark || document.getElementById(`sec-${sectionId}`);
+      if (!el) return;
+      const headerH = document.querySelector('.header')?.offsetHeight || 56;
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - headerH - 80, behavior: 'smooth' });
+      if (mark) {
+        mark.style.transition = 'box-shadow .4s ease';
+        mark.style.boxShadow = '0 0 0 4px rgba(184,134,11,.45)';
+        setTimeout(() => { mark.style.boxShadow = ''; }, 1800);
+      }
+    }, 400);
+  }
+
   // ── Entry point ──
   async function initDisciples() {
     const bookId = urlParams.get('book');
@@ -973,6 +1001,7 @@
       book.titleJa = book.titleJa || entry.titleJa;
       book.description = book.description || entry.description;
       renderDisciplesBook(book);
+      _gotoHighlightFromUrl();
       initMobileSidebarToggle();
     } catch (err) {
       console.error('[disciples] init failed:', err);

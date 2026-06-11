@@ -40,6 +40,13 @@ async function _flush() {
   if (!_currentVolume || !_currentFile) return;
   const secs = Math.floor(_accumulatedMs / 1000);
   if (secs <= 0) return;
+  // Deslogado (anônimo/preview): a RPC exige auth — pular SEM bater na rede,
+  // senão é um 400 + warn a cada heartbeat. O acumulado fica guardado: se a
+  // pessoa logar na mesma página, o próximo flush envia tudo (cap MAX_DELTA).
+  try {
+    const { data } = await supabase.auth.getSession();
+    if (!data || !data.session) return;
+  } catch (_) { return; }
   const delta = Math.min(secs, MAX_DELTA_SECS);
   _accumulatedMs -= delta * 1000;
   try {

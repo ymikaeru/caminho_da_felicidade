@@ -25,7 +25,9 @@
   .tog.open{transform:rotate(90deg)}
   .mk{font-variant-numeric:tabular-nums;flex:none;font-weight:700}
   .lab{overflow:hidden;text-overflow:ellipsis}
-  .pg{margin-left:auto;color:#5a6675;font-size:11px;flex:none;padding-left:8px}
+  .st{margin-left:auto;flex:none;font-size:10.5px;color:#56d4c4;padding-left:6px;font-variant-numeric:tabular-nums}
+  .st.full{color:#27b568}
+  .pg{color:#5a6675;font-size:11px;flex:none;padding-left:8px}
   .kids.collapsed{display:none}
   /* cores por nível */
   .n-capitulo .mk,.n-capitulo .lab{color:#f0c24b} .n-capitulo{font-weight:700}
@@ -112,6 +114,18 @@
   .nspan.hl,.nspan:hover{background:rgba(79,136,255,.30);box-shadow:0 0 0 1px rgba(79,136,255,.30)}
   sup.ref{font-size:9px;vertical-align:super;color:#74808f;cursor:help;margin:0 1px;opacity:.7;transition:opacity .12s,color .12s}
   sup.ref:hover{opacity:1;color:#9fb0c8}
+  a.golink{color:var(--acc);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;border-radius:3px}
+  a.golink:hover{background:rgba(91,156,255,.14)}
+  .studyBtn{display:inline-block;background:transparent;border:1px dashed var(--line);color:var(--mut);border-radius:20px;padding:3px 11px;cursor:pointer;font:inherit;font-size:12px;margin-right:8px}
+  .studyBtn:hover{border-color:var(--acc);color:var(--fg)}
+  .studyBtn.on{border:1px solid #2c6b4a;color:#27b568;background:rgba(31,157,87,.10)}
+  #hitCount{margin:-4px 12px 6px;font-size:11.5px;color:var(--mut);min-height:14px}
+  #miniToast{position:fixed;bottom:18px;right:18px;background:#163a2a;color:#7fe0a8;border:1px solid #2c6b4a;border-radius:8px;padding:8px 14px;font-size:13px;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:9999}
+  #miniToast.show{opacity:1;transform:translateY(0)}
+  body.light .st{color:#0e9a89} body.light .st.full{color:#1c7a47}
+  body.light .studyBtn.on{border-color:#9ed8b6;color:#1c7a47;background:rgba(31,157,87,.07)}
+  body.light #miniToast{background:#e3f6ea;color:#1c7a47;border-color:#abdcc0}
+  body.light a.golink:hover{background:rgba(47,111,237,.10)}
   #themeBtn{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--fg);border-radius:7px;padding:3px 10px;cursor:pointer;font-size:13px;white-space:nowrap}
   #themeBtn:hover{border-color:var(--acc)}
   /* ===================== MOBILE ===================== */
@@ -172,7 +186,8 @@
 </div>
 <div id="main">
   <div id="side">
-    <input id="search" placeholder="🔎 buscar título… (ex.: salmo, sabedoria, lei)">
+    <input id="search" placeholder="🔎 buscar no título e no texto…">
+    <div id="hitCount"></div>
     <div id="tree"></div>
   </div>
   <div id="scrim"></div>
@@ -212,8 +227,30 @@ $('#scrim').onclick=closeSide;
     if(pop.style.display==='block') hidePop(fn); else showPop(fn);
   });
 })();
-let TREE=null, flat=[], cur=null;
+let TREE=null, flat=[], cur=null, _q='', _navHist=false;
 const CIRC=n=>String.fromCharCode(0x2460+(+n-1));
+// busca sem acento/caixa
+function fold(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+function flash(msg){
+  let el=document.getElementById('miniToast');
+  if(!el){ el=document.createElement('div'); el.id='miniToast'; document.body.appendChild(el); }
+  el.textContent=msg; el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),1600);
+}
+// ===== progresso de estudo (por aparelho; localStorage) =====
+const STUDY_KEY='sd-studied';
+let STUDIED=new Set();
+try{ STUDIED=new Set(JSON.parse(localStorage.getItem(STUDY_KEY)||'[]')); }catch(_){ }
+function saveStudy(){ try{ localStorage.setItem(STUDY_KEY, JSON.stringify([...STUDIED])); }catch(_){ } }
+function contentDesc(n){ const out=[]; (function w(x){ if(ownContent(x)) out.push(x); (x.children||[]).forEach(w); })(n); return out; }
+function studyMarkText(n){
+  if(n.children&&n.children.length){
+    const set=contentDesc(n); if(!set.length) return '';
+    const k=set.filter(x=>STUDIED.has(x.id)).length;
+    return k ? (k===set.length?'✓':Math.round(100*k/set.length)+'%') : '';
+  }
+  return STUDIED.has(n.id)?'✓':'';
+}
+function refreshStudyMarks(){ flat.forEach(n=>{ if(n._st){ const t=studyMarkText(n); n._st.textContent=t; n._st.classList.toggle('full',t==='✓'); } }); }
 function mkLabel(n){
   if(n.nivel==='circulo') return CIRC(n.marcador);
   if(n.nivel==='capitulo'||n.nivel==='item') return n.marcador;
@@ -365,8 +402,9 @@ function node(n){
   const tog=document.createElement('span'); tog.className='tog'; tog.textContent=(n.children&&n.children.length)?'▶':'';
   const mk=document.createElement('span'); mk.className='mk'; mk.textContent=mkLabel(n);
   const lab=document.createElement('span'); lab.className='lab'; lab.textContent=' '+(n.title||'').replace(/\[\^\d+\]/g,'');
+  const st=document.createElement('span'); st.className='st'; const smt=studyMarkText(n); st.textContent=smt; if(smt==='✓') st.classList.add('full'); n._st=st;
   const pg=document.createElement('span'); pg.className='pg'; pg.textContent=n.pagina?('p.'+n.pagina):'';
-  row.append(tog,mk,lab,pg);
+  row.append(tog,mk,lab,st,pg);
   n._row=row;
   row.onclick=e=>{ if(e.target===tog){ toggle(n); return; } select(n); closeSide(); };
   wrap.appendChild(row);
@@ -386,6 +424,7 @@ function expandPath(n){ let p=n._p; while(p){ toggle(p,true); p=p._p; } }
 function select(n){
   if(cur&&cur._row) cur._row.classList.remove('sel');
   cur=n; try{ localStorage.setItem('sdnav-cur', n.id); }catch(_){ }   // lembra o nó p/ restaurar no F5
+  if(!_navHist && location.hash!=='#'+n.id){ try{ history.pushState(null,'','#'+n.id); }catch(_){ } }  // link permanente
   n._row.classList.add('sel'); expandPath(n);
   n._row.scrollIntoView({block:'center',behavior:'smooth'});
   // trilha
@@ -399,23 +438,109 @@ function select(n){
   $('#detail').innerHTML=`<div class="pathline">${path.map(x=>(x.nivel==='circulo'?CIRC(x.marcador):x.marcador)).join(' › ')}</div>
     <h1>${mkLabel(n)} ${renderTitle(n.title,(n.ensinamento||{}).notas)}</h1>
     <div class="meta">${niceNivel}${n.pagina?` · pág. ${n.pagina} do livro`:''}</div>
-    ${kids?`<span class="badge">▸ ${kids} subseções</span>`:'<span class="badge">ensinamento</span>'}
+    ${kids?`<span class="badge">▸ ${kids} subseções</span>`:'<span class="badge">ensinamento</span>'}<button id="studyBtn" class="studyBtn"></button><button id="linkBtn" class="studyBtn" title="Copiar o link direto deste ensinamento">🔗 link</button>
     <div style="margin-top:24px">${renderPage(n)}</div>
     ${navBar(n)}`;
+  linkifyInternal($('#detail'));   // "Livro pág. N" / "pág. N deste livro" → pulo interno
+  markQuery($('#detail'));         // termo da busca grifado no texto
+  wireStudy(n); wireLink(n);
   $('#detail').scrollTop=0;
 }
-// busca: filtra a árvore
+// ===== fiação dos botões do cabeçalho =====
+function wireStudy(n){
+  const b=$('#studyBtn'); if(!b) return;
+  const set=contentDesc(n);
+  if(!set.length){ b.style.display='none'; return; }
+  const upd=()=>{ const k=set.filter(x=>STUDIED.has(x.id)).length, all=k===set.length;
+    b.classList.toggle('on',all);
+    b.textContent = all ? (set.length>1?`✓ Item estudado (${k}/${set.length})`:'✓ Estudado')
+                        : (set.length>1?`☐ Marcar ${set.length} como estudados${k?` (${k} já)`:''}`:'☐ Marcar como estudado'); };
+  upd();
+  b.onclick=()=>{ const all=set.every(x=>STUDIED.has(x.id));
+    set.forEach(x=> all?STUDIED.delete(x.id):STUDIED.add(x.id));
+    saveStudy(); refreshStudyMarks(); upd(); };
+}
+function wireLink(n){
+  const b=$('#linkBtn'); if(!b) return;
+  b.onclick=()=>{
+    const url=location.origin+location.pathname+'#'+n.id;
+    const done=()=>flash('🔗 link copiado');
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done,()=>fallback());
+    else fallback();
+    function fallback(){ const ta=document.createElement('textarea'); ta.value=url; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); done(); }catch(_){ prompt('Copie o link:', url); } ta.remove(); }
+  };
+}
+// ===== pulo interno: "Livro pág. N" / "pág. N deste livro|desta obra" =====
+const GOLINK_RX=/Livro\s+p[áa]g(?:ina)?\.?\s*(\d{1,3})|p[áa]g(?:ina)?\.?\s*(\d{1,3})(?=[^()<>]{0,28}dest[ea]\s+(?:livro|obra))/gi;
+function linkifyInternal(root){
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null); const list=[];
+  while(w.nextNode()){ const p=w.currentNode.parentElement; if(p&&p.closest('a,button')) continue; list.push(w.currentNode); }
+  list.forEach(tn=>{
+    const t=tn.nodeValue||''; GOLINK_RX.lastIndex=0;
+    if(!GOLINK_RX.test(t)) return; GOLINK_RX.lastIndex=0;
+    const frag=document.createDocumentFragment(); let last=0,m;
+    while((m=GOLINK_RX.exec(t))){
+      const pg=m[1]||m[2];
+      if(m.index>last) frag.appendChild(document.createTextNode(t.slice(last,m.index)));
+      const a=document.createElement('a'); a.className='golink'; a.dataset.pg=pg; a.textContent=m[0];
+      a.title='Abrir a pág. '+pg+' da apostila'; frag.appendChild(a);
+      last=m.index+m[0].length;
+    }
+    frag.appendChild(document.createTextNode(t.slice(last)));
+    tn.parentNode.replaceChild(frag,tn);
+  });
+}
+function jumpToPage(pg){
+  const N=+pg; if(!N) return;
+  let best=flat.find(n=>+n.pagina===N);
+  if(best){ select(best); flash('→ pág. '+pg); return; }
+  let bp=-1; flat.forEach(n=>{ const p=+n.pagina; if(p&&p<=N&&p>bp){ bp=p; best=n; } });   // páginas são esparsas: cai na âncora anterior
+  if(best){ select(best); flash('→ pág. '+pg+' (seção começa na pág. '+bp+')'); }
+}
+// ===== grifa o termo da busca no painel (sem acento/caixa, mapeando de volta) =====
+function markQuery(root){
+  if(!_q||_q.length<3) return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null); const list=[];
+  while(w.nextNode()) list.push(w.currentNode);
+  list.forEach(tn=>{
+    const orig=tn.nodeValue||''; if(orig.length<_q.length) return;
+    let f='',map=[];
+    for(let i=0;i<orig.length;i++){ const fc=fold(orig[i]); for(let j=0;j<fc.length;j++){ f+=fc[j]; map.push(i); } }
+    let idx=f.indexOf(_q); if(idx<0) return;
+    const frag=document.createDocumentFragment(); let last=0;
+    while(idx>=0){
+      const s=map[idx], e=map[idx+_q.length-1]+1;
+      if(s>last) frag.appendChild(document.createTextNode(orig.slice(last,s)));
+      const mk=document.createElement('mark'); mk.textContent=orig.slice(s,e); frag.appendChild(mk);
+      last=e; idx=f.indexOf(_q, idx+_q.length);
+    }
+    frag.appendChild(document.createTextNode(orig.slice(last)));
+    tn.parentNode.replaceChild(frag,tn);
+  });
+}
+// busca: filtra a árvore por TÍTULO e (3+ letras) pelo TEXTO COMPLETO, sem acento/caixa
 $('#search').addEventListener('input',e=>{
-  const q=e.target.value.trim().toLowerCase();
-  if(!q){ render(); cur=null; $('#crumb').innerHTML=''; return; }
-  const hit=new Set();
-  flat.forEach(n=>{ if((n.title||'').toLowerCase().includes(q)||(n.marcador||'').toLowerCase()===q){ let p=n; while(p){hit.add(p);p=p._p;} } });
+  const raw=e.target.value.trim(); const q=fold(raw); _q=q;
+  const hc=$('#hitCount');
+  if(!q){ render(); cur=null; $('#crumb').innerHTML=''; if(hc) hc.textContent=''; return; }
+  const deep=q.length>=3;
+  const hit=new Set(); let nT=0,nC=0;
+  flat.forEach(n=>{
+    n._hitT = fold(n.title||'').includes(q) || fold(n.marcador||'')===q;
+    const cHit = deep && !n._hitT && n._fts && n._fts.includes(q);
+    if(n._hitT) nT++; if(cHit) nC++;
+    if(n._hitT||cHit){ let p=n; while(p){hit.add(p);p=p._p;} }
+  });
+  if(hc) hc.textContent=(nT+nC)
+    ? (nT+nC)+' resultado(s)'+(nC?` — ${nC} no texto`:'')
+    : 'nada encontrado'+(deep?'':' (com 3+ letras a busca olha o texto)');
   const root=$('#tree'); root.innerHTML='';
   (function build(list,host){ list.forEach(n=>{ if(!hit.has(n))return;
     const w=node(n); host.appendChild(w);
     if(n._kids){ n._kids.classList.remove('collapsed'); n._tog.classList.add('open'); n._tog.textContent='▼'; }
-    // destaca match
-    if((n.title||'').toLowerCase().includes(q)){ n._row.querySelector('.lab').innerHTML=' '+(n.title||'').replace(/\[\^\d+\]/g,'').replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>'); }
+    // destaca match no título (melhor esforço; com acento divergente lista sem grifar)
+    if(n._hitT){ n._row.querySelector('.lab').innerHTML=' '+(n.title||'').replace(/\[\^\d+\]/g,'').replace(new RegExp('('+raw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>'); }
   }); })(TREE.children, root);
 });
 // Restaura o nó aberto + a rolagem após um F5.
@@ -429,10 +554,34 @@ function restoreCur(){
 }
 // salva a rolagem do painel (debounce) p/ restaurar no F5
 $('#detail').addEventListener('scroll', ()=>{ clearTimeout(window._navScrollT); window._navScrollT=setTimeout(()=>{ try{ localStorage.setItem('sdnav-scroll', $('#detail').scrollTop); }catch(_){ } }, 200); }, {passive:true});
+// pulo interno por página (delegado: o conteúdo do painel é recriado a cada seleção)
+$('#detail').addEventListener('click',e=>{
+  const g=e.target.closest&&e.target.closest('a.golink');
+  if(g){ e.preventDefault(); jumpToPage(g.dataset.pg); }
+});
+// voltar/avançar do navegador percorre os ensinamentos visitados
+window.addEventListener('popstate',()=>{
+  const id=decodeURIComponent((location.hash||'').slice(1));
+  const a=id&&flat.find(x=>x.id===id);
+  if(a){ _navHist=true; select(a); _navHist=false; }
+});
 fetch('data/books/shin-dendo-tebiki.json').then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(t=>{
   if(t.sections && !t.children) t.children = t.sections;   // raiz do book usa 'sections'
-  TREE=t; flat=[]; walk(TREE,null,0); render(); restoreCur();
-  if(!cur && window.innerWidth>860){ const f=flat.find(ownContent); if(f) select(f); }   // primeira visita: abre o 1º conteúdo
+  TREE=t; flat=[]; walk(TREE,null,0);
+  // índice de busca full-text (uma vez; ~1,3 MB em memória, busca instantânea)
+  flat.forEach(n=>{ const e=n.ensinamento||{};
+    n._fts=fold([n.title,n.subtitulo,n.explicacao,e.texto,e.preambulo,e.explicacao,e.resumo,e.data,e.posfacio,
+      (e.notas||[]).map(x=>x.texto).join(' '),
+      (e.referencias||[]).join(' '),
+      (e.anexo||[]).map(a=>(a.titulo||'')+' '+(a.texto||'')).join(' ')].join(' ')); });
+  render();
+  const hid=decodeURIComponent((location.hash||'').slice(1));   // link direto #c1.i1.7 tem prioridade
+  const hn=hid&&flat.find(n=>n.id===hid);
+  if(hn){ _navHist=true; select(hn); _navHist=false; }
+  else{
+    restoreCur();
+    if(!cur && window.innerWidth>860){ const f=flat.find(ownContent); if(f) select(f); }   // primeira visita: abre o 1º conteúdo
+  }
 }).catch(()=>{
   $('#detail').innerHTML='<div class="hint">Não foi possível carregar a apostila. Verifique a conexão e recarregue a página.</div>';
 });

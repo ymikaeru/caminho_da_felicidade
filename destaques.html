@@ -310,6 +310,30 @@
             border-radius: 10px;
         }
 
+        /* Chip "Filtrando: <livro> · ver todos ✕" (atalho do header do leitor) */
+        .dq-bookfilter {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 20px;
+            padding: 8px 14px;
+            background: var(--accent-soft, rgba(184, 134, 11, 0.12));
+            border: 1px solid var(--accent);
+            border-radius: 999px;
+            color: var(--text-main);
+            font: inherit;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: filter 0.15s;
+        }
+        .dq-bookfilter:hover { filter: brightness(1.06); }
+        .dq-bookfilter b { color: var(--accent); font-weight: 600; }
+        .dq-bookfilter-x {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
         .dq-search {
             display: flex;
             align-items: center;
@@ -439,7 +463,7 @@
     <script src="js/search.min.js?v=22" defer></script>
     <script src="js/highlights.min.js?v=27" defer></script>
     <script src="site_data/global_index_titles.js?v=1" defer></script>
-    <script src="js/destaques-page.js?v=8" defer></script>
+    <script src="js/destaques-page.js?v=9" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';

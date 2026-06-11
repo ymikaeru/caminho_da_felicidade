@@ -37,7 +37,10 @@ const _DQ_COLOR_HEX = {
 const _dqState = {
     q: '',
     color: null,
-    hideTitles: localStorage.getItem('dqHideTitles') === '1'
+    hideTitles: localStorage.getItem('dqHideTitles') === '1',
+    // Filtro por livro de discípulos (?book=<id>) — atalho vindo do header
+    // do leitor. Mostra só os grifos daquele livro + chip pra limpar.
+    bookOnly: (new URLSearchParams(location.search).get('book')) || null
 };
 
 function _dqLang() { return localStorage.getItem('site_lang') || 'pt'; }
@@ -208,6 +211,7 @@ function renderNotebook() {
     const q = _dqState.q.toLowerCase().trim();
     const titleHidden = [];
     const list = all.filter(h => {
+        if (_dqState.bookOnly && !(h.vol === 'disciples' && h.file === _dqState.bookOnly)) return false;
         if (_dqState.hideTitles && _isTitleHighlight(h)) { titleHidden.push(h); return false; }
         if (_dqState.color && (h.color || 'yellow') !== _dqState.color) return false;
         if (q) {
@@ -227,7 +231,16 @@ function renderNotebook() {
     }
 
     if (!list.length) {
-        container.innerHTML = `<div class="notebook-empty">${noResults}</div>`;
+        // Mantém o chip de filtro por livro pra não prender o usuário sem
+        // botão de "ver todos" quando o filtro não casa nada.
+        let chip = '';
+        if (_dqState.bookOnly) {
+            const bookTitle = _pubTitle({ vol: 'disciples', file: _dqState.bookOnly }, lang);
+            const lbl = lang === 'ja' ? 'フィルター' : 'Filtrando';
+            const clr = lang === 'ja' ? 'すべて表示' : 'ver todos';
+            chip = `<button type="button" class="dq-bookfilter" onclick="_dqClearBookFilter()"><span>${lbl}: <b>${_esc(bookTitle)}</b></span><span class="dq-bookfilter-x">${_esc(clr)} ✕</span></button>`;
+        }
+        container.innerHTML = chip + `<div class="notebook-empty">${noResults}</div>`;
         return;
     }
 
@@ -250,7 +263,17 @@ function renderNotebook() {
         return a < b ? -1 : 1;
     });
 
+    // Chip de filtro ativo por livro (?book=) — clicável pra limpar.
     let html = '';
+    if (_dqState.bookOnly) {
+        const bookTitle = _pubTitle({ vol: 'disciples', file: _dqState.bookOnly }, lang);
+        const lbl = lang === 'ja' ? 'フィルター' : 'Filtrando';
+        const clr = lang === 'ja' ? 'すべて表示' : 'ver todos';
+        html += `<button type="button" class="dq-bookfilter" onclick="_dqClearBookFilter()">
+            <span>${lbl}: <b>${_esc(bookTitle)}</b></span>
+            <span class="dq-bookfilter-x">${_esc(clr)} ✕</span>
+        </button>`;
+    }
     for (const vol of volKeys) {
         const files = byVol.get(vol);
         let volCount = 0;
@@ -343,6 +366,13 @@ function _renderCard(h, lang) {
         </div>
     </div>`;
 }
+
+// Limpa o filtro por livro (chip) — some o ?book= da URL e re-renderiza.
+window._dqClearBookFilter = function () {
+    _dqState.bookOnly = null;
+    try { history.replaceState(null, '', location.pathname); } catch (_) {}
+    renderNotebook();
+};
 
 // Admin: abre o picker de recomendação com o TRECHO do destaque embutido
 // (excerpt_* — quem receber abre o ensinamento direto no trecho grifado).

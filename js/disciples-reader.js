@@ -541,7 +541,21 @@
 
     const chapterNavHtml = `<div class="disciples-chapter-nav"><button class="disciples-chapter-nav-btn" onclick="_disciplesNav(${_currentChapterIndex - 1})" ${!hasPrev ? 'disabled' : ''} title="${isPt ? 'Trecho anterior' : '前のチャプター'}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>${isPt ? 'Anterior' : '前へ'}</span></button><div class="disciples-chapter-nav-info"><span class="disciples-chapter-nav-current">${_currentChapterIndex + 1}</span> / ${total}</div><button class="disciples-chapter-nav-btn" onclick="_disciplesNav(${_currentChapterIndex + 1})" ${!hasNext ? 'disabled' : ''} title="${isPt ? 'Próximo trecho' : '次のチャプター'}"><span>${isPt ? 'Próximo' : '次へ'}</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></div>`;
 
-    container.innerHTML = `<div class="reader-content disciples-book-content"><div class="disciples-book-header"><h1>${esc(book.title)}</h1>${book.author ? `<div class="disciples-book-author-header">${esc(book.author)}</div>` : ''}<a class="disciples-back-link" href="reader.html?pub=disciples"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>${isPt ? 'Publicações dos Discípulos' : '弟子たちの著作一覧'}</a></div>${breadcrumbHtml}${chapterNavHtml}<div class="disciples-book-body">${renderSection(chapter)}</div>${chapterNavHtml}</div>`;
+    // Atalho pra Central de Destaques já filtrada NESTE livro — só aparece
+    // se o usuário tem grifos nele (link pra central vazia não ajuda).
+    let hlLink = '';
+    try {
+      const nHl = (JSON.parse(localStorage.getItem('userHighlights') || '[]'))
+        .filter(h => h.vol === 'disciples' && h.file === book.id).length;
+      if (nHl > 0) {
+        const hlLabel = isPt
+          ? `${nHl} destaque${nHl === 1 ? '' : 's'} neste livro`
+          : `この本のハイライト（${nHl}）`;
+        hlLink = `<a class="disciples-back-link" style="margin-left:14px;" href="destaques.html?book=${encodeURIComponent(book.id)}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>${hlLabel}</a>`;
+      }
+    } catch (_) {}
+
+    container.innerHTML = `<div class="reader-content disciples-book-content"><div class="disciples-book-header"><h1>${esc(book.title)}</h1>${book.author ? `<div class="disciples-book-author-header">${esc(book.author)}</div>` : ''}<a class="disciples-back-link" href="reader.html?pub=disciples"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>${isPt ? 'Publicações dos Discípulos' : '弟子たちの著作一覧'}</a>${hlLink}</div>${breadcrumbHtml}${chapterNavHtml}<div class="disciples-book-body">${renderSection(chapter)}</div>${chapterNavHtml}</div>`;
 
     updateDiscSidebarActiveState();
     // Re-observa os sections recém-renderizados pro scroll spy

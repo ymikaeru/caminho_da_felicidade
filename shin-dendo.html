@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>Shin Dendō — Apostila de estudo</title>
+<style>
+  :root{ --bg:#15171c; --panel:#1d2026; --line:#2e3340; --fg:#e7e9ee; --mut:#8a93a3; --acc:#5b9cff; --colw:840px; }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,Segoe UI,Arial}
+  #top{display:flex;align-items:center;gap:14px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+  #top b{font-size:15px;white-space:nowrap}
+  #wip{font-size:11px;color:#e0a96d;border:1px solid rgba(224,169,109,.4);border-radius:20px;padding:2px 9px;white-space:nowrap}
+  #crumb{color:var(--mut);font-size:13px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;overflow:hidden}
+  #crumb .c{color:#cdd5e2;cursor:pointer;padding:1px 4px;border-radius:4px} #crumb .c:hover{background:#2a2f3a;color:#fff}
+  #crumb .sep{color:#4a5161}
+  #menuBtn{display:none;background:transparent;border:1px solid var(--line);color:var(--fg);border-radius:7px;padding:3px 10px;cursor:pointer;font-size:15px;line-height:1.2}
+  #main{display:flex;height:calc(100vh - 47px)}
+  #side{width:430px;border-right:1px solid var(--line);display:flex;flex-direction:column;background:#181b21}
+  #search{margin:10px;padding:8px 11px;background:#23272f;border:1px solid var(--line);border-radius:8px;color:var(--fg);font:inherit}
+  #tree{flex:1;overflow:auto;padding:4px 6px 40px}
+  .row{display:flex;align-items:center;gap:5px;padding:3px 6px;border-radius:6px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row:hover{background:#23262e}
+  .row.sel{background:#1c3a63;outline:1px solid #2f5b9e}
+  .tog{width:14px;color:var(--mut);flex:none;font-size:10px;transition:transform .1s}
+  .tog.open{transform:rotate(90deg)}
+  .mk{font-variant-numeric:tabular-nums;flex:none;font-weight:700}
+  .lab{overflow:hidden;text-overflow:ellipsis}
+  .st{margin-left:auto;flex:none;font-size:10.5px;color:#56d4c4;padding-left:6px;font-variant-numeric:tabular-nums}
+  .st.full{color:#27b568}
+  .pg{color:#5a6675;font-size:11px;flex:none;padding-left:8px}
+  .kids.collapsed{display:none}
+  /* cores por nível */
+  .n-capitulo .mk,.n-capitulo .lab{color:#f0c24b} .n-capitulo{font-weight:700}
+  .n-item .mk,.n-item .lab{color:#fff;font-weight:700}
+  .n-parte .mk{color:#8ab4ff} .n-numero .mk{color:#79c0ff}
+  .n-circulo .mk{color:#56d4c4} .n-romano .mk{color:#b79cff}
+  .n-letra .mk{color:#e0a96d} .n-letra_min .mk{color:#9aa3b2}
+  .lab{color:#c9d1dc} .n-numero .lab,.n-parte .lab{color:#e7e9ee}
+  mark{background:#5b4b16;color:#ffe9a3;border-radius:3px}
+  #detail{flex:1;overflow:auto;padding:30px 40px;-webkit-overflow-scrolling:touch}
+  #detail h1{margin:.2em 0;font-size:1.6em}
+  #detail .meta{color:var(--mut);margin:6px 0 20px}
+  #detail .badge{display:inline-block;background:#13283f;color:#7fb3ff;border:1px solid #27496e;border-radius:20px;padding:3px 11px;font-size:12px;margin-right:8px}
+  #detail .hint{color:var(--mut);max-width:560px;margin-top:24px;border-left:3px solid var(--line);padding-left:14px}
+  .pathline{color:var(--mut);font-size:13px;margin-bottom:8px}
+  .navbar{display:flex;gap:12px;max-width:var(--colw);margin:26px 0 6px;border-top:1px solid var(--line);padding-top:16px}
+  .navb{flex:1 1 0;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 13px;cursor:pointer;color:var(--fg);display:flex;flex-direction:column;gap:2px;text-align:left;font:inherit;transition:border-color .12s}
+  .navb:hover{border-color:var(--acc)}
+  .navb.next{text-align:right;align-items:flex-end}
+  .navb .na{font-size:11px;color:var(--mut)}
+  .navb .nt{font-size:13.5px;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+  .navb-empty{flex:1 1 0}
+  /* ----- ensinamento ----- */
+  .ens-subtitulo{color:#cdd5e2;font-size:15.5px;font-style:italic;text-align:center;margin:2px 0 22px;letter-spacing:.02em;max-width:var(--colw)}
+  .pg-sub{max-width:var(--colw);margin:34px 0 6px;font-size:1.18em;font-weight:700;color:#eef1f6;border-top:1px solid var(--line);padding-top:24px}
+  .pg-sub:first-of-type{border-top:none;padding-top:4px;margin-top:10px}
+  .pg-sub .pg-mk{font-variant-numeric:tabular-nums;margin-right:5px}
+  .pg-sub.n-circulo .pg-mk{color:#56d4c4} .pg-sub.n-numero .pg-mk{color:#79c0ff}
+  .pg-sub.n-romano .pg-mk{color:#b79cff} .pg-sub.n-letra .pg-mk{color:#e0a96d} .pg-sub.n-letra_min .pg-mk{color:#9aa3b2}
+  .ens-fonte{color:var(--mut);font-size:13px;margin:4px 0 18px}
+  .ens-texto{font-size:16.5px;line-height:1.9;color:#eef1f6;max-width:var(--colw)}
+  .ens-data{color:var(--mut);font-size:13px;font-style:italic;margin:10px 0 6px;max-width:var(--colw)}
+  details.ens-pre,details.ens-exp{max-width:var(--colw);margin:14px 0;border-radius:9px;overflow:hidden}
+  details.ens-pre{background:#191c23;border:1px solid var(--line)}
+  details.ens-exp{background:#16201a;border:1px solid #294434}
+  .ens-pre>summary,.ens-exp>summary{cursor:pointer;padding:9px 14px;font-size:13px;font-weight:600;user-select:none;list-style:none}
+  .ens-pre>summary{color:#aeb8c6} .ens-exp>summary{color:#7fd79b}
+  summary::-webkit-details-marker{display:none}
+  .ens-pre>summary:hover,.ens-exp>summary:hover{filter:brightness(1.25)}
+  .db-body{padding:2px 16px 14px;font-size:14.5px;line-height:1.75}
+  .ens-pre .db-body{color:#dbe2ec;font-style:italic} .ens-exp .db-body{color:#c7d2dd}
+  details.ens-resumo,details.ens-anexo{max-width:var(--colw);margin:14px 0;border-radius:9px;overflow:hidden}
+  details.ens-resumo{background:#1c1a23;border:1px solid #34304a}
+  details.ens-anexo{background:#1a1c20;border:1px solid var(--line)}
+  .ens-resumo>summary,.ens-anexo>summary{cursor:pointer;padding:9px 14px;font-size:13px;font-weight:600;user-select:none;list-style:none}
+  .ens-resumo>summary{color:#b79cff} .ens-anexo>summary{color:#8a93a3}
+  .ens-resumo>summary:hover,.ens-anexo>summary:hover{filter:brightness(1.25)}
+  .ens-resumo .db-body{color:#c2b8dd;font-style:italic} .ens-anexo .db-body{color:#aab3c0}
+  .ens-anexo .ax-sub{font-weight:700;font-size:1.05em;margin:18px 0 4px;color:var(--fg);padding-bottom:2px;border-bottom:1px solid var(--line)}
+  .ens-anexo .ax-sub:first-child{margin-top:4px}
+  .ens-anexo .ax-salmo-h{color:#b79cff;border-bottom-color:rgba(183,156,255,.25)}
+  .ens-anexo .ax-fonte{color:var(--mut);font-size:12px;margin:2px 0 8px}
+  details.ax-pre{max-width:100%;margin:7px 0 10px;border-radius:8px;overflow:hidden;background:#1a1e27;border:1px solid var(--line)}
+  .ax-pre>summary{cursor:pointer;padding:7px 13px;font-size:12.5px;font-weight:600;color:#8a97ad;user-select:none;list-style:none}
+  .ax-pre>summary::-webkit-details-marker{display:none}
+  .ax-pre>summary:hover{filter:brightness(1.2)}
+  .ax-pre-body{padding:2px 14px 12px}
+  .ax-pre-p{font-size:14px;line-height:1.75;color:#c8d0dc;font-style:italic;margin:5px 0}
+  .ens-anexo .ax-verse{font-style:italic;line-height:1.9;color:#d8dfe8;margin:2px 0;padding-left:20px;border-left:2px solid rgba(183,156,255,.3)}
+  .ens-anexo .ax-verse-date{font-style:italic;font-size:12px;color:var(--mut);padding-left:20px;margin:4px 0 8px}
+  .ens-anexo .ax-text{margin:5px 0;font-size:14px;line-height:1.7}
+  body.light details.ax-pre{background:#eeecea;border-color:#d5d1c9}
+  body.light .ax-pre>summary{color:#636b78}
+  body.light .ax-pre-p{color:#3a3f48}
+  body.light .ens-anexo .ax-verse{color:#2a2f40;border-left-color:rgba(100,80,200,.22)}
+  body.light .ens-anexo .ax-verse-date{color:#7a8090}
+  body.light .ens-anexo .ax-salmo-h{color:#6d50b0}
+  .ens-texto.ens-verso{white-space:pre-line;font-style:italic;text-align:center;line-height:1.85;color:#dfe6f0}
+  .ens-salmo-main{max-width:var(--colw);margin:14px 0}   /* salmo de texto principal: verso via estilos ax-* */
+  .ens-refs{max-width:var(--colw);margin:14px 0;padding:8px 14px;border-left:3px solid #3a4252;background:#16181d;border-radius:0 8px 8px 0}
+  .ens-refs-h{color:var(--mut);font-size:12.5px;font-weight:700;margin-bottom:4px}
+  .ens-ref{color:#c2cad6;font-size:13.5px;margin:3px 0}
+  .ens-jp-flag{color:#e0a96d;font-size:12.5px;margin:8px 0;max-width:var(--colw)}
+  sup.fn{position:relative;display:inline-flex;align-items:center;gap:2px;vertical-align:super;font-size:10px;line-height:1;
+         font-weight:700;color:#fff;background:#2f6fed;padding:2px 6px 2px 4px;border-radius:9px;
+         cursor:pointer;margin:0 2px;box-shadow:0 1px 2px rgba(0,0,0,.35);transition:background .12s}
+  sup.fn::before{content:"📝";font-size:9px}
+  sup.fn:hover{background:#4f88ff}
+  sup.fn .fn-pop{display:none;position:fixed;z-index:120;left:0;top:0;
+         width:max-content;max-width:320px;white-space:normal;text-align:left;font-style:normal;font-weight:400;
+         font-size:13.5px;line-height:1.55;letter-spacing:normal;color:#eef1f6;background:#0f1217;
+         border:1px solid #3d4656;border-radius:9px;padding:9px 12px;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+  .nspan{border-radius:3px;transition:background .15s,box-shadow .15s;cursor:help}
+  .nspan.hl,.nspan:hover{background:rgba(79,136,255,.30);box-shadow:0 0 0 1px rgba(79,136,255,.30)}
+  sup.ref{font-size:9px;vertical-align:super;color:#74808f;cursor:help;margin:0 1px;opacity:.7;transition:opacity .12s,color .12s}
+  sup.ref:hover{opacity:1;color:#9fb0c8}
+  a.golink{color:var(--acc);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;border-radius:3px}
+  a.golink:hover{background:rgba(91,156,255,.14)}
+  .studyBtn{display:inline-block;background:transparent;border:1px dashed var(--line);color:var(--mut);border-radius:20px;padding:3px 11px;cursor:pointer;font:inherit;font-size:12px;margin-right:8px}
+  .studyBtn:hover{border-color:var(--acc);color:var(--fg)}
+  .studyBtn.on{border:1px solid #2c6b4a;color:#27b568;background:rgba(31,157,87,.10)}
+  #hitCount{margin:-4px 12px 6px;font-size:11.5px;color:var(--mut);min-height:14px}
+  #miniToast{position:fixed;bottom:18px;right:18px;background:#163a2a;color:#7fe0a8;border:1px solid #2c6b4a;border-radius:8px;padding:8px 14px;font-size:13px;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:9999}
+  #miniToast.show{opacity:1;transform:translateY(0)}
+  body.light .st{color:#0e9a89} body.light .st.full{color:#1c7a47}
+  body.light .studyBtn.on{border-color:#9ed8b6;color:#1c7a47;background:rgba(31,157,87,.07)}
+  body.light #miniToast{background:#e3f6ea;color:#1c7a47;border-color:#abdcc0}
+  body.light a.golink:hover{background:rgba(47,111,237,.10)}
+  #themeBtn{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--fg);border-radius:7px;padding:3px 10px;cursor:pointer;font-size:13px;white-space:nowrap}
+  #themeBtn:hover{border-color:var(--acc)}
+  /* ===================== MOBILE ===================== */
+  @media (max-width:860px){
+    #top{gap:9px;padding:8px 10px}
+    #menuBtn{display:inline-block}
+    #wip{display:none}
+    #side{position:fixed;left:0;top:47px;bottom:0;z-index:60;width:min(86vw,380px);transform:translateX(-103%);transition:transform .18s ease;box-shadow:0 0 40px rgba(0,0,0,.5)}
+    body.side-open #side{transform:none}
+    #scrim{position:fixed;inset:47px 0 0 0;z-index:55;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .18s}
+    body.side-open #scrim{opacity:1;pointer-events:auto}
+    #detail{padding:20px 16px}
+    .navbar{flex-direction:column}
+    .navb.next{text-align:left;align-items:flex-start}
+  }
+  /* ===================== TEMA CLARO ===================== */
+  body.light{ --bg:#f7f6f2; --panel:#fffefb; --line:#dcd8cf; --fg:#222630; --mut:#6a7280; --acc:#2f6fed; }
+  body.light #side{background:#f0eee7}
+  body.light #search{background:#fff}
+  body.light #wip{color:#b06a16;border-color:rgba(176,106,22,.4)}
+  body.light #crumb .c{color:#2f4a73} body.light #crumb .c:hover{background:#e6ebf3;color:#16233a}
+  body.light #crumb .sep{color:#aab0bd}
+  body.light .row:hover{background:#eceae3}
+  body.light .row.sel{background:#dce8f8;outline:1px solid #9cc0ef}
+  body.light .pg{color:#9aa1ac}
+  body.light .n-capitulo .mk,body.light .n-capitulo .lab{color:#a6791a}
+  body.light .n-item .mk,body.light .n-item .lab{color:#16181d}
+  body.light .n-parte .mk{color:#2f6fed} body.light .n-numero .mk{color:#1c6dd0}
+  body.light .n-circulo .mk{color:#0e9a89} body.light .n-romano .mk{color:#7754d4}
+  body.light .n-letra .mk{color:#b06a16} body.light .n-letra_min .mk{color:#6a7280}
+  body.light .lab{color:#3c424c} body.light .n-numero .lab,body.light .n-parte .lab{color:#222630}
+  body.light mark{background:#fde68a;color:#5a4510}
+  body.light #detail .badge{background:#e7f0fb;color:#1c5bbf;border-color:#bcd6f5}
+  body.light .ens-texto,body.light .pg-sub,body.light .ens-subtitulo,body.light .ens-verso{color:#222630}
+  body.light details.ens-pre{background:#f1efe8;border-color:#ddd9cf}
+  body.light details.ens-exp{background:#edf5ef;border-color:#cbe1d1}
+  body.light details.ens-resumo{background:#f2eff8;border-color:#ded7ee}
+  body.light details.ens-anexo{background:#f1efe8;border-color:#ddd9cf}
+  body.light .ens-pre>summary{color:#5c6470} body.light .ens-exp>summary{color:#2f7d4e}
+  body.light .ens-resumo>summary{color:#6d5bb0} body.light .ens-anexo>summary{color:#6a7280}
+  body.light .ens-pre .db-body{color:#3a3f48} body.light .ens-exp .db-body{color:#2f4636}
+  body.light .ens-resumo .db-body{color:#4a3f63} body.light .ens-anexo .db-body{color:#3a3f48}
+  body.light .ens-refs{background:#f3f1ea;border-left-color:#c7c2b6} body.light .ens-ref{color:#3c424c}
+  body.light .ens-jp-flag{color:#b5701f}
+  body.light .pg-sub.n-circulo .pg-mk{color:#0e9a89} body.light .pg-sub.n-numero .pg-mk{color:#1c6dd0}
+  body.light .pg-sub.n-romano .pg-mk{color:#7754d4} body.light .pg-sub.n-letra .pg-mk{color:#b06a16} body.light .pg-sub.n-letra_min .pg-mk{color:#6a7280}
+  body.light sup.fn .fn-pop{background:#fff;color:#222630;border-color:#cdc8bd;box-shadow:0 8px 24px rgba(60,50,30,.22)}
+  body.light .nspan.hl,body.light .nspan:hover{background:rgba(47,111,237,.17);box-shadow:0 0 0 1px rgba(47,111,237,.17)}
+  body.light sup.ref{color:#9098a4}
+</style></head>
+<body>
+<div id="top">
+  <button id="menuBtn" title="Abrir índice">☰</button>
+  <b>📖 Shin Dendō</b>
+  <span id="wip" title="Versão de estudo — as notas de rodapé ainda estão em preparação">notas em preparação</span>
+  <span id="crumb"></span>
+  <button id="themeBtn" title="Alternar tema claro/escuro">☀️ Claro</button>
+</div>
+<div id="main">
+  <div id="side">
+    <input id="search" placeholder="🔎 buscar no título e no texto…">
+    <div id="hitCount"></div>
+    <div id="tree"></div>
+  </div>
+  <div id="scrim"></div>
+  <div id="detail"><div class="hint">Selecione um item no índice ou busque acima.<br>A trilha do topo mostra sempre onde você está — você não se perde.</div></div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+(function(){ const b=document.getElementById('themeBtn'); if(!b) return;
+  function apply(t){ document.body.classList.toggle('light', t==='light'); b.textContent = t==='light' ? '🌙 Escuro' : '☀️ Claro'; }
+  let t = localStorage.getItem('sdnav-theme') || 'dark'; apply(t);
+  b.onclick = ()=>{ t = (t==='light'?'dark':'light'); localStorage.setItem('sdnav-theme', t); apply(t); };
+})();
+// índice no celular: botão ☰ abre o painel em overlay; scrim ou seleção fecham
+function closeSide(){ document.body.classList.remove('side-open'); }
+$('#menuBtn').onclick=()=>document.body.classList.toggle('side-open');
+$('#scrim').onclick=closeSide;
+// nota 📝: hover/toque grifa o trecho ligado + mostra o balão (position:fixed escapa o overflow das caixas; vira pra cima se não couber)
+(function(){
+  function span(fn){ const box=fn.closest('.ens-texto,.db-body,.ens-verso')||document; return box.querySelector('.nspan[data-fn="'+fn.dataset.fn+'"]'); }
+  function showPop(fn){
+    const pop=fn.querySelector('.fn-pop'); if(!pop) return;
+    pop.style.display='block';
+    const rc=fn.getBoundingClientRect(), pw=pop.offsetWidth, ph=pop.offsetHeight;
+    let left=Math.max(8, Math.min(window.innerWidth-pw-8, rc.left+rc.width/2-pw/2));
+    let top=rc.bottom+8; if(top+ph>window.innerHeight-8) top=Math.max(8, rc.top-ph-8);
+    pop.style.left=left+'px'; pop.style.top=top+'px';
+  }
+  function hidePop(fn){ const pop=fn.querySelector('.fn-pop'); if(pop) pop.style.display='none'; }
+  document.addEventListener('mouseover', e=>{ const fn=e.target.closest&&e.target.closest('sup.fn'); if(!fn||!fn.dataset.fn) return; const s=span(fn); if(s) s.classList.add('hl'); showPop(fn); });
+  document.addEventListener('mouseout', e=>{ const fn=e.target.closest&&e.target.closest('sup.fn'); if(!fn||!fn.dataset.fn) return; if(e.relatedTarget&&fn.contains(e.relatedTarget)) return; const s=span(fn); if(s) s.classList.remove('hl'); hidePop(fn); });
+  // toque (sem hover): alterna o balão; tocar fora fecha
+  document.addEventListener('click', e=>{
+    const fn=e.target.closest&&e.target.closest('sup.fn');
+    document.querySelectorAll('sup.fn .fn-pop').forEach(p=>{ if(!fn||!fn.contains(p)) p.style.display='none'; });
+    if(!fn||!fn.dataset.fn) return;
+    const pop=fn.querySelector('.fn-pop'); if(!pop) return;
+    if(pop.style.display==='block') hidePop(fn); else showPop(fn);
+  });
+})();
+let TREE=null, flat=[], cur=null, _q='', _navHist=false;
+const CIRC=n=>String.fromCharCode(0x2460+(+n-1));
+// busca sem acento/caixa
+function fold(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+function flash(msg){
+  let el=document.getElementById('miniToast');
+  if(!el){ el=document.createElement('div'); el.id='miniToast'; document.body.appendChild(el); }
+  el.textContent=msg; el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),1600);
+}
+// ===== progresso de estudo (por aparelho; localStorage) =====
+const STUDY_KEY='sd-studied';
+let STUDIED=new Set();
+try{ STUDIED=new Set(JSON.parse(localStorage.getItem(STUDY_KEY)||'[]')); }catch(_){ }
+function saveStudy(){ try{ localStorage.setItem(STUDY_KEY, JSON.stringify([...STUDIED])); }catch(_){ } }
+function contentDesc(n){ const out=[]; (function w(x){ if(ownContent(x)) out.push(x); (x.children||[]).forEach(w); })(n); return out; }
+function studyMarkText(n){
+  if(n.children&&n.children.length){
+    const set=contentDesc(n); if(!set.length) return '';
+    const k=set.filter(x=>STUDIED.has(x.id)).length;
+    return k ? (k===set.length?'✓':Math.round(100*k/set.length)+'%') : '';
+  }
+  return STUDIED.has(n.id)?'✓':'';
+}
+function refreshStudyMarks(){ flat.forEach(n=>{ if(n._st){ const t=studyMarkText(n); n._st.textContent=t; n._st.classList.toggle('full',t==='✓'); } }); }
+function mkLabel(n){
+  if(n.nivel==='circulo') return CIRC(n.marcador);
+  if(n.nivel==='capitulo'||n.nivel==='item') return n.marcador;
+  return n.marcador+'.';
+}
+function walk(n,parent,depth){ n._p=parent; n._d=depth; flat.push(n); (n.children||[]).forEach(c=>walk(c,n,depth+1)); }
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+// Token de citação/fonte (NÃO casa glosas como "(innen)", "(tane)", "(Revelação)").
+const CIT_TOK=/(p[áa]g\.?|col\.|\bl\.\s|\bvol\b|se[çc]|linha|&lt;|&gt;|\bRon\b|\bShu\b|\bKyo\b|\bIshi\b|\bEi\b|\bChi\b|\bSui\b|\bKigo\b|Zenk[oôó]?u?|Zench[oôó]?|\bLivro\b|Hikari|Ronbet|\bSan\b|\bToko\b|Geisha|Shinken|\bK\d)/i;
+// Citação inline entre parênteses → chip 📖 (referência no hover). Glosa fica inline.
+function refChips(html){
+  return html.replace(/\(([^()]{2,300})\)/g,(mm,inner)=> CIT_TOK.test(inner)
+    ? `<sup class="ref" title="${inner.replace(/"/g,'&quot;')}">📖</sup>` : mm);
+}
+function renderNotas(text, notas){
+  const m={}; (notas||[]).forEach(x=>m[x.n]=x.texto);
+  let s=refChips(esc(text||''));                       // 1) citações inline viram chip 📖
+  const chip=(n)=>`<sup class="fn" data-fn="${n}" tabindex="0">${n}<span class="fn-pop">${esc(m[n]||'')}</span></sup>`;
+  s=s.replace(/==(.+?)==([^\[]*?)\[\^(\d+)\]/g,(_,p,mid,n)=>`<span class="nspan" data-fn="${n}">${p}</span>${mid}${chip(n)}`); // 2) trecho citado grifável + nota
+  s=s.replace(/\[\^(\d+)\]/g,(_,n)=>chip(n));           // 3) notas soltas
+  return s.replace(/\n{2,}/g,'<br><br>').replace(/\n/g,'<br>');   // 4) parágrafos
+}
+// Título com nota: [^N] vira chip 📝 (a nota pode estar ancorada no título). Sem refChips/parágrafos.
+function renderTitle(title, notas){
+  const m={}; (notas||[]).forEach(x=>m[x.n]=x.texto);
+  const chip=(n)=>`<sup class="fn" data-fn="${n}" tabindex="0">${n}<span class="fn-pop">${esc(m[n]||'')}</span></sup>`;
+  let s=esc(title||'').replace(/==/g,'');   // título não usa grifo explícito — o título inteiro é o trecho
+  s=s.replace(/^(.+?)\s*\[\^(\d+)\]\s*$/,(_,pre,n)=>`<span class="nspan" data-fn="${n}">${pre}</span>${chip(n)}`); // [^N] no fim → o título inteiro é o trecho da nota (grifa no hover)
+  s=s.replace(/\[\^(\d+)\]/g,(_,n)=>chip(n));   // [^N] restantes (no meio) → só chip
+  return s;
+}
+// Anexo com NÍVEIS: segmenta sub-itens, [Rótulos]→bloco recolhível, salmo→verso. Marca {{tipo}} do autor tem prioridade.
+function renderAnexoBody(text, notas, salmoDefault){
+  const lines=(text||'').split('\n');
+  const segs=[]; let curSalmo=!!salmoDefault, preOpen=false, preLabel='', preBuf=[];
+  function flushPre(){
+    if(!preOpen) return;
+    const body=preBuf.map(l=>`<p class="ax-pre-p">${renderNotas(l.replace(/^\{\{\w+\}\}\s*/,''),notas)}</p>`).join('');
+    segs.push({t:'pre',label:preLabel,body}); preOpen=false; preLabel=''; preBuf=[];
+  }
+  function pushVerse(c){   // separa a data colada no fim do verso → verso + verso-data
+    const dm=c.match(/^(.+?)\s*(\([^)]*\d{4}\)(?:\s*\([^)]*\))*)\s*$/);
+    if(dm && dm[1].trim().length>6){ segs.push({t:'verse',text:dm[1].trim()}); segs.push({t:'verse-date',text:dm[2].trim()}); curSalmo=false; }
+    else segs.push({t:'verse',text:c});
+  }
+  for(const raw of lines){
+    const ln=raw.trim(); if(!ln) continue;
+    const tg=ln.match(/^\{\{(\w+)\}\}\s*/); const forced=tg?tg[1]:null; const c=tg?ln.slice(tg[0].length):ln;
+    if(forced==='salmo'){ flushPre(); curSalmo=true; pushVerse(c); continue; }
+    if(forced==='data'){ flushPre(); segs.push({t:'verse-date',text:c}); continue; }
+    if(forced==='texto'){ flushPre(); curSalmo=false; segs.push({t:'text',text:c}); continue; }
+    if(forced==='fonte'){ flushPre(); segs.push({t:'fonte',text:c}); continue; }
+    if(forced==='sub'){ flushPre(); curSalmo=/salmo|御詠|gyoei/i.test(c); segs.push({t:'sub',n:'',title:c,isSalmo:curSalmo}); continue; }
+    const sm=c.match(/^(\d+)\.?\s+(.{3,70})$/);
+    if(sm && /^[A-ZÀ-Ý"「(]/.test(sm[2]) && !/[.!?;,]$/.test(sm[2])){
+      flushPre(); curSalmo=/salmo|御詠|gyoei/i.test(sm[2]);
+      segs.push({t:'sub',n:sm[1],title:sm[2],isSalmo:curSalmo}); continue;
+    }
+    const lm=c.match(/^\[(.+)\]$/);
+    if(lm){ flushPre(); preOpen=true; preLabel=lm[1]; preBuf=[]; continue; }
+    if(!curSalmo && /^\(/.test(c) && /\)$/.test(c) && CIT_TOK.test(c)){ flushPre(); segs.push({t:'fonte',text:c}); continue; }
+    if(preOpen){ preBuf.push(ln); continue; }
+    if(curSalmo){
+      if(/^\([^)]*\d{4}\)/.test(c)){ segs.push({t:'verse-date',text:c}); curSalmo=false; }
+      else pushVerse(c);
+      continue;
+    }
+    segs.push({t:'text',text:c});
+  }
+  flushPre();
+  return segs.map(s=>{
+    if(s.t==='sub')      return `<div class="ax-sub${s.isSalmo?' ax-salmo-h':''}">${s.n?s.n+'. ':''}${renderNotas(s.title,notas)}</div>`;
+    if(s.t==='fonte')    return `<div class="ax-fonte">📜 ${esc(s.text.replace(/^\((.*)\)$/,'$1'))}</div>`;
+    if(s.t==='pre')      return `<details class="ax-pre" open><summary>▸ ${esc(s.label)}</summary><div class="ax-pre-body">${s.body}</div></details>`;
+    if(s.t==='verse')    return `<div class="ax-verse">${renderNotas(s.text,notas)}</div>`;
+    if(s.t==='verse-date') return `<div class="ax-verse-date">${renderNotas(s.text,notas)}</div>`;
+    return `<div class="ax-text">${renderNotas(s.text,notas)}</div>`;
+  }).join('');
+}
+function block(cls,sum,html){ return `<details class="${cls}" open><summary>${sum}</summary><div class="db-body">${html}</div></details>`; }
+function renderEnsinamento(e){
+  let h='';
+  if(e.fonte) h+=`<div class="ens-fonte">📜 ${esc(e.fonte)}</div>`;
+  if(e.preambulo) h+=block('ens-pre','▸ Contexto anterior — Trecho do Preâmbulo', renderNotas(e.preambulo,e.notas));
+  if(e.texto){
+    // salmo: cada linha vira verso/data/fonte (renderAnexoBody, salmoDefault=true).
+    // wrapper .ens-anexo reaproveita os estilos ax-* do anexo.
+    if(e.tipo==='salmo') h+=`<div class="ens-anexo ens-salmo-main">${renderAnexoBody(e.texto,e.notas,true)}</div>`;
+    else h+=`<div class="ens-texto">${renderNotas(e.texto,e.notas)}</div>`;
+  }
+  if(e.data) h+=`<div class="ens-data">— ${esc(e.data)}</div>`;
+  if(e.posfacio) h+=block('ens-pre','▸ Trecho do Posfácio', renderNotas(e.posfacio,e.notas));
+  if(e.resumo) h+=block('ens-resumo','Resumo', renderNotas(e.resumo,e.notas));
+  if(Array.isArray(e.referencias)&&e.referencias.length)
+    h+=`<div class="ens-refs">`+e.referencias.map((r,i)=>(i===0&&/:\s*$/.test(r))?`<div class="ens-refs-h">${esc(r)}</div>`:`<div class="ens-ref">${esc(r)}</div>`).join('')+`</div>`;
+  if(e.explicacao) h+=block('ens-exp','解説 · Comentário do editor — Explicação', renderNotas(e.explicacao,e.notas));
+  if(Array.isArray(e.anexo)&&e.anexo.length)
+    h+=e.anexo.map(a=>block('ens-anexo','➕ '+esc(a.titulo||'Anexo'), renderAnexoBody(a.texto,e.notas))).join('');
+  if(e.tipo==='jp-pendente') h+=`<div class="ens-jp-flag">⚠ trecho em japonês — tradução pendente</div>`;
+  return h;
+}
+function ownContent(n){ return !!(n.ensinamento || n.explicacao || n.subtitulo); }
+function hasContentDesc(n){ return (n.children||[]).some(c=>ownContent(c)||hasContentDesc(c)); }
+function expBlock(txt){ return block('ens-exp','解説 · Comentário do editor — Explicação', renderNotas(txt,[])); }
+// Renderiza um filho dentro de uma página agrupada: subtítulo de seção + conteúdo,
+// descendo recursivamente se o filho também for container puro.
+function renderChild(c, depth){
+  const tag='h'+Math.min(2+depth,5);
+  let h=`<${tag} class="pg-sub n-${c.nivel}" id="anc-${c.id.replace(/\./g,'_')}"><span class="pg-mk">${mkLabel(c)}</span> ${renderTitle(c.title,(c.ensinamento||{}).notas)}</${tag}>`;
+  if(c.subtitulo) h+=`<div class="ens-subtitulo">―― ${esc(c.subtitulo)} ――</div>`;
+  if(c.ensinamento) h+=renderEnsinamento(c.ensinamento);
+  else if(c.explicacao) h+=expBlock(c.explicacao);
+  if(!c.ensinamento) (c.children||[]).forEach(g=>{ if(ownContent(g)||hasContentDesc(g)) h+=renderChild(g,depth+1); });
+  return h;
+}
+// Página de um nó: folha → ensinamento; nó com intro → subtítulo+explicação;
+// CONTAINER PURO (sem conteúdo próprio) → agrupa os filhos com conteúdo, roláveis.
+function renderPage(n){
+  if(n.ensinamento) return renderEnsinamento(n.ensinamento);
+  let h='';
+  if(n.subtitulo) h+=`<div class="ens-subtitulo">―― ${esc(n.subtitulo)} ――</div>`;
+  if(n.explicacao) h+=expBlock(n.explicacao);
+  if(!n.subtitulo && !n.explicacao && (n.children||[]).some(c=>ownContent(c)||hasContentDesc(c)))
+    (n.children||[]).forEach(c=>{ if(ownContent(c)||hasContentDesc(c)) h+=renderChild(c,1); });
+  return h || `<div class="hint">Conteúdo da pág. ${n.pagina||'?'} do livro — em preparação.</div>`;
+}
+// Navegação sequencial pelo CONTEÚDO (intros de capítulo/item + ensinamentos), em ordem.
+function navLabel(n){ return (mkLabel(n)+' '+(n.title||'').replace(/\[\^\d+\]/g,'')).trim().slice(0,46); }
+function navTargets(n){
+  const L=flat.filter(ownContent); let p=null,nx=null, i=L.indexOf(n);
+  if(i>=0){ p=L[i-1]||null; nx=L[i+1]||null; }
+  else { const fi=flat.indexOf(n); L.forEach(x=>{ if(flat.indexOf(x)<fi) p=x; }); nx=L.find(x=>flat.indexOf(x)>fi)||null; }
+  return [p,nx];
+}
+function go(d){ const t=navTargets(cur)[d<0?0:1]; if(t) select(t); }
+function navBar(n){
+  const [p,nx]=navTargets(n); if(!p&&!nx) return '';
+  const b=(node,d)=> node?`<button class="navb ${d<0?'prev':'next'}" onclick="go(${d})"><span class="na">${d<0?'◀ anterior':'próximo ▶'}</span><span class="nt">${esc(navLabel(node))}</span></button>`:`<span class="navb-empty"></span>`;
+  return `<div class="navbar">${b(p,-1)}${b(nx,1)}</div>`;
+}
+function render(){
+  const root=$('#tree'); root.innerHTML='';
+  TREE.children.forEach(c=>root.appendChild(node(c)));
+}
+function node(n){
+  const wrap=document.createElement('div');
+  const row=document.createElement('div'); row.className='row n-'+n.nivel; row.style.paddingLeft=(6+n._d*15)+'px';
+  const tog=document.createElement('span'); tog.className='tog'; tog.textContent=(n.children&&n.children.length)?'▶':'';
+  const mk=document.createElement('span'); mk.className='mk'; mk.textContent=mkLabel(n);
+  const lab=document.createElement('span'); lab.className='lab'; lab.textContent=' '+(n.title||'').replace(/\[\^\d+\]/g,'');
+  const st=document.createElement('span'); st.className='st'; const smt=studyMarkText(n); st.textContent=smt; if(smt==='✓') st.classList.add('full'); n._st=st;
+  const pg=document.createElement('span'); pg.className='pg'; pg.textContent=n.pagina?('p.'+n.pagina):'';
+  row.append(tog,mk,lab,st,pg);
+  n._row=row;
+  row.onclick=e=>{ if(e.target===tog){ toggle(n); return; } select(n); closeSide(); };
+  wrap.appendChild(row);
+  if(n.children&&n.children.length){
+    const kids=document.createElement('div'); kids.className='kids collapsed';
+    n.children.forEach(c=>kids.appendChild(node(c)));
+    wrap.appendChild(kids); n._kids=kids; n._tog=tog;
+  }
+  return wrap;
+}
+function toggle(n,force){
+  if(!n._kids) return;
+  const open = force!=null?force : n._kids.classList.contains('collapsed');
+  n._kids.classList.toggle('collapsed',!open); n._tog.classList.toggle('open',open); n._tog.textContent=open?'▼':'▶';
+}
+function expandPath(n){ let p=n._p; while(p){ toggle(p,true); p=p._p; } }
+function select(n){
+  if(cur&&cur._row) cur._row.classList.remove('sel');
+  cur=n; try{ localStorage.setItem('sdnav-cur', n.id); }catch(_){ }   // lembra o nó p/ restaurar no F5
+  if(!_navHist && location.hash!=='#'+n.id){ try{ history.pushState(null,'','#'+n.id); }catch(_){ } }  // link permanente
+  n._row.classList.add('sel'); expandPath(n);
+  n._row.scrollIntoView({block:'center',behavior:'smooth'});
+  // trilha
+  const path=[]; let p=n; while(p && p._p){ path.unshift(p); p=p._p; }
+  $('#crumb').innerHTML='';
+  path.forEach((x,i)=>{ if(i){const s=document.createElement('span');s.className='sep';s.textContent='›';$('#crumb').append(s);}
+    const c=document.createElement('span');c.className='c';c.textContent=(x.nivel==='circulo'?CIRC(x.marcador):x.marcador)+(x.title?' '+x.title.replace(/\[\^\d+\]/g,'').slice(0,28):'');c.onclick=()=>select(x);$('#crumb').append(c); });
+  // detalhe
+  const niceNivel={capitulo:'Capítulo',item:'Item',parte:'Parte',numero:'Número',circulo:'Círculo',romano:'Romano',letra:'Letra',letra_min:'Subletra'}[n.nivel];
+  const kids=n.children?n.children.length:0;
+  $('#detail').innerHTML=`<div class="pathline">${path.map(x=>(x.nivel==='circulo'?CIRC(x.marcador):x.marcador)).join(' › ')}</div>
+    <h1>${mkLabel(n)} ${renderTitle(n.title,(n.ensinamento||{}).notas)}</h1>
+    <div class="meta">${niceNivel}${n.pagina?` · pág. ${n.pagina} do livro`:''}</div>
+    ${kids?`<span class="badge">▸ ${kids} subseções</span>`:'<span class="badge">ensinamento</span>'}<button id="studyBtn" class="studyBtn"></button><button id="linkBtn" class="studyBtn" title="Copiar o link direto deste ensinamento">🔗 link</button>
+    <div style="margin-top:24px">${renderPage(n)}</div>
+    ${navBar(n)}`;
+  linkifyInternal($('#detail'));   // "Livro pág. N" / "pág. N deste livro" → pulo interno
+  markQuery($('#detail'));         // termo da busca grifado no texto
+  wireStudy(n); wireLink(n);
+  $('#detail').scrollTop=0;
+}
+// ===== fiação dos botões do cabeçalho =====
+function wireStudy(n){
+  const b=$('#studyBtn'); if(!b) return;
+  const set=contentDesc(n);
+  if(!set.length){ b.style.display='none'; return; }
+  const upd=()=>{ const k=set.filter(x=>STUDIED.has(x.id)).length, all=k===set.length;
+    b.classList.toggle('on',all);
+    b.textContent = all ? (set.length>1?`✓ Item estudado (${k}/${set.length})`:'✓ Estudado')
+                        : (set.length>1?`☐ Marcar ${set.length} como estudados${k?` (${k} já)`:''}`:'☐ Marcar como estudado'); };
+  upd();
+  b.onclick=()=>{ const all=set.every(x=>STUDIED.has(x.id));
+    set.forEach(x=> all?STUDIED.delete(x.id):STUDIED.add(x.id));
+    saveStudy(); refreshStudyMarks(); upd(); };
+}
+function wireLink(n){
+  const b=$('#linkBtn'); if(!b) return;
+  b.onclick=()=>{
+    const url=location.origin+location.pathname+'#'+n.id;
+    const done=()=>flash('🔗 link copiado');
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done,()=>fallback());
+    else fallback();
+    function fallback(){ const ta=document.createElement('textarea'); ta.value=url; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); done(); }catch(_){ prompt('Copie o link:', url); } ta.remove(); }
+  };
+}
+// ===== pulo interno: "Livro pág. N" / "pág. N deste livro|desta obra" =====
+const GOLINK_RX=/Livro\s+p[áa]g(?:ina)?\.?\s*(\d{1,3})|p[áa]g(?:ina)?\.?\s*(\d{1,3})(?=[^()<>]{0,28}dest[ea]\s+(?:livro|obra))/gi;
+function linkifyInternal(root){
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null); const list=[];
+  while(w.nextNode()){ const p=w.currentNode.parentElement; if(p&&p.closest('a,button')) continue; list.push(w.currentNode); }
+  list.forEach(tn=>{
+    const t=tn.nodeValue||''; GOLINK_RX.lastIndex=0;
+    if(!GOLINK_RX.test(t)) return; GOLINK_RX.lastIndex=0;
+    const frag=document.createDocumentFragment(); let last=0,m;
+    while((m=GOLINK_RX.exec(t))){
+      const pg=m[1]||m[2];
+      if(m.index>last) frag.appendChild(document.createTextNode(t.slice(last,m.index)));
+      const a=document.createElement('a'); a.className='golink'; a.dataset.pg=pg; a.textContent=m[0];
+      a.title='Abrir a pág. '+pg+' da apostila'; frag.appendChild(a);
+      last=m.index+m[0].length;
+    }
+    frag.appendChild(document.createTextNode(t.slice(last)));
+    tn.parentNode.replaceChild(frag,tn);
+  });
+}
+function jumpToPage(pg){
+  const N=+pg; if(!N) return;
+  let best=flat.find(n=>+n.pagina===N);
+  if(best){ select(best); flash('→ pág. '+pg); return; }
+  let bp=-1; flat.forEach(n=>{ const p=+n.pagina; if(p&&p<=N&&p>bp){ bp=p; best=n; } });   // páginas são esparsas: cai na âncora anterior
+  if(best){ select(best); flash('→ pág. '+pg+' (seção começa na pág. '+bp+')'); }
+}
+// ===== grifa o termo da busca no painel (sem acento/caixa, mapeando de volta) =====
+function markQuery(root){
+  if(!_q||_q.length<3) return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null); const list=[];
+  while(w.nextNode()) list.push(w.currentNode);
+  list.forEach(tn=>{
+    const orig=tn.nodeValue||''; if(orig.length<_q.length) return;
+    let f='',map=[];
+    for(let i=0;i<orig.length;i++){ const fc=fold(orig[i]); for(let j=0;j<fc.length;j++){ f+=fc[j]; map.push(i); } }
+    let idx=f.indexOf(_q); if(idx<0) return;
+    const frag=document.createDocumentFragment(); let last=0;
+    while(idx>=0){
+      const s=map[idx], e=map[idx+_q.length-1]+1;
+      if(s>last) frag.appendChild(document.createTextNode(orig.slice(last,s)));
+      const mk=document.createElement('mark'); mk.textContent=orig.slice(s,e); frag.appendChild(mk);
+      last=e; idx=f.indexOf(_q, idx+_q.length);
+    }
+    frag.appendChild(document.createTextNode(orig.slice(last)));
+    tn.parentNode.replaceChild(frag,tn);
+  });
+}
+// busca: filtra a árvore por TÍTULO e (3+ letras) pelo TEXTO COMPLETO, sem acento/caixa
+$('#search').addEventListener('input',e=>{
+  const raw=e.target.value.trim(); const q=fold(raw); _q=q;
+  const hc=$('#hitCount');
+  if(!q){ render(); cur=null; $('#crumb').innerHTML=''; if(hc) hc.textContent=''; return; }
+  const deep=q.length>=3;
+  const hit=new Set(); let nT=0,nC=0;
+  flat.forEach(n=>{
+    n._hitT = fold(n.title||'').includes(q) || fold(n.marcador||'')===q;
+    const cHit = deep && !n._hitT && n._fts && n._fts.includes(q);
+    if(n._hitT) nT++; if(cHit) nC++;
+    if(n._hitT||cHit){ let p=n; while(p){hit.add(p);p=p._p;} }
+  });
+  if(hc) hc.textContent=(nT+nC)
+    ? (nT+nC)+' resultado(s)'+(nC?` — ${nC} no texto`:'')
+    : 'nada encontrado'+(deep?'':' (com 3+ letras a busca olha o texto)');
+  const root=$('#tree'); root.innerHTML='';
+  (function build(list,host){ list.forEach(n=>{ if(!hit.has(n))return;
+    const w=node(n); host.appendChild(w);
+    if(n._kids){ n._kids.classList.remove('collapsed'); n._tog.classList.add('open'); n._tog.textContent='▼'; }
+    // destaca match no título (melhor esforço; com acento divergente lista sem grifar)
+    if(n._hitT){ n._row.querySelector('.lab').innerHTML=' '+(n.title||'').replace(/\[\^\d+\]/g,'').replace(new RegExp('('+raw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>'); }
+  }); })(TREE.children, root);
+});
+// Restaura o nó aberto + a rolagem após um F5.
+function restoreCur(){
+  let id, sc; try{ id=localStorage.getItem('sdnav-cur'); sc=+localStorage.getItem('sdnav-scroll')||0; }catch(_){ }
+  if(!id) return;
+  const a=flat.find(n=>n.id===id); if(!a) return;
+  select(a);                                            // expande a trilha + seleciona + renderiza
+  if(sc){ const d=$('#detail'); if(d){ const set=()=>{ d.scrollTop=sc; };   // volta a rolagem; repete pois layout/fontes podem assentar tarde (senão clampa p/ 0)
+    requestAnimationFrame(set); setTimeout(set,120); setTimeout(set,300); } }
+}
+// salva a rolagem do painel (debounce) p/ restaurar no F5
+$('#detail').addEventListener('scroll', ()=>{ clearTimeout(window._navScrollT); window._navScrollT=setTimeout(()=>{ try{ localStorage.setItem('sdnav-scroll', $('#detail').scrollTop); }catch(_){ } }, 200); }, {passive:true});
+// pulo interno por página (delegado: o conteúdo do painel é recriado a cada seleção)
+$('#detail').addEventListener('click',e=>{
+  const g=e.target.closest&&e.target.closest('a.golink');
+  if(g){ e.preventDefault(); jumpToPage(g.dataset.pg); }
+});
+// voltar/avançar do navegador percorre os ensinamentos visitados
+window.addEventListener('popstate',()=>{
+  const id=decodeURIComponent((location.hash||'').slice(1));
+  const a=id&&flat.find(x=>x.id===id);
+  if(a){ _navHist=true; select(a); _navHist=false; }
+});
+fetch('data/books/shin-dendo-tebiki.json').then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(t=>{
+  if(t.sections && !t.children) t.children = t.sections;   // raiz do book usa 'sections'
+  TREE=t; flat=[]; walk(TREE,null,0);
+  // índice de busca full-text (uma vez; ~1,3 MB em memória, busca instantânea)
+  flat.forEach(n=>{ const e=n.ensinamento||{};
+    n._fts=fold([n.title,n.subtitulo,n.explicacao,e.texto,e.preambulo,e.explicacao,e.resumo,e.data,e.posfacio,
+      (e.notas||[]).map(x=>x.texto).join(' '),
+      (e.referencias||[]).join(' '),
+      (e.anexo||[]).map(a=>(a.titulo||'')+' '+(a.texto||'')).join(' ')].join(' ')); });
+  render();
+  const hid=decodeURIComponent((location.hash||'').slice(1));   // link direto #c1.i1.7 tem prioridade
+  const hn=hid&&flat.find(n=>n.id===hid);
+  if(hn){ _navHist=true; select(hn); _navHist=false; }
+  else{
+    restoreCur();
+    if(!cur && window.innerWidth>860){ const f=flat.find(ownContent); if(f) select(f); }   // primeira visita: abre o 1º conteúdo
+  }
+}).catch(()=>{
+  $('#detail').innerHTML='<div class="hint">Não foi possível carregar a apostila. Verifique a conexão e recarregue a página.</div>';
+});
+</script>
+</body></html>

@@ -101,7 +101,8 @@
   }
 
   async function _enable() {
-    const reg = await _registration();
+    await _registration();
+    const reg = await navigator.serviceWorker.ready;   // espera o SW ATIVAR (subscribe em SW instalando falha)
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') return 'denied';
     const sub = await reg.pushManager.subscribe({
@@ -121,7 +122,7 @@
     }
   }
 
-  function _render(card, state) {
+  function _render(card, state, detail) {
     const T = {
       off: {
         icon: '🔔',
@@ -152,7 +153,7 @@
       error: {
         icon: '⚠️',
         title: 'Não deu pra ativar os avisos',
-        desc: 'Tente de novo; se persistir, avise o administrador.',
+        desc: 'Tente de novo; se persistir, mande este erro pro administrador:<br><code style="font-size:.78rem;word-break:break-all;">' + _esc(detail || 'erro desconhecido') + '</code>',
         btn: '🔔 Tentar de novo',
       },
     }[state];
@@ -177,7 +178,7 @@
         }
       } catch (e) {
         console.error('push enable:', e);
-        _render(card, 'error');
+        _render(card, 'error', (e && (e.message || e.name)) || String(e));
       }
     };
   }

@@ -661,9 +661,16 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             if (saveBtn) {
                 const isSaved = savedSet.has(i);
                 saveBtn.classList.toggle('active', isSaved);
+                // Estado vai pro title/aria-label, NUNCA pro nó de texto: o
+                // rótulo (display:none, legado) fica dentro do tópico e os
+                // offsets dos destaques (_collectTextNodes) contam ele —
+                // "Salvar esta publicação"(22)↔"Publicação salva"(16) deslocava
+                // TODOS os grifos do Ensinamento em 6 chars ao (des)favoritar.
                 const labelEl = saveBtn.querySelector('.topic-save-label');
                 if (labelEl) {
-                    labelEl.textContent = isSaved ? labelEl.dataset.saved : labelEl.dataset.save;
+                    const stateTxt = isSaved ? labelEl.dataset.saved : labelEl.dataset.save;
+                    saveBtn.title = stateTxt;
+                    saveBtn.setAttribute('aria-label', stateTxt);
                 }
             }
         }

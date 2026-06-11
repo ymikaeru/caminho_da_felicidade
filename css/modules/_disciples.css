@@ -1166,3 +1166,12 @@ sup.ens-fn {
   color: #fff; background: var(--accent); border-radius: .7em; cursor: help; font-family: var(--font-ui);
 }
 sup.ens-fn:hover, sup.ens-fn:focus { filter: brightness(1.18); outline: none; }
+
+/* ── Header mobile no modo discípulos ──
+   O emblema (.header__logo) é position:absolute centralizado e, em telas
+   estreitas, cai EM CIMA dos botões A−/A+ (a faixa de ações dos livros —
+   grifar + fonte + tema + Índice — ocupa o centro do header). Abaixo de
+   560px o logo some: é decorativo, e o espaço vai pros controles. */
+@media (max-width: 560px) {
+  body.disciples-active .header__logo { display: none; }
+}

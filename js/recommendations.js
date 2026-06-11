@@ -736,6 +736,38 @@
     _unlockScroll();
   }
 
+  // Banner discreto quando há recomendações não-vistas: o badge do
+  // envelope passa batido em telas pequenas. 1x por sessão; clicar
+  // leva à Central; o × dispensa.
+  function _maybeShowBanner() {
+    if (_recState.unseen <= 0) return;
+    if (/recomendacoes\.html/.test(location.pathname)) return;   // já está na Central
+    try { if (sessionStorage.getItem('recBannerShown')) return; } catch (e) { return; }
+    try { sessionStorage.setItem('recBannerShown', '1'); } catch (e) {}
+    const n = _recState.unseen;
+    const el = document.createElement('div');
+    el.id = 'recUnseenBanner';
+    el.setAttribute('role', 'status');
+    el.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(8px);z-index:1200;'
+      + 'display:flex;align-items:center;gap:10px;max-width:min(92vw,440px);padding:10px 14px;border-radius:12px;'
+      + 'background:var(--card-bg,var(--bg-color,#fff));color:var(--text-main,#222);border:1px solid var(--border,#ccc);'
+      + 'box-shadow:0 8px 28px rgba(0,0,0,.18);opacity:0;transition:opacity .25s,transform .25s;cursor:pointer;font-size:.92rem;';
+    el.innerHTML = '<span style="flex:none;font-size:1.15rem;">📖</span>'
+      + '<span style="flex:1;min-width:0;">' + (n > 1
+        ? ('Você tem <b>' + n + ' Ensinamentos recomendados</b> ainda não vistos.')
+        : 'Há um <b>novo Ensinamento recomendado</b> pra você.')
+      + '</span>'
+      + '<button type="button" aria-label="Dispensar" style="flex:none;background:none;border:none;color:var(--text-muted,#777);font-size:1.05rem;cursor:pointer;padding:2px 4px;">✕</button>';
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('button')) { el.remove(); return; }
+      const pref = location.pathname.includes('/mioshiec') ? '../' : '';
+      location.href = pref + 'recomendacoes.html';
+    });
+    document.body.appendChild(el);
+    requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateX(-50%)'; });
+    setTimeout(() => { if (el.isConnected) { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); } }, 12000);
+  }
+
   async function init() {
     // Requer autenticação (Supabase). Em páginas sem login, supabase
     // não existe e o gate cai pra "0 recs" → botões ficam ocultos.
@@ -744,6 +776,7 @@
     _recState.unseen = summary.unseen;
     _recState.everReceived = summary.everReceived;
     _reveal(summary.total);
+    _maybeShowBanner();
   }
 
   // Click-outside e ESC pra fechar.

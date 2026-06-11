@@ -254,6 +254,11 @@
           const overlapStart = Math.max(tn.startChar, h.startChar);
           const overlapEnd = Math.min(tn.endChar, h.endChar);
           if (overlapStart < overlapEnd) {
+            // Fatia só de espaço/quebra (nós ENTRE blocos <p>/<li> — comum no
+            // Markdown dos livros de discípulos) não vira <mark>: o mark
+            // embrulhando "\n" aparece como barrinha colorida solta e estica
+            // a entrelinha. Pular não mexe nos offsets (a régua é a mesma).
+            if (!tn.node.textContent.slice(overlapStart - tn.startChar, overlapEnd - tn.startChar).trim()) continue;
             segs.push({
               node: tn.node,
               offsetStart: overlapStart - tn.startChar,
@@ -826,6 +831,9 @@
         const overlapStart = Math.max(tn.startChar, startChar);
         const overlapEnd = Math.min(tn.endChar, endChar);
         if (overlapStart < overlapEnd) {
+          // Fatia só de espaço/quebra entre blocos → não embrulha (ver
+          // comentário em _applyHighlightsToPage; mesmo bug, mesma regra).
+          if (!tn.node.textContent.slice(overlapStart - tn.startChar, overlapEnd - tn.startChar).trim()) continue;
           segs.push({
             node: tn.node,
             offsetStart: overlapStart - tn.startChar,

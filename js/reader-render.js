@@ -107,25 +107,16 @@ function _buildPartialCitationCTA(volId, filename, topicIdx, lang) {
         // antigos só guardavam vol/file/topic_idx, sem title). Evita o
         // travessão solto "— " no fim do CTA.
         const titleSuffix = targetTitle
-            ? `<span style="opacity:.5; font-size:.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escTitle}">— ${escTitle}</span>`
+            ? `<span class="cta-title" data-label="— ${escTitle}" title="${escTitle}" aria-hidden="true"></span>`
             : '';
-        return `
-            <div class="topic-partial-cta" style="margin: 16px 0 8px; padding: 12px 16px; background: var(--accent-soft); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; gap: 10px; font-size: 0.88rem;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; opacity:.65" aria-hidden="true">
-                    <path d="M7 17l10-10M7 7h10v10"/>
-                </svg>
-                <span style="opacity:.7;">${l.sub}:</span>
-                <a href="${targetUrl}" target="_blank" rel="noopener" style="color: var(--text-main); text-decoration: underline; text-underline-offset: 2px;">
-                    ${l.label}
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-1px; margin-left:2px; opacity:.7;">
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                        <polyline points="15 3 21 3 21 9"/>
-                        <line x1="10" y1="14" x2="21" y2="3"/>
-                    </svg>
-                </a>
-                ${titleSuffix}
-            </div>
-        `;
+        // IMPORTANTE: o CTA não pode contribuir NENHUM nó de texto pro
+        // #topic-N — ele aparece/some conforme manual_citation_links.json
+        // (async → re-render), e _collectTextNodes (highlights.js) varre o
+        // tópico inteiro: texto condicional desloca os offsets dos grifos
+        // salvos. Por isso: string de UMA linha (sem whitespace entre tags)
+        // e rótulos via data-label + CSS content:attr — mesma técnica da
+        // tarja .topic-read-badge (ver _reader.css / _favorites.css).
+        return `<div class="topic-partial-cta"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17l10-10M7 7h10v10"/></svg><span class="cta-sub" data-label="${l.sub}:" aria-hidden="true"></span><a class="cta-link" href="${targetUrl}" target="_blank" rel="noopener" data-label="${l.label}" aria-label="${l.label}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>${titleSuffix}</div>`;
     } catch (_) { return ''; }
 }
 

@@ -27,7 +27,7 @@
 .search-modal {
   background: var(--surface);
   width: 100%;
-  max-width: 860px;
+  max-width: 940px;
   border-radius: var(--radius);
   box-shadow: var(--shadow-premium);
   overflow: hidden;
@@ -261,7 +261,7 @@
 /* ── Resultados agrupados por publicação ─────────────────────── */
 
 .search-section-label {
-  padding: 14px 24px 4px;
+  padding: 10px 24px 2px;
   font-family: var(--font-ui);
   font-size: 0.72rem;
   font-weight: 600;
@@ -273,12 +273,12 @@
 
 .search-group {
   border-bottom: 1px solid var(--border);
-  padding-bottom: 10px;
+  padding-bottom: 8px;
 }
 
 .search-group-head {
   display: block;
-  padding: 10px 24px 2px;
+  padding: 8px 24px 2px;
   text-decoration: none;
   color: inherit;
   transition: background 0.2s;
@@ -290,7 +290,7 @@
 
 .search-group-title {
   font-family: var(--font-serif);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: var(--accent);
 }
@@ -341,8 +341,8 @@
 
 .search-hit {
   display: block;
-  padding: 6px 10px 7px 12px;
-  margin: 2px 0 2px 6px;
+  padding: 5px 10px 6px 12px;
+  margin: 1px 0 1px 6px;
   border-left: 2px solid var(--border);
   text-decoration: none;
   color: inherit;
@@ -517,6 +517,16 @@
   opacity: 0.75;
 }
 
+/* "N publicações · M trechos" dentro da barra de abas (substitui a
+   linha do #searchCount enquanto as abas estão visíveis) */
+.search-tabs-count {
+  margin-left: auto;
+  align-self: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 @media (max-width: 767px) {
   .search-kind-tabs {
     padding: 8px 16px;
@@ -577,8 +587,10 @@
   .search-input {
     font-size: 1rem;
     padding: 8px 0;
-    flex: 1 1 auto;
-    min-width: 150px;
+    /* basis 150px (não auto): o placeholder largo inflava a basis e
+       jogava o botão Avançada pra 2ª linha mesmo havendo espaço */
+    flex: 1 1 150px;
+    min-width: 0;
   }
 
   .search-filters {

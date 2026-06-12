@@ -44,7 +44,10 @@ let _orFallbackActive = false;
 // que o usuário já abandonou (typeahead burst).
 let _searchSeq = 0;
 const GROUPS_PER_PAGE = 8;
-const MAX_RESULTS = 50;
+// 100 (era 50): com agrupamento por publicação, 50 trechos viravam ~30
+// publicações e termos frequentes (Johrei) estouravam o teto só com
+// matches de título — o conteúdo quase não aparecia.
+const MAX_RESULTS = 100;
 let _focusedIndex = -1;
 
 // Hard limit por chamada de busca. iOS 17 Safari (pré-17.4) pendura fetch
@@ -168,8 +171,13 @@ function _groupResults(results, q, activeLang) {
   for (const g of list) {
     g.pubLabel = _pubLabel(g.vol, g.file, activeLang) || g.navTitle || (g.hits[0] ? g.hits[0].title : '');
     const pubTitleHit = regs.some(re => re.test(g.pubLabel));
-    g.kind = (pubTitleHit || g.hits.some(h => h.titleHit)) ? 'title'
-      : (g.hits.some(h => h.contentHit) ? 'content' : 'related');
+    // Flags NÃO-exclusivas pras abas: a mesma publicação pode casar no
+    // título E no conteúdo (a aba "No conteúdo" deve listá-la também —
+    // a v1 era exclusiva e "Johrei" mostrava só 3 lá, parecia bug).
+    g.hasTitle = pubTitleHit || g.hits.some(h => h.titleHit);
+    g.hasContent = g.hits.some(h => h.contentHit);
+    // kind exclusivo continua existindo pra ordenação + rótulos de seção.
+    g.kind = g.hasTitle ? 'title' : (g.hasContent ? 'content' : 'related');
     g.coverage = terms.filter((t, idx) => {
       const re = regs[idx];
       return re.test(g.pubLabel) || g.hits.some(h => re.test(h.title) || re.test(_stripMarks(h.snippet)));
@@ -280,8 +288,8 @@ const _SECTION_LABELS = {
 function _renderResultsList(groups, count, highlightRegex, q, activeLang) {
   const basePath = getBasePath();
   const ordered = _orderGroups(groups, _orFallbackActive);
-  // Aba ativa filtra os grupos (Tudo = sem filtro).
-  const filtered = _kindFilter === 'all' ? ordered : ordered.filter(g => g.kind === _kindFilter);
+  // Aba ativa filtra os grupos (Tudo = sem filtro; flags não-exclusivas).
+  const filtered = ordered.filter(_groupMatchesFilter);
   const visible = filtered.slice(0, count);
   const labels = _SECTION_LABELS[activeLang === 'ja' ? 'ja' : 'pt'];
 
@@ -354,41 +362,62 @@ const _TAB_LABELS = {
   ja: { all: 'すべて', title: 'タイトル', content: '本文', related: '関連' },
 };
 
+// Contagens NÃO-exclusivas: "Títulos" = publicações com match no título,
+// "No conteúdo" = com match no corpo — a mesma publicação pode estar nas
+// duas. "Relacionados" = nem um nem outro (só ranking semântico).
 function _kindCounts(groups) {
   const counts = { title: 0, content: 0, related: 0 };
-  for (const g of groups) counts[g.kind] = (counts[g.kind] || 0) + 1;
+  for (const g of groups) {
+    if (g.hasTitle) counts.title++;
+    if (g.hasContent) counts.content++;
+    if (!g.hasTitle && !g.hasContent) counts.related++;
+  }
   return counts;
+}
+
+function _groupMatchesFilter(g) {
+  if (_kindFilter === 'all') return true;
+  if (_kindFilter === 'title') return g.hasTitle;
+  if (_kindFilter === 'content') return g.hasContent;
+  return !g.hasTitle && !g.hasContent;
 }
 
 function _renderKindTabs(activeLang) {
   const bar = document.getElementById('searchKindTabs');
+  const countEl = document.getElementById('searchCount');
   if (!bar) return;
   const counts = _kindCounts(_allGroups);
   const kindsPresent = ['title', 'content', 'related'].filter(k => counts[k] > 0);
   if (_allGroups.length === 0 || kindsPresent.length < 2) {
     bar.style.display = 'none';
     bar.innerHTML = '';
+    if (countEl) countEl.style.display = '';
     return;
   }
   const labels = _TAB_LABELS[activeLang === 'ja' ? 'ja' : 'pt'];
   const tabs = ['all', ...kindsPresent];
+  // O texto "N publicações · M trechos" vive DENTRO da barra de abas
+  // (span empurrado pra direita) — economiza a linha do #searchCount,
+  // que fica escondido enquanto as abas estão visíveis.
   bar.innerHTML = tabs.map(k => {
     const n = k === 'all' ? _allGroups.length : counts[k];
     return `<button type="button" role="tab" class="search-kind-tab${_kindFilter === k ? ' is-active' : ''}"
       aria-selected="${_kindFilter === k}" data-kind="${k}">${labels[k]}<span class="search-kind-tab-count">${n}</span></button>`;
-  }).join('');
+  }).join('') + `<span class="search-tabs-count" id="searchTabsCount">${countEl ? escHtml(countEl.textContent) : ''}</span>`;
   bar.style.display = '';
+  if (countEl) countEl.style.display = 'none';
 }
 
 function _hideKindTabs() {
   const bar = document.getElementById('searchKindTabs');
   if (bar) { bar.style.display = 'none'; bar.innerHTML = ''; }
+  const countEl = document.getElementById('searchCount');
+  if (countEl) countEl.style.display = '';
 }
 
 // Grupos visíveis após ordenação + filtro da aba ativa.
 function _filteredGroups() {
-  const ordered = _orderGroups(_allGroups, _orFallbackActive);
-  return _kindFilter === 'all' ? ordered : ordered.filter(g => g.kind === _kindFilter);
+  return _orderGroups(_allGroups, _orFallbackActive).filter(_groupMatchesFilter);
 }
 
 function _setRandomLoading(btn) {
@@ -817,12 +846,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (searchInput) searchInput.addEventListener('input', triggerSearch);
 
-  document.querySelectorAll('input[name="searchFilter"]').forEach(node => {
-    node.addEventListener('change', () => {
-      if (searchInput && searchInput.value.trim().length >= 3) triggerSearch();
-    });
-  });
-
   // Exact word matching toggle
   const exactToggle = document.getElementById('searchExactToggle');
   if (exactToggle) {
@@ -937,7 +960,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (resultsEl) resultsEl.innerHTML = _renderResultsList(_allGroups, _displayedCount, highlightRegex, _currentQuery, activeLang);
       const shownHits = filtered.slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
       const totalHits = filtered.reduce((n, g) => n + g.hits.length, 0);
-      _updateSearchCount(totalHits, shownHits, activeLang);
+      _updateSearchCount(totalHits, shownHits, activeLang, false, filtered.length, _displayedCount);
       _renderKindTabs(activeLang);
       if (resultsEl) sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
     });
@@ -984,17 +1007,31 @@ function _updateFocusedItem(items) {
   if (_focusedIndex >= 0) items[_focusedIndex]?.scrollIntoView({ block: 'nearest' });
 }
 
-function _updateSearchCount(total, shown, lang, hitLimit = false) {
+// totalGroups/shownGroups: publicações no filtro atual; total/shown: trechos.
+// Escreve no #searchCount E no span dentro da barra de abas (quando existe).
+function _updateSearchCount(total, shown, lang, hitLimit = false, totalGroups = 0, shownGroups = 0) {
   const el = document.getElementById('searchCount');
-  if (!el) return;
-  if (total === 0) { el.textContent = ''; return; }
-  let text = lang === 'ja'
-    ? `${total}件中${shown}件を表示`
-    : `Exibindo ${shown} de ${total} resultado${total !== 1 ? 's' : ''}`;
-  if (hitLimit) {
-    text += lang === 'ja' ? ' — 検索を絞り込むとより正確な結果が得られます' : ' — refine a busca para resultados mais precisos';
+  const tabsEl = document.getElementById('searchTabsCount');
+  const set = (text) => {
+    if (el) el.textContent = text;
+    if (tabsEl) tabsEl.textContent = text;
+  };
+  if (total === 0) { set(''); return; }
+  let text;
+  if (lang === 'ja') {
+    text = totalGroups
+      ? `${totalGroups}件の文献・${total}節`
+      : `${total}件中${shown}件を表示`;
+    if (totalGroups && shownGroups < totalGroups) text = `${shownGroups}件を表示中 / ${text}`;
+    if (hitLimit) text += ' — 検索を絞り込むとより正確な結果が得られます';
+  } else {
+    text = totalGroups
+      ? `${totalGroups} publicaç${totalGroups === 1 ? 'ão' : 'ões'} · ${total} trecho${total !== 1 ? 's' : ''}`
+      : `Exibindo ${shown} de ${total} resultado${total !== 1 ? 's' : ''}`;
+    if (totalGroups && shownGroups < totalGroups) text = `Exibindo ${shownGroups} de ${text}`;
+    if (hitLimit) text += ' — refine a busca para mais precisão';
   }
-  el.textContent = text;
+  set(text);
 }
 
 // Constrói um RegExp pra highlight client-side a partir do que o usuário digitou.
@@ -1134,11 +1171,9 @@ async function performSearch(query) {
     return;
   }
 
-  // Lê o radio "Tudo / Só Título / Só Conteúdo" e passa pra RPC.
-  // Antes esse valor era lido só pra ENABLE/disable, mas nunca chegava
-  // no servidor — a busca sempre cobria título+conteúdo. Bug histórico.
-  const scopeNode = document.querySelector('input[name="searchFilter"]:checked');
-  let scope = scopeNode ? scopeNode.value : 'all';
+  // Escopo sempre 'all': os rádios Tudo/Só Título/Só Conteúdo saíram da
+  // Avançada — as abas dos resultados filtram client-side com contagem.
+  let scope = 'all';
 
   // Perf clamp para JA curto: ILIKE com <3 chars não consegue usar o GIN
   // trigram e cai em seq scan. Em content_ja (texto longo) isso explode
@@ -1279,7 +1314,7 @@ async function performSearch(query) {
     resultsEl.innerHTML = _renderResultsList(_allGroups, _displayedCount, highlightRegex, q, activeLang);
     const shownHits = _filteredGroups()
       .slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
-    _updateSearchCount(results.length, shownHits, activeLang, hitLimit);
+    _updateSearchCount(results.length, shownHits, activeLang, hitLimit, _allGroups.length, _displayedCount);
     _renderKindTabs(activeLang);
     logSearch(q, results.length, _latencyMs);
 
@@ -1311,7 +1346,7 @@ window.loadMoreResults = function() {
   resultsEl.innerHTML = _renderResultsList(_allGroups, _displayedCount, highlightRegex, _currentQuery, activeLang);
   const shownHits = filtered.slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
   const totalHits = filtered.reduce((n, g) => n + g.hits.length, 0);
-  _updateSearchCount(totalHits, shownHits, activeLang);
+  _updateSearchCount(totalHits, shownHits, activeLang, false, filtered.length, _displayedCount);
   _focusedIndex = -1;
   sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
 };

@@ -94,6 +94,12 @@ check('aba ativa: sem rótulo de seção', !htmlF.includes('search-section-label
 M._setKindFilter('related');
 const htmlR = M._renderResultsList(groupsT, 8, M._buildHighlightRegex('punição divina', 'pt'), 'punição divina', 'pt');
 check('aba relacionados: só related', htmlR.includes('Amor altruísta') && !htmlR.includes('Punição divina'), '');
+// não-exclusivo: grupo com match no título E no conteúdo aparece na aba conteúdo
+M._setKindFilter('content');
+const htmlC = M._renderResultsList(groupsT, 8, M._buildHighlightRegex('punição divina', 'pt'), 'punição divina', 'pt');
+check('aba conteúdo inclui grupo título+conteúdo', htmlC.includes('Punição divina'), '');
+const gFlags = groupsT.find(g => g.file === 'sinbatu.html');
+check('flags não-exclusivas', gFlags.hasTitle === true && gFlags.hasContent === true, JSON.stringify({ t: gFlags.hasTitle, c: gFlags.hasContent }));
 M._setKindFilter('all');
 
 process.exit(fail ? 1 : 0);

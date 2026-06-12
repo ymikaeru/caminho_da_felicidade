@@ -32,7 +32,7 @@
     import './admin/tabs/disciples-reports.js?v=2';
     import './admin/tabs/partial-citations.js?v=24';
     import './admin/tabs/recommendations.js?v=12';
-    import './admin/tabs/inbox.js?v=2';
+    import './admin/tabs/inbox.js?v=3';
     import './admin/tabs/poetry-versions.js?v=2';
     import './admin/tabs/alignment.js?v=19';
 
@@ -251,6 +251,13 @@
       if (!unlocked) return; // gate fechou a sessão / redirecionou
 
       document.body.classList.remove('admin-locked');
+
+      // Badge da Caixa de Entrada já no boot (sem precisar abrir a aba) e
+      // re-checado a cada 5 min enquanto a página fica aberta (head-count barato).
+      if (window.refreshInboxBadge) {
+        window.refreshInboxBadge();
+        setInterval(window.refreshInboxBadge, 5 * 60 * 1000);
+      }
 
       window.loadUsers();
       const ok = await window.loadVolumeFiles();

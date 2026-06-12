@@ -17,6 +17,30 @@ import { VOL_SHORT } from '../shared/constants.js';
 
 let _inboxMessages = [];
 
+// ── Badge "Caixa de Entrada" no menu lateral ─────────────────────
+// Nº de mensagens ainda SEM resposta, checado no boot do admin (checkAdmin)
+// com um head-count barato (a RLS sm_read_own_or_admin já deixa o admin ler
+// study_messages direto) — o admin vê que chegou coisa nova sem abrir a aba.
+// No mobile a gaveta fica fechada, então o ☰ ganha uma bolinha junto.
+function _setInboxBadge(n) {
+  const badge = document.getElementById('inboxTabBadge');
+  if (badge) {
+    badge.textContent = n;
+    badge.classList.toggle('empty', !n);
+  }
+  const burger = document.getElementById('adminHamburger');
+  if (burger) burger.classList.toggle('has-badge', !!n);
+}
+
+async function refreshInboxBadge() {
+  const { count, error } = await supabase
+    .from('study_messages')
+    .select('id', { count: 'exact', head: true })
+    .is('admin_reply', null);
+  if (error) return;
+  _setInboxBadge(count || 0);
+}
+
 async function loadInboxTab() {
   const container = document.getElementById('inbox-list');
   if (!container) return;
@@ -27,6 +51,8 @@ async function loadInboxTab() {
     return;
   }
   _inboxMessages = data || [];
+  // Mantém o badge em dia ao abrir a aba / responder / apagar (sem 2ª query).
+  _setInboxBadge(_inboxMessages.filter(m => !m.admin_reply).length);
   renderInbox();
 }
 
@@ -160,6 +186,7 @@ async function inboxDelete(id) {
 
 Object.assign(window, {
   loadInboxTab,
+  refreshInboxBadge,
   inboxReply,
   inboxRepassar,
   inboxDelete,

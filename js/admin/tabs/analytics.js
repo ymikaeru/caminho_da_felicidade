@@ -1257,11 +1257,54 @@ async function loadPushSubscribers() {
     return br ? `${os} · ${br}` : os;
   };
 
-  const uniqueUsers = new Set(rows.map(r => r.user_id)).size;
+  // Estilo do agrupamento (1x por página): usuário colapsável via <details>.
+  if (!document.getElementById('pushSubsStyle')) {
+    const st = document.createElement('style');
+    st.id = 'pushSubsStyle';
+    st.textContent = `
+      .push-sub-user { border:1px solid var(--border); border-radius:10px; margin-bottom:8px; overflow:hidden; }
+      .push-sub-user > summary { display:flex; align-items:center; gap:12px; padding:10px 14px; cursor:pointer;
+        user-select:none; list-style:none; transition: background .15s; }
+      .push-sub-user > summary::-webkit-details-marker { display:none; }
+      .push-sub-user > summary:hover { background: var(--accent-soft, rgba(184,134,11,.08)); }
+      .push-sub-avatar { flex:none; width:30px; height:30px; border-radius:50%; display:flex; align-items:center;
+        justify-content:center; background: var(--accent-soft, rgba(184,134,11,.15)); color: var(--accent);
+        font-weight:700; font-size:.85rem; }
+      .push-sub-name { font-weight:600; color: var(--text-main); min-width:0; overflow:hidden;
+        text-overflow:ellipsis; white-space:nowrap; }
+      .push-sub-chip { flex:none; font-size:.72rem; color: var(--text-muted); border:1px solid var(--border);
+        border-radius:999px; padding:2px 9px; white-space:nowrap; }
+      .push-sub-last { margin-left:auto; flex:none; font-size:.75rem; color: var(--text-muted); white-space:nowrap; }
+      .push-sub-chevron { flex:none; color: var(--text-muted); transition: transform .18s; }
+      .push-sub-user[open] .push-sub-chevron { transform: rotate(180deg); }
+      .push-sub-devices { border-top:1px solid var(--border); padding:4px 14px 8px; }
+      .push-sub-device { display:flex; align-items:center; gap:10px; padding:7px 0 7px 42px; font-size:.85rem;
+        color: var(--text-main); border-bottom:1px dashed var(--border); }
+      .push-sub-device:last-child { border-bottom:none; }
+      .push-sub-device-date { margin-left:auto; font-size:.75rem; color: var(--text-muted); white-space:nowrap; }
+      @media (max-width:600px){ .push-sub-last { display:none; } .push-sub-device { padding-left:0; } }
+    `;
+    document.head.appendChild(st);
+  }
+
+  // Agrupa por usuário (mais recente primeiro, fora e dentro do grupo).
+  const byUser = new Map();
+  rows.forEach(r => {
+    const k = r.user_id;
+    if (!byUser.has(k)) byUser.set(k, { name: r.display_name || r.email || k, devices: [] });
+    byUser.get(k).devices.push(r);
+  });
+  const users = [...byUser.values()];
+  users.forEach(u => u.devices.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+  users.sort((a, b) => new Date(b.devices[0].created_at) - new Date(a.devices[0].created_at));
+
+  const fmtD = (iso) => new Date(iso).toLocaleDateString('pt-BR');
+  const fmtDT = (iso) => `${fmtD(iso)} ${new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+
   const cardsHtml = `
     <div class="stats-grid" style="margin-bottom:20px;">
       <div class="stat-card">
-        <div class="stat-value">${uniqueUsers}</div>
+        <div class="stat-value">${users.length}</div>
         <div class="stat-label">🙋 Usuário(s)</div>
       </div>
       <div class="stat-card">
@@ -1270,18 +1313,27 @@ async function loadPushSubscribers() {
       </div>
     </div>`;
 
-  const rowsHtml = rows.map(r => `
-    <tr>
-      <td>${_escHtml(r.display_name || r.email || r.user_id)}</td>
-      <td>${_escHtml(deviceOf(r.ua))}</td>
-      <td>${new Date(r.created_at).toLocaleDateString('pt-BR')} ${new Date(r.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
-    </tr>`).join('');
+  const usersHtml = users.map(u => {
+    const initial = (u.name || '?').trim().charAt(0).toUpperCase() || '?';
+    const devicesHtml = u.devices.map(d => `
+      <div class="push-sub-device">
+        <span>${_escHtml(deviceOf(d.ua))}</span>
+        <span class="push-sub-device-date">${fmtDT(d.created_at)}</span>
+      </div>`).join('');
+    return `
+      <details class="push-sub-user">
+        <summary>
+          <span class="push-sub-avatar">${_escHtml(initial)}</span>
+          <span class="push-sub-name">${_escHtml(u.name)}</span>
+          <span class="push-sub-chip">${u.devices.length} aparelho${u.devices.length === 1 ? '' : 's'}</span>
+          <span class="push-sub-last">último: ${fmtD(u.devices[0].created_at)}</span>
+          <svg class="push-sub-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="push-sub-devices">${devicesHtml}</div>
+      </details>`;
+  }).join('');
 
-  container.innerHTML = cardsHtml + `
-    <table>
-      <thead><tr><th>Usuário</th><th>Aparelho</th><th>Ativado em</th></tr></thead>
-      <tbody>${rowsHtml}</tbody>
-    </table>`;
+  container.innerHTML = cardsHtml + usersHtml;
 }
 
 async function loadSyncStats() {

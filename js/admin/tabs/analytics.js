@@ -182,6 +182,18 @@ const _TAB_MARKUP = `
                 </div>
               </div>
 
+              <!-- Web Push: quem ativou os avisos de recomendação -->
+              <div class="admin-section">
+                <h2>🔔 Avisos Ativados (Web Push)</h2>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">
+                  Quem ativou as notificações de recomendação, em qual aparelho e quando. Cada linha é um
+                  aparelho/navegador (a mesma pessoa pode ativar em vários). Lista completa, sem recorte de período.
+                </p>
+                <div id="push-subscribers">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
               <!-- Daily Activity Line Chart -->
               <div class="admin-section">
                 <h2>📈 Atividade Diária</h2>
@@ -258,6 +270,7 @@ async function loadAnalytics() {
   loadRecentActivity(days, since);
   loadContentProtection(days, since);
   loadDeviceBreakdown(days, since);
+  loadPushSubscribers();
   loadSyncStats();
   loadRoleDistribution();
   loadDailyActivityChart(days, since);
@@ -1203,6 +1216,72 @@ async function loadDeviceBreakdown(days, since) {
   }).join('');
 
   container.innerHTML = cardsHtml + barsHtml;
+}
+
+// 🔔 Quem ativou os avisos (Web Push). Lê via RPC admin (RLS da tabela só
+// mostra as inscrições do próprio usuário). Lista é pequena — sem fetchAll.
+async function loadPushSubscribers() {
+  const container = document.getElementById('push-subscribers');
+  if (!container) return;
+
+  const { data, error } = await supabase.rpc('admin_get_push_subscriptions');
+  if (error) {
+    const missing = /admin_get_push_subscriptions/i.test(error.message || '');
+    container.innerHTML = `<div class="msg err" style="display:block;">${missing
+      ? 'RPC ausente — rode a migration <code>push_notifications_v2.sql</code> no SQL Editor.'
+      : 'Falha ao carregar: ' + _escHtml(error.message)}</div>`;
+    return;
+  }
+  const rows = data || [];
+  if (rows.length === 0) {
+    container.innerHTML = '<div class="loading">Ninguém ativou os avisos ainda.</div>';
+    return;
+  }
+
+  // Aparelho/navegador legível a partir do user-agent gravado na inscrição.
+  const deviceOf = (ua) => {
+    const s = String(ua || '');
+    let os = 'Desktop';
+    if (/iphone/i.test(s)) os = '📱 iPhone';
+    else if (/ipad|macintosh.+mobile/i.test(s)) os = '📲 iPad';
+    else if (/android/i.test(s)) os = /mobile/i.test(s) ? '📱 Android' : '📲 Tablet Android';
+    else if (/windows/i.test(s)) os = '🖥️ Windows';
+    else if (/macintosh/i.test(s)) os = '🖥️ Mac';
+    else if (/linux/i.test(s)) os = '🖥️ Linux';
+    let br = '';
+    if (/edg\//i.test(s)) br = 'Edge';
+    else if (/samsungbrowser/i.test(s)) br = 'Samsung';
+    else if (/firefox\//i.test(s)) br = 'Firefox';
+    else if (/crios|chrome\//i.test(s)) br = 'Chrome';
+    else if (/safari\//i.test(s)) br = 'Safari';
+    return br ? `${os} · ${br}` : os;
+  };
+
+  const uniqueUsers = new Set(rows.map(r => r.user_id)).size;
+  const cardsHtml = `
+    <div class="stats-grid" style="margin-bottom:20px;">
+      <div class="stat-card">
+        <div class="stat-value">${uniqueUsers}</div>
+        <div class="stat-label">🙋 Usuário(s)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${rows.length}</div>
+        <div class="stat-label">🔔 Aparelho(s)</div>
+      </div>
+    </div>`;
+
+  const rowsHtml = rows.map(r => `
+    <tr>
+      <td>${_escHtml(r.display_name || r.email || r.user_id)}</td>
+      <td>${_escHtml(deviceOf(r.ua))}</td>
+      <td>${new Date(r.created_at).toLocaleDateString('pt-BR')} ${new Date(r.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
+    </tr>`).join('');
+
+  container.innerHTML = cardsHtml + `
+    <table>
+      <thead><tr><th>Usuário</th><th>Aparelho</th><th>Ativado em</th></tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>`;
 }
 
 async function loadSyncStats() {

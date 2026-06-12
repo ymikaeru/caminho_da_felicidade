@@ -254,6 +254,11 @@
           const overlapStart = Math.max(tn.startChar, h.startChar);
           const overlapEnd = Math.min(tn.endChar, h.endChar);
           if (overlapStart < overlapEnd) {
+            // Fatia só de espaço/quebra (nós ENTRE blocos <p>/<li> — comum no
+            // Markdown dos livros de discípulos) não vira <mark>: o mark
+            // embrulhando "\n" aparece como barrinha colorida solta e estica
+            // a entrelinha. Pular não mexe nos offsets (a régua é a mesma).
+            if (!tn.node.textContent.slice(overlapStart - tn.startChar, overlapEnd - tn.startChar).trim()) continue;
             segs.push({
               node: tn.node,
               offsetStart: overlapStart - tn.startChar,
@@ -826,6 +831,9 @@
         const overlapStart = Math.max(tn.startChar, startChar);
         const overlapEnd = Math.min(tn.endChar, endChar);
         if (overlapStart < overlapEnd) {
+          // Fatia só de espaço/quebra entre blocos → não embrulha (ver
+          // comentário em _applyHighlightsToPage; mesmo bug, mesma regra).
+          if (!tn.node.textContent.slice(overlapStart - tn.startChar, overlapEnd - tn.startChar).trim()) continue;
           segs.push({
             node: tn.node,
             offsetStart: overlapStart - tn.startChar,
@@ -1643,7 +1651,15 @@
       // (não por capítulo), então mostramos o título da seção em cada item
       // pra dar contexto de onde foi grifado.
       const showSectionContext = _isDisciplesMode();
-      resultsEl.innerHTML = pageHighlights.map(h => renderItem(h, showSectionContext)).join('');
+      // Em livro de discípulos: rodapé com atalho pra Central já filtrada.
+      const centralLink = showSectionContext && filename
+        ? `<li style="padding:12px 16px; text-align:center; border-top:1px solid var(--border);">
+             <a href="destaques.html?book=${encodeURIComponent(filename)}" style="color:var(--accent); text-decoration:none; font-size:0.85rem;">
+               ${lang === 'ja' ? 'ハイライト一覧で見る →' : 'Ver na Central de Destaques →'}
+             </a>
+           </li>`
+        : '';
+      resultsEl.innerHTML = pageHighlights.map(h => renderItem(h, showSectionContext)).join('') + centralLink;
 
       resultsEl.querySelectorAll('.highlight-item').forEach(item => {
         item.addEventListener('click', (e) => {
@@ -1678,7 +1694,16 @@
                 const lang = _lang();
                 let url;
                 if (hVol === 'disciples') {
+                  // Mesmo livro aberto, grifo noutro capítulo → navega POR
+                  // DENTRO (troca de capítulo + scroll + flash), sem reload.
+                  if (typeof window._disciplesGoToSection === 'function'
+                      && window._disciplesActiveBook && window._disciplesActiveBook.id === hFile) {
+                    closeHighlights();
+                    if (window._disciplesGoToSection(topicIdRaw, highlightId)) return;
+                  }
                   url = `reader.html?pub=disciples&book=${encodeURIComponent(hFile)}`;
+                  if (topicIdRaw) url += `&sec=${encodeURIComponent(topicIdRaw)}`;
+                  if (highlightId) url += `&highlight=${encodeURIComponent(highlightId)}`;
                 } else {
                   url = `reader.html?vol=${encodeURIComponent(hVol)}&file=${encodeURIComponent(hFile)}`;
                   if (topicIdx !== undefined && topicIdx !== '') url += `&topic=${topicIdx}`;

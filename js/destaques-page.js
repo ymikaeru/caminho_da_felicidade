@@ -37,12 +37,16 @@ const _DQ_COLOR_HEX = {
 const _dqState = {
     q: '',
     color: null,
-    hideTitles: localStorage.getItem('dqHideTitles') === '1'
+    hideTitles: localStorage.getItem('dqHideTitles') === '1',
+    // Filtro por livro de discípulos (?book=<id>) — atalho vindo do header
+    // do leitor. Mostra só os grifos daquele livro + chip pra limpar.
+    bookOnly: (new URLSearchParams(location.search).get('book')) || null
 };
 
 function _dqLang() { return localStorage.getItem('site_lang') || 'pt'; }
 
 function _volLabel(vol, lang) {
+    if (vol === 'disciples') return lang === 'ja' ? '弟子たちの著作' : 'Livros de Discípulos';
     const m = String(vol || '').match(/^mioshiec(\d+)$/);
     if (m) {
         const subs = (window.VOL_SUBTITLES && window.VOL_SUBTITLES[lang === 'ja' ? 'ja' : 'pt']) || {};
@@ -57,9 +61,44 @@ function _pubEntry(h) {
 }
 
 function _pubTitle(h, lang) {
+    if (h.vol === 'disciples') {
+        const b = _dqDiscIndex && _dqDiscIndex[h.file];
+        if (b) return (lang === 'ja' ? (b.titleJa || b.title) : b.title) || h.file;
+        return h.file || (lang === 'ja' ? 'その他' : 'Outros');
+    }
     const g = _pubEntry(h);
     if (g) return lang === 'ja' ? (g.ja || g.pt) : (g.pt || g.ja);
     return h.topicTitle || h.file || (lang === 'ja' ? 'その他' : 'Outros');
+}
+
+// Títulos dos livros de discípulos (id → entry do disciples_index.json).
+// Carregado sob demanda quando existe grifo com vol='disciples'; quando
+// chega, re-renderiza pra trocar o id pelo título.
+let _dqDiscIndex = null;
+function _dqLoadDiscIndex() {
+    if (_dqDiscIndex !== null) return;
+    _dqDiscIndex = {};   // marca "carregando" — evita refetch a cada render
+    fetch('data/books/disciples_index.json')
+        .then(r => (r.ok ? r.json() : null))
+        .then(j => { ((j && j.books) || []).forEach(b => { _dqDiscIndex[b.id] = b; }); renderNotebook(); })
+        .catch(() => {});
+}
+
+// URL pra abrir o grifo no leitor — acervo (vol/file/topic/hl_scroll) ou
+// livro de discípulos (pub=disciples&book&sec&highlight: o leitor abre o
+// capítulo que contém a seção e rola até o mark).
+function _dqArticleUrl(h) {
+    if (!h.vol || !h.file) return '#';
+    if (h.vol === 'disciples') {
+        let u = `reader.html?pub=disciples&book=${encodeURIComponent(h.file)}`;
+        if (h.topicId) u += `&sec=${encodeURIComponent(h.topicId)}`;
+        if (h.id) u += `&highlight=${encodeURIComponent(h.id)}`;
+        return u;
+    }
+    let u = `reader.html?vol=${encodeURIComponent(h.vol)}&file=${encodeURIComponent(h.file)}`;
+    if (h.topicIndex !== undefined && h.topicIndex !== '') u += `&topic=${h.topicIndex}`;
+    if (h.id) u += `&highlight=${encodeURIComponent(h.id)}&hl_scroll=1`;
+    return u;
 }
 
 // Grifo de TÍTULO (a marca de "já li" que alguns usuários usavam): começa
@@ -161,6 +200,7 @@ function renderNotebook() {
     const noResults = lang === 'ja' ? '条件に合うハイライトはありません。' : 'Nenhum destaque corresponde aos filtros.';
 
     const all = _dqGetAll();
+    if (all.some(h => h.vol === 'disciples')) _dqLoadDiscIndex();
     if (!all.length) {
         const countEl0 = document.getElementById('dqCount');
         if (countEl0) countEl0.textContent = '';
@@ -171,6 +211,7 @@ function renderNotebook() {
     const q = _dqState.q.toLowerCase().trim();
     const titleHidden = [];
     const list = all.filter(h => {
+        if (_dqState.bookOnly && !(h.vol === 'disciples' && h.file === _dqState.bookOnly)) return false;
         if (_dqState.hideTitles && _isTitleHighlight(h)) { titleHidden.push(h); return false; }
         if (_dqState.color && (h.color || 'yellow') !== _dqState.color) return false;
         if (q) {
@@ -190,7 +231,16 @@ function renderNotebook() {
     }
 
     if (!list.length) {
-        container.innerHTML = `<div class="notebook-empty">${noResults}</div>`;
+        // Mantém o chip de filtro por livro pra não prender o usuário sem
+        // botão de "ver todos" quando o filtro não casa nada.
+        let chip = '';
+        if (_dqState.bookOnly) {
+            const bookTitle = _pubTitle({ vol: 'disciples', file: _dqState.bookOnly }, lang);
+            const lbl = lang === 'ja' ? 'フィルター' : 'Filtrando';
+            const clr = lang === 'ja' ? 'すべて表示' : 'ver todos';
+            chip = `<button type="button" class="dq-bookfilter" onclick="_dqClearBookFilter()"><span>${lbl}: <b>${_esc(bookTitle)}</b></span><span class="dq-bookfilter-x">${_esc(clr)} ✕</span></button>`;
+        }
+        container.innerHTML = chip + `<div class="notebook-empty">${noResults}</div>`;
         return;
     }
 
@@ -213,7 +263,17 @@ function renderNotebook() {
         return a < b ? -1 : 1;
     });
 
+    // Chip de filtro ativo por livro (?book=) — clicável pra limpar.
     let html = '';
+    if (_dqState.bookOnly) {
+        const bookTitle = _pubTitle({ vol: 'disciples', file: _dqState.bookOnly }, lang);
+        const lbl = lang === 'ja' ? 'フィルター' : 'Filtrando';
+        const clr = lang === 'ja' ? 'すべて表示' : 'ver todos';
+        html += `<button type="button" class="dq-bookfilter" onclick="_dqClearBookFilter()">
+            <span>${lbl}: <b>${_esc(bookTitle)}</b></span>
+            <span class="dq-bookfilter-x">${_esc(clr)} ✕</span>
+        </button>`;
+    }
     for (const vol of volKeys) {
         const files = byVol.get(vol);
         let volCount = 0;
@@ -243,8 +303,12 @@ function renderNotebook() {
         for (const file of fileKeys) {
             const items = files.get(file);
             // Ordem de leitura dentro da publicação (tópico, depois posição).
-            items.sort((a, b) => ((a.topicIndex ?? 0) - (b.topicIndex ?? 0)) || ((a.startChar ?? 0) - (b.startChar ?? 0)));
-            const pubUrl = `reader.html?vol=${encodeURIComponent(vol)}&file=${encodeURIComponent(file)}`;
+            items.sort((a, b) => ((a.topicIndex ?? 0) - (b.topicIndex ?? 0))
+                || String(a.topicId || '').localeCompare(String(b.topicId || ''))   // discípulos: topicIndex=-1 — agrupa por seção
+                || ((a.startChar ?? 0) - (b.startChar ?? 0)));
+            const pubUrl = vol === 'disciples'
+                ? `reader.html?pub=disciples&book=${encodeURIComponent(file)}`
+                : `reader.html?vol=${encodeURIComponent(vol)}&file=${encodeURIComponent(file)}`;
             const pubTitle = _pubTitle(items[0], lang);
 
             html += `
@@ -270,12 +334,7 @@ function _renderCard(h, lang) {
     const date = new Date(h.createdAt).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'pt-BR');
     const bgColor = _DQ_COLOR_HEX[h.color] || '#fff3a1';
 
-    let articleUrl = '#';
-    if (h.vol && h.file) {
-        articleUrl = `reader.html?vol=${encodeURIComponent(h.vol)}&file=${encodeURIComponent(h.file)}`;
-        if (h.topicIndex !== undefined && h.topicIndex !== '') articleUrl += `&topic=${h.topicIndex}`;
-        if (h.id) articleUrl += `&highlight=${encodeURIComponent(h.id)}&hl_scroll=1`;
-    }
+    const articleUrl = _dqArticleUrl(h);
 
     const isTitle = _isTitleHighlight(h);
     const titleBadge = isTitle
@@ -286,7 +345,8 @@ function _renderCard(h, lang) {
     const commentPreview = h.comment ? `<div class="notebook-comment-preview">📝 ${_esc(_truncate(h.comment, 60))}</div>` : '';
     // Admin: recomendar o trecho deste destaque aos usuários (abre o picker
     // do reader-recommend.js com o intervalo do grifo embutido).
-    const recBtn = (typeof isAdminUser === 'function' && isAdminUser() && typeof window.openRecommendPicker === 'function')
+    const recBtn = (h.vol !== 'disciples'   // recomendações cobrem só o acervo (RPC exige vol/file do índice)
+        && typeof isAdminUser === 'function' && isAdminUser() && typeof window.openRecommendPicker === 'function')
         ? `<button class="notebook-btn" onclick="event.stopPropagation(); recommendExcerpt('${h.id}')">${lang === 'ja' ? '推薦' : 'Recomendar'}</button>`
         : '';
 
@@ -306,6 +366,13 @@ function _renderCard(h, lang) {
         </div>
     </div>`;
 }
+
+// Limpa o filtro por livro (chip) — some o ?book= da URL e re-renderiza.
+window._dqClearBookFilter = function () {
+    _dqState.bookOnly = null;
+    try { history.replaceState(null, '', location.pathname); } catch (_) {}
+    renderNotebook();
+};
 
 // Admin: abre o picker de recomendação com o TRECHO do destaque embutido
 // (excerpt_* — quem receber abre o ensinamento direto no trecho grifado).
@@ -382,13 +449,7 @@ function openHighlightDetail(id) {
         });
     }
 
-    let articleUrl = '#';
-    if (h.vol && h.file) {
-        articleUrl = `reader.html?vol=${encodeURIComponent(h.vol)}&file=${encodeURIComponent(h.file)}`;
-        if (h.topicIndex !== undefined && h.topicIndex !== '') articleUrl += `&topic=${h.topicIndex}`;
-        if (h.id) articleUrl += `&highlight=${encodeURIComponent(h.id)}&hl_scroll=1`;
-    }
-    document.getElementById('detailOpenBtn').href = articleUrl;
+    document.getElementById('detailOpenBtn').href = _dqArticleUrl(h);
     document.getElementById('detailAccent').style.background = bgColor;
     document.getElementById('detailSource').textContent = h.topicTitle || '';
     document.getElementById('detailText').textContent = h.text;

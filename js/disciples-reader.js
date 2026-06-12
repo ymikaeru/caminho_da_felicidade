@@ -469,6 +469,7 @@
       author: book.author,
     };
     _flatChapters = flattenForBook(book.id, book.sections || []);
+    _discSearchIdx = null;   // índice de busca é por livro
     _currentChapterIndex = loadDiscChapterPos(book.id);
     if (_currentChapterIndex >= _flatChapters.length) _currentChapterIndex = 0;
     saveDiscChapterPos(book.id, _currentChapterIndex);
@@ -550,6 +551,116 @@
 
     // Re-apply user highlights to the freshly rendered chapter
     try { window.applyHighlightsOnPage?.(); } catch (_) {}
+    _updateDiscHlBadge();
+  }
+
+  // Contagem de grifos do livro no badge do botão Destaques do header.
+  function _updateDiscHlBadge() {
+    const el = document.getElementById('discHlCount');
+    if (!el || !_currentDisciplesBook) return;
+    let n = 0;
+    try {
+      n = (JSON.parse(localStorage.getItem('userHighlights') || '[]'))
+        .filter(h => h.vol === 'disciples' && h.file === _currentDisciplesBook.id).length;
+    } catch (_) {}
+    el.textContent = n > 0 ? String(n) : '';
+    el.style.display = n > 0 ? '' : 'none';
+  }
+
+  // ── Busca dentro do livro (sidebar) ──
+  // Índice plano construído sob demanda: cada seção vira {id, title, text}
+  // com o texto SEM markdown (busca sem acento via _discFold).
+  let _discSearchIdx = null;
+  function _discFold(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  function _discStripMd(s) {
+    return String(s || '')
+      .replace(/<[^>]+>/g, ' ')             // tags html embutidas
+      .replace(/\[\^[^\]]*\]:?/g, ' ')      // notas [^n] e defs
+      .replace(/[*_#>`~\\]|={2,}/g, '')     // marcação md
+      .replace(/\s+/g, ' ').trim();
+  }
+  function _discBuildSearchIdx() {
+    if (_discSearchIdx || !_currentDisciplesBook) return;
+    _discSearchIdx = [];
+    const walk = (s) => {
+      const e = s.ensinamento || {};
+      const text = _discStripMd([s.content, s.subtitulo, s.explicacao,
+        e.texto, e.preambulo, e.explicacao, e.resumo,
+        (e.notas || []).map(x => x.texto).join(' '),
+        (e.anexo || []).map(a => (a.titulo || '') + ' ' + (a.texto || '')).join(' ')].filter(Boolean).join(' '));
+      const title = _discStripMd(s.title || '');
+      if (text || title) _discSearchIdx.push({ id: s.id, title, text, _f: _discFold(title + ' ' + text), _ft: _discFold(title) });
+      (s.children || []).forEach(walk);
+    };
+    (_currentDisciplesBook.sections || []).forEach(walk);
+  }
+  // Trecho com o termo grifado (<mark>), mapeando o índice do texto
+  // "dobrado" (sem acento) de volta pro original.
+  function _discSnippet(entry, q) {
+    const orig = entry.text || entry.title;
+    let f = '', map = [];
+    for (let i = 0; i < orig.length; i++) { const fc = _discFold(orig[i]); for (let j = 0; j < fc.length; j++) { f += fc[j]; map.push(i); } }
+    const idx = f.indexOf(q);
+    if (idx < 0) return esc(orig.slice(0, 90)) + (orig.length > 90 ? '…' : '');
+    const s = map[idx], e = map[idx + q.length - 1] + 1;
+    const from = Math.max(0, s - 45), to = Math.min(orig.length, e + 60);
+    return (from > 0 ? '…' : '') + esc(orig.slice(from, s)) + '<mark>' + esc(orig.slice(s, e)) + '</mark>' + esc(orig.slice(e, to)) + (to < orig.length ? '…' : '');
+  }
+  // Marca temporariamente as ocorrências do termo na seção destino (a busca
+  // navegou até lá). Split de nó de texto NÃO muda o texto total do tópico,
+  // então os offsets dos grifos salvos ficam intactos; desfaz sozinho.
+  function _flashSearchTerm(secEl, q) {
+    const qf = _discFold(q);
+    const w = document.createTreeWalker(secEl, NodeFilter.SHOW_TEXT, null);
+    const nodes = []; let node;
+    while ((node = w.nextNode())) nodes.push(node);
+    const marks = [];
+    nodes.forEach(tn => {
+      const orig = tn.nodeValue || ''; if (orig.length < qf.length) return;
+      let f = '', map = [];
+      for (let i = 0; i < orig.length; i++) { const fc = _discFold(orig[i]); for (let j = 0; j < fc.length; j++) { f += fc[j]; map.push(i); } }
+      let idx = f.indexOf(qf); if (idx < 0) return;
+      const frag = document.createDocumentFragment(); let last = 0;
+      while (idx >= 0) {
+        const s = map[idx], e = map[idx + qf.length - 1] + 1;
+        if (s > last) frag.appendChild(document.createTextNode(orig.slice(last, s)));
+        const mk = document.createElement('mark'); mk.className = 'disc-search-flash'; mk.textContent = orig.slice(s, e);
+        frag.appendChild(mk); marks.push(mk);
+        last = e; idx = f.indexOf(qf, idx + qf.length);
+      }
+      frag.appendChild(document.createTextNode(orig.slice(last)));
+      tn.parentNode.replaceChild(frag, tn);
+    });
+    if (marks.length) setTimeout(() => {
+      marks.forEach(mk => { if (!mk.isConnected) return; const p = mk.parentNode; p.replaceChild(document.createTextNode(mk.textContent), mk); p.normalize(); });
+    }, 4000);
+  }
+  function _discRunSearch(qRaw) {
+    const out = document.getElementById('discSearchResults');
+    const toc = document.getElementById('discTocWrap');
+    if (!out || !toc) return;
+    const lang = localStorage.getItem('site_lang') || 'pt';
+    const isPt = lang !== 'ja';
+    const q = _discFold(qRaw.trim());
+    if (q.length < 2) { out.style.display = 'none'; toc.style.display = ''; out.innerHTML = ''; return; }
+    _discBuildSearchIdx();
+    const hits = (_discSearchIdx || []).filter(en => en._f.includes(q)).slice(0, 80);
+    toc.style.display = 'none'; out.style.display = '';
+    if (!hits.length) {
+      out.innerHTML = `<div class="disc-search-empty">${isPt ? 'Nada encontrado no livro.' : '見つかりませんでした。'}</div>`;
+      return;
+    }
+    out.innerHTML = `<div class="disc-search-count">${hits.length}${hits.length === 80 ? '+' : ''} ${isPt ? 'seção(ões)' : '件'}</div>`
+      + hits.map(en => `<button type="button" class="disc-search-hit" data-sec="${esc(en.id)}">
+          <span class="disc-search-hit-title">${esc(en.title || '—')}</span>
+          <span class="disc-search-hit-snippet">${_discSnippet(en, q)}</span>
+        </button>`).join('');
+    out.querySelectorAll('.disc-search-hit').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window._disciplesGoToSection(btn.dataset.sec, '', qRaw.trim());
+        if (window.innerWidth <= 900 && typeof window._disciplesCloseSidebar === 'function') window._disciplesCloseSidebar();
+      });
+    });
   }
 
   // ── Sidebar rendering ──
@@ -625,7 +736,7 @@
       sectionsHtml = aboutHtml + `<div class="disciples-sb-tree">${treeHtml}</div>`;
     }
 
-    sidebar.innerHTML = `<div class="disciples-sidebar"><div class="disciples-sb-fixed-header"><div class="disciples-sb-header-row"><div class="disciples-sb-header-titles"><div style="font-size:0.95rem;font-weight:600;color:var(--text-main);line-height:1.25">${_currentDisciplesBook ? esc(_currentDisciplesBook.title) : (isPt ? 'Livros' : '書籍')}</div>${_currentDisciplesBook?.titleJa ? `<div style="font-family:'Noto Serif JP',serif;font-size:0.78rem;color:var(--text-muted);margin-top:2px">${esc(_currentDisciplesBook.titleJa)}</div>` : ''}</div>${_collapseToggleHtml(isPt)}</div><a href="reader.html?pub=disciples" class="disciples-back-link disciples-sb-back-link"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>${isPt ? 'Todas as obras' : '作品一覧'}</a></div><div class="disciples-sb-scrollable">${sectionsHtml}</div><div class="disciples-sb-rail">${_railHtmlForChapters()}</div></div>`;
+    sidebar.innerHTML = `<div class="disciples-sidebar"><div class="disciples-sb-fixed-header"><div class="disciples-sb-header-row"><div class="disciples-sb-header-titles"><div style="font-size:0.95rem;font-weight:600;color:var(--text-main);line-height:1.25">${_currentDisciplesBook ? esc(_currentDisciplesBook.title) : (isPt ? 'Livros' : '書籍')}</div>${_currentDisciplesBook?.titleJa ? `<div style="font-family:'Noto Serif JP',serif;font-size:0.78rem;color:var(--text-muted);margin-top:2px">${esc(_currentDisciplesBook.titleJa)}</div>` : ''}</div>${_collapseToggleHtml(isPt)}</div><a href="reader.html?pub=disciples" class="disciples-back-link disciples-sb-back-link"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>${isPt ? 'Todas as obras' : '作品一覧'}</a><input type="search" id="discSearchInput" class="disciples-sb-search" placeholder="${isPt ? '🔎 Buscar no livro…' : '🔎 本の中を検索…'}" aria-label="${isPt ? 'Buscar no livro' : '本の中を検索'}"></div><div class="disciples-sb-scrollable"><div id="discTocWrap">${sectionsHtml}</div><div id="discSearchResults" style="display:none"></div></div><div class="disciples-sb-rail">${_railHtmlForChapters()}</div></div>`;
 
     requestAnimationFrame(() => attachSidebarBehaviors(sidebar));
   }
@@ -659,6 +770,16 @@
         }
       }
     };
+
+    // Busca dentro do livro (debounce; <2 letras volta pro índice)
+    const searchInput = sidebar.querySelector('#discSearchInput');
+    if (searchInput) {
+      let t = null;
+      searchInput.addEventListener('input', () => {
+        clearTimeout(t);
+        t = setTimeout(() => _discRunSearch(searchInput.value || ''), 180);
+      });
+    }
 
     sidebar.querySelectorAll('[data-scroll]').forEach(link => {
       link.addEventListener('click', (e) => { e.preventDefault(); scrollTarget(link.getAttribute('data-scroll')); });
@@ -872,6 +993,23 @@
     const lang = localStorage.getItem('site_lang') || 'pt';
     const isPt = lang !== 'ja';
 
+    // Botão Destaques do livro — abre o modal do highlights.js (que já
+    // entende o modo discípulos: "Destaques em <livro>"). Badge com a
+    // contagem de grifos, atualizada a cada render (_updateDiscHlBadge).
+    // Só dentro de um livro (na vitrine não há o que listar).
+    if (!document.getElementById('discHighlightsBtn') && urlParams.get('book')) {
+      const hlBtn = document.createElement('button');
+      hlBtn.id = 'discHighlightsBtn';
+      hlBtn.className = 'disciples-font-btn disciples-hl-btn';
+      const hlLbl = isPt ? 'Destaques deste livro' : 'この本のハイライト';
+      hlBtn.setAttribute('aria-label', hlLbl);
+      hlBtn.setAttribute('title', hlLbl);
+      hlBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span class="disciples-hl-count" id="discHlCount" style="display:none"></span>';
+      hlBtn.addEventListener('click', () => { if (typeof window.openHighlights === 'function') window.openHighlights(); });
+      headerActions.appendChild(hlBtn);
+      _updateDiscHlBadge();
+    }
+
     // Botões A− / A+ (tamanho de fonte direto) e Aa (abre themeModal)
     if (!document.getElementById('discFontDecBtn')) {
       const fontDec = document.createElement('button');
@@ -945,6 +1083,58 @@
     }
   }
 
+  // Navega até uma seção (e opcionalmente um grifo) DENTRO do livro aberto,
+  // SEM reload: abre o capítulo que CONTÉM a seção (pode ser nó aninhado),
+  // rola até o mark (já pintado pelo applyHighlightsOnPage do render) e dá
+  // um flash. Usada pelo deep-link &sec=, pelo modal de destaques
+  // (highlights.js) e pela busca da sidebar. topicId aceita 'sec-xxx' ou
+  // o id puro. Devolve true se achou a seção.
+  window._disciplesGoToSection = function (topicId, hlId, flashQuery) {
+    const sectionId = String(topicId || '').replace(/^sec-/, '');
+    if (!sectionId || !_flatChapters.length) return false;
+    const findIn = (s, tid) => s.id === tid || ((s.children || []).some(c => findIn(c, tid)));
+    let idx = _flatChapters.findIndex(ch => findIn(ch, sectionId));
+    if (idx === -1) {
+      // Seção "wrapper" (título de capítulo sem página própria — o flatten
+      // não a vira página nem a mantém como filho): abre o primeiro
+      // descendente que TEM página. Acontece em resultado de busca por
+      // título de capítulo; grifo real nunca vive em wrapper (sem texto).
+      const locate = (list) => { for (const s of (list || [])) { if (s.id === sectionId) return s; const r = locate(s.children); if (r) return r; } return null; };
+      const node = locate(_currentDisciplesBook && _currentDisciplesBook.sections);
+      if (node) {
+        const ids = []; (function collect(s) { ids.push(s.id); (s.children || []).forEach(collect); })(node);
+        for (const id2 of ids) { const i2 = _flatChapters.findIndex(ch => findIn(ch, id2)); if (i2 !== -1) { idx = i2; break; } }
+      }
+    }
+    if (idx === -1) return false;
+    if (idx !== _currentChapterIndex) navigateToChapter(idx);
+    setTimeout(() => {
+      let mark = null;
+      try { mark = hlId ? document.querySelector(`mark.user-highlight[data-highlight-id="${CSS.escape(hlId)}"]`) : null; } catch (_) {}
+      const secEl = document.getElementById(`sec-${sectionId}`);
+      // Wrapper sem elemento próprio (caiu no 1º descendente): flash no
+      // capítulo inteiro — o termo está em algum filho renderizado.
+      const flashRoot = secEl || (flashQuery ? document.querySelector('.disciples-book-body') : null);
+      if (flashQuery && flashRoot) _flashSearchTerm(flashRoot, flashQuery);
+      const el = mark || secEl;
+      if (!el) return;
+      const headerH = document.querySelector('.header')?.offsetHeight || 56;
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - headerH - 80, behavior: 'smooth' });
+      if (mark) {
+        mark.style.transition = 'box-shadow .4s ease';
+        mark.style.boxShadow = '0 0 0 4px rgba(184,134,11,.45)';
+        setTimeout(() => { mark.style.boxShadow = ''; }, 1800);
+      }
+    }, 400);
+    return true;
+  };
+
+  // Deep-link da Central de Destaques: &sec=sec-xxx[&highlight=hl_id].
+  function _gotoHighlightFromUrl() {
+    const secParam = urlParams.get('sec');
+    if (secParam) window._disciplesGoToSection(secParam, urlParams.get('highlight') || '');
+  }
+
   // ── Entry point ──
   async function initDisciples() {
     const bookId = urlParams.get('book');
@@ -973,6 +1163,7 @@
       book.titleJa = book.titleJa || entry.titleJa;
       book.description = book.description || entry.description;
       renderDisciplesBook(book);
+      _gotoHighlightFromUrl();
       initMobileSidebarToggle();
     } catch (err) {
       console.error('[disciples] init failed:', err);

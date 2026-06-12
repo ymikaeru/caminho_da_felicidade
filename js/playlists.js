@@ -1298,11 +1298,11 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
     const s = document.createElement('style');
     s.id = 'msStyles';
     s.textContent = `
-      #searchResults.ms-active .search-result-item {
+      #searchResults.ms-active .search-nav-item {
         position: relative;
         padding-left: 38px !important;
       }
-      #searchResults.ms-active .search-result-item::before {
+      #searchResults.ms-active .search-nav-item::before {
         content: "";
         position: absolute;
         left: 12px; top: 50%; transform: translateY(-50%);
@@ -1311,7 +1311,7 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
         border-radius: 4px;
         background: transparent;
       }
-      #searchResults.ms-active .search-result-item.ms-checked::before {
+      #searchResults.ms-active .search-nav-item.ms-checked::before {
         content: "✓";
         background: var(--accent);
         border-color: var(--accent);
@@ -1320,7 +1320,7 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
         text-align: center;
         line-height: 18px;
       }
-      #searchResults.ms-active .search-result-item.ms-checked {
+      #searchResults.ms-active .search-nav-item.ms-checked {
         background: rgba(184, 134, 11, 0.07);
       }
       #msToggle.is-active {
@@ -1382,7 +1382,9 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
 
   function _msHandleClick(e) {
     if (!_msActive) return;
-    const item = e.target.closest('.search-result-item');
+    // .search-nav-item = âncoras do layout agrupado (cabeçalho da
+    // publicação + trechos); era .search-result-item no layout antigo.
+    const item = e.target.closest('.search-nav-item');
     if (!item) return;
     e.preventDefault();
     e.stopPropagation();
@@ -1402,7 +1404,7 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
   }
 
   function _msReapplyCheckmarks() {
-    document.querySelectorAll('#searchResults .search-result-item').forEach(it => {
+    document.querySelectorAll('#searchResults .search-nav-item').forEach(it => {
       const k = _msKey(it.dataset.vol, it.dataset.file, parseInt(it.dataset.topic || '0', 10));
       it.classList.toggle('ms-checked', _msSelected.has(k));
     });

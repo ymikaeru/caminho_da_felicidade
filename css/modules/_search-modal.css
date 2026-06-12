@@ -94,11 +94,11 @@
 }
 
 .search-header {
-  padding: 16px 48px 16px 24px;
+  padding: 14px 48px 12px 24px;
   border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
 .search-input-row {
@@ -471,38 +471,25 @@
   }
 }
 
-/* Empty-state suggestions panel — chips com termos curados + populares */
-.search-suggestions {
-  padding: 16px 24px 18px;
+/* Abas de tipo de match (Tudo / Títulos / No conteúdo / Relacionados) */
+.search-kind-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 24px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
   font-family: var(--font-ui);
 }
 
-.search-suggestions-label {
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  font-weight: 600;
-  margin-bottom: 10px;
-  opacity: 0.85;
-}
-
-.search-suggestions-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.search-suggest-chip {
+.search-kind-tab {
   background: transparent;
-  color: var(--accent);
+  color: var(--text-muted);
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 6px 14px;
+  padding: 5px 14px;
   font-family: var(--font-ui);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -510,29 +497,34 @@
   white-space: nowrap;
 }
 
-.search-suggest-chip:hover,
-.search-suggest-chip:focus-visible {
-  background: var(--accent-soft);
+.search-kind-tab:hover,
+.search-kind-tab:focus-visible {
+  color: var(--accent);
   border-color: var(--accent);
   outline: none;
 }
 
-.search-suggest-chip:active {
-  background: var(--accent);
-  color: #fff;
+.search-kind-tab.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.search-kind-tab-count {
+  margin-left: 6px;
+  font-size: 0.75rem;
+  opacity: 0.75;
 }
 
 @media (max-width: 767px) {
-  .search-suggestions {
-    padding: 12px 16px 14px;
+  .search-kind-tabs {
+    padding: 8px 16px;
+    gap: 6px;
   }
-  .search-suggestions-label {
-    font-size: 0.72rem;
-    margin-bottom: 8px;
-  }
-  .search-suggest-chip {
-    padding: 5px 12px;
-    font-size: 0.82rem;
+  .search-kind-tab {
+    padding: 4px 11px;
+    font-size: 0.8rem;
   }
 }
 
@@ -570,17 +562,23 @@
 
 @media (max-width: 767px) {
   .search-header {
-    padding: 16px 16px 12px 16px;
-    gap: 12px;
+    /* 48px à direita = clearance pro × absoluto (44px de alvo de toque) */
+    padding: 12px 48px 10px 16px;
+    gap: 8px;
   }
 
   .search-input-row {
-    gap: 10px;
+    gap: 8px;
+    /* admin tem +1 botão ("Selecionar" injetado) — deixa quebrar linha
+       em vez de esmagar o input */
+    flex-wrap: wrap;
   }
 
   .search-input {
     font-size: 1rem;
     padding: 8px 0;
+    flex: 1 1 auto;
+    min-width: 150px;
   }
 
   .search-filters {

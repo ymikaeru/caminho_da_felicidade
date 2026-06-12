@@ -35,7 +35,6 @@ function buildSearchModal() {
   const literalLabel = lang === 'ja' ? 'リテラル検索' : 'Texto literal';
   const literalTitle = lang === 'ja' ? '部分一致のみで検索（FTS・意味検索を無効化）' : 'Busca apenas por substring exata (sem FTS nem busca semântica). Útil para termos em japonês ou trechos exatos.';
   const advancedLabel = lang === 'ja' ? '詳細検索' : 'Avançada';
-  const suggestionsLabel = lang === 'ja' ? 'おすすめ' : 'Sugestões';
 
   const advancedOpen = localStorage.getItem('search_advanced_open') === 'true';
 
@@ -49,13 +48,14 @@ function buildSearchModal() {
     '<div class="search-modal">' +
       '<button class="modal-close-btn" onclick="closeSearch()">&times;</button>' +
       '<div class="search-header">' +
-        '<div class="search-input-row">' +
+        // Linha única: input + Apagar + Avançada (+ "Selecionar" injetado
+        // pelo playlists.js, que ancora na classe .search-advanced-row).
+        // Era 2 linhas — header mais baixo = mais espaço pros resultados.
+        '<div class="search-input-row search-advanced-row">' +
           '<input type="text" class="search-input" id="searchInput" placeholder="' + placeholder + '" autocomplete="off" inputmode="search" enterkeyhint="search">' +
           '<button id="searchClear" onclick="clearSearch()" style="display: none;" title="' + clearLabel + '">' +
             '<span id="searchClearText">' + clearText + '</span>' +
           '</button>' +
-        '</div>' +
-        '<div class="search-advanced-row">' +
           '<button type="button" id="searchAdvancedToggle" class="search-advanced-btn" aria-expanded="' + (advancedOpen ? 'true' : 'false') + '" aria-controls="searchAdvancedPanel">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
               '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>' +
@@ -80,10 +80,10 @@ function buildSearchModal() {
           '</label>' +
         '</div>' +
       '</div>' +
-      '<div id="searchSuggestions" class="search-suggestions" style="display:none;">' +
-        '<div class="search-suggestions-label">' + suggestionsLabel + '</div>' +
-        '<div id="searchSuggestionsChips" class="search-suggestions-chips"></div>' +
-      '</div>' +
+      // Abas de tipo de match (Tudo / Títulos / Conteúdo / Relacionados),
+      // populadas pelo search.js a cada busca. Substituíram a seção
+      // "Sugestões" (chips curados) — usuário já sabe o que quer buscar.
+      '<div id="searchKindTabs" class="search-kind-tabs" style="display:none;" role="tablist"></div>' +
       '<div id="searchCount" class="search-count"></div>' +
       '<ul class="search-results" id="searchResults" aria-live="polite"></ul>' +
     '</div>';

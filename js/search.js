@@ -280,7 +280,9 @@ const _SECTION_LABELS = {
 function _renderResultsList(groups, count, highlightRegex, q, activeLang) {
   const basePath = getBasePath();
   const ordered = _orderGroups(groups, _orFallbackActive);
-  const visible = ordered.slice(0, count);
+  // Aba ativa filtra os grupos (Tudo = sem filtro).
+  const filtered = _kindFilter === 'all' ? ordered : ordered.filter(g => g.kind === _kindFilter);
+  const visible = filtered.slice(0, count);
   const labels = _SECTION_LABELS[activeLang === 'ja' ? 'ja' : 'pt'];
 
   let html = '';
@@ -293,15 +295,16 @@ function _renderResultsList(groups, count, highlightRegex, q, activeLang) {
 
   let lastKind = null;
   for (const g of visible) {
-    // No modo OR a ordem é por cobertura (mistura kinds) — seções só no modo normal.
-    if (!_orFallbackActive && g.kind !== lastKind) {
+    // Rótulos de seção só no modo normal SEM filtro de aba (no OR a ordem
+    // é por cobertura e mistura kinds; com aba ativa o rótulo é redundante).
+    if (!_orFallbackActive && _kindFilter === 'all' && g.kind !== lastKind) {
       html += `<li class="search-section-label">${labels[g.kind]}</li>`;
       lastKind = g.kind;
     }
     html += _renderGroup(g, basePath, highlightRegex, q, activeLang);
   }
 
-  const remaining = ordered.length - visible.length;
+  const remaining = filtered.length - visible.length;
   if (remaining > 0) {
     const nextN = Math.min(GROUPS_PER_PAGE, remaining);
     html += `<li class="search-load-more"><button class="btn-load-more" onclick="loadMoreResults()">${activeLang === 'ja' ? `さらに${nextN}件の文献を表示` : `Carregar mais ${nextN} publicaç${nextN === 1 ? 'ão' : 'ões'}`}</button><span class="load-more-hint">${activeLang === 'ja' ? `（残り${remaining}件）` : `(${remaining} restantes)`}</span></li>`;
@@ -340,34 +343,52 @@ function _getSupabase() {
   return window.supabaseAuth?.supabase || null;
 }
 
-// ---------- Empty-state suggestions chips ----------
-// Mostrados quando o user abre o modal sem ter digitado nada. Apenas
-// chips curados (termos doutrinários core). A RPC popular_searches
-// ainda é populada pelo log de buscas (analytics), mas não é exibida
-// aqui — base de usuários pequena, mostrar buscas alheias era invasivo.
-const _CURATED_SUGGESTIONS = {
-  pt: ['Johrei', 'Salvação Divina', 'Purificação Equilibrada', 'Daijo', 'Verdade'],
-  ja: ['浄霊', '救い', '浄化', '大乗', '真理'],
+// ---------- Abas de tipo de match ----------
+// Tudo / Títulos / Conteúdo / Relacionados, com contagem de publicações.
+// Filtram os GRUPOS já buscados (client-side, sem nova query). A barra
+// só aparece quando há mais de um tipo presente nos resultados.
+let _kindFilter = 'all';
+
+const _TAB_LABELS = {
+  pt: { all: 'Tudo', title: 'Títulos', content: 'No conteúdo', related: 'Relacionados' },
+  ja: { all: 'すべて', title: 'タイトル', content: '本文', related: '関連' },
 };
 
-async function _renderSuggestionsPanel() {
-  const panel = document.getElementById('searchSuggestions');
-  const chipsEl = document.getElementById('searchSuggestionsChips');
-  if (!panel || !chipsEl) return;
-  const lang = localStorage.getItem('site_lang') || 'pt';
-  const curated = _CURATED_SUGGESTIONS[lang] || _CURATED_SUGGESTIONS.pt;
-  if (curated.length === 0) { panel.style.display = 'none'; return; }
-  chipsEl.innerHTML = curated.map(term =>
-    `<button type="button" class="search-suggest-chip" data-term="${escHtml(term)}">${escHtml(term)}</button>`
-  ).join('');
-  panel.style.display = '';
+function _kindCounts(groups) {
+  const counts = { title: 0, content: 0, related: 0 };
+  for (const g of groups) counts[g.kind] = (counts[g.kind] || 0) + 1;
+  return counts;
 }
 
-function _toggleSuggestionsForInput() {
-  const input = document.getElementById('searchInput');
-  const panel = document.getElementById('searchSuggestions');
-  if (!panel) return;
-  panel.style.display = (input && input.value.trim()) ? 'none' : '';
+function _renderKindTabs(activeLang) {
+  const bar = document.getElementById('searchKindTabs');
+  if (!bar) return;
+  const counts = _kindCounts(_allGroups);
+  const kindsPresent = ['title', 'content', 'related'].filter(k => counts[k] > 0);
+  if (_allGroups.length === 0 || kindsPresent.length < 2) {
+    bar.style.display = 'none';
+    bar.innerHTML = '';
+    return;
+  }
+  const labels = _TAB_LABELS[activeLang === 'ja' ? 'ja' : 'pt'];
+  const tabs = ['all', ...kindsPresent];
+  bar.innerHTML = tabs.map(k => {
+    const n = k === 'all' ? _allGroups.length : counts[k];
+    return `<button type="button" role="tab" class="search-kind-tab${_kindFilter === k ? ' is-active' : ''}"
+      aria-selected="${_kindFilter === k}" data-kind="${k}">${labels[k]}<span class="search-kind-tab-count">${n}</span></button>`;
+  }).join('');
+  bar.style.display = '';
+}
+
+function _hideKindTabs() {
+  const bar = document.getElementById('searchKindTabs');
+  if (bar) { bar.style.display = 'none'; bar.innerHTML = ''; }
+}
+
+// Grupos visíveis após ordenação + filtro da aba ativa.
+function _filteredGroups() {
+  const ordered = _orderGroups(_allGroups, _orFallbackActive);
+  return _kindFilter === 'all' ? ordered : ordered.filter(g => g.kind === _kindFilter);
 }
 
 function _setRandomLoading(btn) {
@@ -452,10 +473,11 @@ window.clearSearch = function () {
   _allResults = [];
   _allGroups = [];
   _orFallbackActive = false;
+  _kindFilter = 'all';
+  _hideKindTabs();
   _displayedCount = 0;
   _currentQuery = '';
   _focusedIndex = -1;
-  _toggleSuggestionsForInput();
 }
 
 window.openSearch = function () {
@@ -480,9 +502,6 @@ window.openSearch = function () {
       }
     }
     _loadSectionMaps();
-    // Render suggestions panel (only if input is empty).
-    _renderSuggestionsPanel();
-    _toggleSuggestionsForInput();
   }
 }
 
@@ -775,10 +794,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentLang = localStorage.getItem('site_lang') || 'pt';
     _focusedIndex = -1;
     _updateSearchCount(0, 0, currentLang);
-    _toggleSuggestionsForInput();
 
     if (!query.trim()) {
       if (resultsEl) resultsEl.innerHTML = '';
+      _hideKindTabs();
       return;
     }
 
@@ -894,21 +913,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // como função window.openSearchPreview pra possível reuso futuro.)
   }
 
-  // Chips do empty-state: clicar preenche o input + dispara a busca.
-  const suggestionsContainer = document.getElementById('searchSuggestionsChips');
-  if (suggestionsContainer) {
-    suggestionsContainer.addEventListener('click', (e) => {
-      const chip = e.target.closest('.search-suggest-chip');
-      if (!chip || !searchInput) return;
-      const term = chip.dataset.term || chip.textContent.trim();
-      if (!term) return;
-      searchInput.value = term;
-      searchInput.focus();
-      _toggleSuggestionsForInput();
-      clearTimeout(searchTimeout);
-      performSearch(term);
-      const clearBtn = document.getElementById('searchClear');
-      if (clearBtn) clearBtn.style.display = 'flex';
+  // Abas de tipo de match: filtram os grupos já buscados, sem nova query.
+  // Após restore de sessionStorage _allGroups está vazio — nesse caso
+  // re-roda a busca (a aba clicada é aplicada quando os grupos chegam? não:
+  // re-search reseta pra 'all'; aceitável, é um clique a mais num caso raro).
+  const kindTabsBar = document.getElementById('searchKindTabs');
+  if (kindTabsBar) {
+    kindTabsBar.addEventListener('click', (e) => {
+      const tab = e.target.closest('.search-kind-tab');
+      if (!tab) return;
+      const kind = tab.dataset.kind || 'all';
+      if (!_allGroups.length) {
+        if (searchInput && searchInput.value.trim()) performSearch(searchInput.value);
+        return;
+      }
+      _kindFilter = kind;
+      const activeLang = localStorage.getItem('site_lang') || 'pt';
+      const filtered = _filteredGroups();
+      _displayedCount = Math.min(GROUPS_PER_PAGE, filtered.length);
+      _focusedIndex = -1;
+      const resultsEl = document.getElementById('searchResults');
+      const highlightRegex = _buildHighlightRegex(_currentQuery, activeLang);
+      if (resultsEl) resultsEl.innerHTML = _renderResultsList(_allGroups, _displayedCount, highlightRegex, _currentQuery, activeLang);
+      const shownHits = filtered.slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
+      const totalHits = filtered.reduce((n, g) => n + g.hits.length, 0);
+      _updateSearchCount(totalHits, shownHits, activeLang);
+      _renderKindTabs(activeLang);
+      if (resultsEl) sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
     });
   }
 });
@@ -1077,6 +1108,7 @@ async function performSearch(query) {
       if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${minCharsMsg}</li>`;
     }
     _updateSearchCount(0, 0, activeLang);
+    _hideKindTabs();
     return;
   }
 
@@ -1190,6 +1222,7 @@ async function performSearch(query) {
       const errMsg = activeLang === 'ja' ? '検索に失敗しました。' : 'Erro ao buscar. Tente novamente.';
       if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errMsg}</li>`;
       _updateSearchCount(0, 0, activeLang);
+      _hideKindTabs();
       return;
     }
 
@@ -1225,6 +1258,7 @@ async function performSearch(query) {
       _allGroups = [];
       _displayedCount = 0;
       _currentQuery = '';
+      _hideKindTabs();
       // "Você quis dizer...?" — chama suggest_teachings com o texto cru
       // (não a tsquery traduzida). Se o user já mudou a query enquanto
       // a busca rodava, _currentQuery foi resetado e descartamos.
@@ -1238,13 +1272,15 @@ async function performSearch(query) {
     _allResults = results;
     _allGroups = _groupResults(results, q, activeLang);
     _currentQuery = q;
+    _kindFilter = 'all';
     _displayedCount = Math.min(GROUPS_PER_PAGE, _allGroups.length);
     _focusedIndex = -1;
 
     resultsEl.innerHTML = _renderResultsList(_allGroups, _displayedCount, highlightRegex, q, activeLang);
-    const shownHits = _orderGroups(_allGroups, _orFallbackActive)
+    const shownHits = _filteredGroups()
       .slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
     _updateSearchCount(results.length, shownHits, activeLang, hitLimit);
+    _renderKindTabs(activeLang);
     logSearch(q, results.length, _latencyMs);
 
     // Few-results case: prepende "Você quis dizer..." sem destruir os
@@ -1260,20 +1296,22 @@ async function performSearch(query) {
     console.error('Search exception:', err);
     const errMsg = activeLang === 'ja' ? 'エラーが発生しました。' : 'Erro inesperado na busca.';
     if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errMsg}</li>`;
+    _hideKindTabs();
   }
 }
 
 window.loadMoreResults = function() {
   if (!_allGroups.length) return;
-  _displayedCount = Math.min(_displayedCount + GROUPS_PER_PAGE, _allGroups.length);
+  const filtered = _filteredGroups();
+  _displayedCount = Math.min(_displayedCount + GROUPS_PER_PAGE, filtered.length);
   const resultsEl = document.getElementById('searchResults');
   if (!resultsEl) return;
   const activeLang = localStorage.getItem('site_lang') || 'pt';
   const highlightRegex = _buildHighlightRegex(_currentQuery, activeLang);
   resultsEl.innerHTML = _renderResultsList(_allGroups, _displayedCount, highlightRegex, _currentQuery, activeLang);
-  const shownHits = _orderGroups(_allGroups, _orFallbackActive)
-    .slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
-  _updateSearchCount(_allResults.length, shownHits, activeLang);
+  const shownHits = filtered.slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
+  const totalHits = filtered.reduce((n, g) => n + g.hits.length, 0);
+  _updateSearchCount(totalHits, shownHits, activeLang);
   _focusedIndex = -1;
   sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
 };

@@ -205,8 +205,9 @@ export function gluedHeaderPositions(html) {
     let m;
     while ((m = HDR_RE.exec(html)) !== null) {
         const tail = html.slice(0, m.index).replace(/[\s　]+$/, '');
-        // já está em linha própria se vier após <br>, <hr> ou fim de bloco
-        if (tail !== '' && !/<(?:br|hr)\s*\/?>$|<\/(?:p|div|h\d)>$/i.test(tail)) out.push(m.index);
+        // já está em linha própria se vier após <br> (INCLUSIVE com atributos,
+        // ex.: <br data-soft="1"> do editor do admin), <hr> ou fim de bloco
+        if (tail !== '' && !/<(?:br|hr)[^>]*\/?>$|<\/(?:p|div|h\d)>$/i.test(tail)) out.push(m.index);
     }
     return out;
 }

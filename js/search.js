@@ -310,10 +310,22 @@ function _renderGroup(g, basePath, highlightRegex, q, activeLang) {
   const hitsHtml = hits.map(h => _renderHit(h, g, basePath, highlightRegex, q, activeLang)).join('');
 
   if (isContainer) {
-    // Contêiner: cabeçalho leve (coleção · Volume · N), ensinamentos abaixo.
-    const crumb = [g.pubLabel, volLabel, hitsLabel].filter(Boolean).join(' · ');
+    // Contêiner: cabeçalho = link clicável pra publicação inteira (desde o
+    // início), pois às vezes o usuário quer a COLEÇÃO toda, não um trecho.
+    // Os ensinamentos individuais ficam abaixo, cada um com seu link.
+    const collHref = _searchLink(basePath, g.vol, g.file, 0, q, activeLang);
+    const collName = highlightRegex
+      ? escHtml(g.pubLabel).replace(highlightRegex, '<mark class="search-highlight">$1</mark>')
+      : escHtml(g.pubLabel);
+    const meta = [volLabel, hitsLabel].filter(Boolean).join(' · ');
     return `<li class="search-group search-group--collection">
-        <div class="search-group-collection">${escHtml(crumb)}${badge}</div>
+        <a href="${collHref}" class="search-group-collection search-nav-item"
+          data-vol="${escHtml(g.vol)}" data-file="${escHtml(g.file)}"
+          data-query="${escHtml(q)}" data-topic="0"
+          data-title="${escHtml(g.pubLabel)}">
+          <span class="search-group-collection-name">${collName}${badge}</span>
+          <span class="search-group-collection-meta">${meta}</span>
+        </a>
         <ul class="search-group-hits">${hitsHtml}</ul>
       </li>`;
   }

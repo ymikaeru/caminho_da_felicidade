@@ -104,8 +104,14 @@ const groupsCont = M._groupResults(rowsCont, 'johrei', 'pt');
 const htmlCont = M._renderResultsList(groupsCont, 8, M._buildHighlightRegex('johrei', 'pt'), 'johrei', 'pt');
 check('contêiner: classe collection', htmlCont.includes('search-group--collection'), '');
 check('contêiner: rótulo de coleção', htmlCont.includes('search-group-collection'), '');
+check('contêiner: cabeçalho clicável (link p/ file)', /search-group-collection[^>]*href="[^"]*file=ID5[^"]*&topic=0/.test(htmlCont.replace(/\n/g,' ')) || /href="[^"]*file=ID5[^"]*"[^>]*class="search-group-collection/.test(htmlCont.replace(/\n/g,' ')), '');
+check('contêiner: link da coleção é search-nav-item', /class="search-group-collection search-nav-item"/.test(htmlCont), '');
 check('contêiner: título real como hit-title', /search-hit-title[^>]*>O <mark[^>]*>Johrei/.test(htmlCont), '');
 check('contêiner: SEM manchete da publicação', !htmlCont.includes('search-group-title'), '');
 check('contêiner: corpo sem "Ensinamento de Meishu-Sama"', !/search-hit-snippet[^>]*>[^<]*Ensinamento de Meishu/.test(htmlCont), '');
+// nome da coleção grifado quando o termo casa nele
+const groupsContName = M._groupResults(rowsCont, 'medicina', 'pt');
+const htmlContName = M._renderResultsList(groupsContName, 8, M._buildHighlightRegex('medicina', 'pt'), 'medicina', 'pt');
+check('contêiner: grifa termo no nome da coleção', /search-group-collection-name[\s\S]*?<mark[^>]*>medicina/i.test(htmlContName), '');
 
 process.exit(fail ? 1 : 0);

@@ -77,10 +77,6 @@ function buildSearchModal() {
           '</label>' +
         '</div>' +
       '</div>' +
-      // Abas de tipo de match (Tudo / Títulos / Conteúdo / Relacionados),
-      // populadas pelo search.js a cada busca. Substituíram a seção
-      // "Sugestões" (chips curados) — usuário já sabe o que quer buscar.
-      '<div id="searchKindTabs" class="search-kind-tabs" style="display:none;" role="tablist"></div>' +
       '<div id="searchCount" class="search-count"></div>' +
       '<ul class="search-results" id="searchResults" aria-live="polite"></ul>' +
     '</div>';

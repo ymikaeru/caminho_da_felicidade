@@ -11,7 +11,7 @@ global.sessionStorage = global.localStorage;
 global.performance = { now: () => 0 };
 
 const src = readFileSync(join(__dirname, '..', 'js', 'search.js'), 'utf8');
-eval(src + '\nmodule.exports = { _splitTerms, _buildHighlightRegex, _groupResults, _orderGroups, _renderResultsList, _setOr: v => { _orFallbackActive = v; }, _setKindFilter: v => { _kindFilter = v; } };');
+eval(src + '\nmodule.exports = { _splitTerms, _buildHighlightRegex, _groupResults, _orderGroups, _renderResultsList, _setOr: v => { _orFallbackActive = v; } };');
 const M = module.exports;
 
 let fail = 0;
@@ -84,22 +84,5 @@ const groupsD = M._groupResults(rowsD, 'rancor', 'pt');
 M._setOr(false);
 const htmlD = M._renderResultsList(groupsD, 8, M._buildHighlightRegex('rancor', 'pt'), 'rancor', 'pt');
 check('dedup título duplicado no snippet', !htmlD.includes('search-hit-title'), '');
-
-// 8. abas: filtro por kind remove os outros grupos e os rótulos de seção
-M._setOr(false);
-M._setKindFilter('title');
-const htmlF = M._renderResultsList(groupsT, 8, M._buildHighlightRegex('punição divina', 'pt'), 'punição divina', 'pt');
-check('aba título: só grupos de título', htmlF.includes('Punição divina') && !htmlF.includes('Amor altruísta'), '');
-check('aba ativa: sem rótulo de seção', !htmlF.includes('search-section-label'), '');
-M._setKindFilter('related');
-const htmlR = M._renderResultsList(groupsT, 8, M._buildHighlightRegex('punição divina', 'pt'), 'punição divina', 'pt');
-check('aba relacionados: só related', htmlR.includes('Amor altruísta') && !htmlR.includes('Punição divina'), '');
-// não-exclusivo: grupo com match no título E no conteúdo aparece na aba conteúdo
-M._setKindFilter('content');
-const htmlC = M._renderResultsList(groupsT, 8, M._buildHighlightRegex('punição divina', 'pt'), 'punição divina', 'pt');
-check('aba conteúdo inclui grupo título+conteúdo', htmlC.includes('Punição divina'), '');
-const gFlags = groupsT.find(g => g.file === 'sinbatu.html');
-check('flags não-exclusivas', gFlags.hasTitle === true && gFlags.hasContent === true, JSON.stringify({ t: gFlags.hasTitle, c: gFlags.hasContent }));
-M._setKindFilter('all');
 
 process.exit(fail ? 1 : 0);

@@ -171,13 +171,8 @@ function _groupResults(results, q, activeLang) {
   for (const g of list) {
     g.pubLabel = _pubLabel(g.vol, g.file, activeLang) || g.navTitle || (g.hits[0] ? g.hits[0].title : '');
     const pubTitleHit = regs.some(re => re.test(g.pubLabel));
-    // Flags NÃO-exclusivas pras abas: a mesma publicação pode casar no
-    // título E no conteúdo (a aba "No conteúdo" deve listá-la também —
-    // a v1 era exclusiva e "Johrei" mostrava só 3 lá, parecia bug).
-    g.hasTitle = pubTitleHit || g.hits.some(h => h.titleHit);
-    g.hasContent = g.hits.some(h => h.contentHit);
-    // kind exclusivo continua existindo pra ordenação + rótulos de seção.
-    g.kind = g.hasTitle ? 'title' : (g.hasContent ? 'content' : 'related');
+    g.kind = (pubTitleHit || g.hits.some(h => h.titleHit)) ? 'title'
+      : (g.hits.some(h => h.contentHit) ? 'content' : 'related');
     g.coverage = terms.filter((t, idx) => {
       const re = regs[idx];
       return re.test(g.pubLabel) || g.hits.some(h => re.test(h.title) || re.test(_stripMarks(h.snippet)));
@@ -288,8 +283,7 @@ const _SECTION_LABELS = {
 function _renderResultsList(groups, count, highlightRegex, q, activeLang) {
   const basePath = getBasePath();
   const ordered = _orderGroups(groups, _orFallbackActive);
-  // Aba ativa filtra os grupos (Tudo = sem filtro; flags não-exclusivas).
-  const filtered = ordered.filter(_groupMatchesFilter);
+  const filtered = ordered;
   const visible = filtered.slice(0, count);
   const labels = _SECTION_LABELS[activeLang === 'ja' ? 'ja' : 'pt'];
 
@@ -303,9 +297,9 @@ function _renderResultsList(groups, count, highlightRegex, q, activeLang) {
 
   let lastKind = null;
   for (const g of visible) {
-    // Rótulos de seção só no modo normal SEM filtro de aba (no OR a ordem
-    // é por cobertura e mistura kinds; com aba ativa o rótulo é redundante).
-    if (!_orFallbackActive && _kindFilter === 'all' && g.kind !== lastKind) {
+    // Rótulos de seção só no modo normal (no OR a ordem é por cobertura
+    // e mistura kinds — o banner já contextualiza).
+    if (!_orFallbackActive && g.kind !== lastKind) {
       html += `<li class="search-section-label">${labels[g.kind]}</li>`;
       lastKind = g.kind;
     }
@@ -351,73 +345,11 @@ function _getSupabase() {
   return window.supabaseAuth?.supabase || null;
 }
 
-// ---------- Abas de tipo de match ----------
-// Tudo / Títulos / Conteúdo / Relacionados, com contagem de publicações.
-// Filtram os GRUPOS já buscados (client-side, sem nova query). A barra
-// só aparece quando há mais de um tipo presente nos resultados.
-let _kindFilter = 'all';
-
-const _TAB_LABELS = {
-  pt: { all: 'Tudo', title: 'Títulos', content: 'No conteúdo', related: 'Relacionados' },
-  ja: { all: 'すべて', title: 'タイトル', content: '本文', related: '関連' },
-};
-
-// Contagens NÃO-exclusivas: "Títulos" = publicações com match no título,
-// "No conteúdo" = com match no corpo — a mesma publicação pode estar nas
-// duas. "Relacionados" = nem um nem outro (só ranking semântico).
-function _kindCounts(groups) {
-  const counts = { title: 0, content: 0, related: 0 };
-  for (const g of groups) {
-    if (g.hasTitle) counts.title++;
-    if (g.hasContent) counts.content++;
-    if (!g.hasTitle && !g.hasContent) counts.related++;
-  }
-  return counts;
-}
-
-function _groupMatchesFilter(g) {
-  if (_kindFilter === 'all') return true;
-  if (_kindFilter === 'title') return g.hasTitle;
-  if (_kindFilter === 'content') return g.hasContent;
-  return !g.hasTitle && !g.hasContent;
-}
-
-function _renderKindTabs(activeLang) {
-  const bar = document.getElementById('searchKindTabs');
-  const countEl = document.getElementById('searchCount');
-  if (!bar) return;
-  const counts = _kindCounts(_allGroups);
-  const kindsPresent = ['title', 'content', 'related'].filter(k => counts[k] > 0);
-  if (_allGroups.length === 0 || kindsPresent.length < 2) {
-    bar.style.display = 'none';
-    bar.innerHTML = '';
-    if (countEl) countEl.style.display = '';
-    return;
-  }
-  const labels = _TAB_LABELS[activeLang === 'ja' ? 'ja' : 'pt'];
-  const tabs = ['all', ...kindsPresent];
-  // O texto "N publicações · M trechos" vive DENTRO da barra de abas
-  // (span empurrado pra direita) — economiza a linha do #searchCount,
-  // que fica escondido enquanto as abas estão visíveis.
-  bar.innerHTML = tabs.map(k => {
-    const n = k === 'all' ? _allGroups.length : counts[k];
-    return `<button type="button" role="tab" class="search-kind-tab${_kindFilter === k ? ' is-active' : ''}"
-      aria-selected="${_kindFilter === k}" data-kind="${k}">${labels[k]}<span class="search-kind-tab-count">${n}</span></button>`;
-  }).join('') + `<span class="search-tabs-count" id="searchTabsCount">${countEl ? escHtml(countEl.textContent) : ''}</span>`;
-  bar.style.display = '';
-  if (countEl) countEl.style.display = 'none';
-}
-
-function _hideKindTabs() {
-  const bar = document.getElementById('searchKindTabs');
-  if (bar) { bar.style.display = 'none'; bar.innerHTML = ''; }
-  const countEl = document.getElementById('searchCount');
-  if (countEl) countEl.style.display = '';
-}
-
-// Grupos visíveis após ordenação + filtro da aba ativa.
+// Grupos na ordem de exibição (títulos → conteúdo → relacionados;
+// no fallback OR, por cobertura). As abas de filtro foram testadas e
+// removidas (13/06) — as seções inline organizam sem pedir clique.
 function _filteredGroups() {
-  return _orderGroups(_allGroups, _orFallbackActive).filter(_groupMatchesFilter);
+  return _orderGroups(_allGroups, _orFallbackActive);
 }
 
 function _setRandomLoading(btn) {
@@ -502,8 +434,6 @@ window.clearSearch = function () {
   _allResults = [];
   _allGroups = [];
   _orFallbackActive = false;
-  _kindFilter = 'all';
-  _hideKindTabs();
   _displayedCount = 0;
   _currentQuery = '';
   _focusedIndex = -1;
@@ -826,7 +756,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!query.trim()) {
       if (resultsEl) resultsEl.innerHTML = '';
-      _hideKindTabs();
       return;
     }
 
@@ -936,35 +865,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // como função window.openSearchPreview pra possível reuso futuro.)
   }
 
-  // Abas de tipo de match: filtram os grupos já buscados, sem nova query.
-  // Após restore de sessionStorage _allGroups está vazio — nesse caso
-  // re-roda a busca (a aba clicada é aplicada quando os grupos chegam? não:
-  // re-search reseta pra 'all'; aceitável, é um clique a mais num caso raro).
-  const kindTabsBar = document.getElementById('searchKindTabs');
-  if (kindTabsBar) {
-    kindTabsBar.addEventListener('click', (e) => {
-      const tab = e.target.closest('.search-kind-tab');
-      if (!tab) return;
-      const kind = tab.dataset.kind || 'all';
-      if (!_allGroups.length) {
-        if (searchInput && searchInput.value.trim()) performSearch(searchInput.value);
-        return;
-      }
-      _kindFilter = kind;
-      const activeLang = localStorage.getItem('site_lang') || 'pt';
-      const filtered = _filteredGroups();
-      _displayedCount = Math.min(GROUPS_PER_PAGE, filtered.length);
-      _focusedIndex = -1;
-      const resultsEl = document.getElementById('searchResults');
-      const highlightRegex = _buildHighlightRegex(_currentQuery, activeLang);
-      if (resultsEl) resultsEl.innerHTML = _renderResultsList(_allGroups, _displayedCount, highlightRegex, _currentQuery, activeLang);
-      const shownHits = filtered.slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
-      const totalHits = filtered.reduce((n, g) => n + g.hits.length, 0);
-      _updateSearchCount(totalHits, shownHits, activeLang, false, filtered.length, _displayedCount);
-      _renderKindTabs(activeLang);
-      if (resultsEl) sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
-    });
-  }
 });
 
 let _supabaseLogTimer = null;
@@ -1007,15 +907,10 @@ function _updateFocusedItem(items) {
   if (_focusedIndex >= 0) items[_focusedIndex]?.scrollIntoView({ block: 'nearest' });
 }
 
-// totalGroups/shownGroups: publicações no filtro atual; total/shown: trechos.
-// Escreve no #searchCount E no span dentro da barra de abas (quando existe).
+// totalGroups/shownGroups: publicações; total/shown: trechos.
 function _updateSearchCount(total, shown, lang, hitLimit = false, totalGroups = 0, shownGroups = 0) {
   const el = document.getElementById('searchCount');
-  const tabsEl = document.getElementById('searchTabsCount');
-  const set = (text) => {
-    if (el) el.textContent = text;
-    if (tabsEl) tabsEl.textContent = text;
-  };
+  const set = (text) => { if (el) el.textContent = text; };
   if (total === 0) { set(''); return; }
   let text;
   if (lang === 'ja') {
@@ -1145,7 +1040,6 @@ async function performSearch(query) {
       if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${minCharsMsg}</li>`;
     }
     _updateSearchCount(0, 0, activeLang);
-    _hideKindTabs();
     return;
   }
 
@@ -1257,7 +1151,6 @@ async function performSearch(query) {
       const errMsg = activeLang === 'ja' ? '検索に失敗しました。' : 'Erro ao buscar. Tente novamente.';
       if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errMsg}</li>`;
       _updateSearchCount(0, 0, activeLang);
-      _hideKindTabs();
       return;
     }
 
@@ -1293,7 +1186,6 @@ async function performSearch(query) {
       _allGroups = [];
       _displayedCount = 0;
       _currentQuery = '';
-      _hideKindTabs();
       // "Você quis dizer...?" — chama suggest_teachings com o texto cru
       // (não a tsquery traduzida). Se o user já mudou a query enquanto
       // a busca rodava, _currentQuery foi resetado e descartamos.
@@ -1307,7 +1199,6 @@ async function performSearch(query) {
     _allResults = results;
     _allGroups = _groupResults(results, q, activeLang);
     _currentQuery = q;
-    _kindFilter = 'all';
     _displayedCount = Math.min(GROUPS_PER_PAGE, _allGroups.length);
     _focusedIndex = -1;
 
@@ -1315,7 +1206,6 @@ async function performSearch(query) {
     const shownHits = _filteredGroups()
       .slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
     _updateSearchCount(results.length, shownHits, activeLang, hitLimit, _allGroups.length, _displayedCount);
-    _renderKindTabs(activeLang);
     logSearch(q, results.length, _latencyMs);
 
     // Few-results case: prepende "Você quis dizer..." sem destruir os
@@ -1331,7 +1221,6 @@ async function performSearch(query) {
     console.error('Search exception:', err);
     const errMsg = activeLang === 'ja' ? 'エラーが発生しました。' : 'Erro inesperado na busca.';
     if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errMsg}</li>`;
-    _hideKindTabs();
   }
 }
 

@@ -144,67 +144,97 @@
 }
 
 /* Filtro de categoria (Tudo · No título · No conteúdo · Relacionados).
-   Texto + contagem, separados por ·, abaixo do header. Estilo leve
-   (texto, não pílulas) — substitui o #searchCount enquanto visível. */
-.search-kind-filter {
+   Seletor de MODO: pílulas segmentadas (Título/Conteúdo/Coleção/
+   Relacionados) logo abaixo do header. A busca acontece só no modo ativo. */
+.search-mode-selector {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 2px 4px;
-  padding: 9px 24px;
+  gap: 6px;
+  padding: 10px 24px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
   font-family: var(--font-ui);
 }
 
-.search-filter-btn {
+.search-mode-btn {
   background: transparent;
-  border: none;
+  border: 1px solid var(--border);
   color: var(--text-muted);
   font-family: var(--font-ui);
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   cursor: pointer;
-  padding: 4px 10px;
-  border-radius: 6px;
-  transition: color 0.15s ease, background 0.15s ease;
+  padding: 5px 14px;
+  border-radius: 999px;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
 }
 
-/* Separador "·" entre os botões */
-.search-filter-btn:not(:last-child)::after {
-  content: "·";
-  margin-left: 14px;
-  color: var(--border);
-  pointer-events: none;
-}
-
-.search-filter-btn:hover,
-.search-filter-btn:focus-visible {
+.search-mode-btn:hover,
+.search-mode-btn:focus-visible {
   color: var(--accent);
+  border-color: var(--accent);
   outline: none;
 }
 
-.search-filter-btn.is-active {
-  color: var(--accent);
+.search-mode-btn.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
   font-weight: 600;
 }
 
-.search-filter-btn-count {
-  margin-left: 5px;
+/* Resultados de lista plana (modos Título e Coleção) */
+.search-flat-item {
+  display: block;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s;
+}
+
+.search-flat-item:hover {
+  background: rgba(184, 134, 11, 0.05);
+}
+
+.search-flat-name {
+  font-family: var(--font-serif);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.search-flat-crumb {
   font-size: 0.78rem;
-  opacity: 0.7;
+  font-family: var(--font-ui);
+  color: var(--text-muted);
+  margin-top: 2px;
+  opacity: 0.85;
+}
+
+/* Nudge "tentar em outro modo" no estado vazio */
+.search-mode-nudge {
+  padding: 4px 24px 18px;
+  text-align: center;
 }
 
 @media (max-width: 767px) {
-  .search-kind-filter {
+  .search-mode-selector {
     padding: 8px 16px;
+    gap: 5px;
   }
-  .search-filter-btn {
-    font-size: 0.85rem;
-    padding: 4px 7px;
+  .search-mode-btn {
+    font-size: 0.82rem;
+    padding: 5px 11px;
   }
-  .search-filter-btn:not(:last-child)::after {
-    margin-left: 9px;
+  .search-flat-item {
+    padding: 10px 16px;
+  }
+  .search-flat-name {
+    font-size: 0.98rem;
+  }
+  .search-mode-nudge {
+    padding: 4px 16px 16px;
   }
 }
 

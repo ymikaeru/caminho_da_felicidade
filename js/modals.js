@@ -63,9 +63,8 @@ function buildSearchModal() {
             '</svg>' +
           '</button>' +
         '</div>' +
-        // Avançada = só modos de match (Palavra exata / Texto literal).
-        // O escopo Tudo/Título/Conteúdo virou o FILTRO de categoria
-        // (#searchKindFilter, client-side) — ver search.js.
+        // Avançada = só modos de match (Palavra exata / Texto literal),
+        // que afinam o modo Conteúdo.
         '<div id="searchAdvancedPanel" class="search-filters search-advanced-panel' + (advancedOpen ? ' is-open' : '') + '">' +
           '<label class="filter-label filter-label--toggle" title="' + exactTitle + '">' +
             '<input type="checkbox" id="searchExactToggle">' +
@@ -77,9 +76,10 @@ function buildSearchModal() {
           '</label>' +
         '</div>' +
       '</div>' +
-      // Filtro de categoria (Tudo / No título / No conteúdo / Relacionados),
-      // populado pelo search.js a cada busca; oculto sem resultados.
-      '<div id="searchKindFilter" class="search-kind-filter" style="display:none;" role="tablist"></div>' +
+      // Seletor de MODO (Título / Conteúdo / Coleção / Relacionados): a
+      // busca acontece SÓ no campo escolhido, de forma determinística.
+      // Populado pelo search.js (_renderModeSelector) ao abrir o modal.
+      '<div id="searchModeSelector" class="search-mode-selector" role="tablist" aria-label="' + (lang === 'ja' ? '検索モード' : 'Modo de busca') + '"></div>' +
       '<div id="searchCount" class="search-count"></div>' +
       '<ul class="search-results" id="searchResults" aria-live="polite"></ul>' +
     '</div>';

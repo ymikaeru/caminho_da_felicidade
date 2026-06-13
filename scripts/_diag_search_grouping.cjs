@@ -159,6 +159,18 @@ const groupsBody = M._groupResults(rowsBody, 'toxinas', 'pt');
 const htmlBody = M._renderGroupsList(groupsBody, 8, M._buildHighlightRegex('toxinas', 'pt'), 'toxinas', 'pt');
 check('conteúdo: janela do corpo (não do título)', /search-hit-snippet[^>]*>[\s\S]*?<mark[^>]*>toxinas/i.test(htmlBody), htmlBody.match(/search-hit-snippet[^>]*>([\s\S]{0,80})/)?.[1]);
 check('conteúdo: corpo sem o título "Sobre a Cura"', !/search-hit-snippet[^>]*>[\s\S]*?Sobre a Cura/i.test(htmlBody), '');
+
+// 10c. corpo quando o título embutido NÃO tem prefixo "Meishu-Sama:" e o
+// match (Johrei) está no TÍTULO — a janela deve pular pro Johrei do corpo.
+const rowsNoPrefix = [{
+  vol: 'mioshiec2', file: 'ID7', topic_idx: 0, title_pt: 'Coletânea de fragmentos sobre medicina 7',
+  snippet: '"O <mark>Johrei</mark> é Transfusão de Sangue" (1953) introdução',
+  content_excerpt: '"O Johrei é Transfusão de Sangue" (Escrito em 1953) Hoje a medicina considera a transfusão indispensável; porém, pela fé, o Johrei dissolve as impurezas do sangue sem agredir o corpo.',
+  rank: 0.5,
+}];
+const htmlNoPrefix = M._renderGroupsList(M._groupResults(rowsNoPrefix, 'johrei', 'pt'), 8, M._buildHighlightRegex('johrei', 'pt'), 'johrei', 'pt');
+check('conteúdo: pula título sem prefixo, grifa Johrei do corpo', /search-hit-snippet[^>]*>[\s\S]*?<mark[^>]*>Johrei[\s\S]*?dissolve/i.test(htmlNoPrefix), htmlNoPrefix.match(/search-hit-snippet[^>]*>([\s\S]{0,90})/)?.[1]);
+check('conteúdo: corpo sem "Transfusão de Sangue" (título)', !/search-hit-snippet[^>]*>[\s\S]*?é Transfusão de Sangue/i.test(htmlNoPrefix), '');
 M._setMode('titulo');
 
 process.exit(fail ? 1 : 0);

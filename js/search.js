@@ -253,12 +253,23 @@ function _styleSnippetSmart(rawSnippet, activeLang, highlightRegex) {
   return _styleSnippet(rawSnippet, activeLang, highlightRegex);
 }
 
-// Remove só o RÓTULO do orador ("Ensinamento de Meishu-Sama:" /
-// "Orientação de Meishu-Sama -") do começo do fragmento, preservando o
-// título entre aspas e o corpo (e os <mark>). Usado no modo Conteúdo, onde
-// o fragmento ts_headline (centrado no match) é mostrado inteiro.
+// Remove só o RÓTULO do orador ("Ensinamento de Meishu-Sama:") do começo,
+// preservando título + corpo. Fallback final do modo Conteúdo.
 function _cleanContentSnippet(s) {
   return String(s || '').replace(/^[\s\S]{0,40}?Meishu-Sama\s*[:：\-–—]\s*/, '');
+}
+
+// Extrai o CORPO do trecho, cortando o título embutido. Os conteúdos
+// começam de várias formas: 'Ensinamento de Meishu-Sama: "TÍTULO" (data)…',
+// '"TÍTULO" (data)…', ou 'Contribuição de um dedicante: "TÍTULO" (data)…'.
+// Corta o 1º "título entre aspas" (+ data) perto do começo e devolve o
+// resto. Tira <mark> (o corpo é re-grifado depois). Sem aspas no começo,
+// só remove o rótulo do orador.
+function _contentBody(text) {
+  const s = _stripMarks(String(text || ''));
+  const m = s.match(/^[\s\S]{0,120}?["“”«][^"“”»]{2,160}["“”»]\s*(?:[（(][^)）]{0,45}[)）])?\s*/);
+  if (m && m[0].length < s.length - 8) return s.slice(m[0].length).trim();
+  return s.replace(/^[\s\S]{0,40}?Meishu-Sama\s*[:：\-–—]\s*/, '').trim();
 }
 
 // Janela do CORPO em volta da 1ª ocorrência de um termo (modo Conteúdo).
@@ -294,11 +305,12 @@ function _renderHit(hit, g, basePath, highlightRegex, q, activeLang) {
   let snippetSrc = hit.snippet;
 
   if (_searchMode === 'conteudo') {
-    // Conteúdo é o protagonista: prioriza um trecho do CORPO em volta do
-    // match (content_excerpt), pulando o título embutido. Se o corpo não
-    // tiver o termo (match era só no título), cai no fragmento do servidor.
-    const ce = hit.content_excerpt || '';
-    const bodyText = ce ? ((_extractTeaching(ce) || {}).body || ce) : '';
+    // Conteúdo é o protagonista: pega um trecho do CORPO em volta do match,
+    // pulando o título embutido. Usa content_excerpt (corpo cru, 1500 chars)
+    // quando vem; senão, o próprio fragmento do servidor. Se o termo não
+    // estiver no corpo (match era só no título), cai no fragmento limpo.
+    const src = hit.content_excerpt || hit.snippet || '';
+    const bodyText = _contentBody(src);
     snippetSrc = _bodyWindow(bodyText, q, activeLang) || _cleanContentSnippet(hit.snippet);
   } else if (ex) {
     // Título real embutido: vira a manchete do trecho (com grifo), e o

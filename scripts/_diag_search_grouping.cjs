@@ -11,7 +11,7 @@ global.sessionStorage = global.localStorage;
 global.performance = { now: () => 0 };
 
 const src = readFileSync(join(__dirname, '..', 'js', 'search.js'), 'utf8');
-eval(src + '\nmodule.exports = { _splitTerms, _buildHighlightRegex, _groupResults, _orderGroups, _renderResultsList, _kindCounts, _setOr: v => { _orFallbackActive = v; }, _setKindFilter: v => { _kindFilter = v; } };');
+eval(src + '\nmodule.exports = { _splitTerms, _buildHighlightRegex, _groupResults, _orderGroups, _renderResultsList, _kindCounts, _extractTeaching, _setOr: v => { _orFallbackActive = v; }, _setKindFilter: v => { _kindFilter = v; } };');
 const M = module.exports;
 
 let fail = 0;
@@ -64,11 +64,9 @@ check('título casa → kind title', gT.kind === 'title', gT.kind);
 const orderedT = M._orderGroups(groupsT, false);
 check('seção título primeiro', orderedT[0].file === 'sinbatu.html', orderedT.map(g => g.file));
 
-// 6. render: seções, badges, banner OR, dedup
+// 6. render: badges, banner OR, grifo no título da publicação normal
 M._setOr(false);
 let html = M._renderResultsList(groupsT, 8, M._buildHighlightRegex('punição divina', 'pt'), 'punição divina', 'pt');
-check('section label título', html.includes('Títulos correspondentes'), '');
-check('badge no título', html.includes('>no título<'), '');
 check('badge relacionado', html.includes('>relacionado<'), '');
 check('grifo no título do grupo', /search-group-title[^<]*<mark/.test(html.replace(/\n/g, '')), '');
 M._setOr(true);
@@ -78,27 +76,36 @@ check('badge todas as palavras', html.includes('todas as palavras'), '');
 check('hits aninhados', html.includes('search-group-hits') && html.includes('search-hit-snippet'), '');
 check('link com topic', html.includes('&topic=3'), '');
 
-// 7. dedup título×snippet: snippet que começa com o título esconde a linha de título
-const rowsD = [{ vol: 'mioshiec3', file: 'make2.html', topic_idx: 1, title_pt: 'Ao Perder, Não Se É Guardado Rancor, Portanto, a Sorte é Boa', snippet: 'Ensinamento de Meishu-Sama: "Ao Perder, Não Se É Guardado <mark>Rancor</mark>', rank: 0.5 }];
-const groupsD = M._groupResults(rowsD, 'rancor', 'pt');
+// 7. filtro Tudo + Relacionados (não mais título/conteúdo)
 M._setOr(false);
-const htmlD = M._renderResultsList(groupsD, 8, M._buildHighlightRegex('rancor', 'pt'), 'rancor', 'pt');
-check('dedup título duplicado no snippet', !htmlD.includes('search-hit-title'), '');
-
-// 8. filtro de categoria não-exclusivo (pub título+conteúdo conta nos 2)
-const gSinT = groupsT.find(g => g.file === 'sinbatu.html');
-check('flags não-exclusivas', gSinT.hasTitle === true && gSinT.hasContent === true, JSON.stringify({ t: gSinT.hasTitle, c: gSinT.hasContent }));
 const counts = M._kindCounts(groupsT);
-check('counts.all = total grupos', counts.all === groupsT.length, counts.all);
-check('counts somam ≥ all (não-exclusivo)', counts.title + counts.content + counts.related >= counts.all, JSON.stringify(counts));
-M._setOr(false);
-M._setKindFilter('content');
-const htmlC = M._renderResultsList(groupsT, 8, M._buildHighlightRegex('punição divina', 'pt'), 'punição divina', 'pt');
-check('filtro conteúdo inclui pub título+conteúdo', htmlC.includes('Punição divina'), '');
-check('filtro ativo: sem rótulo de seção', !htmlC.includes('search-section-label'), '');
+check('counts: all = direct + related', counts.all === counts.direct + counts.related, JSON.stringify(counts));
+check('counts: 1 related (Amor altruísta)', counts.related === 1, counts.related);
 M._setKindFilter('related');
 const htmlR = M._renderResultsList(groupsT, 8, M._buildHighlightRegex('punição divina', 'pt'), 'punição divina', 'pt');
 check('filtro relacionados: só related', htmlR.includes('Amor altruísta') && !htmlR.includes('Punição divina'), '');
 M._setKindFilter('all');
+const htmlAll = M._renderResultsList(groupsT, 8, M._buildHighlightRegex('punição divina', 'pt'), 'punição divina', 'pt');
+check('Tudo inclui ambos', htmlAll.includes('Amor altruísta') && htmlAll.includes('Punição divina'), '');
+
+// 8. extração do título real embutido (contêineres)
+const ex = M._extractTeaching('Ensinamento de Meishu-Sama : "O <mark>Johrei</mark> é a Verdadeira Medicina" (1953) "Este paciente tentou a medicina."');
+check('extrai título real', ex && ex.title === 'O <mark>Johrei</mark> é a Verdadeira Medicina', ex && ex.title);
+check('extrai corpo sem cabeçalho', ex && ex.body.startsWith('"Este paciente'), ex && ex.body.slice(0, 20));
+check('sem cabeçalho → null', M._extractTeaching('o espírito se eleva pela prática diária') === null, '');
+
+// 9. render contêiner: rótulo de coleção + títulos reais, sem manchete da pub
+window.SECTION_MAP.mioshiec2 = { 'ID5': { pt: 'Coletânea de fragmentos sobre medicina 5' } };
+const rowsCont = [
+  { vol: 'mioshiec2', file: 'ID5', topic_idx: 1, title_pt: 'Coletânea de fragmentos sobre medicina 5', snippet: 'Ensinamento de Meishu-Sama : "O <mark>Johrei</mark> é a Verdadeira Medicina" (1953) "Este paciente tentou a medicina."', rank: 0.8 },
+  { vol: 'mioshiec2', file: 'ID5', topic_idx: 3, title_pt: 'Coletânea de fragmentos sobre medicina 5', snippet: 'Ensinamento de Meishu-Sama: "Ah, Quão Grandiosa é a Obra do <mark>Johrei</mark>" (1953) "A diferença gritante."', rank: 0.7 },
+];
+const groupsCont = M._groupResults(rowsCont, 'johrei', 'pt');
+const htmlCont = M._renderResultsList(groupsCont, 8, M._buildHighlightRegex('johrei', 'pt'), 'johrei', 'pt');
+check('contêiner: classe collection', htmlCont.includes('search-group--collection'), '');
+check('contêiner: rótulo de coleção', htmlCont.includes('search-group-collection'), '');
+check('contêiner: título real como hit-title', /search-hit-title[^>]*>O <mark[^>]*>Johrei/.test(htmlCont), '');
+check('contêiner: SEM manchete da publicação', !htmlCont.includes('search-group-title'), '');
+check('contêiner: corpo sem "Ensinamento de Meishu-Sama"', !/search-hit-snippet[^>]*>[^<]*Ensinamento de Meishu/.test(htmlCont), '');
 
 process.exit(fail ? 1 : 0);

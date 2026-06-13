@@ -118,6 +118,25 @@ function _stripMarks(s) {
   return String(s || '').replace(/<\/?mark[^>]*>/gi, '');
 }
 
+// Publicações-contêiner ("Coletânea de fragmentos sobre medicina N" etc.)
+// guardam vários ensinamentos num só arquivo; o título_pt é o nome do
+// contêiner e o título REAL de cada tópico fica embutido no começo do
+// conteúdo: 'Ensinamento de Meishu-Sama: "TÍTULO" (data) corpo...'.
+// Extrai { title, body } preservando os <mark>. Retorna null quando o
+// padrão não está no início (trecho recortado de um match fundo no corpo).
+const _TEACH_HEAD_RE = /^[\s\S]{0,60}?Meishu-Sama\s*[:：]?\s*[«"“”„]([\s\S]*?)[»"“”]\s*(?:[（(][^)）]*[)）])?\s*/;
+function _extractTeaching(snippet) {
+  if (!snippet) return null;
+  const m = snippet.match(_TEACH_HEAD_RE);
+  if (!m) return null;
+  const title = m[1].trim();
+  // Guarda: título plausível (não vazio, não a string toda por falta de
+  // aspas de fechamento perto).
+  if (!title || _stripMarks(title).length < 2 || _stripMarks(title).length > 120) return null;
+  const body = snippet.slice(m[0].length).trim();
+  return { title, body };
+}
+
 // ---------------------------------------------------------------
 // Agrupamento por publicação + seções por tipo de match.
 // Cada resultado da RPC é um TRECHO (tópico). Antes cada trecho era um
@@ -223,23 +242,37 @@ function _styleSnippetSmart(rawSnippet, activeLang, highlightRegex) {
   return _styleSnippet(rawSnippet, activeLang, highlightRegex);
 }
 
+// Cada hit conhece seu título real (extraído do conteúdo embutido, quando
+// é tópico de contêiner) calculado uma vez em _renderGroup e passado aqui.
 function _renderHit(hit, g, basePath, highlightRegex, q, activeLang) {
   const href = _searchLink(basePath, g.vol, g.file, hit.topicIdx, q, activeLang);
-  // Dedup título × snippet: se o começo do título já aparece no snippet
-  // (caso comum: o trecho abre com o próprio cabeçalho), o título do hit
-  // é redundante — o snippet o mostra COM grifo.
-  const tNorm = _norm(_stripMarks(hit.title || ''));
-  const sNorm = _norm(_stripMarks(hit.snippet || '')).replace(/^[^a-zà-ÿ0-9一-龯ぁ-んァ-ン]+/i, '');
-  const dupInSnippet = tNorm.length >= 12 && sNorm.includes(tNorm.slice(0, 25));
-  const sameAsPub = tNorm && tNorm === _norm(g.pubLabel);
-  const titleHtml = (!tNorm || sameAsPub || dupInSnippet)
-    ? ''
-    : `<div class="search-hit-title">${escHtml(hit.title)}</div>`;
-  const snippetHtml = _styleSnippetSmart(hit.snippet, activeLang, highlightRegex);
+  const ex = hit._extracted; // { title, body } | null
+  let titleHtml = '';
+  let snippetSrc = hit.snippet;
+
+  if (ex) {
+    // Título real embutido: vira a manchete do trecho (com grifo), e o
+    // corpo (sem o cabeçalho "Ensinamento de Meishu-Sama:") vira o snippet.
+    titleHtml = `<div class="search-hit-title">${_styleSnippetSmart(ex.title, activeLang, highlightRegex)}</div>`;
+    snippetSrc = ex.body || hit.snippet;
+  } else {
+    // Sem extração (publicação normal): mostra o título doutrinário só se
+    // ele não for o nome da publicação nem já estiver repetido no snippet.
+    const tNorm = _norm(_stripMarks(hit.title || ''));
+    const sNorm = _norm(_stripMarks(hit.snippet || '')).replace(/^[^a-zà-ÿ0-9一-龯ぁ-んァ-ン]+/i, '');
+    const dupInSnippet = tNorm.length >= 12 && sNorm.includes(tNorm.slice(0, 25));
+    const sameAsPub = tNorm && tNorm === _norm(g.pubLabel);
+    if (tNorm && !sameAsPub && !dupInSnippet) {
+      titleHtml = `<div class="search-hit-title">${escHtml(hit.title)}</div>`;
+    }
+  }
+
+  const snippetHtml = _styleSnippetSmart(snippetSrc, activeLang, highlightRegex);
+  const dataTitle = ex ? _stripMarks(ex.title) : (hit.title || g.pubLabel);
   return `<li><a href="${href}" class="search-hit search-nav-item"
       data-vol="${escHtml(g.vol)}" data-file="${escHtml(g.file)}"
       data-query="${escHtml(q)}" data-topic="${hit.topicIdx}"
-      data-title="${escHtml(hit.title || g.pubLabel)}">
+      data-title="${escHtml(dataTitle)}">
       ${titleHtml}
       <div class="search-hit-snippet">${snippetHtml}</div>
     </a></li>`;
@@ -251,10 +284,19 @@ function _renderGroup(g, basePath, highlightRegex, q, activeLang) {
   const hits = g.hits.slice().sort((a, b) => a.topicIdx - b.topicIdx);
   const headHref = _searchLink(basePath, g.vol, g.file, hits[0].topicIdx, q, activeLang);
 
+  // Extrai o título real de cada hit (tópicos de contêiner). Se TODOS os
+  // hits têm título próprio ≠ nome da publicação, é um contêiner: a
+  // manchete da publicação vira só um rótulo de coleção (pequeno), e cada
+  // ensinamento aparece com seu título real — o usuário pediu pra NÃO ver
+  // "Coletânea de fragmentos..." como informação principal.
+  hits.forEach(h => {
+    const ex = activeLang === 'ja' ? null : _extractTeaching(h.snippet);
+    h._extracted = (ex && _norm(_stripMarks(ex.title)) !== _norm(g.pubLabel)) ? ex : null;
+  });
+  const isContainer = hits.length > 0 && hits.every(h => h._extracted);
+
   let badge = '';
-  if (g.kind === 'title') {
-    badge = `<span class="search-badge">${activeLang === 'ja' ? 'タイトル' : 'no título'}</span>`;
-  } else if (g.kind === 'related') {
+  if (g.kind === 'related') {
     badge = `<span class="search-badge search-badge--related">${activeLang === 'ja' ? '関連' : 'relacionado'}</span>`;
   }
   // Fallback OR: marca quem cobre todas as palavras da busca.
@@ -263,74 +305,72 @@ function _renderGroup(g, basePath, highlightRegex, q, activeLang) {
   }
 
   const hitsLabel = hits.length > 1
-    ? `<span class="search-group-hitcount">${activeLang === 'ja' ? `${hits.length}節` : `${hits.length} trechos`}</span>`
+    ? (activeLang === 'ja' ? `${hits.length}件` : `${hits.length} ${isContainer ? 'ensinamentos' : 'trechos'}`)
     : '';
-  // Grifa o termo também no título da publicação (caso "no título").
+  const hitsHtml = hits.map(h => _renderHit(h, g, basePath, highlightRegex, q, activeLang)).join('');
+
+  if (isContainer) {
+    // Contêiner: cabeçalho leve (coleção · Volume · N), ensinamentos abaixo.
+    const crumb = [g.pubLabel, volLabel, hitsLabel].filter(Boolean).join(' · ');
+    return `<li class="search-group search-group--collection">
+        <div class="search-group-collection">${escHtml(crumb)}${badge}</div>
+        <ul class="search-group-hits">${hitsHtml}</ul>
+      </li>`;
+  }
+
+  // Publicação normal: manchete = título da publicação (com grifo).
   const pubTitleHtml = highlightRegex
     ? escHtml(g.pubLabel).replace(highlightRegex, '<mark class="search-highlight">$1</mark>')
     : escHtml(g.pubLabel);
-
-  const hitsHtml = hits.map(h => _renderHit(h, g, basePath, highlightRegex, q, activeLang)).join('');
+  const crumbLabel = hitsLabel ? `${volLabel} · ${hitsLabel}` : volLabel;
   return `<li class="search-group">
       <a href="${headHref}" class="search-group-head search-nav-item"
         data-vol="${escHtml(g.vol)}" data-file="${escHtml(g.file)}"
         data-query="${escHtml(q)}" data-topic="${hits[0].topicIdx}"
         data-title="${escHtml(g.pubLabel)}">
         <div class="search-group-title">${pubTitleHtml}${badge}</div>
-        <div class="search-group-crumb">${volLabel}${hitsLabel ? ' · ' : ''}${hitsLabel}</div>
+        <div class="search-group-crumb">${crumbLabel}</div>
       </a>
       <ul class="search-group-hits">${hitsHtml}</ul>
     </li>`;
 }
 
-const _SECTION_LABELS = {
-  pt: { title: 'Títulos correspondentes', content: 'No conteúdo', related: 'Relacionados' },
-  ja: { title: 'タイトルに一致', content: '本文に一致', related: '関連' },
-};
-
 const _FILTER_LABELS = {
-  pt: { all: 'Tudo', title: 'No título', content: 'No conteúdo', related: 'Relacionados' },
-  ja: { all: 'すべて', title: 'タイトル', content: '本文', related: '関連' },
+  pt: { all: 'Tudo', related: 'Relacionados' },
+  ja: { all: 'すべて', related: '関連' },
 };
 
-// Contagens NÃO-exclusivas (publicações): título e conteúdo podem somar
-// a mesma pub. Relacionados = nem título nem conteúdo (só semântico).
+// Filtro reduzido a Tudo + Relacionados: a distinção título/conteúdo era
+// não-confiável (todo resultado tem o termo no corpo) e clicar não mudava
+// nada visível. "Relacionados" (só ranking semântico, sem o termo) é um
+// conjunto realmente distinto — alternar muda a lista de forma perceptível.
 function _kindCounts(groups) {
-  const c = { all: groups.length, title: 0, content: 0, related: 0 };
-  for (const g of groups) {
-    if (g.hasTitle) c.title++;
-    if (g.hasContent) c.content++;
-    if (!g.hasTitle && !g.hasContent) c.related++;
-  }
-  return c;
+  let related = 0;
+  for (const g of groups) if (g.kind === 'related') related++;
+  return { all: groups.length, related, direct: groups.length - related };
 }
 
 function _groupMatchesFilter(g) {
-  if (_kindFilter === 'all') return true;
-  if (_kindFilter === 'title') return g.hasTitle;
-  if (_kindFilter === 'content') return g.hasContent;
-  return !g.hasTitle && !g.hasContent;
+  if (_kindFilter === 'related') return g.kind === 'related';
+  return true; // 'all'
 }
 
-// Barra de filtro de categoria (texto + contagem, separados por ·).
-// Sempre visível quando há resultados de mais de uma categoria; some
-// quando só há uma (filtro seria inútil). Esconde o #searchCount nesse
-// caso — as contagens por categoria já dão o panorama.
+// Barra de filtro (Tudo · Relacionados). Só aparece quando há AMBOS
+// matches diretos e relacionados — senão o filtro não teria o que separar.
+// Esconde o #searchCount quando visível (a contagem vai nos botões).
 function _renderKindFilter(activeLang) {
   const bar = document.getElementById('searchKindFilter');
   const countEl = document.getElementById('searchCount');
   if (!bar) return;
   const counts = _kindCounts(_allGroups);
-  const present = ['title', 'content', 'related'].filter(k => counts[k] > 0);
-  if (_allGroups.length === 0 || present.length < 2) {
+  if (counts.related === 0 || counts.direct === 0) {
     bar.style.display = 'none';
     bar.innerHTML = '';
     if (countEl) countEl.style.display = '';
     return;
   }
   const labels = _FILTER_LABELS[activeLang === 'ja' ? 'ja' : 'pt'];
-  const order = ['all', ...present];
-  bar.innerHTML = order.map(k =>
+  bar.innerHTML = ['all', 'related'].map(k =>
     `<button type="button" role="tab" class="search-filter-btn${_kindFilter === k ? ' is-active' : ''}"
       aria-selected="${_kindFilter === k}" data-kind="${k}">${labels[k]}<span class="search-filter-btn-count">${counts[k]}</span></button>`
   ).join('');
@@ -350,7 +390,6 @@ function _renderResultsList(groups, count, highlightRegex, q, activeLang) {
   const ordered = _orderGroups(groups, _orFallbackActive);
   const filtered = ordered.filter(_groupMatchesFilter);
   const visible = filtered.slice(0, count);
-  const labels = _SECTION_LABELS[activeLang === 'ja' ? 'ja' : 'pt'];
 
   let html = '';
   if (_orFallbackActive) {
@@ -360,14 +399,10 @@ function _renderResultsList(groups, count, highlightRegex, q, activeLang) {
     html += `<li class="search-or-banner">${bannerTxt}</li>`;
   }
 
-  let lastKind = null;
+  // Sem rótulos de seção: a barra de filtro (#searchKindFilter) + o badge
+  // de cada grupo ("no título"/"relacionado") já indicam a categoria.
+  // Ter ambos repetia os mesmos nomes e confundia.
   for (const g of visible) {
-    // Rótulos de seção só no modo "Tudo" (com filtro ativo a lista é de
-    // uma categoria só; no OR a ordem é por cobertura — banner contextualiza).
-    if (!_orFallbackActive && _kindFilter === 'all' && g.kind !== lastKind) {
-      html += `<li class="search-section-label">${labels[g.kind]}</li>`;
-      lastKind = g.kind;
-    }
     html += _renderGroup(g, basePath, highlightRegex, q, activeLang);
   }
 
@@ -859,7 +894,10 @@ document.addEventListener('DOMContentLoaded', () => {
       _focusedIndex = -1;
       const resultsEl = document.getElementById('searchResults');
       const highlightRegex = _buildHighlightRegex(_currentQuery, activeLang);
-      if (resultsEl) resultsEl.innerHTML = _renderResultsList(_allGroups, _displayedCount, highlightRegex, _currentQuery, activeLang);
+      if (resultsEl) {
+        resultsEl.innerHTML = _renderResultsList(_allGroups, _displayedCount, highlightRegex, _currentQuery, activeLang);
+        resultsEl.scrollTop = 0; // volta ao topo — a mudança fica visível
+      }
       _renderKindFilter(activeLang);
       if (resultsEl) sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
     });

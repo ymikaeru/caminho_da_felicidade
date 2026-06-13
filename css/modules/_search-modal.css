@@ -329,17 +329,6 @@
 
 /* ── Resultados agrupados por publicação ─────────────────────── */
 
-.search-section-label {
-  padding: 10px 24px 2px;
-  font-family: var(--font-ui);
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  opacity: 0.85;
-}
-
 .search-group {
   border-bottom: 1px solid var(--border);
   padding-bottom: 8px;
@@ -370,6 +359,21 @@
   color: var(--text-muted);
   margin-top: 2px;
   opacity: 0.85;
+}
+
+/* Contêiner ("Coletânea de fragmentos..."): rótulo de coleção leve no
+   topo; cada ensinamento abaixo carrega seu próprio título. */
+.search-group-collection {
+  padding: 8px 24px 2px;
+  font-size: 0.78rem;
+  font-family: var(--font-ui);
+  color: var(--text-muted);
+  opacity: 0.9;
+}
+
+.search-group--collection .search-hit-title {
+  color: var(--accent);
+  font-size: 0.98rem;
 }
 
 .search-group-hitcount {
@@ -618,7 +622,6 @@
     font-size: 0.85rem;
   }
 
-  .search-section-label,
   .search-or-banner {
     padding-left: 16px;
     padding-right: 16px;

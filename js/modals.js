@@ -63,9 +63,8 @@ function buildSearchModal() {
             '</svg>' +
           '</button>' +
         '</div>' +
-        // Os rádios Tudo/Só Título/Só Conteúdo saíram daqui: as ABAS dos
-        // resultados (Títulos/No conteúdo/Relacionados) cobrem o mesmo
-        // caso com contagem e sem nova query — ter os dois confundia.
+        // Avançada = só modos de match (Palavra exata / Texto literal),
+        // que afinam o modo Conteúdo.
         '<div id="searchAdvancedPanel" class="search-filters search-advanced-panel' + (advancedOpen ? ' is-open' : '') + '">' +
           '<label class="filter-label filter-label--toggle" title="' + exactTitle + '">' +
             '<input type="checkbox" id="searchExactToggle">' +
@@ -77,6 +76,10 @@ function buildSearchModal() {
           '</label>' +
         '</div>' +
       '</div>' +
+      // Seletor de MODO (Título / Conteúdo / Coleção / Relacionados): a
+      // busca acontece SÓ no campo escolhido, de forma determinística.
+      // Populado pelo search.js (_renderModeSelector) ao abrir o modal.
+      '<div id="searchModeSelector" class="search-mode-selector" role="tablist" aria-label="' + (lang === 'ja' ? '検索モード' : 'Modo de busca') + '"></div>' +
       '<div id="searchCount" class="search-count"></div>' +
       '<ul class="search-results" id="searchResults" aria-live="polite"></ul>' +
     '</div>';

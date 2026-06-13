@@ -36,9 +36,23 @@ let _allResults = [];
 let _allGroups = [];
 let _displayedCount = 0;
 let _currentQuery = '';
-// true quando os resultados vieram do fallback OR (nenhum trecho contém
-// todas as palavras juntas → re-busca por qualquer palavra, agrupada).
+// true quando os resultados (modo Conteúdo) vieram por COBERTURA OR — as
+// palavras casam em trechos diferentes da mesma publicação, não juntas num
+// só trecho (ex.: "Vingança Ushitora alegria"). Banner explica.
 let _orFallbackActive = false;
+// Modo de busca (escolha explícita do usuário, persistida): cada modo busca
+// e mostra SÓ o seu tipo, de forma determinística. Acabou o "busca tudo e
+// despeja semântica" — ver _MODES e performSearch.
+//   'titulo'      → índice local de títulos reais por-tópico
+//   'conteudo'    → FTS no corpo + cobertura por publicação (multi-palavra)
+//   'colecao'     → nome das publicações (SECTION_MAP)
+//   'relacionados'→ busca semântica (Edge search-semantic)
+const _MODES = ['titulo', 'conteudo', 'colecao', 'relacionados'];
+let _searchMode = 'titulo';
+try { const m = localStorage.getItem('search_mode'); if (_MODES.includes(m)) _searchMode = m; } catch (e) {}
+// Cache do índice de títulos (modo Título): { vol: [{f,i,t,tj}, ...] }.
+let _titlesIndex = null;
+let _titlesIndexLoading = null;
 // Sequence ID: cada performSearch incrementa, e o handler de resposta só
 // renderiza se o seq ainda for o último — descarta respostas de buscas
 // que o usuário já abandonou (typeahead burst).
@@ -114,6 +128,25 @@ function _stripMarks(s) {
   return String(s || '').replace(/<\/?mark[^>]*>/gi, '');
 }
 
+// Publicações-contêiner ("Coletânea de fragmentos sobre medicina N" etc.)
+// guardam vários ensinamentos num só arquivo; o título_pt é o nome do
+// contêiner e o título REAL de cada tópico fica embutido no começo do
+// conteúdo: 'Ensinamento de Meishu-Sama: "TÍTULO" (data) corpo...'.
+// Extrai { title, body } preservando os <mark>. Retorna null quando o
+// padrão não está no início (trecho recortado de um match fundo no corpo).
+const _TEACH_HEAD_RE = /^[\s\S]{0,60}?Meishu-Sama\s*[:：]?\s*[«"“”„]([\s\S]*?)[»"“”]\s*(?:[（(][^)）]*[)）])?\s*/;
+function _extractTeaching(snippet) {
+  if (!snippet) return null;
+  const m = snippet.match(_TEACH_HEAD_RE);
+  if (!m) return null;
+  const title = m[1].trim();
+  // Guarda: título plausível (não vazio, não a string toda por falta de
+  // aspas de fechamento perto).
+  if (!title || _stripMarks(title).length < 2 || _stripMarks(title).length > 120) return null;
+  const body = snippet.slice(m[0].length).trim();
+  return { title, body };
+}
+
 // ---------------------------------------------------------------
 // Agrupamento por publicação + seções por tipo de match.
 // Cada resultado da RPC é um TRECHO (tópico). Antes cada trecho era um
@@ -161,6 +194,7 @@ function _groupResults(results, q, activeLang) {
       topicIdx: r.topic_idx != null ? r.topic_idx : 0,
       title: doctrinal,
       snippet: r.snippet || '',
+      content_excerpt: r.content_excerpt || '',
       rank: Number(r.rank) || 0,
       titleHit,
       contentHit,
@@ -171,8 +205,12 @@ function _groupResults(results, q, activeLang) {
   for (const g of list) {
     g.pubLabel = _pubLabel(g.vol, g.file, activeLang) || g.navTitle || (g.hits[0] ? g.hits[0].title : '');
     const pubTitleHit = regs.some(re => re.test(g.pubLabel));
-    g.kind = (pubTitleHit || g.hits.some(h => h.titleHit)) ? 'title'
-      : (g.hits.some(h => h.contentHit) ? 'content' : 'related');
+    // Flags NÃO-exclusivas: a mesma publicação pode casar no título E no
+    // corpo (o filtro "No conteúdo" deve listá-la nas duas categorias).
+    g.hasTitle = pubTitleHit || g.hits.some(h => h.titleHit);
+    g.hasContent = g.hits.some(h => h.contentHit);
+    // kind exclusivo continua pra ordenação + rótulos de seção no modo "Tudo".
+    g.kind = g.hasTitle ? 'title' : (g.hasContent ? 'content' : 'related');
     g.coverage = terms.filter((t, idx) => {
       const re = regs[idx];
       return re.test(g.pubLabel) || g.hits.some(h => re.test(h.title) || re.test(_stripMarks(h.snippet)));
@@ -215,23 +253,101 @@ function _styleSnippetSmart(rawSnippet, activeLang, highlightRegex) {
   return _styleSnippet(rawSnippet, activeLang, highlightRegex);
 }
 
+// Remove só o RÓTULO do orador ("Ensinamento de Meishu-Sama:") do começo,
+// preservando título + corpo. Fallback final do modo Conteúdo.
+function _cleanContentSnippet(s) {
+  return String(s || '').replace(/^[\s\S]{0,40}?Meishu-Sama\s*[:：\-–—]\s*/, '');
+}
+
+// Extrai o CORPO do trecho, cortando o título embutido. Os conteúdos
+// começam de várias formas: 'Ensinamento de Meishu-Sama: "TÍTULO" (data)…',
+// '"TÍTULO" (data)…', ou 'Contribuição de um dedicante: "TÍTULO" (data)…'.
+// Corta o 1º "título entre aspas" (+ data) perto do começo e devolve o
+// resto. Tira <mark> (o corpo é re-grifado depois). Sem aspas no começo,
+// só remove o rótulo do orador.
+function _contentBody(text) {
+  const s = _stripMarks(String(text || ''));
+  // 1) Divisor mais confiável: o 1º parêntese com ANO (data de publicação)
+  //    encerra o cabeçalho em todos os formatos ('"Título" (1953)…',
+  //    'Título - Coleção… (Publicado em 1952)…', 'Relato… (… 1950)…').
+  let m = s.match(/^[\s\S]{0,250}?[（(][^)）]*(?:19|20)\d{2}[^)）]*[)）]\s*/);
+  if (m && m[0].length < s.length - 8) return s.slice(m[0].length).trim();
+  // 2) Ou o 1º título entre aspas (+ data opcional) perto do começo.
+  m = s.match(/^[\s\S]{0,120}?["“”«][^"“”»]{2,160}["“”»]\s*(?:[（(][^)）]{0,45}[)）])?\s*/);
+  if (m && m[0].length < s.length - 8) return s.slice(m[0].length).trim();
+  // 3) Ou só o rótulo do orador.
+  return s.replace(/^[\s\S]{0,40}?Meishu-Sama\s*[:：\-–—]\s*/, '').trim();
+}
+
+// Janela do CORPO em volta da 1ª ocorrência de um termo (modo Conteúdo).
+// O ts_headline do servidor costuma centrar no título embutido (a palavra
+// aparece primeiro ali); aqui pegamos o content_excerpt (corpo cru, 1500
+// chars), pulamos o cabeçalho/título e recortamos ~200 chars ao redor do
+// match NO CORPO — o trecho que o usuário realmente quer ver.
+function _bodyWindow(body, q, activeLang) {
+  if (!body) return null;
+  const regs = _termRegexes(_splitTerms(q), activeLang);
+  let best = -1;
+  for (const re of regs) {
+    const m = re.exec(body);
+    if (m && (best < 0 || m.index < best)) best = m.index;
+  }
+  if (best < 0) return null; // termo não está no corpo (match era só no título)
+  let start = Math.max(0, best - 70);
+  let end = Math.min(body.length, best + 170);
+  if (start > 0) { const sp = body.indexOf(' ', start); if (sp >= 0 && sp < best) start = sp + 1; }
+  if (end < body.length) { const sp = body.lastIndexOf(' ', end); if (sp > best) end = sp; }
+  let frag = body.slice(start, end).trim();
+  if (start > 0) frag = '… ' + frag;
+  if (end < body.length) frag = frag + ' …';
+  return frag;
+}
+
+// Cada hit conhece seu título real (extraído do conteúdo embutido, quando
+// é tópico de contêiner) calculado uma vez em _renderGroup e passado aqui.
 function _renderHit(hit, g, basePath, highlightRegex, q, activeLang) {
   const href = _searchLink(basePath, g.vol, g.file, hit.topicIdx, q, activeLang);
-  // Dedup título × snippet: se o começo do título já aparece no snippet
-  // (caso comum: o trecho abre com o próprio cabeçalho), o título do hit
-  // é redundante — o snippet o mostra COM grifo.
-  const tNorm = _norm(_stripMarks(hit.title || ''));
-  const sNorm = _norm(_stripMarks(hit.snippet || '')).replace(/^[^a-zà-ÿ0-9一-龯ぁ-んァ-ン]+/i, '');
-  const dupInSnippet = tNorm.length >= 12 && sNorm.includes(tNorm.slice(0, 25));
-  const sameAsPub = tNorm && tNorm === _norm(g.pubLabel);
-  const titleHtml = (!tNorm || sameAsPub || dupInSnippet)
-    ? ''
-    : `<div class="search-hit-title">${escHtml(hit.title)}</div>`;
-  const snippetHtml = _styleSnippetSmart(hit.snippet, activeLang, highlightRegex);
+  const ex = hit._extracted; // { title, body } | null
+  let titleHtml = '';
+  let snippetSrc = hit.snippet;
+
+  if (_searchMode === 'conteudo') {
+    // Conteúdo é o protagonista: pega um trecho do CORPO em volta do match,
+    // pulando o título embutido. Prioridade:
+    //   1) janela em volta do termo no corpo (content_excerpt, 1500 chars);
+    //   2) se o termo não está no corpo (Johrei só no título), o INÍCIO do
+    //      corpo — ainda conteúdo, nunca o título entre aspas;
+    //   3) sem corpo disponível, o fragmento do servidor limpo.
+    const body = hit.content_excerpt ? _contentBody(hit.content_excerpt) : '';
+    if (body) {
+      snippetSrc = _bodyWindow(body, q, activeLang)
+        || (body.length > 220 ? body.slice(0, 220).trim() + ' …' : body);
+    } else {
+      snippetSrc = _bodyWindow(_contentBody(hit.snippet), q, activeLang) || _cleanContentSnippet(hit.snippet);
+    }
+  } else if (ex) {
+    // Título real embutido: vira a manchete do trecho (com grifo), e o
+    // corpo (sem o cabeçalho "Ensinamento de Meishu-Sama:") vira o snippet.
+    titleHtml = `<div class="search-hit-title">${_styleSnippetSmart(ex.title, activeLang, highlightRegex)}</div>`;
+    snippetSrc = ex.body || hit.snippet;
+  } else {
+    // Sem extração (publicação normal): mostra o título doutrinário só se
+    // ele não for o nome da publicação nem já estiver repetido no snippet.
+    const tNorm = _norm(_stripMarks(hit.title || ''));
+    const sNorm = _norm(_stripMarks(hit.snippet || '')).replace(/^[^a-zà-ÿ0-9一-龯ぁ-んァ-ン]+/i, '');
+    const dupInSnippet = tNorm.length >= 12 && sNorm.includes(tNorm.slice(0, 25));
+    const sameAsPub = tNorm && tNorm === _norm(g.pubLabel);
+    if (tNorm && !sameAsPub && !dupInSnippet) {
+      titleHtml = `<div class="search-hit-title">${escHtml(hit.title)}</div>`;
+    }
+  }
+
+  const snippetHtml = _styleSnippetSmart(snippetSrc, activeLang, highlightRegex);
+  const dataTitle = ex ? _stripMarks(ex.title) : (hit.title || g.pubLabel);
   return `<li><a href="${href}" class="search-hit search-nav-item"
       data-vol="${escHtml(g.vol)}" data-file="${escHtml(g.file)}"
       data-query="${escHtml(q)}" data-topic="${hit.topicIdx}"
-      data-title="${escHtml(hit.title || g.pubLabel)}">
+      data-title="${escHtml(dataTitle)}">
       ${titleHtml}
       <div class="search-hit-snippet">${snippetHtml}</div>
     </a></li>`;
@@ -243,10 +359,19 @@ function _renderGroup(g, basePath, highlightRegex, q, activeLang) {
   const hits = g.hits.slice().sort((a, b) => a.topicIdx - b.topicIdx);
   const headHref = _searchLink(basePath, g.vol, g.file, hits[0].topicIdx, q, activeLang);
 
+  // Extrai o título real de cada hit (tópicos de contêiner). Se TODOS os
+  // hits têm título próprio ≠ nome da publicação, é um contêiner: a
+  // manchete da publicação vira só um rótulo de coleção (pequeno), e cada
+  // ensinamento aparece com seu título real — o usuário pediu pra NÃO ver
+  // "Coletânea de fragmentos..." como informação principal.
+  hits.forEach(h => {
+    const ex = activeLang === 'ja' ? null : _extractTeaching(h.snippet);
+    h._extracted = (ex && _norm(_stripMarks(ex.title)) !== _norm(g.pubLabel)) ? ex : null;
+  });
+  const isContainer = hits.length > 0 && hits.every(h => h._extracted);
+
   let badge = '';
-  if (g.kind === 'title') {
-    badge = `<span class="search-badge">${activeLang === 'ja' ? 'タイトル' : 'no título'}</span>`;
-  } else if (g.kind === 'related') {
+  if (g.kind === 'related') {
     badge = `<span class="search-badge search-badge--related">${activeLang === 'ja' ? '関連' : 'relacionado'}</span>`;
   }
   // Fallback OR: marca quem cobre todas as palavras da busca.
@@ -255,38 +380,121 @@ function _renderGroup(g, basePath, highlightRegex, q, activeLang) {
   }
 
   const hitsLabel = hits.length > 1
-    ? `<span class="search-group-hitcount">${activeLang === 'ja' ? `${hits.length}節` : `${hits.length} trechos`}</span>`
+    ? (activeLang === 'ja' ? `${hits.length}件` : `${hits.length} ${isContainer ? 'ensinamentos' : 'trechos'}`)
     : '';
-  // Grifa o termo também no título da publicação (caso "no título").
+  const hitsHtml = hits.map(h => _renderHit(h, g, basePath, highlightRegex, q, activeLang)).join('');
+
+  if (isContainer) {
+    // Contêiner: cabeçalho = link clicável pra publicação inteira (desde o
+    // início), pois às vezes o usuário quer a COLEÇÃO toda, não um trecho.
+    // Os ensinamentos individuais ficam abaixo, cada um com seu link.
+    const collHref = _searchLink(basePath, g.vol, g.file, 0, q, activeLang);
+    const collName = highlightRegex
+      ? escHtml(g.pubLabel).replace(highlightRegex, '<mark class="search-highlight">$1</mark>')
+      : escHtml(g.pubLabel);
+    const meta = [volLabel, hitsLabel].filter(Boolean).join(' · ');
+    return `<li class="search-group search-group--collection">
+        <a href="${collHref}" class="search-group-collection search-nav-item"
+          data-vol="${escHtml(g.vol)}" data-file="${escHtml(g.file)}"
+          data-query="${escHtml(q)}" data-topic="0"
+          data-title="${escHtml(g.pubLabel)}">
+          <span class="search-group-collection-name">${collName}${badge}</span>
+          <span class="search-group-collection-meta">${meta}</span>
+        </a>
+        <ul class="search-group-hits">${hitsHtml}</ul>
+      </li>`;
+  }
+
+  // Publicação normal: manchete = título da publicação (com grifo).
   const pubTitleHtml = highlightRegex
     ? escHtml(g.pubLabel).replace(highlightRegex, '<mark class="search-highlight">$1</mark>')
     : escHtml(g.pubLabel);
-
-  const hitsHtml = hits.map(h => _renderHit(h, g, basePath, highlightRegex, q, activeLang)).join('');
+  const crumbLabel = hitsLabel ? `${volLabel} · ${hitsLabel}` : volLabel;
   return `<li class="search-group">
       <a href="${headHref}" class="search-group-head search-nav-item"
         data-vol="${escHtml(g.vol)}" data-file="${escHtml(g.file)}"
         data-query="${escHtml(q)}" data-topic="${hits[0].topicIdx}"
         data-title="${escHtml(g.pubLabel)}">
         <div class="search-group-title">${pubTitleHtml}${badge}</div>
-        <div class="search-group-crumb">${volLabel}${hitsLabel ? ' · ' : ''}${hitsLabel}</div>
+        <div class="search-group-crumb">${crumbLabel}</div>
       </a>
       <ul class="search-group-hits">${hitsHtml}</ul>
     </li>`;
 }
 
-const _SECTION_LABELS = {
-  pt: { title: 'Títulos correspondentes', content: 'No conteúdo', related: 'Relacionados' },
-  ja: { title: 'タイトルに一致', content: '本文に一致', related: '関連' },
+// ---------------------------------------------------------------
+// Seletor de modo (Título / Conteúdo / Coleção / Relacionados)
+// ---------------------------------------------------------------
+const _MODE_LABELS = {
+  pt: { titulo: 'Título', conteudo: 'Conteúdo', colecao: 'Coleção', relacionados: 'Relacionados' },
+  ja: { titulo: 'タイトル', conteudo: '本文', colecao: '叢書', relacionados: '関連' },
 };
 
-function _renderResultsList(groups, count, highlightRegex, q, activeLang) {
+function _renderModeSelector(activeLang) {
+  const bar = document.getElementById('searchModeSelector');
+  if (!bar) return;
+  const labels = _MODE_LABELS[activeLang === 'ja' ? 'ja' : 'pt'];
+  bar.innerHTML = _MODES.map(m =>
+    `<button type="button" role="tab" class="search-mode-btn${_searchMode === m ? ' is-active' : ''}"
+      aria-selected="${_searchMode === m}" data-mode="${m}">${labels[m]}</button>`
+  ).join('');
+  bar.style.display = '';
+}
+
+// Resultados de paginação são GENÉRICOS por modo: grupos (conteúdo/
+// relacionados) ou itens planos (título/coleção). _displayedCount conta a
+// unidade visível do modo. _renderActive despacha pra renderização certa.
+let _flatItems = [];
+
+function _renderActive(count, highlightRegex, q, activeLang) {
+  if (_searchMode === 'titulo') return _renderFlatList(_flatItems, count, highlightRegex, q, activeLang, 'titulo');
+  if (_searchMode === 'colecao') return _renderFlatList(_flatItems, count, highlightRegex, q, activeLang, 'colecao');
+  return _renderGroupsList(_allGroups, count, highlightRegex, q, activeLang);
+}
+
+function _activeTotal() {
+  return (_searchMode === 'titulo' || _searchMode === 'colecao') ? _flatItems.length : _allGroups.length;
+}
+
+function _loadMoreLabel(nextN, activeLang) {
+  if (_searchMode === 'colecao')
+    return activeLang === 'ja' ? `さらに${nextN}件` : `Carregar mais ${nextN} publicaç${nextN === 1 ? 'ão' : 'ões'}`;
+  if (_searchMode === 'titulo')
+    return activeLang === 'ja' ? `さらに${nextN}件` : `Carregar mais ${nextN} ensinamento${nextN === 1 ? '' : 's'}`;
+  return activeLang === 'ja' ? `さらに${nextN}件の文献を表示` : `Carregar mais ${nextN} publicaç${nextN === 1 ? 'ão' : 'ões'}`;
+}
+
+function _loadMoreHtml(remaining, activeLang) {
+  if (remaining <= 0) return '';
+  const nextN = Math.min(GROUPS_PER_PAGE, remaining);
+  return `<li class="search-load-more"><button class="btn-load-more" onclick="loadMoreResults()">${_loadMoreLabel(nextN, activeLang)}</button><span class="load-more-hint">${activeLang === 'ja' ? `（残り${remaining}件）` : `(${remaining} restantes)`}</span></li>`;
+}
+
+// Lista plana: modo Título (ensinamentos) ou Coleção (publicações).
+function _renderFlatList(items, count, highlightRegex, q, activeLang, kind) {
+  const basePath = getBasePath();
+  const visible = items.slice(0, count);
+  let html = '';
+  for (const it of visible) {
+    const href = _searchLink(basePath, it.vol, it.file, it.topicIdx || 0, q, activeLang);
+    const nameHtml = _styleSnippetSmart(it.label, activeLang, highlightRegex);
+    const crumb = it.crumb ? `<div class="search-flat-crumb">${escHtml(it.crumb)}</div>` : '';
+    html += `<li><a href="${href}" class="search-flat-item search-nav-item"
+        data-vol="${escHtml(it.vol)}" data-file="${escHtml(it.file)}"
+        data-query="${escHtml(q)}" data-topic="${it.topicIdx || 0}"
+        data-title="${escHtml(_stripMarks(it.label))}">
+        <div class="search-flat-name search-flat-name--${kind}">${nameHtml}</div>
+        ${crumb}
+      </a></li>`;
+  }
+  return html + _loadMoreHtml(items.length - visible.length, activeLang);
+}
+
+// Lista agrupada por publicação: modo Conteúdo (+ cobertura OR) e Relacionados.
+function _renderGroupsList(groups, count, highlightRegex, q, activeLang) {
   const basePath = getBasePath();
   const ordered = _orderGroups(groups, _orFallbackActive);
-  const filtered = ordered;
-  const visible = filtered.slice(0, count);
-  const labels = _SECTION_LABELS[activeLang === 'ja' ? 'ja' : 'pt'];
-
+  const visible = ordered.slice(0, count);
   let html = '';
   if (_orFallbackActive) {
     const bannerTxt = activeLang === 'ja'
@@ -294,24 +502,85 @@ function _renderResultsList(groups, count, highlightRegex, q, activeLang) {
       : 'Nenhum trecho contém todas as palavras juntas — mostrando publicações onde elas aparecem em trechos separados.';
     html += `<li class="search-or-banner">${bannerTxt}</li>`;
   }
+  for (const g of visible) html += _renderGroup(g, basePath, highlightRegex, q, activeLang);
+  return html + _loadMoreHtml(ordered.length - visible.length, activeLang);
+}
 
-  let lastKind = null;
-  for (const g of visible) {
-    // Rótulos de seção só no modo normal (no OR a ordem é por cobertura
-    // e mistura kinds — o banner já contextualiza).
-    if (!_orFallbackActive && g.kind !== lastKind) {
-      html += `<li class="search-section-label">${labels[g.kind]}</li>`;
-      lastKind = g.kind;
+// ---------------------------------------------------------------
+// Modo Título — busca local no índice enxuto de títulos reais
+// ---------------------------------------------------------------
+async function _loadTitlesIndex() {
+  if (_titlesIndex) return _titlesIndex;
+  if (_titlesIndexLoading) return _titlesIndexLoading;
+  const base = getBasePath();
+  const vols = ['mioshiec1', 'mioshiec2', 'mioshiec3', 'mioshiec4'];
+  _titlesIndexLoading = Promise.all(vols.map(v =>
+    fetch(`${base}site_data/titles_index_${v}.json?v=1`)
+      .then(r => r.ok ? r.json() : [])
+      .then(rows => [v, rows])
+      .catch(() => [v, []])
+  )).then(pairs => {
+    _titlesIndex = {};
+    for (const [v, rows] of pairs) _titlesIndex[v] = rows;
+    return _titlesIndex;
+  });
+  return _titlesIndexLoading;
+}
+
+function _searchTitlesIndex(q, activeLang) {
+  const terms = _splitTerms(q);
+  if (!terms.length || !_titlesIndex) return [];
+  const regs = _termRegexes(terms, activeLang);
+  const qn = _norm(q);
+  const out = [];
+  for (const vol of Object.keys(_titlesIndex)) {
+    for (const r of _titlesIndex[vol]) {
+      const title = (activeLang === 'ja' && r.tj) ? r.tj : (r.t || '');
+      if (!title) continue;
+      if (!regs.every(re => re.test(title))) continue; // AND: todos os termos
+      const tn = _norm(title);
+      const score = tn === qn ? 3 : (tn.startsWith(qn) ? 2 : 1);
+      const file = r.f + '.html';
+      const pub = _pubLabel(vol, file, activeLang);
+      const volNum = vol.slice(-1);
+      // Breadcrumb: Volume + nome da publicação (quando difere do título).
+      const crumb = (activeLang === 'ja' ? `第${volNum}巻` : `Volume ${volNum}`) +
+        (pub && _norm(pub) !== tn ? ` · ${pub}` : '');
+      out.push({ vol, file, topicIdx: r.i, label: title, crumb, score, len: title.length });
     }
-    html += _renderGroup(g, basePath, highlightRegex, q, activeLang);
   }
+  // Melhor match primeiro: exato > prefixo > contém; depois título mais curto.
+  out.sort((a, b) => b.score - a.score || a.len - b.len);
+  return out.slice(0, MAX_RESULTS);
+}
 
-  const remaining = filtered.length - visible.length;
-  if (remaining > 0) {
-    const nextN = Math.min(GROUPS_PER_PAGE, remaining);
-    html += `<li class="search-load-more"><button class="btn-load-more" onclick="loadMoreResults()">${activeLang === 'ja' ? `さらに${nextN}件の文献を表示` : `Carregar mais ${nextN} publicaç${nextN === 1 ? 'ão' : 'ões'}`}</button><span class="load-more-hint">${activeLang === 'ja' ? `（残り${remaining}件）` : `(${remaining} restantes)`}</span></li>`;
+// ---------------------------------------------------------------
+// Modo Coleção — busca no nome das publicações (SECTION_MAP)
+// ---------------------------------------------------------------
+function _searchCollections(q, activeLang) {
+  const terms = _splitTerms(q);
+  const map = window.SECTION_MAP;
+  if (!terms.length || !map) return [];
+  const regs = _termRegexes(terms, activeLang);
+  const qn = _norm(q);
+  const out = [];
+  for (const vol of Object.keys(map)) {
+    const files = map[vol];
+    for (const file of Object.keys(files)) {
+      const o = files[file];
+      const label = (activeLang === 'ja' && o.ja) ? o.ja : (o.pt || '');
+      if (!label) continue;
+      if (!regs.every(re => re.test(label))) continue;
+      const ln = _norm(label);
+      const score = ln === qn ? 3 : (ln.startsWith(qn) ? 2 : 1);
+      const volNum = vol.slice(-1);
+      const crumb = (activeLang === 'ja' ? `第${volNum}巻` : `Volume ${volNum}`) +
+        (o.section ? ` · ${activeLang === 'ja' ? (o.sectionJa || o.section) : o.section}` : '');
+      out.push({ vol, file, topicIdx: 0, label, crumb, score, len: label.length, n: Number(o.n) || 0 });
+    }
   }
-  return html;
+  out.sort((a, b) => b.score - a.score || a.n - b.n || a.len - b.len);
+  return out.slice(0, MAX_RESULTS);
 }
 
 function escHtml(str) {
@@ -343,13 +612,6 @@ function _loadSectionMaps() {
 
 function _getSupabase() {
   return window.supabaseAuth?.supabase || null;
-}
-
-// Grupos na ordem de exibição (títulos → conteúdo → relacionados;
-// no fallback OR, por cobertura). As abas de filtro foram testadas e
-// removidas (13/06) — as seções inline organizam sem pedir clique.
-function _filteredGroups() {
-  return _orderGroups(_allGroups, _orFallbackActive);
 }
 
 function _setRandomLoading(btn) {
@@ -433,6 +695,7 @@ window.clearSearch = function () {
   sessionStorage.removeItem('searchResultsHtml');
   _allResults = [];
   _allGroups = [];
+  _flatItems = [];
   _orFallbackActive = false;
   _displayedCount = 0;
   _currentQuery = '';
@@ -461,6 +724,7 @@ window.openSearch = function () {
       }
     }
     _loadSectionMaps();
+    _renderModeSelector(localStorage.getItem('site_lang') || 'pt');
   }
 }
 
@@ -775,6 +1039,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (searchInput) searchInput.addEventListener('input', triggerSearch);
 
+  // Seletor de modo (Título / Conteúdo / Coleção / Relacionados): trocar o
+  // modo re-busca a query atual no motor daquele modo (ver switchSearchMode).
+  const modeSelector = document.getElementById('searchModeSelector');
+  if (modeSelector) {
+    modeSelector.addEventListener('click', (e) => {
+      const btn = e.target.closest('.search-mode-btn');
+      if (!btn) return;
+      switchSearchMode(btn.dataset.mode || 'titulo');
+    });
+  }
+
   // Exact word matching toggle
   const exactToggle = document.getElementById('searchExactToggle');
   if (exactToggle) {
@@ -1027,6 +1302,45 @@ function _shouldTriggerDidYouMean(results, activeLang) {
   return false;
 }
 
+// Troca o modo de busca (clique no seletor ou no nudge) e re-busca.
+window.switchSearchMode = function(mode) {
+  if (!_MODES.includes(mode)) return;
+  _searchMode = mode;
+  try { localStorage.setItem('search_mode', mode); } catch (e) {}
+  const activeLang = localStorage.getItem('site_lang') || 'pt';
+  _renderModeSelector(activeLang);
+  const input = document.getElementById('searchInput');
+  if (input && input.value.trim()) performSearch(input.value);
+  else {
+    const resultsEl = document.getElementById('searchResults');
+    if (resultsEl) resultsEl.innerHTML = '';
+    _updateSearchCount(0, 0, activeLang);
+  }
+};
+
+// Render + contagem + sessão para os modos de LISTA PLANA (título/coleção).
+function _finishFlat(resultsEl, q, activeLang, mySeq, nudgeContent) {
+  if (mySeq !== _searchSeq) return;
+  if (_flatItems.length === 0) {
+    const none = activeLang === 'ja' ? '結果が見つかりませんでした。' : 'Nenhum resultado.';
+    let extra = '';
+    if (nudgeContent) {
+      const t = activeLang === 'ja' ? '本文で検索しますか？' : 'Buscar essas palavras no Conteúdo?';
+      extra = `<li class="search-mode-nudge"><button type="button" class="btn-load-more" onclick="switchSearchMode('conteudo')">${t}</button></li>`;
+    }
+    if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${none}</li>` + extra;
+    _updateSearchCount(0, 0, activeLang);
+    _displayedCount = 0;
+    return;
+  }
+  _displayedCount = Math.min(GROUPS_PER_PAGE, _flatItems.length);
+  const hl = _buildHighlightRegex(q, activeLang);
+  if (resultsEl) resultsEl.innerHTML = _renderActive(_displayedCount, hl, q, activeLang);
+  _updateSearchCount(_flatItems.length, _displayedCount, activeLang, _flatItems.length >= MAX_RESULTS);
+  sessionStorage.setItem('searchQuery', q);
+  if (resultsEl) sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
+}
+
 async function performSearch(query) {
   const _mySeq = ++_searchSeq;
   const resultsEl = document.getElementById('searchResults');
@@ -1044,6 +1358,41 @@ async function performSearch(query) {
   }
 
   const q = query.trim();
+  _currentQuery = q;
+  _orFallbackActive = false;
+  _allResults = []; _allGroups = []; _flatItems = []; _focusedIndex = -1;
+
+  // Modo Conteúdo: o TRECHO é o protagonista — uma classe no container faz
+  // o CSS rebaixar título/coletânea a contexto e destacar o snippet.
+  if (resultsEl) resultsEl.classList.toggle('search-results--content', _searchMode === 'conteudo');
+
+  const searchingMsg = activeLang === 'ja' ? '検索中...' : 'Buscando...';
+  if (resultsEl) resultsEl.innerHTML = `<li class="search-loading"><span class="search-spinner"></span>${searchingMsg}</li>`;
+
+  // ---- Modo TÍTULO: índice local de títulos reais (determinístico) ----
+  if (_searchMode === 'titulo') {
+    try {
+      await _loadTitlesIndex();
+      if (_mySeq !== _searchSeq) return;
+      _flatItems = _searchTitlesIndex(q, activeLang);
+      _finishFlat(resultsEl, q, activeLang, _mySeq, true); // nudge → Conteúdo
+      logSearch(q, _flatItems.length, 0);
+    } catch (err) {
+      console.error('Título search erro:', err);
+      if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${activeLang === 'ja' ? 'エラー' : 'Erro na busca.'}</li>`;
+    }
+    return;
+  }
+
+  // ---- Modo COLEÇÃO: nome das publicações (SECTION_MAP, já carregado) ----
+  if (_searchMode === 'colecao') {
+    _flatItems = _searchCollections(q, activeLang);
+    _finishFlat(resultsEl, q, activeLang, _mySeq, false);
+    logSearch(q, _flatItems.length, 0);
+    return;
+  }
+
+  // ---- Modos de SERVIDOR: Conteúdo (FTS) e Relacionados (semântico) ----
   const supabase = _getSupabase();
   if (!supabase) {
     const errMsg = activeLang === 'ja' ? 'ログインが必要です。' : 'Login necessário.';
@@ -1055,95 +1404,64 @@ async function performSearch(query) {
   const useExactMatch = exactToggle ? exactToggle.checked : false;
   const literalToggle = document.getElementById('searchLiteralToggle');
   const useLiteralMode = literalToggle ? literalToggle.checked : false;
-  // Em modo literal usamos a query crua (ILIKE puro). Caso contrário,
-  // traduzimos para sintaxe websearch_to_tsquery (com aspas se exact).
   const serverQuery = useLiteralMode ? q : _translateQuery(q, useExactMatch);
-
   if (!serverQuery) {
     const invalidMsg = activeLang === 'ja' ? '有効な検索ワードを入力してください...' : 'Digite termos de busca válidos...';
     if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${invalidMsg}</li>`;
     return;
   }
 
-  // Escopo sempre 'all': os rádios Tudo/Só Título/Só Conteúdo saíram da
-  // Avançada — as abas dos resultados filtram client-side com contagem.
-  let scope = 'all';
-
-  // Perf clamp para JA curto: ILIKE com <3 chars não consegue usar o GIN
-  // trigram e cai em seq scan. Em content_ja (texto longo) isso explode
-  // o P95/P99. Title_ja é curto — seq scan ali é barato. Forçamos title-
-  // only quando o user não pediu content explicitamente, preservando os
-  // termos doutrinários de 2 chars (浄霊, 救い, 真理...) com latência ok.
-  if (activeLang === 'ja' && q.length < 3 && scope !== 'content') {
-    scope = 'title';
-  }
+  const isContentMode = _searchMode === 'conteudo';
+  // Conteúdo: FTS no corpo (sem semântica). Relacionados: edge semântica.
+  let scope = isContentMode ? 'content' : 'all';
+  if (activeLang === 'ja' && q.length < 3 && scope !== 'content') scope = 'title';
 
   const _t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {
-    // Fetch reutilizável: a query AND normal e o fallback OR passam pelo
-    // mesmo pipeline (literal → ILIKE; senão edge híbrida com fallback FTS).
+    // FTS-only (search_teachings) no modo Conteúdo — nada de embedding, pra
+    // não despejar vizinhos semânticos. Relacionados usa a edge semântica.
     const runFetch = async (sq) => {
-      let data = null, error = null;
-
       if (useLiteralMode) {
-        // Modo literal: ILIKE puro em PT+JA via RPC dedicada. Sem FTS,
-        // sem embedding, sem rerank. Resolve termos em kanji/kana que
-        // o pt_unaccent não tokeniza, e queries de substring exata.
         const r = await _withTimeout(supabase.rpc('search_teachings_literal', {
           q: sq, lang: activeLang, max_results: MAX_RESULTS, scope,
         }), SEARCH_TIMEOUT_MS, 'search_teachings_literal');
-        data = r.data; error = r.error;
-        console.log(`[search literal] "${sq}" → ${(data || []).length} resultados`);
-        return { data, error };
+        return { data: r.data, error: r.error };
       }
-      // Tenta a Edge Function de busca híbrida (FTS + embedding semântico).
-      // Se falhar (Voyage down, função não deployada, etc.), cai pro RPC
-      // FTS-only — preserva o caminho antigo como rede de segurança.
+      if (isContentMode) {
+        // FTS puro via hybrid com embedding NULO (vector branch é pulado).
+        // Vantagem sobre search_teachings: devolve content_excerpt (corpo
+        // 1500 chars), que o _bodyWindow usa pra mostrar o trecho do corpo.
+        // Fallback pra search_teachings se a hybrid não estiver acessível.
+        const r = await _withTimeout(supabase.rpc('search_teachings_hybrid', {
+          q: sq, q_embedding: null, lang: activeLang, max_results: MAX_RESULTS, scope, use_fts: true,
+        }), SEARCH_TIMEOUT_MS, 'search_teachings_hybrid (conteúdo)');
+        if (r.error) {
+          console.warn('hybrid(conteúdo) falhou, fallback search_teachings:', r.error?.message || r.error);
+          const f = await _withTimeout(supabase.rpc('search_teachings', {
+            q: sq, lang: activeLang, max_results: MAX_RESULTS, scope,
+          }), SEARCH_TIMEOUT_MS, 'search_teachings (conteúdo fallback)');
+          return { data: f.data, error: f.error };
+        }
+        return { data: r.data, error: r.error };
+      }
+      // Relacionados: híbrida semântica (fallback FTS se a edge cair).
       try {
         const { data: edgeData, error: edgeError } = await _withTimeout(
-          supabase.functions.invoke('search-semantic', {
-            body: { q: sq, lang: activeLang, max_results: MAX_RESULTS, scope },
-          }),
-          SEARCH_TIMEOUT_MS,
-          'search-semantic'
-        );
+          supabase.functions.invoke('search-semantic', { body: { q: sq, lang: activeLang, max_results: MAX_RESULTS, scope } }),
+          SEARCH_TIMEOUT_MS, 'search-semantic');
         if (edgeError) throw edgeError;
-        data = edgeData?.data ?? [];
-        // Breakdown de latência: o servidor reporta tempo por fase (embed,
-        // RPC híbrido, rerank); o cliente sabe o total ida+volta. Diferença
-        // = rede + cold start da edge function.
-        if (edgeData?.timings) {
-          const t = edgeData.timings;
-          const total_client = Math.round((typeof performance !== 'undefined' && performance.now) ? performance.now() - _t0 : Date.now() - _t0);
-          const network_overhead = Math.max(0, total_client - (t.total_ms || 0));
-          const aliasLine = edgeData.q_expanded ? ` → "${edgeData.q_expanded}" (alias)` : '';
-          console.log(
-            `[search] "${sq}"${aliasLine} → ${data.length} resultados\n` +
-            `  total cliente : ${total_client}ms\n` +
-            `  total servidor: ${t.total_ms || 0}ms\n` +
-            `  aliases       : ${t.aliases_ms ?? 0}ms${edgeData.q_expanded ? ' ✓' : ''}\n` +
-            `  embed (Voyage): ${t.embed_ms || 0}ms${t.embed_ms_re ? ` (+${t.embed_ms_re}ms re-embed do canônico)` : ''}\n` +
-            `  RPC híbrido   : ${t.rpc_ms || 0}ms\n` +
-            `  rerank (Voyage): ${t.rerank_ms ?? '—'}ms${t.rerank_docs ? ` (${t.rerank_docs} docs)` : ''}\n` +
-            `  rede + edge   : ~${network_overhead}ms  ${network_overhead > 2000 ? '⚠ provável cold start' : ''}`
-          );
-        }
+        return { data: edgeData?.data ?? [], error: null };
       } catch (edgeErr) {
         console.warn('search-semantic indisponível, fallback FTS:', edgeErr?.message || edgeErr);
         const r = await _withTimeout(supabase.rpc('search_teachings', {
           q: sq, lang: activeLang, max_results: MAX_RESULTS, scope,
         }), SEARCH_TIMEOUT_MS, 'search_teachings (fallback)');
-        data = r.data; error = r.error;
+        return { data: r.data, error: r.error };
       }
-      return { data, error };
     };
 
     let { data, error } = await runFetch(serverQuery);
     const _latencyMs = ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - _t0;
-
-    // Stale check: se o usuário digitou mais durante o request, outra busca
-    // já foi disparada — descarta esta sem tocar no DOM. Sem isso, a resposta
-    // antiga sobrescreveria a nova (race condition de typeahead).
     if (_mySeq !== _searchSeq) return;
 
     if (error) {
@@ -1155,65 +1473,43 @@ async function performSearch(query) {
     }
 
     let results = data || [];
-    _orFallbackActive = false;
 
-    // Fallback OR (nível de publicação): a unidade da busca é o TRECHO
-    // e multi-palavra vira AND — palavras que só co-ocorrem em trechos
-    // DIFERENTES da mesma publicação davam zero ("kunitokotachi vingança").
-    // Refaz com OR; o agrupamento + ordenação por cobertura traz pro topo
-    // as publicações que contêm todas as palavras espalhadas.
+    // Conteúdo multi-palavra: a unidade indexada é o TRECHO; quando AND não
+    // acha nenhum trecho com TODAS as palavras (ex.: "Vingança Ushitora
+    // alegria"), refaz com OR e agrupa por publicação — a cobertura (quantos
+    // termos a publicação reúne) ordena, trazendo quem tem todas ao topo.
     const terms = _splitTerms(q);
-    if (results.length === 0 && !useLiteralMode && terms.length >= 2) {
-      const orQuery = useExactMatch
-        ? terms.map(t => `"${t.replace(/"/g, '\\"')}"`).join(' or ')
-        : terms.join(' or ');
+    if (isContentMode && results.length === 0 && !useLiteralMode && terms.length >= 2) {
+      const orQuery = useExactMatch ? terms.map(t => `"${t.replace(/"/g, '\\"')}"`).join(' or ') : terms.join(' or ');
       const orRes = await runFetch(orQuery);
       if (_mySeq !== _searchSeq) return;
-      if (!orRes.error && orRes.data && orRes.data.length > 0) {
-        results = orRes.data;
-        _orFallbackActive = true;
-      }
+      if (!orRes.error && orRes.data && orRes.data.length > 0) { results = orRes.data; _orFallbackActive = true; }
     }
 
     if (results.length === 0) {
       const noResultsMsg = activeLang === 'ja' ? '結果が見つかりませんでした。' : 'Nenhum resultado.';
-      if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${noResultsMsg}</li>`;
+      let extra = '';
+      if (isContentMode) {
+        const t = activeLang === 'ja' ? '関連で検索しますか？' : 'Tentar em Relacionados?';
+        extra = `<li class="search-mode-nudge"><button type="button" class="btn-load-more" onclick="switchSearchMode('relacionados')">${t}</button></li>`;
+      }
+      if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${noResultsMsg}</li>` + extra;
       _updateSearchCount(0, 0, activeLang);
       logSearch(q, 0, _latencyMs);
-      sessionStorage.removeItem('searchQuery');
-      sessionStorage.removeItem('searchResultsHtml');
-      _allResults = [];
-      _allGroups = [];
+      sessionStorage.removeItem('searchQuery'); sessionStorage.removeItem('searchResultsHtml');
       _displayedCount = 0;
-      _currentQuery = '';
-      // "Você quis dizer...?" — chama suggest_teachings com o texto cru
-      // (não a tsquery traduzida). Se o user já mudou a query enquanto
-      // a busca rodava, _currentQuery foi resetado e descartamos.
-      _maybeSuggestDidYouMean(q, activeLang, resultsEl);
       return;
     }
 
     const highlightRegex = _buildHighlightRegex(q, activeLang);
-    const hitLimit = results.length >= MAX_RESULTS;
-
     _allResults = results;
     _allGroups = _groupResults(results, q, activeLang);
-    _currentQuery = q;
     _displayedCount = Math.min(GROUPS_PER_PAGE, _allGroups.length);
-    _focusedIndex = -1;
-
-    resultsEl.innerHTML = _renderResultsList(_allGroups, _displayedCount, highlightRegex, q, activeLang);
-    const shownHits = _filteredGroups()
-      .slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
-    _updateSearchCount(results.length, shownHits, activeLang, hitLimit, _allGroups.length, _displayedCount);
+    resultsEl.innerHTML = _renderActive(_displayedCount, highlightRegex, q, activeLang);
+    const ordered = _orderGroups(_allGroups, _orFallbackActive);
+    const shownHits = ordered.slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
+    _updateSearchCount(results.length, shownHits, activeLang, results.length >= MAX_RESULTS, _allGroups.length, _displayedCount);
     logSearch(q, results.length, _latencyMs);
-
-    // Few-results case: prepende "Você quis dizer..." sem destruir os
-    // resultados. Espera o RPC retornar antes de salvar o snapshot.
-    // (No fallback OR não — o banner já explica a situação.)
-    if (!_orFallbackActive && _shouldTriggerDidYouMean(results, activeLang)) {
-      await _maybeSuggestDidYouMean(q, activeLang, resultsEl, 'prepend');
-    }
 
     sessionStorage.setItem('searchQuery', query);
     sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
@@ -1225,17 +1521,22 @@ async function performSearch(query) {
 }
 
 window.loadMoreResults = function() {
-  if (!_allGroups.length) return;
-  const filtered = _filteredGroups();
-  _displayedCount = Math.min(_displayedCount + GROUPS_PER_PAGE, filtered.length);
+  const total = _activeTotal();
+  if (!total) return;
+  _displayedCount = Math.min(_displayedCount + GROUPS_PER_PAGE, total);
   const resultsEl = document.getElementById('searchResults');
   if (!resultsEl) return;
   const activeLang = localStorage.getItem('site_lang') || 'pt';
   const highlightRegex = _buildHighlightRegex(_currentQuery, activeLang);
-  resultsEl.innerHTML = _renderResultsList(_allGroups, _displayedCount, highlightRegex, _currentQuery, activeLang);
-  const shownHits = filtered.slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
-  const totalHits = filtered.reduce((n, g) => n + g.hits.length, 0);
-  _updateSearchCount(totalHits, shownHits, activeLang, false, filtered.length, _displayedCount);
+  resultsEl.innerHTML = _renderActive(_displayedCount, highlightRegex, _currentQuery, activeLang);
+  if (_searchMode === 'titulo' || _searchMode === 'colecao') {
+    _updateSearchCount(total, _displayedCount, activeLang);
+  } else {
+    const ordered = _orderGroups(_allGroups, _orFallbackActive);
+    const shownHits = ordered.slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
+    const totalHits = ordered.reduce((n, g) => n + g.hits.length, 0);
+    _updateSearchCount(totalHits, shownHits, activeLang, false, total, _displayedCount);
+  }
   _focusedIndex = -1;
   sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
 };

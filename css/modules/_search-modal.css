@@ -26,14 +26,18 @@
 
 .search-modal {
   background: var(--surface);
-  width: 100%;
-  max-width: 940px;
+  /* Dinâmico: acompanha a viewport (92vw) com piso e teto. Num monitor
+     largo chega a 1180px (antes travava em 940 e sobrava tela); num
+     laptop 1366 fica ~1100px; abaixo de ~1000px usa quase toda a largura.
+     O override mobile (_responsive.css) força 100% com bottom-sheet. */
+  width: clamp(320px, 92vw, 1180px);
   border-radius: var(--radius);
   box-shadow: var(--shadow-premium);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-height: 88vh;
+  /* Altura também acompanha a tela, com teto generoso no desktop. */
+  max-height: 90vh;
   transform: translateY(-8px);
   transition: transform 0.15s var(--ease);
   position: relative;
@@ -137,6 +141,101 @@
 
 .filter-label--toggle {
   gap: 8px;
+}
+
+/* Filtro de categoria (Tudo · No título · No conteúdo · Relacionados).
+   Seletor de MODO: pílulas segmentadas (Título/Conteúdo/Coleção/
+   Relacionados) logo abaixo do header. A busca acontece só no modo ativo. */
+.search-mode-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  font-family: var(--font-ui);
+}
+
+.search-mode-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.86rem;
+  cursor: pointer;
+  padding: 5px 14px;
+  border-radius: 999px;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.search-mode-btn:hover,
+.search-mode-btn:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  outline: none;
+}
+
+.search-mode-btn.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Resultados de lista plana (modos Título e Coleção) */
+.search-flat-item {
+  display: block;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s;
+}
+
+.search-flat-item:hover {
+  background: rgba(184, 134, 11, 0.05);
+}
+
+.search-flat-name {
+  font-family: var(--font-serif);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.search-flat-crumb {
+  font-size: 0.78rem;
+  font-family: var(--font-ui);
+  color: var(--text-muted);
+  margin-top: 2px;
+  opacity: 0.85;
+}
+
+/* Nudge "tentar em outro modo" no estado vazio */
+.search-mode-nudge {
+  padding: 4px 24px 18px;
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .search-mode-selector {
+    padding: 8px 16px;
+    gap: 5px;
+  }
+  .search-mode-btn {
+    font-size: 0.82rem;
+    padding: 5px 11px;
+  }
+  .search-flat-item {
+    padding: 10px 16px;
+  }
+  .search-flat-name {
+    font-size: 0.98rem;
+  }
+  .search-mode-nudge {
+    padding: 4px 16px 16px;
+  }
 }
 
 .search-advanced-row {
@@ -260,17 +359,6 @@
 
 /* ── Resultados agrupados por publicação ─────────────────────── */
 
-.search-section-label {
-  padding: 10px 24px 2px;
-  font-family: var(--font-ui);
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  opacity: 0.85;
-}
-
 .search-group {
   border-bottom: 1px solid var(--border);
   padding-bottom: 8px;
@@ -301,6 +389,41 @@
   color: var(--text-muted);
   margin-top: 2px;
   opacity: 0.85;
+}
+
+/* Contêiner ("Coletânea de fragmentos..."): cabeçalho clicável (abre a
+   coleção inteira) — nome em destaque leve + meta; cada ensinamento
+   abaixo carrega seu próprio título. */
+.search-group-collection {
+  display: block;
+  padding: 8px 24px 4px;
+  font-family: var(--font-ui);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s;
+}
+
+.search-group-collection:hover {
+  background: rgba(184, 134, 11, 0.05);
+}
+
+.search-group-collection-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.search-group-collection-meta {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  opacity: 0.85;
+  margin-top: 1px;
+}
+
+.search-group--collection .search-hit-title {
+  color: var(--accent);
+  font-size: 0.98rem;
 }
 
 .search-group-hitcount {
@@ -371,6 +494,46 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* ── Modo Conteúdo: o TRECHO é o protagonista ─────────────────────
+   Título da publicação/coletânea e título do trecho viram contexto
+   discreto (pequeno, ui, mudo); o snippet ganha tamanho/cor de corpo
+   e mostra mais linhas. */
+.search-results--content .search-group-title {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.search-results--content .search-group-collection-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.search-results--content .search-group--collection .search-hit-title,
+.search-results--content .search-hit-title {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 1px;
+  opacity: 0.9;
+}
+
+.search-results--content .search-hit-snippet {
+  font-size: 0.96rem;
+  color: var(--text-main);
+  line-height: 1.6;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* A marca de grifo continua visível mesmo no texto rebaixado */
+.search-results--content .search-group-title mark,
+.search-results--content .search-hit-title mark {
+  color: var(--text-main);
 }
 
 /* Banner do fallback OR ("nenhum trecho tem todas as palavras juntas") */
@@ -549,7 +712,6 @@
     font-size: 0.85rem;
   }
 
-  .search-section-label,
   .search-or-banner {
     padding-left: 16px;
     padding-right: 16px;
@@ -557,6 +719,10 @@
 
   .search-group-head {
     padding: 10px 16px 2px;
+  }
+
+  .search-group-collection {
+    padding: 8px 16px 4px;
   }
 
   .search-group-hits {

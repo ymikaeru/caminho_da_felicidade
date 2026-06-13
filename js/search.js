@@ -267,8 +267,15 @@ function _cleanContentSnippet(s) {
 // só remove o rótulo do orador.
 function _contentBody(text) {
   const s = _stripMarks(String(text || ''));
-  const m = s.match(/^[\s\S]{0,120}?["“”«][^"“”»]{2,160}["“”»]\s*(?:[（(][^)）]{0,45}[)）])?\s*/);
+  // 1) Divisor mais confiável: o 1º parêntese com ANO (data de publicação)
+  //    encerra o cabeçalho em todos os formatos ('"Título" (1953)…',
+  //    'Título - Coleção… (Publicado em 1952)…', 'Relato… (… 1950)…').
+  let m = s.match(/^[\s\S]{0,250}?[（(][^)）]*(?:19|20)\d{2}[^)）]*[)）]\s*/);
   if (m && m[0].length < s.length - 8) return s.slice(m[0].length).trim();
+  // 2) Ou o 1º título entre aspas (+ data opcional) perto do começo.
+  m = s.match(/^[\s\S]{0,120}?["“”«][^"“”»]{2,160}["“”»]\s*(?:[（(][^)）]{0,45}[)）])?\s*/);
+  if (m && m[0].length < s.length - 8) return s.slice(m[0].length).trim();
+  // 3) Ou só o rótulo do orador.
   return s.replace(/^[\s\S]{0,40}?Meishu-Sama\s*[:：\-–—]\s*/, '').trim();
 }
 
@@ -306,12 +313,18 @@ function _renderHit(hit, g, basePath, highlightRegex, q, activeLang) {
 
   if (_searchMode === 'conteudo') {
     // Conteúdo é o protagonista: pega um trecho do CORPO em volta do match,
-    // pulando o título embutido. Usa content_excerpt (corpo cru, 1500 chars)
-    // quando vem; senão, o próprio fragmento do servidor. Se o termo não
-    // estiver no corpo (match era só no título), cai no fragmento limpo.
-    const src = hit.content_excerpt || hit.snippet || '';
-    const bodyText = _contentBody(src);
-    snippetSrc = _bodyWindow(bodyText, q, activeLang) || _cleanContentSnippet(hit.snippet);
+    // pulando o título embutido. Prioridade:
+    //   1) janela em volta do termo no corpo (content_excerpt, 1500 chars);
+    //   2) se o termo não está no corpo (Johrei só no título), o INÍCIO do
+    //      corpo — ainda conteúdo, nunca o título entre aspas;
+    //   3) sem corpo disponível, o fragmento do servidor limpo.
+    const body = hit.content_excerpt ? _contentBody(hit.content_excerpt) : '';
+    if (body) {
+      snippetSrc = _bodyWindow(body, q, activeLang)
+        || (body.length > 220 ? body.slice(0, 220).trim() + ' …' : body);
+    } else {
+      snippetSrc = _bodyWindow(_contentBody(hit.snippet), q, activeLang) || _cleanContentSnippet(hit.snippet);
+    }
   } else if (ex) {
     // Título real embutido: vira a manchete do trecho (com grifo), e o
     // corpo (sem o cabeçalho "Ensinamento de Meishu-Sama:") vira o snippet.
@@ -1415,9 +1428,20 @@ async function performSearch(query) {
         return { data: r.data, error: r.error };
       }
       if (isContentMode) {
-        const r = await _withTimeout(supabase.rpc('search_teachings', {
-          q: sq, lang: activeLang, max_results: MAX_RESULTS, scope,
-        }), SEARCH_TIMEOUT_MS, 'search_teachings (conteúdo)');
+        // FTS puro via hybrid com embedding NULO (vector branch é pulado).
+        // Vantagem sobre search_teachings: devolve content_excerpt (corpo
+        // 1500 chars), que o _bodyWindow usa pra mostrar o trecho do corpo.
+        // Fallback pra search_teachings se a hybrid não estiver acessível.
+        const r = await _withTimeout(supabase.rpc('search_teachings_hybrid', {
+          q: sq, q_embedding: null, lang: activeLang, max_results: MAX_RESULTS, scope, use_fts: true,
+        }), SEARCH_TIMEOUT_MS, 'search_teachings_hybrid (conteúdo)');
+        if (r.error) {
+          console.warn('hybrid(conteúdo) falhou, fallback search_teachings:', r.error?.message || r.error);
+          const f = await _withTimeout(supabase.rpc('search_teachings', {
+            q: sq, lang: activeLang, max_results: MAX_RESULTS, scope,
+          }), SEARCH_TIMEOUT_MS, 'search_teachings (conteúdo fallback)');
+          return { data: f.data, error: f.error };
+        }
         return { data: r.data, error: r.error };
       }
       // Relacionados: híbrida semântica (fallback FTS se a edge cair).

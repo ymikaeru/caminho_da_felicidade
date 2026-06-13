@@ -171,6 +171,17 @@ const rowsNoPrefix = [{
 const htmlNoPrefix = M._renderGroupsList(M._groupResults(rowsNoPrefix, 'johrei', 'pt'), 8, M._buildHighlightRegex('johrei', 'pt'), 'johrei', 'pt');
 check('conteúdo: pula título sem prefixo, grifa Johrei do corpo', /search-hit-snippet[^>]*>[\s\S]*?<mark[^>]*>Johrei[\s\S]*?dissolve/i.test(htmlNoPrefix), htmlNoPrefix.match(/search-hit-snippet[^>]*>([\s\S]{0,90})/)?.[1]);
 check('conteúdo: corpo sem "Transfusão de Sangue" (título)', !/search-hit-snippet[^>]*>[\s\S]*?é Transfusão de Sangue/i.test(htmlNoPrefix), '');
+
+// 10d. título SEM aspas + "- Coleção... (Publicado em ANO)": corta pela data
+const rowsDash = [{
+  vol: 'mioshiec2', file: 'ID2', topic_idx: 0, title_pt: 'Coletânea de fragmentos sobre medicina 2',
+  snippet: 'O Ponto Vital do <mark>Johrei</mark> - Coleção de Fragmentos (1952) introdução',
+  content_excerpt: 'O Ponto Vital do Johrei - Coleção de Fragmentos de Medicina Espiritual 1 (Publicado em 17 de fevereiro de 1952) No caso de doença pulmonar, ao ministrar o Johrei deve-se atentar ao ponto vital das costas para dissolver as toxinas.',
+  rank: 0.5,
+}];
+const htmlDash = M._renderGroupsList(M._groupResults(rowsDash, 'johrei', 'pt'), 8, M._buildHighlightRegex('johrei', 'pt'), 'johrei', 'pt');
+check('conteúdo: corta header sem aspas pela data', !/search-hit-snippet[^>]*>[\s\S]*?Coleção de Fragmentos de Medicina/i.test(htmlDash), htmlDash.match(/search-hit-snippet[^>]*>([\s\S]{0,70})/)?.[1]);
+check('conteúdo: grifa Johrei do corpo (caso dash)', /search-hit-snippet[^>]*>[\s\S]*?<mark[^>]*>Johrei[\s\S]*?ponto vital das costas/i.test(htmlDash), '');
 M._setMode('titulo');
 
 process.exit(fail ? 1 : 0);

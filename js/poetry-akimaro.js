@@ -254,8 +254,23 @@
       : '';
     const topicId = `akimaro_n${p.number}`;
     const hlBtn = (window._poetryHighlights && !pending) ? window._poetryHighlights.renderCardButton() : '';
+    // Botão "Reportar erro de tradução" — só em poemas já traduzidos.
+    // A tradução + o botão vão embrulhados num .poetry-card__transcol (mesma
+    // grid-area "translation"), pra o botão ficar logo abaixo do texto PT,
+    // dentro da coluna. O wrapper leva .lang-pt: no modo japonês imersivo
+    // (tradução oculta) ele some por inteiro, sem deixar linha vazia no grid.
+    const reportBtn = (p.translation && !pending)
+      ? `<button type="button" class="poetry-card__report" title="Reportar erro de tradução" aria-label="Reportar erro de tradução">` +
+          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>` +
+          `<span class="lang-pt">Reportar erro de tradução</span>` +
+          `<span class="lang-ja" style="display:none">翻訳の誤りを報告</span>` +
+        `</button>`
+      : '';
     const transBlock = p.translation
-      ? `<div class="poetry-card__translation lang-pt">${_highlight(p.translation, _query)}</div>`
+      ? `<div class="poetry-card__transcol lang-pt">` +
+          `<div class="poetry-card__translation">${_highlight(p.translation, _query)}</div>` +
+          reportBtn +
+        `</div>`
       : '';
     return `
       <article class="poetry-card${pending ? ' poetry-card--pending' : ''}" data-poem-topic-id="${_esc(topicId)}" data-poem-index="${p.number}">
@@ -482,6 +497,36 @@
     return true;
   }
 
+  // Reportar erro de tradução: delega no #akimaroList (persiste entre
+  // _render()s; só o innerHTML troca). Monta o trecho com nº + original JP +
+  // tradução PT pra o admin comparar, e abre o modal de translation-report.js.
+  function _wireReportButtons() {
+    const list = $('#akimaroList');
+    if (!list) return;
+    list.addEventListener('click', (e) => {
+      const btn = e.target.closest('.poetry-card__report');
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const card = btn.closest('[data-poem-topic-id]');
+      if (!card) return;
+      const topicId = card.dataset.poemTopicId;
+      const loc = _findPoemLocation(topicId);
+      if (!loc || typeof window.openTranslationReport !== 'function') return;
+      const p = loc.poem;
+      const num = String(p.number).padStart(3, '0');
+      const parts = [`№ ${num}`];
+      if (p.original) parts.push(p.original);
+      if (p.translation) parts.push('— ' + p.translation);
+      window.openTranslationReport(parts.join('\n'), {
+        topicId,
+        vol: 'poetry',
+        file: 'akimaro-kineishu'
+      });
+      try { btn.blur(); } catch (_) {}
+    });
+  }
+
   function _wire() {
     const search = $('#akimaroSearch');
     if (search) search.addEventListener('input', e => _onSearch(e.target.value));
@@ -489,6 +534,7 @@
     if (rand) rand.addEventListener('click', _randomPoem);
     const toggle = $('#akimaroSidebarToggle');
     if (toggle) toggle.addEventListener('click', _toggleSidebar);
+    _wireReportButtons();
 
     if (window._poetryHighlights) {
       const list = $('#akimaroList');

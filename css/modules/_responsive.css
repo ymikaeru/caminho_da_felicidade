@@ -108,6 +108,13 @@
     display: none !important;
   }
 
+  /* Logo central some no leitor mobile — o header ja tem o botao "Voltar
+     ao Indice" a esquerda e o emblema central so disputa espaco/atencao
+     com o texto. Visual mais limpo pra leitura. */
+  .reader-body .header__logo {
+    display: none !important;
+  }
+
   .topic-list>a.topic-card[style] {
     padding: 20px !important;
   }

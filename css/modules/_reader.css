@@ -254,6 +254,38 @@
   text-overflow: ellipsis;
 }
 
+/* CTA "Ler o ensinamento completo" no celular: em uma linha só, o título
+   longo ("— Ensinamento de Meishu-Sama: Extraído de ...") espremia o link
+   numa coluna estreita (uma palavra por linha). No mobile deixamos a linha
+   quebrar: o link fica inteiro na 1ª linha e o título desce pra própria
+   linha, indentado e com quebra normal (legível por completo, sem corte). */
+@media (max-width: 600px) {
+  .topic-partial-cta {
+    flex-wrap: wrap;
+    row-gap: 4px;
+    align-items: baseline;
+  }
+
+  .topic-partial-cta > svg:first-child {
+    align-self: flex-start;
+    position: relative;
+    top: 3px;
+  }
+
+  .topic-partial-cta .cta-link {
+    white-space: nowrap;
+  }
+
+  .topic-partial-cta .cta-title {
+    flex-basis: 100%;
+    margin-left: 26px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.4;
+  }
+}
+
 .loading-progress {
   width: 100%;
   height: 4px;

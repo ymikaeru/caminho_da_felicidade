@@ -940,6 +940,59 @@ html[lang="ja"] .poetry-card {
 
 .poetry-card__bookmark-label { display: none; }
 
+/* ─── Reportar erro de tradução (Akimaro) ─────────────────────
+   A tradução PT vem embrulhada num .poetry-card__transcol (mesma
+   grid-area "translation") pra acomodar o botão logo abaixo dela,
+   dentro da coluna. Só o Akimaro usa o wrapper; yama/warai seguem
+   com a tradução como filho direto do grid. */
+.poetry-card__transcol {
+  grid-area: translation;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.poetry-card__transcol .poetry-card__translation {
+  align-self: stretch;
+}
+
+.poetry-card__report {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 14px; /* alinha com o padding-left da tradução */
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  opacity: 0.55;
+  cursor: pointer;
+  transition: opacity 0.18s var(--ease), color 0.18s var(--ease), background 0.18s var(--ease);
+}
+.poetry-card__report svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+@media (hover: hover) {
+  .poetry-card__report:hover {
+    opacity: 1;
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+}
+.poetry-card__report:focus-visible {
+  opacity: 1;
+  color: var(--accent);
+  outline: 1px dotted var(--accent);
+  outline-offset: 2px;
+}
+
 /* Preface block — card com bg discreto (marfim morno, não branco puro);
    sobrepõe accent-soft a surface pra adaptar a qualquer tema sem hardcode. */
 .poetry-preface {

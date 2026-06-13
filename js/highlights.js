@@ -1033,11 +1033,13 @@
       // Título segue o fluxo NORMAL de grifo (mudou 12/06 — ver nota no
       // _onMobileSelectionSettle).
 
-      // No mobile o gatilho real é selectionchange (_onMobileSelectionSettle) —
-      // o Android não entrega touchend/mouseup com seleção ativa. Este ramo só
-      // roda no raro caso de o evento chegar mesmo assim; reusa o mesmo caminho.
+      // No MOBILE não interceptamos mais a seleção nativa (arrastar/long-press):
+      // ela briga com o menu do sistema operacional (Copiar/Buscar/Ask). Deixa
+      // a seleção 100% com o SO — grifar no mobile é só pelo "modo grifar"
+      // (botão no header → toca na frase). Ver _setTapMode / _handleTapModeClick.
+      // No DESKTOP a seleção continua abrindo o tooltip de grifo.
       if (_isMobile) {
-        _showMobileBarAndClear();
+        return;
       } else {
         _showTooltip(range);
       }
@@ -1786,11 +1788,12 @@
       setTimeout(() => obs.disconnect(), 5000);
     }
 
-    // Mobile: o Android não dispara touchend/mouseup com seleção ativa (consome
-    // o long-press), então o gatilho real é selectionchange. Ver _onMobileSelectionSettle.
-    if (_isMobile) {
-      document.addEventListener('selectionchange', _onMobileSelectionSettle);
-    }
+    // Mobile: grifar por SELEÇÃO (arrastar/long-press) foi DESATIVADO — brigava
+    // com o menu nativo do SO (Copiar/Buscar/Ask). No mobile a seleção fica 100%
+    // com o sistema; grifar é exclusivamente pelo "modo grifar" (botão no header
+    // → toca na frase). Por isso NÃO registramos mais o selectionchange aqui.
+    // (Antes: if (_isMobile) document.addEventListener('selectionchange', _onMobileSelectionSettle);
+    //  _onMobileSelectionSettle/_showMobileBarAndClear/_showMobileBar ficaram inertes.)
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {

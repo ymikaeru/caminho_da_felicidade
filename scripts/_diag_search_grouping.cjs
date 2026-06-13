@@ -146,6 +146,19 @@ check('conteúdo: match grifado no snippet (não no título)', /search-hit-snipp
 check('conteúdo: sem hit-title separado', !htmlContent.includes('search-hit-title'), '');
 check('conteúdo: rótulo "Meishu-Sama:" removido do snippet', !/search-hit-snippet[^>]*>\s*Ensinamento de Meishu/i.test(htmlContent), '');
 check('conteúdo: título entre aspas preservado no snippet', /search-hit-snippet[^>]*>[\s\S]*?Verdadeira Medicina/i.test(htmlContent), '');
+
+// 10b. modo Conteúdo com content_excerpt: janela do CORPO em volta do match
+const rowsBody = [{
+  vol: 'mioshiec2', file: 'ID5', topic_idx: 5, title_pt: 'Coletânea de fragmentos sobre medicina 5',
+  // o título embutido NÃO tem 'remédios'; o corpo tem.
+  snippet: 'Ensinamento de Meishu-Sama: "Sobre a Cura" (1953) introdução',
+  content_excerpt: 'Ensinamento de Meishu-Sama: "Sobre a Cura" (1953) Quando a pessoa toma remédios em excesso, acumula toxinas e o Johrei tem o papel de dissolvê-las gradualmente ao longo do tempo.',
+  rank: 0.5,
+}];
+const groupsBody = M._groupResults(rowsBody, 'toxinas', 'pt');
+const htmlBody = M._renderGroupsList(groupsBody, 8, M._buildHighlightRegex('toxinas', 'pt'), 'toxinas', 'pt');
+check('conteúdo: janela do corpo (não do título)', /search-hit-snippet[^>]*>[\s\S]*?<mark[^>]*>toxinas/i.test(htmlBody), htmlBody.match(/search-hit-snippet[^>]*>([\s\S]{0,80})/)?.[1]);
+check('conteúdo: corpo sem o título "Sobre a Cura"', !/search-hit-snippet[^>]*>[\s\S]*?Sobre a Cura/i.test(htmlBody), '');
 M._setMode('titulo');
 
 process.exit(fail ? 1 : 0);

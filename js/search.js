@@ -194,6 +194,7 @@ function _groupResults(results, q, activeLang) {
       topicIdx: r.topic_idx != null ? r.topic_idx : 0,
       title: doctrinal,
       snippet: r.snippet || '',
+      content_excerpt: r.content_excerpt || '',
       rank: Number(r.rank) || 0,
       titleHit,
       contentHit,
@@ -260,6 +261,30 @@ function _cleanContentSnippet(s) {
   return String(s || '').replace(/^[\s\S]{0,40}?Meishu-Sama\s*[:：\-–—]\s*/, '');
 }
 
+// Janela do CORPO em volta da 1ª ocorrência de um termo (modo Conteúdo).
+// O ts_headline do servidor costuma centrar no título embutido (a palavra
+// aparece primeiro ali); aqui pegamos o content_excerpt (corpo cru, 1500
+// chars), pulamos o cabeçalho/título e recortamos ~200 chars ao redor do
+// match NO CORPO — o trecho que o usuário realmente quer ver.
+function _bodyWindow(body, q, activeLang) {
+  if (!body) return null;
+  const regs = _termRegexes(_splitTerms(q), activeLang);
+  let best = -1;
+  for (const re of regs) {
+    const m = re.exec(body);
+    if (m && (best < 0 || m.index < best)) best = m.index;
+  }
+  if (best < 0) return null; // termo não está no corpo (match era só no título)
+  let start = Math.max(0, best - 70);
+  let end = Math.min(body.length, best + 170);
+  if (start > 0) { const sp = body.indexOf(' ', start); if (sp >= 0 && sp < best) start = sp + 1; }
+  if (end < body.length) { const sp = body.lastIndexOf(' ', end); if (sp > best) end = sp; }
+  let frag = body.slice(start, end).trim();
+  if (start > 0) frag = '… ' + frag;
+  if (end < body.length) frag = frag + ' …';
+  return frag;
+}
+
 // Cada hit conhece seu título real (extraído do conteúdo embutido, quando
 // é tópico de contêiner) calculado uma vez em _renderGroup e passado aqui.
 function _renderHit(hit, g, basePath, highlightRegex, q, activeLang) {
@@ -269,11 +294,12 @@ function _renderHit(hit, g, basePath, highlightRegex, q, activeLang) {
   let snippetSrc = hit.snippet;
 
   if (_searchMode === 'conteudo') {
-    // Trecho localizado é o protagonista: o fragmento (ts_headline) já vem
-    // centrado no match e com <mark>. Mostra INTEIRO — só tira o rótulo do
-    // orador. NÃO extrai título: o match às vezes está no próprio título,
-    // que então sairia do texto em destaque.
-    snippetSrc = _cleanContentSnippet(hit.snippet);
+    // Conteúdo é o protagonista: prioriza um trecho do CORPO em volta do
+    // match (content_excerpt), pulando o título embutido. Se o corpo não
+    // tiver o termo (match era só no título), cai no fragmento do servidor.
+    const ce = hit.content_excerpt || '';
+    const bodyText = ce ? ((_extractTeaching(ce) || {}).body || ce) : '';
+    snippetSrc = _bodyWindow(bodyText, q, activeLang) || _cleanContentSnippet(hit.snippet);
   } else if (ex) {
     // Título real embutido: vira a manchete do trecho (com grifo), e o
     // corpo (sem o cabeçalho "Ensinamento de Meishu-Sama:") vira o snippet.

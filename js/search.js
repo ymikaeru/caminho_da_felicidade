@@ -1297,6 +1297,10 @@ async function performSearch(query) {
   _orFallbackActive = false;
   _allResults = []; _allGroups = []; _flatItems = []; _focusedIndex = -1;
 
+  // Modo Conteúdo: o TRECHO é o protagonista — uma classe no container faz
+  // o CSS rebaixar título/coletânea a contexto e destacar o snippet.
+  if (resultsEl) resultsEl.classList.toggle('search-results--content', _searchMode === 'conteudo');
+
   const searchingMsg = activeLang === 'ja' ? '検索中...' : 'Buscando...';
   if (resultsEl) resultsEl.innerHTML = `<li class="search-loading"><span class="search-spinner"></span>${searchingMsg}</li>`;
 

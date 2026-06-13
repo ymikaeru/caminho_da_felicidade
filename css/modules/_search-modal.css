@@ -496,6 +496,46 @@
   overflow: hidden;
 }
 
+/* ── Modo Conteúdo: o TRECHO é o protagonista ─────────────────────
+   Título da publicação/coletânea e título do trecho viram contexto
+   discreto (pequeno, ui, mudo); o snippet ganha tamanho/cor de corpo
+   e mostra mais linhas. */
+.search-results--content .search-group-title {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.search-results--content .search-group-collection-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.search-results--content .search-group--collection .search-hit-title,
+.search-results--content .search-hit-title {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 1px;
+  opacity: 0.9;
+}
+
+.search-results--content .search-hit-snippet {
+  font-size: 0.96rem;
+  color: var(--text-main);
+  line-height: 1.6;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* A marca de grifo continua visível mesmo no texto rebaixado */
+.search-results--content .search-group-title mark,
+.search-results--content .search-hit-title mark {
+  color: var(--text-main);
+}
+
 /* Banner do fallback OR ("nenhum trecho tem todas as palavras juntas") */
 .search-or-banner {
   padding: 12px 24px;

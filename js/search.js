@@ -252,6 +252,14 @@ function _styleSnippetSmart(rawSnippet, activeLang, highlightRegex) {
   return _styleSnippet(rawSnippet, activeLang, highlightRegex);
 }
 
+// Remove só o RÓTULO do orador ("Ensinamento de Meishu-Sama:" /
+// "Orientação de Meishu-Sama -") do começo do fragmento, preservando o
+// título entre aspas e o corpo (e os <mark>). Usado no modo Conteúdo, onde
+// o fragmento ts_headline (centrado no match) é mostrado inteiro.
+function _cleanContentSnippet(s) {
+  return String(s || '').replace(/^[\s\S]{0,40}?Meishu-Sama\s*[:：\-–—]\s*/, '');
+}
+
 // Cada hit conhece seu título real (extraído do conteúdo embutido, quando
 // é tópico de contêiner) calculado uma vez em _renderGroup e passado aqui.
 function _renderHit(hit, g, basePath, highlightRegex, q, activeLang) {
@@ -260,7 +268,13 @@ function _renderHit(hit, g, basePath, highlightRegex, q, activeLang) {
   let titleHtml = '';
   let snippetSrc = hit.snippet;
 
-  if (ex) {
+  if (_searchMode === 'conteudo') {
+    // Trecho localizado é o protagonista: o fragmento (ts_headline) já vem
+    // centrado no match e com <mark>. Mostra INTEIRO — só tira o rótulo do
+    // orador. NÃO extrai título: o match às vezes está no próprio título,
+    // que então sairia do texto em destaque.
+    snippetSrc = _cleanContentSnippet(hit.snippet);
+  } else if (ex) {
     // Título real embutido: vira a manchete do trecho (com grifo), e o
     // corpo (sem o cabeçalho "Ensinamento de Meishu-Sama:") vira o snippet.
     titleHtml = `<div class="search-hit-title">${_styleSnippetSmart(ex.title, activeLang, highlightRegex)}</div>`;

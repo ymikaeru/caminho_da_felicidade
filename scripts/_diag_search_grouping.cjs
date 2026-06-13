@@ -115,7 +115,10 @@ check('extrai título real', ex && ex.title === 'O <mark>Johrei</mark> é a Verd
 check('extrai corpo sem cabeçalho', ex && ex.body.startsWith('"Este paciente'), ex && ex.body.slice(0, 20));
 check('sem cabeçalho → null', M._extractTeaching('o espírito se eleva pela prática diária') === null, '');
 
-// 9. render contêiner: rótulo de coleção + títulos reais, sem manchete da pub
+// 9. render contêiner (modo Relacionados/título): rótulo de coleção +
+//    títulos reais como hit-title. (No modo Conteúdo o trecho é mostrado
+//    inteiro, sem extrair título — testado na seção 10.)
+M._setMode('relacionados');
 window.SECTION_MAP.mioshiec2 = { 'ID5': { pt: 'Coletânea de fragmentos sobre medicina 5' } };
 const rowsCont = [
   { vol: 'mioshiec2', file: 'ID5', topic_idx: 1, title_pt: 'Coletânea de fragmentos sobre medicina 5', snippet: 'Ensinamento de Meishu-Sama : "O <mark>Johrei</mark> é a Verdadeira Medicina" (1953) "Este paciente tentou a medicina."', rank: 0.8 },
@@ -134,5 +137,15 @@ check('contêiner: corpo sem "Ensinamento de Meishu-Sama"', !/search-hit-snippet
 const groupsContName = M._groupResults(rowsCont, 'medicina', 'pt');
 const htmlContName = M._renderGroupsList(groupsContName, 8, M._buildHighlightRegex('medicina', 'pt'), 'medicina', 'pt');
 check('contêiner: grifa termo no nome da coleção', /search-group-collection-name[\s\S]*?<mark[^>]*>medicina/i.test(htmlContName), '');
+
+// 10. modo CONTEÚDO: fragmento inteiro centrado no match (com grifo),
+//     sem extrair título; só remove o rótulo "...Meishu-Sama:".
+M._setMode('conteudo');
+const htmlContent = M._renderGroupsList(groupsCont, 8, M._buildHighlightRegex('johrei', 'pt'), 'johrei', 'pt');
+check('conteúdo: match grifado no snippet (não no título)', /search-hit-snippet[^>]*>[\s\S]*?<mark[^>]*>Johrei/i.test(htmlContent), '');
+check('conteúdo: sem hit-title separado', !htmlContent.includes('search-hit-title'), '');
+check('conteúdo: rótulo "Meishu-Sama:" removido do snippet', !/search-hit-snippet[^>]*>\s*Ensinamento de Meishu/i.test(htmlContent), '');
+check('conteúdo: título entre aspas preservado no snippet', /search-hit-snippet[^>]*>[\s\S]*?Verdadeira Medicina/i.test(htmlContent), '');
+M._setMode('titulo');
 
 process.exit(fail ? 1 : 0);

@@ -143,23 +143,68 @@
   gap: 8px;
 }
 
-/* Grupo de escopo (Tudo/Só Título/Só Conteúdo) + divisor pros toggles */
-.search-filter-group {
+/* Filtro de categoria (Tudo · No título · No conteúdo · Relacionados).
+   Texto + contagem, separados por ·, abaixo do header. Estilo leve
+   (texto, não pílulas) — substitui o #searchCount enquanto visível. */
+.search-kind-filter {
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 2px 4px;
+  padding: 9px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  font-family: var(--font-ui);
 }
 
-.search-filter-divider {
-  width: 1px;
-  align-self: stretch;
-  background: var(--border);
-  margin: 2px 4px;
+.search-filter-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+}
+
+/* Separador "·" entre os botões */
+.search-filter-btn:not(:last-child)::after {
+  content: "·";
+  margin-left: 14px;
+  color: var(--border);
+  pointer-events: none;
+}
+
+.search-filter-btn:hover,
+.search-filter-btn:focus-visible {
+  color: var(--accent);
+  outline: none;
+}
+
+.search-filter-btn.is-active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.search-filter-btn-count {
+  margin-left: 5px;
+  font-size: 0.78rem;
+  opacity: 0.7;
 }
 
 @media (max-width: 767px) {
-  .search-filter-divider {
-    display: none;
+  .search-kind-filter {
+    padding: 8px 16px;
+  }
+  .search-filter-btn {
+    font-size: 0.85rem;
+    padding: 4px 7px;
+  }
+  .search-filter-btn:not(:last-child)::after {
+    margin-left: 9px;
   }
 }
 

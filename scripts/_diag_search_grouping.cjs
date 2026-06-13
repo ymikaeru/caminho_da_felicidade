@@ -11,7 +11,7 @@ global.sessionStorage = global.localStorage;
 global.performance = { now: () => 0 };
 
 const src = readFileSync(join(__dirname, '..', 'js', 'search.js'), 'utf8');
-eval(src + '\nmodule.exports = { _splitTerms, _buildHighlightRegex, _groupResults, _orderGroups, _renderResultsList, _setOr: v => { _orFallbackActive = v; } };');
+eval(src + '\nmodule.exports = { _splitTerms, _buildHighlightRegex, _groupResults, _orderGroups, _renderResultsList, _kindCounts, _setOr: v => { _orFallbackActive = v; }, _setKindFilter: v => { _kindFilter = v; } };');
 const M = module.exports;
 
 let fail = 0;
@@ -84,5 +84,21 @@ const groupsD = M._groupResults(rowsD, 'rancor', 'pt');
 M._setOr(false);
 const htmlD = M._renderResultsList(groupsD, 8, M._buildHighlightRegex('rancor', 'pt'), 'rancor', 'pt');
 check('dedup título duplicado no snippet', !htmlD.includes('search-hit-title'), '');
+
+// 8. filtro de categoria não-exclusivo (pub título+conteúdo conta nos 2)
+const gSinT = groupsT.find(g => g.file === 'sinbatu.html');
+check('flags não-exclusivas', gSinT.hasTitle === true && gSinT.hasContent === true, JSON.stringify({ t: gSinT.hasTitle, c: gSinT.hasContent }));
+const counts = M._kindCounts(groupsT);
+check('counts.all = total grupos', counts.all === groupsT.length, counts.all);
+check('counts somam ≥ all (não-exclusivo)', counts.title + counts.content + counts.related >= counts.all, JSON.stringify(counts));
+M._setOr(false);
+M._setKindFilter('content');
+const htmlC = M._renderResultsList(groupsT, 8, M._buildHighlightRegex('punição divina', 'pt'), 'punição divina', 'pt');
+check('filtro conteúdo inclui pub título+conteúdo', htmlC.includes('Punição divina'), '');
+check('filtro ativo: sem rótulo de seção', !htmlC.includes('search-section-label'), '');
+M._setKindFilter('related');
+const htmlR = M._renderResultsList(groupsT, 8, M._buildHighlightRegex('punição divina', 'pt'), 'punição divina', 'pt');
+check('filtro relacionados: só related', htmlR.includes('Amor altruísta') && !htmlR.includes('Punição divina'), '');
+M._setKindFilter('all');
 
 process.exit(fail ? 1 : 0);

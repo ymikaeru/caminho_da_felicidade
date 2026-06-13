@@ -39,6 +39,10 @@ let _currentQuery = '';
 // true quando os resultados vieram do fallback OR (nenhum trecho contém
 // todas as palavras juntas → re-busca por qualquer palavra, agrupada).
 let _orFallbackActive = false;
+// Filtro de categoria (client-side): 'all' | 'title' | 'content' | 'related'.
+// Filtra os grupos JÁ buscados — substituiu o escopo server-side (que o
+// ramo semântico da RPC ignorava, então "Só Conteúdo" não mudava nada).
+let _kindFilter = 'all';
 // Sequence ID: cada performSearch incrementa, e o handler de resposta só
 // renderiza se o seq ainda for o último — descarta respostas de buscas
 // que o usuário já abandonou (typeahead burst).
@@ -171,8 +175,12 @@ function _groupResults(results, q, activeLang) {
   for (const g of list) {
     g.pubLabel = _pubLabel(g.vol, g.file, activeLang) || g.navTitle || (g.hits[0] ? g.hits[0].title : '');
     const pubTitleHit = regs.some(re => re.test(g.pubLabel));
-    g.kind = (pubTitleHit || g.hits.some(h => h.titleHit)) ? 'title'
-      : (g.hits.some(h => h.contentHit) ? 'content' : 'related');
+    // Flags NÃO-exclusivas: a mesma publicação pode casar no título E no
+    // corpo (o filtro "No conteúdo" deve listá-la nas duas categorias).
+    g.hasTitle = pubTitleHit || g.hits.some(h => h.titleHit);
+    g.hasContent = g.hits.some(h => h.contentHit);
+    // kind exclusivo continua pra ordenação + rótulos de seção no modo "Tudo".
+    g.kind = g.hasTitle ? 'title' : (g.hasContent ? 'content' : 'related');
     g.coverage = terms.filter((t, idx) => {
       const re = regs[idx];
       return re.test(g.pubLabel) || g.hits.some(h => re.test(h.title) || re.test(_stripMarks(h.snippet)));
@@ -280,10 +288,67 @@ const _SECTION_LABELS = {
   ja: { title: 'タイトルに一致', content: '本文に一致', related: '関連' },
 };
 
+const _FILTER_LABELS = {
+  pt: { all: 'Tudo', title: 'No título', content: 'No conteúdo', related: 'Relacionados' },
+  ja: { all: 'すべて', title: 'タイトル', content: '本文', related: '関連' },
+};
+
+// Contagens NÃO-exclusivas (publicações): título e conteúdo podem somar
+// a mesma pub. Relacionados = nem título nem conteúdo (só semântico).
+function _kindCounts(groups) {
+  const c = { all: groups.length, title: 0, content: 0, related: 0 };
+  for (const g of groups) {
+    if (g.hasTitle) c.title++;
+    if (g.hasContent) c.content++;
+    if (!g.hasTitle && !g.hasContent) c.related++;
+  }
+  return c;
+}
+
+function _groupMatchesFilter(g) {
+  if (_kindFilter === 'all') return true;
+  if (_kindFilter === 'title') return g.hasTitle;
+  if (_kindFilter === 'content') return g.hasContent;
+  return !g.hasTitle && !g.hasContent;
+}
+
+// Barra de filtro de categoria (texto + contagem, separados por ·).
+// Sempre visível quando há resultados de mais de uma categoria; some
+// quando só há uma (filtro seria inútil). Esconde o #searchCount nesse
+// caso — as contagens por categoria já dão o panorama.
+function _renderKindFilter(activeLang) {
+  const bar = document.getElementById('searchKindFilter');
+  const countEl = document.getElementById('searchCount');
+  if (!bar) return;
+  const counts = _kindCounts(_allGroups);
+  const present = ['title', 'content', 'related'].filter(k => counts[k] > 0);
+  if (_allGroups.length === 0 || present.length < 2) {
+    bar.style.display = 'none';
+    bar.innerHTML = '';
+    if (countEl) countEl.style.display = '';
+    return;
+  }
+  const labels = _FILTER_LABELS[activeLang === 'ja' ? 'ja' : 'pt'];
+  const order = ['all', ...present];
+  bar.innerHTML = order.map(k =>
+    `<button type="button" role="tab" class="search-filter-btn${_kindFilter === k ? ' is-active' : ''}"
+      aria-selected="${_kindFilter === k}" data-kind="${k}">${labels[k]}<span class="search-filter-btn-count">${counts[k]}</span></button>`
+  ).join('');
+  bar.style.display = '';
+  if (countEl) countEl.style.display = 'none';
+}
+
+function _hideKindFilter() {
+  const bar = document.getElementById('searchKindFilter');
+  if (bar) { bar.style.display = 'none'; bar.innerHTML = ''; }
+  const countEl = document.getElementById('searchCount');
+  if (countEl) countEl.style.display = '';
+}
+
 function _renderResultsList(groups, count, highlightRegex, q, activeLang) {
   const basePath = getBasePath();
   const ordered = _orderGroups(groups, _orFallbackActive);
-  const filtered = ordered;
+  const filtered = ordered.filter(_groupMatchesFilter);
   const visible = filtered.slice(0, count);
   const labels = _SECTION_LABELS[activeLang === 'ja' ? 'ja' : 'pt'];
 
@@ -297,9 +362,9 @@ function _renderResultsList(groups, count, highlightRegex, q, activeLang) {
 
   let lastKind = null;
   for (const g of visible) {
-    // Rótulos de seção só no modo normal (no OR a ordem é por cobertura
-    // e mistura kinds — o banner já contextualiza).
-    if (!_orFallbackActive && g.kind !== lastKind) {
+    // Rótulos de seção só no modo "Tudo" (com filtro ativo a lista é de
+    // uma categoria só; no OR a ordem é por cobertura — banner contextualiza).
+    if (!_orFallbackActive && _kindFilter === 'all' && g.kind !== lastKind) {
       html += `<li class="search-section-label">${labels[g.kind]}</li>`;
       lastKind = g.kind;
     }
@@ -345,11 +410,9 @@ function _getSupabase() {
   return window.supabaseAuth?.supabase || null;
 }
 
-// Grupos na ordem de exibição (títulos → conteúdo → relacionados;
-// no fallback OR, por cobertura). As abas de filtro foram testadas e
-// removidas (13/06) — as seções inline organizam sem pedir clique.
+// Grupos na ordem de exibição, já filtrados pela categoria ativa.
 function _filteredGroups() {
-  return _orderGroups(_allGroups, _orFallbackActive);
+  return _orderGroups(_allGroups, _orFallbackActive).filter(_groupMatchesFilter);
 }
 
 function _setRandomLoading(btn) {
@@ -434,6 +497,8 @@ window.clearSearch = function () {
   _allResults = [];
   _allGroups = [];
   _orFallbackActive = false;
+  _kindFilter = 'all';
+  _hideKindFilter();
   _displayedCount = 0;
   _currentQuery = '';
   _focusedIndex = -1;
@@ -775,13 +840,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (searchInput) searchInput.addEventListener('input', triggerSearch);
 
-  // Escopo Tudo/Só Título/Só Conteúdo: ao trocar o rádio, re-roda a busca
-  // imediatamente (passa scope pro servidor — ver performSearch).
-  document.querySelectorAll('input[name="searchFilter"]').forEach(node => {
-    node.addEventListener('change', () => {
-      if (searchInput && searchInput.value.trim().length >= 2) performSearch(searchInput.value);
+  // Filtro de categoria (Tudo / No título / No conteúdo / Relacionados):
+  // filtra os grupos já buscados, sem nova consulta. Se _allGroups está
+  // vazio (restore de sessionStorage), re-roda a busca pra reconstruir.
+  const kindFilterBar = document.getElementById('searchKindFilter');
+  if (kindFilterBar) {
+    kindFilterBar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.search-filter-btn');
+      if (!btn) return;
+      if (!_allGroups.length) {
+        if (searchInput && searchInput.value.trim()) performSearch(searchInput.value);
+        return;
+      }
+      _kindFilter = btn.dataset.kind || 'all';
+      const activeLang = localStorage.getItem('site_lang') || 'pt';
+      const filtered = _filteredGroups();
+      _displayedCount = Math.min(GROUPS_PER_PAGE, filtered.length);
+      _focusedIndex = -1;
+      const resultsEl = document.getElementById('searchResults');
+      const highlightRegex = _buildHighlightRegex(_currentQuery, activeLang);
+      if (resultsEl) resultsEl.innerHTML = _renderResultsList(_allGroups, _displayedCount, highlightRegex, _currentQuery, activeLang);
+      _renderKindFilter(activeLang);
+      if (resultsEl) sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
     });
-  });
+  }
 
   // Exact word matching toggle
   const exactToggle = document.getElementById('searchExactToggle');
@@ -1048,6 +1130,7 @@ async function performSearch(query) {
       if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${minCharsMsg}</li>`;
     }
     _updateSearchCount(0, 0, activeLang);
+    _hideKindFilter();
     return;
   }
 
@@ -1073,10 +1156,9 @@ async function performSearch(query) {
     return;
   }
 
-  // Lê o radio "Tudo / Só Título / Só Conteúdo" e passa pra RPC (filtra
-  // server-side em qual campo casar). Default 'all' se o painel não existe.
-  const scopeNode = document.querySelector('input[name="searchFilter"]:checked');
-  let scope = scopeNode ? scopeNode.value : 'all';
+  // Escopo sempre 'all': o filtro por categoria é client-side (o ramo
+  // semântico da RPC ignorava scope, então o filtro server-side enganava).
+  let scope = 'all';
 
   // Perf clamp para JA curto: ILIKE com <3 chars não consegue usar o GIN
   // trigram e cai em seq scan. Em content_ja (texto longo) isso explode
@@ -1160,6 +1242,7 @@ async function performSearch(query) {
       const errMsg = activeLang === 'ja' ? '検索に失敗しました。' : 'Erro ao buscar. Tente novamente.';
       if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errMsg}</li>`;
       _updateSearchCount(0, 0, activeLang);
+      _hideKindFilter();
       return;
     }
 
@@ -1195,6 +1278,7 @@ async function performSearch(query) {
       _allGroups = [];
       _displayedCount = 0;
       _currentQuery = '';
+      _hideKindFilter();
       // "Você quis dizer...?" — chama suggest_teachings com o texto cru
       // (não a tsquery traduzida). Se o user já mudou a query enquanto
       // a busca rodava, _currentQuery foi resetado e descartamos.
@@ -1208,6 +1292,7 @@ async function performSearch(query) {
     _allResults = results;
     _allGroups = _groupResults(results, q, activeLang);
     _currentQuery = q;
+    _kindFilter = 'all';
     _displayedCount = Math.min(GROUPS_PER_PAGE, _allGroups.length);
     _focusedIndex = -1;
 
@@ -1215,6 +1300,7 @@ async function performSearch(query) {
     const shownHits = _filteredGroups()
       .slice(0, _displayedCount).reduce((n, g) => n + g.hits.length, 0);
     _updateSearchCount(results.length, shownHits, activeLang, hitLimit, _allGroups.length, _displayedCount);
+    _renderKindFilter(activeLang);
     logSearch(q, results.length, _latencyMs);
 
     // Few-results case: prepende "Você quis dizer..." sem destruir os
@@ -1230,6 +1316,7 @@ async function performSearch(query) {
     console.error('Search exception:', err);
     const errMsg = activeLang === 'ja' ? 'エラーが発生しました。' : 'Erro inesperado na busca.';
     if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errMsg}</li>`;
+    _hideKindFilter();
   }
 }
 

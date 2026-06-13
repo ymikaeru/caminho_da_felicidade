@@ -775,6 +775,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (searchInput) searchInput.addEventListener('input', triggerSearch);
 
+  // Escopo Tudo/Só Título/Só Conteúdo: ao trocar o rádio, re-roda a busca
+  // imediatamente (passa scope pro servidor — ver performSearch).
+  document.querySelectorAll('input[name="searchFilter"]').forEach(node => {
+    node.addEventListener('change', () => {
+      if (searchInput && searchInput.value.trim().length >= 2) performSearch(searchInput.value);
+    });
+  });
+
   // Exact word matching toggle
   const exactToggle = document.getElementById('searchExactToggle');
   if (exactToggle) {
@@ -1065,9 +1073,10 @@ async function performSearch(query) {
     return;
   }
 
-  // Escopo sempre 'all': os rádios Tudo/Só Título/Só Conteúdo saíram da
-  // Avançada — as abas dos resultados filtram client-side com contagem.
-  let scope = 'all';
+  // Lê o radio "Tudo / Só Título / Só Conteúdo" e passa pra RPC (filtra
+  // server-side em qual campo casar). Default 'all' se o painel não existe.
+  const scopeNode = document.querySelector('input[name="searchFilter"]:checked');
+  let scope = scopeNode ? scopeNode.value : 'all';
 
   // Perf clamp para JA curto: ILIKE com <3 chars não consegue usar o GIN
   // trigram e cai em seq scan. Em content_ja (texto longo) isso explode

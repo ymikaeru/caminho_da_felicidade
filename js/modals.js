@@ -27,6 +27,9 @@ function buildSearchModal() {
   const placeholder = lang === 'ja' ? '教えを検索...' : 'Buscar nos ensinamentos...';
   const clearLabel = lang === 'ja' ? 'クリア' : 'Limpar busca';
   const clearText = lang === 'ja' ? '消す' : 'Apagar';
+  const allLabel = lang === 'ja' ? 'すべて' : 'Tudo';
+  const titleLabel = lang === 'ja' ? 'タイトルのみ' : 'Só Título';
+  const contentLabel = lang === 'ja' ? '内容のみ' : 'Só Conteúdo';
   const exactLabel = lang === 'ja' ? '完全一致' : 'Palavra exata';
   const exactTitle = lang === 'ja' ? '単語全体のみを検索' : 'Busca somente palavras inteiras. Ex: \'luz\' não encontrará \'reluz\'';
   const literalLabel = lang === 'ja' ? 'リテラル検索' : 'Texto literal';
@@ -63,10 +66,16 @@ function buildSearchModal() {
             '</svg>' +
           '</button>' +
         '</div>' +
-        // Os rádios Tudo/Só Título/Só Conteúdo saíram daqui: as ABAS dos
-        // resultados (Títulos/No conteúdo/Relacionados) cobrem o mesmo
-        // caso com contagem e sem nova query — ter os dois confundia.
+        // Escopo (Tudo/Só Título/Só Conteúdo) + modos de match. Os rádios
+        // de escopo filtram NO SERVIDOR (campo title vs content da RPC);
+        // separados dos toggles de match por um divisor.
         '<div id="searchAdvancedPanel" class="search-filters search-advanced-panel' + (advancedOpen ? ' is-open' : '') + '">' +
+          '<div class="search-filter-group" role="radiogroup">' +
+            '<label class="filter-label"><input type="radio" name="searchFilter" value="all" checked> ' + allLabel + '</label>' +
+            '<label class="filter-label"><input type="radio" name="searchFilter" value="title"> ' + titleLabel + '</label>' +
+            '<label class="filter-label"><input type="radio" name="searchFilter" value="content"> ' + contentLabel + '</label>' +
+          '</div>' +
+          '<span class="search-filter-divider" aria-hidden="true"></span>' +
           '<label class="filter-label filter-label--toggle" title="' + exactTitle + '">' +
             '<input type="checkbox" id="searchExactToggle">' +
             '<span id="searchExactLabel">' + exactLabel + '</span>' +

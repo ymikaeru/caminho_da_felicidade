@@ -26,14 +26,18 @@
 
 .search-modal {
   background: var(--surface);
-  width: 100%;
-  max-width: 940px;
+  /* Dinâmico: acompanha a viewport (92vw) com piso e teto. Num monitor
+     largo chega a 1180px (antes travava em 940 e sobrava tela); num
+     laptop 1366 fica ~1100px; abaixo de ~1000px usa quase toda a largura.
+     O override mobile (_responsive.css) força 100% com bottom-sheet. */
+  width: clamp(320px, 92vw, 1180px);
   border-radius: var(--radius);
   box-shadow: var(--shadow-premium);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-height: 88vh;
+  /* Altura também acompanha a tela, com teto generoso no desktop. */
+  max-height: 90vh;
   transform: translateY(-8px);
   transition: transform 0.15s var(--ease);
   position: relative;
@@ -137,6 +141,26 @@
 
 .filter-label--toggle {
   gap: 8px;
+}
+
+/* Grupo de escopo (Tudo/Só Título/Só Conteúdo) + divisor pros toggles */
+.search-filter-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.search-filter-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  margin: 2px 4px;
+}
+
+@media (max-width: 767px) {
+  .search-filter-divider {
+    display: none;
+  }
 }
 
 .search-advanced-row {

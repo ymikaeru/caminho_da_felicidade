@@ -1065,16 +1065,22 @@
     }
     .admin-sidebar-foot { margin-top: auto; border-top: 1px solid var(--border); padding-top: 12px; }
 
-    /* ☰ flutuante — só no mobile (abre a gaveta) */
+    /* ☰ do menu — vive DENTRO do header (à esquerda), só no mobile (abre a
+       gaveta). Item estático do flex do header; o logo fica centralizado
+       absoluto e o ☰ ocupa a borda esquerda livre. No desktop some (a
+       sidebar é sempre visível). */
     .admin-hamburger {
       display: none;
-      position: fixed; top: calc(var(--nav-height, 60px) + 10px); left: 14px; z-index: 1100;
+      position: relative; z-index: 1; flex-shrink: 0;
       align-items: center; justify-content: center;
-      width: 40px; height: 40px; font-size: 1.15rem; line-height: 1;
-      background: var(--surface); color: var(--text-main);
-      border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
-      box-shadow: var(--shadow-sm, 0 1px 8px rgba(0,0,0,.06));
+      width: 40px; height: 40px; line-height: 0;
+      background: transparent; color: var(--text-main);
+      border: none; border-radius: 10px; cursor: pointer;
+      transition: background .15s var(--ease, ease), color .15s var(--ease, ease);
     }
+    .admin-hamburger:hover { background: var(--accent-soft); color: var(--accent); }
+    .admin-hamburger:active { transform: scale(.94); }
+    .admin-hamburger svg { display: block; }
     /* Bolinha no ☰ quando há mensagem nova na Caixa de Entrada — no mobile a
        gaveta fica fechada e o badge do menu não seria visto. */
     .admin-hamburger.has-badge::after {

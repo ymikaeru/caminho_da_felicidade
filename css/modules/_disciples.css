@@ -1069,6 +1069,7 @@ body.disciples-sidebar-collapsed .disciples-sb-collapse-toggle svg {
    ruído visual. _setOverviewMode() em disciples-reader.js liga essa
    classe. */
 body.disciples-overview-mode #mobileHighlightBtn,
+body.disciples-overview-mode #hlTapModeBtn,
 body.disciples-overview-mode #discFontDecBtn,
 body.disciples-overview-mode #discFontIncBtn,
 body.disciples-overview-mode #discThemeToggle,
@@ -1174,6 +1175,9 @@ sup.ens-fn:hover, sup.ens-fn:focus { filter: brightness(1.18); outline: none; }
    560px o logo some: é decorativo, e o espaço vai pros controles. */
 @media (max-width: 560px) {
   body.disciples-active .header__logo { display: none; }
+  /* Na HOME das obras (overview) os controles do livro estão escondidos,
+     então o emblema não colide com nada — restaura o logo central. */
+  body.disciples-overview-mode .header__logo { display: flex; }
 }
 
 /* ── Botão Destaques do header (modo discípulos) ── */

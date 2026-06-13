@@ -36,8 +36,8 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="css/styles.min.css?v=181">
-  <link rel="stylesheet" href="css/admin.min.css?v=27">
+  <link rel="stylesheet" href="css/styles.min.css?v=182">
+  <link rel="stylesheet" href="css/admin.min.css?v=29">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 
@@ -58,6 +58,15 @@
   </div>
 
   <header class="header">
+    <!-- Abre a gaveta do menu admin (só no mobile/tablet). Fica no header
+         em vez de flutuar sobre o conteúdo. JS liga por id="adminHamburger". -->
+    <button class="admin-hamburger" id="adminHamburger" type="button" aria-label="Mostrar menu"
+      title="Mostrar menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    </button>
     <a href="index.html" class="header__logo">
       <svg width="28" height="28" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
         aria-label="Emblema da Comunidade Messiânica Universal">
@@ -79,9 +88,7 @@
       <div class="glass-pane">
         <div class="admin-wrap">
 
-          <!-- Hambúrguer + scrim (só aparecem no mobile) -->
-          <button class="admin-hamburger" id="adminHamburger" type="button" aria-label="Mostrar menu"
-            title="Mostrar menu">&#9776;</button>
+          <!-- Scrim da gaveta (só no mobile); o ☰ vive no header -->
           <div class="admin-scrim" id="adminScrim"></div>
 
           <!-- Menu lateral -->

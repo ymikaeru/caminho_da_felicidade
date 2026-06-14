@@ -298,7 +298,7 @@
       /* ── Modal Panel ──────────────────────────────────────── */
       .tr-modal-panel {
         background: var(--bg-color, #fff);
-        border: 1px solid var(--border-color, rgba(0,0,0,0.1));
+        border: 1px solid var(--border, rgba(0,0,0,0.1));
         border-radius: 14px;
         box-shadow: 0 24px 64px rgba(0,0,0,0.18);
         width: min(480px, 92vw);
@@ -319,7 +319,7 @@
         align-items: center;
         gap: 10px;
         padding: 18px 20px 14px;
-        border-bottom: 1px solid var(--border-color, rgba(0,0,0,0.08));
+        border-bottom: 1px solid var(--border, rgba(0,0,0,0.08));
       }
       .tr-modal-icon {
         font-size: 18px;
@@ -332,7 +332,7 @@
         font-size: 15px;
         font-weight: 600;
         font-family: inherit;
-        color: var(--text-color, #333);
+        color: var(--text-main, #333);
       }
       .tr-modal-close {
         background: none;
@@ -346,8 +346,8 @@
         line-height: 1;
       }
       .tr-modal-close:hover {
-        color: var(--text-color, #333);
-        background: var(--hover-bg, rgba(0,0,0,0.06));
+        color: var(--text-main, #333);
+        background: color-mix(in srgb, var(--text-main) 8%, transparent);
       }
 
       /* ── Body ─────────────────────────────────────────────── */
@@ -368,12 +368,12 @@
       }
       .tr-selected-text {
         padding: 10px 12px;
-        background: var(--hover-bg, rgba(0,0,0,0.04));
+        background: color-mix(in srgb, var(--text-main) 6%, transparent);
         border-left: 3px solid rgba(255, 160, 0, 0.5);
         border-radius: 0 6px 6px 0;
         font-size: 13px;
         line-height: 1.55;
-        color: var(--text-color, #333);
+        color: var(--text-main, #333);
         max-height: 100px;
         overflow-y: auto;
         word-break: break-word;
@@ -386,12 +386,12 @@
         resize: vertical;
         padding: 10px 12px;
         background: var(--bg-color, #fff);
-        border: 1px solid var(--border-color, rgba(0,0,0,0.12));
+        border: 1px solid var(--border, rgba(0,0,0,0.12));
         border-radius: 8px;
         font-family: inherit;
         font-size: 13.5px;
         line-height: 1.5;
-        color: var(--text-color, #333);
+        color: var(--text-main, #333);
         box-sizing: border-box;
         transition: border-color 0.15s;
         outline: none;
@@ -413,12 +413,12 @@
         justify-content: flex-end;
         gap: 8px;
         padding: 12px 20px 18px;
-        border-top: 1px solid var(--border-color, rgba(0,0,0,0.06));
+        border-top: 1px solid var(--border, rgba(0,0,0,0.06));
       }
       .tr-btn-cancel {
         padding: 8px 16px;
         background: transparent;
-        border: 1px solid var(--border-color, rgba(0,0,0,0.12));
+        border: 1px solid var(--border, rgba(0,0,0,0.12));
         border-radius: 8px;
         font-family: inherit;
         font-size: 13px;
@@ -427,8 +427,8 @@
         transition: background 0.15s, color 0.15s;
       }
       .tr-btn-cancel:hover {
-        background: var(--hover-bg, rgba(0,0,0,0.06));
-        color: var(--text-color, #333);
+        background: color-mix(in srgb, var(--text-main) 8%, transparent);
+        color: var(--text-main, #333);
       }
       .tr-btn-submit {
         display: flex;

@@ -27,13 +27,13 @@
     import './admin/tabs/highlights-saved.js?v=2';
     import './admin/tabs/users-permissions.js?v=5';
     import './admin/tabs/analytics.js?v=16';
-    import './admin/tabs/translation-review.js?v=4';
+    import './admin/tabs/translation-review.js?v=5';
     import './admin/tabs/translation-review-guia.js';
     import './admin/tabs/disciples-reports.js?v=2';
     import './admin/tabs/partial-citations.js?v=24';
     import './admin/tabs/recommendations.js?v=12';
     import './admin/tabs/inbox.js?v=3';
-    import './admin/tabs/poetry-versions.js?v=2';
+    import './admin/tabs/poetry-versions.js?v=3';
     import './admin/tabs/alignment.js?v=19';
 
     // Expõe o client no window pra scripts não-módulo (ex.: reader-recommend.js,

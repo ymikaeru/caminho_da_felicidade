@@ -41,9 +41,10 @@ async function loadReports(forceReload = false) {
     return;
   }
 
-  // Discípulos têm aba própria (disciples-reports.js) com editor próprio —
-  // exclui aqui pra não aparecerem em dois lugares. Poesia continua nesta aba.
-  _allReports = (data || []).filter(r => r.vol !== 'disciples');
+  // Discípulos e Poesia têm abas próprias com editor próprio (disciples-reports.js
+  // e poetry-versions.js → seção "Poemas reportados") — exclui aqui pra não
+  // aparecerem em dois lugares.
+  _allReports = (data || []).filter(r => r.vol !== 'disciples' && r.vol !== 'poetry');
 
   // Carrega notas de todos os reports em uma query só
   if (_allReports.length) {

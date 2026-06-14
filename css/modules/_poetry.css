@@ -969,8 +969,10 @@ html[lang="ja"] .poetry-card {
   font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 0.02em;
+  /* --text-muted em força total (não dimmar): já é um token secundário
+     legível (mesmo usado na data/romaji); opacity<1 derrubava o contraste
+     abaixo de AA 4.5:1 nos dois modos. O hover leva pra --accent. */
   color: var(--text-muted);
-  opacity: 0.55;
   cursor: pointer;
   transition: opacity 0.18s var(--ease), color 0.18s var(--ease), background 0.18s var(--ease);
 }

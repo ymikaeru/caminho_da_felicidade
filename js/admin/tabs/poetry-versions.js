@@ -15,6 +15,7 @@
 // ============================================================
 import { _escHtml, logAdminAction } from '../shared/helpers.js';
 import { supabase } from '../../supabase-config.js';
+import { _myUid, allUsers } from '../shared/state.js';
 
 const BUCKET    = 'teachings';
 const PAGE_SIZE = 25;
@@ -102,8 +103,15 @@ let _pendingEdits = {};
 let _editPage = 0;
 let _editQuery = '';
 let _editFilterPending = false;
+let _editFilterReported = false;
 let _publishing = false;
 let _loadedAt = null;
+
+// Reportes de erro de tradução (vol='poetry') trazidos pra dentro desta aba
+// — antes caíam na aba de Ensinamentos. _reportsAll guarda TODAS as coletâneas
+// de poesia (pra contar o badge e sinalizar reportes em outras coletâneas).
+let _reportsAll = [];
+let _reportsLoading = false;
 
 function _currentConfig() {
   return COLLECTIONS[_activeCollection];
@@ -243,6 +251,8 @@ async function loadPoetryVersions(collection) {
   _editPage = 0;
   _editQuery = '';
   _editFilterPending = false;
+  _editFilterReported = false;
+  _reportsAll = [];
   _loadPendingEdits();
 
   try {
@@ -254,6 +264,7 @@ async function loadPoetryVersions(collection) {
       }
     }
     _renderUI();
+    _loadReportsAndRender(); // async — UI já aparece; reportes entram depois
   } catch (e) {
     container.innerHTML = `<div class="msg err">Erro ao carregar: ${_escHtml(e.message)}</div>`;
   }
@@ -290,11 +301,14 @@ function _renderUI() {
       </div>
     </div>
 
+    <div id="pv-reports" style="margin-bottom:18px;"></div>
+
     <div id="pv-body"></div>
   `;
 
   _wireCollectionSelector();
   _wirePublishArea();
+  _renderReportsSection();
   _renderEditor();
 }
 
@@ -375,6 +389,10 @@ function _onDiscardEdits() {
 // ─── Editor (única tela) ─────────────────────────────────────
 function _filteredList() {
   let list = _allPoems;
+  if (_editFilterReported) {
+    const rep = _reportedNumbersForActive();
+    list = list.filter(p => rep.has(p.number));
+  }
   if (_editFilterPending) list = list.filter(p => _pendingEdits[p.number]);
   if (_editQuery) {
     const q = _editQuery.toLowerCase();
@@ -400,10 +418,14 @@ function _renderEditor() {
   const start = _editPage * PAGE_SIZE;
   const pageList = list.slice(start, start + PAGE_SIZE);
   const nPending = Object.keys(_pendingEdits).length;
+  const nReported = _reportedNumbersForActive().size;
 
   body.innerHTML = `
     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
       <input id="pv-search" type="search" value="${_escHtml(_editQuery)}" placeholder="Buscar por nº, título, leitura, original ou tradução…" style="flex:1; min-width:280px; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text); font-size:0.85rem;">
+      <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; color:${nReported > 0 ? '#ff3b30' : 'var(--text-muted)'}; cursor:pointer; font-weight:${nReported > 0 ? '600' : '400'};">
+        <input id="pv-reported-only" type="checkbox" ${_editFilterReported ? 'checked' : ''} ${nReported === 0 ? 'disabled' : ''}> 🚩 só com reportes${nReported > 0 ? ` (${nReported})` : ''}
+      </label>
       <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--text-muted); cursor:pointer;">
         <input id="pv-pending-only" type="checkbox" ${_editFilterPending ? 'checked' : ''} ${nPending === 0 ? 'disabled' : ''}> só com edições pendentes${nPending > 0 ? ` (${nPending})` : ''}
       </label>
@@ -438,7 +460,31 @@ function _renderEditCard(poem) {
   const transNow = pend.translation != null ? pend.translation : (poem.translation || '');
   const dirty = Object.keys(pend).length > 0;
   const pending = poem.translation_pending && !pend.translation;
-  const accent = dirty ? '#ff9500' : (pending ? '#888' : 'var(--accent)');
+  const reps = _reportsForPoem(num);
+  const accent = dirty ? '#ff9500' : (reps.length ? '#ff3b30' : (pending ? '#888' : 'var(--accent)'));
+
+  // Caixa do reporte logo no card — o admin lê o que foi sinalizado e age
+  // (escolhe variante ou retraduz) sem sair de perto dos campos.
+  const reportBlock = reps.length === 0 ? '' : `
+    <div style="margin-top:14px; border:1px solid #ff3b3033; border-left:3px solid #ff3b30; border-radius:0 8px 8px 0; background:color-mix(in srgb, #ff3b30 5%, transparent); padding:10px 12px; display:flex; flex-direction:column; gap:10px;">
+      ${reps.map(r => {
+        const corr = r.status === 'corrected';
+        const when = new Date(r.created_at).toLocaleDateString('pt-BR');
+        return `
+        <div style="font-size:0.78rem; line-height:1.5;">
+          <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; margin-bottom:3px;">
+            <span style="font-weight:700; color:#ff3b30;">🚩 Reporte de tradução</span>
+            ${corr ? '<span style="font-size:0.66rem; padding:1px 7px; border-radius:8px; background:#ffb80022; color:#cc9200; font-weight:600;">corrigido — falta arquivar</span>' : ''}
+            <span style="font-size:0.7rem; color:var(--text-muted);">${_escHtml(_reporterName(r.user_id))} · ${when}</span>
+            <span style="margin-left:auto; display:flex; gap:6px;">
+              ${!corr ? `<button class="pv-report-correct" data-id="${r.id}" style="padding:3px 9px; background:rgba(52,199,89,0.15); color:#1f8a3f; border:1px solid rgba(52,199,89,0.4); border-radius:6px; font-size:0.7rem; font-weight:600; cursor:pointer;">✓ Corrigido</button>` : ''}
+              <button class="pv-report-archive" data-id="${r.id}" style="padding:3px 9px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.7rem; cursor:pointer;">📦 Arquivar</button>
+            </span>
+          </div>
+          ${r.description ? `<div style="color:var(--text); font-style:italic;">“${_escHtml(r.description)}”</div>` : '<div style="color:var(--text-muted);">(sem comentário — o leitor só sinalizou o trecho)</div>'}
+        </div>`;
+      }).join('<div style="border-top:1px dashed var(--border);"></div>')}
+    </div>`;
   const activeVariant = _detectActiveVariant(poem, pend);
   const isCustom = dirty && activeVariant === null;
 
@@ -482,6 +528,7 @@ function _renderEditCard(poem) {
           ${poem.date ? `<span style="margin-left:10px; font-size:0.7rem; color:var(--text-muted); font-style:italic;">${_escHtml(poem.date)}</span>` : ''}
           ${pending ? '<span style="margin-left:10px; font-size:0.7rem; padding:2px 6px; background:#88888833; color:#888; border-radius:8px;">não-traduzido</span>' : ''}
           ${dirty ? `<span style="margin-left:10px; font-size:0.7rem; padding:2px 6px; background:#ff950033; color:#ff9500; border-radius:8px; font-weight:600;">${isCustom ? 'PERSONALIZADO' : 'VARIANTE ' + (VERSION_LABELS[activeVariant]?.short || '?')}</span>` : ''}
+          ${reps.length ? `<span style="margin-left:10px; font-size:0.7rem; padding:2px 6px; background:#ff3b3022; color:#ff3b30; border-radius:8px; font-weight:600;">🚩 ${reps.length} reporte${reps.length === 1 ? '' : 's'}</span>` : ''}
         </div>
         <div style="display:flex; gap:6px;">
           <button class="pv-ai" data-num="${num}" style="padding:5px 10px; background:rgba(99,102,241,0.12); color:#6366f1; border:1px solid rgba(99,102,241,0.3); border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer;">✨ Sugerir IA</button>
@@ -495,6 +542,8 @@ function _renderEditCard(poem) {
       <div style="font-family:'Crimson Pro', serif; font-style:italic; color:var(--text-muted); font-size:0.85rem;">
         ${_escHtml(poem.reading || '')}
       </div>
+
+      ${reportBlock}
 
       ${variantsBlock}
 
@@ -530,6 +579,10 @@ function _wireEditorEvents() {
   const pf = document.getElementById('pv-pending-only');
   if (pf) pf.addEventListener('change', e => {
     _editFilterPending = e.target.checked; _editPage = 0; _renderEditor();
+  });
+  const rf = document.getElementById('pv-reported-only');
+  if (rf) rf.addEventListener('change', e => {
+    _editFilterReported = e.target.checked; _editPage = 0; _renderEditor();
   });
 
   document.querySelectorAll('.pv-page').forEach(b => {
@@ -572,6 +625,13 @@ function _wireEditorEvents() {
   document.querySelectorAll('.pv-revert').forEach(b => {
     b.addEventListener('click', () => _revertEditsForPoem(parseInt(b.dataset.num, 10)));
   });
+
+  // Botões de reporte dentro dos cards (escopados a #pv-body pra não colidir
+  // com os mesmos botões da seção #pv-reports, já ligados em _wireReportsSection).
+  document.querySelectorAll('#pv-body .pv-report-correct').forEach(b =>
+    b.addEventListener('click', () => _markReport(b.dataset.id, 'corrected', b)));
+  document.querySelectorAll('#pv-body .pv-report-archive').forEach(b =>
+    b.addEventListener('click', () => _markReport(b.dataset.id, 'verified', b)));
 }
 
 function _onEditField(num, field, value) {
@@ -624,7 +684,8 @@ function _refreshCardChrome(num) {
   const pend = _pendingEdits[num] || {};
   const dirty = Object.keys(pend).length > 0;
   const pending = poem.translation_pending && !pend.translation;
-  card.style.borderLeftColor = dirty ? '#ff9500' : (pending ? '#888' : 'var(--accent)');
+  const reported = _reportsForPoem(num).length > 0;
+  card.style.borderLeftColor = dirty ? '#ff9500' : (reported ? '#ff3b30' : (pending ? '#888' : 'var(--accent)'));
 }
 
 // ─── AI Suggestion (copy-paste claude.ai) ────────────────────
@@ -798,6 +859,221 @@ function _applyAISuggestion(num, title, translation) {
 function _discardAIPanel(num) {
   const panel = document.getElementById(`pv-ai-panel-${num}`);
   if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; }
+}
+
+// ═══ Reportes de erro de tradução (vol='poetry') ════════════════════
+// Os leitores reportam trechos pelo translation-report.js → tabela
+// translation_reports. Antes esses reportes caíam na aba de Ensinamentos;
+// agora ficam AQUI, na própria aba de correção dos poemas. Fluxo do admin:
+// abrir a aba → ver os poemas reportados (lista no topo + filtro "só com
+// reportes") → em cada card, escolher uma variante OU retraduzir → Publicar
+// → marcar "Corrigido" / "Arquivar". O badge na sidebar mostra o total.
+
+async function _loadReportsAndRender() {
+  _reportsLoading = true;
+  _renderReportsSection();
+  try {
+    const { data, error } = await supabase
+      .from('translation_reports')
+      .select('id, vol, file, topic_id, lang, selected_text, description, created_at, status, user_id, corrected_by, corrected_at, verified_by, verified_at')
+      .eq('vol', 'poetry')
+      .order('created_at', { ascending: false })
+      .limit(500);
+    if (error) throw error;
+    _reportsAll = data || [];
+  } catch (e) {
+    console.warn('[poetry-versions] falha ao carregar reportes:', e.message);
+    _reportsAll = [];
+  }
+  _reportsLoading = false;
+  _renderReportsSection();
+  // Só re-renderiza o editor se houver reportes nesta coletânea (pra os chips
+  // 🚩 e o contador do filtro aparecerem). Sem reportes, evita re-render à toa
+  // (e não mexe num campo de busca que o admin já possa estar usando).
+  if (_reportsForActive().length) _renderEditor();
+  _updateReportsBadge();
+}
+
+// "Abertos" = pendentes + corrigidos (ainda precisam de atenção/arquivo).
+// status null (reportes legados sem coluna) conta como pendente.
+function _openReports() {
+  return _reportsAll.filter(r => !r.status || r.status === 'pending' || r.status === 'corrected');
+}
+function _reportsForActive() {
+  return _openReports().filter(r => r.file === _activeCollection);
+}
+function _reportsForPoem(num) {
+  return _reportsForActive().filter(r => _reportPoemNumber(r) === num);
+}
+function _reportedNumbersForActive() {
+  const set = new Set();
+  for (const r of _reportsForActive()) {
+    const n = _reportPoemNumber(r);
+    if (n != null) set.add(n);
+  }
+  return set;
+}
+function _reportPoemNumber(r) {
+  const m = String(r.topic_id || '').match(/\d+/);
+  return m ? parseInt(m[0], 10) : null;
+}
+function _reporterName(uid) {
+  if (!uid) return 'Usuário';
+  const u = (allUsers || []).find(x => x.id === uid);
+  return u?.display_name || u?.email || 'Usuário';
+}
+
+function _updateReportsBadge() {
+  const badge = document.getElementById('poetryReportsTabBadge');
+  if (!badge) return;
+  const n = _openReports().length;
+  badge.textContent = n;
+  badge.classList.toggle('empty', n === 0);
+}
+
+function _renderReportsSection() {
+  const host = document.getElementById('pv-reports');
+  if (!host) return;
+
+  if (_reportsLoading && _reportsAll.length === 0) {
+    host.innerHTML = `<div style="font-size:0.78rem; color:var(--text-muted);">Carregando reportes de tradução…</div>`;
+    return;
+  }
+
+  const mine = _reportsForActive();
+
+  // Reportes em OUTRAS coletâneas (pra o admin saber que existem e trocar).
+  const others = {};
+  _openReports().forEach(r => { if (r.file !== _activeCollection) others[r.file] = (others[r.file] || 0) + 1; });
+  const otherChips = Object.entries(others).map(([file, n]) =>
+    `<button class="pv-report-jumpcol" data-file="${_escHtml(file)}" style="padding:3px 9px; background:var(--bg); border:1px solid var(--border); border-radius:20px; font-size:0.72rem; color:var(--text-muted); cursor:pointer;">${_escHtml((COLLECTIONS[file]?.title) || file)} · ${n}</button>`
+  ).join(' ');
+
+  if (mine.length === 0) {
+    host.innerHTML = `
+      <div style="border:1px dashed var(--border); border-radius:10px; padding:12px 14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <span style="font-size:0.82rem; color:var(--text-muted);">🚩 Nenhum reporte de tradução pendente nesta coletânea.</span>
+        ${otherChips ? `<span style="font-size:0.74rem; color:var(--text-muted);">Em outras:</span> ${otherChips}` : ''}
+      </div>`;
+    _wireReportsSection();
+    return;
+  }
+
+  const pending = mine.filter(r => !r.status || r.status === 'pending');
+  const corrected = mine.filter(r => r.status === 'corrected');
+
+  host.innerHTML = `
+    <div style="border:1px solid color-mix(in srgb, var(--accent) 50%, transparent); border-radius:10px; overflow:hidden;">
+      <div class="pv-reports-head" style="display:flex; align-items:center; gap:10px; padding:11px 14px; background:color-mix(in srgb, var(--accent) 9%, transparent); cursor:pointer; flex-wrap:wrap;">
+        <span style="font-size:0.9rem; font-weight:700; color:var(--accent);">🚩 Poemas reportados</span>
+        <span style="font-size:0.74rem; font-weight:600; padding:2px 9px; border-radius:20px; background:#ff3b3022; color:#ff3b30;">${pending.length} pendente${pending.length === 1 ? '' : 's'}</span>
+        ${corrected.length ? `<span style="font-size:0.74rem; font-weight:600; padding:2px 9px; border-radius:20px; background:#ffb80022; color:#cc9200;">${corrected.length} aguardando arquivamento</span>` : ''}
+        ${otherChips ? `<span style="margin-left:auto; font-size:0.72rem; color:var(--text-muted);">Outras:</span> ${otherChips}` : '<span style="margin-left:auto;"></span>'}
+        <span class="pv-reports-toggle" style="font-size:0.8rem; color:var(--text-muted);">▾</span>
+      </div>
+      <div class="pv-reports-body" style="padding:10px 12px; display:flex; flex-direction:column; gap:10px;">
+        ${[...pending, ...corrected].map(_renderReportRow).join('')}
+      </div>
+    </div>`;
+  _wireReportsSection();
+}
+
+function _renderReportRow(r) {
+  const num = _reportPoemNumber(r);
+  const poem = num != null ? _allPoems.find(p => p.number === num) : null;
+  const poemLabel = num != null ? `№ ${String(num).padStart(3, '0')}` : '—';
+  const poemTitle = poem ? (poem.title || poem.section_pt || '') : '';
+  const date = new Date(r.created_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+  const lang = r.lang === 'ja' ? '🇯🇵' : '🇧🇷';
+  const isCorrected = r.status === 'corrected';
+  const trecho = _escHtml(r.selected_text || '');
+  const desc = r.description ? _escHtml(r.description) : '';
+
+  return `
+    <div class="pv-report-row" data-id="${r.id}" style="border:1px solid var(--border); border-left:4px solid ${isCorrected ? '#ffb800' : '#ff3b30'}; border-radius:8px; padding:11px 13px; background:var(--bg);">
+      <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:7px;">
+        <span style="font-weight:700; font-size:0.82rem; color:var(--text);">${poemLabel}</span>
+        ${poemTitle ? `<span style="font-size:0.78rem; color:var(--text-muted);">${_escHtml(poemTitle)}</span>` : ''}
+        <span style="font-size:0.74rem;">${lang}</span>
+        ${isCorrected ? `<span style="font-size:0.68rem; padding:1px 7px; border-radius:8px; background:#ffb80022; color:#cc9200; font-weight:600;">🟡 corrigido por ${_escHtml(_reporterName(r.corrected_by))}</span>` : ''}
+        <span style="margin-left:auto; font-size:0.72rem; color:var(--text-muted);">👤 ${_escHtml(_reporterName(r.user_id))} · ${date}</span>
+      </div>
+      ${desc ? `<div style="font-size:0.8rem; color:var(--text); font-style:italic; margin-bottom:5px;">“${desc}”</div>` : ''}
+      ${trecho ? `<div style="font-size:0.76rem; line-height:1.5; color:var(--text-muted); background:color-mix(in srgb, var(--text) 5%, transparent); border-left:3px solid color-mix(in srgb, var(--accent) 50%, transparent); padding:7px 9px; border-radius:0 6px 6px 0; white-space:pre-wrap; word-break:break-word; max-height:90px; overflow:auto;">${trecho}</div>` : ''}
+      <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:9px;">
+        ${num != null ? `<button class="pv-report-jump" data-num="${num}" style="padding:5px 11px; background:rgba(99,102,241,0.12); color:#6366f1; border:1px solid rgba(99,102,241,0.3); border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer;">↓ Corrigir este poema</button>` : ''}
+        ${!isCorrected ? `<button class="pv-report-correct" data-id="${r.id}" style="padding:5px 11px; background:rgba(52,199,89,0.15); color:#1f8a3f; border:1px solid rgba(52,199,89,0.4); border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer;">✓ Corrigido</button>` : ''}
+        <button class="pv-report-archive" data-id="${r.id}" style="padding:5px 11px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.75rem; cursor:pointer;" title="Arquivar — correção publicada e revisada">📦 Arquivar</button>
+      </div>
+    </div>`;
+}
+
+function _wireReportsSection() {
+  const host = document.getElementById('pv-reports');
+  if (!host) return;
+
+  const head = host.querySelector('.pv-reports-head');
+  if (head) head.addEventListener('click', (e) => {
+    if (e.target.closest('.pv-report-jumpcol')) return;
+    const body = host.querySelector('.pv-reports-body');
+    const tgl = host.querySelector('.pv-reports-toggle');
+    if (!body) return;
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'flex';
+    if (tgl) tgl.textContent = open ? '▸' : '▾';
+  });
+
+  host.querySelectorAll('.pv-report-jumpcol').forEach(b =>
+    b.addEventListener('click', (e) => { e.stopPropagation(); loadPoetryVersions(b.dataset.file); }));
+  host.querySelectorAll('.pv-report-jump').forEach(b =>
+    b.addEventListener('click', () => _jumpToPoem(parseInt(b.dataset.num, 10))));
+  host.querySelectorAll('.pv-report-correct').forEach(b =>
+    b.addEventListener('click', () => _markReport(b.dataset.id, 'corrected', b)));
+  host.querySelectorAll('.pv-report-archive').forEach(b =>
+    b.addEventListener('click', () => _markReport(b.dataset.id, 'verified', b)));
+}
+
+// Leva o admin ao card de edição do poema (limpa filtros, calcula a página,
+// scrolla e dá um flash) pra ele escolher uma variante ou retraduzir.
+function _jumpToPoem(number) {
+  const idx = _allPoems.findIndex(p => p.number === number);
+  if (idx < 0) return;
+  _editQuery = '';
+  _editFilterPending = false;
+  _editFilterReported = false;
+  _editPage = Math.floor(idx / PAGE_SIZE);
+  _renderEditor();
+  setTimeout(() => {
+    const card = document.querySelector(`.pv-card[data-num="${number}"]`);
+    if (!card) return;
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const prev = card.style.boxShadow;
+    card.style.transition = 'box-shadow 0.3s';
+    card.style.boxShadow = '0 0 0 3px var(--accent)';
+    setTimeout(() => { card.style.boxShadow = prev; }, 1600);
+  }, 60);
+}
+
+async function _markReport(id, status, btnEl) {
+  if (btnEl) { btnEl.disabled = true; btnEl.style.opacity = '0.6'; }
+  const now = new Date().toISOString();
+  const stamps = status === 'corrected'
+    ? { corrected_by: _myUid, corrected_at: now }
+    : { verified_by: _myUid, verified_at: now };
+  const { error } = await supabase
+    .from('translation_reports')
+    .update({ status, ...stamps })
+    .eq('id', id);
+  if (error) {
+    if (btnEl) { btnEl.disabled = false; btnEl.style.opacity = '1'; }
+    alert('Falha ao atualizar reporte: ' + error.message);
+    return;
+  }
+  const r = _reportsAll.find(x => x.id === id);
+  if (r) Object.assign(r, { status, ...stamps });
+  _renderReportsSection();
+  _renderEditor();
+  _updateReportsBadge();
 }
 
 window.loadPoetryVersions = loadPoetryVersions;

@@ -1082,6 +1082,11 @@
   let _tapMode = false;
   let _pendingTaps = [];        // [{ topicId, startChar, endChar, text }]
   let _tapBarEl = null;
+  // Alças de seleção (estilo iOS) — refinam o trecho ATIVO (último tocado).
+  let _activeTap = null;        // objeto de _pendingTaps que está com alças
+  let _handlesEl = null;        // container das 2 alças (start/end)
+  let _dragSide = null;         // 'start' | 'end' enquanto arrasta
+  let _dragCtx = null;          // { topicEl, fullText, total, bodyStart, yAdjust }
 
   // Granularidade do toque. 'sentence' = frase (padrão); 'paragraph' = bloco
   // inteiro (reserva à prova de bala — não depende de detectar pontuação nem
@@ -1287,14 +1292,207 @@
     return topicTitle;
   }
 
-  // Marca pendente ⇄ desmarca (toque sobre uma frase já pendente a remove).
-  function _togglePending(topicId, range) {
-    const idx = _pendingTaps.findIndex(p => p.topicId === topicId &&
+  // Aplica um toque: adiciona o trecho como pendente e o torna ATIVO (com
+  // alças), re-ativa um pendente existente, ou remove o ativo se tocado de novo.
+  //  • toca em texto livre        → adiciona + ativa (alças aparecem)
+  //  • toca num pendente NÃO ativo → re-ativa (traz as alças de volta)
+  //  • toca no pendente ATIVO      → remove (toggle de saída)
+  // Pra encurtar/esticar o trecho o usuário arrasta as alças (não precisa tocar
+  // de novo). "Limpar" zera tudo.
+  function _applyTap(topicId, range) {
+    const hit = _pendingTaps.find(p => p.topicId === topicId &&
       !(range.endChar <= p.startChar || range.startChar >= p.endChar));
-    if (idx >= 0) {
-      _pendingTaps.splice(idx, 1);
+    if (hit) {
+      if (hit === _activeTap) {
+        _pendingTaps = _pendingTaps.filter(p => p !== hit);
+        _activeTap = _pendingTaps[_pendingTaps.length - 1] || null;
+      } else {
+        _activeTap = hit;          // re-ativa, sem remover
+      }
     } else {
-      _pendingTaps.push({ topicId, startChar: range.startChar, endChar: range.endChar, text: range.text });
+      const obj = { topicId, startChar: range.startChar, endChar: range.endChar, text: range.text };
+      _pendingTaps.push(obj);
+      _activeTap = obj;
+    }
+    _renderPendingPreview();
+    _showHandlesForActive();
+    if (_pendingTaps.length) _showTapBar();
+    else { _hideTapBar(); _clearHandles(); }
+    _updateTapBarCount();
+  }
+
+  // ── Alças de seleção (estilo iOS, 100% nossas) ─────────────────────────────
+  // A seleção nativa do mobile foi entregue ao SO (brigava com o menu Copiar/
+  // Buscar — ver [[highlight-android-native-selection]]). Estas alças aparecem
+  // nas pontas do trecho ATIVO e o usuário arrasta pra escolher exatamente o
+  // que grifar/reportar — caractere a caractere, sem depender da seleção do
+  // sistema. Funciona igual em iOS e Android (pointer events + caretRangeFromPoint).
+
+  function _ensureHandleStyles() {
+    if (document.getElementById('hl-handle-styles')) return;
+    const st = document.createElement('style');
+    st.id = 'hl-handle-styles';
+    st.textContent =
+      '.hl-handles{position:fixed;inset:0;pointer-events:none;z-index:9700;}' +
+      '.hl-handle{position:fixed;width:28px;margin-left:-14px;display:flex;' +
+        'flex-direction:column;align-items:center;pointer-events:auto;' +
+        'touch-action:none;cursor:grab;-webkit-tap-highlight-color:transparent;}' +
+      '.hl-handle.dragging{cursor:grabbing;}' +
+      '.hl-handle__bar{width:2px;background:var(--accent,#c8a96e);}' +
+      '.hl-handle__knob{width:16px;height:16px;border-radius:50%;' +
+        'background:var(--accent,#c8a96e);box-shadow:0 1px 4px rgba(0,0,0,.4);}';
+    document.head.appendChild(st);
+  }
+
+  // global char offset → { node, local } dentro do tópico.
+  function _nodeAtGlobalOffset(textNodes, globalOffset) {
+    for (const tn of textNodes) {
+      if (globalOffset >= tn.startChar && globalOffset < tn.endChar) {
+        return { node: tn.node, local: globalOffset - tn.startChar };
+      }
+    }
+    const last = textNodes[textNodes.length - 1];
+    if (last && globalOffset >= last.endChar) {
+      return { node: last.node, local: last.node.textContent.length };
+    }
+    return null;
+  }
+
+  // Retângulo do caret na borda do trecho: 'start' = borda esquerda do 1º char;
+  // 'end' = borda direita do último char. Usa um range de 1 char (robusto a
+  // ranges colapsados que dão rect 0×0 em alguns navegadores).
+  function _caretRectAtOffset(topicEl, globalOffset, side) {
+    const textNodes = _collectTextNodes(topicEl);
+    if (!textNodes.length) return null;
+    try {
+      const r = document.createRange();
+      if (side === 'end') {
+        const p = _nodeAtGlobalOffset(textNodes, Math.max(globalOffset - 1, 0));
+        if (!p) return null;
+        r.setStart(p.node, p.local);
+        r.setEnd(p.node, Math.min(p.local + 1, p.node.textContent.length));
+        const rects = r.getClientRects();
+        const rect = rects[rects.length - 1] || r.getBoundingClientRect();
+        return { x: rect.right, top: rect.top, height: rect.height };
+      } else {
+        const p = _nodeAtGlobalOffset(textNodes, globalOffset);
+        if (!p) return null;
+        r.setStart(p.node, p.local);
+        r.setEnd(p.node, Math.min(p.local + 1, p.node.textContent.length));
+        const rects = r.getClientRects();
+        const rect = rects[0] || r.getBoundingClientRect();
+        return { x: rect.left, top: rect.top, height: rect.height };
+      }
+    } catch (_) { return null; }
+  }
+
+  function _placeHandle(el, rect, side) {
+    if (!el || !rect) return;
+    const bar = el.querySelector('.hl-handle__bar');
+    const knobH = 16;
+    const h = Math.max(rect.height, 12);
+    if (bar) bar.style.height = h + 'px';
+    el.style.left = rect.x + 'px';
+    // start: knob ACIMA da linha; end: knob ABAIXO (igual iOS).
+    el.style.top = (side === 'start' ? rect.top - knobH : rect.top) + 'px';
+  }
+
+  function _positionHandles() {
+    if (!_activeTap || !_handlesEl) return;
+    const topicEl = document.getElementById(_activeTap.topicId);
+    if (!topicEl) { _clearHandles(); return; }
+    const sRect = _caretRectAtOffset(topicEl, _activeTap.startChar, 'start');
+    const eRect = _caretRectAtOffset(topicEl, _activeTap.endChar, 'end');
+    _placeHandle(_handlesEl.querySelector('.hl-handle--start'), sRect, 'start');
+    _placeHandle(_handlesEl.querySelector('.hl-handle--end'), eRect, 'end');
+  }
+
+  function _showHandlesForActive() {
+    if (!_activeTap) { _clearHandles(); return; }
+    _ensureHandleStyles();
+    if (!_handlesEl) {
+      _handlesEl = document.createElement('div');
+      _handlesEl.className = 'hl-handles';
+      _handlesEl.innerHTML =
+        '<div class="hl-handle hl-handle--start" data-side="start">' +
+          '<span class="hl-handle__knob"></span><span class="hl-handle__bar"></span></div>' +
+        '<div class="hl-handle hl-handle--end" data-side="end">' +
+          '<span class="hl-handle__bar"></span><span class="hl-handle__knob"></span></div>';
+      document.body.appendChild(_handlesEl);
+      _handlesEl.querySelectorAll('.hl-handle').forEach(h =>
+        h.addEventListener('pointerdown', _onHandlePointerDown));
+    }
+    _positionHandles();
+  }
+
+  function _clearHandles() {
+    if (_handlesEl) { _handlesEl.remove(); _handlesEl = null; }
+    _dragSide = null; _dragCtx = null;
+    window.removeEventListener('pointermove', _onHandlePointerMove);
+    window.removeEventListener('pointerup', _onHandlePointerUp);
+    window.removeEventListener('pointercancel', _onHandlePointerUp);
+  }
+
+  function _onHandlePointerDown(e) {
+    if (!_activeTap) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const handle = e.currentTarget;
+    _dragSide = handle.dataset.side;
+    handle.classList.add('dragging');
+    const topicEl = document.getElementById(_activeTap.topicId);
+    if (!topicEl) return;
+    const textNodes = _collectTextNodes(topicEl);
+    const fullText = _topicFullText(textNodes);
+    const total = textNodes.length ? textNodes[textNodes.length - 1].endChar : 0;
+    const bodyStart = _bodyStartChar(topicEl, textNodes);
+    // dy entre o dedo (no knob, fora da linha) e o centro da linha do caret —
+    // mantém a amostragem na linha certa mesmo ao cruzar para outra linha.
+    const rect = _caretRectAtOffset(topicEl,
+      _dragSide === 'start' ? _activeTap.startChar : _activeTap.endChar, _dragSide);
+    const caretMid = rect ? rect.top + rect.height / 2 : e.clientY;
+    _dragCtx = { topicEl, fullText, total, bodyStart, yAdjust: caretMid - e.clientY };
+    try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+    window.addEventListener('pointermove', _onHandlePointerMove);
+    window.addEventListener('pointerup', _onHandlePointerUp);
+    window.addEventListener('pointercancel', _onHandlePointerUp);
+  }
+
+  function _onHandlePointerMove(e) {
+    if (!_dragSide || !_dragCtx || !_activeTap) return;
+    e.preventDefault();
+    const { topicEl, fullText, total, bodyStart, yAdjust } = _dragCtx;
+    const off = _caretGlobalOffset(topicEl, e.clientX, e.clientY + yAdjust);
+    if (off < 0) return;
+    if (_dragSide === 'start') {
+      _activeTap.startChar = Math.max(bodyStart, Math.min(off, _activeTap.endChar - 1));
+    } else {
+      _activeTap.endChar = Math.min(total, Math.max(off, _activeTap.startChar + 1));
+    }
+    _activeTap.text = fullText.slice(_activeTap.startChar, _activeTap.endChar);
+    _renderPendingPreview();   // re-pinta os marks (e reposiciona as alças)
+  }
+
+  function _onHandlePointerUp() {
+    const h = _handlesEl && _handlesEl.querySelector('.hl-handle.dragging');
+    if (h) h.classList.remove('dragging');
+    _dragSide = null; _dragCtx = null;
+    window.removeEventListener('pointermove', _onHandlePointerMove);
+    window.removeEventListener('pointerup', _onHandlePointerUp);
+    window.removeEventListener('pointercancel', _onHandlePointerUp);
+    // Ao soltar, apara espaços nas pontas (não conta espaço como parte do trecho).
+    if (_activeTap) {
+      const topicEl = document.getElementById(_activeTap.topicId);
+      if (topicEl) {
+        const fullText = _topicFullText(_collectTextNodes(topicEl));
+        const fin = _finishRange(fullText, _activeTap.startChar, _activeTap.endChar);
+        if (fin) {
+          _activeTap.startChar = fin.startChar;
+          _activeTap.endChar = fin.endChar;
+          _activeTap.text = fin.text;
+        }
+        _renderPendingPreview();
+      }
     }
   }
 
@@ -1345,6 +1543,7 @@
       const topicEl = document.getElementById(topicId);
       if (topicEl) _wrapPendingMarks(topicEl, byTopic[topicId]);
     }
+    _positionHandles();   // as alças seguem o trecho ativo após cada re-pintura
   }
 
   function _confirmPending() {
@@ -1393,6 +1592,8 @@
     _saveHighlights();
     const n = items.length;
     _pendingTaps = [];
+    _activeTap = null;
+    _clearHandles();
     _hideTapBar();
     _updateHighlightBadge();
     const lang = _lang();
@@ -1406,7 +1607,10 @@
     if (!_tapBarEl) {
       const addLabel = lang === 'ja' ? '追加' : 'Adicionar';
       const clearLabel = lang === 'ja' ? 'クリア' : 'Limpar';
-      const hint = lang === 'ja' ? '文をタップしてハイライト' : 'Toque nas frases para grifar';
+      const hint = lang === 'ja'
+        ? '文をタップ → ハンドルをドラッグして調整'
+        : 'Toque na frase e arraste as alças para ajustar';
+      const reportLabel = lang === 'ja' ? '翻訳エラーを報告' : 'Reportar erro de tradução';
 
       _tapBarEl = document.createElement('div');
       _tapBarEl.className = 'highlight-taps-bar';
@@ -1422,6 +1626,11 @@
             `<button class="highlight-cancel-btn" id="hlTapsClearBtn">${clearLabel}</button>` +
             `<button class="highlight-save-btn" id="hlTapsAddBtn">${addLabel} (<span id="hlTapsCount">0</span>)</button>` +
           `</div>` +
+          `<div class="highlight-tooltip-divider" style="margin: 2px 0"></div>` +
+          `<button class="tr-report-btn tr-report-btn--mobile" id="hlTapsReportBtn">` +
+            `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>` +
+            `${reportLabel}` +
+          `</button>` +
         `</div>`;
       document.body.appendChild(_tapBarEl);
 
@@ -1439,10 +1648,26 @@
 
       document.getElementById('hlTapsClearBtn').addEventListener('click', () => {
         _pendingTaps = [];
+        _activeTap = null;
+        _clearHandles();
         _clearPendingPreview();
         _hideTapBar();
       });
       document.getElementById('hlTapsAddBtn').addEventListener('click', _confirmPending);
+
+      const repBtn = document.getElementById('hlTapsReportBtn');
+      if (repBtn) {
+        repBtn.addEventListener('click', () => {
+          const sel = _activeTap || _pendingTaps[0];
+          if (sel && sel.text && typeof window.openTranslationReport === 'function') {
+            window.openTranslationReport(sel.text, {
+              topicId: sel.topicId,
+              vol: _getParams().volId,
+              file: _getParams().filename
+            });
+          }
+        });
+      }
     }
     _updateTapBarCount();
   }
@@ -1472,6 +1697,8 @@
       _showHlToast(lang === 'ja' ? '文をタップしてハイライト' : 'Toque nas frases para grifar');
     } else {
       _pendingTaps = [];
+      _activeTap = null;
+      _clearHandles();
       _clearPendingPreview();
       _hideTapBar();
     }
@@ -1511,9 +1738,7 @@
       const trange = _titleRange(topicEl);
       if (trange) {
         _dbg(`tap título: [${trange.startChar},${trange.endChar}] "${trange.text.slice(0, 24)}"`);
-        _togglePending(topicId, trange);
-        _renderPendingPreview();
-        if (_pendingTaps.length) _showTapBar(); else _hideTapBar();
+        _applyTap(topicId, trange);
       }
       return;
     }
@@ -1522,9 +1747,7 @@
     if (!range) { _dbg('tap: sem range'); return; }
     _dbg(`tap: [${range.startChar},${range.endChar}] "${range.text.slice(0, 24)}"`);
 
-    _togglePending(topicId, range);
-    _renderPendingPreview();
-    if (_pendingTaps.length) _showTapBar(); else _hideTapBar();
+    _applyTap(topicId, range);
   }
 
   // Injeta o botão de "modo grifar" no header do leitor. Fica AQUI (não no
@@ -1774,6 +1997,11 @@
     document.addEventListener('mouseup', _handleSelection);
     document.addEventListener('touchend', _handleSelection);
     document.addEventListener('click', _handleClick);
+
+    // As alças de seleção são position:fixed nas pontas do trecho ativo —
+    // precisam reposicionar quando a página rola ou muda de tamanho.
+    window.addEventListener('scroll', () => { if (_activeTap) _positionHandles(); }, { passive: true });
+    window.addEventListener('resize', () => { if (_activeTap) _positionHandles(); });
 
     // Modo grifar: intercepta o toque em fase de captura (antes dos handlers de
     // <mark> e do _handleClick) pra grifar a frase e barrar o clique normal.

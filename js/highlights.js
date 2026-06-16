@@ -1104,29 +1104,55 @@
     return s;
   }
 
+  // WebKit (iOS/iPadOS) retorna caret NULL ao fazer hit-test em nós com
+  // `-webkit-user-select: none` — e o modo grifar põe exatamente isso no
+  // .topic-content pra matar o menu do OS. Sem caret, _tapRange caía no
+  // _blockBounds (parágrafo inteiro) e as alças não mexiam o range
+  // (bug reportado no iPad iOS17). Fix: habilita a seleção SÓ durante a
+  // chamada SÍNCRONA de hit-test e reverte logo — como nenhuma Selection é
+  // criada e a propriedade volta antes do paint, o menu do OS não aparece.
+  function _withCaretSelectable(topicEl, fn) {
+    if (!topicEl) return fn();
+    const sWk = topicEl.style.webkitUserSelect;
+    const sUs = topicEl.style.userSelect;
+    topicEl.style.webkitUserSelect = 'text';
+    topicEl.style.userSelect = 'text';
+    void topicEl.offsetHeight;        // força flush de estilo antes do hit-test
+    try { return fn(); }
+    finally {
+      topicEl.style.webkitUserSelect = sWk;
+      topicEl.style.userSelect = sUs;
+    }
+  }
+
   // Nó de texto sob o ponto (x,y) — null se a API de caret não existir.
-  function _caretNodeFromPoint(x, y) {
-    if (document.caretRangeFromPoint) {            // WebKit/Blink (iOS, Android Chrome)
-      const r = document.caretRangeFromPoint(x, y);
-      return r ? r.startContainer : null;
-    }
-    if (document.caretPositionFromPoint) {         // padrão (Firefox)
-      const p = document.caretPositionFromPoint(x, y);
-      return p ? p.offsetNode : null;
-    }
-    return null;
+  // topicEl é necessário pra liberar o user-select durante o hit-test (iOS).
+  function _caretNodeFromPoint(x, y, topicEl) {
+    let result = null;
+    _withCaretSelectable(topicEl, () => {
+      if (document.caretRangeFromPoint) {          // WebKit/Blink (iOS, Android Chrome)
+        const r = document.caretRangeFromPoint(x, y);
+        result = r ? r.startContainer : null;
+      } else if (document.caretPositionFromPoint) {// padrão (Firefox)
+        const p = document.caretPositionFromPoint(x, y);
+        result = p ? p.offsetNode : null;
+      }
+    });
+    return result;
   }
 
   // node+offset → offset global de caractere dentro do tópico.
   function _caretGlobalOffset(topicEl, x, y) {
     let node = null, offset = 0;
-    if (document.caretRangeFromPoint) {            // WebKit/Blink (iOS, Android Chrome)
-      const r = document.caretRangeFromPoint(x, y);
-      if (r) { node = r.startContainer; offset = r.startOffset; }
-    } else if (document.caretPositionFromPoint) {  // padrão (Firefox)
-      const p = document.caretPositionFromPoint(x, y);
-      if (p) { node = p.offsetNode; offset = p.offset; }
-    }
+    _withCaretSelectable(topicEl, () => {
+      if (document.caretRangeFromPoint) {          // WebKit/Blink (iOS, Android Chrome)
+        const r = document.caretRangeFromPoint(x, y);
+        if (r) { node = r.startContainer; offset = r.startOffset; }
+      } else if (document.caretPositionFromPoint) {// padrão (Firefox)
+        const p = document.caretPositionFromPoint(x, y);
+        if (p) { node = p.offsetNode; offset = p.offset; }
+      }
+    });
     if (!node) return -1;
     // Se o caret caiu num elemento (entre nós), desce pro primeiro texto.
     if (node.nodeType !== Node.TEXT_NODE) {
@@ -1726,7 +1752,7 @@
     // está sob o dedo antes de decidir.
     let hitNode = e.target;
     if (hitNode === topicEl) {
-      const cn = _caretNodeFromPoint(e.clientX, e.clientY);
+      const cn = _caretNodeFromPoint(e.clientX, e.clientY, topicEl);
       if (cn && topicEl.contains(cn) && cn !== topicEl) hitNode = cn;
     }
 

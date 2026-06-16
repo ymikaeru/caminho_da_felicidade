@@ -140,13 +140,16 @@ async function loadJohreiAnalytics() {
   // Filtra opens client-side por props.label (todos os cta vieram).
   const cmOpens = (cmOpensRes.data || []).filter(r => (r.props || {}).label === 'culto_mensal_open');
   const cmHeartbeats = cmHeartbeatsRes.data || [];
-  // Discriminador entre os dois áudios do Guia. A MESMA string vive no player:
-  // guia_johrei/js/orientacao-dirigente.js → props.audio. Eventos antigos do
-  // Culto não têm props.audio → caem no Culto (filtro !==), sem regressão.
+  // Discriminador entre os áudios do Guia, via props.audio (string definida nos
+  // players: orientacao-dirigente.js e culto-mensal.js variante especial). Eventos
+  // antigos do Culto Mensal não têm props.audio → caem no Mensal (filtro !==), sem
+  // regressão. O Mensal exclui Dirigente E Especial pra não inflar com eles.
   const DIR_AUDIO_KEY = 'orientacao_dirigente_1983';
+  const ESP_AUDIO_KEY = 'culto_especial';
   const cmAudioAll = cmAudioRes.data || [];
-  const cmAudio = cmAudioAll.filter(r => (r.props || {}).audio !== DIR_AUDIO_KEY);
+  const cmAudio  = cmAudioAll.filter(r => { const a = (r.props || {}).audio; return a !== DIR_AUDIO_KEY && a !== ESP_AUDIO_KEY; });
   const dirAudio = cmAudioAll.filter(r => (r.props || {}).audio === DIR_AUDIO_KEY);
+  const espAudio = cmAudioAll.filter(r => (r.props || {}).audio === ESP_AUDIO_KEY);
 
   console.log('[jr-culto-mensal]', {
     opens: cmOpens.length,
@@ -230,8 +233,9 @@ async function loadJohreiAnalytics() {
   const cmAvgListenedPct = cmDuration ? Math.round((cmAvgListenedSec / cmDuration) * 100) : null;
   const cmMedianListenedPct = cmDuration ? Math.round((cmMedianListenedSec / cmDuration) * 100) : null;
 
-  // Downloads do ZIP (PDF + MP3) — 1 evento por clique no botão "Baixar"
-  const cmDownloads = cmDownloadsRes.data || [];
+  // Downloads do ZIP (PDF + MP3) — 1 evento por clique no botão "Baixar".
+  // Exclui os do Especial (mesmo event_type download_zip, separados por props.audio).
+  const cmDownloads = (cmDownloadsRes.data || []).filter(r => (r.props || {}).audio !== ESP_AUDIO_KEY);
   const cmDownloadCount = cmDownloads.length;
   const cmDownloadUniques = new Set(cmDownloads.map(r => r.anon_id)).size;
 
@@ -274,6 +278,46 @@ async function loadJohreiAnalytics() {
   const dirDuration = (dirAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
   const dirAvgListenedPct = dirDuration ? Math.round((dirAvgListenedSec / dirDuration) * 100) : null;
   const dirMedianListenedPct = dirDuration ? Math.round((dirMedianListenedSec / dirDuration) * 100) : null;
+
+  // ── Culto Paraíso Terrestre (karaokê, props.audio === 'culto_especial') ────
+  // Mesmo modelo do Mensal/Dirigente. Abrir = cta label 'culto_especial_open';
+  // download = download_zip com props.audio === ESP_AUDIO_KEY (PDF + MP3).
+  const espOpens = (cmOpensRes.data || []).filter(r => (r.props || {}).label === 'culto_especial_open');
+  const espOpenCount = espOpens.length;
+  const espOpenUniques = new Set(espOpens.map(r => r.anon_id)).size;
+  const espDownloads = (cmDownloadsRes.data || []).filter(r => (r.props || {}).audio === ESP_AUDIO_KEY);
+  const espDownloadCount = espDownloads.length;
+  const espDownloadUniques = new Set(espDownloads.map(r => r.anon_id)).size;
+
+  const espPlayedBySession = {};
+  const espPlaySessions = new Set();
+  let espCompletedCount = 0;
+  const espCompletedByAnon = {};
+  espAudio.forEach(r => {
+    if (r.event_type === 'audio_play') { espPlaySessions.add(r.session_id); return; }
+    const total = Number((r.props || {}).total_played_seconds) || 0;
+    const prev = espPlayedBySession[r.session_id] || 0;
+    if (total > prev) espPlayedBySession[r.session_id] = total;
+    if (r.event_type === 'audio_ended') {
+      const dur = Number((r.props || {}).duration_seconds) || 0;
+      if (dur && total < dur * CM_COMPLETE_MIN_RATIO) return; // ouviu pouco: não conta
+      espCompletedCount++;
+      espCompletedByAnon[r.anon_id] = (espCompletedByAnon[r.anon_id] || 0) + 1;
+    }
+  });
+  const espAudioSessions = espPlaySessions.size;
+  const espPlayCount = espAudio.filter(r => r.event_type === 'audio_play').length;
+  const espCompletedUniques = Object.keys(espCompletedByAnon).length;
+  const espMeasuredTotals = Object.values(espPlayedBySession);
+  const espAvgListenedSec = espMeasuredTotals.length
+    ? espMeasuredTotals.reduce((a, b) => a + b, 0) / espMeasuredTotals.length
+    : 0;
+  const espMedianListenedSec = espMeasuredTotals.length
+    ? [...espMeasuredTotals].sort((a, b) => a - b)[Math.floor(espMeasuredTotals.length / 2)]
+    : 0;
+  const espDuration = (espAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
+  const espAvgListenedPct = espDuration ? Math.round((espAvgListenedSec / espDuration) * 100) : null;
+  const espMedianListenedPct = espDuration ? Math.round((espMedianListenedSec / espDuration) * 100) : null;
 
   // ── Helpers ─────────────────────────────────────────────────
   const esc = s => String(s ?? '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
@@ -430,6 +474,29 @@ async function loadJohreiAnalytics() {
       </p>
     </div>`;
 
+  // Bloco do Culto Paraíso Terrestre (especial com transcrição): sempre renderiza.
+  const espHasData = espOpenCount > 0 || espAudioSessions > 0 || espDownloadCount > 0;
+  const espBlock = `
+    <div class="jr-chart-wrap" style="margin-bottom:24px;">
+      <h3>✨ Culto Paraíso Terrestre (${data.days_back}d)</h3>
+      <div class="jr-cards" style="margin-bottom:0;">
+        ${card(espOpenCount, 'Aberturas', espOpenUniques)}
+        ${engCard(espPlayCount, 'Plays')}
+        ${engCard(espAudioSessions, 'Sessões que ouviram')}
+        ${engCard(espAvgListenedSec > 0 ? fmtTime(espAvgListenedSec) : '—',
+          'Escuta média' + (espAvgListenedPct != null && espAvgListenedPct > 0 ? ` (${espAvgListenedPct}%)` : ''),
+          null,
+          espMedianListenedSec > 0 ? `mediana ${fmtTime(espMedianListenedSec)}${espMedianListenedPct != null ? ` (${espMedianListenedPct}%)` : ''}` : null)}
+        ${card(espCompletedCount, 'Escutas completas', espCompletedUniques)}
+        ${card(espDownloadCount, 'Downloads (ZIP)', espDownloadUniques)}
+      </div>
+      <p style="font-size:.72rem;color:var(--text-muted);margin:14px 0 0;">
+        ${espHasData
+          ? 'Culto especial com transcrição (karaokê). Aberturas = cliques no item do menu. Sessões que ouviram = apertaram play. Escuta média = total ouvido por sessão. Escutas completas = ouviu ≥80% até o fim. Downloads = "Baixar" (ZIP com PDF + MP3).'
+          : 'Sem dados ainda no período. Confirme que o tracking (guia_johrei) e este painel (caminho) foram deployados e que alguém abriu o Culto Paraíso Terrestre pelo menu "Orientações".'}
+      </p>
+    </div>`;
+
   // ── Essência (modal de boas-vindas) aggregates ──────────────
   const essShown = essShownRes.data || [];
   const essSupp = essSuppRes.data || [];
@@ -562,6 +629,7 @@ async function loadJohreiAnalytics() {
     ${tabsBlock}
     ${focalBlock}
     ${cmBlock}
+    ${espBlock}
     ${dirBlock}
     ${essBlock}
     ${apBlock}

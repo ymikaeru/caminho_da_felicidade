@@ -21,7 +21,7 @@
     import './admin/tabs/analytics-search.js?v=2';
     import './admin/tabs/analytics-disciples.js?v=2';
     import './admin/tabs/analytics-poetry.js?v=2';
-    import './admin/tabs/analytics-johrei.js?v=9';
+    import './admin/tabs/analytics-johrei.js?v=10';
     import './admin/tabs/analytics-landing.js?v=2';
     import './admin/tabs/analytics-audio.js?v=8';
     import './admin/tabs/highlights-saved.js?v=2';

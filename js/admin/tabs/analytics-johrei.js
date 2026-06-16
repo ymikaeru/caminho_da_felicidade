@@ -28,13 +28,13 @@ async function loadJohreiAnalytics() {
     // filtra client-side por props.label — evita depender da sintaxe
     // de JSON path do PostgREST, que varia entre versões.
     fetchAll(() => supabase.from('site_events')
-      .select('anon_id,session_id,props')
+      .select('anon_id,session_id,props,created_at')
       .eq('site','johrei')
       .eq('event_type','cta')
       .gte('created_at', since)),
     // Culto Mensal: heartbeats enquanto o modal estava aberto (dwell time)
     fetchAll(() => supabase.from('site_events')
-      .select('session_id,props')
+      .select('session_id,props,created_at')
       .eq('site','johrei')
       .eq('event_type','heartbeat')
       .ilike('path','%modal=culto-mensal%')
@@ -137,9 +137,28 @@ async function loadJohreiAnalytics() {
   const hourMax = Math.max(...hours, 1);
 
   // ── Culto Mensal aggregates ─────────────────────────────────
-  // Filtra opens client-side por props.label (todos os cta vieram).
-  const cmOpens = (cmOpensRes.data || []).filter(r => (r.props || {}).label === 'culto_mensal_open');
-  const cmHeartbeats = cmHeartbeatsRes.data || [];
+  // Registro de versões (fronteiras por publicação) separa a gravação ATUAL da
+  // anterior. Bucket público guia-data; se faltar/der erro → cmCutoffMs = null =
+  // sem split (comporta como antes, todo o período). Reseta a cada culto novo.
+  let cmVersions = [];
+  try {
+    const vr = await fetch(`https://succhmnbajvbpmoqrktq.supabase.co/storage/v1/object/public/guia-data/culto_mensal_versions.json?t=${Date.now()}`);
+    if (vr.ok) cmVersions = await vr.json();
+  } catch (e) { /* sem registro → sem split */ }
+  cmVersions = (Array.isArray(cmVersions) ? cmVersions : []).slice()
+    .sort((a, b) => new Date(a.published_at) - new Date(b.published_at));
+  const cmLatest = cmVersions[cmVersions.length - 1] || null;
+  const cmPrev   = cmVersions[cmVersions.length - 2] || null;
+  const cmCutoffMs    = cmLatest ? new Date(cmLatest.published_at).getTime() : null;
+  const cmPrevStartMs = cmPrev   ? new Date(cmPrev.published_at).getTime()   : null;
+  const cmInCurrent = r => cmCutoffMs == null || (r.created_at && new Date(r.created_at).getTime() >= cmCutoffMs);
+  const cmInPrev = r => cmCutoffMs != null && r.created_at && new Date(r.created_at).getTime() < cmCutoffMs
+    && (cmPrevStartMs == null || new Date(r.created_at).getTime() >= cmPrevStartMs);
+
+  // Opens (cta label) e heartbeats do período; depois fatia a gravação ATUAL.
+  const cmOpensAll = (cmOpensRes.data || []).filter(r => (r.props || {}).label === 'culto_mensal_open');
+  const cmOpens = cmOpensAll.filter(cmInCurrent);
+  const cmHeartbeats = (cmHeartbeatsRes.data || []).filter(cmInCurrent);
   // Discriminador entre os áudios do Guia, via props.audio (string definida nos
   // players: orientacao-dirigente.js e culto-mensal.js variante especial). Eventos
   // antigos do Culto Mensal não têm props.audio → caem no Mensal (filtro !==), sem
@@ -147,7 +166,8 @@ async function loadJohreiAnalytics() {
   const DIR_AUDIO_KEY = 'orientacao_dirigente_1983';
   const ESP_AUDIO_KEY = 'culto_especial';
   const cmAudioAll = cmAudioRes.data || [];
-  const cmAudio  = cmAudioAll.filter(r => { const a = (r.props || {}).audio; return a !== DIR_AUDIO_KEY && a !== ESP_AUDIO_KEY; });
+  const cmAudioMensal = cmAudioAll.filter(r => { const a = (r.props || {}).audio; return a !== DIR_AUDIO_KEY && a !== ESP_AUDIO_KEY; });
+  const cmAudio  = cmAudioMensal.filter(cmInCurrent);
   const dirAudio = cmAudioAll.filter(r => (r.props || {}).audio === DIR_AUDIO_KEY);
   const espAudio = cmAudioAll.filter(r => (r.props || {}).audio === ESP_AUDIO_KEY);
 
@@ -235,9 +255,43 @@ async function loadJohreiAnalytics() {
 
   // Downloads do ZIP (PDF + MP3) — 1 evento por clique no botão "Baixar".
   // Exclui os do Especial (mesmo event_type download_zip, separados por props.audio).
-  const cmDownloads = (cmDownloadsRes.data || []).filter(r => (r.props || {}).audio !== ESP_AUDIO_KEY);
+  const cmDownloadsMensal = (cmDownloadsRes.data || []).filter(r => (r.props || {}).audio !== ESP_AUDIO_KEY);
+  const cmDownloads = cmDownloadsMensal.filter(cmInCurrent);
   const cmDownloadCount = cmDownloads.length;
   const cmDownloadUniques = new Set(cmDownloads.map(r => r.anon_id)).size;
+
+  // Histórico por gravação: fatia os eventos do período pela janela de cada versão
+  // do registro (cada culto = [published_at[i], published_at[i+1])).
+  function cmStatsWindow(startMs, endMs) {
+    const inW = r => {
+      if (!r.created_at) return false;
+      const t = new Date(r.created_at).getTime();
+      return t >= startMs && (endMs == null || t < endMs);
+    };
+    const plays = new Set();
+    let completed = 0;
+    cmAudioMensal.filter(inW).forEach(r => {
+      if (r.event_type === 'audio_play') { plays.add(r.session_id); return; }
+      if (r.event_type === 'audio_ended') {
+        const total = Number((r.props || {}).total_played_seconds) || 0;
+        const dur = Number((r.props || {}).duration_seconds) || 0;
+        if (dur && total < dur * CM_COMPLETE_MIN_RATIO) return;
+        completed++;
+      }
+    });
+    return {
+      opens: cmOpensAll.filter(inW).length,
+      sessions: plays.size,
+      completed,
+      downloads: cmDownloadsMensal.filter(inW).length
+    };
+  }
+  const cmHistory = cmVersions.map((v, i) => {
+    const startMs = new Date(v.published_at).getTime();
+    const endMs = i + 1 < cmVersions.length ? new Date(cmVersions[i + 1].published_at).getTime() : null;
+    return Object.assign({ title: v.title }, cmStatsWindow(startMs, endMs));
+  }).reverse(); // mais recente primeiro
+  const cmHasHistory = cmCutoffMs != null && cmHistory.length > 0;
 
   // ── Orientação do Dirigente Espiritual (áudio só-player) ────
   // Mesmo modelo do Culto, mas só pra dirAudio. Abrir/baixar são cta no Guia
@@ -431,7 +485,7 @@ async function loadJohreiAnalytics() {
   const cmHasData = cmOpenCount > 0 || cmAudioSessions > 0 || cmSessionsRead > 0 || cmDownloadCount > 0;
   const cmBlock = `
     <div class="jr-chart-wrap" style="margin-bottom:24px;">
-      <h3>📖 Orientação do Culto Mensal (${data.days_back}d)</h3>
+      <h3>📖 Orientação do Culto Mensal${cmCutoffMs != null ? ' · gravação atual' : ''} (${data.days_back}d)</h3>
       <div class="jr-cards" style="margin-bottom:0;">
         ${card(cmOpenCount, 'Aberturas', cmOpenUniques)}
         ${engCard(cmAvgDwell > 0 ? fmtTime(cmAvgDwell) : '—', 'Permanência média')}
@@ -443,6 +497,25 @@ async function loadJohreiAnalytics() {
         ${card(cmCompletedCount, 'Escutas completas', cmCompletedUniques)}
         ${card(cmDownloadCount, 'Downloads (ZIP)', cmDownloadUniques)}
       </div>
+      ${cmHasHistory ? `<div style="margin-top:14px;overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:.74rem;">
+          <thead><tr style="color:var(--text-muted);text-align:left;">
+            <th style="padding:5px 8px;">Gravação</th>
+            <th style="padding:5px 8px;text-align:right;">Aberturas</th>
+            <th style="padding:5px 8px;text-align:right;">Sessões</th>
+            <th style="padding:5px 8px;text-align:right;">Completas</th>
+            <th style="padding:5px 8px;text-align:right;">Downloads</th>
+          </tr></thead>
+          <tbody>${cmHistory.map((h, i) => `<tr style="border-top:1px solid var(--border);${i === 0 ? 'font-weight:600;' : ''}">
+            <td style="padding:5px 8px;">${esc(h.title)}${i === 0 ? ' <span style="color:var(--accent);">· atual</span>' : ''}</td>
+            <td style="padding:5px 8px;text-align:right;">${h.opens}</td>
+            <td style="padding:5px 8px;text-align:right;">${h.sessions}</td>
+            <td style="padding:5px 8px;text-align:right;">${h.completed}</td>
+            <td style="padding:5px 8px;text-align:right;">${h.downloads}</td>
+          </tr>`).join('')}</tbody>
+        </table>
+        <p style="font-size:.68rem;color:var(--text-muted);margin:6px 0 0;">Histórico por gravação. Meses fora do período selecionado aparecem parciais — escolha "1 ano" acima pra ver completo.</p>
+      </div>` : ''}
       ${cmCompletedUniques > 0 ? `<p style="font-size:.74rem;color:var(--text);margin:14px 0 0;">Das <strong>${cmCompletedUniques}</strong> pessoa(s) que ouviram até o fim: <strong>${cmComp1x}</strong> ouviram 1×, <strong>${cmComp2to5}</strong> voltaram (2–5×), <strong>${cmComp6plus}</strong> recorrente(s) (6+×)${cmComp6plus > 0 ? ` — que concentram <strong>${cmComp6plusListens}</strong> das <strong>${cmCompletedCount}</strong> escutas (${cmComp6plusPct}%)` : ''}.</p>` : ''}
       <p style="font-size:.72rem;color:var(--text-muted);margin:14px 0 0;">
         ${cmHasData

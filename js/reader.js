@@ -35,9 +35,12 @@ function _prefetchAdjacent(volId, navJson, currentFilename) {
   const idx = navJson.indexOf(fnameOnly);
   if (idx < 0) return;
 
+  // Só o PRÓXIMO. O anterior foi removido pra economizar egress: na leitura
+  // sequencial ele já está no cache do navegador (download desnecessário), e
+  // pra quem pula via busca era um artigo inteiro (~80KB) baixado à toa. A
+  // navegação "voltar" segue funcionando sob demanda (rápida, vem do cache).
   const targets = [];
   if (idx + 1 < navJson.length) targets.push(navJson[idx + 1]);
-  if (idx - 1 >= 0) targets.push(navJson[idx - 1]);
 
   const schedule = window.requestIdleCallback
     ? (fn) => window.requestIdleCallback(fn, { timeout: 4000 })

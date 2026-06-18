@@ -135,47 +135,6 @@
   content: attr(data-label);
 }
 
-/* Botão discreto de "Marcar como lido" no FIM do Ensinamento — quem termina
-   a leitura marca ali, sem voltar ao topo. Vive FORA da .topic-content
-   (offsets dos destaques), então o rótulo pode ser texto de verdade. */
-.topic-read-endbar {
-  display: flex;
-  justify-content: center;
-  /* bottom maior: o <hr> separador vem logo abaixo (movido pra cá pelo
-     renderReader) e o botão ficava colado na linha. */
-  margin: 30px 0 26px;
-}
-
-.topic-read-endbtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  border-radius: 999px;
-  padding: 7px 16px;
-  font-family: var(--font-ui);
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-}
-
-.topic-read-endbtn:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-.topic-read-endbtn.active {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: var(--accent-soft, rgba(184, 134, 11, 0.1));
-}
-
-@media print {
-  .topic-read-endbar { display: none; }
-}
-
 @media print {
   .topic-save-bar { display: none; }
 }

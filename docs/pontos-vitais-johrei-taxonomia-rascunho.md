@@ -83,8 +83,8 @@ Doença* (`BB*`), que é organizada por região.
 
 ## Descobertas (eixo `perguntas`) — porta de entrada para os ministrantes
 
-12 descobertas *iluminadas* (cada uma aponta para o Ensinamento que responde) + 2 *em aberto*
-(convite ao estudo). Os hashes de deep-link são estáveis: `#q-<id>`.
+12 descobertas *iluminadas* — cada uma aponta para o Ensinamento que responde.
+Os hashes de deep-link são estáveis: `#q-<id>`.
 
 | id | Pergunta | Lições |
 |----|----------|--------|
@@ -100,8 +100,6 @@ Doença* (`BB*`), que é organizada por região.
 | `q-mental` | O Johrei é sugestão ou terapia mental? | `kannen1`, `kannen2` |
 | `q-febre` | Toda febre deve ser baixada? | `binetu`, `kaze2` |
 | `q-mente-pontos` | Quais os pontos vitais para quem sofre da mente? | `SJ2`, `SJ3` |
-| `q-descoberta-pratica` | *(em aberto)* Um ponto vital que você encontrou na prática? | — |
-| `q-reacao-observada` | *(em aberto)* Uma reação de purificação que os Ensinamentos não explicaram? | — |
 
 > **Revisar as descobertas iluminadas contra o conteúdo real** das lições apontadas — algumas
 > associações foram inferidas do título. Se uma lição não responder bem à pergunta, trocar a

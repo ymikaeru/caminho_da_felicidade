@@ -349,7 +349,11 @@ function injectLogoutButton() {
     const btn = document.createElement('button');
     btn.id = 'logout-mobile-btn';
     btn.className = 'mobile-nav-link';
-    btn.innerHTML = `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span class="link-text">Sair</span>`;
+    // Bilíngue: lang-pt/lang-ja deixam o setLanguage alternar o idioma; o
+    // display inicial cobre o estado no momento da injeção (que ocorre após
+    // o boot do idioma, então o botão não passa pela 1ª varredura).
+    const _lang = localStorage.getItem('site_lang') || 'pt';
+    btn.innerHTML = `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span class="link-text"><span class="lang-pt"${_lang === 'ja' ? ' style="display:none"' : ''}>Sair</span><span class="lang-ja"${_lang === 'ja' ? '' : ' style="display:none"'}>ログアウト</span></span>`;
     btn.onclick = logout;
     panel.appendChild(divider);
     panel.appendChild(btn);

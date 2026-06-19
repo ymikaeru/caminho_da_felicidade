@@ -164,9 +164,9 @@ for (const [tagId, files] of Object.entries(TAG_FILES)) {
 // ---- 3c. Descobertas (eixo "perguntas": porta de entrada provocativa) ---------
 // Para os MINISTRANTES do Johrei. Cada pergunta abre uma curiosidade legítima e
 // aponta para o(s) Ensinamento(s) que a iluminam — a resposta vive no Ensinamento,
-// nunca numa nota nossa. Algumas ficam EM ABERTO: a fronteira do estudo de cada um.
+// nunca numa nota nossa. Todas as descobertas são 'iluminada' (apontam lições).
 //   status 'iluminada' -> licoes:[arquivos que respondem]
-//   status 'aberta'    -> convite (sem licoes): observação/reflexão
+//   (o renderizador também suporta status 'aberta' = convite sem lições, não usado aqui)
 // teaser = provocação curta. licoes[] sem .html (normalizado abaixo).
 const PERGUNTAS = [
   { id: 'ordem', status: 'iluminada', licoes: ['JKzyunzyo', 'Jzyunzyo'],
@@ -205,17 +205,6 @@ const PERGUNTAS = [
   { id: 'mente-pontos', status: 'iluminada', licoes: ['SJ2', 'SJ3'],
     pt: 'Quais os pontos vitais para quem sofre da mente?', ja: '精神を病む人への急所はどこか',
     teaser: 'Onde a luz alcança a aflição.' },
-  // ----- EM ABERTO: a fronteira do estudo de cada ministrante -----
-  { id: 'descoberta-pratica', status: 'aberta',
-    pt: 'Há um ponto vital que você encontrou na prática e ainda busca confirmar nos Ensinamentos?',
-    ja: '実践の中で見出した急所で、御教えに確かめたいものはありますか',
-    teaser: 'A fronteira do estudo de cada ministrante.',
-    convite: 'Anote sua observação e busque, nos Ensinamentos de Meishu-Sama, o que a ilumina. O estudo do Johrei nunca se encerra.' },
-  { id: 'reacao-observada', status: 'aberta',
-    pt: 'Que reação de purificação você observou que os Ensinamentos ainda não lhe explicaram?',
-    ja: '御教えではまだ説明のつかない浄化反応を見たことがありますか',
-    teaser: 'Observar é o primeiro passo.',
-    convite: 'Registre o que viu, sem concluir. A observação atenta, ancorada nos Ensinamentos, é o caminho da descoberta.' },
 ];
 // Normaliza arquivos das perguntas (adiciona .html)
 for (const q of PERGUNTAS) {

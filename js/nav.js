@@ -270,6 +270,11 @@ function _initMobileNav() {
           </span>
         </a>
 
+        <!-- Seção "Discípulos" — só em PT. As obras de discípulos são portes
+             traduzidos p/ o público brasileiro; no modo japonês não fazem
+             sentido. class="lang-pt" → setLanguage esconde no JA / mostra no PT.
+             O display:none inicial cobre o 1º paint quando já se entra em JA. -->
+        <div id="mobileNavDisciplesSection" class="lang-pt"${currentLang === 'ja' ? ' style="display:none"' : ''}>
         <div class="mobile-nav-divider"></div>
         <div class="mobile-nav-section-label" id="mobileNavLabelComplementary">${t.discipulos || 'Discípulos'}</div>
 
@@ -282,16 +287,42 @@ function _initMobileNav() {
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
           <span class="link-text"><span class="lang-pt">Ashita no Ijitsu wo Ikiru</span><span class="lang-ja" style="display:none">明日の医術を生きる</span></span>
         </a>
+        </div>
+
+        <!-- Seção SÓ-ADMIN: guias ocultos (fora do menu público e do sitemap,
+             noindex). O container nasce display:none e é revelado no
+             isAdminUser() abaixo — mesmo padrão de "Minhas playlists". -->
+        <div id="mobileNavAdminSection" style="display:none;">
+          <div class="mobile-nav-divider"></div>
+          <div class="mobile-nav-section-label"><span class="lang-pt">Guias (admin)</span><span class="lang-ja" style="display:none">ガイド（管理者）</span></div>
+
+          <a class="mobile-nav-link" id="mobileNavLinkShinDendo" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}shin-dendo.html">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+            <span class="link-text"><span class="lang-pt">Shin Dendō</span><span class="lang-ja" style="display:none">新伝道</span></span>
+          </a>
+
+          <a class="mobile-nav-link" id="mobileNavLinkAnaliseEspiritual" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}analise-espiritual.html">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span class="link-text"><span class="lang-pt">Análise Espiritual das Doenças</span><span class="lang-ja" style="display:none">病気の霊的分析</span></span>
+          </a>
+
+          <a class="mobile-nav-link" id="mobileNavLinkPontosVitais" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}pontos-vitais-johrei.html">
+            <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <span class="link-text"><span class="lang-pt">Pontos Vitais do Johrei</span><span class="lang-ja" style="display:none">浄霊の急所</span></span>
+          </a>
+        </div>
 
       </div>
     </div>`;
 
   document.body.appendChild(mobileNavOverlay);
 
-  // Mostra "Minhas playlists" só pra admin.
+  // Mostra "Minhas playlists" + a seção de guias ocultos só pra admin.
   if (typeof isAdminUser === 'function' && isAdminUser()) {
     const plLink = document.getElementById('mobileNavLinkPlaylists');
     if (plLink) plLink.style.display = '';
+    const adminSection = document.getElementById('mobileNavAdminSection');
+    if (adminSection) adminSection.style.display = '';
   }
 
   hamburgerBtn.addEventListener('click', () => {

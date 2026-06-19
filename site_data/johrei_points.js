@@ -254,22 +254,6 @@ window.JOHREI_POINTS = {
    "pt": "Quais os pontos vitais para quem sofre da mente?",
    "ja": "精神を病む人への急所はどこか",
    "teaser": "Onde a luz alcança a aflição."
-  },
-  {
-   "id": "descoberta-pratica",
-   "status": "aberta",
-   "pt": "Há um ponto vital que você encontrou na prática e ainda busca confirmar nos Ensinamentos?",
-   "ja": "実践の中で見出した急所で、御教えに確かめたいものはありますか",
-   "teaser": "A fronteira do estudo de cada ministrante.",
-   "convite": "Anote sua observação e busque, nos Ensinamentos de Meishu-Sama, o que a ilumina. O estudo do Johrei nunca se encerra."
-  },
-  {
-   "id": "reacao-observada",
-   "status": "aberta",
-   "pt": "Que reação de purificação você observou que os Ensinamentos ainda não lhe explicaram?",
-   "ja": "御教えではまだ説明のつかない浄化反応を見たことがありますか",
-   "teaser": "Observar é o primeiro passo.",
-   "convite": "Registre o que viu, sem concluir. A observação atenta, ancorada nos Ensinamentos, é o caminho da descoberta."
   }
  ],
  "articles": [

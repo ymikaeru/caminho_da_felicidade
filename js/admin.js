@@ -13,7 +13,7 @@
     import { _loadAdminIds, _escHtml, logAdminAction } from './admin/shared/helpers.js';
     // Abas extraídas — registram suas funções em window.*
     import './admin/tabs/admin-logs.js?v=2';
-    import './admin/tabs/calendar.js?v=7';
+    import './admin/tabs/calendar.js?v=8';
     import './admin/tabs/announcements.js?v=7';
     import './admin/tabs/access-info.js?v=2';
     import './admin/tabs/find-replace.js';

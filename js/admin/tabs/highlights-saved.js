@@ -61,7 +61,7 @@ function renderHlUserList(users) {
     const active = count > 0;
     const badge = `<span title="${count} destaque${count !== 1 ? 's' : ''}" style="flex-shrink:0; display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; background:${active ? 'rgba(184,134,11,0.14)' : 'rgba(120,120,120,0.10)'}; color:${active ? 'var(--accent)' : 'var(--text-muted)'}; font-size:0.78rem; font-weight:700;">🖍 ${count}</span>`;
     return `
-    <div class="user-row" onclick="loadUserHighlights('${u.id}', '${_escHtml(u.display_name || u.email || 'Usuário')}')">
+    <div class="user-row" data-uid="${_escHtml(u.id)}" data-uname="${_escHtml(u.display_name || u.email || 'Usuário')}">
       <div class="user-avatar">${(u.display_name || u.email || '?')[0].toUpperCase()}</div>
       <div class="user-info">
         <div class="user-name">${_escHtml(u.display_name || '')}</div>
@@ -71,6 +71,18 @@ function renderHlUserList(users) {
       ${badge}
     </div>`;
   }).join('');
+
+  // Listener delegado (anexado 1x): não passamos o texto do usuário num onclick
+  // inline — isso era XSS no painel admin via display_name (o parser decodifica
+  // a entidade ao ler o atributo). dataset entrega string crua, nunca
+  // reinterpretada como JS/HTML.
+  if (!container._rowDelegated) {
+    container._rowDelegated = true;
+    container.addEventListener('click', (e) => {
+      const row = e.target.closest('.user-row');
+      if (row && container.contains(row)) loadUserHighlights(row.dataset.uid, row.dataset.uname);
+    });
+  }
 }
 
 async function loadUserHighlights(userId, userName) {
@@ -352,7 +364,7 @@ function renderSavedUserList(users) {
     const active = count > 0;
     const badge = `<span title="${count} salvo${count !== 1 ? 's' : ''}" style="flex-shrink:0; display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; background:${active ? 'rgba(184,134,11,0.14)' : 'rgba(120,120,120,0.10)'}; color:${active ? 'var(--accent)' : 'var(--text-muted)'}; font-size:0.78rem; font-weight:700;">🔖 ${count}</span>`;
     return `
-    <div class="user-row" onclick="loadUserSaved('${u.id}', '${_escHtml(u.display_name || u.email || 'Usuário')}')">
+    <div class="user-row" data-uid="${_escHtml(u.id)}" data-uname="${_escHtml(u.display_name || u.email || 'Usuário')}">
       <div class="user-avatar">${(u.display_name || u.email || '?')[0].toUpperCase()}</div>
       <div class="user-info">
         <div class="user-name">${_escHtml(u.display_name || '')}</div>
@@ -362,6 +374,15 @@ function renderSavedUserList(users) {
       ${badge}
     </div>`;
   }).join('');
+
+  // Listener delegado (anexado 1x) — mesmo motivo do XSS em renderHlUserList.
+  if (!container._rowDelegated) {
+    container._rowDelegated = true;
+    container.addEventListener('click', (e) => {
+      const row = e.target.closest('.user-row');
+      if (row && container.contains(row)) loadUserSaved(row.dataset.uid, row.dataset.uname);
+    });
+  }
 }
 
 async function loadUserSaved(userId, userName) {

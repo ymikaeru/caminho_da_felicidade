@@ -1,72 +1,47 @@
 -- ============================================================
--- Correções de segurança — A1 (vetor Storage) — 19/06/2026
+-- A1 (vetor Storage) — STATUS: DEFERIDO (não aplicado) — 19/06/2026
 -- Projeto Supabase: succhmnbajvbpmoqrktq
 --
--- Complemento de security_fixes_2026_06.sql. Fecha o bypass do bloqueio por
--- volume pelo BUCKET `teachings` (o leitor baixa direto do Storage).
+-- TENTATIVA E REVERSÃO:
+--   Tentamos escopar a leitura do bucket `teachings` por user_permissions
+--   (policy "teachings_user_scoped_read", TO authenticated). Em produção ela
+--   NEGOU leituras legítimas (conteúdo do site parou de abrir), mesmo com
+--   user_permissions vazia — provável sutileza de papel/contexto do RLS no
+--   storage.objects que não foi possível diagnosticar sem a sessão real.
+--   A mudança foi REVERTIDA. O estado ATUAL é o permissivo (de antes).
 --
--- Estado anterior do bucket `teachings` (auditado via pg_policies):
---   - "Allow authenticated users to read"  → USING (true)  [todos os buckets!]
---   - "Allow public read on teachings bucket" → USING (bucket_id='teachings')
---   - "Users can read permitted teachings" → lógica INVERTIDA (concedia o que
---     deveria bloquear) + formato de arquivo divergente
---   => qualquer logado lia qualquer volume, mesmo bloqueado.
+-- POR QUE DEIXAR DEFERIDO (sem exposição ativa hoje):
+--   user_permissions está VAZIA → nenhum usuário está bloqueado → não há
+--   conteúdo "restrito" para vazar. O bypass só se torna real SE/QUANDO
+--   forem criados bloqueios de volume por usuário. Reabrir esse item só
+--   nesse momento, e testando o carregamento de conteúdo a cada passo.
 --
--- COMO APLICAR: SQL Editor do Supabase. Transacional e idempotente.
--- Já aplicado em produção em 19/06/2026 (este arquivo é o registro versionado).
--- ============================================================
-BEGIN;
-
--- 1) Remove os grants escancarados de LEITURA do bucket teachings.
-DROP POLICY IF EXISTS "Allow public read on teachings bucket" ON storage.objects;
-DROP POLICY IF EXISTS "Users can read permitted teachings"   ON storage.objects;
-
--- 2) Tira o bucket teachings do grant global "true" — os DEMAIS buckets
---    (rec-audio, etc.) continuam lendo por este mesmo policy, intactos.
-ALTER POLICY "Allow authenticated users to read" ON storage.objects
-  USING ( bucket_id <> 'teachings' );
-
--- 3) Leitura de teachings = admin OU (logado E NÃO bloqueado em user_permissions).
---    Modelo blacklist: sem linha de bloqueio → lê; com bloqueio (volume inteiro
---    via files IS NULL, ou arquivo específico) → nega. Aceita os dois formatos
---    de nome de arquivo ('x.html' e 'x.html.json') porque há duas convenções no
---    código e a tabela está vazia hoje.
-DROP POLICY IF EXISTS "teachings_user_scoped_read" ON storage.objects;
-CREATE POLICY "teachings_user_scoped_read"
-ON storage.objects
-FOR SELECT
-TO authenticated
-USING (
-  bucket_id = 'teachings'
-  AND (
-    public.is_admin()
-    OR NOT EXISTS (
-      SELECT 1 FROM public.user_permissions p
-      WHERE p.user_id = auth.uid()
-        AND split_part(name, '/', 1) = p.volume
-        AND (
-          p.files IS NULL
-          OR p.files @> ARRAY[ split_part(name, '/', 2) ]
-          OR p.files @> ARRAY[ regexp_replace(split_part(name, '/', 2), '\.json$', '') ]
-        )
-    )
-  )
-);
-
-COMMIT;
-
--- ============================================================
--- Mantidas (corretas): "Admins can read all teachings",
---   "Admins can manage teachings", "Service role full access *".
+-- ESTADO ATUAL APLICADO (leitura permissiva restaurada):
+--   - "Allow authenticated users to read"      → USING (true)
+--   - "Allow public read on teachings bucket"  → USING (bucket_id='teachings')
+--   - "Admins can read all teachings"          → (mantida)
+--   - "Service role full access *"             → (mantidas)
+--   (A policy escopada e a "Users can read permitted teachings" não existem mais.)
 --
--- PENDÊNCIA SEPARADA (escrita) — avaliar e versionar à parte:
---   "Allow authenticated users to upload" (INSERT) e
---   "Allow authenticated users to update" (UPDATE, USING true) deixam qualquer
---   logado escrever/sobrescrever objetos. Escritas legítimas são do service_role.
---   Remover após confirmar que nenhum fluxo do site faz upload como usuário comum:
---     DROP POLICY IF EXISTS "Allow authenticated users to upload" ON storage.objects;
---     DROP POLICY IF EXISTS "Allow authenticated users to update" ON storage.objects;
+-- ------------------------------------------------------------
+-- SQL DO RESTORE (o que efetivamente está aplicado em produção):
+-- ------------------------------------------------------------
+-- BEGIN;
+-- ALTER POLICY "Allow authenticated users to read" ON storage.objects USING (true);
+-- DROP POLICY IF EXISTS "Allow public read on teachings bucket" ON storage.objects;
+-- CREATE POLICY "Allow public read on teachings bucket"
+--   ON storage.objects FOR SELECT TO public USING (bucket_id = 'teachings');
+-- DROP POLICY IF EXISTS "teachings_user_scoped_read" ON storage.objects;
+-- COMMIT;
 --
--- TESTE: usuário sem bloqueio lê normal; com INSERT em user_permissions
---   (volume, files=NULL) → 403 no ensinamento daquele volume; rec-audio intacto.
+-- ------------------------------------------------------------
+-- ABORDAGEM RECOMENDADA PARA QUANDO FOR REATACAR (com teste):
+--   1. Antes de tudo, ter um usuário de TESTE não-admin com um bloqueio real.
+--   2. Tentar a policy escopada com TO public (não TO authenticated) +
+--      `auth.uid() IS NOT NULL` — a policy que funcionava era TO public; a
+--      que quebrou era TO authenticated, então a diferença de papel é a
+--      principal suspeita.
+--   3. Aplicar e IMEDIATAMENTE abrir um ensinamento (Ctrl+Shift+R). Se quebrar,
+--      reverter na hora com o bloco de RESTORE acima.
+--   4. Confirmar que o usuário de teste (bloqueado) recebe 403 e os demais leem.
 -- ============================================================

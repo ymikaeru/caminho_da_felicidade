@@ -239,7 +239,7 @@ async function loadPoetryAnalytics() {
     const topSavedHtml = topSaved.length
       ? `<table><thead><tr><th style="width:6%;">#</th><th>Poema</th><th>Obra</th><th style="text-align:right;">Salvos</th></tr></thead><tbody>${topSaved.map((p, i) => {
         const w = workTitle(p.file);
-        const collShort = p.file === 'yama-to-mizu' ? 'Yama' : p.file === 'warai-no-izumi' ? 'Warai' : p.file === 'Akemaro-kineishu' ? 'Akemaro' : (p.file || '—');
+        const collShort = p.file === 'yama-to-mizu' ? 'Yama' : p.file === 'warai-no-izumi' ? 'Warai' : p.file === 'akimaro-kineishu' ? 'Akemaro' : (p.file || '—');
         const title = p.topic_title || _previewText(p.text, 50) || (p.topic_id || '—');
         return `<tr>
               <td style="color:var(--text-muted);">${i + 1}</td>
@@ -278,7 +278,7 @@ async function loadPoetryAnalytics() {
       ? `<table><thead><tr><th>Usuário</th><th style="text-align:right;">Poemas</th><th>Obras</th><th>Último</th></tr></thead><tbody>${topSavers.map(s => `<tr>
             <td>${_escHtml(nameMap[s.user_id] || 'Desconhecido')}</td>
             <td class="num">${s.count}</td>
-            <td style="font-size:.78rem;">${[...s.files].map(f => f === 'yama-to-mizu' ? 'Yama' : f === 'warai-no-izumi' ? 'Warai' : f === 'Akemaro-kineishu' ? 'Akemaro' : f).join(', ')}</td>
+            <td style="font-size:.78rem;">${[...s.files].map(f => f === 'yama-to-mizu' ? 'Yama' : f === 'warai-no-izumi' ? 'Warai' : f === 'akimaro-kineishu' ? 'Akemaro' : f).join(', ')}</td>
             <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(s.lastAt)}</td>
           </tr>`).join('')
       }</tbody></table>`

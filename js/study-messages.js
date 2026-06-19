@@ -405,7 +405,7 @@
   const _POEM_COLLECTIONS = {
     'yama-to-mizu': 'Yama to Mizu',
     'warai-no-izumi': 'Warai no Izumi',
-    'Akemaro-kineishu': 'Akemaro Kin’eishū',
+    'akimaro-kineishu': 'Akemaro Kin’eishū',
     'gosanka-shoban': 'Gosanka-shū (1ª ed.)',
     'gosanka-kaitei': 'Gosanka-shū (rev.)',
     'gosanka-shikiten': 'Gosanka — Cerimônias',

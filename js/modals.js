@@ -11,7 +11,7 @@ function _escModal(str) {
     .replace(/'/g, '&#39;');
 }
 
-// Guarda contra chamadas duplicadas. Algumas páginas (Akemaro-kineishu,
+// Guarda contra chamadas duplicadas. Algumas páginas (akimaro-kineishu,
 // warai-no-izumi, yama-to-mizu) chamam buildSearchModal duas vezes via
 // DOMContentLoaded inline em <head> + outro inline em <body> — sem essa
 // guarda, ficavam 2 <div id="searchModal"> no DOM, o que em iOS Safari

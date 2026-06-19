@@ -25,12 +25,12 @@ const PAGE_SIZE = 25;
 // number/title/translation/original/reading). storagePath e localPath
 // podem divergir (Storage usa hífen; data files usam underscore).
 const COLLECTIONS = {
-  'Akemaro-kineishu': {
+  'akimaro-kineishu': {
     title: "Akemaro Kin'eishū",
-    storagePath: 'poetry/Akemaro-kineishu.json',
-    localPath: 'data/poetry/Akemaro_kineishu.json',
-    lsKey: 'Akemaro_editor_pending_v1',
-    claudeTab: 'claude-ai-Akemaro',
+    storagePath: 'poetry/akimaro-kineishu.json',
+    localPath: 'data/poetry/akimaro_kineishu.json',
+    lsKey: 'akimaro_editor_pending_v1',
+    claudeTab: 'claude-ai-akimaro',
     promptContext:
       '- Pseudônimo do autor: 東山明麿 (Higashiyama Akemaro) — Meishu-Sama em 1949.\n' +
       '- Coletânea: 486 tanka publicada em 30/11/1949.',
@@ -72,7 +72,7 @@ const COLLECTIONS = {
       '- Coletânea "各式典における御讃歌" (Cantos Sagrados para Cada Cerimônia) — 564 tanka recitados em cerimônias entre 1936 e 1954 (Grande Culto de Primavera, Risshun, Aniversário Sagrado, Outono, Nikkoden de Hakone, etc). Cada seção tem data e fonte original anotadas.',
   },
 };
-const DEFAULT_COLLECTION = 'Akemaro-kineishu';
+const DEFAULT_COLLECTION = 'akimaro-kineishu';
 
 const VERSION_LABELS = {
   WEB: { label: 'Web (Gemini Studio)', color: '#7a9b6e', short: 'WEB' },

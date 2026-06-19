@@ -59,7 +59,7 @@
   const COLLECTIONS = {
     'yama-to-mizu': { page: 'yama-to-mizu.html', name: 'Yama to Mizu' },
     'warai-no-izumi': { page: 'warai-no-izumi.html', name: 'Warai no Izumi' },
-    'Akemaro-kineishu': { page: 'Akemaro-kineishu.html', name: 'Akemaro Kin’eishū' },
+    'akimaro-kineishu': { page: 'akimaro-kineishu.html', name: 'Akemaro Kin’eishū' },
     'gosanka-shoban': { page: 'gosanka-shoban.html', name: 'Gosanka-shū (1ª ed.)' },
     'gosanka-kaitei': { page: 'gosanka-kaitei.html', name: 'Gosanka-shū (rev.)' },
     'gosanka-shikiten': { page: 'gosanka-shikiten.html', name: 'Gosanka — Cerimônias' },

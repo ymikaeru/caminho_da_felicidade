@@ -137,7 +137,7 @@ negrito no corpo normal do chat:
 
 - Fonte autoritativa do original (kanji + hiragana):
   `Akemaro Kin'eishū.md` (transcrição do site eonet) ou
-  `data/poetry/Akemaro_kineishu.json` campos `original` + `reading_hira`.
+  `data/poetry/akimaro_kineishu.json` campos `original` + `reading_hira`.
 - Os 99 primeiros poemas já têm tradução vinda do prompt completo
   (com Kigo/Kototama/Profundidade) — **não retraduzir**.
 - Faltam os poemas 100–486 (387 ao todo) — usar este prompt

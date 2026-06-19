@@ -6,12 +6,12 @@
 // ============================================================
 
 const COLLECTIONS = {
-  'Akemaro-kineishu': {
+  'akimaro-kineishu': {
     titlePt: "Akemaro Kin'eishū",
     titleJa: '明麿近詠集',
     subtitlePt: 'Poemas recentes',
     subtitleJa: '近詠',
-    page: 'Akemaro-kineishu.html',
+    page: 'akimaro-kineishu.html',
   },
   'yama-to-mizu': {
     titlePt: 'Yama to Mizu',

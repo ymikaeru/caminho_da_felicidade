@@ -18,7 +18,7 @@ export const DISCIPLES_BOOK_TITLES = {
 };
 
 export const POETRY_BOOK_TITLES = {
-  'Akemaro-kineishu': "明麿近詠集 — Akemaro Kin'eishū",
+  'akimaro-kineishu': "明麿近詠集 — Akemaro Kin'eishū",
   'yama-to-mizu': '山と水 — Yama to Mizu',
   'warai-no-izumi': '笑の泉 — Warai no Izumi',
   'gosanka-shoban': '御讃歌集（初版） — Gosanka-shū 1ª ed.',

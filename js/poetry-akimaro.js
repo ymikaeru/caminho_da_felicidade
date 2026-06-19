@@ -1,15 +1,15 @@
 /**
- * poetry-Akemaro.js — leitor de "Akemaro Kin'eishū" (明麿近詠集).
+ * poetry-akimaro.js — leitor de "Akemaro Kin'eishū" (明麿近詠集).
  *
- * Carrega data/poetry/Akemaro_kineishu.json. 99 tanka publicados em 1949,
+ * Carrega data/poetry/akimaro_kineishu.json. 99 tanka publicados em 1949,
  * agrupados em 6 seções temáticas (Estações, Caminho/Reflexão, Kannon/Luz,
  * Era do Dia, Tamagawa/Arte, Ise/Hakone). Estrutura JSON espelha yama_to_mizu.
  */
 (function () {
   'use strict';
 
-  const STORAGE_PATH = 'poetry/Akemaro-kineishu.json';
-  const DATA_URL_FALLBACK = 'data/poetry/Akemaro_kineishu.json';
+  const STORAGE_PATH = 'poetry/akimaro-kineishu.json';
+  const DATA_URL_FALLBACK = 'data/poetry/akimaro_kineishu.json';
   // 486 poemas no total — paginamos quando o filtro é "todas as seções"
   // pra não despejar tudo de uma vez. Selecionar uma seção continua
   // renderizando ela inteira (são <50 poemas em todas).
@@ -57,7 +57,7 @@
         _sections = _data.sections || [];
         return;
       } catch (err) {
-        console.warn('[poetry-Akemaro] Storage failed, falling back to local JSON:', err.message);
+        console.warn('[poetry-akimaro] Storage failed, falling back to local JSON:', err.message);
       }
     }
     const res = await fetch(DATA_URL_FALLBACK);
@@ -82,7 +82,7 @@
   }
 
   function _renderSidebar() {
-    const list = $('#AkemaroSectionList');
+    const list = $('#akimaroSectionList');
     if (!list) return;
     const allBtn = `
       <button class="poetry-filter-btn ${_activeSectionIdx === null ? 'is-active' : ''}" data-idx="-1">
@@ -107,7 +107,7 @@
         _activeSectionIdx = idx < 0 ? null : idx;
         _visibleAll = PAGE_SIZE;
         _render();
-        const sb = $('#AkemaroSidebar');
+        const sb = $('#akimaroSidebar');
         if (sb) sb.classList.remove('is-open');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
@@ -116,7 +116,7 @@
     const total = _sections.reduce((acc, s) => acc + s.poems.length, 0);
     const translated = _sections.reduce(
       (acc, s) => acc + s.poems.filter(p => !p.translation_pending).length, 0);
-    const statsEl = $('#AkemaroStats');
+    const statsEl = $('#akimaroStats');
     if (statsEl) {
       statsEl.innerHTML = `
         <strong>${total.toLocaleString('pt-BR')}</strong>
@@ -252,7 +252,7 @@
     const pendingTag = pending
       ? `<span class="poetry-card__tag poetry-card__tag--pending" title="Aguardando tradução"><span class="lang-pt">tradução pendente</span><span class="lang-ja" style="display:none">未訳</span></span>`
       : '';
-    const topicId = `Akemaro_n${p.number}`;
+    const topicId = `akimaro_n${p.number}`;
     const hlBtn = (window._poetryHighlights && !pending) ? window._poetryHighlights.renderCardButton() : '';
     // Botão "Reportar erro de tradução" — só em poemas já traduzidos.
     // A tradução + o botão vão embrulhados num .poetry-card__transcol (mesma
@@ -344,7 +344,7 @@
       const remaining = totalMatched - count;
       html += `
         <div class="poetry-loadmore">
-          <button class="btn-poetry-loadmore" id="AkemaroLoadMore" type="button">
+          <button class="btn-poetry-loadmore" id="akimaroLoadMore" type="button">
             <span class="lang-pt">Mostrar mais (${remaining})</span>
             <span class="lang-ja" style="display:none">もっと見る（${remaining}）</span>
           </button>
@@ -358,7 +358,7 @@
   // No mobile, sticky logo abaixo do header (a sidebar é bottom-sheet e some
   // ao fechar, então o usuário precisa de um indicador persistente). × limpa.
   function _renderActiveFilterChips() {
-    const container = $('#AkemaroActiveFilters');
+    const container = $('#akimaroActiveFilters');
     if (!container) return;
     if (_activeSectionIdx === null) {
       container.classList.remove('is-active');
@@ -399,7 +399,7 @@
   }
 
   function _render() {
-    const main = $('#AkemaroList');
+    const main = $('#akimaroList');
     if (!main) return;
     _renderSidebar();
     _renderActiveFilterChips();
@@ -425,7 +425,7 @@
 
     main.innerHTML = html;
 
-    const loadMore = $('#AkemaroLoadMore');
+    const loadMore = $('#akimaroLoadMore');
     if (loadMore) {
       loadMore.addEventListener('click', () => {
         _visibleAll += PAGE_SIZE;
@@ -437,7 +437,7 @@
     if (typeof setLanguage === 'function') setLanguage(lang, false);
 
     if (window._poetryHighlights) {
-      window._poetryHighlights.applyToCards('Akemaro-kineishu', '#AkemaroList .poetry-card');
+      window._poetryHighlights.applyToCards('akimaro-kineishu', '#akimaroList .poetry-card');
     }
   }
 
@@ -456,7 +456,7 @@
     _showPreface = false;
     _render();
     setTimeout(() => {
-      const cards = document.querySelectorAll('#AkemaroList .poetry-card');
+      const cards = document.querySelectorAll('#akimaroList .poetry-card');
       const target = cards[pick.poemIdx];
       if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -468,12 +468,12 @@
   }
 
   function _toggleSidebar() {
-    const sb = $('#AkemaroSidebar');
+    const sb = $('#akimaroSidebar');
     if (sb) sb.classList.toggle('is-open');
   }
 
   function _findPoemLocation(topicId) {
-    const m = String(topicId || '').match(/^Akemaro_n(\d+)$/);
+    const m = String(topicId || '').match(/^akimaro_n(\d+)$/);
     if (!m) return null;
     const number = parseInt(m[1], 10);
     for (let i = 0; i < _sections.length; i++) {
@@ -486,7 +486,7 @@
   }
 
   function _scrollToPoemCard(topicId, flash) {
-    const card = document.querySelector(`#AkemaroList .poetry-card[data-poem-topic-id="${topicId}"]`);
+    const card = document.querySelector(`#akimaroList .poetry-card[data-poem-topic-id="${topicId}"]`);
     if (!card) return false;
     card.scrollIntoView({ behavior: 'smooth', block: 'center' });
     if (flash) {
@@ -497,11 +497,11 @@
     return true;
   }
 
-  // Reportar erro de tradução: delega no #AkemaroList (persiste entre
+  // Reportar erro de tradução: delega no #akimaroList (persiste entre
   // _render()s; só o innerHTML troca). Monta o trecho com nº + original JP +
   // tradução PT pra o admin comparar, e abre o modal de translation-report.js.
   function _wireReportButtons() {
-    const list = $('#AkemaroList');
+    const list = $('#akimaroList');
     if (!list) return;
     list.addEventListener('click', (e) => {
       const btn = e.target.closest('.poetry-card__report');
@@ -521,27 +521,27 @@
       window.openTranslationReport(parts.join('\n'), {
         topicId,
         vol: 'poetry',
-        file: 'Akemaro-kineishu'
+        file: 'akimaro-kineishu'
       });
       try { btn.blur(); } catch (_) { }
     });
   }
 
   function _wire() {
-    const search = $('#AkemaroSearch');
+    const search = $('#akimaroSearch');
     if (search) search.addEventListener('input', e => _onSearch(e.target.value));
-    const rand = $('#AkemaroRandom');
+    const rand = $('#akimaroRandom');
     if (rand) rand.addEventListener('click', _randomPoem);
-    const toggle = $('#AkemaroSidebarToggle');
+    const toggle = $('#akimaroSidebarToggle');
     if (toggle) toggle.addEventListener('click', _toggleSidebar);
     _wireReportButtons();
 
     if (window._poetryHighlights) {
-      const list = $('#AkemaroList');
+      const list = $('#akimaroList');
       if (list) {
         window._poetryHighlights.wireCardButtons({
           container: list,
-          file: 'Akemaro-kineishu',
+          file: 'akimaro-kineishu',
           getMeta: (topicId, cardEl) => {
             const loc = _findPoemLocation(topicId);
             if (!loc) return null;
@@ -554,7 +554,7 @@
             };
           },
           onChange: () => {
-            window._poetryHighlights.applyToCards('Akemaro-kineishu', '#AkemaroList .poetry-card');
+            window._poetryHighlights.applyToCards('akimaro-kineishu', '#akimaroList .poetry-card');
           }
         });
       }
@@ -577,16 +577,16 @@
       _render();
       if (poemParam) {
         setTimeout(() => {
-          window._poetryHighlights?.applyToCards('Akemaro-kineishu', '#AkemaroList .poetry-card');
+          window._poetryHighlights?.applyToCards('akimaro-kineishu', '#akimaroList .poetry-card');
           _scrollToPoemCard(poemParam, params.get('hl_scroll') === '1');
         }, 200);
       }
       setTimeout(() => {
-        window._poetryHighlights?.applyToCards('Akemaro-kineishu', '#AkemaroList .poetry-card');
+        window._poetryHighlights?.applyToCards('akimaro-kineishu', '#akimaroList .poetry-card');
       }, 1200);
     } catch (err) {
-      console.error('[poetry-Akemaro]', err);
-      const main = $('#AkemaroList');
+      console.error('[poetry-akimaro]', err);
+      const main = $('#akimaroList');
       if (main) main.innerHTML = `<div class="poetry-empty">Falha ao carregar a coletânea. <br>${_esc(err.message)}</div>`;
     }
   }

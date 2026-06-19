@@ -5,7 +5,7 @@
  *   shikiten  = 各式典における御讃歌  — 564 poemas (1936-1954)
  *
  * Espera `window.POETRY_KEY` definido na HTML shell antes deste script.
- * Mesma lógica e CSS do poetry-Akemaro.js, parametrizado por coleção.
+ * Mesma lógica e CSS do poetry-akimaro.js, parametrizado por coleção.
  */
 (function () {
   'use strict';

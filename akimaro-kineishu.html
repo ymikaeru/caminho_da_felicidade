@@ -16,7 +16,7 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <script src="js/toggle.js?v=41" defer></script>
-    <script src="js/nav.js?v=53" defer></script>
+    <script src="js/nav.js?v=54" defer></script>
     <script src="js/theme.js?v=1" defer></script>
     <script src="js/language.js?v=8" defer></script>
     <script src="js/typography.js?v=1" defer></script>
@@ -64,7 +64,7 @@
 
     <main class="main" id="main-content" style="padding:0;">
         <div class="poetry-page">
-            <aside class="poetry-sidebar" id="AkemaroSidebar" aria-label="Navegação por seção">
+            <aside class="poetry-sidebar" id="akimaroSidebar" aria-label="Navegação por seção">
                 <a href="poesia.html" class="poetry-sidebar__back">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <polyline points="15 18 9 12 15 6" />
@@ -84,7 +84,7 @@
                 </div>
 
                 <div class="poetry-sidebar__action">
-                    <button class="btn-poetry-random" id="AkemaroRandom" type="button">
+                    <button class="btn-poetry-random" id="akimaroRandom" type="button">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <polyline points="16 3 21 3 21 8" />
                             <line x1="4" y1="20" x2="21" y2="3" />
@@ -106,7 +106,7 @@
                             <circle cx="11" cy="11" r="8" />
                             <line x1="21" y1="21" x2="16.65" y2="16.65" />
                         </svg>
-                        <input type="search" id="AkemaroSearch" placeholder="Buscar poema..."
+                        <input type="search" id="akimaroSearch" placeholder="Buscar poema..."
                             aria-label="Buscar poemas">
                     </div>
                 </div>
@@ -115,14 +115,14 @@
                     <div class="poetry-sidebar__label">
                         <span class="lang-pt">Seções</span><span class="lang-ja" style="display:none">題 目</span>
                     </div>
-                    <div class="poetry-filter-list" id="AkemaroSectionList"></div>
+                    <div class="poetry-filter-list" id="akimaroSectionList"></div>
                 </div>
 
-                <div class="poetry-sidebar__stats" id="AkemaroStats">—</div>
+                <div class="poetry-sidebar__stats" id="akimaroStats">—</div>
             </aside>
 
             <section class="poetry-main">
-                <button class="poetry-sidebar-toggle" id="AkemaroSidebarToggle" type="button">
+                <button class="poetry-sidebar-toggle" id="akimaroSidebarToggle" type="button">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <line x1="3" y1="6" x2="21" y2="6" />
                         <line x1="3" y1="12" x2="21" y2="12" />
@@ -132,9 +132,9 @@
                     <span class="lang-ja" style="display:none">題 目</span>
                 </button>
 
-                <div class="poetry-active-filters" id="AkemaroActiveFilters" aria-live="polite"></div>
+                <div class="poetry-active-filters" id="akimaroActiveFilters" aria-live="polite"></div>
 
-                <div id="AkemaroList">
+                <div id="akimaroList">
                     <div class="poetry-loading">
                         <div class="poetry-loading__spinner"></div>
                         <span class="lang-pt">Carregando…</span>
@@ -170,16 +170,16 @@
         initSyncQueue().catch(err => console.warn('[sync-queue] init failed:', err));
     </script>
     <script src="js/access.js?v=6"></script>
-    <script src="js/modals.js?v=15"></script>
+    <script src="js/modals.js?v=16"></script>
     <script src="js/playlists-loader.js?v=3" defer></script>
     <script src="js/recommendations.js?v=57" defer></script>
-    <script src="js/study-messages.js?v=2" defer></script>
+    <script src="js/study-messages.js?v=3" defer></script>
     <script>document.addEventListener("DOMContentLoaded", () => { if (typeof buildRecommendationsModal === "function") buildRecommendationsModal(); if (typeof initRecommendations === "function") initRecommendations(); if (typeof initStudyMessages === "function") initStudyMessages(); });</script>
     <script src="js/poetry-fontsize.js?v=3" defer></script>
     <script src="js/poetry-highlights.js?v=4" defer></script>
-    <script src="js/poetry-recommend.js?v=5" defer></script>
+    <script src="js/poetry-recommend.js?v=6" defer></script>
     <script src="js/translation-report.js?v=3" defer></script>
-    <script src="js/poetry-Akemaro.js?v=15" defer></script>
+    <script src="js/poetry-akimaro.js?v=16" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             buildSearchModal(); buildHistoryModal(); buildFavoritesModal();
@@ -188,7 +188,7 @@
 
         // Analytics: aguarda sessão Supabase real antes de chamar logAccess
         (function () {
-            const POEM_VOL = 'poetry', POEM_FILE = 'Akemaro-kineishu';
+            const POEM_VOL = 'poetry', POEM_FILE = 'akimaro-kineishu';
             let _tries = 0;
             const _tryLog = async () => {
                 _tries++;

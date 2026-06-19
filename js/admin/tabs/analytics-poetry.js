@@ -154,7 +154,7 @@ async function loadPoetryAnalytics() {
       const m = Math.round((secs - h * 3600) / 60);
       return m ? `${h}h ${m}min` : `${h}h`;
     };
-    const fmtDate = iso => iso ? new Date(iso).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—';
+    const fmtDate = iso => iso ? new Date(iso).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
     const card = (v, label, sub) => `<div class="dc-card">
       <div class="v">${typeof v === 'number' ? v.toLocaleString('pt-BR') : (v ?? '—')}</div>
       <div class="s">${label}</div>
@@ -183,24 +183,22 @@ async function loadPoetryAnalytics() {
       if (!readers.length) {
         return `<div class="dc-tbl"><h3>Top leitores · ${_escHtml(title)}</h3><div class="loading">Sem tempo registrado ainda.</div></div>`;
       }
-      return `<div class="dc-tbl"><h3>Top leitores · ${_escHtml(title)}</h3><table><thead><tr><th>Usuário</th><th style="text-align:right;">Tempo</th><th>Última leitura</th></tr></thead><tbody>${
-        readers.map(r => `<tr>
+      return `<div class="dc-tbl"><h3>Top leitores · ${_escHtml(title)}</h3><table><thead><tr><th>Usuário</th><th style="text-align:right;">Tempo</th><th>Última leitura</th></tr></thead><tbody>${readers.map(r => `<tr>
           <td>${_escHtml(nameMap[r.user_id] || 'Desconhecido')}</td>
           <td class="num">${fmtSecs(r.seconds)}</td>
           <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(r.lastAt)}</td>
         </tr>`).join('')
-      }</tbody></table></div>`;
+        }</tbody></table></div>`;
     }).join('');
 
     const recentRows = logs.filter(l => l.action === 'view').slice(0, 25);
     const recentHtml = recentRows.length
-      ? `<table><thead><tr><th>Usuário</th><th>Obra</th><th>Quando</th></tr></thead><tbody>${
-          recentRows.map(l => `<tr>
+      ? `<table><thead><tr><th>Usuário</th><th>Obra</th><th>Quando</th></tr></thead><tbody>${recentRows.map(l => `<tr>
             <td>${_escHtml(nameMap[l.user_id] || 'Desconhecido')}</td>
             <td>${_escHtml(workTitle(l.file))}</td>
             <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(l.created_at)}</td>
           </tr>`).join('')
-        }</tbody></table>`
+      }</tbody></table>`
       : '<div class="loading">Sem aberturas no período.</div>';
 
     // ── Poemas Salvos: ranking + stats ─────────────────────────
@@ -239,19 +237,18 @@ async function loadPoetryAnalytics() {
     };
 
     const topSavedHtml = topSaved.length
-      ? `<table><thead><tr><th style="width:6%;">#</th><th>Poema</th><th>Obra</th><th style="text-align:right;">Salvos</th></tr></thead><tbody>${
-          topSaved.map((p, i) => {
-            const w = workTitle(p.file);
-            const collShort = p.file === 'yama-to-mizu' ? 'Yama' : p.file === 'warai-no-izumi' ? 'Warai' : p.file === 'akimaro-kineishu' ? 'Akimaro' : (p.file || '—');
-            const title = p.topic_title || _previewText(p.text, 50) || (p.topic_id || '—');
-            return `<tr>
+      ? `<table><thead><tr><th style="width:6%;">#</th><th>Poema</th><th>Obra</th><th style="text-align:right;">Salvos</th></tr></thead><tbody>${topSaved.map((p, i) => {
+        const w = workTitle(p.file);
+        const collShort = p.file === 'yama-to-mizu' ? 'Yama' : p.file === 'warai-no-izumi' ? 'Warai' : p.file === 'Akemaro-kineishu' ? 'Akemaro' : (p.file || '—');
+        const title = p.topic_title || _previewText(p.text, 50) || (p.topic_id || '—');
+        return `<tr>
               <td style="color:var(--text-muted);">${i + 1}</td>
               <td style="font-size:.82rem;" title="${_escHtml(_previewText(p.text, 120))}">${_escHtml(title)}</td>
               <td style="font-size:.78rem; color:var(--text-muted);" title="${_escHtml(w)}">${_escHtml(collShort)}</td>
               <td class="num">${p.users.size}</td>
             </tr>`;
-          }).join('')
-        }</tbody></table>`
+      }).join('')
+      }</tbody></table>`
       : '<div class="loading">Nenhum poema salvo ainda.</div>';
 
     // Top usuários que mais salvaram
@@ -274,18 +271,17 @@ async function loadPoetryAnalytics() {
         const { data: extra } = await supabase
           .from('user_profiles').select('id, display_name').in('id', missingNames);
         (extra || []).forEach(p => { nameMap[p.id] = p.display_name || 'Sem nome'; });
-      } catch (_) {}
+      } catch (_) { }
     }
 
     const topSaversHtml = topSavers.length
-      ? `<table><thead><tr><th>Usuário</th><th style="text-align:right;">Poemas</th><th>Obras</th><th>Último</th></tr></thead><tbody>${
-          topSavers.map(s => `<tr>
+      ? `<table><thead><tr><th>Usuário</th><th style="text-align:right;">Poemas</th><th>Obras</th><th>Último</th></tr></thead><tbody>${topSavers.map(s => `<tr>
             <td>${_escHtml(nameMap[s.user_id] || 'Desconhecido')}</td>
             <td class="num">${s.count}</td>
-            <td style="font-size:.78rem;">${[...s.files].map(f => f === 'yama-to-mizu' ? 'Yama' : f === 'warai-no-izumi' ? 'Warai' : f === 'akimaro-kineishu' ? 'Akimaro' : f).join(', ')}</td>
+            <td style="font-size:.78rem;">${[...s.files].map(f => f === 'yama-to-mizu' ? 'Yama' : f === 'warai-no-izumi' ? 'Warai' : f === 'Akemaro-kineishu' ? 'Akemaro' : f).join(', ')}</td>
             <td style="font-size:.78rem; color:var(--text-muted);">${fmtDate(s.lastAt)}</td>
           </tr>`).join('')
-        }</tbody></table>`
+      }</tbody></table>`
       : '<div class="loading">Ninguém salvou poemas ainda.</div>';
 
     dash.innerHTML = `

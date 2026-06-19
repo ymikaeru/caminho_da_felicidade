@@ -6,12 +6,12 @@
 // ============================================================
 
 const COLLECTIONS = {
-  'akimaro-kineishu': {
-    titlePt: "Akimaro Kin'eishū",
+  'Akemaro-kineishu': {
+    titlePt: "Akemaro Kin'eishū",
     titleJa: '明麿近詠集',
     subtitlePt: 'Poemas recentes',
     subtitleJa: '近詠',
-    page: 'akimaro-kineishu.html',
+    page: 'Akemaro-kineishu.html',
   },
   'yama-to-mizu': {
     titlePt: 'Yama to Mizu',
@@ -46,7 +46,7 @@ function _loadPoetryHighlights() {
   if (typeof window._HighlightsApi !== 'undefined') {
     raw = window._HighlightsApi.getAll();
   } else {
-    try { raw = JSON.parse(localStorage.getItem('userHighlights') || '[]'); } catch (e) {}
+    try { raw = JSON.parse(localStorage.getItem('userHighlights') || '[]'); } catch (e) { }
   }
   return raw.filter(h => h.vol === 'poetry');
 }
@@ -143,7 +143,7 @@ function renderPoemasSalvos() {
         // Atualiza localStorage diretamente (não usamos a API de destaques
         // pra evitar acoplamento com a UI de ensinamento).
         let all = [];
-        try { all = JSON.parse(localStorage.getItem('userHighlights') || '[]'); } catch (e) {}
+        try { all = JSON.parse(localStorage.getItem('userHighlights') || '[]'); } catch (e) { }
         const filtered = all.filter(x => x.id !== id);
         localStorage.setItem('userHighlights', JSON.stringify(filtered));
         // Tombstone (mesmo padrão de poetry-highlights.js _addTombstone)
@@ -152,7 +152,7 @@ function renderPoemasSalvos() {
           t.push(`${h.vol}:${h.file}:${h.topicId}:${h.startChar || 0}:${h.endChar || 0}`);
           if (t.length > 2000) t.splice(0, t.length - 2000);
           localStorage.setItem('highlightDeletedKeys', JSON.stringify(t));
-        } catch (e) {}
+        } catch (e) { }
         renderPoemasSalvos();
       } catch (err) {
         console.warn('[poemas-salvos] remove failed:', err);

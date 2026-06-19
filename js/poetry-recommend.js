@@ -16,7 +16,7 @@
 // a meta do tópico pela meta do poema e a RPC pela versão de poesia.
 //
 // Depende de: access.js (isAdminUser) + login.js (window.supabaseAuth).
-// Carregado nas 6 páginas de coletânea (yama/warai/akimaro/3× gosanka).
+// Carregado nas 6 páginas de coletânea (yama/warai/Akemaro/3× gosanka).
 // ============================================================
 
 // ── Mobile (≤768px): reancora o botão "Seções" (#poetrySidebarToggle) no
@@ -31,7 +31,7 @@
   document.documentElement.classList.add('is-poetry-collection');
   // Reancora o botao "Secoes" (.poetry-sidebar-toggle) no header, no lugar
   // do titulo. As 3 gosanka renderizam o botao via JS (#poetrySidebarToggle)
-  // e refazem a cada interacao; akimaro/warai/yama tem o botao estatico com
+  // e refazem a cada interacao; Akemaro/warai/yama tem o botao estatico com
   // ids proprios — por isso miramos a CLASSE (.poetry-sidebar-toggle) e
   // observamos o body inteiro, reancorando sempre que (re)aparecer.
   const relocate = () => {
@@ -57,11 +57,11 @@
   // slug da coletânea → { page, name }. O slug é o basename do arquivo
   // (= file slug usado em user_highlights e no analytics de cada página).
   const COLLECTIONS = {
-    'yama-to-mizu':     { page: 'yama-to-mizu.html',     name: 'Yama to Mizu' },
-    'warai-no-izumi':   { page: 'warai-no-izumi.html',   name: 'Warai no Izumi' },
-    'akimaro-kineishu': { page: 'akimaro-kineishu.html', name: 'Akimaro Kin’eishū' },
-    'gosanka-shoban':   { page: 'gosanka-shoban.html',   name: 'Gosanka-shū (1ª ed.)' },
-    'gosanka-kaitei':   { page: 'gosanka-kaitei.html',   name: 'Gosanka-shū (rev.)' },
+    'yama-to-mizu': { page: 'yama-to-mizu.html', name: 'Yama to Mizu' },
+    'warai-no-izumi': { page: 'warai-no-izumi.html', name: 'Warai no Izumi' },
+    'Akemaro-kineishu': { page: 'Akemaro-kineishu.html', name: 'Akemaro Kin’eishū' },
+    'gosanka-shoban': { page: 'gosanka-shoban.html', name: 'Gosanka-shū (1ª ed.)' },
+    'gosanka-kaitei': { page: 'gosanka-kaitei.html', name: 'Gosanka-shū (rev.)' },
     'gosanka-shikiten': { page: 'gosanka-shikiten.html', name: 'Gosanka — Cerimônias' },
   };
 
@@ -76,9 +76,9 @@
   }
   function _supa() {
     return (window.supabaseAuth && window.supabaseAuth.supabase)
-        || window._supabaseClient
-        || window.supabase
-        || null;
+      || window._supabaseClient
+      || window.supabase
+      || null;
   }
   function _isAdmin() {
     try { return typeof isAdminUser === 'function' && isAdminUser(); }
@@ -95,9 +95,9 @@
     `font-family:var(--font-ui,inherit);font-size:0.72rem;font-weight:600;line-height:1;` +
     `color:var(--accent);background:transparent;border:1px solid var(--accent);` +
     `border-radius:var(--radius-pill,99px);cursor:pointer;">` +
-      `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">` +
-        `<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>` +
-      `</svg><span>Recomendar</span>` +
+    `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">` +
+    `<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>` +
+    `</svg><span>Recomendar</span>` +
     `</button>`;
 
   function _scan() {

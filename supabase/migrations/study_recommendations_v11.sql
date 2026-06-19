@@ -2,7 +2,7 @@
 -- Mioshie Zenshu — Recomendações v11: recomendar POEMA
 -- ============================================================
 -- Permite recomendar um poema das coletâneas (Yama to Mizu, Warai
--- no Izumi, Akimaro Kin'eishū, 3× Gosanka-shū). Reaproveita
+-- no Izumi, Akemaro Kin'eishū, 3× Gosanka-shū). Reaproveita
 -- study_recommendations com a MESMA convenção dos poemas salvos:
 --   - vol  = 'poetry'
 --   - file = slug da coletânea ('yama-to-mizu', 'gosanka-kaitei', …)

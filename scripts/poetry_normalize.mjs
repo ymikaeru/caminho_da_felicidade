@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // ============================================================
 // poetry_normalize.mjs — normaliza gosanka_<key>.json para o
-// formato que js/poetry-akimaro.js espera (mesmo shape do
-// akimaro_kineishu.json).
+// formato que js/poetry-Akemaro.js espera (mesmo shape do
+// Akemaro_kineishu.json).
 //
 // Operações:
 //   1. edition.total_declared → total_in_original, + translated_here

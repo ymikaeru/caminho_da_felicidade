@@ -1,4 +1,4 @@
-# Prompt — tradução Akimaro Kin'eishū (明麿近詠集)
+# Prompt — tradução Akemaro Kin'eishū (明麿近詠集)
 
 Replica fielmente o prompt original do Yama to Mizu, incluindo a
 análise tríade (🍃 Kigo / 🎵 Kototama / 🏔️ Profundidade). O site
@@ -136,8 +136,8 @@ negrito no corpo normal do chat:
 ## Notas operacionais para o site Caminho da Felicidade
 
 - Fonte autoritativa do original (kanji + hiragana):
-  `Akimaro Kin'eishū.md` (transcrição do site eonet) ou
-  `data/poetry/akimaro_kineishu.json` campos `original` + `reading_hira`.
+  `Akemaro Kin'eishū.md` (transcrição do site eonet) ou
+  `data/poetry/Akemaro_kineishu.json` campos `original` + `reading_hira`.
 - Os 99 primeiros poemas já têm tradução vinda do prompt completo
   (com Kigo/Kototama/Profundidade) — **não retraduzir**.
 - Faltam os poemas 100–486 (387 ao todo) — usar este prompt
@@ -148,5 +148,5 @@ negrito no corpo normal do chat:
 
 ### Pseudônimo do autor
 
-東山明麿 (Higashiyama Akimaro) — pseudônimo poético de Meishu-Sama,
+東山明麿 (Higashiyama Akemaro) — pseudônimo poético de Meishu-Sama,
 usado nesta coletânea publicada em 30 de novembro de 1949.

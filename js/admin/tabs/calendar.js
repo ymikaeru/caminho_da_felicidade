@@ -36,7 +36,7 @@ const _TAB_MARKUP = `
                     <div class="form-group">
                       <label for="poema-titulo" style="display:block; font-size:.8rem; color:var(--text-muted); margin-bottom:4px;">Título da coleção — entre aspas + kanji entre parênteses (vazio = padrão "Yama to Mizu")</label>
                       <input type="text" id="poema-titulo" oninput="renderPoemaPreview()"
-                        placeholder="&quot;Akimaro Kin'eishū&quot; (明麿近詠集)"
+                        placeholder="&quot;Akemaro Kin'eishū&quot; (明麿近詠集)"
                         style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:0.9rem; background:var(--surface, #fff); color:var(--text);">
                     </div>
                     <div class="form-group">
@@ -259,10 +259,10 @@ async function _insertEvento(date, title, description) {
 }
 
 async function addCalendarEvent() {
-  const date    = document.getElementById('cal-date').value;
-  const title   = document.getElementById('cal-title').value.trim();
+  const date = document.getElementById('cal-date').value;
+  const title = document.getElementById('cal-title').value.trim();
   const horario = document.getElementById('cal-horario').value.trim();
-  const obs     = document.getElementById('cal-desc').value.trim();
+  const obs = document.getElementById('cal-desc').value.trim();
   const description = [horario, obs].filter(Boolean).join(' — ') || null;
   const msg = document.getElementById('cal-msg');
   if (!date || !title) {
@@ -298,9 +298,9 @@ async function deleteCalendarEvent(id) {
 
 // Opções de horário iguais às do formulário "Novo Evento"
 const HORARIOS = {
-  'Manhã': ['7h00','7h30','8h00','8h30','9h00','9h30','10h00','10h30','11h00','11h30'],
-  'Tarde': ['13h00','13h30','14h00','14h30','15h00','15h30','16h00','17h00'],
-  'Noite': ['18h00','18h30','19h00','19h30','20h00','20h30']
+  'Manhã': ['7h00', '7h30', '8h00', '8h30', '9h00', '9h30', '10h00', '10h30', '11h00', '11h30'],
+  'Tarde': ['13h00', '13h30', '14h00', '14h30', '15h00', '15h30', '16h00', '17h00'],
+  'Noite': ['18h00', '18h30', '19h00', '19h30', '20h00', '20h30']
 };
 
 // Helpers de data — sempre em horário LOCAL (sem toISOString, que desloca em UTC-3)
@@ -313,8 +313,8 @@ function _firstWeekday(y, m, target) {
 function _nthWeekday(y, m, target, n) { return _addDays(_firstWeekday(y, m, target), (n - 1) * 7); }
 
 // Datas em pt-BR sem depender do idioma do navegador (controles nativos seguem o locale do browser)
-const _MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const _WD_FULL = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+const _MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+const _WD_FULL = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
 
 // Formata "YYYY-MM-DD" -> "dd/mm/aaaa" (parse manual, sem Date, p/ não deslocar em UTC-3)
 function _fmtBR(iso) {
@@ -361,22 +361,26 @@ function _gerarSugestoes(year, month0) {
   const cultoMensal = new Date(year, month0, 1).getDay() === 6
     ? new Date(year, month0, 1)
     : _firstWeekday(year, month0, 0);
-  const prep1       = _addDays(cultoMensal, -2);               // 2 dias antes
-  const prep2       = _addDays(cultoMensal, -1);               // 1 dia antes
-  const acaoGracas  = _addDays(cultoMensal, 7);                // fim de semana seguinte
-  const ancestrais  = _nthWeekday(year, month0, 0, 3);         // 3º domingo
-  const museu       = _addDays(ancestrais, -1);                // sábado que antecede os Ancestrais (3º fim de semana)
-  const dia18Sab    = new Date(year, month0, 18).getDay() === 6;
+  const prep1 = _addDays(cultoMensal, -2);               // 2 dias antes
+  const prep2 = _addDays(cultoMensal, -1);               // 1 dia antes
+  const acaoGracas = _addDays(cultoMensal, 7);                // fim de semana seguinte
+  const ancestrais = _nthWeekday(year, month0, 0, 3);         // 3º domingo
+  const museu = _addDays(ancestrais, -1);                // sábado que antecede os Ancestrais (3º fim de semana)
+  const dia18Sab = new Date(year, month0, 18).getDay() === 6;
 
   const sugestoes = [
     { date: _fmt(prep1), horario: '9h00', title: 'Preparativos', obs: '' },
     { date: _fmt(prep2), horario: '9h00', title: 'Preparativos', obs: '' },
-    { date: _fmt(cultoMensal), horario: '10h00', title: 'Culto Mensal', obs: 'Sede Central',
-      aviso: 'Confira se há feriado entre o dia 1 e este fim de semana — nesse caso a data costuma mudar.' },
+    {
+      date: _fmt(cultoMensal), horario: '10h00', title: 'Culto Mensal', obs: 'Sede Central',
+      aviso: 'Confira se há feriado entre o dia 1 e este fim de semana — nesse caso a data costuma mudar.'
+    },
     { date: _fmt(acaoGracas), horario: '11h00', title: 'Culto em Ação de Graças', obs: 'Protótipo do Paraíso' },
     { date: _fmt(museu), horario: '10h00', title: 'Museu', obs: '' },
-    { date: _fmt(ancestrais), horario: '16h00', title: 'Culto pelos Ancestrais', obs: '',
-      aviso: dia18Sab ? 'O dia 18 cai no sábado — confira se o Culto pelos Ancestrais não deve ser no fim de semana anterior.' : null }
+    {
+      date: _fmt(ancestrais), horario: '16h00', title: 'Culto pelos Ancestrais', obs: '',
+      aviso: dia18Sab ? 'O dia 18 cai no sábado — confira se o Culto pelos Ancestrais não deve ser no fim de semana anterior.' : null
+    }
   ];
   return sugestoes.sort((a, b) => a.date.localeCompare(b.date));
 }
@@ -451,10 +455,10 @@ async function gerarSugestoesCalendario() {
 function _lerCartao(i) {
   const dateEl = document.getElementById(`sug-date-${i}`);
   if (!dateEl) return null;
-  const date    = _parseBR(dateEl.value); // '' se a data estiver inválida
+  const date = _parseBR(dateEl.value); // '' se a data estiver inválida
   const horario = document.getElementById(`sug-hora-${i}`).value.trim();
-  const title   = document.getElementById(`sug-title-${i}`).value.trim();
-  const obs     = document.getElementById(`sug-obs-${i}`).value.trim();
+  const title = document.getElementById(`sug-title-${i}`).value.trim();
+  const obs = document.getElementById(`sug-obs-${i}`).value.trim();
   const description = [horario, obs].filter(Boolean).join(' — ') || null;
   return { date, title, description };
 }
@@ -540,11 +544,11 @@ function _cabecalhoPoemaPreview(autor, titulo) {
 function renderPoemaPreview() {
   const box = document.getElementById('poema-preview');
   if (!box) return;
-  const ativo       = document.getElementById('poema-ativo')?.checked;
-  const autor       = (document.getElementById('poema-autor')?.value || '').trim();
-  const titulo      = (document.getElementById('poema-titulo')?.value || '').trim();
-  const original    = (document.getElementById('poema-original')?.value || '').trim();
-  const romaji      = (document.getElementById('poema-romaji')?.value || '').trim();
+  const ativo = document.getElementById('poema-ativo')?.checked;
+  const autor = (document.getElementById('poema-autor')?.value || '').trim();
+  const titulo = (document.getElementById('poema-titulo')?.value || '').trim();
+  const original = (document.getElementById('poema-original')?.value || '').trim();
+  const romaji = (document.getElementById('poema-romaji')?.value || '').trim();
   const translation = (document.getElementById('poema-translation')?.value || '').trim();
   if (!ativo) {
     box.innerHTML = '<div style="color:var(--text-muted); font-size:.85rem;">Desativado — a landing mostra a rotação automática por mês.</div>';
@@ -574,18 +578,18 @@ async function loadPoemaConfig() {
       .eq('id', 1)
       .maybeSingle();
     if (!error && data) {
-      const a  = document.getElementById('poema-ativo');
+      const a = document.getElementById('poema-ativo');
       const au = document.getElementById('poema-autor');
       const ti = document.getElementById('poema-titulo');
-      const o  = document.getElementById('poema-original');
-      const r  = document.getElementById('poema-romaji');
-      const t  = document.getElementById('poema-translation');
-      if (a)  a.checked = !!data.poema_ativo;
+      const o = document.getElementById('poema-original');
+      const r = document.getElementById('poema-romaji');
+      const t = document.getElementById('poema-translation');
+      if (a) a.checked = !!data.poema_ativo;
       if (au) au.value = data.poema_autor || '';
       if (ti) ti.value = data.poema_titulo || '';
-      if (o)  o.value = data.poema_original || '';
-      if (r)  r.value = data.poema_romaji || '';
-      if (t)  t.value = data.poema_translation || '';
+      if (o) o.value = data.poema_original || '';
+      if (r) r.value = data.poema_romaji || '';
+      if (t) t.value = data.poema_translation || '';
     }
   } catch (e) { /* mantém o que estiver no form */ }
   renderPoemaPreview();
@@ -596,13 +600,13 @@ async function savePoemaConfig() {
   const btn = document.getElementById('poema-save-btn');
   const payload = {
     id: 1,
-    poema_ativo:       document.getElementById('poema-ativo').checked,
-    poema_autor:       document.getElementById('poema-autor').value.trim() || null,
-    poema_titulo:      document.getElementById('poema-titulo').value.trim() || null,
-    poema_original:    document.getElementById('poema-original').value.trim() || null,
-    poema_romaji:      document.getElementById('poema-romaji').value.trim() || null,
+    poema_ativo: document.getElementById('poema-ativo').checked,
+    poema_autor: document.getElementById('poema-autor').value.trim() || null,
+    poema_titulo: document.getElementById('poema-titulo').value.trim() || null,
+    poema_original: document.getElementById('poema-original').value.trim() || null,
+    poema_romaji: document.getElementById('poema-romaji').value.trim() || null,
     poema_translation: document.getElementById('poema-translation').value.trim() || null,
-    updated_at:        new Date().toISOString()
+    updated_at: new Date().toISOString()
   };
   if (btn) btn.disabled = true;
   if (msg) { msg.className = 'msg'; msg.textContent = 'Salvando…'; }

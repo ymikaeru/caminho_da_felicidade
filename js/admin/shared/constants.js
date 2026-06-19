@@ -7,9 +7,9 @@ export const VOLUMES = [
 
 export const VOL_SHORT = {
   mioshiec1: 'V1', mioshiec2: 'V2', mioshiec3: 'V3', mioshiec4: 'V4',
-  shumeic1:  'V1', shumeic2:  'V2', shumeic3:  'V3', shumeic4:  'V4',
+  shumeic1: 'V1', shumeic2: 'V2', shumeic3: 'V3', shumeic4: 'V4',
   disciples: 'Disc',
-  poetry:    'Poesia'
+  poetry: 'Poesia'
 };
 
 export const DISCIPLES_BOOK_TITLES = {
@@ -18,11 +18,11 @@ export const DISCIPLES_BOOK_TITLES = {
 };
 
 export const POETRY_BOOK_TITLES = {
-  'akimaro-kineishu': "明麿近詠集 — Akimaro Kin'eishū",
-  'yama-to-mizu':     '山と水 — Yama to Mizu',
-  'warai-no-izumi':   '笑の泉 — Warai no Izumi',
-  'gosanka-shoban':   '御讃歌集（初版） — Gosanka-shū 1ª ed.',
-  'gosanka-kaitei':   '御讃歌集（改訂版） — Gosanka-shū rev.',
+  'Akemaro-kineishu': "明麿近詠集 — Akemaro Kin'eishū",
+  'yama-to-mizu': '山と水 — Yama to Mizu',
+  'warai-no-izumi': '笑の泉 — Warai no Izumi',
+  'gosanka-shoban': '御讃歌集（初版） — Gosanka-shū 1ª ed.',
+  'gosanka-kaitei': '御讃歌集（改訂版） — Gosanka-shū rev.',
   'gosanka-shikiten': '各式典における御讃歌 — Cerimônias'
 };
 

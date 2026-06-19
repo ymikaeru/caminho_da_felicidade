@@ -11,7 +11,7 @@ function _escModal(str) {
     .replace(/'/g, '&#39;');
 }
 
-// Guarda contra chamadas duplicadas. Algumas páginas (akimaro-kineishu,
+// Guarda contra chamadas duplicadas. Algumas páginas (Akemaro-kineishu,
 // warai-no-izumi, yama-to-mizu) chamam buildSearchModal duas vezes via
 // DOMContentLoaded inline em <head> + outro inline em <body> — sem essa
 // guarda, ficavam 2 <div id="searchModal"> no DOM, o que em iOS Safari
@@ -43,45 +43,45 @@ function buildSearchModal() {
   el.setAttribute('aria-label', lang === 'ja' ? '教えを検索' : 'Buscar nos ensinamentos');
   el.innerHTML =
     '<div class="search-modal">' +
-      '<button class="modal-close-btn" onclick="closeSearch()">&times;</button>' +
-      '<div class="search-header">' +
-        // Linha única: input + Apagar + Avançada (+ "Selecionar" injetado
-        // pelo playlists.js, que ancora na classe .search-advanced-row).
-        // Era 2 linhas — header mais baixo = mais espaço pros resultados.
-        '<div class="search-input-row search-advanced-row">' +
-          '<input type="text" class="search-input" id="searchInput" placeholder="' + placeholder + '" autocomplete="off" inputmode="search" enterkeyhint="search">' +
-          '<button id="searchClear" onclick="clearSearch()" style="display: none;" title="' + clearLabel + '">' +
-            '<span id="searchClearText">' + clearText + '</span>' +
-          '</button>' +
-          '<button type="button" id="searchAdvancedToggle" class="search-advanced-btn" aria-expanded="' + (advancedOpen ? 'true' : 'false') + '" aria-controls="searchAdvancedPanel">' +
-            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-              '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>' +
-            '</svg>' +
-            '<span>' + advancedLabel + '</span>' +
-            '<svg class="search-advanced-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-              '<polyline points="6 9 12 15 18 9"></polyline>' +
-            '</svg>' +
-          '</button>' +
-        '</div>' +
-        // Avançada = só modos de match (Palavra exata / Texto literal),
-        // que afinam o modo Conteúdo.
-        '<div id="searchAdvancedPanel" class="search-filters search-advanced-panel' + (advancedOpen ? ' is-open' : '') + '">' +
-          '<label class="filter-label filter-label--toggle" title="' + exactTitle + '">' +
-            '<input type="checkbox" id="searchExactToggle">' +
-            '<span id="searchExactLabel">' + exactLabel + '</span>' +
-          '</label>' +
-          '<label class="filter-label filter-label--toggle" title="' + literalTitle + '">' +
-            '<input type="checkbox" id="searchLiteralToggle">' +
-            '<span id="searchLiteralLabel">' + literalLabel + '</span>' +
-          '</label>' +
-        '</div>' +
-      '</div>' +
-      // Seletor de MODO (Título / Conteúdo / Coleção / Relacionados): a
-      // busca acontece SÓ no campo escolhido, de forma determinística.
-      // Populado pelo search.js (_renderModeSelector) ao abrir o modal.
-      '<div id="searchModeSelector" class="search-mode-selector" role="tablist" aria-label="' + (lang === 'ja' ? '検索モード' : 'Modo de busca') + '"></div>' +
-      '<div id="searchCount" class="search-count"></div>' +
-      '<ul class="search-results" id="searchResults" aria-live="polite"></ul>' +
+    '<button class="modal-close-btn" onclick="closeSearch()">&times;</button>' +
+    '<div class="search-header">' +
+    // Linha única: input + Apagar + Avançada (+ "Selecionar" injetado
+    // pelo playlists.js, que ancora na classe .search-advanced-row).
+    // Era 2 linhas — header mais baixo = mais espaço pros resultados.
+    '<div class="search-input-row search-advanced-row">' +
+    '<input type="text" class="search-input" id="searchInput" placeholder="' + placeholder + '" autocomplete="off" inputmode="search" enterkeyhint="search">' +
+    '<button id="searchClear" onclick="clearSearch()" style="display: none;" title="' + clearLabel + '">' +
+    '<span id="searchClearText">' + clearText + '</span>' +
+    '</button>' +
+    '<button type="button" id="searchAdvancedToggle" class="search-advanced-btn" aria-expanded="' + (advancedOpen ? 'true' : 'false') + '" aria-controls="searchAdvancedPanel">' +
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>' +
+    '</svg>' +
+    '<span>' + advancedLabel + '</span>' +
+    '<svg class="search-advanced-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<polyline points="6 9 12 15 18 9"></polyline>' +
+    '</svg>' +
+    '</button>' +
+    '</div>' +
+    // Avançada = só modos de match (Palavra exata / Texto literal),
+    // que afinam o modo Conteúdo.
+    '<div id="searchAdvancedPanel" class="search-filters search-advanced-panel' + (advancedOpen ? ' is-open' : '') + '">' +
+    '<label class="filter-label filter-label--toggle" title="' + exactTitle + '">' +
+    '<input type="checkbox" id="searchExactToggle">' +
+    '<span id="searchExactLabel">' + exactLabel + '</span>' +
+    '</label>' +
+    '<label class="filter-label filter-label--toggle" title="' + literalTitle + '">' +
+    '<input type="checkbox" id="searchLiteralToggle">' +
+    '<span id="searchLiteralLabel">' + literalLabel + '</span>' +
+    '</label>' +
+    '</div>' +
+    '</div>' +
+    // Seletor de MODO (Título / Conteúdo / Coleção / Relacionados): a
+    // busca acontece SÓ no campo escolhido, de forma determinística.
+    // Populado pelo search.js (_renderModeSelector) ao abrir o modal.
+    '<div id="searchModeSelector" class="search-mode-selector" role="tablist" aria-label="' + (lang === 'ja' ? '検索モード' : 'Modo de busca') + '"></div>' +
+    '<div id="searchCount" class="search-count"></div>' +
+    '<ul class="search-results" id="searchResults" aria-live="polite"></ul>' +
     '</div>';
   document.body.appendChild(el);
 }
@@ -100,14 +100,14 @@ function buildHistoryModal() {
   el.setAttribute('aria-labelledby', 'historyModalTitle');
   el.innerHTML =
     '<div class="search-modal">' +
-      '<button class="modal-close-btn" onclick="closeHistory()">&times;</button>' +
-      '<div class="search-header">' +
-        '<div style="display: flex; justify-content: space-between; align-items: center;">' +
-          '<h2 id="historyModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
-          '<button class="btn-zen" id="historyClearAll" onclick="clearAllHistory()" style="padding: 4px 12px; font-size: 0.85rem; display: none;">' + clearLabel + '</button>' +
-        '</div>' +
-      '</div>' +
-      '<ul class="search-results" id="historyResults" aria-live="polite"></ul>' +
+    '<button class="modal-close-btn" onclick="closeHistory()">&times;</button>' +
+    '<div class="search-header">' +
+    '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+    '<h2 id="historyModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
+    '<button class="btn-zen" id="historyClearAll" onclick="clearAllHistory()" style="padding: 4px 12px; font-size: 0.85rem; display: none;">' + clearLabel + '</button>' +
+    '</div>' +
+    '</div>' +
+    '<ul class="search-results" id="historyResults" aria-live="polite"></ul>' +
     '</div>';
   document.body.appendChild(el);
 }
@@ -125,11 +125,11 @@ function buildFavoritesModal() {
   el.setAttribute('aria-labelledby', 'favoritesModalTitle');
   el.innerHTML =
     '<div class="search-modal">' +
-      '<button class="modal-close-btn" onclick="closeFavorites()">&times;</button>' +
-      '<div class="search-header">' +
-        '<h2 id="favoritesModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
-      '</div>' +
-      '<ul class="search-results" id="favoritesResults" aria-live="polite"></ul>' +
+    '<button class="modal-close-btn" onclick="closeFavorites()">&times;</button>' +
+    '<div class="search-header">' +
+    '<h2 id="favoritesModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
+    '</div>' +
+    '<ul class="search-results" id="favoritesResults" aria-live="polite"></ul>' +
     '</div>';
   document.body.appendChild(el);
 }
@@ -150,15 +150,15 @@ function buildRecommendationsModal() {
   el.setAttribute('aria-labelledby', 'recommendationsModalTitle');
   el.innerHTML =
     '<div class="search-modal">' +
-      '<button class="modal-close-btn" onclick="closeRecommendations()">&times;</button>' +
-      '<div class="search-header">' +
-        '<h2 id="recommendationsModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
-      '</div>' +
-      '<ul class="search-results" id="recommendationsResults" aria-live="polite"></ul>' +
-      '<div id="rec-audio-footer" style="display:none;"></div>' +
-      '<div style="padding: 14px 18px; border-top: 1px solid var(--border); text-align: right;">' +
-        '<a href="' + basePath + 'recomendacoes.html" style="font-size: 0.85rem; color: var(--accent); text-decoration: none; font-weight: 500;">' + manageLabel + '</a>' +
-      '</div>' +
+    '<button class="modal-close-btn" onclick="closeRecommendations()">&times;</button>' +
+    '<div class="search-header">' +
+    '<h2 id="recommendationsModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
+    '</div>' +
+    '<ul class="search-results" id="recommendationsResults" aria-live="polite"></ul>' +
+    '<div id="rec-audio-footer" style="display:none;"></div>' +
+    '<div style="padding: 14px 18px; border-top: 1px solid var(--border); text-align: right;">' +
+    '<a href="' + basePath + 'recomendacoes.html" style="font-size: 0.85rem; color: var(--accent); text-decoration: none; font-weight: 500;">' + manageLabel + '</a>' +
+    '</div>' +
     '</div>';
   document.body.appendChild(el);
 }
@@ -176,11 +176,11 @@ function buildHighlightsModal() {
   el.setAttribute('aria-labelledby', 'highlightsModalTitle');
   el.innerHTML =
     '<div class="search-modal">' +
-      '<button class="modal-close-btn" onclick="closeHighlights()">&times;</button>' +
-      '<div class="search-header">' +
-        '<h2 id="highlightsModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
-      '</div>' +
-      '<ul class="search-results highlights-modal-list" id="highlightsResults" aria-live="polite"></ul>' +
+    '<button class="modal-close-btn" onclick="closeHighlights()">&times;</button>' +
+    '<div class="search-header">' +
+    '<h2 id="highlightsModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
+    '</div>' +
+    '<ul class="search-results highlights-modal-list" id="highlightsResults" aria-live="polite"></ul>' +
     '</div>';
   document.body.appendChild(el);
 }
@@ -210,21 +210,21 @@ function buildShareModal() {
   el.setAttribute('aria-labelledby', 'shareModalTitle');
   el.innerHTML =
     '<div class="search-modal" style="max-width:560px;">' +
-      '<button class="modal-close-btn" onclick="closeShareModal()">&times;</button>' +
-      '<div class="search-header">' +
-        '<h2 id="shareModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
-      '</div>' +
-      '<div style="padding: 4px 24px 24px;">' +
-        '<div style="font-size:0.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); font-weight:600; margin-bottom:6px; font-family:var(--font-ui);">' + aboutLabel + '</div>' +
-        '<div id="shareTeachingTitle" style="font-family:\'Crimson Pro\',Georgia,serif; font-size:1.1rem; font-weight:600; color:var(--text-main); line-height:1.3; margin-bottom:16px;"></div>' +
-        '<textarea id="shareBody" rows="5" placeholder="' + placeholder + '" style="width:100%; padding:12px 14px; font-size:0.95rem; border:1px solid var(--border); border-radius:6px; resize:vertical; font-family:inherit; background:var(--bg,#fff); color:inherit; box-sizing:border-box;"></textarea>' +
-        '<div style="font-size:0.72rem; color:var(--text-muted); margin-top:8px; line-height:1.5;">' + guideline + '</div>' +
-        '<div id="shareMsg" style="font-size:0.82rem; min-height:1.2em; margin-top:8px;"></div>' +
-        '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">' +
-          '<button onclick="closeShareModal()" style="padding:8px 16px; font-size:0.85rem; background:none; border:1px solid var(--border); border-radius:6px; cursor:pointer; color:inherit;">' + cancelLabel + '</button>' +
-          '<button id="shareSubmit" onclick="submitShareWithReverendo()" style="padding:8px 20px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">' + sendLabel + '</button>' +
-        '</div>' +
-      '</div>' +
+    '<button class="modal-close-btn" onclick="closeShareModal()">&times;</button>' +
+    '<div class="search-header">' +
+    '<h2 id="shareModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
+    '</div>' +
+    '<div style="padding: 4px 24px 24px;">' +
+    '<div style="font-size:0.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); font-weight:600; margin-bottom:6px; font-family:var(--font-ui);">' + aboutLabel + '</div>' +
+    '<div id="shareTeachingTitle" style="font-family:\'Crimson Pro\',Georgia,serif; font-size:1.1rem; font-weight:600; color:var(--text-main); line-height:1.3; margin-bottom:16px;"></div>' +
+    '<textarea id="shareBody" rows="5" placeholder="' + placeholder + '" style="width:100%; padding:12px 14px; font-size:0.95rem; border:1px solid var(--border); border-radius:6px; resize:vertical; font-family:inherit; background:var(--bg,#fff); color:inherit; box-sizing:border-box;"></textarea>' +
+    '<div style="font-size:0.72rem; color:var(--text-muted); margin-top:8px; line-height:1.5;">' + guideline + '</div>' +
+    '<div id="shareMsg" style="font-size:0.82rem; min-height:1.2em; margin-top:8px;"></div>' +
+    '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">' +
+    '<button onclick="closeShareModal()" style="padding:8px 16px; font-size:0.85rem; background:none; border:1px solid var(--border); border-radius:6px; cursor:pointer; color:inherit;">' + cancelLabel + '</button>' +
+    '<button id="shareSubmit" onclick="submitShareWithReverendo()" style="padding:8px 20px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">' + sendLabel + '</button>' +
+    '</div>' +
+    '</div>' +
     '</div>';
   document.body.appendChild(el);
 }
@@ -244,11 +244,11 @@ function buildMyConversationsModal() {
   el.setAttribute('aria-labelledby', 'myConversationsModalTitle');
   el.innerHTML =
     '<div class="search-modal">' +
-      '<button class="modal-close-btn" onclick="closeMyConversations()">&times;</button>' +
-      '<div class="search-header">' +
-        '<h2 id="myConversationsModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
-      '</div>' +
-      '<ul class="search-results" id="myConversationsResults" aria-live="polite"></ul>' +
+    '<button class="modal-close-btn" onclick="closeMyConversations()">&times;</button>' +
+    '<div class="search-header">' +
+    '<h2 id="myConversationsModalTitle" style="font-size: 1.2rem; margin:0; color: var(--accent);">' + title + '</h2>' +
+    '</div>' +
+    '<ul class="search-results" id="myConversationsResults" aria-live="polite"></ul>' +
     '</div>';
   document.body.appendChild(el);
 }

@@ -5,7 +5,7 @@
  *   shikiten  = 各式典における御讃歌  — 564 poemas (1936-1954)
  *
  * Espera `window.POETRY_KEY` definido na HTML shell antes deste script.
- * Mesma lógica e CSS do poetry-akimaro.js, parametrizado por coleção.
+ * Mesma lógica e CSS do poetry-Akemaro.js, parametrizado por coleção.
  */
 (function () {
   'use strict';
@@ -284,15 +284,14 @@
             <span class="lang-pt">Publicado em ${_esc(ed.publication_date_pt)} · ${countPt}</span>
             <span class="lang-ja" style="display:none">${_esc(ed.publication_date_jp || '')}発行・${countJp}</span>
           </div>
-          ${
-            ed.author_romaji
-              ? `
+          ${ed.author_romaji
+          ? `
           <div class="poetry-preface__edition-line">
             <span class="lang-pt">Autor: ${_esc(ed.author_romaji)} (${_esc(ed.author_jp || '')})</span>
             <span class="lang-ja" style="display:none">著者 ${_esc(ed.author_jp || '')}</span>
           </div>`
-              : ''
-          }
+          : ''
+        }
         </div>`
         : '';
     // Se preface não tiver conteúdo, não renderiza
@@ -313,7 +312,7 @@
     `;
   }
 
-  // ─── Date formatters (mantidos do akimaro pra compatibilidade) ──
+  // ─── Date formatters (mantidos do Akemaro pra compatibilidade) ──
   function _formatDate(s) {
     if (!s) return '';
     const m = s.match(/^S(\d+)\.\s*(\d+)\.\s*(\d+|\*+)$/);
@@ -388,11 +387,11 @@
     // por idioma (setLanguage re-roda após cada _render).
     const dateTag = dateStr
       ? `<span class="poetry-card__tag" title="${_esc(p.date)}">` +
-          `<span class="poetry-card__tag-full lang-pt">${_esc(dateStr)}</span>` +
-          `<span class="poetry-card__tag-full lang-ja" style="display:none">${_esc(_formatDateShowa(p.date))}</span>` +
-          `<span class="poetry-card__tag-compact lang-pt">${_esc(dateStrCompact)}</span>` +
-          `<span class="poetry-card__tag-compact lang-ja" style="display:none">${_esc(_formatDateShowaCompact(p.date))}</span>` +
-        `</span>`
+      `<span class="poetry-card__tag-full lang-pt">${_esc(dateStr)}</span>` +
+      `<span class="poetry-card__tag-full lang-ja" style="display:none">${_esc(_formatDateShowa(p.date))}</span>` +
+      `<span class="poetry-card__tag-compact lang-pt">${_esc(dateStrCompact)}</span>` +
+      `<span class="poetry-card__tag-compact lang-ja" style="display:none">${_esc(_formatDateShowaCompact(p.date))}</span>` +
+      `</span>`
       : '';
     // Marker chip (kaitei): * = modificação da 1ª ed, ** = re-publicação
     const markerTag = p.marker

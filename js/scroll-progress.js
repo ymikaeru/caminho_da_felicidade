@@ -1,5 +1,5 @@
 // High-water mark de scroll para páginas que NÃO usam reader.js.
-// Hoje: os leitores de poesia (warai, akimaro, yama-to-mizu, gosanka-*).
+// Hoje: os leitores de poesia (warai, Akemaro, yama-to-mizu, gosanka-*).
 //
 // Por quê: o read-time-tracker registra TEMPO nessas páginas, mas o cálculo
 // de scroll vivia só no reader.js. Resultado: toda leitura de poesia aparecia

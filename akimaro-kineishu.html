@@ -2,11 +2,12 @@
 <html lang="pt-BR">
 
 <head>
-    <script>(function(){var m=localStorage.getItem('site_mode')||'light';var t=localStorage.getItem('theme')||'light';var d=document.documentElement;d.setAttribute('data-mode',m);d.setAttribute('data-theme',t);var c={'dark:light':'#1A1A1A','dark:quiet':'#2D2D2F','dark:paper':'#2A2824','dark:bold':'#000','dark:calm':'#3B3326','dark:focus':'#000','light:light':'#F2F2F0','light:quiet':'#404043','light:paper':'#EFE8D6','light:bold':'#FFF','light:calm':'#DFCDAE','light:focus':'#FFF'};var bg=c[m+':'+t]||(m==='dark'?'#121212':'#F2F2F0');d.style.backgroundColor=bg})();</script>
+    <script>(function () { var m = localStorage.getItem('site_mode') || 'light'; var t = localStorage.getItem('theme') || 'light'; var d = document.documentElement; d.setAttribute('data-mode', m); d.setAttribute('data-theme', t); var c = { 'dark:light': '#1A1A1A', 'dark:quiet': '#2D2D2F', 'dark:paper': '#2A2824', 'dark:bold': '#000', 'dark:calm': '#3B3326', 'dark:focus': '#000', 'light:light': '#F2F2F0', 'light:quiet': '#404043', 'light:paper': '#EFE8D6', 'light:bold': '#FFF', 'light:calm': '#DFCDAE', 'light:focus': '#FFF' }; var bg = c[m + ':' + t] || (m === 'dark' ? '#121212' : '#F2F2F0'); d.style.backgroundColor = bg })();</script>
     <meta charset="UTF-8">
-    <title>Akimaro Kin'eishū — Caminho da Felicidade</title>
+    <title>Akemaro Kin'eishū — Caminho da Felicidade</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="明麿近詠集 — Coletânea de 486 tanka publicada em 1949 sob o pseudônimo Higashiyama Akimaro (Meishu-Sama). 99 poemas traduzidos.">
+    <meta name="description"
+        content="明麿近詠集 — Coletânea de 486 tanka publicada em 1949 sob o pseudônimo Higashiyama Akemaro (Meishu-Sama). 99 poemas traduzidos.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
@@ -39,12 +40,21 @@
     </div>
     <header class="header">
         <a href="index.html" class="header__logo">
-            <svg width="28" height="28" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Emblema da Comunidade Messiânica Universal"><circle cx="100" cy="100" r="98" fill="#b8860b"/><circle cx="100" cy="100" r="92" fill="#fff"/><rect x="80" y="8" width="40" height="184" fill="#006400"/><rect x="8" y="80" width="184" height="40" fill="#006400"/><circle cx="100" cy="100" r="42" fill="#cc0000"/><circle cx="100" cy="100" r="28" fill="#b8860b"/></svg>
+            <svg width="28" height="28" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
+                aria-label="Emblema da Comunidade Messiânica Universal">
+                <circle cx="100" cy="100" r="98" fill="#b8860b" />
+                <circle cx="100" cy="100" r="92" fill="#fff" />
+                <rect x="80" y="8" width="40" height="184" fill="#006400" />
+                <rect x="8" y="80" width="184" height="40" fill="#006400" />
+                <circle cx="100" cy="100" r="42" fill="#cc0000" />
+                <circle cx="100" cy="100" r="28" fill="#b8860b" />
+            </svg>
         </a>
         <span class="header__site-name lang-pt">Caminho da Felicidade</span>
         <span class="header__site-name lang-ja" style="display:none;">幸福の道</span>
         <div class="header__nav">
-            <a href="index.html"><span>⌂ <span class="lang-pt">Início</span><span class="lang-ja" style="display:none">ホーム</span></span></a>
+            <a href="index.html"><span>⌂ <span class="lang-pt">Início</span><span class="lang-ja"
+                        style="display:none">ホーム</span></span></a>
             <a href="mioshiec1/index.html"><span>Vol 1</span></a>
             <a href="mioshiec2/index.html"><span>Vol 2</span></a>
             <a href="mioshiec3/index.html"><span>Vol 3</span></a>
@@ -54,9 +64,11 @@
 
     <main class="main" id="main-content" style="padding:0;">
         <div class="poetry-page">
-            <aside class="poetry-sidebar" id="akimaroSidebar" aria-label="Navegação por seção">
+            <aside class="poetry-sidebar" id="AkemaroSidebar" aria-label="Navegação por seção">
                 <a href="poesia.html" class="poetry-sidebar__back">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
                     <span class="lang-pt">Obras poéticas</span>
                     <span class="lang-ja" style="display:none">詩集一覧</span>
                 </a>
@@ -66,18 +78,18 @@
                     </span>
                     <h2 class="poetry-sidebar__title">明麿近詠集</h2>
                     <div class="poetry-sidebar__subtitle">
-                        <span class="lang-pt">Akimaro Kin'eishū</span>
+                        <span class="lang-pt">Akemaro Kin'eishū</span>
                         <span class="lang-ja" style="display:none">あきまろきんえいしゅう</span>
                     </div>
                 </div>
 
                 <div class="poetry-sidebar__action">
-                    <button class="btn-poetry-random" id="akimaroRandom" type="button">
+                    <button class="btn-poetry-random" id="AkemaroRandom" type="button">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <polyline points="16 3 21 3 21 8"/>
-                            <line x1="4" y1="20" x2="21" y2="3"/>
-                            <polyline points="21 16 21 21 16 21"/>
-                            <line x1="15" y1="15" x2="21" y2="21"/>
+                            <polyline points="16 3 21 3 21 8" />
+                            <line x1="4" y1="20" x2="21" y2="3" />
+                            <polyline points="21 16 21 21 16 21" />
+                            <line x1="15" y1="15" x2="21" y2="21" />
                         </svg>
                         <span class="lang-pt">Poema aleatório</span>
                         <span class="lang-ja" style="display:none">おみくじ</span>
@@ -91,10 +103,11 @@
                 <div class="poetry-sidebar__search">
                     <div class="poetry-searchbox">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <circle cx="11" cy="11" r="8"/>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
                         </svg>
-                        <input type="search" id="akimaroSearch" placeholder="Buscar poema..." aria-label="Buscar poemas">
+                        <input type="search" id="AkemaroSearch" placeholder="Buscar poema..."
+                            aria-label="Buscar poemas">
                     </div>
                 </div>
 
@@ -102,26 +115,26 @@
                     <div class="poetry-sidebar__label">
                         <span class="lang-pt">Seções</span><span class="lang-ja" style="display:none">題 目</span>
                     </div>
-                    <div class="poetry-filter-list" id="akimaroSectionList"></div>
+                    <div class="poetry-filter-list" id="AkemaroSectionList"></div>
                 </div>
 
-                <div class="poetry-sidebar__stats" id="akimaroStats">—</div>
+                <div class="poetry-sidebar__stats" id="AkemaroStats">—</div>
             </aside>
 
             <section class="poetry-main">
-                <button class="poetry-sidebar-toggle" id="akimaroSidebarToggle" type="button">
+                <button class="poetry-sidebar-toggle" id="AkemaroSidebarToggle" type="button">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <line x1="3" y1="6" x2="21" y2="6"/>
-                        <line x1="3" y1="12" x2="21" y2="12"/>
-                        <line x1="3" y1="18" x2="21" y2="18"/>
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
                     </svg>
                     <span class="lang-pt">Seções</span>
                     <span class="lang-ja" style="display:none">題 目</span>
                 </button>
 
-                <div class="poetry-active-filters" id="akimaroActiveFilters" aria-live="polite"></div>
+                <div class="poetry-active-filters" id="AkemaroActiveFilters" aria-live="polite"></div>
 
-                <div id="akimaroList">
+                <div id="AkemaroList">
                     <div class="poetry-loading">
                         <div class="poetry-loading__spinner"></div>
                         <span class="lang-pt">Carregando…</span>
@@ -166,7 +179,7 @@
     <script src="js/poetry-highlights.js?v=4" defer></script>
     <script src="js/poetry-recommend.js?v=5" defer></script>
     <script src="js/translation-report.js?v=3" defer></script>
-    <script src="js/poetry-akimaro.js?v=15" defer></script>
+    <script src="js/poetry-Akemaro.js?v=15" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             buildSearchModal(); buildHistoryModal(); buildFavoritesModal();
@@ -175,7 +188,7 @@
 
         // Analytics: aguarda sessão Supabase real antes de chamar logAccess
         (function () {
-            const POEM_VOL = 'poetry', POEM_FILE = 'akimaro-kineishu';
+            const POEM_VOL = 'poetry', POEM_FILE = 'Akemaro-kineishu';
             let _tries = 0;
             const _tryLog = async () => {
                 _tries++;
@@ -184,12 +197,12 @@
                     try {
                         const { data } = await supa.auth.getSession();
                         if (data?.session) {
-                            window.supabaseAuth.logAccess(POEM_VOL, POEM_FILE, 'view')?.catch?.(() => {});
+                            window.supabaseAuth.logAccess(POEM_VOL, POEM_FILE, 'view')?.catch?.(() => { });
                             window._readTimeTracker?.start?.(POEM_VOL, POEM_FILE);
-                            import('./js/scroll-progress.js?v=1').then(m => m.startScrollTracking?.(POEM_VOL, POEM_FILE)).catch(() => {});
+                            import('./js/scroll-progress.js?v=1').then(m => m.startScrollTracking?.(POEM_VOL, POEM_FILE)).catch(() => { });
                             return;
                         }
-                    } catch (_) {}
+                    } catch (_) { }
                 }
                 if (_tries < 40) setTimeout(_tryLog, 300);
             };

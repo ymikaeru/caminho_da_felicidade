@@ -14,7 +14,7 @@ create table if not exists public.landing_config (
   -- true e há texto, a landing mostra este poema no lugar da rotação por mês.
   poema_ativo boolean not null default false,
   poema_autor text,         -- linha de cima (kicker dourado), ex.: Poemas de Meishu-Sama. Vazio = eyebrow discreto
-  poema_titulo text,        -- título da coleção, ex.: "Akimaro Kin'eishū" (明麿近詠集). Vazio = padrão Yama to Mizu
+  poema_titulo text,        -- título da coleção, ex.: "Akemaro Kin'eishū" (明麿近詠集). Vazio = padrão Yama to Mizu
   poema_original text,      -- waka em japonês (separe os versos com espaço　p/ a coluna vertical)
   poema_romaji text,
   poema_translation text,

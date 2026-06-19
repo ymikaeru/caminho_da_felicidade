@@ -2,7 +2,7 @@
 // ============================================================
 // poetry_translate_gemini.mjs — traduz poemas do skeleton JSON
 // via Gemini API (gemini-3.1-pro-preview), aplicando o prompt
-// completo do Akimaro Kineishu (tríade Kigo/Kototama/Profundidade).
+// completo do Akemaro Kineishu (tríade Kigo/Kototama/Profundidade).
 //
 // Lê:  data/poetry/gosanka_<key>_skeleton.json     (parser)
 // Grava: data/poetry/gosanka_<key>.json             (incremental)
@@ -74,7 +74,7 @@ if (!existsSync(SKELETON_PATH)) {
   process.exit(1);
 }
 
-// ─── prompt sistêmico (replica fielmente o do Akimaro) ──────
+// ─── prompt sistêmico (replica fielmente o do Akemaro) ──────
 const SYSTEM_PROMPT = `# Tradução de Poemas de Meishu-Sama (Mokichi Okada) — Modelo de Profundidade Máxima
 
 ## Role (Papel)
@@ -108,7 +108,7 @@ Traduzir poemas do japonês para o português (PT-BR) aplicando o "Modelo de Pro
 - **Tags Temáticas** (tags): 2 a 5 etiquetas curtas em PT. Vocabulário consistente: Natureza, Kannon, Era do Dia, Profecia, Lar, Viagem, Fuji, Tamagawa, Hakone, Ise, Salvação, Purificação, Saudade, Lirismo, Crítica social, Era da Noite, Messias, Beleza, Paz. Prefira reusar tags existentes.
 
 ## Pseudônimo do autor
-東山明麿 (Higashiyama Akimaro) / 岡田自観 (Okada Jikan) — pseudônimos poéticos de Meishu-Sama (岡田茂吉 / Okada Mokichi).
+東山明麿 (Higashiyama Akemaro) / 岡田自観 (Okada Jikan) — pseudônimos poéticos de Meishu-Sama (岡田茂吉 / Okada Mokichi).
 
 ## Formato da resposta — JSON estrito
 Você recebe um array de poemas com {number, original, reading_hira} e devolve um array com EXATAMENTE a mesma quantidade de items, na MESMA ordem, com este shape:

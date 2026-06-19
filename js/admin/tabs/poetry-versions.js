@@ -1,7 +1,7 @@
 // ============================================================
 // Correção de Poemas — editor unificado (aba do admin)
 //
-// Suporta múltiplas coleções (akimaro, yama, ...) selecionáveis via
+// Suporta múltiplas coleções (Akemaro, yama, ...) selecionáveis via
 // dropdown ou query param ?collection=. Cada coleção tem seu próprio
 // path no Storage, key de localStorage, e contexto de prompt — o resto
 // do editor é genérico (depende apenas do schema preface/sections/poems).
@@ -17,7 +17,7 @@ import { _escHtml, logAdminAction } from '../shared/helpers.js';
 import { supabase } from '../../supabase-config.js';
 import { _myUid, allUsers } from '../shared/state.js';
 
-const BUCKET    = 'teachings';
+const BUCKET = 'teachings';
 const PAGE_SIZE = 25;
 
 // Registry de coleções. Adicionar uma nova = uma entrada aqui, desde
@@ -25,14 +25,14 @@ const PAGE_SIZE = 25;
 // number/title/translation/original/reading). storagePath e localPath
 // podem divergir (Storage usa hífen; data files usam underscore).
 const COLLECTIONS = {
-  'akimaro-kineishu': {
-    title: "Akimaro Kin'eishū",
-    storagePath: 'poetry/akimaro-kineishu.json',
-    localPath: 'data/poetry/akimaro_kineishu.json',
-    lsKey: 'akimaro_editor_pending_v1',
-    claudeTab: 'claude-ai-akimaro',
+  'Akemaro-kineishu': {
+    title: "Akemaro Kin'eishū",
+    storagePath: 'poetry/Akemaro-kineishu.json',
+    localPath: 'data/poetry/Akemaro_kineishu.json',
+    lsKey: 'Akemaro_editor_pending_v1',
+    claudeTab: 'claude-ai-Akemaro',
     promptContext:
-      '- Pseudônimo do autor: 東山明麿 (Higashiyama Akimaro) — Meishu-Sama em 1949.\n' +
+      '- Pseudônimo do autor: 東山明麿 (Higashiyama Akemaro) — Meishu-Sama em 1949.\n' +
       '- Coletânea: 486 tanka publicada em 30/11/1949.',
   },
   'yama-to-mizu': {
@@ -72,13 +72,13 @@ const COLLECTIONS = {
       '- Coletânea "各式典における御讃歌" (Cantos Sagrados para Cada Cerimônia) — 564 tanka recitados em cerimônias entre 1936 e 1954 (Grande Culto de Primavera, Risshun, Aniversário Sagrado, Outono, Nikkoden de Hakone, etc). Cada seção tem data e fonte original anotadas.',
   },
 };
-const DEFAULT_COLLECTION = 'akimaro-kineishu';
+const DEFAULT_COLLECTION = 'Akemaro-kineishu';
 
 const VERSION_LABELS = {
-  WEB: { label: 'Web (Gemini Studio)',           color: '#7a9b6e', short: 'WEB' },
-  v1:  { label: 'API v1 (temp 0.65)',            color: '#9c8a4e', short: 'v1'  },
-  v2:  { label: 'API v2 (ousado, temp 0.95)',    color: '#a86e6e', short: 'v2'  },
-  v3:  { label: 'API v3 (econ. poética, 0.80)',  color: '#5e7ea8', short: 'v3'  },
+  WEB: { label: 'Web (Gemini Studio)', color: '#7a9b6e', short: 'WEB' },
+  v1: { label: 'API v1 (temp 0.65)', color: '#9c8a4e', short: 'v1' },
+  v2: { label: 'API v2 (ousado, temp 0.95)', color: '#a86e6e', short: 'v2' },
+  v3: { label: 'API v3 (econ. poética, 0.80)', color: '#5e7ea8', short: 'v3' },
 };
 
 // Regras gerais de tradução — válidas pra todas as coleções de tanka
@@ -140,11 +140,11 @@ function _loadPendingEdits() {
   } catch (e) { _pendingEdits = {}; }
 }
 function _savePendingEdits() {
-  try { localStorage.setItem(_currentConfig().lsKey, JSON.stringify(_pendingEdits)); } catch (e) {}
+  try { localStorage.setItem(_currentConfig().lsKey, JSON.stringify(_pendingEdits)); } catch (e) { }
 }
 function _clearPendingEdits() {
   _pendingEdits = {};
-  try { localStorage.removeItem(_currentConfig().lsKey); } catch (e) {}
+  try { localStorage.removeItem(_currentConfig().lsKey); } catch (e) { }
 }
 
 // ─── Storage I/O ─────────────────────────────────────────────
@@ -365,7 +365,7 @@ async function _onPublish() {
     await logAdminAction(`${_activeCollection.replace(/-/g, '_')}_publish`, {
       collection: _activeCollection,
       poems_edited: n,
-      numbers: Object.keys(_pendingEdits).map(Number).sort((a,b) => a - b)
+      numbers: Object.keys(_pendingEdits).map(Number).sort((a, b) => a - b)
     });
     _clearPendingEdits();
     _publishing = false;
@@ -436,8 +436,8 @@ function _renderEditor() {
 
     <div id="pv-edit-list">
       ${pageList.length === 0
-        ? '<div class="loading">Nada por aqui. Limpe o filtro ou tente outra busca.</div>'
-        : pageList.map(_renderEditCard).join('')}
+      ? '<div class="loading">Nada por aqui. Limpe o filtro ou tente outra busca.</div>'
+      : pageList.map(_renderEditCard).join('')}
     </div>
 
     <div style="display:flex; justify-content:center; gap:8px; margin-top:24px;">
@@ -468,9 +468,9 @@ function _renderEditCard(poem) {
   const reportBlock = reps.length === 0 ? '' : `
     <div style="margin-top:14px; border:1px solid #ff3b3033; border-left:3px solid #ff3b30; border-radius:0 8px 8px 0; background:color-mix(in srgb, #ff3b30 5%, transparent); padding:10px 12px; display:flex; flex-direction:column; gap:10px;">
       ${reps.map(r => {
-        const corr = r.status === 'corrected';
-        const when = new Date(r.created_at).toLocaleDateString('pt-BR');
-        return `
+    const corr = r.status === 'corrected';
+    const when = new Date(r.created_at).toLocaleDateString('pt-BR');
+    return `
         <div style="font-size:0.78rem; line-height:1.5;">
           <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; margin-bottom:3px;">
             <span style="font-weight:700; color:#ff3b30;">🚩 Reporte de tradução</span>
@@ -483,7 +483,7 @@ function _renderEditCard(poem) {
           </div>
           ${r.description ? `<div style="color:var(--text); font-style:italic;">“${_escHtml(r.description)}”</div>` : '<div style="color:var(--text-muted);">(sem comentário — o leitor só sinalizou o trecho)</div>'}
         </div>`;
-      }).join('<div style="border-top:1px dashed var(--border);"></div>')}
+  }).join('<div style="border-top:1px dashed var(--border);"></div>')}
     </div>`;
   const activeVariant = _detectActiveVariant(poem, pend);
   const isCustom = dirty && activeVariant === null;
@@ -494,9 +494,9 @@ function _renderEditCard(poem) {
     </div>
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:8px;">
       ${versions.map(v => {
-        const meta = VERSION_LABELS[v.key];
-        const isActive = activeVariant === v.key;
-        return `
+    const meta = VERSION_LABELS[v.key];
+    const isActive = activeVariant === v.key;
+    return `
           <div class="pv-variant" data-num="${num}" data-key="${v.key}" role="button" tabindex="0" style="border:1px solid ${isActive ? meta.color + '88' : 'var(--border)'}; background:${isActive ? meta.color + '0d' : 'var(--bg)'}; border-radius:8px; padding:10px; cursor:pointer; transition:border-color 0.15s, background 0.15s; position:relative;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
               <span style="font-size:0.65rem; font-weight:700; color:${meta.color}; text-transform:uppercase; letter-spacing:0.5px;">${meta.short}${isActive ? ' · em uso' : ''}</span>
@@ -506,7 +506,7 @@ function _renderEditCard(poem) {
             <div style="font-size:0.78rem; line-height:1.5; color:var(--text-muted);">${_escHtml(v.translation)}</div>
           </div>
         `;
-      }).join('')}
+  }).join('')}
     </div>
   `;
 
@@ -523,7 +523,7 @@ function _renderEditCard(poem) {
     <div class="pv-card" data-num="${num}" style="background:var(--bg-quiet); border:1px solid var(--border); border-left:4px solid ${accent}; border-radius:10px; padding:16px; margin-bottom:14px;">
       <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; gap:10px; flex-wrap:wrap;">
         <div>
-          <span style="font-weight:600; color:var(--text-muted); font-size:0.8rem;">№ ${String(num).padStart(3,'0')}</span>
+          <span style="font-weight:600; color:var(--text-muted); font-size:0.8rem;">№ ${String(num).padStart(3, '0')}</span>
           <span style="margin-left:10px; font-size:0.75rem; color:var(--text-muted);">${_escHtml(poem.section_pt || '')}</span>
           ${poem.date ? `<span style="margin-left:10px; font-size:0.7rem; color:var(--text-muted); font-style:italic;">${_escHtml(poem.date)}</span>` : ''}
           ${pending ? '<span style="margin-left:10px; font-size:0.7rem; padding:2px 6px; background:#88888833; color:#888; border-radius:8px;">não-traduzido</span>' : ''}
@@ -591,9 +591,9 @@ function _wireEditorEvents() {
       const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
       const a = b.dataset.action;
       if (a === 'first') _editPage = 0;
-      else if (a === 'prev')  _editPage = Math.max(0, _editPage - 1);
-      else if (a === 'next')  _editPage = Math.min(totalPages - 1, _editPage + 1);
-      else if (a === 'last')  _editPage = totalPages - 1;
+      else if (a === 'prev') _editPage = Math.max(0, _editPage - 1);
+      else if (a === 'next') _editPage = Math.min(totalPages - 1, _editPage + 1);
+      else if (a === 'last') _editPage = totalPages - 1;
       _renderEditor();
       document.getElementById('pv-edit-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -613,10 +613,10 @@ function _wireEditorEvents() {
   });
 
   document.querySelectorAll('.pv-edit-title').forEach(inp => {
-    inp.addEventListener('input', e => _onEditField(parseInt(inp.dataset.num,10), 'title', e.target.value));
+    inp.addEventListener('input', e => _onEditField(parseInt(inp.dataset.num, 10), 'title', e.target.value));
   });
   document.querySelectorAll('.pv-edit-trans').forEach(inp => {
-    inp.addEventListener('input', e => _onEditField(parseInt(inp.dataset.num,10), 'translation', e.target.value));
+    inp.addEventListener('input', e => _onEditField(parseInt(inp.dataset.num, 10), 'translation', e.target.value));
   });
 
   document.querySelectorAll('.pv-ai').forEach(b => {
@@ -786,14 +786,14 @@ function _parseAISuggestionForPoem(num) {
   if (!raw) return;
 
   const cleanQuotes = (s) => (s || '').replace(/^["']\s*|\s*["']$/g, '').replace(/^\*+\s*|\s*\*+$/g, '').trim();
-  const titleMatch  = raw.match(/✅[^\n]*T[íi]tulo[^\n]*\n+([\s\S]*?)(?=\n\s*\*?\*?\s*✅|\n\s*\*?\*?\s*💡|\n\s*\*?\*?\s*🔍|$)/i);
-  const transMatch  = raw.match(/✅[^\n]*Tradu[çc][ãa]o[^\n]*\n+([\s\S]*?)(?=\n\s*\*?\*?\s*💡|\n\s*\*?\*?\s*🔍|$)/i);
-  const justMatch   = raw.match(/💡[^\n]*\n+([\s\S]*?)$/);
+  const titleMatch = raw.match(/✅[^\n]*T[íi]tulo[^\n]*\n+([\s\S]*?)(?=\n\s*\*?\*?\s*✅|\n\s*\*?\*?\s*💡|\n\s*\*?\*?\s*🔍|$)/i);
+  const transMatch = raw.match(/✅[^\n]*Tradu[çc][ãa]o[^\n]*\n+([\s\S]*?)(?=\n\s*\*?\*?\s*💡|\n\s*\*?\*?\s*🔍|$)/i);
+  const justMatch = raw.match(/💡[^\n]*\n+([\s\S]*?)$/);
   const analysisMatch = raw.match(/🔍[^\n]*\n+([\s\S]*?)(?=\n\s*\*?\*?\s*✅|$)/);
 
   const suggestedTitle = cleanQuotes(titleMatch?.[1]);
   const suggestedTrans = cleanQuotes(transMatch?.[1]);
-  const justify  = cleanQuotes(justMatch?.[1]);
+  const justify = cleanQuotes(justMatch?.[1]);
   const analysis = cleanQuotes(analysisMatch?.[1]);
 
   if (!suggestedTitle && !suggestedTrans) {

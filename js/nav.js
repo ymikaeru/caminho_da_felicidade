@@ -317,6 +317,16 @@ function _initMobileNav() {
 
   document.body.appendChild(mobileNavOverlay);
 
+  // Aplica o idioma atual aos spans .lang-pt/.lang-ja recém-injetados. Sem
+  // isto, as seções ESTÁTICAS do menu (Obras Poéticas, Salmos Sagrados,
+  // Guias, Discípulos…) nascem sempre em PT mesmo no modo japonês: o
+  // setLanguage da carga da página roda ANTES deste overlay existir, então o
+  // toggle global de visibilidade (.lang-pt/.lang-ja) nunca alcança estes nós
+  // e o PT (default, sem display:none) fica visível. Espelha as linhas de
+  // toggle do setLanguage (language.js), restritas ao overlay.
+  mobileNavOverlay.querySelectorAll('.lang-pt').forEach(el => { el.style.display = currentLang === 'pt' ? '' : 'none'; });
+  mobileNavOverlay.querySelectorAll('.lang-ja').forEach(el => { el.style.display = currentLang === 'ja' ? '' : 'none'; });
+
   // Mostra "Minhas playlists" + a seção de guias ocultos só pra admin.
   if (typeof isAdminUser === 'function' && isAdminUser()) {
     const plLink = document.getElementById('mobileNavLinkPlaylists');

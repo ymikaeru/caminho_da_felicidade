@@ -60,7 +60,7 @@ serve(async (req) => {
       return json({ error: 'Acesso restrito a administradores' }, 403);
     }
 
-    const { email, password, display_name } = await req.json();
+    const { email, password, display_name, preferred_lang } = await req.json();
 
     if (!email || !password) {
       return json({ error: 'Email e senha são obrigatórios' }, 400);
@@ -69,6 +69,10 @@ serve(async (req) => {
     if (password.length < 6) {
       return json({ error: 'A senha deve ter pelo menos 6 caracteres' }, 400);
     }
+
+    // Idioma preferido opcional: null = usuário escolhe depois (default do
+    // navegador). Só aceita os dois idiomas suportados; qualquer outro vira null.
+    const lang = (preferred_lang === 'pt' || preferred_lang === 'ja') ? preferred_lang : null;
 
     // Cria o usuário via Admin API — NÃO altera a sessão do admin logado
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
@@ -92,6 +96,7 @@ serve(async (req) => {
         id: data.user.id,
         display_name: display_name || email.split('@')[0],
         role: 'user',
+        preferred_lang: lang,
       }, { onConflict: 'id' });
 
     if (profileError) {

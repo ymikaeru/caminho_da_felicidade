@@ -81,6 +81,14 @@ const _TAB_MARKUP = `
                     <label for="new-password">Senha temporária</label>
                     <input type="password" id="new-password" placeholder="Minimo 6 caracteres">
                   </div>
+                  <div class="form-group">
+                    <label for="new-lang">Idioma</label>
+                    <select id="new-lang">
+                      <option value="">🌐 Padrão (usuário escolhe)</option>
+                      <option value="pt">🇧🇷 Português</option>
+                      <option value="ja">🇯🇵 日本語</option>
+                    </select>
+                  </div>
                   <button id="add-user-btn" onclick="addUser()">Adicionar</button>
                 </div>
                 <div id="add-user-msg" class="msg"></div>
@@ -285,6 +293,11 @@ function renderUserList() {
       </div>
       <div class="user-actions">
         <span class="user-badge ${roleEsc}">${roleEsc}</span>
+        <select class="role-select" onclick="event.stopPropagation()" onchange="changeUserLang('${idEsc}', this.value)" title="Idioma preferido do usuário">
+          <option value="" ${!u.preferred_lang ? 'selected' : ''}>🌐 Idioma —</option>
+          <option value="pt" ${u.preferred_lang === 'pt' ? 'selected' : ''}>🇧🇷 Português</option>
+          <option value="ja" ${u.preferred_lang === 'ja' ? 'selected' : ''}>🇯🇵 日本語</option>
+        </select>
         <select class="role-select" onclick="event.stopPropagation()" onchange="changeRole('${idEsc}', this.value)">
           <option value="user" ${u.role === 'user' ? 'selected' : ''}>User</option>
           <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
@@ -998,6 +1011,28 @@ async function changeRole(userId, role) {
   loadUsers();
 }
 
+// Troca o idioma preferido (pt/ja) de um usuário pela aba Usuários. A RLS de
+// user_profiles só permite o próprio dono atualizar a linha; por isso usamos a
+// RPC admin_set_user_lang (SECURITY DEFINER + checagem is_admin) — mesmo padrão
+// de admin_get_users. Valor vazio = null (volta ao default do navegador).
+async function changeUserLang(userId, lang) {
+  const user = allUsers.find(u => u.id === userId);
+  const newLang = lang === '' ? null : lang;
+  if ((user?.preferred_lang || null) === newLang) return;
+
+  const { error } = await supabase.rpc('admin_set_user_lang', {
+    p_user_id: userId,
+    p_lang: newLang
+  });
+  if (error) {
+    alert('Erro ao alterar idioma: ' + error.message);
+    loadUsers(); // restaura o select para o valor real
+    return;
+  }
+  if (user) user.preferred_lang = newLang;
+  logAdminAction('change_user_lang', { email: user?.email || userId, idioma: newLang || '—' });
+}
+
 async function deleteUser(userId) {
   if (!confirm('Tem certeza que deseja remover este usuário? Esta ação não pode ser desfeita.')) return;
 
@@ -1053,6 +1088,7 @@ async function addUser() {
   const name = document.getElementById('new-name').value.trim();
   const email = document.getElementById('new-email').value.trim().toLowerCase();
   const password = document.getElementById('new-password').value;
+  const preferred_lang = document.getElementById('new-lang')?.value || null;
   const msg = document.getElementById('add-user-msg');
   const btn = document.getElementById('add-user-btn');
 
@@ -1084,7 +1120,7 @@ async function addUser() {
         'Authorization': `Bearer ${session.access_token}`,
         'apikey': SUPABASE_ANON_KEY
       },
-      body: JSON.stringify({ email, password, display_name: name })
+      body: JSON.stringify({ email, password, display_name: name, preferred_lang })
     });
 
     const result = await resp.json();
@@ -1096,6 +1132,7 @@ async function addUser() {
     document.getElementById('new-name').value = '';
     document.getElementById('new-email').value = '';
     document.getElementById('new-password').value = '';
+    document.getElementById('new-lang').value = '';
     loadUsers();
   } catch (err) {
     msg.textContent = err.message;
@@ -1131,6 +1168,7 @@ Object.assign(window, {
   savePermissions,
   closePermEditor,
   changeRole,
+  changeUserLang,
   deleteUser,
   resetPassword,
   addUser,

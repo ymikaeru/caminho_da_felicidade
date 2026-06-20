@@ -160,6 +160,42 @@ async function loadUserPermissions(userId) {
 
   isAdminRole = profile?.role === 'admin';
 
+  // Idioma da conta = fonte da verdade. Query SEPARADO e NÃO-FATAL de propósito:
+  // se a coluna preferred_lang ainda não existir (migration não aplicada) ou a
+  // rede falhar, `error` vem preenchido, `langRow` é null e o login segue normal
+  // — assim o JS pode ir pro ar antes ou depois da migration sem quebrar login.
+  // Se o usuário já escolheu um idioma, aplica em QUALQUER aparelho/login (um
+  // japonês recebe interface + ensinamentos em japonês mesmo numa recomendação
+  // enviada em PT). Null = nunca escolheu → respeita autodetecção/localStorage.
+  try {
+    const { data: langRow } = await supabase
+      .from('user_profiles').select('preferred_lang').eq('id', userId).single();
+    const pref = langRow?.preferred_lang;
+    if (pref === 'ja' || pref === 'pt') {
+      // Conta já tem preferência → fonte da verdade em qualquer aparelho.
+      if (pref !== localStorage.getItem('site_lang')) {
+        try { localStorage.setItem('site_lang', pref); } catch (e) { /* ignore */ }
+        // setLanguage re-renderiza o conteúdo (no leitor) e a interface.
+        if (typeof window.setLanguage === 'function') window.setLanguage(pref);
+      }
+    } else if (typeof window._detectBrowserLang === 'function' && window._detectBrowserLang() === 'ja') {
+      // Backfill: sem preferência + navegador PRIMÁRIO em japonês (sinal forte de
+      // identidade) → grava 'ja' na conta. Garante japonês em qualquer aparelho
+      // daqui pra frente e resgata japoneses existentes presos em PT (o site
+      // antigo gravava localStorage='pt' pra todos). Só 'ja' e só por
+      // autodetecção: nunca 'pt' (é o fallback) nem por localStorage (um clique
+      // em ?lang=ja já o setaria e marcaria um brasileiro por engano).
+      if (localStorage.getItem('site_lang') !== 'ja') {
+        try { localStorage.setItem('site_lang', 'ja'); } catch (e) { /* ignore */ }
+        if (typeof window.setLanguage === 'function') window.setLanguage('ja');
+      }
+      // Fire-and-forget; se a coluna não existir (migration não aplicada) o erro
+      // é ignorado e o login segue normal.
+      supabase.from('user_profiles').update({ preferred_lang: 'ja' }).eq('id', userId)
+        .then(({ error }) => { if (error) console.warn('[lang-pref] backfill JA falhou:', error.message); }, () => {});
+    }
+  } catch (e) { /* coluna ausente ou rede — ignora, login segue normal */ }
+
   const { data: perms, error: permsErr } = await supabase
     .from('user_permissions')
     .select('volume, files')

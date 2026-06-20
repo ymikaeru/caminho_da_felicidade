@@ -211,11 +211,22 @@
       const check = isSel
         ? '<span style="display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:4px; background:var(--accent); color:#fff; font-size:0.75rem; flex-shrink:0;">✓</span>'
         : '<span style="display:inline-block; width:18px; height:18px; border-radius:4px; border:1.5px solid var(--border); flex-shrink:0;"></span>';
+      // Selo do idioma de leitura do destinatário (preferred_lang). Avisa o
+      // admin para escrever a nota no idioma certo — o título/conteúdo do
+      // ensinamento já vão no idioma do usuário, mas a nota é texto livre.
+      const langBadge = u.preferred_lang === 'ja'
+        ? '<span title="Este usuário lê em japonês — escreva a nota em japonês" style="flex-shrink:0; font-size:0.62rem; font-weight:600; padding:1px 5px; border-radius:4px; background:var(--accent); color:#fff;">🇯🇵 日本語</span>'
+        : u.preferred_lang === 'pt'
+          ? '<span title="Este usuário lê em português" style="flex-shrink:0; font-size:0.62rem; font-weight:600; padding:1px 5px; border-radius:4px; background:var(--border); color:var(--text-muted);">PT</span>'
+          : '';
       return `
         <div onclick="recPickerToggleUser('${_esc(u.id)}')" style="padding:8px 12px; cursor:pointer; border-bottom:1px solid var(--border); ${borderRight} display:flex; align-items:center; gap:10px; min-width:0; ${bg}">
           ${check}
           <div style="flex:1; min-width:0;">
-            <div style="font-size:0.86rem; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_esc(u.display_name || 'Sem nome')}</div>
+            <div style="display:flex; align-items:center; gap:6px; min-width:0;">
+              <span style="font-size:0.86rem; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_esc(u.display_name || 'Sem nome')}</span>
+              ${langBadge}
+            </div>
             <div style="font-size:0.72rem; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_esc(u.email || '—')}</div>
           </div>
         </div>

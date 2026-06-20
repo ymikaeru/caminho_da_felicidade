@@ -167,8 +167,27 @@ function setLanguage(lang, triggerRender = true) {
   }
 }
 
+// Persiste a escolha de idioma na conta (preferred_lang) para virar a fonte da
+// verdade em qualquer aparelho/login. Fire-and-forget, igual ao heartbeat de
+// last_seen_at — não bloqueia o toggle e não quebra em página sem login. A RLS
+// de user_profiles permite o próprio usuário atualizar a própria linha; o
+// trigger de segurança só barra role/admin_pin_hash, então esta coluna passa.
+function _persistLangPreference(lang) {
+  try {
+    const supa = (window.supabaseAuth && window.supabaseAuth.supabase)
+      || window._supabaseClient || null;
+    const uid = localStorage.getItem('mioshie_user_id');
+    if (!supa || !uid) return; // anônimo → só localStorage
+    supa.from('user_profiles').update({ preferred_lang: lang }).eq('id', uid)
+      .then(({ error }) => {
+        if (error) console.warn('[lang-pref] Falha ao salvar preferência de idioma:', error.message);
+      }, () => { /* rede caiu — sem problema, localStorage já guardou */ });
+  } catch (e) { /* nunca bloquear o toggle */ }
+}
+
 window.toggleLanguage = function () {
   const current = localStorage.getItem('site_lang') || 'pt';
   const next = current === 'pt' ? 'ja' : 'pt';
   setLanguage(next);
+  _persistLangPreference(next);
 };

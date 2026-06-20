@@ -79,13 +79,27 @@ const MENU_TEXTS = {
   }
 };
 
+// Autodetecção de idioma na 1ª visita (visitante anônimo): se o navegador está
+// em japonês e o usuário ainda não escolheu nada, o site abre em japonês. NÃO
+// grava em localStorage — só define o padrão da sessão; quem persiste é o toggle
+// do usuário (language.js) ou a preferência da conta (login.js).
+function _detectBrowserLang() {
+  try {
+    // Só o idioma PRIMÁRIO do navegador. Usar .some() sobre navigator.languages
+    // seria agressivo demais: um brasileiro estudando japonês tem 'ja' na lista
+    // (em posição baixa) e cairia em JA por engano.
+    const primary = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+    return String(primary).toLowerCase().startsWith('ja') ? 'ja' : null;
+  } catch (e) { return null; }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
 
   const urlParams = new URLSearchParams(window.location.search);
   let urlLang = urlParams.get('lang') || (urlParams.get('jp') !== null ? 'ja' : null);
-  const savedLang = urlLang || localStorage.getItem('site_lang') || 'pt';
+  const savedLang = urlLang || localStorage.getItem('site_lang') || _detectBrowserLang() || 'pt';
   if (typeof setLanguage === 'function') setLanguage(savedLang, false);
 
   _initMobileNav();

@@ -154,6 +154,32 @@ function recSelectUser(userId) {
   document.getElementById('rec-detail').style.display = 'block';
   document.getElementById('rec-detail-name').textContent = u.display_name || 'Sem nome';
   document.getElementById('rec-detail-email').textContent = u.email || '—';
+
+  // Aviso do idioma de leitura do destinatário (preferred_lang): lembra o admin
+  // de escrever a nota no idioma certo. Título/conteúdo do ensinamento já vão no
+  // idioma do usuário; a nota é texto livre. Injetado sob o nome (sem mexer no
+  // template _TAB_MARKUP).
+  const _nameEl = document.getElementById('rec-detail-name');
+  if (_nameEl) {
+    let langEl = document.getElementById('rec-detail-lang');
+    if (!langEl) {
+      langEl = document.createElement('div');
+      langEl.id = 'rec-detail-lang';
+      langEl.style.cssText = 'font-size:0.74rem; font-weight:600; margin-top:3px;';
+      _nameEl.insertAdjacentElement('afterend', langEl);
+    }
+    if (u.preferred_lang === 'ja') {
+      langEl.style.color = 'var(--accent)';
+      langEl.textContent = '🇯🇵 Lê em japonês — escreva a nota em japonês';
+      langEl.style.display = '';
+    } else if (u.preferred_lang === 'pt') {
+      langEl.style.color = 'var(--text-muted)';
+      langEl.textContent = 'Lê em português';
+      langEl.style.display = '';
+    } else {
+      langEl.style.display = 'none';
+    }
+  }
   // Mantém ensinamento já picado quando troca de usuário — admin
   // pode estar recomendando o mesmo pra vários. Só habilita o
   // "Recomendar" se houver ensinamento + user (esse).

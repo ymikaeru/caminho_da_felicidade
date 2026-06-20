@@ -131,7 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window._navlog?.('initReader() vol=' + volId + ' file=' + filename + ' search=' + (searchQuery || '-'));
         const finalTopicTitle = searchTopicTitle || topicTitle;
         if (!volId || !filename) {
-            container.innerHTML = `<div class="error">Selecione um ensinamento no índice.</div>`;
+            const _lang = localStorage.getItem('site_lang') || 'pt';
+            container.innerHTML = `<div class="error">${_lang === 'ja' ? '目次から御教えをお選びください。' : 'Selecione um ensinamento no índice.'}</div>`;
             return;
         }
 
@@ -222,7 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             window._navlog?.('initReader CATCH: ' + (err && err.message ? err.message : err));
             console.error('Reader Error:', err);
-            container.innerHTML = `<div class="error">Erro ao carregar o ensinamento.</div>`;
+            const _lang = localStorage.getItem('site_lang') || 'pt';
+            container.innerHTML = `<div class="error">${_lang === 'ja' ? '御教えを読み込めませんでした。' : 'Erro ao carregar o ensinamento.'}</div>`;
         }
     }
 
@@ -433,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const existing = document.getElementById('resume-reading-btn');
         if (existing) existing.remove();
 
+        const _lang = localStorage.getItem('site_lang') || 'pt';
         const btn = document.createElement('button');
         btn.id = 'resume-reading-btn';
         btn.innerHTML = `
@@ -440,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                 <circle cx="12" cy="12" r="3"/>
             </svg>
-            <span>Continuar leitura</span>
+            <span>${_lang === 'ja' ? '読書を続ける' : 'Continuar leitura'}</span>
         `;
         btn.style.cssText = `
             position: fixed; bottom: 24px; right: 24px; z-index: 5000;

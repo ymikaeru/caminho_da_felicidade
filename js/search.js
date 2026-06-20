@@ -509,21 +509,44 @@ function _renderGroupsList(groups, count, highlightRegex, q, activeLang) {
 // ---------------------------------------------------------------
 // Modo Título — busca local no índice enxuto de títulos reais
 // ---------------------------------------------------------------
+// Busca UM volume do índice de títulos com timeout próprio. AbortController
+// força o fetch a abortar após SEARCH_TIMEOUT_MS — sem isso, um fetch
+// pendurado (iOS17 Safari pré-17.4 reusa stream HTTP/2 e a 2ª req nunca
+// resolve nem rejeita) trava o Promise.all e o spinner "Buscando..." fica
+// preso até o reload. Em falha/timeout o volume degrada para [] (a busca de
+// título perde aquele volume em vez de pendurar a página inteira).
+function _fetchTitlesVol(base, v) {
+  const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), SEARCH_TIMEOUT_MS) : null;
+  return fetch(`${base}site_data/titles_index_${v}.json?v=1`, ctrl ? { signal: ctrl.signal } : undefined)
+    .then(r => r.ok ? r.json() : [])
+    .then(rows => [v, rows])
+    .catch(() => [v, []])
+    .finally(() => { if (timer) clearTimeout(timer); });
+}
+
 async function _loadTitlesIndex() {
   if (_titlesIndex) return _titlesIndex;
   if (_titlesIndexLoading) return _titlesIndexLoading;
   const base = getBasePath();
   const vols = ['mioshiec1', 'mioshiec2', 'mioshiec3', 'mioshiec4'];
-  _titlesIndexLoading = Promise.all(vols.map(v =>
-    fetch(`${base}site_data/titles_index_${v}.json?v=1`)
-      .then(r => r.ok ? r.json() : [])
-      .then(rows => [v, rows])
-      .catch(() => [v, []])
-  )).then(pairs => {
-    _titlesIndex = {};
-    for (const [v, rows] of pairs) _titlesIndex[v] = rows;
-    return _titlesIndex;
-  });
+  _titlesIndexLoading = Promise.all(vols.map(v => _fetchTitlesVol(base, v)))
+    .then(pairs => {
+      const idx = {};
+      for (const [v, rows] of pairs) idx[v] = rows;
+      // Se NENHUM volume carregou (rede/timeout), NÃO cacheia o índice vazio:
+      // zera o estado para a próxima busca poder tentar de novo (senão um
+      // tropeço de rede deixaria a busca de título morta até o reload).
+      const anyLoaded = Object.values(idx).some(rows => rows && rows.length > 0);
+      _titlesIndex = anyLoaded ? idx : null;
+      _titlesIndexLoading = null;
+      return idx;
+    })
+    .catch(() => {
+      _titlesIndex = null;
+      _titlesIndexLoading = null;
+      return {};
+    });
   return _titlesIndexLoading;
 }
 
@@ -1386,9 +1409,14 @@ async function performSearch(query) {
 
   // ---- Modo COLEÇÃO: nome das publicações (SECTION_MAP, já carregado) ----
   if (_searchMode === 'colecao') {
-    _flatItems = _searchCollections(q, activeLang);
-    _finishFlat(resultsEl, q, activeLang, _mySeq, false);
-    logSearch(q, _flatItems.length, 0);
+    try {
+      _flatItems = _searchCollections(q, activeLang);
+      _finishFlat(resultsEl, q, activeLang, _mySeq, false);
+      logSearch(q, _flatItems.length, 0);
+    } catch (err) {
+      console.error('Coleção search erro:', err);
+      if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${activeLang === 'ja' ? 'エラー' : 'Erro na busca.'}</li>`;
+    }
     return;
   }
 

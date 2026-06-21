@@ -1678,8 +1678,22 @@ async function performSearch(query) {
     sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
   } catch (err) {
     console.error('Search exception:', err);
-    const errMsg = activeLang === 'ja' ? 'エラーが発生しました。' : 'Erro inesperado na busca.';
-    if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errMsg}</li>`;
+    // Timeout (_withTimeout rejeita com "... timeout após Nms") é o caso comum
+    // no Conteúdo: o FTS no servidor (free tier) passou dos 8s. Mensagem clara
+    // + atalho pro Relacionados, em vez do genérico "Erro inesperado".
+    const isTimeout = /timeout/i.test((err && err.message) || '');
+    const errMsg = isTimeout
+      ? (activeLang === 'ja'
+          ? '検索に時間がかかりすぎました。語を絞るか、「関連」でお試しください。'
+          : 'A busca no conteúdo demorou demais (servidor sobrecarregado). Tente termos mais específicos.')
+      : (activeLang === 'ja' ? '検索でエラーが発生しました。' : 'Erro inesperado na busca.');
+    let extra = '';
+    if (_searchMode === 'conteudo') {
+      const t = activeLang === 'ja' ? '関連で検索' : 'Tentar em Relacionados';
+      extra = `<li class="search-mode-nudge"><button type="button" class="btn-load-more" onclick="switchSearchMode('relacionados', true)">${t}</button></li>`;
+    }
+    if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${errMsg}</li>` + extra;
+    _updateSearchCount(0, 0, activeLang);
   }
 }
 

@@ -50,6 +50,10 @@ let _orFallbackActive = false;
 const _MODES = ['titulo', 'conteudo', 'colecao', 'relacionados'];
 let _searchMode = 'titulo';
 try { const m = localStorage.getItem('search_mode'); if (_MODES.includes(m)) _searchMode = m; } catch (e) {}
+// Query efetivamente buscada (≠ texto digitado ainda não submetido). A busca
+// é SOB DEMANDA: nenhum modo busca ao digitar; só roda no botão "Buscar" /
+// Enter (ver runSearch). Usado pra decidir se trocar de modo re-roda.
+let _submittedQuery = '';
 // Cache do índice de títulos (modo Título): { vol: [{f,i,t,tj}, ...] }.
 let _titlesIndex = null;
 let _titlesIndexLoading = null;
@@ -722,6 +726,7 @@ window.clearSearch = function () {
   _orFallbackActive = false;
   _displayedCount = 0;
   _currentQuery = '';
+  _submittedQuery = '';
   _focusedIndex = -1;
 }
 
@@ -743,11 +748,12 @@ window.openSearch = function () {
       // renderizado, re-roda a busca pra gerar items com os data-attrs corretos.
       const resultsEl = document.getElementById('searchResults');
       if (input.value.trim() && resultsEl && !resultsEl.querySelector('.search-nav-item')) {
-        if (typeof performSearch === 'function') performSearch(input.value);
+        if (typeof _runOrPrompt === 'function') _runOrPrompt(input.value);
       }
     }
     _loadSectionMaps();
     _renderModeSelector(localStorage.getItem('site_lang') || 'pt');
+    _injectSearchButton();
   }
 }
 
@@ -996,9 +1002,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchModal = document.getElementById('searchModal');
   const searchInput = document.getElementById('searchInput');
 
-  if (searchModal) searchModal.addEventListener('click', (e) => {
-    if (e.target.id === 'searchModal') closeSearch();
-  });
+  // Fechar ao tocar no backdrop — mas SÓ se o gesto começou E terminou no
+  // overlay. Sem a guarda do pointerdown, um re-render do typeahead (ou uma
+  // rolagem que vira tap) trocava o nó sob o dedo e o browser re-alvejava o
+  // `click` pro overlay → a busca fechava sozinha enquanto o usuário digitava
+  // (principalmente no celular).
+  if (searchModal) {
+    let _downOnBackdrop = false;
+    searchModal.addEventListener('pointerdown', (e) => {
+      _downOnBackdrop = (e.target === searchModal);
+    });
+    searchModal.addEventListener('click', (e) => {
+      if (e.target === searchModal && _downOnBackdrop) closeSearch();
+      _downOnBackdrop = false;
+    });
+  }
 
   // Restore search query + results HTML from sessionStorage. Sem a parte
   // do HTML, voltar pra index após abrir um ensinamento disparava re-busca
@@ -1046,18 +1064,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const searchingMsg = currentLang === 'ja' ? '検索中...' : 'Buscando...';
-    if (resultsEl) resultsEl.innerHTML = `<li class="search-loading"><span class="search-spinner"></span>${searchingMsg}</li>`;
-
-    // Debounce mais generoso: cada keystroke reseta o timer e só dispara
-    // quando o user pausa. Antes (200ms longas / 500ms curtas) era apertado
-    // demais — digitando "miroku" rápido disparava 4-6 buscas. Como a RPC
-    // agora custa ~600ms, mesmo com cancel de stale ainda gera trabalho
-    // desnecessário no servidor.
-    const delay = query.trim().length <= 3 ? 600 : 350;
-    searchTimeout = setTimeout(() => {
-      performSearch(query);
-    }, delay);
+    // Local (Título/Coleção) = instantâneo ao digitar (índices locais, sem
+    // rede, sem o travamento do typeahead). Servidor (Conteúdo/Relacionados)
+    // = SOB DEMANDA: mostra o botão "Buscar"; só dispara no clique/Enter
+    // (evita o enxame de buscas lentas que travava no celular).
+    if (_isOnDemandMode()) {
+      _renderSearchPrompt(query);
+    } else {
+      searchTimeout = setTimeout(() => performSearch(query), 160);
+    }
   };
 
   if (searchInput) searchInput.addEventListener('input', triggerSearch);
@@ -1079,7 +1094,7 @@ document.addEventListener('DOMContentLoaded', () => {
     exactToggle.checked = localStorage.getItem('search_exact') === 'true';
     exactToggle.addEventListener('change', () => {
       try { localStorage.setItem('search_exact', exactToggle.checked); } catch (e) { }
-      if (searchInput && searchInput.value.trim().length >= 2) performSearch(searchInput.value);
+      if (_submittedQuery) runSearch();
     });
   }
 
@@ -1090,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     literalToggle.checked = localStorage.getItem('search_literal') === 'true';
     literalToggle.addEventListener('change', () => {
       try { localStorage.setItem('search_literal', literalToggle.checked); } catch (e) { }
-      if (searchInput && searchInput.value.trim().length >= 2) performSearch(searchInput.value);
+      if (_submittedQuery) runSearch();
     });
   }
 
@@ -1115,6 +1130,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Arrow key navigation within search results
   if (searchInput) {
     searchInput.addEventListener('keydown', (e) => {
+      // Sob demanda: Enter (ou a tecla "Buscar" do teclado mobile) dispara a
+      // busca do modo atual quando não há item de resultado em foco.
+      if (e.key === 'Enter' && _focusedIndex < 0) {
+        e.preventDefault();
+        runSearch();
+        return;
+      }
       const items = document.querySelectorAll('#searchResults .search-nav-item');
       if (!items.length) return;
       if (e.key === 'ArrowDown') {
@@ -1325,20 +1347,119 @@ function _shouldTriggerDidYouMean(results, activeLang) {
   return false;
 }
 
-// Troca o modo de busca (clique no seletor ou no nudge) e re-busca.
-window.switchSearchMode = function(mode) {
+// ---------------------------------------------------------------
+// Busca SOB DEMANDA — nenhum modo busca enquanto digita.
+// ---------------------------------------------------------------
+// Decisão de UX (mobile): em vez de buscar a cada tecla (typeahead), TODOS
+// os modos esperam o usuário apertar "Buscar" (botão no header) ou Enter /
+// a tecla de busca do teclado (enterkeyhint="search"). Isso elimina o enxame
+// de buscas lentas (Conteúdo/Relacionados) que travava no celular e estourava
+// o timeout de 8s, e remove o re-render no meio da digitação que fechava o
+// modal sozinho.
+
+// Modos de SERVIDOR (FTS/Voyage pesado) buscam SOB DEMANDA; os LOCAIS
+// (Título/Coleção) buscam instantâneo ao digitar.
+function _isOnDemandMode() { return _searchMode === 'conteudo' || _searchMode === 'relacionados'; }
+
+// Mostra/esconde o botão "Buscar" do header conforme o modo: só aparece nos
+// modos sob demanda (nos locais a busca é instantânea, o botão seria inútil).
+function _updateSearchButtonVisibility() {
+  const btn = document.getElementById('searchSubmitBtn');
+  if (btn) btn.style.display = _isOnDemandMode() ? '' : 'none';
+}
+
+// Roteia entre busca instantânea (local) e prompt sob demanda (servidor).
+function _runOrPrompt(query) {
+  if (_isOnDemandMode()) _renderSearchPrompt(query);
+  else performSearch(query);
+}
+
+// Estado "aperte Buscar": some os resultados velhos e mostra o botão. O hint
+// avisa que Relacionados (Voyage) pode demorar.
+function _renderSearchPrompt(query) {
+  const resultsEl = document.getElementById('searchResults');
+  const activeLang = localStorage.getItem('site_lang') || 'pt';
+  const q = (query || '').trim();
+  _focusedIndex = -1;
+  _updateSearchCount(0, 0, activeLang);
+  if (!resultsEl) return;
+  resultsEl.classList.remove('search-results--content');
+  if (q.length < 2) { resultsEl.innerHTML = ''; return; }
+  const label = activeLang === 'ja' ? '検索' : 'Buscar';
+  const hint = _searchMode === 'relacionados'
+    ? (activeLang === 'ja' ? '意味的検索 — 数秒かかることがあります' : 'Busca semântica — pode levar alguns segundos.')
+    : (activeLang === 'ja' ? 'Enter または「検索」で実行' : 'Toque em Buscar ou aperte Enter.');
+  resultsEl.innerHTML =
+    `<li class="search-load-more search-related-prompt">` +
+      `<button type="button" class="btn-load-more" onclick="runSearch()">${label}</button>` +
+      `<span class="load-more-hint">${hint}</span>` +
+    `</li>`;
+}
+
+// Dispara a busca do modo atual sob demanda — botão "Buscar" ou Enter.
+window.runSearch = function() {
+  const input = document.getElementById('searchInput');
+  if (!input) return;
+  const q = input.value.trim();
+  if (q.length < 2) { _renderSearchPrompt(input.value); return; }
+  _submittedQuery = q;
+  performSearch(input.value);
+};
+
+// Injeta o botão "Buscar" no header do modal (idempotente). Feito em JS pra
+// não duplicar markup no modals.js + nos 4 index inline dos volumes. Reusa
+// .btn-load-more (botão accent já theme-aware) — sem build de CSS.
+function _injectSearchButton() {
+  const modal = document.getElementById('searchModal');
+  if (!modal) return;
+  // Esconde o × do modal de busca: ele é absoluto no canto e caía EM CIMA do
+  // botão "Buscar". Dois markups: .modal-close-btn (modal dinâmico do
+  // modals.js) e .search-close/#searchClose (index inline dos volumes).
+  // Fechar segue por toque fora do painel ou tecla Esc.
+  modal.querySelectorAll('.modal-close-btn, .search-close').forEach(b => { b.style.display = 'none'; });
+  // "Texto literal" deixou de ser checkbox manual — virou fallback automático
+  // (Conteúdo FTS volta zero → tenta ILIKE literal). Esconde + zera o estado.
+  const litTog = modal.querySelector('#searchLiteralToggle');
+  if (litTog) {
+    litTog.checked = false;
+    try { localStorage.removeItem('search_literal'); } catch (e) {}
+    const w = litTog.closest('label') || litTog.parentElement;
+    if (w) w.style.display = 'none';
+  }
+  if (modal.querySelector('#searchSubmitBtn')) { _updateSearchButtonVisibility(); return; }
+  const input = modal.querySelector('#searchInput');
+  if (!input) return;
+  const lang = localStorage.getItem('site_lang') || 'pt';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.id = 'searchSubmitBtn';
+  btn.className = 'btn-load-more search-submit-btn';
+  btn.textContent = lang === 'ja' ? '検索' : 'Buscar';
+  btn.addEventListener('click', () => window.runSearch());
+  input.insertAdjacentElement('afterend', btn);
+  _updateSearchButtonVisibility();
+}
+
+// Troca o modo de busca (clique no seletor ou no nudge). Se a query atual já
+// foi buscada, re-roda no novo modo; senão mostra o prompt "Buscar".
+window.switchSearchMode = function(mode, forceRun) {
   if (!_MODES.includes(mode)) return;
   _searchMode = mode;
   try { localStorage.setItem('search_mode', mode); } catch (e) {}
   const activeLang = localStorage.getItem('site_lang') || 'pt';
   _renderModeSelector(activeLang);
+  _updateSearchButtonVisibility();
   const input = document.getElementById('searchInput');
-  if (input && input.value.trim()) performSearch(input.value);
-  else {
+  const q = input ? input.value.trim() : '';
+  if (!q) {
     const resultsEl = document.getElementById('searchResults');
     if (resultsEl) resultsEl.innerHTML = '';
     _updateSearchCount(0, 0, activeLang);
+    return;
   }
+  if (!_isOnDemandMode()) { performSearch(input.value); return; } // local = instantâneo
+  if (forceRun) performSearch(input.value);                       // nudge/explícito
+  else _renderSearchPrompt(input.value);                          // servidor → prompt
 };
 
 // Render + contagem + sessão para os modos de LISTA PLANA (título/coleção).
@@ -1349,7 +1470,7 @@ function _finishFlat(resultsEl, q, activeLang, mySeq, nudgeContent) {
     let extra = '';
     if (nudgeContent) {
       const t = activeLang === 'ja' ? '本文で検索しますか？' : 'Buscar essas palavras no Conteúdo?';
-      extra = `<li class="search-mode-nudge"><button type="button" class="btn-load-more" onclick="switchSearchMode('conteudo')">${t}</button></li>`;
+      extra = `<li class="search-mode-nudge"><button type="button" class="btn-load-more" onclick="switchSearchMode('conteudo', true)">${t}</button></li>`;
     }
     if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${none}</li>` + extra;
     _updateSearchCount(0, 0, activeLang);
@@ -1514,12 +1635,26 @@ async function performSearch(query) {
       if (!orRes.error && orRes.data && orRes.data.length > 0) { results = orRes.data; _orFallbackActive = true; }
     }
 
+    // Fallback automático: o FTS não achou (kanji que o pt_unaccent não
+    // tokeniza, ou frase/substring exata) → tenta o ILIKE literal por baixo,
+    // que casa substring crua em todos os campos PT+JA. Substitui o antigo
+    // checkbox "Texto literal".
+    if (isContentMode && results.length === 0 && !useLiteralMode) {
+      try {
+        const lit = await _withTimeout(supabase.rpc('search_teachings_literal', {
+          q, lang: activeLang, max_results: MAX_RESULTS, scope: 'content',
+        }), SEARCH_TIMEOUT_MS, 'search_teachings_literal (auto)');
+        if (_mySeq !== _searchSeq) return;
+        if (!lit.error && lit.data && lit.data.length > 0) results = lit.data;
+      } catch (e) { /* mantém 0 → mensagem normal */ }
+    }
+
     if (results.length === 0) {
       const noResultsMsg = activeLang === 'ja' ? '結果が見つかりませんでした。' : 'Nenhum resultado.';
       let extra = '';
       if (isContentMode) {
         const t = activeLang === 'ja' ? '関連で検索しますか？' : 'Tentar em Relacionados?';
-        extra = `<li class="search-mode-nudge"><button type="button" class="btn-load-more" onclick="switchSearchMode('relacionados')">${t}</button></li>`;
+        extra = `<li class="search-mode-nudge"><button type="button" class="btn-load-more" onclick="switchSearchMode('relacionados', true)">${t}</button></li>`;
       }
       if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${noResultsMsg}</li>` + extra;
       _updateSearchCount(0, 0, activeLang);

@@ -367,8 +367,10 @@
     footer.innerHTML = `
       <input id="mgrNewName" type="text" placeholder="Nome da nova playlist…" style="flex:1; min-width:180px; padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:6px; background:var(--bg, #fff); color:inherit; box-sizing:border-box;">
       <button id="mgrCreate" style="padding:7px 14px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">+ Criar playlist</button>
+      <button id="mgrImport" title="Colar códigos do NotebookLM e gerar uma playlist" style="flex-basis:100%; padding:8px 14px; font-size:0.85rem; background:none; color:inherit; border:1px dashed var(--border); border-radius:6px; cursor:pointer; font-weight:600;">⇩ Importar do NotebookLM</button>
     `;
     document.getElementById('mgrCreate').onclick = _mgrCreate;
+    document.getElementById('mgrImport').onclick = _mgrShowImport;
     document.getElementById('mgrNewName').addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); _mgrCreate(); }
     });
@@ -405,6 +407,124 @@
     input.value = '';
     await _mgrShowList();
     _mgrMsg('✓ Playlist criada');
+  }
+
+  // ── Importar do NotebookLM ──────────────────────────────────
+  // Extrai códigos [[CdF:vol/file/topic]] OU URLs reader.html?vol=&file=&topic=
+  // de qualquer texto colado. Dedupa preservando a ordem de aparição.
+  function _parseCdfCodes(text) {
+    if (!text) return [];
+    const out = [], seen = new Set();
+    const push = (vol, file, topic) => {
+      if (!vol || !file) return;
+      vol = String(vol).trim().toLowerCase();
+      try { file = decodeURIComponent(String(file).trim()); } catch (_) { file = String(file).trim(); }
+      if (!vol.startsWith('mioshiec')) {
+        const m = vol.match(/(\d+)/);
+        if (m) vol = 'mioshiec' + m[1]; else return;
+      }
+      if (!/\.html$/i.test(file)) file += '.html';
+      const t = parseInt(topic, 10);
+      const topic_idx = Number.isFinite(t) ? t : 0;
+      const key = vol + '|' + file + '|' + topic_idx;
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push({ vol, file, topic_idx });
+    };
+    const reCode = /\[\[\s*CdF\s*:\s*([a-zA-Z0-9]+)\s*\/\s*([^/\]\s]+)\s*\/\s*(\d+)\s*\]\]/gi;
+    let m;
+    while ((m = reCode.exec(text)) !== null) push(m[1], m[2], m[3]);
+    const reUrl = /reader\.html\?[^\s)"'<>]+/gi;
+    let u;
+    while ((u = reUrl.exec(text)) !== null) {
+      const q = u[0];
+      const vol = (q.match(/[?&]vol=([^&]+)/) || [])[1];
+      const file = (q.match(/[?&]file=([^&]+)/) || [])[1];
+      const topic = (q.match(/[?&]topic=(\d+)/) || [])[1] || '0';
+      if (vol && file) push(vol, file, topic);
+    }
+    return out;
+  }
+
+  function _mgrShowImport() {
+    _mgrCurrentColl = null;
+    _mgrCurrentItems = [];
+    document.getElementById('mgrBack').style.display = 'inline-block';
+    document.getElementById('mgrTitle').textContent = 'Importar do NotebookLM';
+    document.getElementById('mgrSubtitle').textContent = 'Cole os códigos [[CdF:…]] (ou os links do leitor) que o NotebookLM citou';
+    document.getElementById('mgrMsg').textContent = '';
+    const body = document.getElementById('mgrBody');
+    body.innerHTML = `
+      <div style="padding:14px 16px; display:flex; flex-direction:column; gap:10px;">
+        <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.55;">
+          No NotebookLM, peça: <em>"Liste o código [[CdF:…]] de cada ensinamento que você citou, um por linha"</em>. Copie e cole abaixo — também aceito os links <code>reader.html?vol=…</code>.
+        </div>
+        <textarea id="mgrImportText" placeholder="[[CdF:mioshiec1/zyobun.html/0]]&#10;[[CdF:mioshiec2/…/3]]&#10;…" style="width:100%; min-height:150px; padding:10px 12px; font-size:0.85rem; font-family:ui-monospace,Menlo,Consolas,monospace; border:1px solid var(--border); border-radius:6px; background:var(--bg,#fff); color:inherit; box-sizing:border-box; resize:vertical;"></textarea>
+        <div id="mgrImportPreview"></div>
+      </div>
+    `;
+    const footer = document.getElementById('mgrFooter');
+    footer.innerHTML = `
+      <input id="mgrImportName" type="text" placeholder="Nome da playlist…" value="Pesquisa NotebookLM" style="flex:1; min-width:160px; padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:6px; background:var(--bg,#fff); color:inherit; box-sizing:border-box;">
+      <button id="mgrImportCreate" disabled style="padding:7px 16px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; opacity:0.5;">Criar playlist (0)</button>
+    `;
+    let parsed = [];
+    const previewEl = () => document.getElementById('mgrImportPreview');
+    const createBtn = () => document.getElementById('mgrImportCreate');
+    function analyze() {
+      parsed = _parseCdfCodes(document.getElementById('mgrImportText').value);
+      const pv = previewEl(), btn = createBtn();
+      if (!parsed.length) {
+        pv.innerHTML = document.getElementById('mgrImportText').value.trim()
+          ? '<div style="padding:8px 2px; font-size:0.82rem; color:#c00;">Nenhum código reconhecido. Cole os códigos [[CdF:…]] ou os links reader.html.</div>'
+          : '';
+        btn.disabled = true; btn.style.opacity = '0.5'; btn.textContent = 'Criar playlist (0)';
+        return;
+      }
+      const titles = window.GLOBAL_INDEX_TITLES || {};
+      pv.innerHTML =
+        `<div style="padding:8px 2px 6px; font-size:0.82rem; color:var(--text-muted);">${parsed.length} ensinamento${parsed.length === 1 ? '' : 's'} reconhecido${parsed.length === 1 ? '' : 's'}:</div>` +
+        '<div style="border:1px solid var(--border); border-radius:6px; max-height:200px; overflow-y:auto;">' +
+        parsed.map((p, i) => {
+          const pub = (titles[p.vol] && titles[p.vol][p.file]) || '';
+          const vshort = p.vol.replace('mioshiec', 'V');
+          return `<div style="padding:7px 12px; border-bottom:1px solid var(--border); font-size:0.84rem;">
+            <span style="color:var(--text-muted); min-width:22px; display:inline-block;">${i + 1}.</span>
+            <span style="color:var(--accent);">${pub ? _esc(pub) : _esc(p.file)}</span>
+            <span style="color:var(--text-muted); font-size:0.73rem;"> — ${vshort} · ${_esc(p.file)}#${p.topic_idx}</span>
+          </div>`;
+        }).join('') +
+        '</div>';
+      btn.disabled = false; btn.style.opacity = '1'; btn.textContent = `Criar playlist (${parsed.length})`;
+    }
+    document.getElementById('mgrImportText').addEventListener('input', analyze);
+    createBtn().onclick = () => _mgrRunImport(parsed, document.getElementById('mgrImportName').value);
+  }
+
+  async function _mgrRunImport(parsed, name) {
+    if (_mgrBusy || !parsed || !parsed.length) return;
+    name = (name || '').trim() || 'Pesquisa NotebookLM';
+    const supa = _supa();
+    if (!supa) { _mgrMsg('Sem conexão.', true); return; }
+    _mgrBusy = true;
+    const btn = document.getElementById('mgrImportCreate');
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
+    _mgrMsg('Criando playlist…');
+    const { data: newId, error } = await supa.rpc('create_collection', { p_name: name });
+    if (error || !newId) { _mgrBusy = false; _mgrMsg('Erro ao criar: ' + (error ? error.message : 'sem id'), true); return; }
+    let ok = 0, fail = 0;
+    for (let i = 0; i < parsed.length; i++) {
+      const p = parsed[i];
+      _mgrMsg(`Adicionando ${i + 1}/${parsed.length}…`);
+      const { error: e2 } = await supa.rpc('add_to_collection', {
+        p_collection_id: newId, p_vol: p.vol, p_file: p.file, p_topic_idx: p.topic_idx,
+      });
+      if (e2) fail++; else ok++;
+    }
+    _mgrBusy = false;
+    await _loadCollections(true);
+    await _mgrOpenDetail(newId, name);
+    _mgrMsg(fail ? `✓ ${ok} adicionados · ${fail} falharam` : `✓ ${ok} ensinamentos adicionados`);
   }
 
   async function _mgrOpenDetail(collId, collName) {

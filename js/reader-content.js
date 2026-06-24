@@ -37,8 +37,15 @@ function _normalizeContent(rawContent) {
         .replace(/^(\s*(?:<\/b>|<\/strong>|\*\*|<\/font>))(?:\s|&nbsp;)+([^（(\s<])/i, '$1' + DBLBR + '$2')
         // 8) Auto-colon on speaker labels
         .replace(/(Pergunta do? (?:um )?fiel|Explicação do fiel|Orientação de Meishu-Sama|Comentário do [Ff]iel|Resposta de Meishu-Sama|Ensinamento de Meishu-Sama|Palavras de Meishu-Sama|Fala do Dr\. Braden|Fala de Meishu-Sama)(?!\s*[:：])/gi, '$1:')
-        // 9) Speaker labels → paragraph break before them
-        .replace(/(\*{0,2})(Pergunta do? (?:um )?fiel|Explicação do fiel|Orientação de Meishu-Sama|Ensinamento de Meishu-Sama|Resposta de Meishu-Sama|Comentário do [Ff]iel|Palavras de Meishu-Sama|Fala do Dr\. Braden|Fala de Meishu-Sama)/gi, DBLBR + '$1$2')
+        // 9) Speaker labels → paragraph break before them. EXCETO quando o
+        //    rótulo está dentro de uma nota editorial entre parênteses (ex.:
+        //    "(Palavras de Meishu-Sama: após advertir sobre um incidente…)"):
+        //    aí ele é inline, não uma fala nova, e quebrar antes deixava o "("
+        //    órfão numa linha sozinha (e o usuário não conseguia juntar editando
+        //    o dado — a quebra era reinserida a cada render). Captura um "("
+        //    (ASCII ou fullwidth) opcional imediatamente antes; se houver,
+        //    devolve o trecho intacto, sem DBLBR.
+        .replace(/([（(]?)(\*{0,2})(Pergunta do? (?:um )?fiel|Explicação do fiel|Orientação de Meishu-Sama|Ensinamento de Meishu-Sama|Resposta de Meishu-Sama|Comentário do [Ff]iel|Palavras de Meishu-Sama|Fala do Dr\. Braden|Fala de Meishu-Sama)/gi, (m, paren, stars, label) => paren ? m : DBLBR + stars + label)
         // 10) Clean up: collapse newlines, normalize spaces
         .replace(/\n/g, ' ')
         .replace(/,\s+/g, ', ')

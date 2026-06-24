@@ -27,7 +27,7 @@ import './admin/tabs/analytics-audio.js?v=8';
 import './admin/tabs/highlights-saved.js?v=3';
 import './admin/tabs/users-permissions.js?v=6';
 import './admin/tabs/analytics.js?v=16';
-import './admin/tabs/translation-review.js?v=5';
+import './admin/tabs/translation-review.js?v=6';
 import './admin/tabs/translation-review-guia.js';
 import './admin/tabs/disciples-reports.js?v=2';
 import './admin/tabs/partial-citations.js?v=24';
@@ -182,6 +182,7 @@ window.switchTab = function (tab, keepDrawerOpen) {
     if (_onlineRefreshInterval) { clearInterval(_onlineRefreshInterval); _onlineRefreshInterval = null; }
   }
   if (tab === 'reports') loadReports();
+  if (tab === 'reports-omitted') loadOmitidos();
   if (tab === 'reports-disc') loadDisciplesReports();
   if (tab === 'destaques') initHlTab();
   if (tab === 'saved') initSavedTab();

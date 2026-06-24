@@ -70,6 +70,174 @@ async function loadReports(forceReload = false) {
   _renderReports();
 }
 
+// ── Card + grupo de relatórios (escopo de módulo: reusado por
+//    _renderReports e _renderOmitidos) ─────────────────────────────
+// ── Build report card HTML ──────────────────────────────────────
+// state: 'pending' | 'corrected' | 'verified'
+function buildCard(r, state) {
+  const date = new Date(r.created_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+  const escapedText = r.selected_text?.replace(/</g, '&lt;').replace(/>/g, '&gt;') || '';
+  const escapedDesc = r.description?.replace(/</g, '&lt;').replace(/>/g, '&gt;') || '';
+  const fileLabel = r.file ? getFileTitle(r.vol, r.file) : '—';
+  const langLabel = r.lang === 'ja' ? '🇯🇵 Japonês' : '🇧🇷 Português';
+  const topicIdx = r.topic_id != null
+    ? (String(r.topic_id).match(/\d+/)?.[0] ?? '')
+    : '';
+
+  let userName = 'Usuário Desconhecido';
+  if (r.user_id) {
+    const u = allUsers.find(x => x.id === r.user_id);
+    if (u) userName = u.display_name || u.email || 'Usuário';
+  }
+
+  const adminName = (uid) => {
+    if (!uid) return 'admin';
+    const u = allUsers.find(x => x.id === uid);
+    return u?.display_name || u?.email || 'admin';
+  };
+  const shortDate = (iso) => {
+    if (!iso) return '';
+    return new Date(iso).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+  };
+
+  const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
+  const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Sugerir correção pontual via Claude AI">✨ Claude</button>`;
+  const geminiBtn = `<button class="report-verify-btn" style="background:rgba(26,115,232,0.1); color:#1a73e8; border-color:rgba(26,115,232,0.3);" onclick="suggestWithGemini('${r.id}')" title="Sugerir correção pontual via Gemini">🔷 Gemini</button>`;
+  const correctBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.15); color:#1f8a3f; border-color:rgba(52,199,89,0.4);" onclick="markCorrected('${r.id}', this)" title="Marcar correção como aplicada — aguarda revisão para arquivar">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Corrigido
+    </button>`;
+  const archiveBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.15); color:#1f8a3f; border-color:rgba(52,199,89,0.4);" onclick="archiveReport('${r.id}', this)" title="Arquivar — correção revisada e confirmada">
+      📦 Arquivar
+    </button>`;
+  // Triagem: move o reporte para a aba "Omitidos (em pesquisa)" — trecho que
+  // parece ter sido omitido da tradução e precisa de pesquisa do texto completo.
+  const omitBtn = `<button class="report-verify-btn" style="background:rgba(175,82,222,0.12); color:#af52de; border-color:rgba(175,82,222,0.35);" onclick="moveToOmitidos('${r.id}', this)" title="Mover para 'Omitidos (em pesquisa)' — separa das correções rápidas">📋 Omitido</button>`;
+  const backBtn = `<button class="report-verify-btn" style="background:rgba(142,142,147,0.12); color:var(--text-muted); border-color:var(--border);" onclick="unmarkOmitido('${r.id}', this)" title="Voltar para a fila principal (Relatórios)">↩ Voltar p/ Relatórios</button>`;
+
+  const previewRaw = _stripHtmlText(r.pt_after || r.selected_text || '');
+  const previewSnippet = previewRaw.replace(/\s+/g, ' ').trim().slice(0, 80);
+  const previewUrl = `reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}${topicIdx ? `&topic=${topicIdx}` : ''}&preview=${encodeURIComponent(previewSnippet)}`;
+  const previewBtn = `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open('${previewUrl.replace(/'/g, "\\'")}', '_blank')" title="Abrir artigo no leitor focando neste trecho">👁️ Preview</button>`;
+
+  let actions = '';
+  let chip = '';
+  if (state === 'pending') {
+    actions = `${previewBtn}${editBtn}${aiBtn}${geminiBtn}${correctBtn}${omitBtn}`;
+  } else if (state === 'corrected') {
+    actions = `${previewBtn}${editBtn}${archiveBtn}`;
+    chip = `<span class="report-status-chip status-corrected" title="Aguardando arquivamento por outro admin">🟡 Corrigido por ${_escHtml(adminName(r.corrected_by))} · ${shortDate(r.corrected_at)}</span>`;
+  } else if (state === 'omitted') {
+    // Aba "Omitidos (em pesquisa)" — fluxo completo: pesquisar, editar e, ao
+    // concluir, marcar Corrigido; ou devolver para a fila principal.
+    actions = `${previewBtn}${editBtn}${aiBtn}${geminiBtn}${correctBtn}${backBtn}`;
+    chip = `<span class="report-status-chip" style="background:rgba(175,82,222,0.12); color:#af52de;" title="Trecho possivelmente omitido — pesquisando se o texto completo existe">📋 Em pesquisa (texto omitido)</span>`;
+  } else { // verified
+    actions = `${previewBtn}`;
+    chip = `<span class="report-status-chip status-archived">📦 Arquivado por ${_escHtml(adminName(r.verified_by))} · ${shortDate(r.verified_at)}</span>`;
+  }
+
+  let diffHtml = '';
+  const showDiff = (state === 'corrected' || state === 'verified') && r.pt_after;
+  if (showDiff) {
+    const beforeRaw = r.pt_before ? _stripHtmlText(r.pt_before) : (r.selected_text || '');
+    const afterRaw = _stripHtmlText(r.pt_after);
+    let beforeHtml = _escHtml(beforeRaw);
+    if (r.pt_before && r.selected_text) {
+      const needle = r.selected_text.replace(/\s+/g, ' ').trim();
+      if (needle) {
+        const re = new RegExp(
+          needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'),
+          'g'
+        );
+        const matches = [...beforeRaw.matchAll(re)];
+        if (matches.length > 0) {
+          let out = '';
+          let lastEnd = 0;
+          for (const m of matches) {
+            out += _escHtml(beforeRaw.slice(lastEnd, m.index));
+            out += `<mark class="diff-needle">${_escHtml(m[0])}</mark>`;
+            lastEnd = m.index + m[0].length;
+          }
+          out += _escHtml(beforeRaw.slice(lastEnd));
+          beforeHtml = out;
+        }
+      }
+    }
+    diffHtml = `
+      <div class="report-diff">
+        <div class="diff-side diff-before">
+          <div class="diff-label">📄 Trecho original${r.pt_before ? ' (parágrafo completo)' : ''}</div>
+          <div class="diff-text">${beforeHtml}</div>
+        </div>
+        <div class="diff-side diff-after">
+          <div class="diff-label">✅ Versão corrigida</div>
+          <div class="diff-text">${_escHtml(afterRaw)}</div>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="report-card state-${state}" id="report-card-${r.id}">
+      <div class="report-header">
+        <span class="report-vol">${VOL_SHORT[r.vol] || r.vol}</span>
+        <span class="report-file" title="${_escHtml(r.file || '')}">${_escHtml(fileLabel)}</span>
+        ${topicIdx !== '' ? `<span class="report-topic-idx" title="Índice do tópico (data-p-idx)">#${topicIdx}</span>` : ''}
+        ${(_prevSet && _prevSet.has(`${r.vol}/${r.file}/${topicIdx}`)) ? `<span class="report-prev-chip" title="Este artigo foi retraduzido — abra o editor para ver/comparar a versão anterior" onclick="openEditorFromReport('${r.id}')">↺ versão anterior</span>` : ''}
+        <span class="report-lang">${langLabel}</span>
+        <span class="report-user">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          ${userName}
+        </span>
+        <span class="report-date">${date}</span>
+        ${actions ? `<div class="report-actions" style="display:flex; gap:8px; flex-wrap:wrap;">${actions}</div>` : ''}
+      </div>
+      ${chip ? `<div class="report-chip-row">${chip}</div>` : ''}
+      ${showDiff ? '' : `<div class="report-text"><mark class="report-selected">${escapedText}</mark></div>`}
+      ${escapedDesc ? `<div class="report-description">${escapedDesc}</div>` : ''}
+      ${diffHtml}
+      <div class="report-ai-panel" id="report-ai-panel-${r.id}" style="display:none; margin-top:12px; padding:12px; border:1px solid rgba(99,102,241,0.3); border-radius:8px; background:rgba(99,102,241,0.04);"></div>
+      <div class="rn-thread">
+        <div class="rn-label">💬 Notas internas</div>
+        <div id="rn-thread-${r.id}">${_buildNotesThread(r.id)}</div>
+        <div class="rn-input-row">
+          <textarea id="rn-input-${r.id}" class="rn-input"
+            placeholder="Escreva uma nota… (Ctrl+Enter para enviar)"
+            onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){sendReportNote('${r.id}');event.preventDefault();}"></textarea>
+          <button class="rn-send" onclick="sendReportNote('${r.id}')">Enviar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// Helper: agrupa por volume e renderiza com header
+function renderGroup(list, state, headerPrefix, opts = {}) {
+  const byVol = {};
+  list.forEach(r => {
+    if (!byVol[r.vol]) byVol[r.vol] = [];
+    byVol[r.vol].push(r);
+  });
+  let out = '';
+  // Ordem conhecida primeiro; QUALQUER outra chave de volume presente nos
+  // dados (disciples, poetry, ou futuras) é anexada — antes só os 4 volumes
+  // do College eram iterados, então reportes de "Disc"/Poesia eram contados
+  // no card "Volume c/ mais reportes" mas NUNCA renderizados na lista.
+  const KNOWN_ORDER = ['mioshiec1','mioshiec2','mioshiec3','mioshiec4','disciples','poetry'];
+  const VOL_GROUP_NAME = { disciples: 'Livros de Discípulos', poetry: 'Poesia' };
+  const orderedVols = [
+    ...KNOWN_ORDER.filter(v => byVol[v]),
+    ...Object.keys(byVol).filter(v => !KNOWN_ORDER.includes(v)).sort()
+  ];
+  for (const vol of orderedVols) {
+    const group = byVol[vol];
+    if (!group || group.length === 0) continue;
+    const volName = VOLUMES.find(v => v.key === vol)?.name || VOL_GROUP_NAME[vol] || VOL_SHORT[vol] || vol;
+    out += `<div class="report-group-label" style="${opts.labelStyle || ''}">${headerPrefix} ${volName} — ${group.length}</div>`;
+    group.forEach(r => { out += buildCard(r, state); });
+  }
+  return out;
+}
+
 function _renderReports() {
   const container = document.getElementById('reportsContainer');
   const summary = document.getElementById('reportsSummary');
@@ -86,6 +254,8 @@ function _renderReports() {
     badge.textContent = needsAttention;
     badge.classList.toggle('empty', needsAttention === 0);
   }
+  // Mantém o badge da aba "Omitidos (em pesquisa)" em dia mesmo sem visitá-la.
+  _updateOmittedBadge();
 
   // ── Summary cards ──────────────────────────────────────────────
   const open = [...pending, ...corrected];
@@ -116,163 +286,6 @@ function _renderReports() {
       <div class="lbl">Arquivados</div>
     </div>
   `;
-
-  // ── Build report card HTML ──────────────────────────────────────
-  // state: 'pending' | 'corrected' | 'verified'
-  function buildCard(r, state) {
-    const date = new Date(r.created_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-    const escapedText = r.selected_text?.replace(/</g, '&lt;').replace(/>/g, '&gt;') || '';
-    const escapedDesc = r.description?.replace(/</g, '&lt;').replace(/>/g, '&gt;') || '';
-    const fileLabel = r.file ? getFileTitle(r.vol, r.file) : '—';
-    const langLabel = r.lang === 'ja' ? '🇯🇵 Japonês' : '🇧🇷 Português';
-    const topicIdx = r.topic_id != null
-      ? (String(r.topic_id).match(/\d+/)?.[0] ?? '')
-      : '';
-
-    let userName = 'Usuário Desconhecido';
-    if (r.user_id) {
-      const u = allUsers.find(x => x.id === r.user_id);
-      if (u) userName = u.display_name || u.email || 'Usuário';
-    }
-
-    const adminName = (uid) => {
-      if (!uid) return 'admin';
-      const u = allUsers.find(x => x.id === uid);
-      return u?.display_name || u?.email || 'admin';
-    };
-    const shortDate = (iso) => {
-      if (!iso) return '';
-      return new Date(iso).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-    };
-
-    const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
-    const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Sugerir correção pontual via Claude AI">✨ Claude</button>`;
-    const geminiBtn = `<button class="report-verify-btn" style="background:rgba(26,115,232,0.1); color:#1a73e8; border-color:rgba(26,115,232,0.3);" onclick="suggestWithGemini('${r.id}')" title="Sugerir correção pontual via Gemini">🔷 Gemini</button>`;
-    const correctBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.15); color:#1f8a3f; border-color:rgba(52,199,89,0.4);" onclick="markCorrected('${r.id}', this)" title="Marcar correção como aplicada — aguarda revisão para arquivar">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Corrigido
-      </button>`;
-    const archiveBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.15); color:#1f8a3f; border-color:rgba(52,199,89,0.4);" onclick="archiveReport('${r.id}', this)" title="Arquivar — correção revisada e confirmada">
-        📦 Arquivar
-      </button>`;
-
-    const previewRaw = _stripHtmlText(r.pt_after || r.selected_text || '');
-    const previewSnippet = previewRaw.replace(/\s+/g, ' ').trim().slice(0, 80);
-    const previewUrl = `reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}${topicIdx ? `&topic=${topicIdx}` : ''}&preview=${encodeURIComponent(previewSnippet)}`;
-    const previewBtn = `<button class="report-verify-btn" style="background:rgba(0,122,255,0.1); color:#007aff; border-color:rgba(0,122,255,0.3);" onclick="window.open('${previewUrl.replace(/'/g, "\\'")}', '_blank')" title="Abrir artigo no leitor focando neste trecho">👁️ Preview</button>`;
-
-    let actions = '';
-    let chip = '';
-    if (state === 'pending') {
-      actions = `${previewBtn}${editBtn}${aiBtn}${geminiBtn}${correctBtn}`;
-    } else if (state === 'corrected') {
-      actions = `${previewBtn}${editBtn}${archiveBtn}`;
-      chip = `<span class="report-status-chip status-corrected" title="Aguardando arquivamento por outro admin">🟡 Corrigido por ${_escHtml(adminName(r.corrected_by))} · ${shortDate(r.corrected_at)}</span>`;
-    } else { // verified
-      actions = `${previewBtn}`;
-      chip = `<span class="report-status-chip status-archived">📦 Arquivado por ${_escHtml(adminName(r.verified_by))} · ${shortDate(r.verified_at)}</span>`;
-    }
-
-    let diffHtml = '';
-    const showDiff = (state === 'corrected' || state === 'verified') && r.pt_after;
-    if (showDiff) {
-      const beforeRaw = r.pt_before ? _stripHtmlText(r.pt_before) : (r.selected_text || '');
-      const afterRaw = _stripHtmlText(r.pt_after);
-      let beforeHtml = _escHtml(beforeRaw);
-      if (r.pt_before && r.selected_text) {
-        const needle = r.selected_text.replace(/\s+/g, ' ').trim();
-        if (needle) {
-          const re = new RegExp(
-            needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'),
-            'g'
-          );
-          const matches = [...beforeRaw.matchAll(re)];
-          if (matches.length > 0) {
-            let out = '';
-            let lastEnd = 0;
-            for (const m of matches) {
-              out += _escHtml(beforeRaw.slice(lastEnd, m.index));
-              out += `<mark class="diff-needle">${_escHtml(m[0])}</mark>`;
-              lastEnd = m.index + m[0].length;
-            }
-            out += _escHtml(beforeRaw.slice(lastEnd));
-            beforeHtml = out;
-          }
-        }
-      }
-      diffHtml = `
-        <div class="report-diff">
-          <div class="diff-side diff-before">
-            <div class="diff-label">📄 Trecho original${r.pt_before ? ' (parágrafo completo)' : ''}</div>
-            <div class="diff-text">${beforeHtml}</div>
-          </div>
-          <div class="diff-side diff-after">
-            <div class="diff-label">✅ Versão corrigida</div>
-            <div class="diff-text">${_escHtml(afterRaw)}</div>
-          </div>
-        </div>`;
-    }
-
-    return `
-      <div class="report-card state-${state}" id="report-card-${r.id}">
-        <div class="report-header">
-          <span class="report-vol">${VOL_SHORT[r.vol] || r.vol}</span>
-          <span class="report-file" title="${_escHtml(r.file || '')}">${_escHtml(fileLabel)}</span>
-          ${topicIdx !== '' ? `<span class="report-topic-idx" title="Índice do tópico (data-p-idx)">#${topicIdx}</span>` : ''}
-          ${(_prevSet && _prevSet.has(`${r.vol}/${r.file}/${topicIdx}`)) ? `<span class="report-prev-chip" title="Este artigo foi retraduzido — abra o editor para ver/comparar a versão anterior" onclick="openEditorFromReport('${r.id}')">↺ versão anterior</span>` : ''}
-          <span class="report-lang">${langLabel}</span>
-          <span class="report-user">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            ${userName}
-          </span>
-          <span class="report-date">${date}</span>
-          ${actions ? `<div class="report-actions" style="display:flex; gap:8px; flex-wrap:wrap;">${actions}</div>` : ''}
-        </div>
-        ${chip ? `<div class="report-chip-row">${chip}</div>` : ''}
-        ${showDiff ? '' : `<div class="report-text"><mark class="report-selected">${escapedText}</mark></div>`}
-        ${escapedDesc ? `<div class="report-description">${escapedDesc}</div>` : ''}
-        ${diffHtml}
-        <div class="report-ai-panel" id="report-ai-panel-${r.id}" style="display:none; margin-top:12px; padding:12px; border:1px solid rgba(99,102,241,0.3); border-radius:8px; background:rgba(99,102,241,0.04);"></div>
-        <div class="rn-thread">
-          <div class="rn-label">💬 Notas internas</div>
-          <div id="rn-thread-${r.id}">${_buildNotesThread(r.id)}</div>
-          <div class="rn-input-row">
-            <textarea id="rn-input-${r.id}" class="rn-input"
-              placeholder="Escreva uma nota… (Ctrl+Enter para enviar)"
-              onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){sendReportNote('${r.id}');event.preventDefault();}"></textarea>
-            <button class="rn-send" onclick="sendReportNote('${r.id}')">Enviar</button>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  // Helper: agrupa por volume e renderiza com header
-  function renderGroup(list, state, headerPrefix, opts = {}) {
-    const byVol = {};
-    list.forEach(r => {
-      if (!byVol[r.vol]) byVol[r.vol] = [];
-      byVol[r.vol].push(r);
-    });
-    let out = '';
-    // Ordem conhecida primeiro; QUALQUER outra chave de volume presente nos
-    // dados (disciples, poetry, ou futuras) é anexada — antes só os 4 volumes
-    // do College eram iterados, então reportes de "Disc"/Poesia eram contados
-    // no card "Volume c/ mais reportes" mas NUNCA renderizados na lista.
-    const KNOWN_ORDER = ['mioshiec1','mioshiec2','mioshiec3','mioshiec4','disciples','poetry'];
-    const VOL_GROUP_NAME = { disciples: 'Livros de Discípulos', poetry: 'Poesia' };
-    const orderedVols = [
-      ...KNOWN_ORDER.filter(v => byVol[v]),
-      ...Object.keys(byVol).filter(v => !KNOWN_ORDER.includes(v)).sort()
-    ];
-    for (const vol of orderedVols) {
-      const group = byVol[vol];
-      if (!group || group.length === 0) continue;
-      const volName = VOLUMES.find(v => v.key === vol)?.name || VOL_GROUP_NAME[vol] || VOL_SHORT[vol] || vol;
-      out += `<div class="report-group-label" style="${opts.labelStyle || ''}">${headerPrefix} ${volName} — ${group.length}</div>`;
-      group.forEach(r => { out += buildCard(r, state); });
-    }
-    return out;
-  }
 
   let html = '';
 
@@ -325,6 +338,97 @@ function _renderReports() {
   container.innerHTML = html;
 }
 
+// ============================================================
+// Omitidos (em pesquisa) — aba separada para os reportes em que o trecho
+// parece OMITIDO da tradução e exige pesquisa do texto completo. Reusa o
+// mesmo _allReports (status === 'omitted'), buildCard e renderGroup.
+// ============================================================
+function _updateOmittedBadge() {
+  const n = _allReports.filter(r => r.status === 'omitted').length;
+  const ob = document.getElementById('omittedTabBadge');
+  if (ob) { ob.textContent = n; ob.classList.toggle('empty', n === 0); }
+}
+
+function _renderOmitidos() {
+  const container = document.getElementById('omittedContainer');
+  if (!container) return;
+  const summary = document.getElementById('omittedSummary');
+  const omitted = _allReports.filter(r => r.status === 'omitted');
+  _updateOmittedBadge();
+
+  if (summary) {
+    const uniqueFiles = new Set(omitted.map(r => `${r.vol}/${r.file}`)).size;
+    const volCounts = {};
+    omitted.forEach(r => { volCounts[r.vol] = (volCounts[r.vol] || 0) + 1; });
+    const topVol = Object.entries(volCounts).sort((a, b) => b[1] - a[1])[0];
+    summary.innerHTML = `
+      <div class="report-summary-item">
+        <div class="val" style="color:#af52de">${omitted.length}</div>
+        <div class="lbl">Em pesquisa</div>
+      </div>
+      <div class="report-summary-item">
+        <div class="val">${uniqueFiles}</div>
+        <div class="lbl">Arquivos Distintos</div>
+      </div>
+      <div class="report-summary-item">
+        <div class="val">${topVol ? (VOL_SHORT[topVol[0]] || topVol[0]) : '—'}</div>
+        <div class="lbl">Volume c/ mais</div>
+      </div>`;
+  }
+
+  if (!omitted.length) {
+    container.innerHTML = `<div class="report-empty">Nenhum item em pesquisa. Na aba <strong>Relatórios</strong>, use o botão <strong style="color:#af52de">📋 Omitido</strong> de um reporte pendente para mover trechos que precisam de pesquisa do texto completo para cá.</div>`;
+    return;
+  }
+  container.innerHTML = '<div class="report-list">' + renderGroup(omitted, 'omitted', '📋') + '</div>';
+}
+
+// Chamado por switchTab('reports-omitted'). Garante que os reportes já foram
+// carregados (compartilha _allReports com a aba Relatórios) e renderiza.
+async function loadOmitidos() {
+  if (!_reportsLoaded) { await loadReports(); }
+  _renderOmitidos();
+}
+
+// Pendente → Omitido (triagem para pesquisa)
+async function moveToOmitidos(id, btnEl) {
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = '...'; }
+  const { error } = await supabase
+    .from('translation_reports')
+    .update({ status: 'omitted' })
+    .eq('id', id);
+  if (error) {
+    console.error('[admin] moveToOmitidos failed:', error.message);
+    alert('Erro ao mover para Omitidos: ' + error.message +
+      '\n\nSe a mensagem mencionar "constraint", aplique a migration ' +
+      'supabase/migrations/translation_reports_add_omitted_status.sql no SQL Editor do Supabase.');
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = '📋 Omitido'; }
+    return;
+  }
+  const idx = _allReports.findIndex(r => r.id === id);
+  if (idx !== -1) _allReports[idx].status = 'omitted';
+  _renderReports();
+  _renderOmitidos();
+}
+
+// Omitido → Pendente (devolve para a fila principal)
+async function unmarkOmitido(id, btnEl) {
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = '...'; }
+  const { error } = await supabase
+    .from('translation_reports')
+    .update({ status: 'pending' })
+    .eq('id', id);
+  if (error) {
+    console.error('[admin] unmarkOmitido failed:', error.message);
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = '↩ Voltar p/ Relatórios'; }
+    return;
+  }
+  const idx = _allReports.findIndex(r => r.id === id);
+  if (idx !== -1) _allReports[idx].status = 'pending';
+  _renderReports();
+  _renderOmitidos();
+}
+
 function toggleVerifiedSection() {
   const body = document.getElementById('verifiedBody');
   const icon = document.getElementById('verifiedToggleIcon');
@@ -357,6 +461,7 @@ async function markCorrected(id, btnEl) {
     _allReports[idx].corrected_at = now;
   }
   _renderReports();
+  _renderOmitidos(); // se veio da aba Omitidos, remove de lá
 }
 
 // Corrigido → Arquivado
@@ -382,6 +487,7 @@ async function archiveReport(id, btnEl) {
     _allReports[idx].verified_at = now;
   }
   _renderReports();
+  _renderOmitidos();
 }
 
 function _buildNotesThread(reportId) {
@@ -1636,6 +1742,10 @@ Object.assign(window, {
   markCorrected,
   archiveReport,
   verifyReport: archiveReport, // alias legado
+  // Omitidos (em pesquisa)
+  loadOmitidos,
+  moveToOmitidos,
+  unmarkOmitido,
   sendReportNote,
   deleteReportNote,
   // AI helpers (report side)

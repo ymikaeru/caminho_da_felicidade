@@ -146,6 +146,9 @@
                   <div class="admin-nav-item" data-tab="reports" onclick="switchTab('reports')"><span
                       class="admin-nav-ico">⚠</span><span class="admin-nav-txt">Relatórios</span><span
                       class="tab-badge empty" id="reportsTabBadge">0</span></div>
+                  <div class="admin-nav-item" data-tab="reports-omitted" onclick="switchTab('reports-omitted')"><span
+                      class="admin-nav-ico">📋</span><span class="admin-nav-txt">Omitidos (em pesquisa)</span><span
+                      class="tab-badge empty" id="omittedTabBadge">0</span></div>
                   <div class="admin-nav-item" data-tab="reports-disc" onclick="switchTab('reports-disc')"><span
                       class="admin-nav-ico">📖</span><span class="admin-nav-txt">Reportes Livros Discípulos</span><span
                       class="tab-badge empty" id="discReportsTabBadge">0</span></div>
@@ -291,6 +294,22 @@
               <div class="report-summary-bar" id="reportsSummary"></div>
               <div id="reportsContainer">
                 <div class="loading">Carregando relatórios...</div>
+              </div>
+            </div>
+
+            <!-- Omitidos (em pesquisa) Tab -->
+            <div class="tab-content" id="tab-reports-omitted">
+              <div style="margin-bottom:24px;">
+                <h2
+                  style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                  Omitidos (em pesquisa)</h2>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Reportes em que o trecho parece ter sido
+                  omitido da tradução e precisam de pesquisa do texto completo. Separados das correções rápidas da aba
+                  Relatórios — mova um reporte para cá pelo botão “📋 Omitido”.</p>
+              </div>
+              <div class="report-summary-bar" id="omittedSummary"></div>
+              <div id="omittedContainer">
+                <div class="loading">Carregando…</div>
               </div>
             </div>
 
@@ -1071,7 +1090,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=135"></script>
+  <script type="module" src="js/admin.js?v=136"></script>
 </body>
 
 </html>

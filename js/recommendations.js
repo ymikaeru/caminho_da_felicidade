@@ -74,6 +74,13 @@
       @media (prefers-reduced-motion: reduce) {
         .rec-header-enter, .rec-badge-pulse { animation: none; }
       }
+      .rec-pl-group > summary { list-style: none; outline: none; }
+      .rec-pl-group > summary::-webkit-details-marker { display: none; }
+      .rec-pl-group > summary::marker { content: ''; }
+      .rec-pl-group > summary:hover { background: rgba(184,134,11,0.045); }
+      .rec-pl-group > summary:focus-visible { background: rgba(184,134,11,0.08); }
+      .rec-pl-chevron { transition: transform 0.22s ease; }
+      .rec-pl-group[open] .rec-pl-chevron { transform: rotate(180deg); }
     `;
     document.head.appendChild(s);
   }
@@ -477,6 +484,7 @@
   function _renderList(list) {
     const ul = document.getElementById('recommendationsResults');
     if (!ul) return;
+    _ensureAnimStyle();   // garante o CSS do grupo recolhível
     const lang = localStorage.getItem('site_lang') || 'pt';
     const emptyMsg = lang === 'ja'
       ? '今のところおすすめはありません。'
@@ -510,7 +518,8 @@
     // Card nórdico: sem ícone, sem linha separadora. Hierarquia por tipo —
     // eyebrow (coletânea, opcional) → título serifado → meta → nota/trecho.
     // Itens separados por espaço (padding), não por borda.
-    const card = ({ kicker, title, titleHref, meta, below, recId, archive }) => {
+    const card = ({ kicker, title, titleHref, meta, below, recId, archive, tag }) => {
+      const T = tag || 'li';
       const archLabel = lang === 'ja' ? 'アーカイブ' : 'Arquivar';
       const titleHtml = titleHref
         ? `<a href="${titleHref}" style="display:block;font-family:'Crimson Pro',Georgia,serif;font-size:1.12rem;font-weight:600;line-height:1.3;color:var(--text-main);text-decoration:none;">${_esc(title)}</a>`
@@ -524,7 +533,7 @@
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
             </button>`;
       return `
-        <li style="padding:6px 24px 22px;">
+        <${T} style="padding:6px 24px 22px;list-style:none;">
           <div style="display:flex;align-items:flex-start;gap:18px;">
             <div style="flex:1;min-width:0;">
               ${kickerHtml}
@@ -534,7 +543,7 @@
             </div>
             ${archiveBtn}
           </div>
-        </li>`;
+        </${T}>`;
     };
 
     // ── separa áudio (footer fixo) do resto (lista scrollável) ──────────
@@ -543,7 +552,7 @@
 
     // Renderiza UM item (poema ou ensinamento). showArchive=false p/ itens de
     // playlist — a playlist é arquivada como UNIDADE no cabeçalho do grupo.
-    const renderItem = (r, showArchive) => {
+    const renderItem = (r, showArchive, tag) => {
       const recommender = _displayRecommender(r.created_by_name);
       const date = relDate(r.created_at);
       const expHtml = _expHtml(r, lang);
@@ -561,7 +570,7 @@
         const kicker = dash >= 0 ? raw.slice(0, dash).trim() : '';
         const ptitle = dash >= 0 ? raw.slice(dash + 3).trim() : raw;
         const below = ptExcerpt(r.poem_text) + noteHtml;
-        return card({ kicker, title: ptitle, titleHref: phref, meta, below: below || '', recId: r.id, archive: showArchive });
+        return card({ kicker, title: ptitle, titleHref: phref, meta, below: below || '', recId: r.id, archive: showArchive, tag });
       }
       const title = (lang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '(sem título)');
       const idx = r.topic_idx != null ? r.topic_idx : 0;
@@ -580,7 +589,7 @@
           : (ranges.length === 1 ? 'com 1 trecho destacado' : `com ${ranges.length} trechos destacados`);
         excerptHtml = `<div style="font-size:0.78rem;color:var(--accent);font-family:var(--font-ui);letter-spacing:.02em;">✦ ${nLbl}</div>`;
       }
-      return card({ title, titleHref: href, meta, below: excerptHtml + noteHtml, recId: r.id, archive: showArchive });
+      return card({ title, titleHref: href, meta, below: excerptHtml + noteHtml, recId: r.id, archive: showArchive, tag });
     };
 
     // ── particiona em playlists (source_collection_id) + avulsos ─────────
@@ -601,17 +610,26 @@
     for (const [cid, g] of groups) {
       const cntLbl = lang === 'ja' ? '件' : (g.items.length === 1 ? 'ensinamento' : 'ensinamentos');
       const archLabel = lang === 'ja' ? 'プレイリストをアーカイブ' : 'Arquivar playlist';
+      // Recolhível: playlists pequenas (≤3) já abrem; grandes vêm recolhidas
+      // pra não flodar a cartinha (principalmente no mobile). Toca p/ expandir.
+      const openAttr = g.items.length <= 3 ? ' open' : '';
+      const items = g.items.map(r => renderItem(r, false, 'div')).join('');
       html += `
-        <li style="padding:22px 24px 10px;display:flex;align-items:center;gap:10px;">
-          <span style="font-size:1rem;flex-shrink:0;">📂</span>
-          <span style="flex:1;min-width:0;font-family:var(--font-ui);font-weight:600;font-size:0.92rem;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(g.name)}</span>
-          <span style="font-size:0.7rem;color:var(--text-muted);white-space:nowrap;flex-shrink:0;">${g.items.length} ${cntLbl}</span>
-          <button type="button" class="rec-archive-group-btn" data-coll-id="${_esc(cid)}" title="${archLabel}" aria-label="${archLabel}"
-            style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;margin:-6px;opacity:0.55;display:flex;align-items:center;flex-shrink:0;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-          </button>
+        <li style="padding:0;list-style:none;">
+          <details class="rec-pl-group"${openAttr}>
+            <summary style="display:flex;align-items:center;gap:10px;padding:22px 24px 14px;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+              <span style="font-size:1rem;flex-shrink:0;">📂</span>
+              <span style="flex:1;min-width:0;font-family:var(--font-ui);font-weight:600;font-size:0.92rem;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(g.name)}</span>
+              <span style="font-size:0.7rem;color:var(--text-muted);white-space:nowrap;flex-shrink:0;">${g.items.length} ${cntLbl}</span>
+              <svg class="rec-pl-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--text-muted);flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
+              <button type="button" class="rec-archive-group-btn" data-coll-id="${_esc(cid)}" title="${archLabel}" aria-label="${archLabel}"
+                style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;margin:-6px -6px -6px 0;opacity:0.55;display:flex;align-items:center;flex-shrink:0;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+              </button>
+            </summary>
+            <div>${items}</div>
+          </details>
         </li>`;
-      html += g.items.map(r => renderItem(r, false)).join('');
     }
 
     // Avulsos: rótulos por tipo (Poemas / Ensinamentos) + arquivar individual.

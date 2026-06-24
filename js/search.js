@@ -40,16 +40,22 @@ let _currentQuery = '';
 // palavras casam em trechos diferentes da mesma publicação, não juntas num
 // só trecho (ex.: "Vingança Ushitora alegria"). Banner explica.
 let _orFallbackActive = false;
-// Modo de busca (escolha explícita do usuário, persistida): cada modo busca
-// e mostra SÓ o seu tipo, de forma determinística. Acabou o "busca tudo e
-// despeja semântica" — ver _MODES e performSearch.
-//   'titulo'      → índice local de títulos reais por-tópico
-//   'conteudo'    → FTS no corpo + cobertura por publicação (multi-palavra)
-//   'colecao'     → nome das publicações (SECTION_MAP)
+// Modo de busca (2 modos, persistido). Cada um determinístico:
+//   'literal'     → busca COMBINADA: Título (índice local) + Coleção
+//                   (SECTION_MAP) + Conteúdo (FTS), separados por seção. É o
+//                   antigo Tudo, promovido a modo principal — as abas
+//                   separadas Título/Conteúdo/Coleção foram fundidas aqui.
 //   'relacionados'→ busca semântica (Edge search-semantic)
-const _MODES = ['titulo', 'conteudo', 'colecao', 'relacionados'];
-let _searchMode = 'titulo';
-try { const m = localStorage.getItem('search_mode'); if (_MODES.includes(m)) _searchMode = m; } catch (e) {}
+const _MODES = ['literal', 'relacionados'];
+let _searchMode = 'literal';
+// Migração das contas antigas: search_mode era titulo/conteudo/colecao/tudo →
+// tudo isso vira 'literal'; só 'relacionados' sobrevive. (Não regrava o
+// localStorage; o remap é idempotente a cada load.)
+try {
+  const m = localStorage.getItem('search_mode');
+  if (m === 'relacionados') _searchMode = 'relacionados';
+  else if (m) _searchMode = 'literal';
+} catch (e) {}
 // Query efetivamente buscada (≠ texto digitado ainda não submetido). A busca
 // é SOB DEMANDA: nenhum modo busca ao digitar; só roda no botão "Buscar" /
 // Enter (ver runSearch). Usado pra decidir se trocar de modo re-roda.
@@ -309,13 +315,15 @@ function _bodyWindow(body, q, activeLang) {
 
 // Cada hit conhece seu título real (extraído do conteúdo embutido, quando
 // é tópico de contêiner) calculado uma vez em _renderGroup e passado aqui.
-function _renderHit(hit, g, basePath, highlightRegex, q, activeLang) {
+// contentFocused = renderiza com o TRECHO do corpo em destaque (seção Conteúdo
+// do modo Literal); sem ele, mostra título + snippet (Relacionados).
+function _renderHit(hit, g, basePath, highlightRegex, q, activeLang, contentFocused) {
   const href = _searchLink(basePath, g.vol, g.file, hit.topicIdx, q, activeLang);
   const ex = hit._extracted; // { title, body } | null
   let titleHtml = '';
   let snippetSrc = hit.snippet;
 
-  if (_searchMode === 'conteudo') {
+  if (contentFocused) {
     // Conteúdo é o protagonista: pega um trecho do CORPO em volta do match,
     // pulando o título embutido. Prioridade:
     //   1) janela em volta do termo no corpo (content_excerpt, 1500 chars);
@@ -357,7 +365,7 @@ function _renderHit(hit, g, basePath, highlightRegex, q, activeLang) {
     </a></li>`;
 }
 
-function _renderGroup(g, basePath, highlightRegex, q, activeLang) {
+function _renderGroup(g, basePath, highlightRegex, q, activeLang, contentFocused) {
   const volNum = g.vol.slice(-1);
   const volLabel = activeLang === 'ja' ? `第${volNum}巻` : `Volume ${volNum}`;
   const hits = g.hits.slice().sort((a, b) => a.topicIdx - b.topicIdx);
@@ -386,7 +394,7 @@ function _renderGroup(g, basePath, highlightRegex, q, activeLang) {
   const hitsLabel = hits.length > 1
     ? (activeLang === 'ja' ? `${hits.length}件` : `${hits.length} ${isContainer ? 'ensinamentos' : 'trechos'}`)
     : '';
-  const hitsHtml = hits.map(h => _renderHit(h, g, basePath, highlightRegex, q, activeLang)).join('');
+  const hitsHtml = hits.map(h => _renderHit(h, g, basePath, highlightRegex, q, activeLang, contentFocused)).join('');
 
   if (isContainer) {
     // Contêiner: cabeçalho = link clicável pra publicação inteira (desde o
@@ -429,9 +437,11 @@ function _renderGroup(g, basePath, highlightRegex, q, activeLang) {
 // ---------------------------------------------------------------
 // Seletor de modo (Título / Conteúdo / Coleção / Relacionados)
 // ---------------------------------------------------------------
+// 'literal'/'relacionados' = rótulos das ABAS. As chaves titulo/colecao/conteudo
+// continuam (rótulos das SEÇÕES dentro do modo Literal).
 const _MODE_LABELS = {
-  pt: { titulo: 'Título', conteudo: 'Conteúdo', colecao: 'Coleção', relacionados: 'Relacionados' },
-  ja: { titulo: 'タイトル', conteudo: '本文', colecao: '叢書', relacionados: '関連' },
+  pt: { literal: 'Literal', relacionados: 'Relacionados', titulo: 'Título', conteudo: 'Conteúdo', colecao: 'Coleção' },
+  ja: { literal: '文字どおり', relacionados: '関連', titulo: 'タイトル', conteudo: '本文', colecao: '叢書' },
 };
 
 function _renderModeSelector(activeLang) {
@@ -445,26 +455,18 @@ function _renderModeSelector(activeLang) {
   bar.style.display = '';
 }
 
-// Resultados de paginação são GENÉRICOS por modo: grupos (conteúdo/
-// relacionados) ou itens planos (título/coleção). _displayedCount conta a
-// unidade visível do modo. _renderActive despacha pra renderização certa.
-let _flatItems = [];
-
+// Paginação do modo RELACIONADOS (grupos). O modo Literal pagina por seção
+// (loadMoreLiteralSection), à parte. _renderActive/_activeTotal/loadMoreResults
+// servem só a Relacionados.
 function _renderActive(count, highlightRegex, q, activeLang) {
-  if (_searchMode === 'titulo') return _renderFlatList(_flatItems, count, highlightRegex, q, activeLang, 'titulo');
-  if (_searchMode === 'colecao') return _renderFlatList(_flatItems, count, highlightRegex, q, activeLang, 'colecao');
   return _renderGroupsList(_allGroups, count, highlightRegex, q, activeLang);
 }
 
 function _activeTotal() {
-  return (_searchMode === 'titulo' || _searchMode === 'colecao') ? _flatItems.length : _allGroups.length;
+  return _allGroups.length;
 }
 
 function _loadMoreLabel(nextN, activeLang) {
-  if (_searchMode === 'colecao')
-    return activeLang === 'ja' ? `さらに${nextN}件` : `Carregar mais ${nextN} publicaç${nextN === 1 ? 'ão' : 'ões'}`;
-  if (_searchMode === 'titulo')
-    return activeLang === 'ja' ? `さらに${nextN}件` : `Carregar mais ${nextN} ensinamento${nextN === 1 ? '' : 's'}`;
   return activeLang === 'ja' ? `さらに${nextN}件の文献を表示` : `Carregar mais ${nextN} publicaç${nextN === 1 ? 'ão' : 'ões'}`;
 }
 
@@ -722,7 +724,7 @@ window.clearSearch = function () {
   sessionStorage.removeItem('searchResultsHtml');
   _allResults = [];
   _allGroups = [];
-  _flatItems = [];
+  _literal = null;
   _orFallbackActive = false;
   _displayedCount = 0;
   _currentQuery = '';
@@ -1084,7 +1086,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modeSelector.addEventListener('click', (e) => {
       const btn = e.target.closest('.search-mode-btn');
       if (!btn) return;
-      switchSearchMode(btn.dataset.mode || 'titulo');
+      switchSearchMode(btn.dataset.mode || 'literal');
     });
   }
 
@@ -1359,7 +1361,9 @@ function _shouldTriggerDidYouMean(results, activeLang) {
 
 // Modos de SERVIDOR (FTS/Voyage pesado) buscam SOB DEMANDA; os LOCAIS
 // (Título/Coleção) buscam instantâneo ao digitar.
-function _isOnDemandMode() { return _searchMode === 'conteudo' || _searchMode === 'relacionados'; }
+// Os dois modos batem no servidor (Literal no Conteúdo/FTS; Relacionados na
+// semântica) → ambos sob demanda (botão Buscar/Enter).
+function _isOnDemandMode() { return _searchMode === 'literal' || _searchMode === 'relacionados'; }
 
 // Mostra/esconde o botão "Buscar" do header conforme o modo: só aparece nos
 // modos sob demanda (nos locais a busca é instantânea, o botão seria inútil).
@@ -1462,27 +1466,188 @@ window.switchSearchMode = function(mode, forceRun) {
   else _renderSearchPrompt(input.value);                          // servidor → prompt
 };
 
-// Render + contagem + sessão para os modos de LISTA PLANA (título/coleção).
-function _finishFlat(resultsEl, q, activeLang, mySeq, nudgeContent) {
-  if (mySeq !== _searchSeq) return;
-  if (_flatItems.length === 0) {
-    const none = activeLang === 'ja' ? '結果が見つかりませんでした。' : 'Nenhum resultado.';
-    let extra = '';
-    if (nudgeContent) {
-      const t = activeLang === 'ja' ? '本文で検索しますか？' : 'Buscar essas palavras no Conteúdo?';
-      extra = `<li class="search-mode-nudge"><button type="button" class="btn-load-more" onclick="switchSearchMode('conteudo', true)">${t}</button></li>`;
-    }
-    if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${none}</li>` + extra;
-    _updateSearchCount(0, 0, activeLang);
-    _displayedCount = 0;
-    return;
+// ---------------------------------------------------------------
+// Modo LITERAL — busca combinada: Título + Coleção + Conteúdo
+// ---------------------------------------------------------------
+// Modo determinístico principal (fundiu as abas separadas Título/Conteúdo/
+// Coleção). Roda os três motores e empilha em SEÇÕES, cada uma com paginação
+// PRÓPRIA (load-more por seção — não há mais aba pra onde "ver todos"). SEM
+// semântica (isso é o modo Relacionados).
+const LITERAL_PAGE = 5; // itens iniciais e incremento por seção
+
+// Estado do modo Literal (paginação por seção; re-render lê o `shown` de cada).
+//   { q, lang, titulo:{items,shown}, colecao:{items,shown},
+//     conteudo:{groups,shown,note,orActive} }
+let _literal = null;
+
+// Nota explicativa sob o cabeçalho Conteúdo quando não há grupos pra mostrar.
+//   'login' (deslogado — o FTS exige auth.uid()): sem ação (logar é fora daqui).
+//   'unavailable' (erro/timeout): botão "Tentar de novo" (re-roda a busca).
+//   'none' (logado, zero trechos): botão "Buscar em Relacionados" (a semântica
+//     pode achar o que o FTS literal não achou).
+function _combinedContentNote(key, activeLang) {
+  const ja = activeLang === 'ja';
+  let msg, action = '';
+  if (key === 'login') {
+    msg = ja ? '本文検索にはログインが必要です。' : 'Entre na sua conta para buscar no conteúdo.';
+  } else if (key === 'unavailable') {
+    msg = ja ? '本文検索は現在利用できません。' : 'A busca no conteúdo está indisponível agora.';
+    action = `<button type="button" class="btn-load-more" onclick="runSearch()">${ja ? '再試行' : 'Tentar de novo'}</button>`;
+  } else {
+    msg = ja ? '本文に該当する節は見つかりませんでした。' : 'Nenhum trecho encontrado no conteúdo.';
+    action = `<button type="button" class="btn-load-more" onclick="switchSearchMode('relacionados', true)">${ja ? '関連で検索' : 'Buscar em Relacionados'}</button>`;
   }
-  _displayedCount = Math.min(GROUPS_PER_PAGE, _flatItems.length);
-  const hl = _buildHighlightRegex(q, activeLang);
-  if (resultsEl) resultsEl.innerHTML = _renderActive(_displayedCount, hl, q, activeLang);
-  _updateSearchCount(_flatItems.length, _displayedCount, activeLang, _flatItems.length >= MAX_RESULTS);
-  sessionStorage.setItem('searchQuery', q);
-  if (resultsEl) sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
+  const actionHtml = action ? `<div class="search-section-note-action">${action}</div>` : '';
+  return `<li class="search-section-note">${escHtml(msg)}${actionHtml}</li>`;
+}
+
+// Cabeçalho de seção: rótulo + contagem total (a paginação fica no rodapé da
+// seção, via _literalMore).
+function _literalHead(label, total, activeLang) {
+  const cnt = total ? `<span class="search-section-count">${total}</span>` : '';
+  return `<li class="search-section-head"><span class="search-section-title">${label}</span>${cnt}</li>`;
+}
+
+// Botão "Carregar mais N" de UMA seção (kind = titulo|colecao|conteudo).
+function _literalMore(kind, shown, total, activeLang) {
+  if (shown >= total) return '';
+  const remaining = total - shown;
+  const nextN = Math.min(LITERAL_PAGE, remaining);
+  const label = activeLang === 'ja' ? `さらに${nextN}件` : `Carregar mais ${nextN}`;
+  const hint = activeLang === 'ja' ? `（残り${remaining}）` : `(${remaining} restantes)`;
+  return `<li class="search-load-more search-load-more--section"><button class="btn-load-more" onclick="loadMoreLiteralSection('${kind}')">${label}</button><span class="load-more-hint">${hint}</span></li>`;
+}
+
+// Renderiza as 3 seções a partir de _literal. Reusa _renderFlatList (com count =
+// nº de itens já fatiados, pra o load-more interno sumir) e _renderGroup direto.
+// A seção Conteúdo SEMPRE aparece (com grupos OU explicando o estado via note).
+function _renderLiteral() {
+  if (!_literal) return '';
+  const { q, lang } = _literal;
+  const hl = _buildHighlightRegex(q, lang);
+  const labels = _MODE_LABELS[lang === 'ja' ? 'ja' : 'pt'];
+  const basePath = getBasePath();
+  // O badge "todas as palavras" do _renderGroup lê o global — alinha ao estado
+  // (importante no re-render do load-more, quando outra busca pode tê-lo zerado).
+  _orFallbackActive = !!(_literal.conteudo && _literal.conteudo.orActive);
+  let html = '';
+  const T = _literal.titulo;
+  if (T.items.length) {
+    html += _literalHead(labels.titulo, T.items.length, lang);
+    html += _renderFlatList(T.items.slice(0, T.shown), T.shown, hl, q, lang, 'titulo');
+    html += _literalMore('titulo', T.shown, T.items.length, lang);
+  }
+  const C = _literal.colecao;
+  if (C.items.length) {
+    html += _literalHead(labels.colecao, C.items.length, lang);
+    html += _renderFlatList(C.items.slice(0, C.shown), C.shown, hl, q, lang, 'colecao');
+    html += _literalMore('colecao', C.shown, C.items.length, lang);
+  }
+  const K = _literal.conteudo;
+  if (K.groups.length || K.note) {
+    html += _literalHead(labels.conteudo, K.groups.length, lang);
+    if (K.groups.length) {
+      const ordered = _orderGroups(K.groups, K.orActive);
+      for (const g of ordered.slice(0, K.shown)) html += _renderGroup(g, basePath, hl, q, lang, true);
+      html += _literalMore('conteudo', K.shown, K.groups.length, lang);
+    } else {
+      html += _combinedContentNote(K.note, lang);
+    }
+  }
+  return html || `<li class="search-empty">${lang === 'ja' ? '結果が見つかりませんでした。' : 'Nenhum resultado.'}</li>`;
+}
+
+window.loadMoreLiteralSection = function(kind) {
+  if (!_literal || !_literal[kind]) return;
+  const sec = _literal[kind];
+  const total = kind === 'conteudo' ? sec.groups.length : sec.items.length;
+  sec.shown = Math.min(sec.shown + LITERAL_PAGE, total);
+  const resultsEl = document.getElementById('searchResults');
+  if (!resultsEl) return;
+  resultsEl.innerHTML = _renderLiteral();
+  _focusedIndex = -1;
+  sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
+};
+
+// Busca o Conteúdo do modo Literal: FTS + fallbacks (cobertura OR multi-palavra
+// + ILIKE literal pra kanji/frase), igual ao antigo modo Conteúdo. Retorna
+// { groups, note, orActive }; note ∈ 'login'|'unavailable'|'none'|null.
+async function _fetchContentForLiteral(q, activeLang, mySeq) {
+  const supabase = _getSupabase();
+  let loggedIn = false;
+  if (supabase) {
+    try {
+      const s = await supabase.auth.getSession();
+      loggedIn = !!(s && s.data && s.data.session);
+    } catch (e) { /* trata como deslogado */ }
+  }
+  if (mySeq !== _searchSeq) return { groups: [], note: null, orActive: false };
+  // Sem sessão o FTS (RLS) só volta 0 linhas — pula a RPC e explica.
+  if (!loggedIn) return { groups: [], note: 'login', orActive: false };
+
+  const exactToggle = document.getElementById('searchExactToggle');
+  const useExactMatch = exactToggle ? exactToggle.checked : false;
+  const serverQuery = _translateQuery(q, useExactMatch);
+  if (!serverQuery) return { groups: [], note: 'none', orActive: false };
+
+  const terms = _splitTerms(q);
+  const runFetch = async (sq) => {
+    let r = await _withTimeout(supabase.rpc('search_teachings_hybrid', {
+      q: sq, q_embedding: null, lang: activeLang, max_results: MAX_RESULTS, scope: 'content', use_fts: true,
+    }), SEARCH_TIMEOUT_MS, 'literal hybrid');
+    if (r.error) {
+      r = await _withTimeout(supabase.rpc('search_teachings', {
+        q: sq, lang: activeLang, max_results: MAX_RESULTS, scope: 'content',
+      }), SEARCH_TIMEOUT_MS, 'literal search_teachings');
+    }
+    return r;
+  };
+
+  try {
+    let r = await runFetch(serverQuery);
+    if (mySeq !== _searchSeq) return { groups: [], note: null, orActive: false };
+    if (r.error) return { groups: [], note: 'unavailable', orActive: false };
+    let results = r.data || [];
+    let orActive = false;
+    // Multi-palavra: AND não achou trecho com TODAS → refaz com OR e ordena
+    // por cobertura (quem reúne mais palavras vem antes).
+    if (results.length === 0 && terms.length >= 2) {
+      const orQuery = useExactMatch ? terms.map(t => `"${t.replace(/"/g, '\\"')}"`).join(' or ') : terms.join(' or ');
+      const orRes = await runFetch(orQuery);
+      if (mySeq !== _searchSeq) return { groups: [], note: null, orActive: false };
+      if (!orRes.error && orRes.data && orRes.data.length) { results = orRes.data; orActive = true; }
+    }
+    // Ainda 0 → ILIKE literal (kanji/frase que o FTS não tokeniza).
+    if (results.length === 0) {
+      try {
+        const lit = await _withTimeout(supabase.rpc('search_teachings_literal', {
+          q, lang: activeLang, max_results: MAX_RESULTS, scope: 'content',
+        }), SEARCH_TIMEOUT_MS, 'literal ilike');
+        if (mySeq !== _searchSeq) return { groups: [], note: null, orActive: false };
+        if (!lit.error && lit.data && lit.data.length) results = lit.data;
+      } catch (e) { /* mantém 0 */ }
+    }
+    if (results.length === 0) return { groups: [], note: 'none', orActive: false };
+    return { groups: _groupResults(results, q, activeLang), note: null, orActive };
+  } catch (e) {
+    return { groups: [], note: 'unavailable', orActive: false }; // timeout/exceção
+  }
+}
+
+function _combinedCount(nT, nC, nG, activeLang) {
+  const el = document.getElementById('searchCount');
+  if (!el) return;
+  const parts = [];
+  if (activeLang === 'ja') {
+    if (nT) parts.push(`タイトル${nT}`);
+    if (nC) parts.push(`叢書${nC}`);
+    if (nG) parts.push(`本文${nG}件`);
+  } else {
+    if (nT) parts.push(`${nT} em título${nT !== 1 ? 's' : ''}`);
+    if (nC) parts.push(`${nC} em coleç${nC !== 1 ? 'ões' : 'ão'}`);
+    if (nG) parts.push(`${nG} no conteúdo`);
+  }
+  el.textContent = parts.join(' · ');
 }
 
 async function performSearch(query) {
@@ -1504,7 +1669,7 @@ async function performSearch(query) {
   const q = query.trim();
   _currentQuery = q;
   _orFallbackActive = false;
-  _allResults = []; _allGroups = []; _flatItems = []; _focusedIndex = -1;
+  _allResults = []; _allGroups = []; _literal = null; _focusedIndex = -1;
 
   // Modo Conteúdo: o TRECHO é o protagonista — uma classe no container faz
   // o CSS rebaixar título/coletânea a contexto e destacar o snippet.
@@ -1513,35 +1678,49 @@ async function performSearch(query) {
   const searchingMsg = activeLang === 'ja' ? '検索中...' : 'Buscando...';
   if (resultsEl) resultsEl.innerHTML = `<li class="search-loading"><span class="search-spinner"></span>${searchingMsg}</li>`;
 
-  // ---- Modo TÍTULO: índice local de títulos reais (determinístico) ----
-  if (_searchMode === 'titulo') {
+  // ---- Modo LITERAL: Título (local) + Coleção (local) + Conteúdo (FTS) ----
+  if (_searchMode === 'literal') {
+    const _t0t = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
     try {
       await _loadTitlesIndex();
       if (_mySeq !== _searchSeq) return;
-      _flatItems = _searchTitlesIndex(q, activeLang);
-      _finishFlat(resultsEl, q, activeLang, _mySeq, true); // nudge → Conteúdo
-      logSearch(q, _flatItems.length, 0);
+      const titleItems = _searchTitlesIndex(q, activeLang);
+      const collItems = _searchCollections(q, activeLang);
+      const content = await _fetchContentForLiteral(q, activeLang, _mySeq);
+      if (_mySeq !== _searchSeq) return;
+
+      const total = titleItems.length + collItems.length + content.groups.length;
+      const _latencyMs = ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - _t0t;
+      // Só "Nenhum resultado" quando NADA casou E não há nota de conteúdo a
+      // mostrar (senão esconderíamos o "entre para buscar no conteúdo").
+      if (total === 0 && !content.note) {
+        const none = activeLang === 'ja' ? '結果が見つかりませんでした。' : 'Nenhum resultado.';
+        if (resultsEl) resultsEl.innerHTML = `<li class="search-empty">${none}</li>`;
+        _updateSearchCount(0, 0, activeLang);
+        await _maybeSuggestDidYouMean(q, activeLang, resultsEl, 'prepend');
+        logSearch(q, 0, _latencyMs);
+        sessionStorage.removeItem('searchQuery'); sessionStorage.removeItem('searchResultsHtml');
+        return;
+      }
+      _literal = {
+        q, lang: activeLang,
+        titulo: { items: titleItems, shown: Math.min(LITERAL_PAGE, titleItems.length) },
+        colecao: { items: collItems, shown: Math.min(LITERAL_PAGE, collItems.length) },
+        conteudo: { groups: content.groups, shown: Math.min(LITERAL_PAGE, content.groups.length), note: content.note, orActive: content.orActive },
+      };
+      if (resultsEl) resultsEl.innerHTML = _renderLiteral();
+      _combinedCount(titleItems.length, collItems.length, content.groups.length, activeLang);
+      logSearch(q, total, _latencyMs);
+      sessionStorage.setItem('searchQuery', q);
+      if (resultsEl) sessionStorage.setItem('searchResultsHtml', resultsEl.innerHTML);
     } catch (err) {
-      console.error('Título search erro:', err);
+      console.error('Literal search erro:', err);
       if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${activeLang === 'ja' ? 'エラー' : 'Erro na busca.'}</li>`;
     }
     return;
   }
 
-  // ---- Modo COLEÇÃO: nome das publicações (SECTION_MAP, já carregado) ----
-  if (_searchMode === 'colecao') {
-    try {
-      _flatItems = _searchCollections(q, activeLang);
-      _finishFlat(resultsEl, q, activeLang, _mySeq, false);
-      logSearch(q, _flatItems.length, 0);
-    } catch (err) {
-      console.error('Coleção search erro:', err);
-      if (resultsEl) resultsEl.innerHTML = `<li class="search-error">${activeLang === 'ja' ? 'エラー' : 'Erro na busca.'}</li>`;
-    }
-    return;
-  }
-
-  // ---- Modos de SERVIDOR: Conteúdo (FTS) e Relacionados (semântico) ----
+  // ---- Modo RELACIONADOS (semântico via edge search-semantic) ----
   const supabase = _getSupabase();
   if (!supabase) {
     const errMsg = activeLang === 'ja' ? 'ログインが必要です。' : 'Login necessário.';

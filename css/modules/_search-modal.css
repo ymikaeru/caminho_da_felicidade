@@ -183,6 +183,63 @@
   font-weight: 600;
 }
 
+/* Cabeçalho de seção do modo "Literal" (Título / Coleção / Conteúdo juntos) */
+.search-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 24px 6px;
+  border-bottom: 1px solid var(--border);
+  background: var(--accent-soft);
+}
+
+.search-section-title {
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Contagem total da seção, à direita do rótulo. */
+.search-section-count {
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+/* Load-more POR SEÇÃO: mais leve que o load-more global (sem a borda-topo
+   pesada nem a margem), pra ficar coeso dentro da própria seção. */
+.search-load-more--section {
+  border-top: none;
+  padding: 10px 24px 14px;
+  margin-top: 0;
+}
+
+/* Nota explicativa quando a seção Conteúdo não tem resultados
+   (login necessário / indisponível / nenhum trecho). */
+.search-section-note {
+  padding: 14px 24px 18px;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.search-section-note-action {
+  margin-top: 10px;
+}
+
+@media (max-width: 767px) {
+  .search-section-head { padding: 11px 16px 6px; }
+  .search-section-note { padding: 12px 16px 16px; }
+  .search-load-more--section { padding: 10px 16px 14px; }
+}
+
 /* Resultados de lista plana (modos Título e Coleção) */
 .search-flat-item {
   display: block;

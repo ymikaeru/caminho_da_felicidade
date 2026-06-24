@@ -190,6 +190,22 @@ function recSelectUser(userId) {
   recLoadList();
 }
 
+// Estilo do grupo de playlist (recolhível). Idempotente.
+function _recEnsureStyle() {
+  if (document.getElementById('recAdminPlStyle')) return;
+  const s = document.createElement('style');
+  s.id = 'recAdminPlStyle';
+  s.textContent = `
+    .rec-admin-pl > summary { list-style: none; }
+    .rec-admin-pl > summary::-webkit-details-marker { display: none; }
+    .rec-admin-pl > summary::marker { content: ''; }
+    .rec-admin-pl > summary:hover { background: rgba(184,134,11,0.06); }
+    .rec-admin-pl-chevron { transition: transform .2s ease; }
+    .rec-admin-pl[open] .rec-admin-pl-chevron { transform: rotate(180deg); }
+  `;
+  document.head.appendChild(s);
+}
+
 async function recLoadList() {
   const container = document.getElementById('rec-list');
   if (!_recSelectedUser) return;
@@ -217,7 +233,8 @@ async function recLoadList() {
   // Ativas e inativas (arquivadas+expiradas) recebem tratamento
   // visual distinto. Admin não recebe notificação — só vê histórico.
   const now = new Date();
-  container.innerHTML = '<div style="display:flex; flex-direction:column; gap:8px;">' + recs.map(r => {
+  _recEnsureStyle();
+  const renderRecCard = (r) => {
     const isAudio = !!r.audio_path;
     const isPoetry = r.vol === 'poetry';
     const title = isAudio
@@ -299,7 +316,42 @@ async function recLoadList() {
         </div>
       </div>
     `;
-  }).join('') + '</div>';
+  };
+
+  // Agrupa por playlist (source_collection_id). Degrada suave: enquanto a
+  // migration v16 não roda (RPC sem o campo), tudo cai em "avulso" (flat).
+  const groups = new Map();
+  const loose = [];
+  recs.forEach(r => {
+    const cid = r.source_collection_id;
+    if (cid) {
+      if (!groups.has(cid)) groups.set(cid, { name: r.source_collection_name || 'Playlist', items: [] });
+      groups.get(cid).items.push(r);
+    } else loose.push(r);
+  });
+
+  let html = '';
+  for (const [, g] of groups) {
+    const cntLbl = g.items.length === 1 ? 'ensinamento' : 'ensinamentos';
+    const readN = g.items.filter(it => it.read_at).length;
+    const readBadge = readN ? ` · <span style="color:#2c8a3e;">${readN} lida${readN > 1 ? 's' : ''}</span>` : '';
+    const open = g.items.length <= 4 ? ' open' : '';
+    const body = '<div style="padding:8px; display:flex; flex-direction:column; gap:8px; border-top:1px solid var(--border);">'
+      + g.items.map(renderRecCard).join('') + '</div>';
+    html += `
+      <details class="rec-admin-pl"${open} style="border:1px solid var(--border); border-radius:6px; overflow:hidden;">
+        <summary style="display:flex; align-items:center; gap:8px; padding:11px 12px; cursor:pointer; background:var(--surface, var(--bg));">
+          <span style="font-size:1rem; flex-shrink:0;">📂</span>
+          <span style="flex:1; min-width:0; font-size:0.86rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_escHtml(g.name)}</span>
+          <span style="font-size:0.72rem; color:var(--text-muted); white-space:nowrap; flex-shrink:0;">${g.items.length} ${cntLbl}${readBadge}</span>
+          <svg class="rec-admin-pl-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--text-muted); flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        ${body}
+      </details>`;
+  }
+  html += loose.map(renderRecCard).join('');
+
+  container.innerHTML = '<div style="display:flex; flex-direction:column; gap:8px;">' + html + '</div>';
 }
 
 function recDebounceTeachingSearch() {

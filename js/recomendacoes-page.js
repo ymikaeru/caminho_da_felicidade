@@ -12,6 +12,15 @@
   let _active = [];
   let _archived = [];
   let _currentTab = 'active';
+  let _archivedFilter = 'all';   // 'all' | 'teaching' | 'poetry' | 'audio' | 'playlist'
+
+  // Categoria de uma recomendação, para o filtro da aba Arquivadas.
+  function _catOf(r) {
+    if (r.source_collection_id) return 'playlist';
+    if (r.audio_path) return 'audio';
+    if (r.vol === 'poetry') return 'poetry';
+    return 'teaching';
+  }
 
   function _esc(s) {
     return String(s ?? '')
@@ -265,12 +274,18 @@
     const groupHtml = Array.from(groups.entries()).map(([cid, g]) => {
       const looseLbl = lang === 'ja' ? '件' : (g.items.length === 1 ? 'ensinamento' : 'ensinamentos');
       const cards = g.items.map(r => _renderOneCard(r, archived, lang, base)).join('');
+      const actLbl = archived
+        ? (lang === 'ja' ? 'すべて解除' : 'Desarquivar tudo')
+        : (lang === 'ja' ? 'すべてアーカイブ' : 'Arquivar tudo');
+      const actBtn = `<button type="button" class="rec-group-action" data-group-action="${archived ? 'unarchive' : 'archive'}" data-coll-id="${_esc(cid)}"
+        title="${actLbl}" style="margin-left:auto; padding:5px 11px; font-size:0.76rem; border:1px solid var(--border); border-radius:6px; background:transparent; color:var(--text-muted); cursor:pointer; white-space:nowrap;">${actLbl}</button>`;
       return `
         <details class="rec-group" open data-coll="${_esc(cid)}">
           <summary class="rec-group-header">
             <span class="rec-group-icon">📂</span>
             <span class="rec-group-name">${_esc(g.name)}</span>
             <span class="rec-group-count">${g.items.length} ${looseLbl}</span>
+            ${actBtn}
             <span class="rec-group-chevron" aria-hidden="true">▾</span>
           </summary>
           <div class="rec-group-body">${cards}</div>
@@ -305,9 +320,41 @@
     });
     const container = document.getElementById('rec-page-container');
     if (!container) return;
-    const list = _currentTab === 'archived' ? _archived : _active;
-    container.innerHTML = _renderCards(list, _currentTab === 'archived');
+    const lang = localStorage.getItem('site_lang') || 'pt';
+    if (_currentTab === 'archived') {
+      let list = _archived;
+      if (_archivedFilter !== 'all') {
+        const f = list.filter(r => _catOf(r) === _archivedFilter);
+        if (f.length === 0) _archivedFilter = 'all'; else list = f;   // categoria esvaziou → volta pra Tudo
+      }
+      container.innerHTML = _renderArchivedFilterBar(lang) + _renderCards(list, true);
+    } else {
+      container.innerHTML = _renderCards(_active, false);
+    }
     if (window._zaudioMount) window._zaudioMount(container);
+  }
+
+  // Barra de chips por tipo, só na aba Arquivadas. "Tudo" sempre; demais só
+  // quando há itens. Some se houver uma só categoria (nada a filtrar).
+  function _renderArchivedFilterBar(lang) {
+    const L = lang === 'ja'
+      ? { all: 'すべて', teaching: '御教え', poetry: '詩歌', audio: '音声', playlist: 'プレイリスト' }
+      : { all: 'Tudo', teaching: 'Ensinamentos', poetry: 'Poemas', audio: 'Áudios', playlist: 'Playlists' };
+    const counts = { teaching: 0, poetry: 0, audio: 0, playlist: 0 };
+    _archived.forEach(r => { counts[_catOf(r)]++; });
+    const cats = ['teaching', 'poetry', 'audio', 'playlist'].filter(c => counts[c] > 0);
+    if (cats.length <= 1) return '';
+    const chip = (key, label, count) => {
+      const on = _archivedFilter === key;
+      return `<button type="button" class="rec-filter-chip" data-filter="${key}" aria-pressed="${on}"
+        style="padding:5px 13px; font-size:0.82rem; border-radius:999px; cursor:pointer; white-space:nowrap;
+        border:1px solid ${on ? 'var(--accent)' : 'var(--border)'}; background:${on ? 'var(--accent)' : 'transparent'};
+        color:${on ? '#fff' : 'var(--text-muted)'}; font-weight:${on ? '600' : '500'};">${_esc(label)} <span style="opacity:0.7;">${count}</span></button>`;
+    };
+    let html = '<div class="rec-filter-bar" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">';
+    html += chip('all', L.all, _archived.length);
+    cats.forEach(c => { html += chip(c, L[c], counts[c]); });
+    return html + '</div>';
   }
 
   async function _refresh() {
@@ -330,6 +377,17 @@
     if (!supa) return;
     const { error } = await supa.rpc('unarchive_my_recommendation', { p_id: recId });
     if (error) { alert('Erro: ' + error.message); return; }
+    await _refresh();
+  }
+
+  // Arquiva (ou desarquiva) vários de uma vez — usado pelo botão da playlist.
+  async function _archiveMany(ids, archive) {
+    const supa = _supa();
+    if (!supa || !ids || !ids.length) return;
+    const rpc = archive ? 'archive_my_recommendation' : 'unarchive_my_recommendation';
+    const results = await Promise.all(ids.map(id => supa.rpc(rpc, { p_id: id })));
+    const bad = results.find(r => r && r.error);
+    if (bad) alert('Erro: ' + bad.error.message);
     await _refresh();
   }
 
@@ -553,6 +611,26 @@
     });
     // Click delegado: action buttons OU card link (abre preview modal)
     container.addEventListener('click', async (e) => {
+      // Chip de filtro por tipo (aba Arquivadas)
+      const chip = e.target.closest?.('.rec-filter-chip');
+      if (chip) {
+        _archivedFilter = chip.dataset.filter || 'all';
+        _render();
+        return;
+      }
+      // Arquivar / desarquivar a playlist inteira de uma vez
+      const groupBtn = e.target.closest?.('.rec-group-action');
+      if (groupBtn) {
+        e.preventDefault();        // impede o <summary> de colapsar o grupo
+        e.stopPropagation();
+        const cid = groupBtn.dataset.collId;
+        const archive = groupBtn.dataset.groupAction === 'archive';
+        const ids = (archive ? _active : _archived)
+          .filter(r => String(r.source_collection_id) === String(cid)).map(r => r.id);
+        groupBtn.disabled = true;
+        await _archiveMany(ids, archive);
+        return;
+      }
       const btn = e.target.closest?.('.rec-action-btn');
       if (btn) {
         e.preventDefault();

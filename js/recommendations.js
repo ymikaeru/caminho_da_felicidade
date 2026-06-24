@@ -510,7 +510,7 @@
     // Card nórdico: sem ícone, sem linha separadora. Hierarquia por tipo —
     // eyebrow (coletânea, opcional) → título serifado → meta → nota/trecho.
     // Itens separados por espaço (padding), não por borda.
-    const card = ({ kicker, title, titleHref, meta, below, recId }) => {
+    const card = ({ kicker, title, titleHref, meta, below, recId, archive }) => {
       const archLabel = lang === 'ja' ? 'アーカイブ' : 'Arquivar';
       const titleHtml = titleHref
         ? `<a href="${titleHref}" style="display:block;font-family:'Crimson Pro',Georgia,serif;font-size:1.12rem;font-weight:600;line-height:1.3;color:var(--text-main);text-decoration:none;">${_esc(title)}</a>`
@@ -518,7 +518,7 @@
       const kickerHtml = kicker
         ? `<div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--font-ui);letter-spacing:.03em;margin-bottom:5px;">${_esc(kicker)}</div>`
         : '';
-      const archiveBtn = `<button type="button" data-rec-id="${_esc(recId)}" class="rec-archive-btn"
+      const archiveBtn = archive === false ? '' : `<button type="button" data-rec-id="${_esc(recId)}" class="rec-archive-btn"
               title="${archLabel}" aria-label="${archLabel}"
               style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;margin:-6px -6px 0 0;opacity:0.55;display:flex;align-items:center;flex-shrink:0;align-self:flex-start;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
@@ -541,17 +541,9 @@
     const audioList = list.filter(r => r.audio_path);
     const otherList = list.filter(r => !r.audio_path);
 
-    // Ordena restante: poemas → ensinamentos
-    const _typeOrd = r => r.vol === 'poetry' ? 0 : 1;
-    const _groupLabel = [
-      lang === 'ja' ? '詩' : 'Poemas',
-      lang === 'ja' ? '教え' : 'Ensinamentos',
-    ];
-    const sorted = [...otherList].sort((a, b) => _typeOrd(a) - _typeOrd(b));
-    let _prevGroup = -1;
-
-    // ── lista principal (scroll) ─────────────────────────────────────────
-    ul.innerHTML = sorted.map(r => {
+    // Renderiza UM item (poema ou ensinamento). showArchive=false p/ itens de
+    // playlist — a playlist é arquivada como UNIDADE no cabeçalho do grupo.
+    const renderItem = (r, showArchive) => {
       const recommender = _displayRecommender(r.created_by_name);
       const date = relDate(r.created_at);
       const expHtml = _expHtml(r, lang);
@@ -560,33 +552,22 @@
       const noteHtml = r.note
         ? `<div style="font-family:'Crimson Pro',Georgia,serif;font-size:0.96rem;color:var(--text-muted);font-style:italic;line-height:1.5;">"${_esc(r.note)}"</div>`
         : '';
-      const g = _typeOrd(r);
-      // Rótulo de seção quieto. Separação por espaço (sem linha): o primeiro
-      // vem mais colado ao cabeçalho, os seguintes com respiro generoso.
-      const groupHdr = g !== _prevGroup
-        ? `<li style="padding:${_prevGroup === -1 ? '20px' : '32px'} 24px 12px;"><span style="font-size:0.66rem;font-weight:600;letter-spacing:.18em;color:var(--text-muted);text-transform:uppercase;opacity:0.7;font-family:var(--font-ui);">${_groupLabel[g]}</span></li>`
-        : '';
-      _prevGroup = g;
-
       if (r.vol === 'poetry') {
         let phref = `${basePath}${r.file}.html?poem=${encodeURIComponent(r.poem_topic_id || '')}&hl_scroll=1`;
         if (lang === 'ja') phref += '&lang=ja';
         // poem_title = "<Coletânea> · № N — <Título>" (ver _composeTitle, poetry-recommend.js).
-        // Separa no 1º " — ": antes = coletânea (eyebrow discreto), depois = título (manchete).
         const raw = r.poem_title || '(poema)';
         const dash = raw.indexOf(' — ');
         const kicker = dash >= 0 ? raw.slice(0, dash).trim() : '';
         const ptitle = dash >= 0 ? raw.slice(dash + 3).trim() : raw;
         const below = ptExcerpt(r.poem_text) + noteHtml;
-        return groupHdr + card({ kicker, title: ptitle, titleHref: phref, meta, below: below || '', recId: r.id });
+        return card({ kicker, title: ptitle, titleHref: phref, meta, below: below || '', recId: r.id, archive: showArchive });
       }
-
       const title = (lang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '(sem título)');
       const idx = r.topic_idx != null ? r.topic_idx : 0;
       let href = `${basePath}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
       if (idx > 0) href += `&topic=${idx}`;
-      // Trechos recomendados (v15): excerpt_ranges = [[start,end],...] — o
-      // leitor pinta os intervalos e scrolla até o primeiro.
+      // Trechos recomendados (v15): excerpt_ranges = [[start,end],...].
       const ranges = (Array.isArray(r.excerpt_ranges) && r.excerpt_ranges.length) ? r.excerpt_ranges : null;
       if (ranges) href += `&excerpt=${ranges.map(p => `${p[0]}:${p[1]}`).join(',')}`;
       if (lang === 'ja') href += '&lang=ja';
@@ -599,8 +580,58 @@
           : (ranges.length === 1 ? 'com 1 trecho destacado' : `com ${ranges.length} trechos destacados`);
         excerptHtml = `<div style="font-size:0.78rem;color:var(--accent);font-family:var(--font-ui);letter-spacing:.02em;">✦ ${nLbl}</div>`;
       }
-      return groupHdr + card({ title, titleHref: href, meta, below: excerptHtml + noteHtml, recId: r.id });
+      return card({ title, titleHref: href, meta, below: excerptHtml + noteHtml, recId: r.id, archive: showArchive });
+    };
+
+    // ── particiona em playlists (source_collection_id) + avulsos ─────────
+    const groups = new Map();
+    const loose = [];
+    otherList.forEach(r => {
+      const cid = r.source_collection_id;
+      if (cid) {
+        if (!groups.has(cid)) groups.set(cid, { name: r.source_collection_name || (lang === 'ja' ? 'プレイリスト' : 'Playlist'), items: [] });
+        groups.get(cid).items.push(r);
+      } else loose.push(r);
+    });
+
+    let html = '';
+
+    // Playlists primeiro: cabeçalho 📂 nome + contagem + "Arquivar" (a playlist
+    // inteira). Itens SEM arquivar individual — são uma unidade.
+    for (const [cid, g] of groups) {
+      const cntLbl = lang === 'ja' ? '件' : (g.items.length === 1 ? 'ensinamento' : 'ensinamentos');
+      const archLabel = lang === 'ja' ? 'プレイリストをアーカイブ' : 'Arquivar playlist';
+      html += `
+        <li style="padding:22px 24px 10px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1rem;flex-shrink:0;">📂</span>
+          <span style="flex:1;min-width:0;font-family:var(--font-ui);font-weight:600;font-size:0.92rem;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(g.name)}</span>
+          <span style="font-size:0.7rem;color:var(--text-muted);white-space:nowrap;flex-shrink:0;">${g.items.length} ${cntLbl}</span>
+          <button type="button" class="rec-archive-group-btn" data-coll-id="${_esc(cid)}" title="${archLabel}" aria-label="${archLabel}"
+            style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;margin:-6px;opacity:0.55;display:flex;align-items:center;flex-shrink:0;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+          </button>
+        </li>`;
+      html += g.items.map(r => renderItem(r, false)).join('');
+    }
+
+    // Avulsos: rótulos por tipo (Poemas / Ensinamentos) + arquivar individual.
+    const _typeOrd = r => r.vol === 'poetry' ? 0 : 1;
+    const _groupLabel = [
+      lang === 'ja' ? '詩' : 'Poemas',
+      lang === 'ja' ? '教え' : 'Ensinamentos',
+    ];
+    const hadGroups = groups.size > 0;
+    let _prevGroup = -1;
+    html += [...loose].sort((a, b) => _typeOrd(a) - _typeOrd(b)).map(r => {
+      const g = _typeOrd(r);
+      const groupHdr = g !== _prevGroup
+        ? `<li style="padding:${(_prevGroup === -1 && !hadGroups) ? '20px' : '32px'} 24px 12px;"><span style="font-size:0.66rem;font-weight:600;letter-spacing:.18em;color:var(--text-muted);text-transform:uppercase;opacity:0.7;font-family:var(--font-ui);">${_groupLabel[g]}</span></li>`
+        : '';
+      _prevGroup = g;
+      return groupHdr + renderItem(r, true);
     }).join('');
+
+    ul.innerHTML = html;
 
     // ── footer de áudio (fixo, compacto, acima de "Gerenciar todas") ────
     const audioFooter = document.getElementById('rec-audio-footer');
@@ -645,7 +676,36 @@
     }
 
     // ── archive wiring (UL + footer, delegado no modal) ─────────────────
+    const _afterArchive = async () => {
+      const summary = await _fetchSummary();
+      _recState.total = summary.total;
+      _recState.unseen = summary.unseen;
+      _reveal(summary.total);
+      const fresh = await _fetchList();
+      _recState.list = fresh;
+      _renderList(fresh);
+      if (fresh.length === 0) setTimeout(_close, 400);
+    };
+
     const _archiveHandler = async (e) => {
+      // Arquivar a playlist inteira (cabeçalho do grupo)
+      const groupBtn = e.target.closest?.('.rec-archive-group-btn');
+      if (groupBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const cid = groupBtn.dataset.collId;
+        const supa = _supa();
+        if (!supa || !cid) return;
+        groupBtn.disabled = true;
+        groupBtn.style.opacity = '0.3';
+        const ids = (_recState.list || [])
+          .filter(r => String(r.source_collection_id) === String(cid)).map(r => r.id);
+        const res = await Promise.all(ids.map(id => supa.rpc('archive_my_recommendation', { p_id: id })));
+        const bad = res.find(x => x && x.error);
+        if (bad) { alert('Erro ao arquivar: ' + bad.error.message); groupBtn.disabled = false; groupBtn.style.opacity = ''; return; }
+        await _afterArchive();
+        return;
+      }
       const btn = e.target.closest?.('.rec-archive-btn');
       if (!btn) return;
       e.preventDefault();

@@ -49,6 +49,85 @@
         || null;
   }
 
+  // ── Read marks (lidos) dentro da cartinha ───────────────────────────
+  // Itens de playlist ganham "Marcar como lido", sincronizado com o leitor
+  // (localStorage 'readMarks') e a nuvem. Usa _cloudSync quando disponível;
+  // senão fala direto com a tabela read_marks via _supa() (nem toda página
+  // que tem o header carrega o módulo sync.js).
+  let _readSet = new Set();
+  const _readKey = (vol, file, topic) => `${vol}|${file}|${topic || 0}`;
+  async function _loadReadSet() {
+    const set = new Set();
+    try {
+      JSON.parse(localStorage.getItem('readMarks') || '[]')
+        .forEach(m => set.add(_readKey(m.vol, m.file, m.topic)));
+    } catch (_) {}
+    try {
+      if (window._cloudSync && window._cloudSync.loadReadMarks) {
+        const marks = await window._cloudSync.loadReadMarks();
+        (marks || []).forEach(m => set.add(_readKey(m.volume, m.file, m.topic_index)));
+      } else {
+        const supa = _supa();
+        if (supa) {
+          const { data: { session } } = await supa.auth.getSession();
+          if (session) {
+            const { data } = await supa.from('read_marks')
+              .select('volume, file, topic_index').eq('user_id', session.user.id).limit(5000);
+            (data || []).forEach(m => set.add(_readKey(m.volume, m.file, m.topic_index)));
+          }
+        }
+      }
+    } catch (_) {}
+    _readSet = set;
+  }
+
+  async function _toggleReadHeader(btn) {
+    const vol = btn.dataset.vol, file = btn.dataset.file;
+    const topic = parseInt(btn.dataset.topic, 10) || 0;
+    const title = btn.dataset.title || '';
+    const key = _readKey(vol, file, topic);
+    const wasRead = _readSet.has(key);
+    if (wasRead) _readSet.delete(key); else _readSet.add(key);
+    try {
+      let marks = JSON.parse(localStorage.getItem('readMarks') || '[]');
+      if (wasRead) marks = marks.filter(m => !(m.vol === vol && m.file === file && (m.topic || 0) === topic));
+      else marks.unshift({ vol, file, topic, topicTitle: title, time: Date.now() });
+      localStorage.setItem('readMarks', JSON.stringify(marks));
+    } catch (_) {}
+    if (window._cloudSync && window._cloudSync.saveReadMark) {
+      const op = wasRead ? window._cloudSync.removeReadMark(vol, file, topic)
+                         : window._cloudSync.saveReadMark(vol, file, topic, title);
+      Promise.resolve(op).catch(() => {});
+    } else {
+      const supa = _supa();
+      if (supa) (async () => {
+        const { data: { session } } = await supa.auth.getSession();
+        if (!session) return;
+        if (wasRead) {
+          await supa.from('read_marks').delete()
+            .eq('user_id', session.user.id).eq('volume', vol).eq('file', file).eq('topic_index', topic);
+        } else {
+          await supa.from('read_marks').upsert({
+            user_id: session.user.id, volume: vol, file, topic_index: topic,
+            topic_title: title, created_at: new Date().toISOString(),
+          }, { onConflict: 'user_id,volume,file,topic_index' });
+        }
+      })().catch(() => {});
+    }
+    // Atualiza o botão no lugar — NÃO re-renderiza, pra não recolher um
+    // <details> que o usuário acabou de expandir.
+    const lang = localStorage.getItem('site_lang') || 'pt';
+    const nowRead = !wasRead;
+    btn.setAttribute('aria-pressed', String(nowRead));
+    btn.style.color = nowRead ? '#0a7' : 'var(--text-muted)';
+    btn.style.opacity = nowRead ? '0.95' : '0.55';
+    const lbl = nowRead ? (lang === 'ja' ? '読了' : 'Lido') : (lang === 'ja' ? '読了にする' : 'Marcar como lido');
+    btn.title = lbl; btn.setAttribute('aria-label', lbl);
+    btn.innerHTML = nowRead
+      ? `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>`
+      : `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>`;
+  }
+
   // Garante uma <style> única no head com a animação de entrada.
   // Idempotente: só injeta uma vez por página.
   function _ensureAnimStyle() {
@@ -518,7 +597,7 @@
     // Card nórdico: sem ícone, sem linha separadora. Hierarquia por tipo —
     // eyebrow (coletânea, opcional) → título serifado → meta → nota/trecho.
     // Itens separados por espaço (padding), não por borda.
-    const card = ({ kicker, title, titleHref, meta, below, recId, archive, tag }) => {
+    const card = ({ kicker, title, titleHref, meta, below, recId, archive, tag, read }) => {
       const T = tag || 'li';
       const archLabel = lang === 'ja' ? 'アーカイブ' : 'Arquivar';
       const titleHtml = titleHref
@@ -527,11 +606,23 @@
       const kickerHtml = kicker
         ? `<div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--font-ui);letter-spacing:.03em;margin-bottom:5px;">${_esc(kicker)}</div>`
         : '';
-      const archiveBtn = archive === false ? '' : `<button type="button" data-rec-id="${_esc(recId)}" class="rec-archive-btn"
+      let archiveBtn;
+      if (read) {
+        // Toggle "lido" (itens de playlist). Verde quando lido.
+        const isRead = read.isRead;
+        const readLbl = isRead ? (lang === 'ja' ? '読了' : 'Lido') : (lang === 'ja' ? '読了にする' : 'Marcar como lido');
+        const readSvg = isRead
+          ? `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>`
+          : `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>`;
+        archiveBtn = `<button type="button" class="rec-read-btn" data-vol="${_esc(read.vol)}" data-file="${_esc(read.file)}" data-topic="${read.topic}" data-title="${_esc(title)}" aria-pressed="${isRead}" title="${readLbl}" aria-label="${readLbl}"
+              style="background:none;border:none;color:${isRead ? '#0a7' : 'var(--text-muted)'};cursor:pointer;padding:6px;margin:-6px -6px 0 0;opacity:${isRead ? '0.95' : '0.55'};display:flex;align-items:center;flex-shrink:0;align-self:flex-start;">${readSvg}</button>`;
+      } else {
+        archiveBtn = archive === false ? '' : `<button type="button" data-rec-id="${_esc(recId)}" class="rec-archive-btn"
               title="${archLabel}" aria-label="${archLabel}"
               style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;margin:-6px -6px 0 0;opacity:0.55;display:flex;align-items:center;flex-shrink:0;align-self:flex-start;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
             </button>`;
+      }
       return `
         <${T} style="padding:6px 24px 22px;list-style:none;">
           <div style="display:flex;align-items:flex-start;gap:18px;">
@@ -552,7 +643,9 @@
 
     // Renderiza UM item (poema ou ensinamento). showArchive=false p/ itens de
     // playlist — a playlist é arquivada como UNIDADE no cabeçalho do grupo.
-    const renderItem = (r, showArchive, tag) => {
+    const renderItem = (r, opts) => {
+      opts = opts || {};
+      const tag = opts.tag;
       const recommender = _displayRecommender(r.created_by_name);
       const date = relDate(r.created_at);
       const expHtml = _expHtml(r, lang);
@@ -570,7 +663,7 @@
         const kicker = dash >= 0 ? raw.slice(0, dash).trim() : '';
         const ptitle = dash >= 0 ? raw.slice(dash + 3).trim() : raw;
         const below = ptExcerpt(r.poem_text) + noteHtml;
-        return card({ kicker, title: ptitle, titleHref: phref, meta, below: below || '', recId: r.id, archive: showArchive, tag });
+        return card({ kicker, title: ptitle, titleHref: phref, meta, below: below || '', recId: r.id, archive: !!opts.archive, tag });
       }
       const title = (lang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '(sem título)');
       const idx = r.topic_idx != null ? r.topic_idx : 0;
@@ -589,7 +682,10 @@
           : (ranges.length === 1 ? 'com 1 trecho destacado' : `com ${ranges.length} trechos destacados`);
         excerptHtml = `<div style="font-size:0.78rem;color:var(--accent);font-family:var(--font-ui);letter-spacing:.02em;">✦ ${nLbl}</div>`;
       }
-      return card({ title, titleHref: href, meta, below: excerptHtml + noteHtml, recId: r.id, archive: showArchive, tag });
+      const readData = opts.read
+        ? { vol: r.vol, file: r.file, topic: idx, isRead: _readSet.has(_readKey(r.vol, r.file, idx)) }
+        : null;
+      return card({ title, titleHref: href, meta, below: excerptHtml + noteHtml, recId: r.id, archive: !!opts.archive, read: readData, tag });
     };
 
     // ── particiona em playlists (source_collection_id) + avulsos ─────────
@@ -613,7 +709,7 @@
       // Recolhível: playlists pequenas (≤3) já abrem; grandes vêm recolhidas
       // pra não flodar a cartinha (principalmente no mobile). Toca p/ expandir.
       const openAttr = g.items.length <= 3 ? ' open' : '';
-      const items = g.items.map(r => renderItem(r, false, 'div')).join('');
+      const items = g.items.map(r => renderItem(r, { read: true, tag: 'div' })).join('');
       html += `
         <li style="padding:0;list-style:none;">
           <details class="rec-pl-group"${openAttr}>
@@ -646,7 +742,7 @@
         ? `<li style="padding:${(_prevGroup === -1 && !hadGroups) ? '20px' : '32px'} 24px 12px;"><span style="font-size:0.66rem;font-weight:600;letter-spacing:.18em;color:var(--text-muted);text-transform:uppercase;opacity:0.7;font-family:var(--font-ui);">${_groupLabel[g]}</span></li>`
         : '';
       _prevGroup = g;
-      return groupHdr + renderItem(r, true);
+      return groupHdr + renderItem(r, { archive: true });
     }).join('');
 
     ul.innerHTML = html;
@@ -706,6 +802,14 @@
     };
 
     const _archiveHandler = async (e) => {
+      // Marcar/desmarcar lido (item de playlist)
+      const readBtn = e.target.closest?.('.rec-read-btn');
+      if (readBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        await _toggleReadHeader(readBtn);
+        return;
+      }
       // Arquivar a playlist inteira (cabeçalho do grupo)
       const groupBtn = e.target.closest?.('.rec-archive-group-btn');
       if (groupBtn) {
@@ -798,7 +902,7 @@
     // Render placeholder enquanto busca.
     const ul = document.getElementById('recommendationsResults');
     if (ul) ul.innerHTML = '<li class="search-empty" style="padding:20px; text-align:center; color:var(--text-muted);">Carregando...</li>';
-    const list = await _fetchList();
+    const [list] = await Promise.all([_fetchList(), _loadReadSet()]);
     _recState.list = list;
     _renderList(list);
     // Marca como vistas em background. Não bloqueia a UI.

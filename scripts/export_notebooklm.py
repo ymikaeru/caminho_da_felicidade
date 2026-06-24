@@ -214,13 +214,19 @@ def main():
         "5. No site, use **\"Recomendar este Ensinamento\"** para publicar a recomendacao.",
         "",
         "## Como usar (varios de uma vez -> playlist)",
-        "Cada ensinamento tem um **Codigo** no formato `[[CdF:vol/arquivo/topico]]`.",
+        "Cada ensinamento tem um **Codigo** `[[CdF:vol/arquivo/topico]]` + o titulo.",
         "1. Depois de perguntar, peca ao NotebookLM:",
-        "   > *Liste o codigo [[CdF:...]] de cada ensinamento que voce citou, um por linha.*",
-        "2. Copie a lista de codigos.",
-        "3. No site: gerenciador de playlists -> **Importar do NotebookLM** -> cole -> confira -> salva.",
+        "   > *Para cada ensinamento citado, escreva numa linha o codigo [[CdF:...]] "
+        "seguido do titulo exato.*",
+        "2. Copie a lista (codigo + titulo por linha).",
+        "3. No site: gerenciador de playlists -> **Importar do NotebookLM** -> cole -> "
+        "**Analisar** -> confira -> **Criar playlist**.",
         "4. Use **Recomendar esta playlist** para enviar tudo de uma vez.",
-        "(O importador tambem aceita as URLs `reader.html?vol=...` como codigo.)",
+        "",
+        "O NotebookLM as vezes erra o NUMERO do topico (acerta volume+arquivo). "
+        "Por isso peca o titulo junto: o importador valida cada codigo no indice de "
+        "titulos do site e CORRIGE o topico errado pelo titulo (ou descarta os "
+        "inexistentes, sem criar item quebrado). Tambem aceita URLs reader.html.",
         "",
         "## Arquivos",
         "",

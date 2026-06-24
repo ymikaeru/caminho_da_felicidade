@@ -410,30 +410,90 @@
   }
 
   // ── Importar do NotebookLM ──────────────────────────────────
-  // Extrai códigos [[CdF:vol/file/topic]] OU URLs reader.html?vol=&file=&topic=
-  // de qualquer texto colado. Dedupa preservando a ordem de aparição.
-  function _parseCdfCodes(text) {
+  // O NotebookLM acerta volume+arquivo mas erra o NÚMERO do tópico (último
+  // dígito) — troca ou inventa. Por isso validamos cada código contra o
+  // titles_index (índice de título por-tópico, alinhado ao leitor) e, quando
+  // o usuário cola "código — título", consertamos o tópico pelo título.
+
+  function _plNorm(s) {
+    return (s || '').toString().toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[“”"'`´·:：—–\-_.,!?()\[\]「」『』]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+  }
+
+  // Cache por volume: vol -> { files: Map(f -> [{i,t,tn}]) }  |  null se falhou.
+  const _plTitlesCache = {};
+  async function _loadTitlesForVols(vols) {
+    const base = window.location.pathname.includes('/mioshiec') ? '../' : './';
+    await Promise.all([...new Set(vols)].map(async vol => {
+      if (Object.prototype.hasOwnProperty.call(_plTitlesCache, vol)) return;
+      try {
+        const r = await fetch(`${base}site_data/titles_index_${vol}.json?v=1`);
+        if (!r.ok) { _plTitlesCache[vol] = null; return; }
+        const rows = await r.json();
+        const files = new Map();
+        for (const e of rows) {
+          const arr = files.get(e.f) || [];
+          arr.push({ i: e.i, t: e.t || '', tn: _plNorm(e.t || '') });
+          files.set(e.f, arr);
+        }
+        _plTitlesCache[vol] = { files };
+      } catch (_) { _plTitlesCache[vol] = null; }
+    }));
+  }
+
+  function _repairInVol(cache, normT) {
+    if (!normT) return null;
+    for (const [f, arr] of cache.files) {
+      for (const x of arr) if (x.tn === normT) return { f, i: x.i, t: x.t };
+    }
+    return null;
+  }
+
+  // Resolve uma entrada {vol,file,topic_idx,title} -> {status, vol,file,topic_idx, ...}
+  // status: 'ok' | 'repaired' | 'invalid' | 'unverified'
+  function _resolveEntry(e) {
+    const cache = _plTitlesCache[e.vol];
+    const f = e.file.replace(/\.html$/i, '');
+    const normT = e.title ? _plNorm(e.title) : '';
+    const out = (file, topic, status, extra) =>
+      Object.assign({ status, vol: e.vol, file, topic_idx: topic, title: e.title }, extra || {});
+    if (!cache) return out(e.file, e.topic_idx, 'unverified');   // índice não carregou: confia no código
+    const list = cache.files.get(f);
+    if (!list) {
+      const hit = _repairInVol(cache, normT);
+      if (hit) return out(hit.f + '.html', hit.i, 'repaired', { from: `${e.file}#${e.topic_idx}`, resolvedTitle: hit.t });
+      return out(e.file, e.topic_idx, 'invalid', { reason: 'arquivo fora do índice' });
+    }
+    const here = list.find(x => x.i === e.topic_idx);
+    if (here) {
+      if (!normT || here.tn === normT) return out(e.file, e.topic_idx, 'ok', { resolvedTitle: here.t });
+      const better = list.find(x => x.tn === normT);
+      if (better) return out(e.file, better.i, 'repaired', { from: `${e.file}#${e.topic_idx}`, resolvedTitle: better.t });
+      return out(e.file, e.topic_idx, 'ok', { resolvedTitle: here.t }); // tópico existe; título pode ser paráfrase
+    }
+    // tópico fora de faixa / inexistente
+    if (normT) {
+      const better = list.find(x => x.tn === normT)
+        || list.find(x => x.tn && (x.tn.includes(normT) || normT.includes(x.tn)));
+      if (better) return out(e.file, better.i, 'repaired', { from: `${e.file}#${e.topic_idx}`, resolvedTitle: better.t });
+      const hit = _repairInVol(cache, normT);
+      if (hit) return out(hit.f + '.html', hit.i, 'repaired', { from: `${e.file}#${e.topic_idx}`, resolvedTitle: hit.t });
+    }
+    return out(e.file, e.topic_idx, 'invalid', { reason: `tópico ${e.topic_idx} inexistente` });
+  }
+
+  // Extrai códigos [[CdF:vol/file/topic]] E URLs reader.html, capturando o
+  // TÍTULO que vier logo após o código (até a próxima quebra de linha ou
+  // próximo código). Dedupa por código preservando ordem; herda título.
+  function _parseCdfEntries(text) {
     if (!text) return [];
-    const out = [], seen = new Set();
-    const push = (vol, file, topic) => {
-      if (!vol || !file) return;
-      vol = String(vol).trim().toLowerCase();
-      try { file = decodeURIComponent(String(file).trim()); } catch (_) { file = String(file).trim(); }
-      if (!vol.startsWith('mioshiec')) {
-        const m = vol.match(/(\d+)/);
-        if (m) vol = 'mioshiec' + m[1]; else return;
-      }
-      if (!/\.html$/i.test(file)) file += '.html';
-      const t = parseInt(topic, 10);
-      const topic_idx = Number.isFinite(t) ? t : 0;
-      const key = vol + '|' + file + '|' + topic_idx;
-      if (seen.has(key)) return;
-      seen.add(key);
-      out.push({ vol, file, topic_idx });
-    };
+    const matches = [];
     const reCode = /\[\[\s*CdF\s*:\s*([a-zA-Z0-9]+)\s*\/\s*([^/\]\s]+)\s*\/\s*(\d+)\s*\]\]/gi;
     let m;
-    while ((m = reCode.exec(text)) !== null) push(m[1], m[2], m[3]);
+    while ((m = reCode.exec(text)) !== null)
+      matches.push({ start: m.index, end: reCode.lastIndex, vol: m[1], file: m[2], topic: m[3] });
     const reUrl = /reader\.html\?[^\s)"'<>]+/gi;
     let u;
     while ((u = reUrl.exec(text)) !== null) {
@@ -441,7 +501,30 @@
       const vol = (q.match(/[?&]vol=([^&]+)/) || [])[1];
       const file = (q.match(/[?&]file=([^&]+)/) || [])[1];
       const topic = (q.match(/[?&]topic=(\d+)/) || [])[1] || '0';
-      if (vol && file) push(vol, file, topic);
+      if (vol && file) matches.push({ start: u.index, end: reUrl.lastIndex, vol, file, topic });
+    }
+    if (!matches.length) return [];
+    matches.sort((a, b) => a.start - b.start);
+    const out = [], byKey = new Map();
+    for (let i = 0; i < matches.length; i++) {
+      const cur = matches[i];
+      let bound = (i + 1 < matches.length) ? matches[i + 1].start : text.length;
+      const nl = text.indexOf('\n', cur.end);
+      if (nl !== -1 && nl < bound) bound = nl;
+      let title = text.slice(cur.end, bound)
+        .replace(/^[\s\-—–:·•|>\d.)\]]+/, '').replace(/\s+/g, ' ').trim();
+      if (title.length < 3) title = '';
+      let vol = cur.vol.toLowerCase();
+      if (!vol.startsWith('mioshiec')) { const mm = vol.match(/(\d+)/); if (mm) vol = 'mioshiec' + mm[1]; else continue; }
+      let file;
+      try { file = decodeURIComponent(cur.file.trim()); } catch (_) { file = cur.file.trim(); }
+      if (!/\.html$/i.test(file)) file += '.html';
+      const ti = parseInt(cur.topic, 10);
+      const topic_idx = Number.isFinite(ti) ? ti : 0;
+      const key = vol + '|' + file + '|' + topic_idx;
+      if (byKey.has(key)) { const prev = byKey.get(key); if (!prev.title && title) prev.title = title; continue; }
+      const ent = { vol, file, topic_idx, title };
+      byKey.set(key, ent); out.push(ent);
     }
     return out;
   }
@@ -457,7 +540,7 @@
     body.innerHTML = `
       <div style="padding:14px 16px; display:flex; flex-direction:column; gap:10px;">
         <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.55;">
-          No NotebookLM, peça: <em>"Liste o código [[CdF:…]] de cada ensinamento que você citou, um por linha"</em>. Copie e cole abaixo — também aceito os links <code>reader.html?vol=…</code>.
+          No NotebookLM, peça: <em>"Para cada ensinamento citado, escreva numa linha o código [[CdF:…]] seguido do título exato"</em>. Cole abaixo e clique em <strong>Analisar</strong> — o título permite corrigir o nº do tópico quando o NotebookLM erra. Também aceito os links <code>reader.html?vol=…</code>.
         </div>
         <textarea id="mgrImportText" placeholder="[[CdF:mioshiec1/zyobun.html/0]]&#10;[[CdF:mioshiec2/…/3]]&#10;…" style="width:100%; min-height:150px; padding:10px 12px; font-size:0.85rem; font-family:ui-monospace,Menlo,Consolas,monospace; border:1px solid var(--border); border-radius:6px; background:var(--bg,#fff); color:inherit; box-sizing:border-box; resize:vertical;"></textarea>
         <div id="mgrImportPreview"></div>
@@ -465,44 +548,76 @@
     `;
     const footer = document.getElementById('mgrFooter');
     footer.innerHTML = `
-      <input id="mgrImportName" type="text" placeholder="Nome da playlist…" value="Pesquisa NotebookLM" style="flex:1; min-width:160px; padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:6px; background:var(--bg,#fff); color:inherit; box-sizing:border-box;">
+      <input id="mgrImportName" type="text" placeholder="Nome da playlist…" value="Pesquisa NotebookLM" style="flex:1; min-width:140px; padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:6px; background:var(--bg,#fff); color:inherit; box-sizing:border-box;">
+      <button id="mgrImportAnalyze" style="padding:7px 14px; font-size:0.85rem; background:none; color:inherit; border:1px solid var(--border); border-radius:6px; cursor:pointer; font-weight:600;">Analisar</button>
       <button id="mgrImportCreate" disabled style="padding:7px 16px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; opacity:0.5;">Criar playlist (0)</button>
     `;
-    let parsed = [];
+    let resolved = [];
     const previewEl = () => document.getElementById('mgrImportPreview');
     const createBtn = () => document.getElementById('mgrImportCreate');
-    function analyze() {
-      parsed = _parseCdfCodes(document.getElementById('mgrImportText').value);
+    async function analyze() {
+      const text = document.getElementById('mgrImportText').value;
+      const entries = _parseCdfEntries(text);
       const pv = previewEl(), btn = createBtn();
-      if (!parsed.length) {
-        pv.innerHTML = document.getElementById('mgrImportText').value.trim()
+      btn.disabled = true; btn.style.opacity = '0.5'; btn.textContent = 'Criar playlist (0)';
+      if (!entries.length) {
+        pv.innerHTML = text.trim()
           ? '<div style="padding:8px 2px; font-size:0.82rem; color:#c00;">Nenhum código reconhecido. Cole os códigos [[CdF:…]] ou os links reader.html.</div>'
           : '';
-        btn.disabled = true; btn.style.opacity = '0.5'; btn.textContent = 'Criar playlist (0)';
+        resolved = [];
         return;
       }
-      const titles = window.GLOBAL_INDEX_TITLES || {};
+      pv.innerHTML = '<div style="padding:10px 2px; font-size:0.82rem; color:var(--text-muted);">Analisando…</div>';
+      await _loadTitlesForVols(entries.map(e => e.vol));
+      resolved = entries.map(_resolveEntry);
+      const addable = resolved.filter(r => r.status !== 'invalid').length;
+      const repaired = resolved.filter(r => r.status === 'repaired').length;
+      const invalid = resolved.filter(r => r.status === 'invalid').length;
+      const STY = {
+        ok:         { c: '#0a7', ic: '✓' },
+        repaired:   { c: 'var(--accent)', ic: '⚠' },
+        unverified: { c: '#999', ic: '•' },
+        invalid:    { c: '#c00', ic: '✗' },
+      };
+      let summary = `${addable} ${addable === 1 ? 'será adicionado' : 'serão adicionados'}`;
+      if (repaired) summary += ` · ${repaired} corrigido${repaired === 1 ? '' : 's'}`;
+      if (invalid) summary += ` · ${invalid} descartado${invalid === 1 ? '' : 's'}`;
       pv.innerHTML =
-        `<div style="padding:8px 2px 6px; font-size:0.82rem; color:var(--text-muted);">${parsed.length} ensinamento${parsed.length === 1 ? '' : 's'} reconhecido${parsed.length === 1 ? '' : 's'}:</div>` +
-        '<div style="border:1px solid var(--border); border-radius:6px; max-height:200px; overflow-y:auto;">' +
-        parsed.map((p, i) => {
-          const pub = (titles[p.vol] && titles[p.vol][p.file]) || '';
-          const vshort = p.vol.replace('mioshiec', 'V');
-          return `<div style="padding:7px 12px; border-bottom:1px solid var(--border); font-size:0.84rem;">
-            <span style="color:var(--text-muted); min-width:22px; display:inline-block;">${i + 1}.</span>
-            <span style="color:var(--accent);">${pub ? _esc(pub) : _esc(p.file)}</span>
-            <span style="color:var(--text-muted); font-size:0.73rem;"> — ${vshort} · ${_esc(p.file)}#${p.topic_idx}</span>
+        `<div style="padding:8px 2px 6px; font-size:0.82rem; color:var(--text-muted);">${summary}:</div>` +
+        '<div style="border:1px solid var(--border); border-radius:6px; max-height:230px; overflow-y:auto;">' +
+        resolved.map(r => {
+          const s = STY[r.status] || STY.ok;
+          const vshort = r.vol.replace('mioshiec', 'V');
+          const title = r.resolvedTitle || r.title || r.file;
+          let note = '';
+          if (r.status === 'repaired') note = `<span style="color:var(--accent); font-size:0.72rem;"> ↻ corrigido de ${_esc(r.from)}</span>`;
+          else if (r.status === 'invalid') note = `<span style="color:#c00; font-size:0.72rem;"> — ${_esc(r.reason || 'inválido')} (descartado)</span>`;
+          else if (r.status === 'unverified') note = `<span style="color:#999; font-size:0.72rem;"> — não verificado</span>`;
+          return `<div style="padding:7px 12px; border-bottom:1px solid var(--border); font-size:0.84rem; border-left:3px solid ${s.c}; ${r.status === 'invalid' ? 'opacity:0.6;' : ''}">
+            <span style="color:${s.c}; min-width:18px; display:inline-block;">${s.ic}</span>
+            <span style="color:var(--accent);">${_esc(title)}</span>
+            <span style="color:var(--text-muted); font-size:0.72rem;"> — ${vshort} · ${_esc(r.file)}#${r.topic_idx}</span>${note}
           </div>`;
         }).join('') +
         '</div>';
-      btn.disabled = false; btn.style.opacity = '1'; btn.textContent = `Criar playlist (${parsed.length})`;
+      btn.disabled = addable === 0; btn.style.opacity = addable ? '1' : '0.5';
+      btn.textContent = `Criar playlist (${addable})`;
     }
-    document.getElementById('mgrImportText').addEventListener('input', analyze);
-    createBtn().onclick = () => _mgrRunImport(parsed, document.getElementById('mgrImportName').value);
+    document.getElementById('mgrImportAnalyze').onclick = analyze;
+    createBtn().onclick = () => _mgrRunImport(resolved, document.getElementById('mgrImportName').value);
   }
 
-  async function _mgrRunImport(parsed, name) {
-    if (_mgrBusy || !parsed || !parsed.length) return;
+  async function _mgrRunImport(resolved, name) {
+    if (_mgrBusy) return;
+    // só entram os resolvíveis (ok/repaired/unverified); dedup após o conserto.
+    const toAdd = [], seen = new Set();
+    for (const r of (resolved || [])) {
+      if (r.status === 'invalid') continue;
+      const key = r.vol + '|' + r.file + '|' + r.topic_idx;
+      if (seen.has(key)) continue;
+      seen.add(key); toAdd.push(r);
+    }
+    if (!toAdd.length) { _mgrMsg('Nada válido para adicionar.', true); return; }
     name = (name || '').trim() || 'Pesquisa NotebookLM';
     const supa = _supa();
     if (!supa) { _mgrMsg('Sem conexão.', true); return; }
@@ -513,9 +628,9 @@
     const { data: newId, error } = await supa.rpc('create_collection', { p_name: name });
     if (error || !newId) { _mgrBusy = false; _mgrMsg('Erro ao criar: ' + (error ? error.message : 'sem id'), true); return; }
     let ok = 0, fail = 0;
-    for (let i = 0; i < parsed.length; i++) {
-      const p = parsed[i];
-      _mgrMsg(`Adicionando ${i + 1}/${parsed.length}…`);
+    for (let i = 0; i < toAdd.length; i++) {
+      const p = toAdd[i];
+      _mgrMsg(`Adicionando ${i + 1}/${toAdd.length}…`);
       const { error: e2 } = await supa.rpc('add_to_collection', {
         p_collection_id: newId, p_vol: p.vol, p_file: p.file, p_topic_idx: p.topic_idx,
       });

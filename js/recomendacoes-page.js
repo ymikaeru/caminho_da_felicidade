@@ -22,6 +22,26 @@
     return 'teaching';
   }
 
+  // Read marks (lidos) — itens de playlist usam "lido" no lugar de arquivar.
+  // Sincroniza com o leitor (localStorage 'readMarks') e a nuvem (_cloudSync),
+  // então marcar aqui reflete no leitor e na página "Lidos", e vice-versa.
+  let _readSet = new Set();
+  const _readKey = (vol, file, topic) => `${vol}|${file}|${topic || 0}`;
+  async function _loadReadSet() {
+    const set = new Set();
+    try {
+      JSON.parse(localStorage.getItem('readMarks') || '[]')
+        .forEach(m => set.add(_readKey(m.vol, m.file, m.topic)));
+    } catch (_) {}
+    try {
+      if (window._cloudSync && window._cloudSync.loadReadMarks) {
+        const marks = await window._cloudSync.loadReadMarks();
+        (marks || []).forEach(m => set.add(_readKey(m.volume, m.file, m.topic_index)));
+      }
+    } catch (_) {}
+    _readSet = set;
+  }
+
   function _esc(s) {
     return String(s ?? '')
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -127,15 +147,31 @@
       const metaLine = `<div class="rec-card-meta">${recommender ? `<span>${_esc(recommender)}</span><span class="dot">·</span>` : ''}<span>${_esc(createdStr)}</span>${metaExtra}</div>`;
       const noteHtml = r.note ? `<div class="rec-card-note">"${_esc(r.note)}"</div>` : '';
 
-      const actionBtn = archived
-        ? `<button class="rec-action-btn primary" data-action="unarchive" data-rec-id="${_esc(r.id)}" type="button">
+      // Item de playlist (ensinamento): a ação por item é "Marcar como lido"
+      // (progresso, sincronizado com o leitor) — o item PERMANECE na playlist.
+      // O conjunto é arquivado pelo botão do grupo. Itens avulsos mantêm
+      // arquivar/desarquivar individual.
+      const isPlaylistItem = !!r.source_collection_id && !r.audio_path && r.vol !== 'poetry';
+      const _ridx = r.topic_idx != null ? r.topic_idx : 0;
+      const isRead = isPlaylistItem && _readSet.has(_readKey(r.vol, r.file, _ridx));
+      let actionBtn;
+      if (isPlaylistItem) {
+        const readLbl = isRead ? (lang === 'ja' ? '読了' : 'Lido') : (lang === 'ja' ? '読了にする' : 'Marcar como lido');
+        const readSvg = isRead
+          ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>`
+          : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>`;
+        actionBtn = `<button class="rec-action-btn rec-read-btn" data-action="toggle-read" data-rec-id="${_esc(r.id)}" data-vol="${_esc(r.vol)}" data-file="${_esc(r.file)}" data-topic="${_ridx}" type="button" aria-pressed="${isRead}" style="${isRead ? 'color:#0a7;border-color:#0a7;' : ''}">${readSvg}<span>${_esc(readLbl)}</span></button>`;
+      } else if (archived) {
+        actionBtn = `<button class="rec-action-btn primary" data-action="unarchive" data-rec-id="${_esc(r.id)}" type="button">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><polyline points="14 11 14 17 10 17"/></svg>
             <span>${_esc(lang === 'ja' ? '戻す' : 'Desarquivar')}</span>
-          </button>`
-        : `<button class="rec-action-btn" data-action="archive" data-rec-id="${_esc(r.id)}" type="button">
+          </button>`;
+      } else {
+        actionBtn = `<button class="rec-action-btn" data-action="archive" data-rec-id="${_esc(r.id)}" type="button">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
             <span>${_esc(lang === 'ja' ? 'アーカイブ' : 'Arquivar')}</span>
           </button>`;
+      }
 
       const cardCls = archived ? 'rec-card archived' : 'rec-card';
 
@@ -274,6 +310,10 @@
     const groupHtml = Array.from(groups.entries()).map(([cid, g]) => {
       const looseLbl = lang === 'ja' ? '件' : (g.items.length === 1 ? 'ensinamento' : 'ensinamentos');
       const cards = g.items.map(r => _renderOneCard(r, archived, lang, base)).join('');
+      const readN = g.items.filter(it => _readSet.has(_readKey(it.vol, it.file, it.topic_idx != null ? it.topic_idx : 0))).length;
+      const readBadge = readN > 0
+        ? `<span class="rec-group-count" style="color:#0a7; white-space:nowrap;">· ${readN} ${lang === 'ja' ? '読了' : 'lido' + (readN === 1 ? '' : 's')}</span>`
+        : '';
       const actLbl = archived
         ? (lang === 'ja' ? 'すべて解除' : 'Desarquivar tudo')
         : (lang === 'ja' ? 'すべてアーカイブ' : 'Arquivar tudo');
@@ -285,6 +325,7 @@
             <span class="rec-group-icon">📂</span>
             <span class="rec-group-name">${_esc(g.name)}</span>
             <span class="rec-group-count">${g.items.length} ${looseLbl}</span>
+            ${readBadge}
             ${actBtn}
             <span class="rec-group-chevron" aria-hidden="true">▾</span>
           </summary>
@@ -358,7 +399,7 @@
   }
 
   async function _refresh() {
-    const { active, archived } = await _fetchAll();
+    const [{ active, archived }] = await Promise.all([_fetchAll(), _loadReadSet()]);
     _active = active;
     _archived = archived;
     _render();
@@ -378,6 +419,29 @@
     const { error } = await supa.rpc('unarchive_my_recommendation', { p_id: recId });
     if (error) { alert('Erro: ' + error.message); return; }
     await _refresh();
+  }
+
+  // Marca/desmarca "lido" um item de playlist. Atualiza localStorage (leitor)
+  // e nuvem (_cloudSync) — o item NÃO sai da playlist.
+  async function _toggleRead(btn) {
+    const vol = btn.dataset.vol, file = btn.dataset.file;
+    const topic = parseInt(btn.dataset.topic, 10) || 0;
+    const key = _readKey(vol, file, topic);
+    const wasRead = _readSet.has(key);
+    const topicTitle = (btn.closest('article')?.querySelector('.rec-card-title')?.textContent || '').trim();
+    if (wasRead) _readSet.delete(key); else _readSet.add(key);
+    try {
+      let marks = JSON.parse(localStorage.getItem('readMarks') || '[]');
+      if (wasRead) marks = marks.filter(m => !(m.vol === vol && m.file === file && (m.topic || 0) === topic));
+      else marks.unshift({ vol, file, topic, topicTitle, time: Date.now() });
+      localStorage.setItem('readMarks', JSON.stringify(marks));
+    } catch (_) {}
+    if (window._cloudSync) {
+      const op = wasRead ? window._cloudSync.removeReadMark(vol, file, topic)
+                         : window._cloudSync.saveReadMark(vol, file, topic, topicTitle);
+      Promise.resolve(op).catch(e => console.warn('[read-marks] cloud sync falhou:', e));
+    }
+    _render();
   }
 
   // Arquiva (ou desarquiva) vários de uma vez — usado pelo botão da playlist.
@@ -636,6 +700,7 @@
         e.preventDefault();
         const action = btn.dataset.action;
         const id = btn.dataset.recId;
+        if (action === 'toggle-read') { await _toggleRead(btn); return; }
         if (!action || !id) return;
         btn.disabled = true;
         if (action === 'archive') await _archive(id);

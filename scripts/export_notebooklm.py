@@ -214,19 +214,33 @@ def main():
         "5. No site, use **\"Recomendar este Ensinamento\"** para publicar a recomendacao.",
         "",
         "## Como usar (varios de uma vez -> playlist)",
-        "Cada ensinamento tem um **Codigo** `[[CdF:vol/arquivo/topico]]` + o titulo.",
-        "1. Depois de perguntar, peca ao NotebookLM:",
-        "   > *Para cada ensinamento citado, escreva numa linha o codigo [[CdF:...]] "
-        "seguido do titulo exato.*",
+        "Cada ensinamento tem, no cabecalho, um **Codigo** `[[CdF:vol/arquivo/topico]]`, "
+        "o **titulo** e o **link** do leitor.",
+        "1. Depois de perguntar, peca ao NotebookLM (prompt minimo):",
+        "   > *Liste, um por linha, cada ensinamento que voce usou, no formato "
+        "`[[CdF:...]] — Titulo`. Copie o codigo exatamente como aparece no inicio do "
+        "ensinamento na fonte.*",
         "2. Copie a lista (codigo + titulo por linha).",
         "3. No site: gerenciador de playlists -> **Importar do NotebookLM** -> cole -> "
         "**Analisar** -> confira -> **Criar playlist**.",
         "4. Use **Recomendar esta playlist** para enviar tudo de uma vez.",
         "",
-        "O NotebookLM as vezes erra o NUMERO do topico (acerta volume+arquivo). "
-        "Por isso peca o titulo junto: o importador valida cada codigo no indice de "
-        "titulos do site e CORRIGE o topico errado pelo titulo (ou descarta os "
-        "inexistentes, sem criar item quebrado). Tambem aceita URLs reader.html.",
+        "### Prompt reforcado (opcional): codigo + titulo + link",
+        "Se quiser dar mais chance de acerto, peca tambem o link (serve de backup "
+        "quando o codigo vem errado):",
+        "   > *Liste, um por linha, cada ensinamento que voce usou, no formato "
+        "`[[CdF:...]] — Titulo — reader.html?vol=...&file=...&topic=...`. Copie o codigo "
+        "e o link exatamente como aparecem na fonte.*",
+        "",
+        "### Por que pedir o titulo",
+        "O NotebookLM as vezes erra o NUMERO do topico (acerta volume+arquivo, troca o "
+        "ultimo digito). Com o titulo junto, o importador valida cada codigo no indice "
+        "de titulos do site e CORRIGE o topico errado pelo titulo (ou descarta os "
+        "inexistentes, sem criar item quebrado).",
+        "",
+        "O importador e tolerante: o separador (—, -, :) nao importa, aceita as URLs "
+        "`reader.html?...` como codigo, e remove duplicatas. Voce so precisa pedir "
+        "**codigo + titulo, um por linha**.",
         "",
         "## Arquivos",
         "",

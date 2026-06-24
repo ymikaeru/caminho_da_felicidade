@@ -102,7 +102,6 @@ function buildCard(r, state) {
 
   const editBtn = `<button class="report-verify-btn" style="background:rgba(255,160,0,0.1); color:var(--text); border-color:var(--border);" onclick="openEditorFromReport('${r.id}')" title="Abrir editor já localizando o trecho reportado">✏️ Editar</button>`;
   const aiBtn = `<button class="report-verify-btn" style="background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="suggestTranslationWithAI('${r.id}')" title="Sugerir correção pontual via Claude AI">✨ Claude</button>`;
-  const geminiBtn = `<button class="report-verify-btn" style="background:rgba(26,115,232,0.1); color:#1a73e8; border-color:rgba(26,115,232,0.3);" onclick="suggestWithGemini('${r.id}')" title="Sugerir correção pontual via Gemini">🔷 Gemini</button>`;
   const correctBtn = `<button class="report-verify-btn" style="background:rgba(52,199,89,0.15); color:#1f8a3f; border-color:rgba(52,199,89,0.4);" onclick="markCorrected('${r.id}', this)" title="Marcar correção como aplicada — aguarda revisão para arquivar">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       Corrigido
@@ -112,7 +111,7 @@ function buildCard(r, state) {
     </button>`;
   // Triagem: move o reporte para a aba "Omitidos (em pesquisa)" — trecho que
   // parece ter sido omitido da tradução e precisa de pesquisa do texto completo.
-  const omitBtn = `<button class="report-verify-btn" style="background:rgba(175,82,222,0.12); color:#af52de; border-color:rgba(175,82,222,0.35);" onclick="moveToOmitidos('${r.id}', this)" title="Mover para 'Omitidos (em pesquisa)' — separa das correções rápidas">📋 Omitido</button>`;
+  const omitBtn = `<button class="report-verify-btn" style="background:rgba(175,82,222,0.12); color:#af52de; border-color:rgba(175,82,222,0.35);" onclick="moveToOmitidos('${r.id}', this)" title="Mover para 'Pesquisa de Omitidos' — separa das correções rápidas">📋 Mover p/ Pesquisa</button>`;
   const backBtn = `<button class="report-verify-btn" style="background:rgba(142,142,147,0.12); color:var(--text-muted); border-color:var(--border);" onclick="unmarkOmitido('${r.id}', this)" title="Voltar para a fila principal (Relatórios)">↩ Voltar p/ Relatórios</button>`;
 
   const previewRaw = _stripHtmlText(r.pt_after || r.selected_text || '');
@@ -123,14 +122,14 @@ function buildCard(r, state) {
   let actions = '';
   let chip = '';
   if (state === 'pending') {
-    actions = `${previewBtn}${editBtn}${aiBtn}${geminiBtn}${correctBtn}${omitBtn}`;
+    actions = `${previewBtn}${editBtn}${aiBtn}${correctBtn}${omitBtn}`;
   } else if (state === 'corrected') {
     actions = `${previewBtn}${editBtn}${archiveBtn}`;
     chip = `<span class="report-status-chip status-corrected" title="Aguardando arquivamento por outro admin">🟡 Corrigido por ${_escHtml(adminName(r.corrected_by))} · ${shortDate(r.corrected_at)}</span>`;
   } else if (state === 'omitted') {
     // Aba "Omitidos (em pesquisa)" — fluxo completo: pesquisar, editar e, ao
     // concluir, marcar Corrigido; ou devolver para a fila principal.
-    actions = `${previewBtn}${editBtn}${aiBtn}${geminiBtn}${correctBtn}${backBtn}`;
+    actions = `${previewBtn}${editBtn}${aiBtn}${correctBtn}${backBtn}`;
     chip = `<span class="report-status-chip" style="background:rgba(175,82,222,0.12); color:#af52de;" title="Trecho possivelmente omitido — pesquisando se o texto completo existe">📋 Em pesquisa (texto omitido)</span>`;
   } else { // verified
     actions = `${previewBtn}`;
@@ -377,7 +376,7 @@ function _renderOmitidos() {
   }
 
   if (!omitted.length) {
-    container.innerHTML = `<div class="report-empty">Nenhum item em pesquisa. Na aba <strong>Relatórios</strong>, use o botão <strong style="color:#af52de">📋 Omitido</strong> de um reporte pendente para mover trechos que precisam de pesquisa do texto completo para cá.</div>`;
+    container.innerHTML = `<div class="report-empty">Nenhum item em pesquisa. Na aba <strong>Relatórios</strong>, use o botão <strong style="color:#af52de">📋 Mover p/ Pesquisa</strong> de um reporte pendente para mover trechos que precisam de pesquisa do texto completo para cá.</div>`;
     return;
   }
   container.innerHTML = '<div class="report-list">' + renderGroup(omitted, 'omitted', '📋') + '</div>';
@@ -402,7 +401,7 @@ async function moveToOmitidos(id, btnEl) {
     alert('Erro ao mover para Omitidos: ' + error.message +
       '\n\nSe a mensagem mencionar "constraint", aplique a migration ' +
       'supabase/migrations/translation_reports_add_omitted_status.sql no SQL Editor do Supabase.');
-    if (btnEl) { btnEl.disabled = false; btnEl.textContent = '📋 Omitido'; }
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = '📋 Mover p/ Pesquisa'; }
     return;
   }
   const idx = _allReports.findIndex(r => r.id === id);
@@ -839,133 +838,6 @@ function _reportDiscardAIPanel(reportId) {
   if (_activeAIPanel && _activeAIPanel.reportId === reportId) _activeAIPanel = null;
 }
 
-// ── Gemini: chamada direta à API via Edge Function ─────────────────────────
-
-async function suggestWithGemini(reportId) {
-  const r = _allReports.find(x => x.id === reportId);
-  if (!r) return;
-
-  const btn = document.querySelector(`#report-card-${reportId} button[onclick*="suggestWithGemini"]`);
-  const origHtml = btn?.innerHTML;
-  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Consultando…'; }
-
-  const panel = document.getElementById(`report-ai-panel-${reportId}`);
-  if (panel) {
-    panel.style.display = 'block';
-    panel.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted); padding:4px 0;">⏳ Consultando Gemini…</div>`;
-  }
-
-  const topicIdx = parseInt((r.topic_id || '0').replace(/\D/g, '')) || 0;
-  let contentJa = '', contentPt = '';
-  try {
-    const { data } = await supabase
-      .from('teachings_topics')
-      .select('content_ja, content_pt')
-      .eq('vol', r.vol)
-      .eq('file', r.file)
-      .eq('topic_idx', topicIdx)
-      .maybeSingle();
-    if (data) { contentJa = data.content_ja || ''; contentPt = data.content_pt || ''; }
-  } catch (e) { console.warn('[geminiAI] fetch failed:', e); }
-
-  const prompt = `${TRANSLATION_GUIDELINES}
-
----
-
-## CONTEXTO: SUGESTÃO DE CORREÇÃO PONTUAL
-
-Um usuário reportou um possível erro de tradução nos ensinamentos de Meishu-sama. Sua missão é identificar exatamente onde está o erro (mesmo que o trecho selecionado pelo usuário não seja o ponto exato) e sugerir a correção, aplicando todas as diretrizes acima.
-
-## DADOS DO REPORT
-
-**Localização:** ${r.vol} / ${r.file} / tópico ${topicIdx}
-**Idioma onde o erro foi identificado:** ${r.lang === 'ja' ? 'Japonês' : 'Português'}
-**Trecho selecionado pelo usuário:**
-"${r.selected_text || '(não informado)'}"
-${r.description ? `\n**Comentário do usuário (pista sobre o erro):**\n"${r.description}"` : ''}
-
----
-${contentJa ? `## TEXTO JAPONÊS ORIGINAL (referência canônica)\n\n${contentJa}\n\n` : ''}${contentPt ? `## TRADUÇÃO PT-BR ATUAL (versão em uso no site)\n\n${contentPt}\n\n` : ''}---
-
-## TAREFA
-
-Compare o japonês original com a tradução PT-BR atual. Use o comentário do usuário como pista, mas analise o tópico completo se necessário.
-
-Responda com os campos JSON:
-- "erro_identificado": onde está o problema — qual trecho do PT não corresponde ao JP, ou qual termo do glossário foi violado
-- "trecho_atual": o trecho problemático exato da tradução atual
-- "correcao_sugerida": o trecho corrigido — aplicando glossário, calibração de registro PT-BR e estilo
-- "justificativa": explicação breve — qual palavra japonesa foi mal traduzida, qual regra foi violada`;
-
-  try {
-    const { data, error } = await supabase.functions.invoke('gemini-suggest', { body: { prompt } });
-    if (error) {
-      // supabase-js entrega FunctionsHttpError com a mensagem genérica
-      // "Edge Function returned a non-2xx status code". O corpo real
-      // fica em error.context (Response). Lê-lo aqui pra mostrar o
-      // motivo de fato (chave inválida, modelo sem acesso, etc.).
-      let detail = '';
-      try {
-        const body = await error.context?.json?.();
-        if (body?.error) {
-          const extra = body.detail ? ` — ${body.detail}` : (body.raw ? ` — resposta crua: ${body.raw.slice(0, 200)}…` : '');
-          detail = body.error + extra;
-        }
-      } catch (_) {
-        try { detail = await error.context?.text?.(); } catch (_) {}
-      }
-      throw new Error(detail || error.message || String(error));
-    }
-    if (data?.error) {
-      const extra = data.detail ? ` — ${data.detail}` : (data.raw ? ` — resposta crua: ${data.raw.slice(0, 200)}…` : '');
-      throw new Error(data.error + extra);
-    }
-    const result = data?.result;
-    if (!result) throw new Error('Resposta vazia do Gemini');
-    _renderGeminiResult(reportId, result);
-  } catch (e) {
-    if (panel) {
-      panel.innerHTML = `
-        <div style="color:#ff3b30; font-size:0.82rem; margin-bottom:8px;">❌ Erro ao consultar Gemini: ${_escHtml(String(e.message))}</div>
-        <button onclick="_reportDiscardAIPanel('${reportId}')" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">Fechar</button>`;
-    }
-  } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
-  }
-}
-
-function _renderGeminiResult(reportId, result) {
-  const panel = document.getElementById(`report-ai-panel-${reportId}`);
-  if (!panel) return;
-
-  const ptCurrent = (result.trecho_atual || '').trim();
-  const ptSuggest = (result.correcao_sugerida || '').trim();
-  const erroId    = (result.erro_identificado || '').trim();
-  const justify   = (result.justificativa || '').trim();
-
-  panel.innerHTML = `
-    <div style="font-size:0.72rem; font-weight:600; color:#1a73e8; text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px;">🔷 Sugestão do Gemini</div>
-    ${erroId ? `<div style="margin-bottom:8px; padding:8px 10px; background:var(--surface); border-left:3px solid #1a73e8; border-radius:4px; font-size:0.8rem; line-height:1.5; color:var(--text-muted);"><b>🔍 Erro identificado:</b> ${_escHtml(erroId)}</div>` : ''}
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-      <div>
-        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px; font-weight:600;">📄 Trecho atual (PT)</div>
-        <div style="padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px; font-size:0.85rem; line-height:1.55; min-height:60px; white-space:pre-wrap;">${_escHtml(ptCurrent || '(não detectado)')}</div>
-      </div>
-      <div>
-        <div style="font-size:0.7rem; color:#1a73e8; margin-bottom:4px; font-weight:600;">✅ Correção sugerida (PT)</div>
-        <div class="report-ai-new" contenteditable="true" style="padding:8px 10px; background:rgba(26,115,232,0.04); border:1px solid rgba(26,115,232,0.4); border-radius:6px; font-size:0.85rem; line-height:1.55; min-height:60px; white-space:pre-wrap; color:var(--text);">${_escHtml(ptSuggest || '')}</div>
-      </div>
-    </div>
-    ${justify ? `<div style="margin-top:10px; padding:8px 10px; background:var(--surface); border-left:3px solid #1a73e8; border-radius:4px; font-size:0.8rem; line-height:1.5; color:var(--text-muted);"><b>💡 Justificativa:</b> ${_escHtml(justify)}</div>` : ''}
-    <div style="display:flex; gap:8px; margin-top:10px; align-items:center; flex-wrap:wrap;">
-      <button onclick="_reportCopySuggestion('${reportId}', this)" style="padding:6px 14px; background:#34c759; color:#fff; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">📋 Copiar correção</button>
-      <button onclick="openEditorFromReport('${reportId}')" style="padding:6px 14px; background:rgba(255,160,0,0.15); color:var(--text); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">📝 Abrir editor</button>
-      <button onclick="_reportDiscardAIPanel('${reportId}')" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">Fechar</button>
-      <span style="font-size:0.72rem; color:var(--text-muted);">Edite a correção antes de copiar, se quiser</span>
-    </div>
-  `;
-}
-
 // ── Auto-paste do clipboard quando volta da aba do claude.ai
 let _lastAutoPasted = '';
 window.addEventListener('focus', async () => {
@@ -975,7 +847,7 @@ window.addEventListener('focus', async () => {
   let text = '';
   try { text = await navigator.clipboard.readText(); } catch (e) { return; }
   if (!text || text === _lastAutoPasted) return;
-  const looksLikeReply = /(📜|📄|✅|🔍)/.test(text) && text.length > 50;
+  const looksLikeReply = /(📜|📄|✅|🔍|📕)/.test(text) && text.length > 50;
   if (!looksLikeReply) return;
   if (/TRANSLATION_GUIDELINES|GLOSSÁRIO MANDATÓRIO/.test(text)) return;
   ta.value = text;
@@ -1152,6 +1024,267 @@ function _editorDiscardAIPanel(btnEl) {
   if (_activeAIPanel && _activeAIPanel.type === 'segment') _activeAIPanel = null;
 }
 
+// ============================================================
+// Retradução + REALINHAMENTO de TÓPICO INTEIRO (bijeção ¶N).
+// Mesmo motor do "paredão" (retrad_batch.mjs) e da aba do Guia
+// (translation-review-guia.js): numera o JA em ¶1..¶N, pede ao Claude
+// EXATAMENTE N parágrafos PT + título, e reescreve o tópico já alinhado
+// 1:1 com o japonês. Resolve desalinhamentos que a edição por parágrafo
+// não corrige (PT com nº de blocos diferente do JA).
+// ============================================================
+
+// Blocos de texto-puro (sem tags), divididos por <br>, espaços normalizados.
+function _topicTextBlocks(rawHtml) {
+  return (rawHtml || '')
+    .split(/<br\s*\/?>/i)
+    .map(_cleanSoftBreakArtifacts)
+    .map(s => _stripHtmlText(s).replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+}
+
+function _editorRetranslateTopic(btnEl) {
+  const block = btnEl.closest('.topic-edit-block');
+  if (!block) return;
+  const tIdx = parseInt(block.getAttribute('data-tidx'), 10);
+  const pIdx = parseInt(block.getAttribute('data-pidx'), 10);
+  const topic = _currentEditJson?.themes?.[tIdx]?.topics?.[pIdx];
+  if (!topic) return;
+
+  const jaTitle = _stripHtmlText(topic.title_ja || topic.title || '').replace(/\s+/g, ' ').trim();
+  const jaBlocks = _topicTextBlocks(topic.content);
+  const ptBlocks = _topicTextBlocks(topic.content_ptbr || topic.content_pt || '');
+  const n = jaBlocks.length;
+  if (!n) { alert('Este tópico não tem conteúdo japonês para retraduzir.'); return; }
+
+  const jpNumbered = jaBlocks.map((p, i) => `¶${i + 1}\n${p}`).join('\n\n');
+
+  const prompt = `${TRANSLATION_GUIDELINES}
+
+---
+
+## CONTEXTO: RETRADUÇÃO + REALINHAMENTO DE TÓPICO INTEIRO
+
+Você vai retraduzir o Ensinamento INTEIRO do japonês ao português brasileiro. **NÃO** se baseie na tradução PT atual — ela pode estar desalinhada e está sendo substituída. Traduza fresh do JP, aplicando rigorosamente o glossário e a calibração de registro PT-BR.
+
+**REGRA DE BIJEÇÃO 1:1 (CRÍTICA):** o JP tem **${n} parágrafos** numerados ¶1 a ¶${n}. Devolva EXATAMENTE ${n} parágrafos PT, na mesma ordem e mesma numeração. NÃO fundir, NÃO dividir, NÃO criar parágrafos extras nem omitir.
+
+## TÍTULO (japonês)
+
+${jaTitle || '(sem título)'}
+
+## JAPONÊS ORIGINAL (${n} parágrafos)
+
+${jpNumbered}
+
+---
+
+## FORMATO OBRIGATÓRIO DA RESPOSTA
+
+**📕 Título (PT):**
+[título traduzido, em uma única linha]
+
+**📜 Retradução completa:**
+
+¶1
+[parágrafo 1 retraduzido]
+
+¶2
+[parágrafo 2 retraduzido]
+
+...
+
+¶${n}
+[parágrafo ${n} retraduzido]
+
+(Sem texto adicional antes ou depois — apenas o título e os ${n} parágrafos numerados.)`;
+
+  try {
+    navigator.clipboard.writeText(prompt);
+  } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = prompt;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+
+  window.open('https://claude.ai/new', CLAUDE_TAB_NAME);
+
+  const panel = document.getElementById(`topic-retrad-panel-${tIdx}-${pIdx}`);
+  if (!panel) return;
+  panel.style.display = 'block';
+  panel.innerHTML = `
+    <div style="font-size:0.72rem; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">🔄 Retradução do tópico inteiro (${n} parágrafos)</div>
+    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px; line-height:1.5;">
+      1) Prompt copiado e claude.ai aberto. Cole com Ctrl+V e envie.<br>
+      2) Copie a resposta completa do Claude e cole abaixo (ou apenas volte aqui — colamos automaticamente). <strong>Esperando ${n} parágrafos</strong> no formato <code>¶N</code>.
+    </div>
+    <textarea class="topic-retrad-paste" placeholder="Cole aqui a resposta completa do Claude (com 📕 Título e 📜 ¶1, ¶2, …)…"
+      style="width:100%; box-sizing:border-box; min-height:120px; padding:8px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.85rem; font-family:inherit; resize:vertical;"></textarea>
+    <div style="display:flex; gap:8px; margin-top:8px; align-items:center;">
+      <button onclick="_editorParseTopicRetrad(this)" style="padding:6px 14px; background:#6366f1; color:#fff; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">Comparar</button>
+      <button onclick="_editorDiscardTopicRetrad(this)" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">Cancelar</button>
+    </div>
+  `;
+  const paste = panel.querySelector('.topic-retrad-paste');
+  if (paste) {
+    setTimeout(() => paste.focus(), 100);
+    _activeAIPanel = { type: 'topic', textarea: paste };
+  }
+}
+
+function _editorParseTopicRetrad(btnEl) {
+  const panel = btnEl.closest('.topic-retrad-panel');
+  if (!panel) return;
+  const block = panel.closest('.topic-edit-block');
+  const tIdx = parseInt(block.getAttribute('data-tidx'), 10);
+  const pIdx = parseInt(block.getAttribute('data-pidx'), 10);
+  const topic = _currentEditJson?.themes?.[tIdx]?.topics?.[pIdx];
+  const paste = panel.querySelector('.topic-retrad-paste');
+  const raw = (paste?.value || '').trim();
+  if (!raw || !topic) return;
+
+  if (_activeAIPanel && _activeAIPanel.type === 'topic') _activeAIPanel = null;
+
+  // Título (opcional): texto após o "📕 … :", seja na mesma linha ou na
+  // seguinte (o \s* depois do ":" atravessa a quebra). Tira ** e aspas.
+  let newTitle = '';
+  const tM = raw.match(/📕[^\n]*?[:：]\s*\*{0,2}\s*([^\n*][^\n]*?)\s*\*{0,2}\s*(?:\n|$)/);
+  if (tM) newTitle = tM[1].replace(/^["']\s*|\s*["']$/g, '').trim();
+
+  // Corpo: bloco após "📜" (ou o texto cru) → parágrafos ¶N.
+  const blockM = raw.match(/📜[^\n]*\n+([\s\S]*)$/);
+  const body = blockM ? blockM[1].trim() : raw;
+  const paraRe = /¶(\d+)\s*\n+([\s\S]*?)(?=\n+¶\d+\b|$)/g;
+  const found = [];
+  let m;
+  while ((m = paraRe.exec(body)) !== null) {
+    // Cada ¶ vira UM bloco <br>: tira uma nota final entre parênteses que o
+    // modelo às vezes anexa após o último ¶, e colapsa quebras internas
+    // (um parágrafo doutrinário = uma linha contínua) num espaço.
+    const content = m[2].trim()
+      .replace(/\n{2,}\([^)]*\)\s*$/, '')
+      .replace(/\s*\n\s*/g, ' ')
+      .trim();
+    if (content) found.push({ num: parseInt(m[1], 10), content });
+  }
+
+  const jaBlocks = _topicTextBlocks(topic.content);
+  const expected = jaBlocks.length;
+  const ptAtual = _topicTextBlocks(topic.content_ptbr || topic.content_pt || '');
+
+  if (!found.length) {
+    panel.innerHTML = `
+      <div style="font-size:0.72rem; font-weight:700; color:#ff9500; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">⚠ Resposta não estruturada</div>
+      <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:8px;">Não encontrei marcadores <code>¶N</code>. Peça ao Claude para reformatar no padrão ¶1, ¶2, … e cole de novo.</div>
+      <div style="padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px; font-size:0.8rem; max-height:200px; overflow-y:auto; white-space:pre-wrap;">${_escHtml(raw.slice(0, 800))}</div>
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button onclick="_editorDiscardTopicRetrad(this)" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">Fechar</button>
+      </div>`;
+    return;
+  }
+
+  found.sort((a, b) => a.num - b.num);
+  panel._retrad = { found, expected, newTitle, tIdx, pIdx };
+
+  const countMatch = found.length === expected;
+  const countWarning = countMatch
+    ? `<span style="color:#34c759;">✓ ${found.length} parágrafos (esperados ${expected}) — bijeção OK</span>`
+    : `<span style="color:#ff3b30;">⚠ recebido ${found.length}, esperado ${expected} — aplicar mesmo assim pode bagunçar a bijeção JA/PT</span>`;
+
+  const currentTitle = _stripHtmlText(topic.title_ptbr || topic.title_pt || topic.title || '').trim();
+  const titleRow = newTitle ? `
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:10px 12px; border-bottom:1px solid var(--border); background:rgba(168,122,27,0.04);">
+      <div>
+        <div style="font-size:.62rem; color:var(--text-muted); font-weight:700; margin-bottom:4px;">TÍTULO ATUAL</div>
+        <div style="font-size:.82rem; line-height:1.55;">${currentTitle ? _escHtml(currentTitle) : '<em style="color:var(--text-muted);">(sem título)</em>'}</div>
+      </div>
+      <div>
+        <div style="font-size:.62rem; color:#a87a1b; font-weight:700; margin-bottom:4px;">TÍTULO NOVO</div>
+        <div style="font-size:.82rem; line-height:1.55;">${_escHtml(newTitle)}</div>
+      </div>
+    </div>` : '';
+
+  let rowsHtml = '';
+  const maxRows = Math.max(expected, found.length);
+  for (let i = 0; i < maxRows; i++) {
+    const oldPt = ptAtual[i];
+    const newPt = found.find(f => f.num === i + 1)?.content;
+    const oldHtml = oldPt != null ? _escHtml(oldPt) : '<em style="color:var(--text-muted);">(sem ¶ correspondente)</em>';
+    const newHtml = newPt != null ? _escHtml(newPt) : '<em style="color:#ff3b30;">(¶ não fornecido pela IA)</em>';
+    const changed = oldPt != null && newPt != null && oldPt !== newPt;
+    rowsHtml += `
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:10px 12px; border-top:1px solid var(--border); ${changed ? 'background:rgba(99,102,241,0.03);' : ''}">
+        <div>
+          <div style="font-size:.62rem; color:var(--text-muted); font-weight:700; margin-bottom:4px;">¶${i + 1} ATUAL</div>
+          <div style="font-size:.82rem; line-height:1.55; white-space:pre-wrap;">${oldHtml}</div>
+        </div>
+        <div>
+          <div style="font-size:.62rem; color:#6366f1; font-weight:700; margin-bottom:4px;">¶${i + 1} NOVA</div>
+          <div style="font-size:.82rem; line-height:1.55; white-space:pre-wrap;">${newHtml}</div>
+        </div>
+      </div>`;
+  }
+
+  panel.innerHTML = `
+    <div style="font-size:0.72rem; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">🔄 Preview da retradução</div>
+    <div style="font-size:0.85rem; margin-bottom:10px;">${countWarning}</div>
+    <div style="max-height:min(55vh, 640px); overflow-y:auto; border:1px solid var(--border); border-radius:6px; background:var(--bg);">
+      ${titleRow}${rowsHtml}
+    </div>
+    <div style="display:flex; gap:8px; margin-top:12px; align-items:center; flex-wrap:wrap;">
+      <button onclick="_editorApplyTopicRetrad(this)" style="padding:6px 14px; background:#34c759; color:#fff; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">✓ Substituir tudo</button>
+      <button onclick="_editorDiscardTopicRetrad(this)" style="padding:6px 14px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:0.78rem; cursor:pointer;">✗ Descartar</button>
+      <span style="font-size:0.72rem; color:var(--text-muted);">Aplicar não salva — você ainda precisa clicar 💾 Salvar na Nuvem</span>
+    </div>`;
+}
+
+function _editorApplyTopicRetrad(btnEl) {
+  const panel = btnEl.closest('.topic-retrad-panel');
+  const data = panel?._retrad;
+  if (!data) return;
+  const { found, expected, newTitle, tIdx, pIdx } = data;
+  if (!found.length) return;
+
+  if (found.length !== expected) {
+    if (!confirm(`A IA devolveu ${found.length} parágrafos mas o JP tem ${expected}. Aplicar mesmo assim vai quebrar a bijeção JA/PT (o modo parágrafo/comparação pode parar de alinhar). Continuar?`)) return;
+  }
+
+  const theme = _currentEditJson?.themes?.[tIdx];
+  const topic = theme?.topics?.[pIdx];
+  if (!topic) return;
+
+  const ordered = found.slice().sort((a, b) => a.num - b.num).map(f => f.content);
+  topic.content_ptbr = ordered.join('<br/>\n');
+  if (newTitle) topic.title_ptbr = newTitle;
+
+  // Re-renderiza só este bloco, já realinhado 1:1 com o JA.
+  const oldBlock = document.getElementById(`topic-block-${tIdx}-${pIdx}`);
+  if (oldBlock) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = _topicBlockHtml(theme, topic, tIdx, pIdx);
+    const newBlock = tmp.firstElementChild;
+    oldBlock.replaceWith(newBlock);
+    _wireSegEditable(newBlock);
+    newBlock.querySelectorAll('.seg-editable').forEach(el => {
+      el.style.transition = 'background 0.5s';
+      el.style.background = 'rgba(52,199,89,0.14)';
+      setTimeout(() => { el.style.background = ''; }, 1000);
+    });
+    newBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function _editorDiscardTopicRetrad(btnEl) {
+  const panel = btnEl.closest('.topic-retrad-panel');
+  if (!panel) return;
+  panel.style.display = 'none';
+  panel.innerHTML = '';
+  delete panel._retrad;
+  if (_activeAIPanel && _activeAIPanel.type === 'topic') _activeAIPanel = null;
+}
+
 async function clearVerifiedHistory(btnEl) {
   const { count, error: countErr } = await supabase
     .from('translation_reports')
@@ -1312,82 +1445,106 @@ async function openEditor(vol, file, reportHighlight = null) {
   }
 }
 
-function renderStructuredEditor(jsonData) {
-  const container = document.getElementById('editor-structured-body');
-  let html = '';
+// Escapa para valor de ATRIBUTO HTML (preserva tags como texto literal —
+// títulos raramente têm HTML, mas se tiverem, faz round-trip no save).
+function _escAttr(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
-  jsonData.themes.forEach((theme, tIdx) => {
-    if (!theme.topics) return;
-    theme.topics.forEach((topic, pIdx) => {
-      const jaTitle = topic.title_ja || topic.title || 'Sem título JA';
-      const ptTitle = (topic.title_ptbr || topic.title_pt || topic.title || '').replace(/"/g, '&quot;');
+// HTML de UM bloco de tópico (cabeçalho + título editável + segmentos JA↔PT +
+// painel de versão anterior + painel de retradução de tópico inteiro).
+// Extraído para escopo de módulo para que _editorApplyTopicRetrad possa
+// re-renderizar só o bloco afetado depois de realinhar.
+function _topicBlockHtml(theme, topic, tIdx, pIdx) {
+  const jaTitle = topic.title_ja || topic.title || '';
+  const ptTitle = topic.title_ptbr || topic.title_pt || topic.title || '';
 
-      const jaContent = topic.content || '';
-      const ptContent = topic.content_ptbr || topic.content_pt || '';
+  const jaContent = topic.content || '';
+  const ptContent = topic.content_ptbr || topic.content_pt || '';
 
-      const pathPrefix = `${tIdx}-${pIdx}`;
+  const pathPrefix = `${tIdx}-${pIdx}`;
 
-      const jaSegs = jaContent.split(/<br\s*\/?>/i).map(_cleanSoftBreakArtifacts);
-      const ptSegs = ptContent.split(/<br\s*\/?>/i).map(_cleanSoftBreakArtifacts);
-      const maxLen = Math.max(jaSegs.length, ptSegs.length);
+  const jaSegs = jaContent.split(/<br\s*\/?>/i).map(_cleanSoftBreakArtifacts);
+  const ptSegs = ptContent.split(/<br\s*\/?>/i).map(_cleanSoftBreakArtifacts);
+  const maxLen = Math.max(jaSegs.length, ptSegs.length);
 
-      let segmentsHtml = '';
-      for (let i = 0; i < maxLen; i++) {
-         const jS = (jaSegs[i] || '').trim();
-         const pS = (ptSegs[i] || '').trim();
-         if (!jS && !pS) continue;
-         segmentsHtml += `
-           <div class="topic-split-grid editor-seg-row" data-seg-idx="${i}" style="border-top:1px solid rgba(184,134,11,0.08); padding-top:16px; margin-top:16px; position:relative;">
-             <div class="topic-split-col ja-col" style="padding:0 16px 16px 16px">
-               <div class="topic-readonly-text html-content">${jS}</div>
-             </div>
-             <div class="topic-split-col pt-col" style="padding:0 16px 16px 16px; position:relative;">
-               <button onclick="_editorRetranslateSegment(this)" title="Retraduzir este parágrafo via Claude AI"
-                 style="position:absolute; top:0; right:8px; padding:3px 10px; background:rgba(168,85,247,0.1); color:#a855f7; border:1px solid rgba(168,85,247,0.3); border-radius:6px; font-size:0.72rem; font-weight:600; cursor:pointer; z-index:1;">🔄 IA</button>
-               <div class="seg-editable editor-seg-content" contenteditable="true"
-                    data-path="${pathPrefix}-content_ptbr-seg" spellcheck="true">${pS.trim()}</div>
-               <div class="seg-ai-panel" style="display:none; margin-top:12px; border:1px dashed rgba(168,85,247,0.4); border-radius:8px; padding:12px; background:rgba(168,85,247,0.04);"></div>
-             </div>
-           </div>
-         `;
-      }
+  let segmentsHtml = '';
+  for (let i = 0; i < maxLen; i++) {
+     const jS = (jaSegs[i] || '').trim();
+     const pS = (ptSegs[i] || '').trim();
+     if (!jS && !pS) continue;
+     segmentsHtml += `
+       <div class="topic-split-grid editor-seg-row" data-seg-idx="${i}" style="border-top:1px solid rgba(184,134,11,0.08); padding-top:16px; margin-top:16px; position:relative;">
+         <div class="topic-split-col ja-col" style="padding:0 16px 16px 16px">
+           <div class="topic-readonly-text html-content">${jS}</div>
+         </div>
+         <div class="topic-split-col pt-col" style="padding:0 16px 16px 16px; position:relative;">
+           <button onclick="_editorRetranslateSegment(this)" title="Retraduzir este parágrafo via Claude AI"
+             style="position:absolute; top:0; right:8px; padding:3px 10px; background:rgba(168,85,247,0.1); color:#a855f7; border:1px solid rgba(168,85,247,0.3); border-radius:6px; font-size:0.72rem; font-weight:600; cursor:pointer; z-index:1;">🔄 IA</button>
+           <div class="seg-editable editor-seg-content" contenteditable="true"
+                data-path="${pathPrefix}-content_ptbr-seg" spellcheck="true">${pS.trim()}</div>
+           <div class="seg-ai-panel" style="display:none; margin-top:12px; border:1px dashed rgba(168,85,247,0.4); border-radius:8px; padding:12px; background:rgba(168,85,247,0.04);"></div>
+         </div>
+       </div>
+     `;
+  }
 
-      const prevPt = (topic.content_ptbr_prev || '').trim();
-      const hasPrev = prevPt && prevPt !== ptContent.trim();
-      const prevChip = hasPrev
-        ? `<button class="prev-toggle" onclick="_togglePrevPanel('${pathPrefix}')" title="Esta tradução foi substituída — ver a versão anterior para conferência/garimpo de trechos">↺ versão anterior</button>`
-        : '';
-      let prevPanel = '';
-      if (hasPrev) {
-        const prevParas = prevPt.split(/\n\n+|<br\s*\/?>/i).map((s) => s.trim()).filter(Boolean);
-        const rows = prevParas.map((p) => `
-          <div class="prev-seg-row">
-            <button class="prev-copy" title="Copiar este trecho" onclick="_copyPrevSeg(this)">⧉</button>
-            <div class="prev-seg-text">${_escHtml(p)}</div>
-          </div>`).join('');
-        prevPanel = `
-          <div class="topic-prev-panel" id="prev-panel-${pathPrefix}" style="display:none">
-            <div class="prev-panel-head">Versão anterior (substituída) — ${prevParas.length} trecho(s). Use ⧉ para copiar e colar na edição atual.</div>
-            ${rows}
-          </div>`;
-      }
+  const prevPt = (topic.content_ptbr_prev || '').trim();
+  const hasPrev = prevPt && prevPt !== ptContent.trim();
+  const prevChip = hasPrev
+    ? `<button class="prev-toggle" onclick="_togglePrevPanel('${pathPrefix}')" title="Esta tradução foi substituída — ver a versão anterior para conferência/garimpo de trechos">↺ versão anterior</button>`
+    : '';
+  let prevPanel = '';
+  if (hasPrev) {
+    const prevParas = prevPt.split(/\n\n+|<br\s*\/?>/i).map((s) => s.trim()).filter(Boolean);
+    const rows = prevParas.map((p) => `
+      <div class="prev-seg-row">
+        <button class="prev-copy" title="Copiar este trecho" onclick="_copyPrevSeg(this)">⧉</button>
+        <div class="prev-seg-text">${_escHtml(p)}</div>
+      </div>`).join('');
+    prevPanel = `
+      <div class="topic-prev-panel" id="prev-panel-${pathPrefix}" style="display:none">
+        <div class="prev-panel-head">Versão anterior (substituída) — ${prevParas.length} trecho(s). Use ⧉ para copiar e colar na edição atual.</div>
+        ${rows}
+      </div>`;
+  }
 
-      html += `
-        <div class="topic-edit-block">
-          <div class="topic-edit-header">
-            <span>Tópico ${pIdx + 1}</span>
-            ${prevChip}
-          </div>
-          ${prevPanel}
-          ${segmentsHtml}
-        </div>
-      `;
-    });
-  });
+  // Linha de título: JA (referência) + PT editável (data-path lido por saveEditor).
+  const titleRow = `
+    <div class="topic-title-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:8px 16px 4px 16px;">
+      <div>
+        <div style="font-size:0.62rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px;">Título (JA)</div>
+        <div class="topic-title-ja html-content" style="font-weight:600; line-height:1.5;">${jaTitle ? jaTitle : '<span style="opacity:.5;">(sem título)</span>'}</div>
+      </div>
+      <div>
+        <div style="font-size:0.62rem; color:#a87a1b; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px;">Título (PT) — editável</div>
+        <input class="editor-input-field" data-path="${pathPrefix}-title_ptbr" value="${_escAttr(ptTitle)}" spellcheck="true"
+          style="width:100%; box-sizing:border-box; padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text); font-size:0.9rem; font-weight:600;">
+      </div>
+    </div>`;
 
-  container.innerHTML = html;
+  return `
+    <div class="topic-edit-block" id="topic-block-${pathPrefix}" data-tidx="${tIdx}" data-pidx="${pIdx}">
+      <div class="topic-edit-header">
+        <span>Tópico ${pIdx + 1}</span>
+        <button class="topic-retrad-btn" onclick="_editorRetranslateTopic(this)" title="Retraduzir o tópico INTEIRO do zero e realinhar 1:1 com o japonês (bijeção ¶N) — corrige desalinhamentos"
+          style="padding:3px 10px; background:rgba(99,102,241,0.12); color:#6366f1; border:1px solid rgba(99,102,241,0.35); border-radius:6px; font-size:0.72rem; font-weight:600; cursor:pointer;">🔄 Retraduzir + alinhar tópico</button>
+        ${prevChip}
+      </div>
+      <div class="topic-retrad-panel" id="topic-retrad-panel-${pathPrefix}" style="display:none; margin:10px 16px; border:1px dashed rgba(99,102,241,0.4); border-radius:8px; padding:12px; background:rgba(99,102,241,0.04);"></div>
+      ${prevPanel}
+      ${titleRow}
+      ${segmentsHtml}
+    </div>
+  `;
+}
 
-  container.querySelectorAll('.seg-editable').forEach(div => {
+// Liga os listeners (Shift+Enter = <br> mole; paste = texto puro) nas caixas
+// editáveis dentro de `scope` — o container inteiro ou um único bloco
+// re-renderizado.
+function _wireSegEditable(scope) {
+  scope.querySelectorAll('.seg-editable').forEach(div => {
     div.addEventListener('keydown', e => {
       if (e.key !== 'Enter') return;
       e.preventDefault();
@@ -1412,11 +1569,26 @@ function renderStructuredEditor(jsonData) {
     });
   });
 
-  container.querySelectorAll('textarea').forEach(t => {
+  scope.querySelectorAll('textarea').forEach(t => {
     const autoResize = () => { t.style.height = 'auto'; t.style.height = (t.scrollHeight + 2) + 'px'; };
     autoResize();
     t.addEventListener('input', autoResize);
   });
+}
+
+function renderStructuredEditor(jsonData) {
+  const container = document.getElementById('editor-structured-body');
+  let html = '';
+
+  jsonData.themes.forEach((theme, tIdx) => {
+    if (!theme.topics) return;
+    theme.topics.forEach((topic, pIdx) => {
+      html += _topicBlockHtml(theme, topic, tIdx, pIdx);
+    });
+  });
+
+  container.innerHTML = html;
+  _wireSegEditable(container);
 }
 
 function _highlightReportedPassage({ text, lang }) {
@@ -1750,8 +1922,6 @@ Object.assign(window, {
   deleteReportNote,
   // AI helpers (report side)
   suggestTranslationWithAI,
-  suggestWithGemini,
-  _renderGeminiResult,
   _reportParseAISuggestion,
   _reportCopySuggestion,
   _reportDiscardAIPanel,
@@ -1760,6 +1930,11 @@ Object.assign(window, {
   _editorParseAISuggestion,
   _editorAcceptAISuggestion,
   _editorDiscardAIPanel,
+  // AI helpers (editor side — tópico inteiro / realinhamento ¶N)
+  _editorRetranslateTopic,
+  _editorParseTopicRetrad,
+  _editorApplyTopicRetrad,
+  _editorDiscardTopicRetrad,
   // Verified history
   clearVerifiedHistory,
   // Editor

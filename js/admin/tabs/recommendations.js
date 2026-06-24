@@ -313,6 +313,7 @@ async function recLoadList() {
               : isPoetry
                 ? `<a href="${encodeURIComponent(r.file)}.html?poem=${encodeURIComponent(r.poem_topic_id || '')}&hl_scroll=1" target="_blank" rel="noopener" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer; text-decoration:none; white-space:nowrap;" title="Abrir o poema numa nova aba">↗ Abrir</a>`
                 : `<a href="reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}&topic=${encodeURIComponent(r.topic_idx)}" target="_blank" rel="noopener" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer; text-decoration:none; white-space:nowrap;" title="Abrir o ensinamento numa nova aba">↗ Abrir</a>`}
+            <button onclick="recSetArchived('${_escHtml(r.id)}', ${archived ? 'false' : 'true'})" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer; white-space:nowrap;" title="${archived ? 'Desarquivar — volta pra lista ativa do usuário' : 'Arquivar — move pra Arquivadas do usuário'}">${archived ? '↩ Desarquivar' : '🗄 Arquivar'}</button>
             <button onclick="recDelete('${_escHtml(r.id)}')" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 10px; font-size:0.7rem; border-radius:3px; cursor:pointer;" title="Apagar permanentemente">✕</button>
           </div>
         </div>
@@ -340,6 +341,11 @@ async function recLoadList() {
     const open = g.items.length <= 4 ? ' open' : '';
     const body = '<div style="padding:8px; display:flex; flex-direction:column; gap:8px; border-top:1px solid var(--border);">'
       + g.items.map(renderRecCard).join('') + '</div>';
+    // Arquivar/desarquivar a playlist inteira (reversível). preventDefault
+    // impede o clique de alternar o <details>.
+    const allArchived = g.items.every(it => it.archived_at);
+    const archGroupLbl = allArchived ? '↩ Desarquivar playlist' : '🗄 Arquivar playlist';
+    const archGroupBtn = `<button onclick="event.preventDefault();event.stopPropagation();recSetGroupArchived('${_escHtml(cid)}', ${allArchived ? 'false' : 'true'})" title="${allArchived ? 'Desarquivar todos os itens da playlist' : 'Arquivar todos os itens da playlist (move pra Arquivadas do usuário)'}" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 9px; font-size:0.68rem; border-radius:3px; cursor:pointer; white-space:nowrap; flex-shrink:0;">${archGroupLbl}</button>`;
     // Apagar a playlist inteira (permanente). preventDefault impede o <details> de alternar.
     const delGroupBtn = `<button onclick="event.preventDefault();event.stopPropagation();recDeleteGroup('${_escHtml(cid)}')" title="Apagar a playlist inteira deste usuário (permanente)" style="background:none; border:1px solid var(--border); color:#c0392b; padding:4px 9px; font-size:0.68rem; border-radius:3px; cursor:pointer; white-space:nowrap; flex-shrink:0;">🗑 Apagar playlist</button>`;
     html += `
@@ -348,6 +354,7 @@ async function recLoadList() {
           <span style="font-size:1rem; flex-shrink:0;">📂</span>
           <span style="flex:1; min-width:0; font-size:0.86rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_escHtml(g.name)}</span>
           <span style="font-size:0.72rem; color:var(--text-muted); white-space:nowrap; flex-shrink:0;">${g.items.length} ${cntLbl}${readBadge}</span>
+          ${archGroupBtn}
           ${delGroupBtn}
           <svg class="rec-admin-pl-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--text-muted); flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
@@ -506,6 +513,27 @@ async function recDeleteGroup(cid) {
   const n = items.length;
   if (!confirm(`Apagar a playlist inteira "${name}" (${n} ${n === 1 ? 'recomendação' : 'recomendações'}) deste usuário?\n\nPermanente — não dá pra desfazer.`)) return;
   const res = await Promise.all(items.map(r => supabase.rpc('admin_delete_recommendation', { p_id: r.id })));
+  const bad = res.find(x => x && x.error);
+  if (bad) alert('Erro: ' + bad.error.message);
+  recLoadList();
+}
+
+// Arquiva (move pra Arquivadas do usuário) ou desarquiva UMA recomendação.
+// Reversível — sem confirmação.
+async function recSetArchived(recId, archive) {
+  const { error } = await supabase.rpc('admin_set_recommendation_archived', { p_id: recId, p_archived: archive });
+  if (error) { alert('Erro: ' + error.message); return; }
+  recLoadList();
+}
+
+// Arquiva/desarquiva a playlist inteira do usuário selecionado.
+async function recSetGroupArchived(cid, archive) {
+  const items = (_recCurrentRecs || []).filter(r => String(r.source_collection_id) === String(cid));
+  if (!items.length) return;
+  // só mexe nos que precisam mudar (idempotente de qualquer jeito)
+  const targets = items.filter(r => archive ? !r.archived_at : !!r.archived_at);
+  const list = targets.length ? targets : items;
+  const res = await Promise.all(list.map(r => supabase.rpc('admin_set_recommendation_archived', { p_id: r.id, p_archived: archive })));
   const bad = res.find(x => x && x.error);
   if (bad) alert('Erro: ' + bad.error.message);
   recLoadList();
@@ -841,6 +869,8 @@ Object.assign(window, {
   recCreateAll,
   recDelete,
   recDeleteGroup,
+  recSetArchived,
+  recSetGroupArchived,
   loadRecommendAudioTab,
   renderRecAudioUserList,
   recAudioToggleUser,

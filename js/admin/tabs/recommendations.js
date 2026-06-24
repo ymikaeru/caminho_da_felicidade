@@ -105,6 +105,7 @@ const _TAB_MARKUP = `
 let _recSelectedUser = null;     // {id, display_name, email}
 let _recPickedTeaching = null;   // {vol, file, topic_idx, title_pt, title_ja}
 let _recTeachingSearchTimer = null;
+let _recCurrentRecs = [];        // recs do usuário selecionado (p/ apagar playlist inteira)
 
 async function loadRecommendationsTab() {
   // Garante que a lista de usuários esteja carregada (a aba Usuários
@@ -219,6 +220,7 @@ async function recLoadList() {
     return;
   }
   const recs = data || [];
+  _recCurrentRecs = recs;   // p/ "apagar playlist inteira"
   // Escutas de áudio do usuário (audio_path → {max_percent, completed}) p/ o selo.
   const listenByPath = {};
   (listensRes && listensRes.data ? listensRes.data : []).forEach(l => { listenByPath[l.audio_path] = l; });
@@ -331,19 +333,22 @@ async function recLoadList() {
   });
 
   let html = '';
-  for (const [, g] of groups) {
+  for (const [cid, g] of groups) {
     const cntLbl = g.items.length === 1 ? 'ensinamento' : 'ensinamentos';
     const readN = g.items.filter(it => it.read_at).length;
     const readBadge = readN ? ` · <span style="color:#2c8a3e;">${readN} lida${readN > 1 ? 's' : ''}</span>` : '';
     const open = g.items.length <= 4 ? ' open' : '';
     const body = '<div style="padding:8px; display:flex; flex-direction:column; gap:8px; border-top:1px solid var(--border);">'
       + g.items.map(renderRecCard).join('') + '</div>';
+    // Apagar a playlist inteira (permanente). preventDefault impede o <details> de alternar.
+    const delGroupBtn = `<button onclick="event.preventDefault();event.stopPropagation();recDeleteGroup('${_escHtml(cid)}')" title="Apagar a playlist inteira deste usuário (permanente)" style="background:none; border:1px solid var(--border); color:#c0392b; padding:4px 9px; font-size:0.68rem; border-radius:3px; cursor:pointer; white-space:nowrap; flex-shrink:0;">🗑 Apagar playlist</button>`;
     html += `
       <details class="rec-admin-pl"${open} style="border:1px solid var(--border); border-radius:6px; overflow:hidden;">
         <summary style="display:flex; align-items:center; gap:8px; padding:11px 12px; cursor:pointer; background:var(--surface, var(--bg));">
           <span style="font-size:1rem; flex-shrink:0;">📂</span>
           <span style="flex:1; min-width:0; font-size:0.86rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_escHtml(g.name)}</span>
           <span style="font-size:0.72rem; color:var(--text-muted); white-space:nowrap; flex-shrink:0;">${g.items.length} ${cntLbl}${readBadge}</span>
+          ${delGroupBtn}
           <svg class="rec-admin-pl-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--text-muted); flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
         ${body}
@@ -489,6 +494,20 @@ async function recDelete(recId) {
   if (!confirm('Apagar esta recomendação?')) return;
   const { error } = await supabase.rpc('admin_delete_recommendation', { p_id: recId });
   if (error) { alert('Erro: ' + error.message); return; }
+  recLoadList();
+}
+
+// Apaga TODA a playlist (todos os itens com o mesmo source_collection_id) do
+// usuário selecionado. Permanente.
+async function recDeleteGroup(cid) {
+  const items = (_recCurrentRecs || []).filter(r => String(r.source_collection_id) === String(cid));
+  if (!items.length) return;
+  const name = items[0].source_collection_name || 'esta playlist';
+  const n = items.length;
+  if (!confirm(`Apagar a playlist inteira "${name}" (${n} ${n === 1 ? 'recomendação' : 'recomendações'}) deste usuário?\n\nPermanente — não dá pra desfazer.`)) return;
+  const res = await Promise.all(items.map(r => supabase.rpc('admin_delete_recommendation', { p_id: r.id })));
+  const bad = res.find(x => x && x.error);
+  if (bad) alert('Erro: ' + bad.error.message);
   recLoadList();
 }
 
@@ -821,6 +840,7 @@ Object.assign(window, {
   recCreate,
   recCreateAll,
   recDelete,
+  recDeleteGroup,
   loadRecommendAudioTab,
   renderRecAudioUserList,
   recAudioToggleUser,

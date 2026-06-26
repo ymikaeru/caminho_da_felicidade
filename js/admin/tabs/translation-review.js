@@ -1377,7 +1377,22 @@ async function openEditor(vol, file, reportHighlight = null) {
   modal.classList.add('open');
 
   try {
-    const { data, error } = await supabase.storage.from('teachings').download(`${vol}/${_currentEditFile}`);
+    let { data, error } = await supabase.storage.from('teachings').download(`${vol}/${_currentEditFile}`);
+    // Fallback "Object not found": alguns reports antigos guardaram só o slug
+    // (ex.: file="enzui" vindo de deep-link #v2/enzui), gerando "enzui.json",
+    // que não existe — o objeto real é "enzui.html.json". Insere ".html" antes
+    // do ".json" e, se existir, adota esse caminho (inclusive p/ o SAVE, que
+    // reusa _currentEditFile no upload).
+    if (error && !_currentEditFile.endsWith('.html.json')) {
+      const alt = _currentEditFile.replace(/\.json$/i, '.html.json');
+      const retry = await supabase.storage.from('teachings').download(`${vol}/${alt}`);
+      if (!retry.error && retry.data) {
+        _currentEditFile = alt;
+        subtitle.textContent = `${vol}/${alt}`;
+        data = retry.data;
+        error = null;
+      }
+    }
     if (error) throw error;
     if (!data) throw new Error('Arquivo vazio ou indisponível no storage');
 

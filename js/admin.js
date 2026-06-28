@@ -25,7 +25,7 @@ import './admin/tabs/analytics-johrei.js?v=11';
 import './admin/tabs/analytics-landing.js?v=2';
 import './admin/tabs/analytics-audio.js?v=8';
 import './admin/tabs/highlights-saved.js?v=3';
-import './admin/tabs/users-permissions.js?v=6';
+import './admin/tabs/users-permissions.js?v=7';
 import './admin/tabs/analytics.js?v=16';
 import './admin/tabs/translation-review.js?v=9';
 import './admin/tabs/translation-review-guia.js';
@@ -284,6 +284,16 @@ async function runAdminPinGate() {
     return false;
   }
 
+  // has_admin_pin retorna NULL quando o admin NÃO está na allowlist de
+  // administradores autorizados (admin_pin_allowlist.sql). Nesse caso barramos
+  // o acesso em vez de oferecer a tela de definição de PIN.
+  if (hasPin === null) {
+    alert('Este usuário não está autorizado a acessar o painel administrativo.');
+    await supabase.auth.signOut().catch(() => { });
+    window.location.href = 'index.html';
+    return false;
+  }
+
   const isFirstTime = !hasPin;
   const modal = document.getElementById('adminPinModal');
   const input = document.getElementById('adminPinInput');
@@ -338,6 +348,13 @@ async function runAdminPinGate() {
         }
       } catch (err) {
         console.error('[adminPinGate] erro:', err);
+        // Admin fora da allowlist tentando definir/verificar PIN: barra e desloga.
+        if (String(err?.message || err).includes('admin_not_authorized')) {
+          msg.textContent = 'Usuário não autorizado a acessar o painel.';
+          msg.classList.add('err');
+          setTimeout(onCancel, 1200);
+          return;
+        }
         msg.textContent = 'Falha: ' + (err.message || err);
         msg.classList.add('err');
         setBusy(false);

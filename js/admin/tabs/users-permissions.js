@@ -78,8 +78,12 @@ const _TAB_MARKUP = `
                     <input type="email" id="new-email" placeholder="email@exemplo.com">
                   </div>
                   <div class="form-group">
-                    <label for="new-password">Senha temporária</label>
-                    <input type="password" id="new-password" placeholder="Minimo 6 caracteres">
+                    <label class="add-user-custompass" style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
+                      <input type="checkbox" id="new-custom-pass" onchange="toggleCustomPass()" style="width:auto; margin:0;">
+                      <span>Usar senha diferente da padrão (<strong>Mioshie</strong>)</span>
+                    </label>
+                    <input type="password" id="new-password" placeholder="Mínimo 6 caracteres"
+                      style="display:none; margin-top:8px;">
                   </div>
                   <div class="form-group">
                     <label for="new-lang">Idioma</label>
@@ -1084,22 +1088,38 @@ async function resetPassword(userId, email) {
   }
 }
 
+const DEFAULT_NEW_PASSWORD = 'Mioshie';
+
+// Mostra/esconde o campo de senha personalizada. Sem o checkbox marcado,
+// o usuário é criado com a senha padrão (DEFAULT_NEW_PASSWORD).
+function toggleCustomPass() {
+  const checked = document.getElementById('new-custom-pass')?.checked;
+  const input = document.getElementById('new-password');
+  if (!input) return;
+  input.style.display = checked ? '' : 'none';
+  if (checked) {
+    input.value = '';
+    input.focus();
+  }
+}
+
 async function addUser() {
   const name = document.getElementById('new-name').value.trim();
   const email = document.getElementById('new-email').value.trim().toLowerCase();
-  const password = document.getElementById('new-password').value;
+  const useCustom = document.getElementById('new-custom-pass')?.checked;
+  const password = useCustom ? document.getElementById('new-password').value : DEFAULT_NEW_PASSWORD;
   const preferred_lang = document.getElementById('new-lang')?.value || null;
   const msg = document.getElementById('add-user-msg');
   const btn = document.getElementById('add-user-btn');
 
-  if (!email || !password) {
-    msg.textContent = 'Email e senha são obrigatórios.';
+  if (!email) {
+    msg.textContent = 'Email é obrigatório.';
     msg.className = 'msg err';
     return;
   }
 
-  if (password.length < 6) {
-    msg.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+  if (useCustom && password.length < 6) {
+    msg.textContent = 'A senha personalizada deve ter pelo menos 6 caracteres.';
     msg.className = 'msg err';
     return;
   }
@@ -1132,6 +1152,8 @@ async function addUser() {
     document.getElementById('new-name').value = '';
     document.getElementById('new-email').value = '';
     document.getElementById('new-password').value = '';
+    document.getElementById('new-custom-pass').checked = false;
+    toggleCustomPass();
     document.getElementById('new-lang').value = '';
     loadUsers();
   } catch (err) {
@@ -1172,6 +1194,7 @@ Object.assign(window, {
   deleteUser,
   resetPassword,
   addUser,
+  toggleCustomPass,
   // helper exposto pra Analytics (que ainda usa via initial bootstrap)
   renderDefaultPermVolumes
 });

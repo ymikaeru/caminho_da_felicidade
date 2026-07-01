@@ -616,6 +616,11 @@
   position: sticky;
   top: 0;
   z-index: 2;
+  /* Linha de chrome: nunca comprimir. O min-height explícito acima anula a
+     proteção min-height:auto do flex, então sem isto o contador encolhe
+     abaixo da altura do texto quando o modal bate no teto de 90vh (só a
+     .search-results, que rola, deve absorver a altura). */
+  flex-shrink: 0;
 }
 
 .search-count:empty {

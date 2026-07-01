@@ -108,3 +108,70 @@
 .header__nav a:hover span::after {
   width: 100%;
 }
+
+/* ── Reader random dropdown ───────────────────────── */
+/* O gatilho reusa .mobile-fav-btn (botão de ícone do header, injetado
+   por nav.js só no reader). O wrap dá o contexto de posicionamento pro
+   popover das 5 opções (qualquer volume + Vol 1-4). */
+.reader-random-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.reader-random-wrap .mobile-fav-btn[aria-expanded="true"] {
+  color: var(--accent);
+}
+
+.reader-random-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  padding: 6px;
+  z-index: 3000;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reader-random-dropdown.open {
+  display: flex;
+}
+
+.reader-random-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: var(--font-ui, inherit);
+  color: var(--text-main);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.reader-random-option:hover {
+  background: var(--accent-soft, rgba(184,134,11,0.08));
+  color: var(--accent);
+}
+
+.reader-random-option:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.reader-random-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 4px;
+}

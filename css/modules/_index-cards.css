@@ -309,16 +309,8 @@ h2.section-header {
 }
 
 @media (hover: none) and (pointer: coarse) {
-  .topic-card:has(.vol-random-btn)::after {
-    content: "›";
-    position: absolute;
-    top: 18px;
-    right: 22px;
-    font-size: 28px;
-    line-height: 1;
-    color: var(--text-muted);
-    opacity: 0.45;
-    font-family: var(--font-ui);
-    pointer-events: none;
+  .vol-random-btn {
+    opacity: 1;
+    transform: scale(1);
   }
 }

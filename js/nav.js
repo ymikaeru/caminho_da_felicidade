@@ -460,6 +460,82 @@ function _initMobileNav() {
     headerActions.insertBefore(printBtn, highlightBtn);
   }
 
+  // Botão "Ensino aleatório" no header do reader — ícone de brilho (estrela,
+  // igual aos cards) que abre um dropdown com 5 opções: qualquer volume +
+  // Vol 1-4. Reusa as funções
+  // públicas de sorteio de search.js (window.openRandomTeaching /
+  // openRandomFromVolume), que já mostram spinner e navegam pro reader.
+  // Só no reader e visível em todos os tamanhos (o usuário relatou não
+  // achar o sorteio no mobile).
+  if (isReaderPage) {
+    const randomWrap = document.createElement('div');
+    randomWrap.className = 'reader-random-wrap';
+    randomWrap.id = 'readerRandomWrap';
+    randomWrap.innerHTML = `
+      <button type="button" class="mobile-fav-btn" id="readerRandomBtn"
+        aria-haspopup="true" aria-expanded="false"
+        aria-label="Ensino aleatório" title="Ensino aleatório">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/>
+        </svg>
+      </button>
+      <div class="reader-random-dropdown" id="readerRandomDropdown" role="menu">
+        <button type="button" class="reader-random-option" data-vol="" role="menuitem">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span class="lang-pt">Qualquer volume</span><span class="lang-ja" style="display:none">全巻</span>
+        </button>
+        <div class="reader-random-divider"></div>
+        <button type="button" class="reader-random-option" data-vol="mioshiec1" role="menuitem"><span class="lang-pt">Volume 1</span><span class="lang-ja" style="display:none">巻 1</span></button>
+        <button type="button" class="reader-random-option" data-vol="mioshiec2" role="menuitem"><span class="lang-pt">Volume 2</span><span class="lang-ja" style="display:none">巻 2</span></button>
+        <button type="button" class="reader-random-option" data-vol="mioshiec3" role="menuitem"><span class="lang-pt">Volume 3</span><span class="lang-ja" style="display:none">巻 3</span></button>
+        <button type="button" class="reader-random-option" data-vol="mioshiec4" role="menuitem"><span class="lang-pt">Volume 4</span><span class="lang-ja" style="display:none">巻 4</span></button>
+      </div>`;
+    headerActions.insertBefore(randomWrap, hamburgerBtn);
+
+    // setLanguage() (language.js) já rodou antes deste nav.js deferred, então
+    // os .lang-ja recém-injetados nasceriam com display:none (rótulo PT à
+    // mostra em modo JA). Aplica o idioma atual agora; o toggle vivo depois é
+    // pego pelo pass global querySelectorAll('.lang-*') do setLanguage.
+    randomWrap.querySelectorAll('.lang-pt').forEach(el => { el.style.display = (currentLang === 'ja' ? 'none' : ''); });
+    randomWrap.querySelectorAll('.lang-ja').forEach(el => { el.style.display = (currentLang === 'ja' ? '' : 'none'); });
+
+    const randomBtn = randomWrap.querySelector('#readerRandomBtn');
+    const randomDrop = randomWrap.querySelector('#readerRandomDropdown');
+    const closeRandom = () => {
+      randomDrop.classList.remove('open');
+      randomBtn.setAttribute('aria-expanded', 'false');
+    };
+    randomBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (randomDrop.classList.contains('open')) {
+        closeRandom();
+      } else {
+        randomDrop.classList.add('open');
+        randomBtn.setAttribute('aria-expanded', 'true');
+      }
+    });
+    document.addEventListener('click', closeRandom);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeRandom(); });
+
+    randomWrap.querySelectorAll('.reader-random-option').forEach((opt) => {
+      opt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const vol = opt.getAttribute('data-vol') || null;
+        // Não fecha o dropdown: mantém a opção visível com o spinner
+        // enquanto o RPC resolve (a navegação troca a página em seguida).
+        // Passa a própria opção como currentTarget — _setRandomLoading
+        // mostra o spinner nela; openRandom* faz o resto (RPC + navegação).
+        const evt = { currentTarget: opt };
+        if (vol) {
+          if (typeof window.openRandomFromVolume === 'function') window.openRandomFromVolume(vol, evt);
+        } else if (typeof window.openRandomTeaching === 'function') {
+          window.openRandomTeaching(evt);
+        }
+      });
+    });
+  }
+
   const headerNavSelect = topicSelect;
   if (headerNavSelect && headerNavSelect.id !== 'readerTopicSelect') {
     const sectionLabel = (MENU_TEXTS[currentLang] || MENU_TEXTS.pt).volumeTopics;

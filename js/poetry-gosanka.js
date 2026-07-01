@@ -112,10 +112,7 @@
           <div class="poetry-sidebar__action">
             <button class="btn-poetry-random" id="poetryRandom" type="button">
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <polyline points="16 3 21 3 21 8"/>
-                <line x1="4" y1="20" x2="21" y2="3"/>
-                <polyline points="21 16 21 21 16 21"/>
-                <line x1="15" y1="15" x2="21" y2="21"/>
+                <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/>
               </svg>
               <span class="lang-pt">Poema aleatório</span>
               <span class="lang-ja" style="display:none">おみくじ</span>

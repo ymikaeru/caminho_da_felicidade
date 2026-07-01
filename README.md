@@ -1,73 +1,75 @@
-# Mioshie College
+# Caminho da Felicidade — Mioshie College
 
-Site estático para leitura e busca dos ensinamentos de Meishu-Sama, hospedado via GitHub Pages em:
-`https://ymikaeru.github.io/mioshie_college_app/`
+Site estático para leitura, busca e estudo dos ensinamentos de Meishu-Sama (japonês + português-BR).
+Hospedado no **GitHub Pages** e servido em produção em `https://www.cmu.org.br/caminho_da_felicidade/`.
+
+> 📐 **Para entender como o projeto é montado, leia [ARCHITECTURE.md](ARCHITECTURE.md).**
+> Este README é só o quickstart; o ARCHITECTURE.md é a referência completa (frontend, backend Supabase, pipeline de dados, admin).
 
 ---
 
-## Estrutura de diretórios
+## Estrutura (resumo)
 
 ```
-mioshie_college_app/
-├── index.html              # Página principal (hub de volumes)
-├── reader.html             # Leitor de ensinamentos
-├── destaques.html          # Página de destaques
-├── login.html              # Página de login
-├── admin-supabase.html     # Painel de administração (Supabase)
-├── admin.html              # Painel de administração (legado)
+caminho_da_felicidade/
+├── *.html                  # Páginas (index, reader, poesia, destaques, admin-supabase, …)
+├── mioshiec1..4/index.html # Índices de volume pré-renderizados
 ├── css/
-│   ├── styles.css          # CSS fonte; edite aqui
-│   ├── styles.min.css      # Gerado por npm run build:css
-│   └── modules/            # Módulos CSS por componente
-├── js/
-│   ├── init-theme.js       # Inicialização de tema (carregado em todas as páginas)
-│   ├── supabase-config.js  # Configuração do Supabase (anon key pública)
-│   ├── supabase-auth.js    # Autenticação via Supabase
-│   ├── search.js           # Busca full-text
-│   ├── reader*.js          # Renderização e conteúdo do leitor
-│   ├── nav.js              # Navegação lateral
-│   ├── theme.js            # Troca de tema/modo
-│   ├── toggle.js           # Toggles de UI
-│   ├── login.js            # Login com Supabase
-│   ├── access.js           # Controle de acesso por perfil
-│   ├── sync.js             # Sincronização com Supabase
-│   └── storage.js          # Gerenciamento de dados locais
-├── mioshiec1/ … mioshiec4/ # Páginas de índice por volume
-│   └── index.html
-├── assets/images/          # Imagens do site
-├── favicon.svg
-├── sitemap.xml
-├── robots.txt
-└── package.json            # Dependências (Supabase, PostCSS)
+│   ├── styles.css          # Fonte; edite aqui → build:css gera styles.min.css
+│   ├── admin.css           # CSS do painel admin
+│   └── modules/            # Módulos CSS (@import em styles.css)
+├── js/                     # ~60 módulos (reader, search, highlights, sync, admin/, …)
+├── site_data/              # Índices de navegação/título, taxonomias (commitados)
+├── data/                   # Poesia, livros de discípulos, índices auxiliares
+├── scripts/                # Pipeline: storage sync, build de índices, retradução, export
+├── supabase/               # migrations/ + functions/ (Edge, Deno)
+├── sw.js, manifest.json    # PWA (service worker = só Web Push)
+└── package.json
 ```
 
 ---
 
 ## Backend
 
-Os dados dos ensinamentos (JSON de navegação, índices de busca, conteúdo) estão armazenados no **Supabase**. O site carrega tudo dinamicamente via `js/supabase-config.js` e `js/sync.js`.
+Todo o dinâmico fica no **Supabase** (projeto `succhmnbajvbpmoqrktq`):
+
+- **Auth** (email/senha, roles admin/user) — a anon key no JS é pública por design; a segurança é RLS.
+- **Postgres** — 71 migrations, RLS, ~50 RPCs.
+- **Storage** — bucket `teachings` é a **fonte da verdade do conteúdo** dos ensinamentos (JSON). O leitor busca direto do Storage; há um espelho local editável em `.local-edits/` (gitignored).
+- **Edge Functions** — busca semântica (Voyage AI), retradução (Gemini), Web Push, sync Storage→banco.
+
+Detalhes em [ARCHITECTURE.md](ARCHITECTURE.md) §3–4.
 
 ---
 
 ## Build
 
-### Pré-requisitos
-
 ```bash
 npm install
+
+npm run build:css        # css/styles.css → styles.min.css (PostCSS + cssnano)
+npm run build:admin-css  # css/admin.css → admin.min.css
+npm run build:js         # minifica os 5 JS grandes (playlists, highlights, disciples-reader, reader-render, search)
+npm run build            # os três acima
+npm run versions         # alinha/incrementa ?v=N (cache-bust) nos HTML
 ```
 
-### CSS
+⚠️ **Ao editar um dos 5 JS minificados, rode `build:js` — senão o `.min.js` servido não muda.**
+⚠️ **Ao editar qualquer JS/CSS compartilhado, faça o bump de `?v=N`** (`node scripts/bump-versions.mjs bump <asset>`) para evitar cache dividido entre páginas.
+
+## Dados (Storage)
 
 ```bash
-npm run build:css   # Compila styles.css → styles.min.css (PostCSS + cssnano)
-npm run watch:css   # Mesmo, mas recompila ao salvar
+npm run storage:pull                 # baixa o bucket → .local-edits/ (espelho)
+npm run storage:status               # o que mudou localmente
+npm run storage:push -- --confirm    # sobe as mudanças (dry-run sem --confirm)
 ```
+
+⚠️ **`storage:push` atualiza só o bucket, não as tabelas do banco** (a busca `teachings_topics` depende do webhook `sync-teaching-topic`). Ver [ARCHITECTURE.md](ARCHITECTURE.md) §4.3.
 
 ---
 
-## Deploy (GitHub Pages)
+## Deploy
 
-O site é servido diretamente da branch `main`. Qualquer push para `main` atualiza o site.
-
-Configure o GitHub Pages em **Settings > Pages** apontando para a branch `main` e a raiz do repositório.
+O site é servido da raiz da branch `main` (GitHub Pages). **Push para `main` publica.**
+Configuração em **Settings → Pages** apontando para `main` / raiz.

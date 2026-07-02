@@ -772,18 +772,70 @@ function _setRandomLoading(btn) {
   };
 }
 
+// Toast efêmero do sorteio — reusa o visual .hl-toast (CSS global em
+// _highlights.css, carregado em todas as páginas; z-index 9900 fica acima
+// do overlay de login). Antes as falhas eram CALADAS: o botão girava e
+// voltava sem explicação (sessão expirada no navegador = RPC como anon =
+// lista vazia — "funciona num navegador, não funciona no outro").
+function _randomToast(message) {
+  try {
+    const prev = document.getElementById('searchRandomToast');
+    if (prev) prev.remove();
+    const t = document.createElement('div');
+    t.id = 'searchRandomToast';
+    t.className = 'hl-toast';
+    t.textContent = message;
+    document.body.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('hl-toast--visible'));
+    setTimeout(() => {
+      t.classList.remove('hl-toast--visible');
+      setTimeout(() => t.remove(), 300);
+    }, 4200);
+  } catch (_) { /* noop */ }
+}
+
 async function _pickRandomViaRpc(onlyVol, loader) {
   const lang = localStorage.getItem('site_lang') || 'pt';
   const supabase = _getSupabase();
   if (!supabase) { loader.restore(); return; }
 
+  // Sessão ANTES da RPC: random_teaching só tem grant pra authenticated —
+  // sem sessão ela devolve [] (sem erro!). getSession() ainda RENOVA um
+  // access token vencido quando o refresh token vale (aba/navegador parado
+  // há dias), consertando o caso "logado na tela, deslogado no banco".
+  let hasSession = false;
+  try {
+    const { data: s } = await supabase.auth.getSession();
+    hasSession = !!(s && s.session);
+  } catch (_) { /* trata como sem sessão */ }
+  if (!hasSession) {
+    loader.restore();
+    _randomToast(lang === 'ja'
+      ? 'セッションが切れました。もう一度ログインしてください。'
+      : 'Sua sessão expirou. Entre novamente para sortear um Ensinamento.');
+    if (!document.getElementById('login-overlay')
+        && window.supabaseAuth && typeof window.supabaseAuth.showLoginOverlay === 'function') {
+      window.supabaseAuth.showLoginOverlay();
+    }
+    return;
+  }
+
   const { data, error } = await supabase.rpc('random_teaching', { only_vol: onlyVol });
   if (error) {
     console.warn('random_teaching RPC error:', error);
     loader.restore();
+    _randomToast(lang === 'ja'
+      ? '抽選に失敗しました。もう一度お試しください。'
+      : `Não foi possível sortear agora (${error.message || 'erro'}). Tente de novo.`);
     return;
   }
-  if (!data || data.length === 0) { loader.restore(); return; }
+  if (!data || data.length === 0) {
+    loader.restore();
+    _randomToast(lang === 'ja'
+      ? '御教えが見つかりませんでした。もう一度ログインしてみてください。'
+      : 'Nenhum Ensinamento disponível para sortear. Tente entrar novamente.');
+    return;
+  }
 
   const item = data[0];
   const topicIdx = item.topic_idx != null ? item.topic_idx : 0;

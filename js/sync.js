@@ -362,7 +362,8 @@ export async function pullCloudToLocal() {
 
   let highlightsAdded = 0;
   try {
-    const cloudHighlights = await loadAllHighlights();
+    // null = sem sessão (não deveria acontecer aqui — o pull roda logado).
+    const cloudHighlights = (await loadAllHighlights()) || [];
     let localHighlights = [];
     try { localHighlights = JSON.parse(localStorage.getItem('userHighlights') || '[]'); } catch (e) {}
 
@@ -537,7 +538,7 @@ export async function removeHighlight(volume, file, topicId, startChar, endChar)
 
 export async function loadAllHighlights() {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return [];
+  if (!session) return null; // null = sem sessão (≠ [] = zero grifos)
 
   // Paginado: o .limit(1000) antigo (clamp do PostgREST) deixava os grifos
   // mais antigos de usuários com >1000 INVISÍVEIS em aparelho novo.
@@ -545,6 +546,22 @@ export async function loadAllHighlights() {
     .from('user_highlights')
     .select('volume, file, topic_id, topic_index, topic_title, color, comment, text, start_char, end_char, updated_at')
     .eq('user_id', session.user.id)
+    .order('updated_at', { ascending: false }));
+}
+
+// Grifos de UMA publicação — usado pelo leitor a cada página (leitura
+// cloud-first: a nuvem é a fonte; o localStorage é só cache/fallback).
+// Query minúscula (índice em user_id + filtros de igualdade).
+export async function loadHighlightsForPage(volume, file) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return null; // null = sem sessão → chamador mantém o cache
+
+  return _fetchAllRows(() => supabase
+    .from('user_highlights')
+    .select('volume, file, topic_id, topic_index, topic_title, color, comment, text, start_char, end_char, updated_at')
+    .eq('user_id', session.user.id)
+    .eq('volume', volume)
+    .eq('file', file)
     .order('updated_at', { ascending: false }));
 }
 

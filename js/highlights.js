@@ -112,7 +112,12 @@
   function _saveHighlights() {
     try {
       localStorage.setItem('userHighlights', JSON.stringify(_highlights));
-    } catch (e) {}
+    } catch (e) {
+      // Cota cheia: o localStorage é só CACHE — a leitura é cloud-first
+      // (_hydrate*FromCloud), então perder o espelho degrada o offline,
+      // não perde dado do usuário.
+      console.warn('[highlights] cache local cheio (quota) — seguindo pela nuvem:', e && e.name);
+    }
   }
 
   function _getDeletedTombstones() {
@@ -984,6 +989,96 @@
   function _refreshPageHighlights() {
     _unwrapMarks();
     _applyHighlightsToPage();
+  }
+
+  // ============================================================
+  // Leitura CLOUD-FIRST — a nuvem é a fonte dos grifos; o localStorage é
+  // cache/fallback offline. Antes, o espelho só atualizava no LOGIN: grifo
+  // criado no celular não aparecia no computador até relogar, e a cota de
+  // ~5MB do localStorage era um teto real pro usuário sem limite.
+  // ============================================================
+
+  const _HL_KEY = (vol, file, topicId, s, e) => `${vol}:${file}:${topicId}:${s}:${e}`;
+
+  // Reconcilia linhas da nuvem (snake_case) com o estado local.
+  // scope = {vol, file} (página do leitor) ou null (tudo — Central).
+  // Política:
+  //   - tombstone local vence (delete em voo não ressuscita);
+  //   - mesma chave: mantém o OBJETO local (id preservado → marks/popups
+  //     continuam válidos), adotando color/comment da nuvem se mais nova;
+  //   - só-nuvem: entra (grifo feito em outro aparelho);
+  //   - só-local: mantém se recente (<10min — escrita/cura em voo),
+  //     remove se antigo (apagado em outro aparelho).
+  // Retorna true se algo mudou.
+  function _reconcileCloudRows(rows, scope) {
+    const tomb = new Set(_getDeletedTombstones());
+    const inScope = (h) => !scope || (h.vol === scope.vol && h.file === scope.file);
+    const localScoped = _highlights.filter(inScope);
+    const localByKey = new Map(localScoped.map(h => [_HL_KEY(h.vol, h.file, h.topicId, h.startChar, h.endChar), h]));
+
+    const merged = [];
+    const seenKeys = new Set();
+    (rows || []).forEach(r => {
+      const key = _HL_KEY(r.volume, r.file, r.topic_id, r.start_char, r.end_char);
+      if (tomb.has(key) || seenKeys.has(key)) return;
+      seenKeys.add(key);
+      const local = localByKey.get(key);
+      if (local) {
+        const cloudAt = new Date(r.updated_at).getTime() || 0;
+        if (cloudAt > (local.updatedAt || 0)) {
+          local.color = r.color || local.color;
+          local.comment = r.comment || '';
+          local.updatedAt = cloudAt;
+        }
+        merged.push(local);
+      } else {
+        merged.push({
+          id: 'hl_cloud_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+          vol: r.volume, file: r.file, topicId: r.topic_id,
+          topicIndex: r.topic_index, topicTitle: r.topic_title || '',
+          color: r.color || 'yellow', comment: r.comment || '', text: r.text || '',
+          startChar: r.start_char, endChar: r.end_char,
+          createdAt: new Date(r.updated_at).getTime() || Date.now(),
+          updatedAt: new Date(r.updated_at).getTime() || Date.now(),
+        });
+      }
+    });
+    // Só-local recentes (escrita em voo) sobrevivem.
+    const cutoff = Date.now() - 10 * 60 * 1000;
+    localScoped.forEach(h => {
+      const key = _HL_KEY(h.vol, h.file, h.topicId, h.startChar, h.endChar);
+      if (!seenKeys.has(key) && (h.updatedAt || 0) > cutoff) merged.push(h);
+    });
+
+    const sig = (list) => list.map(h =>
+      `${_HL_KEY(h.vol, h.file, h.topicId, h.startChar, h.endChar)}|${h.color}|${h.comment || ''}`
+    ).sort().join('\n');
+    const changed = sig(merged) !== sig(localScoped);
+    if (changed) {
+      _highlights = _highlights.filter(h => !inScope(h)).concat(merged);
+      _saveHighlights();
+    }
+    return changed;
+  }
+
+  // Leitor: busca os grifos DESTA página na nuvem e re-aplica se mudou.
+  // Fire-and-forget no init; sem sessão/offline mantém o cache em silêncio.
+  function _hydratePageFromCloud(retried) {
+    const { volId, filename } = _getParams();
+    if (!volId || !filename) return;
+    const cs = window._cloudSync;
+    if (!cs || typeof cs.loadHighlightsForPage !== 'function') {
+      // sync.js (módulo) pode ainda não ter exposto o _cloudSync — 1 retry.
+      if (!retried) setTimeout(() => _hydratePageFromCloud(true), 1500);
+      return;
+    }
+    cs.loadHighlightsForPage(volId, filename).then(rows => {
+      if (!Array.isArray(rows)) return; // null = sem sessão → cache vale
+      if (_reconcileCloudRows(rows, { vol: volId, file: filename })) {
+        _refreshPageHighlights();
+        _updateHighlightBadge();
+      }
+    }).catch(() => { /* offline/erro → cache vale */ });
   }
 
   function _updateHighlightBadge() {
@@ -2087,6 +2182,9 @@
 
   window.initHighlights = function () {
     _loadHighlights();
+    // Cloud-first: reconcilia com a nuvem em paralelo (a 1ª pintura pode
+    // sair do cache; quando a nuvem responde, re-aplica só se mudou).
+    _hydratePageFromCloud();
 
     _isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 
@@ -2184,6 +2282,20 @@
   window._HighlightsApi = {
       getAll: () => {
           _loadHighlights();
+          return [..._highlights];
+      },
+      // Cloud-first pra Central: baixa TODOS os grifos da nuvem (paginado),
+      // reconcilia com o local e devolve a lista atual. Sem sessão/offline
+      // resolve com o cache — o chamador não precisa distinguir.
+      hydrateAllFromCloud: async () => {
+          _loadHighlights();
+          try {
+              const cs = window._cloudSync;
+              if (cs && typeof cs.loadAllHighlights === 'function') {
+                  const rows = await cs.loadAllHighlights();
+                  if (Array.isArray(rows)) _reconcileCloudRows(rows, null);
+              }
+          } catch (e) { /* offline/erro → cache vale */ }
           return [..._highlights];
       },
       delete: (id) => {

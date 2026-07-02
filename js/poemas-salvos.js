@@ -194,10 +194,18 @@ function _renderItem(h, lang) {
   `;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Pequeno delay pra esperar o pullCloudToLocal() do login.js completar
-  // (mesmo padrão usado em destaques-page.js — renderiza imediatamente e
-  // re-renderiza 1s depois pra cobrir os destaques que chegaram do cloud).
+document.addEventListener('DOMContentLoaded', async () => {
+  // 1ª pintura sai do cache local; em paralelo reconcilia com a NUVEM
+  // (fonte da verdade — mesmo padrão cloud-first da Central) e
+  // re-renderiza. O antigo setTimeout de 1,2s era um chute pra esperar o
+  // pull do login; a hidratação explícita não depende de sorte.
   renderPoemasSalvos();
-  setTimeout(renderPoemasSalvos, 1200);
+  if (window._HighlightsApi && window._HighlightsApi.hydrateAllFromCloud) {
+    try {
+      await window._HighlightsApi.hydrateAllFromCloud();
+      renderPoemasSalvos();
+    } catch (e) { /* offline → fica o cache */ }
+  } else {
+    setTimeout(renderPoemasSalvos, 1200);
+  }
 });

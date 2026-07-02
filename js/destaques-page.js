@@ -7,9 +7,18 @@
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
+    setTimeout(async () => {
         _initToolbar();
+        // 1ª pintura sai do cache local (instantânea); em paralelo puxa a
+        // NUVEM (fonte da verdade — grifos feitos em outro aparelho aparecem
+        // sem precisar relogar) e re-renderiza se algo mudou.
         renderNotebook();
+        if (window._HighlightsApi && window._HighlightsApi.hydrateAllFromCloud) {
+            try {
+                await window._HighlightsApi.hydrateAllFromCloud();
+                renderNotebook();
+            } catch (e) { /* offline → fica o cache */ }
+        }
     }, 100);
 });
 
@@ -34,13 +43,27 @@ const _DQ_COLOR_HEX = {
 };
 
 // ─── Estado dos filtros (hideTitles persiste entre visitas) ──
+// Paginação por grupo (publicação): usuários "sem limite" (1.500+ grifos)
+// não podem custar milhares de cards de DOM numa página só.
+const DQ_GROUP_PAGE = 6;   // cards iniciais por publicação
+const DQ_GROUP_STEP = 12;  // incremento do "Mostrar mais"
+
 const _dqState = {
     q: '',
     color: null,
     hideTitles: localStorage.getItem('dqHideTitles') === '1',
     // Filtro por livro de discípulos (?book=<id>) — atalho vindo do header
     // do leitor. Mostra só os grifos daquele livro + chip pra limpar.
-    bookOnly: (new URLSearchParams(location.search).get('book')) || null
+    bookOnly: (new URLSearchParams(location.search).get('book')) || null,
+    // Quantos cards cada grupo está mostrando (chave `${vol}/${file}`).
+    shown: new Map()
+};
+
+window._dqShowMore = function (encKey) {
+    const key = decodeURIComponent(encKey);
+    const cur = _dqState.shown.get(key) || DQ_GROUP_PAGE;
+    _dqState.shown.set(key, cur + DQ_GROUP_STEP);
+    renderNotebook();
 };
 
 function _dqLang() { return localStorage.getItem('site_lang') || 'pt'; }
@@ -311,6 +334,19 @@ function renderNotebook() {
                 : `reader.html?vol=${encodeURIComponent(vol)}&file=${encodeURIComponent(file)}`;
             const pubTitle = _pubTitle(items[0], lang);
 
+            // Paginação por grupo: 6 iniciais + "Mostrar mais". Grupos até
+            // 8 mostram tudo (botão pra 1-2 cards seria pior que os cards).
+            const gKey = `${vol}/${file}`;
+            const shownN = _dqState.shown.get(gKey) || DQ_GROUP_PAGE;
+            const visible = (items.length <= DQ_GROUP_PAGE + 2) ? items : items.slice(0, shownN);
+            const remaining = items.length - visible.length;
+            const nextN = Math.min(remaining, DQ_GROUP_STEP);
+            const moreBtn = remaining > 0
+                ? `<button type="button" class="notebook-more-btn" onclick="_dqShowMore('${encodeURIComponent(gKey)}')">${
+                    lang === 'ja' ? `さらに${nextN}件を表示（残り${remaining}件）` : `Mostrar mais ${nextN} (${remaining} restantes)`
+                  }</button>`
+                : '';
+
             html += `
             <div class="notebook-group">
                 <div class="notebook-group-header">
@@ -319,8 +355,9 @@ function renderNotebook() {
                     <span class="notebook-group-count">${items.length}</span>
                 </div>
                 <div class="notebook-grid">
-                    ${items.map(h => _renderCard(h, lang)).join('')}
+                    ${visible.map(h => _renderCard(h, lang)).join('')}
                 </div>
+                ${moreBtn}
             </div>`;
         }
 

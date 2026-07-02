@@ -611,6 +611,18 @@
   color: var(--surface);
 }
 
+/* "Você grifou": ponte busca ↔ grifos — tom do marca-texto amarelo. */
+.search-badge--grifo {
+  background: #fff3a1;
+  color: #6b5410;
+}
+
+[data-mode="dark"] .search-badge--grifo,
+[data-theme="dark"] .search-badge--grifo {
+  background: rgba(255, 224, 102, 0.28);
+  color: #ffe066;
+}
+
 .search-group-hits {
   list-style: none;
   margin: 4px 0 0;

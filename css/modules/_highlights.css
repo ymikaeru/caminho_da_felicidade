@@ -22,6 +22,20 @@ mark.user-highlight:hover {
   filter: brightness(0.92);
 }
 
+/* Grifo COM anotação: sublinhado pontilhado — o title= (tooltip) não existe
+   no touch, então sem isto o comentário era invisível no celular. É
+   text-decoration de propósito: não muda geometria/quebra de linha NENHUMA
+   (ver lição do iPad iOS17 no comentário acima). */
+mark.user-highlight.user-highlight--commented {
+  text-decoration: underline dotted rgba(60, 45, 10, 0.65);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+[data-mode="dark"] mark.user-highlight.user-highlight--commented {
+  text-decoration-color: rgba(255, 255, 255, 0.65);
+}
+
 mark.user-highlight.highlight-yellow {
   background-color: #fff3a1;
 }

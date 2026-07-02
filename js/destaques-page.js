@@ -340,6 +340,12 @@ function _renderCard(h, lang) {
     const titleBadge = isTitle
         ? `<span class="notebook-tag-title">${lang === 'ja' ? 'タイトル' : 'título'}</span>`
         : '';
+    // Grifo órfão: a cura de offsets (highlights.js) não achou mais o
+    // snapshot no conteúdo atual — o texto salvo continua aqui, mas o
+    // leitor não pinta mais. Avisa em vez de sumir em silêncio.
+    const orphanBadge = h.orphaned
+        ? `<span class="notebook-tag-title notebook-tag-orphan" title="${lang === 'ja' ? '本文が変更され、位置を特定できません' : 'O texto deste trecho mudou no Ensinamento — o grifo não aparece mais no leitor'}">${lang === 'ja' ? '本文が変わりました' : 'texto mudou'}</span>`
+        : '';
     const shortTitle = _esc(_truncate(h.topicTitle || (lang === 'ja' ? 'その他' : 'Outros'), 40));
     const shortText = _esc(_truncate(h.text, 120));
     const commentPreview = h.comment ? `<div class="notebook-comment-preview">📝 ${_esc(_truncate(h.comment, 60))}</div>` : '';
@@ -353,7 +359,7 @@ function _renderCard(h, lang) {
     return `
     <div class="notebook-card" data-id="${h.id}" onclick="openHighlightDetail('${h.id}')">
         <div class="notebook-card-accent" style="background: ${bgColor};"></div>
-        <div class="notebook-card-title">${titleBadge}${shortTitle}</div>
+        <div class="notebook-card-title">${titleBadge}${orphanBadge}${shortTitle}</div>
         <div class="notebook-text">${shortText}</div>
         ${commentPreview}
         <div class="notebook-meta">
@@ -542,6 +548,56 @@ window.exportHighlightsTXT = function() {
     const a = document.createElement('a');
     a.href = url;
     a.download = `meus_estudos_mioshie_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Exporta pro Word (.doc = Word-HTML, sem libs — mesmo truque do export de
+// playlists: BOM obrigatório no começo, estilos INLINE simples porque o Word
+// ignora a maior parte do CSS). Agrupa por publicação (nome real via
+// _pubTitle), preserva a cor do grifo como fundo do trecho, inclui a NOTA
+// e a data.
+window.exportHighlightsDOC = function() {
+    const lang = localStorage.getItem('site_lang') || 'pt';
+    const dataList = _dqGetAll();
+    if (dataList.length === 0) return;
+
+    const grouped = new Map();
+    dataList.forEach(h => {
+        const key = `${h.vol}_${h.file}`;
+        if (!grouped.has(key)) grouped.set(key, { pub: _pubTitle(h, lang) || h.topicTitle || 'Outros', items: [] });
+        grouped.get(key).items.push(h);
+    });
+
+    const title = lang === 'ja' ? 'ハイライト集 — 幸福への道' : 'Meus Destaques — Caminho da Felicidade';
+    const noteLabel = lang === 'ja' ? 'メモ' : 'Nota';
+    let body = `<h1 style="font-family:Georgia,serif;font-size:20pt;color:#8a6d1a;margin:0 0 4pt 0;">${_esc(title)}</h1>` +
+        `<p style="font-family:Georgia,serif;font-size:10pt;color:#888;margin:0 0 18pt 0;">${new Date().toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'pt-BR')}</p>`;
+
+    for (const [, group] of grouped.entries()) {
+        body += `<h2 style="font-family:Georgia,serif;font-size:14pt;color:#8a6d1a;border-bottom:1pt solid #d8c98f;padding-bottom:2pt;margin:16pt 0 8pt 0;">${_esc(group.pub)}</h2>`;
+        group.items.forEach(h => {
+            const hex = _DQ_COLOR_HEX[h.color] || '#fff3a1';
+            const date = new Date(h.createdAt).toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'pt-BR');
+            body += `<div style="margin:0 0 12pt 0;">` +
+                `<p style="font-family:Georgia,serif;font-size:12pt;line-height:1.5;margin:0;"><span style="background:${hex};">${_esc(h.text || '')}</span></p>` +
+                (h.comment ? `<p style="font-family:Georgia,serif;font-size:10pt;color:#555;font-style:italic;margin:2pt 0 0 0;">${noteLabel}: ${_esc(h.comment)}</p>` : '') +
+                `<p style="font-family:Georgia,serif;font-size:9pt;color:#999;margin:2pt 0 0 0;">${_esc(h.topicTitle || '')} · ${date}</p>` +
+                `</div>`;
+        });
+    }
+
+    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">` +
+        `<head><meta charset="utf-8"><title>${_esc(title)}</title></head><body>${body}</body></html>`;
+    // BOM (\ufeff) na frente é OBRIGATÓRIO — sem ele o Word abre com
+    // acentuação quebrada (lição do export de playlists).
+    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `meus_destaques_${new Date().toISOString().split('T')[0]}.doc`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

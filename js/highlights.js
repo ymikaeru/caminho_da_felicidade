@@ -220,6 +220,78 @@
     return ranges;
   }
 
+  // ============================================================
+  // Cura de offsets (drift) — o conteúdo muda sob os grifos (retraduções,
+  // correções de texto): valida o slice atual contra o snapshot salvo
+  // (h.text) e, quando não bate, RE-ANCORA procurando o snapshot no texto
+  // do tópico. Sem âncora possível → marca 'orphaned' (a Central avisa)
+  // em vez de pintar o trecho ERRADO em silêncio. Também resgata linhas
+  // legadas com offsets inválidos (ex.: end=-1 do formato antigo de grifo
+  // de título, pré-06/2026).
+  // ============================================================
+
+  function _findSnapshot(fullText, snap, refStart) {
+    // Ocorrências exatas — escolhe a mais próxima do offset original
+    // (snapshot curto pode ocorrer 2+ vezes no mesmo tópico).
+    const idxs = [];
+    let i = fullText.indexOf(snap);
+    while (i !== -1 && idxs.length < 20) { idxs.push(i); i = fullText.indexOf(snap, i + 1); }
+    if (idxs.length) {
+      const ref = refStart >= 0 ? refStart : 0;
+      const best = idxs.reduce((b, x) => (Math.abs(x - ref) < Math.abs(b - ref) ? x : b), idxs[0]);
+      return { start: best, end: best + snap.length };
+    }
+    // Tolerante a whitespace: runs de espaço/quebra viram \s+ — conteúdo
+    // re-formatado (outros <br>/espaços) ainda ancora.
+    const words = snap.trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return null;
+    try {
+      const pat = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('[\\s\\u00A0]+');
+      const m = fullText.match(new RegExp(pat));
+      if (m) return { start: m.index, end: m.index + m[0].length };
+    } catch (e) { /* snapshot patológico — segue pro orphan */ }
+    return null;
+  }
+
+  function _healTopicHighlights(list, textNodes, totalChars) {
+    let dirty = false;
+    let full = null;
+    const fullText = () => {
+      if (full === null) full = textNodes.map(tn => tn.node.textContent).join('');
+      return full;
+    };
+    list.forEach(h => {
+      const snap = h.text || '';
+      if (!snap) return; // sem snapshot não há como validar — aplica como está
+      const validSpan = h.startChar >= 0 && h.endChar > h.startChar && h.endChar <= totalChars + 1;
+      if (validSpan && fullText().slice(h.startChar, h.endChar) === snap) {
+        if (h.orphaned) { delete h.orphaned; dirty = true; }
+        return;
+      }
+      const hit = _findSnapshot(fullText(), snap, h.startChar);
+      if (hit) {
+        const oldStart = h.startChar, oldEnd = h.endChar;
+        h.startChar = hit.start;
+        h.endChar = hit.end;
+        delete h.orphaned;
+        h.updatedAt = Date.now();
+        dirty = true;
+        // Cloud: os offsets fazem parte da chave do upsert — remove a linha
+        // velha e grava a nova; tombstone impede o pull de ressuscitá-la.
+        _addDeletedTombstone(`${h.vol}:${h.file}:${h.topicId}:${oldStart}:${oldEnd}`);
+        if (window._cloudSync) {
+          window._cloudSync.removeHighlight(h.vol, h.file, h.topicId, oldStart, oldEnd).catch(() => {});
+          window._cloudSync.saveHighlight(h.vol, h.file, h.topicId, h.topicIndex, h.topicTitle,
+            h.color, h.comment || '', h.text, h.startChar, h.endChar);
+        }
+      } else if (!h.orphaned) {
+        h.orphaned = true;
+        dirty = true;
+      }
+    });
+    if (dirty) _saveHighlights();
+  }
+
   function _applyHighlightsToPage() {
     _initHighlightRegistry();
     const { volId, filename } = _getParams();
@@ -242,9 +314,14 @@
       if (textNodes.length === 0) continue;
       const totalChars = textNodes[textNodes.length - 1].endChar;
 
+      // Cura ANTES de aplicar: offsets drifted são re-ancorados pelo
+      // snapshot; irrecuperáveis viram 'orphaned' e não pintam.
+      _healTopicHighlights(byTopic[topicId], textNodes, totalChars);
+
       // Build per-highlight segment lists (each segment = one text-node slice)
       const hlSegments = [];
       byTopic[topicId].forEach(h => {
+        if (h.orphaned) return;
         if (h.startChar < 0 || h.endChar < 0 || h.startChar >= h.endChar || h.endChar > totalChars + 1) return;
         const existing = document.querySelector(`mark.user-highlight[data-highlight-id="${h.id}"]`);
         if (existing) existing.remove();
@@ -282,7 +359,9 @@
             r.setStart(seg.node, seg.offsetStart);
             r.setEnd(seg.node, seg.offsetEnd);
             const mark = document.createElement('mark');
-            mark.className = `user-highlight highlight-${highlight.color}`;
+            // --commented: indicador visível de que há anotação (o title=
+            // abaixo só aparece no hover — inexistente no touch).
+            mark.className = `user-highlight highlight-${highlight.color}${highlight.comment ? ' user-highlight--commented' : ''}`;
             // Only the first mark gets the data-highlight-id (for scroll-to queries)
             if (isFirst.value) {
               mark.dataset.highlightId = highlight.id;
@@ -601,7 +680,11 @@
     _hideCommentPopup();
 
     const lang = _lang();
-    const editLabel = lang === 'ja' ? '編集' : 'Editar';
+    // Sem comentário ainda, o botão CONVIDA a comentar (o genérico "Editar"
+    // escondia o recurso — 0,6% de uso). Com comentário, segue "Editar".
+    const editLabel = highlight.comment
+      ? (lang === 'ja' ? '編集' : 'Editar')
+      : (lang === 'ja' ? 'コメントする' : 'Comentar');
     const deleteLabel = lang === 'ja' ? '削除' : 'Apagar';
     const closeLabel = lang === 'ja' ? '閉じる' : 'Fechar';
 
@@ -871,7 +954,7 @@
 
   function _createMarkEl(highlight) {
     const mark = document.createElement('mark');
-    mark.className = `user-highlight highlight-${highlight.color}`;
+    mark.className = `user-highlight highlight-${highlight.color}${highlight.comment ? ' user-highlight--commented' : ''}`;
     mark.dataset.highlightId = highlight.id;
     if (highlight.comment) mark.title = highlight.comment;
     mark.addEventListener('click', (e) => {

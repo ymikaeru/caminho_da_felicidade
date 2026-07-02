@@ -279,6 +279,24 @@ function _orderGroups(groups, orMode) {
   });
 }
 
+// Publicações onde o usuário TEM grifos (localStorage userHighlights) —
+// badge "você grifou" nos resultados: reencontrar o que já marcou é um dos
+// principais usos da busca. Cache lazy por busca (_hlPubs zerado no
+// performSearch/preview).
+let _hlPubs = null;
+function _highlightedPubs() {
+  if (_hlPubs) return _hlPubs;
+  try {
+    const hs = JSON.parse(localStorage.getItem('userHighlights') || '[]');
+    _hlPubs = new Set(hs.map(h => `${h.vol}/${h.file}`));
+  } catch (e) { _hlPubs = new Set(); }
+  return _hlPubs;
+}
+function _hlBadge(vol, file, activeLang) {
+  if (!_highlightedPubs().has(`${vol}/${file}`)) return '';
+  return `<span class="search-badge search-badge--grifo">${activeLang === 'ja' ? 'ハイライトあり' : 'você grifou'}</span>`;
+}
+
 function _searchLink(basePath, vol, file, topicIdx, q, activeLang) {
   let href = `${basePath}reader.html?vol=${vol}&file=${file}&search=${encodeURIComponent(q)}`;
   if (topicIdx > 0) href += `&topic=${topicIdx}`;
@@ -426,6 +444,7 @@ function _renderGroup(g, basePath, highlightRegex, q, activeLang, contentFocused
   if (_orFallbackActive && g.termsTotal >= 2 && g.coverage >= g.termsTotal) {
     badge += `<span class="search-badge search-badge--full">${activeLang === 'ja' ? 'すべての語' : 'todas as palavras'}</span>`;
   }
+  badge += _hlBadge(g.vol, g.file, activeLang);
 
   const hitsLabel = hits.length > 1
     ? (activeLang === 'ja' ? `${hits.length}件` : `${hits.length} ${isContainer ? 'ensinamentos' : 'trechos'}`)
@@ -583,7 +602,8 @@ function _renderFlatList(items, count, highlightRegex, q, activeLang, kind) {
   for (const it of visible) {
     const href = _searchLink(basePath, it.vol, it.file, it.topicIdx || 0, q, activeLang);
     const nameHtml = _styleSnippetSmart(it.label, activeLang, highlightRegex);
-    const crumb = it.crumb ? `<div class="search-flat-crumb">${escHtml(it.crumb)}</div>` : '';
+    const hlB = _hlBadge(it.vol, it.file, activeLang);
+    const crumb = (it.crumb || hlB) ? `<div class="search-flat-crumb">${escHtml(it.crumb || '')}${hlB}</div>` : '';
     html += `<li><a href="${href}" class="search-flat-item search-nav-item"
         data-vol="${escHtml(it.vol)}" data-file="${escHtml(it.file)}"
         data-query="${escHtml(q)}" data-topic="${it.topicIdx || 0}"
@@ -1492,6 +1512,7 @@ async function _performLocalPreview(query) {
   _currentQuery = q;
   _orFallbackActive = false;
   _activeFilter = 'all';
+  _hlPubs = null;
   _literal = {
     q, lang: activeLang, preview: true,
     titulo: { items: titleItems, shown: Math.min(LITERAL_PAGE, titleItems.length) },
@@ -1967,6 +1988,7 @@ async function performSearch(query) {
   _literal = null;
   _activeFilter = 'all';
   _focusedIndex = -1;
+  _hlPubs = null; // re-lê os grifos do usuário (badge "você grifou")
 
   const _t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {

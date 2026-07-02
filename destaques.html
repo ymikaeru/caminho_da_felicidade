@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&display=swap">
-    <link rel="stylesheet" href="css/styles.min.css?v=194">
+    <link rel="stylesheet" href="css/styles.min.css?v=195">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <style>
@@ -450,6 +450,14 @@
             vertical-align: 1px;
         }
 
+        /* Grifo órfão: o texto mudou no Ensinamento e a re-ancoragem não
+           achou mais o snapshot — o card fica, o leitor não pinta. */
+        .notebook-tag-orphan {
+            color: var(--text-muted);
+            border-color: var(--text-muted);
+            text-transform: none;
+        }
+
         @media (max-width: 600px) {
             .dq-count { margin-left: 0; width: 100%; }
         }
@@ -460,10 +468,10 @@
     <script src="js/theme.js?v=1" defer></script>
     <script src="js/language.js?v=10" defer></script>
     <script src="js/typography.js?v=1" defer></script>
-    <script src="js/search.min.js?v=48" defer></script>
-    <script src="js/highlights.min.js?v=31" defer></script>
+    <script src="js/search.min.js?v=49" defer></script>
+    <script src="js/highlights.min.js?v=32" defer></script>
     <script src="site_data/global_index_titles.js?v=3" defer></script>
-    <script src="js/destaques-page.js?v=9" defer></script>
+    <script src="js/destaques-page.js?v=10" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';
@@ -512,6 +520,11 @@
                             <span class="lang-pt">Exportar TXT</span>
                             <span class="lang-ja" style="display:none">TXTをエクスポート</span>
                         </button>
+                        <button class="btn-export" onclick="typeof exportHighlightsDOC === 'function' ? exportHighlightsDOC() : null">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline stroke-linecap="round" stroke-linejoin="round" points="14 2 14 8 20 8"/></svg>
+                            <span class="lang-pt">Exportar Word</span>
+                            <span class="lang-ja" style="display:none">Wordをエクスポート</span>
+                        </button>
                     </div>
                 </div>
 
@@ -527,7 +540,7 @@
     <script type="importmap">
     {"imports":{"@supabase/supabase-js":"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"}}</script>
     <script type="module">
-      import * as cloudSync from './js/sync.js?v=7';
+      import * as cloudSync from './js/sync.js?v=8';
       window._cloudSync = cloudSync;
       // Picker de recomendação (admin) usa RPCs via este client
       import { supabase } from './js/supabase-config.js';

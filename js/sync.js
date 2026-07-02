@@ -212,19 +212,37 @@ export async function removeReadMark(volume, file, topicIndex) {
     .eq('topic_index', topicIndex);
 }
 
+// Busca TODAS as linhas paginando em blocos de 1000. O PostgREST CLAMPA
+// qualquer .limit() a 1000 no servidor — um select único "grande" corta o
+// excedente em silêncio (já aconteceu: usuário com 1.482 grifos perdia os
+// 482 mais antigos ao logar em aparelho novo). factory = função que monta
+// a query (builder é de uso único; recria a cada página).
+async function _fetchAllRows(factory) {
+  const out = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await factory().range(from, from + 999);
+    if (error) {
+      console.warn('[sync] _fetchAllRows page failed:', error.message);
+      break;
+    }
+    if (!data || data.length === 0) break;
+    out.push(...data);
+    if (data.length < 1000) break;
+  }
+  return out;
+}
+
 export async function loadReadMarks() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return [];
 
-  // Sem .limit() baixo: a Central (fase 2) precisa do conjunto inteiro.
-  const { data } = await supabase
+  // A Central (fase 2) precisa do conjunto inteiro — paginado por causa
+  // do clamp de 1000 do PostgREST (o antigo .limit(5000) não funcionava).
+  return _fetchAllRows(() => supabase
     .from('read_marks')
     .select('volume, file, topic_index, topic_title, created_at')
     .eq('user_id', session.user.id)
-    .order('created_at', { ascending: false })
-    .limit(5000);
-
-  return data || [];
+    .order('created_at', { ascending: false }));
 }
 
 // ============================================================
@@ -521,14 +539,13 @@ export async function loadAllHighlights() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return [];
 
-  const { data } = await supabase
+  // Paginado: o .limit(1000) antigo (clamp do PostgREST) deixava os grifos
+  // mais antigos de usuários com >1000 INVISÍVEIS em aparelho novo.
+  return _fetchAllRows(() => supabase
     .from('user_highlights')
     .select('volume, file, topic_id, topic_index, topic_title, color, comment, text, start_char, end_char, updated_at')
     .eq('user_id', session.user.id)
-    .order('updated_at', { ascending: false })
-    .limit(1000);
-
-  return data || [];
+    .order('updated_at', { ascending: false }));
 }
 
 // ============================================================

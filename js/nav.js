@@ -462,7 +462,8 @@ function _initMobileNav() {
 
   // Botão "Ensino aleatório" no header do reader — ícone de brilho (estrela,
   // igual aos cards) que abre um dropdown com 5 opções: qualquer volume +
-  // Vol 1-4. Reusa as funções
+  // os 4 volumes pelo TÍTULO (mesmos nomes dos cards da home; o usuário
+  // pediu título em vez de "Volume N"). Reusa as funções
   // públicas de sorteio de search.js (window.openRandomTeaching /
   // openRandomFromVolume), que já mostram spinner e navegam pro reader.
   // Só no reader e visível em todos os tamanhos (o usuário relatou não
@@ -486,10 +487,10 @@ function _initMobileNav() {
           <span class="lang-pt">Qualquer volume</span><span class="lang-ja" style="display:none">全巻</span>
         </button>
         <div class="reader-random-divider"></div>
-        <button type="button" class="reader-random-option" data-vol="mioshiec1" role="menuitem"><span class="lang-pt">Volume 1</span><span class="lang-ja" style="display:none">巻 1</span></button>
-        <button type="button" class="reader-random-option" data-vol="mioshiec2" role="menuitem"><span class="lang-pt">Volume 2</span><span class="lang-ja" style="display:none">巻 2</span></button>
-        <button type="button" class="reader-random-option" data-vol="mioshiec3" role="menuitem"><span class="lang-pt">Volume 3</span><span class="lang-ja" style="display:none">巻 3</span></button>
-        <button type="button" class="reader-random-option" data-vol="mioshiec4" role="menuitem"><span class="lang-pt">Volume 4</span><span class="lang-ja" style="display:none">巻 4</span></button>
+        <button type="button" class="reader-random-option" data-vol="mioshiec1" role="menuitem"><span class="lang-pt">Mundo Espiritual</span><span class="lang-ja" style="display:none">霊界編</span></button>
+        <button type="button" class="reader-random-option" data-vol="mioshiec2" role="menuitem"><span class="lang-pt">Método Divino de Saúde</span><span class="lang-ja" style="display:none">浄霊・自然農法</span></button>
+        <button type="button" class="reader-random-option" data-vol="mioshiec3" role="menuitem"><span class="lang-pt">A Verdadeira Fé</span><span class="lang-ja" style="display:none">信仰編</span></button>
+        <button type="button" class="reader-random-option" data-vol="mioshiec4" role="menuitem"><span class="lang-pt">Ensinamentos Diversos</span><span class="lang-ja" style="display:none">多様な御教え</span></button>
       </div>`;
     headerActions.insertBefore(randomWrap, hamburgerBtn);
 

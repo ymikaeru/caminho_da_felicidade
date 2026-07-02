@@ -314,43 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Copiar/compartilhar o link DESTE tópico. navigator.share no mobile,
-    // clipboard + tooltip no desktop. Monta &topic= explícito (rolar até um
-    // tópico só sincroniza ?topic= via TOC/hash — quem apenas rola e copia a
-    // barra de endereço mandaria um link que abre no tópico errado).
-    window.copyTopicLink = async function (topicIdx) {
-        const { volId, filename } = getParams();
-        if (!volId || !filename) return;
-        const lang = localStorage.getItem('site_lang') || 'pt';
-        const base = location.pathname.replace(/[^/]*$/, '');
-        let url = `${location.origin}${base}reader.html?vol=${encodeURIComponent(volId)}&file=${encodeURIComponent(filename)}`;
-        if (Number.isInteger(topicIdx) && topicIdx > 0) url += `&topic=${topicIdx}`;
-        if (lang === 'ja') url += '&lang=ja';
-        if (navigator.share) {
-            try { await navigator.share({ title: document.title || 'Caminho da Felicidade', url }); } catch (e) { /* cancelado */ }
-            return;
-        }
-        try { await navigator.clipboard.writeText(url); }
-        catch (e) {
-            const ta = document.createElement('textarea');
-            ta.value = url; ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
-            document.body.appendChild(ta); ta.select();
-            try { document.execCommand('copy'); } catch (_) {}
-            document.body.removeChild(ta);
-        }
-        const tooltip = document.getElementById('saveTooltip');
-        if (tooltip) {
-            const st = { pt: 'Link copiado', ja: 'リンクをコピーしました' }[lang] || 'Link copiado';
-            const tEl = document.getElementById('saveTooltipTitle');
-            const sEl = document.getElementById('saveTooltipStatus');
-            if (tEl) tEl.textContent = '';
-            if (sEl) sEl.textContent = '🔗 ' + st;
-            tooltip.classList.add('show');
-            clearTimeout(window._saveTooltipTimer);
-            window._saveTooltipTimer = setTimeout(() => tooltip.classList.remove('show'), 2800);
-        }
-    };
-
     // "Marcar como lido" — espelha o toggleFavorite: localStorage primeiro
     // (UI instantânea, funciona offline), cloud em seguida sem bloquear.
     window.toggleReadMark = async function (explicitTopicIndex) {

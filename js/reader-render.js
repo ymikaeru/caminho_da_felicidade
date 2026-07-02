@@ -139,16 +139,6 @@ function _buildTopicSaveBar(topicIdx, lang) {
     // tópico inteiro, e texto condicional deslocaria grifos existentes.
     const readBadge = `<span class="topic-read-badge" data-topic-idx="${topicIdx}" aria-hidden="true"></span>`;
 
-    // "Copiar link deste Ensinamento" — para todos. SÓ SVG, sem nó de texto
-    // (os offsets dos grifos varrem o tópico inteiro). navigator.share no
-    // mobile, clipboard + tooltip no desktop (window.copyTopicLink no reader.js).
-    const lk = { pt: 'Copiar link deste Ensinamento', ja: 'この教えのリンクをコピー' }[lang] || 'Copiar link deste Ensinamento';
-    const linkIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
-    const linkBtn =
-        `<button type="button" class="topic-save-btn topic-copylink-btn" data-topic-idx="${topicIdx}" title="${lk}" aria-label="${lk}" onclick="if (typeof window.copyTopicLink === 'function') window.copyTopicLink(${topicIdx});">` +
-            linkIcon +
-        `</button>`;
-
     // Botões admin: "Adicionar à playlist" + "Recomendar este ensinamento".
     // Ambos passam topic_idx explícito pros pickers — desambigua qual
     // ensinamento está sendo agido em páginas com múltiplos tópicos.
@@ -187,7 +177,6 @@ function _buildTopicSaveBar(topicIdx, lang) {
             `<span class="topic-save-label" data-save="${l.save}" data-saved="${l.saved}">${l.save}</span>` +
         `</button>` +
         readBtn +
-        linkBtn +
         shareBtn +
         adminBtns +
         readBadge +

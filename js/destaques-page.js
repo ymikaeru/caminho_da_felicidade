@@ -154,6 +154,61 @@ function _dqGetAll() {
     return (dataList || []).filter(h => h.vol !== 'poetry');
 }
 
+// Aplica os MESMOS filtros ativos da tela (busca, cor, ?book=, ocultar
+// títulos) — compartilhado com os exports. Antes exportHighlightsTXT/DOC
+// chamavam _dqGetAll() cru: o usuário filtrava "só os verdes de tal
+// publicação", clicava "Exportar Word" e recebia todos os grifos.
+function _dqFilteredList() {
+    const lang = _dqLang();
+    const q = _dqState.q.toLowerCase().trim();
+    return _dqGetAll().filter(h => {
+        if (_dqState.bookOnly && !(h.vol === 'disciples' && h.file === _dqState.bookOnly)) return false;
+        if (_dqState.hideTitles && _isTitleHighlight(h)) return false;
+        if (_dqState.color && (h.color || 'yellow') !== _dqState.color) return false;
+        if (q) {
+            const hay = `${h.text || ''} ${h.comment || ''} ${h.topicTitle || ''} ${_pubTitle(h, lang)}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+        }
+        return true;
+    });
+}
+
+// ─── Rótulos pessoais das cores ──────────────────────────────
+// As 6 cores existem e filtram, mas não carregam significado. Aqui o usuário
+// pode batizá-las ("amarelo = Fé", "verde = Gratidão"). Per-device (localStorage
+// hlColorLabels: cor→rótulo); se pegar, promover a coluna no futuro.
+function _dqColorLabels() {
+    try { return JSON.parse(localStorage.getItem('hlColorLabels') || '{}') || {}; }
+    catch (_) { return {}; }
+}
+function _dqColorLabel(c) {
+    const custom = _dqColorLabels()[c];
+    if (custom) return custom;
+    const lang = _dqLang();
+    const names = lang === 'ja'
+        ? { yellow: '黄', green: '緑', blue: '青', pink: 'ピンク', purple: '紫', orange: 'オレンジ' }
+        : { yellow: 'Amarelo', green: 'Verde', blue: 'Azul', pink: 'Rosa', purple: 'Roxo', orange: 'Laranja' };
+    return names[c] || c;
+}
+window._dqEditColorLabels = function () {
+    const labels = _dqColorLabels();
+    const lang = _dqLang();
+    let changed = false;
+    for (const c of Object.keys(_DQ_COLOR_HEX)) {
+        const msg = (lang === 'ja' ? 'この色の名前：' : 'Nome para a cor ') + _dqColorLabel(c);
+        const val = window.prompt(msg, labels[c] || '');
+        if (val === null) continue;   // cancelou esta cor
+        const trimmed = val.trim();
+        if (trimmed) labels[c] = trimmed; else delete labels[c];
+        changed = true;
+    }
+    if (changed) {
+        try { localStorage.setItem('hlColorLabels', JSON.stringify(labels)); } catch (_) {}
+        _initToolbar();       // reconstrói a toolbar (títulos dos chips)
+        renderNotebook();
+    }
+};
+
 // ─── Toolbar (busca + cores + toggle de títulos) ─────────────
 // Construída UMA vez (re-render a cada tecla roubaria o foco do input);
 // renderNotebook só atualiza o contador.
@@ -166,8 +221,9 @@ function _initToolbar() {
         : { search: 'Buscar nos destaques…', hide: 'Ocultar grifos de título', all: 'Todas' };
 
     const chips = Object.keys(_DQ_COLOR_HEX).map(c =>
-        `<button type="button" class="dq-chip" data-color="${c}" title="${c}" aria-pressed="false" style="--chip:${_DQ_COLOR_HEX[c]}"></button>`
+        `<button type="button" class="dq-chip" data-color="${c}" title="${_esc(_dqColorLabel(c))}" aria-label="${_esc(_dqColorLabel(c))}" aria-pressed="false" style="--chip:${_DQ_COLOR_HEX[c]}"></button>`
     ).join('');
+    const editColorsLabel = lang === 'ja' ? '色に名前を付ける' : 'Nomear cores';
 
     host.innerHTML = `
         <div class="dq-toolbar">
@@ -178,6 +234,7 @@ function _initToolbar() {
             <div class="dq-colors" role="group" aria-label="Filtrar por cor">
                 <button type="button" class="dq-chip dq-chip--all is-active" data-color="" aria-pressed="true">${t.all}</button>
                 ${chips}
+                <button type="button" class="dq-chip-edit" onclick="_dqEditColorLabels()" title="${editColorsLabel}" aria-label="${editColorsLabel}" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.95rem;padding:4px 6px;">✎</button>
             </div>
             <label class="dq-toggle">
                 <input type="checkbox" id="dqHideTitles" ${_dqState.hideTitles ? 'checked' : ''}>
@@ -392,6 +449,12 @@ function _renderCard(h, lang) {
         && typeof isAdminUser === 'function' && isAdminUser() && typeof window.openRecommendPicker === 'function')
         ? `<button class="notebook-btn" onclick="event.stopPropagation(); recommendExcerpt('${h.id}')">${lang === 'ja' ? '推薦' : 'Recomendar'}</button>`
         : '';
+    // Admin: transformar o grifo em item de playlist (mesmo gate do Recomendar —
+    // playlists são admin-only e resolvem títulos via índice do acervo).
+    const plBtn = (h.vol !== 'disciples'
+        && typeof isAdminUser === 'function' && isAdminUser() && typeof window.openPlaylistAddPicker === 'function')
+        ? `<button class="notebook-btn" onclick="event.stopPropagation(); addHighlightToPlaylist('${h.id}')">${lang === 'ja' ? 'プレイリスト' : 'Playlist'}</button>`
+        : '';
 
     return `
     <div class="notebook-card" data-id="${h.id}" onclick="openHighlightDetail('${h.id}')">
@@ -404,6 +467,7 @@ function _renderCard(h, lang) {
             <div class="notebook-actions">
                 <a href="${articleUrl}" class="notebook-btn link" style="text-decoration:none;" onclick="event.stopPropagation();">${lang === 'ja' ? '読む' : 'Abrir'}</a>
                 ${recBtn}
+                ${plBtn}
                 <button class="notebook-btn delete" onclick="event.stopPropagation(); deleteNotebookHighlight('${h.id}')">${lang === 'ja' ? '削除' : 'Apagar'}</button>
             </div>
         </div>
@@ -433,6 +497,22 @@ window.recommendExcerpt = function (id) {
             ? [[h.startChar, h.endChar]]
             : null,
         excerptText: h.text || ''
+    });
+};
+
+// Admin: adicionar o ensinamento deste grifo a uma playlist (a lacuna que o
+// dono já conhecia — grifar e depois transformar em playlist). Reusa o picker
+// do reader passando meta pronta (a Central não tem vol/file na URL).
+window.addHighlightToPlaylist = function (id) {
+    if (typeof window.openPlaylistAddPicker !== 'function') return;
+    const h = _dqGetAll().find(x => x.id === id);
+    if (!h) return;
+    const lang = _dqLang();
+    window.openPlaylistAddPicker({
+        vol: h.vol,
+        file: h.file,
+        topic_idx: Number.isInteger(h.topicIndex) ? h.topicIndex : 0,
+        title: h.topicTitle || _pubTitle(h, lang)
     });
 };
 
@@ -467,6 +547,7 @@ function openHighlightDetail(id) {
                 <div class="highlight-detail-date" id="detailDate"></div>
                 <div class="highlight-detail-actions">
                     <a href="#" class="notebook-btn" id="detailOpenBtn" target="_blank">${lang === 'ja' ? '記事を開く' : 'Abrir Artigo'}</a>
+                    <button class="notebook-btn" id="detailPlaylistBtn" style="display:none">${lang === 'ja' ? 'プレイリスト' : 'Playlist'}</button>
                     <button class="notebook-btn" id="detailEditBtn">${lang === 'ja' ? '編集' : 'Editar'}</button>
                     <button class="notebook-btn delete" id="detailDeleteBtn">${lang === 'ja' ? '削除' : 'Apagar'}</button>
                 </div>
@@ -474,6 +555,10 @@ function openHighlightDetail(id) {
         document.body.appendChild(overlay);
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) closeHighlightDetail();
+        });
+        document.getElementById('detailPlaylistBtn').addEventListener('click', () => {
+            closeHighlightDetail();
+            if (_detailCurrentId) window.addHighlightToPlaylist(_detailCurrentId);
         });
         document.getElementById('detailEditBtn').addEventListener('click', () => {
             closeHighlightDetail();
@@ -493,6 +578,12 @@ function openHighlightDetail(id) {
     }
 
     document.getElementById('detailOpenBtn').href = _dqArticleUrl(h);
+    // Playlist só pra admin + acervo (mesmo gate do card).
+    const _detailPlBtn = document.getElementById('detailPlaylistBtn');
+    if (_detailPlBtn) {
+        const canPl = h.vol !== 'disciples' && typeof isAdminUser === 'function' && isAdminUser() && typeof window.openPlaylistAddPicker === 'function';
+        _detailPlBtn.style.display = canPl ? '' : 'none';
+    }
     document.getElementById('detailAccent').style.background = bgColor;
     document.getElementById('detailSource').textContent = h.topicTitle || '';
     document.getElementById('detailText').textContent = h.text;
@@ -547,15 +638,17 @@ window.openNotebookEdit = function(id) {
 }
 
 window.exportHighlightsTXT = function() {
-    let dataList = _dqGetAll();
+    const lang = _dqLang();
+    let dataList = _dqFilteredList();
     if (dataList.length === 0) return;
 
-    // Grouping
+    // Grouping — cabeçalho pela PUBLICAÇÃO (antes usava o topicTitle do 1º
+    // item, que rotulava o grupo errado; o DOC já usava _pubTitle).
     const grouped = new Map();
     dataList.forEach(h => {
         const key = `${h.vol}_${h.file}`;
         if (!grouped.has(key)) {
-            grouped.set(key, { title: h.topicTitle || 'Outros', items: [] });
+            grouped.set(key, { title: _pubTitle(h, lang) || h.topicTitle || 'Outros', items: [] });
         }
         grouped.get(key).items.push(h);
     });
@@ -598,7 +691,7 @@ window.exportHighlightsTXT = function() {
 // e a data.
 window.exportHighlightsDOC = function() {
     const lang = localStorage.getItem('site_lang') || 'pt';
-    const dataList = _dqGetAll();
+    const dataList = _dqFilteredList();
     if (dataList.length === 0) return;
 
     const grouped = new Map();

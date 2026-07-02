@@ -849,8 +849,8 @@ window.openSearch = function () {
 
       const resultsEl = document.getElementById('searchResults');
       if (!input.value.trim()) {
-        // Vazio: recentes + temas sugeridos (só se não há nada renderizado —
-        // não sobrescreve o empty state que o clearSearch acabou de pintar).
+        // Vazio: empty state limpo (só se não há nada renderizado — não
+        // sobrescreve o empty state que o clearSearch acabou de pintar).
         if (resultsEl && !resultsEl.querySelector('.search-empty-state')) _renderEmptyState();
       } else if (resultsEl && !resultsEl.querySelector('.search-nav-item') && !_literal) {
         // Query restaurada sem resultados renderizados: preview local
@@ -1529,34 +1529,9 @@ function _renderFilterChipsHidden() {
 }
 
 // ---------------------------------------------------------------
-// EMPTY STATE — modal aberto sem query: recentes + temas sugeridos.
-// ---------------------------------------------------------------
-// Temas validados contra o corpus (todos retornam resultados fartos).
-const _SUGGESTED_CHIPS = {
-  pt: ['johrei', 'gratidão', 'fé', 'doença', 'felicidade', 'oração'],
-  ja: ['浄霊', '感謝', '信仰', '病気', '幸福', '祈り'],
-};
-
-// Últimas buscas BEM-SUCEDIDAS do log local (mioshie_search_log), sem
-// repetição. Buscas com 0 resultados ficam de fora — repetir frustração
-// não ajuda ninguém.
-function _recentSearches(limit = 6) {
-  try {
-    const log = JSON.parse(localStorage.getItem('mioshie_search_log') || '[]');
-    const out = [];
-    const seen = new Set();
-    for (let i = log.length - 1; i >= 0 && out.length < limit; i--) {
-      const e = log[i] || {};
-      const key = _norm(e.q || '');
-      if (!key || key.length < 2 || seen.has(key)) continue;
-      if (!(e.n > 0)) continue;
-      seen.add(key);
-      out.push(e.q);
-    }
-    return out;
-  } catch (e) { return []; }
-}
-
+// EMPTY STATE — modal aberto sem query. As seções "Buscas recentes" e
+// "Explorar temas" foram REMOVIDAS a pedido do dono (03/07): o modal abre
+// limpo e o usuário digita pra buscar.
 function _renderEmptyState() {
   // Invalida qualquer busca em voo ANTES de anular _literal: sem isto a
   // continuação pós-await do performSearch passava no guard de seq, dava
@@ -1570,20 +1545,10 @@ function _renderEmptyState() {
   _renderFilterChipsHidden();
   _updateSearchCount(0, 0, lang);
   if (!resultsEl) return;
-  const recents = _recentSearches();
-  const suggested = _SUGGESTED_CHIPS[lang === 'ja' ? 'ja' : 'pt'];
-  const chipHtml = (arr, cls) => arr.map(t =>
-    `<button type="button" class="search-chip${cls ? ' ' + cls : ''}" data-chip-q="${escHtml(t)}">${escHtml(t)}</button>`
-  ).join('');
-  let html = '<li class="search-empty-state">';
-  if (recents.length) {
-    html += `<div class="search-empty-head">${lang === 'ja' ? '最近の検索' : 'Buscas recentes'}</div>`;
-    html += `<div class="search-chip-row">${chipHtml(recents, 'search-chip--recent')}</div>`;
-  }
-  html += `<div class="search-empty-head">${lang === 'ja' ? 'テーマで探す' : 'Explorar temas'}</div>`;
-  html += `<div class="search-chip-row">${chipHtml(suggested, '')}</div>`;
-  html += '</li>';
-  resultsEl.innerHTML = html;
+  // Sem "Buscas recentes"/"Explorar temas" — o modal abre limpo. Mantém o
+  // <li.search-empty-state> vazio como marcador (o _searchOnLanguageChange e o
+  // fluxo de re-render dependem dele existir quando não há query).
+  resultsEl.innerHTML = '<li class="search-empty-state"></li>';
 }
 
 // Chamado pelo language.js na troca de idioma: re-pinta o que tem rótulo

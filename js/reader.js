@@ -136,24 +136,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Restore reading position from cloud if no explicit topic was requested
+        // Restore reading position from cloud — resolvido em PARALELO com o
+        // fetch do artigo. Antes era `await`ado ANTES do fetch: um round-trip
+        // inteiro de tela vazia em toda abertura de ensinamento (o próprio
+        // código admitia "não protegido por timeout"), sendo que o resultado
+        // só alimenta o botão "Continuar leitura" DEPOIS do render. Timeout de
+        // 1,5s pra uma nuvem lenta nunca atrasar nem o botão.
         let resolvedTopicIdx = topicIdx;
         let resolvedParagraphIdx = null;
-        if (resolvedTopicIdx === null && window._cloudSync) {
-            try {
-                window._navlog?.('getLastPosition START (não protegido por timeout)');
-                const pos = await window._cloudSync.getLastPosition(volId, filename);
-                window._navlog?.('getLastPosition OK');
-                if (pos && pos.topic_index > 0) {
-                    resolvedTopicIdx = pos.topic_index;
-                }
-                // paragraph_index é independente: pode existir mesmo
-                // com topic_index=0 (artigo de um tópico só, mas com
-                // posição salva dentro dele).
-                if (pos && Number.isInteger(pos.paragraph_index)) {
-                    resolvedParagraphIdx = pos.paragraph_index;
-                }
-            } catch (e) { window._navlog?.('getLastPosition ERR ' + (e && e.message)); }
+        let _posPromise = null;
+        if (topicIdx === null && window._cloudSync) {
+            const timeout = new Promise(res => setTimeout(() => res(null), 1500));
+            _posPromise = Promise.race([
+                Promise.resolve(window._cloudSync.getLastPosition(volId, filename)).catch(() => null),
+                timeout
+            ]);
         }
 
         // When loading to a specific topic, create a temporary overlay so content
@@ -196,6 +193,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 window._readTimeTracker.start(volId, filename).catch(() => {});
             }
 
+            // Agora sim resolve a posição salva (pedida em paralelo no início) e
+            // mostra o botão flutuante "Continuar leitura". paragraph_index é
+            // independente do topic_index (artigo de 1 tópico com bookmark dentro).
+            if (_posPromise) {
+                const pos = await _posPromise;
+                window._navlog?.('getLastPosition ' + (pos ? 'OK' : 'null/timeout'));
+                if (pos && pos.topic_index > 0) resolvedTopicIdx = pos.topic_index;
+                if (pos && Number.isInteger(pos.paragraph_index)) resolvedParagraphIdx = pos.paragraph_index;
+            }
             // Show floating "continue reading" button instead of auto-scroll.
             // Mostra mesmo quando topic_index=0 desde que tenha paragraph
             // salvo (artigos longos de 1 tópico precisam do bookmark).
@@ -308,6 +314,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Copiar/compartilhar o link DESTE tópico. navigator.share no mobile,
+    // clipboard + tooltip no desktop. Monta &topic= explícito (rolar até um
+    // tópico só sincroniza ?topic= via TOC/hash — quem apenas rola e copia a
+    // barra de endereço mandaria um link que abre no tópico errado).
+    window.copyTopicLink = async function (topicIdx) {
+        const { volId, filename } = getParams();
+        if (!volId || !filename) return;
+        const lang = localStorage.getItem('site_lang') || 'pt';
+        const base = location.pathname.replace(/[^/]*$/, '');
+        let url = `${location.origin}${base}reader.html?vol=${encodeURIComponent(volId)}&file=${encodeURIComponent(filename)}`;
+        if (Number.isInteger(topicIdx) && topicIdx > 0) url += `&topic=${topicIdx}`;
+        if (lang === 'ja') url += '&lang=ja';
+        if (navigator.share) {
+            try { await navigator.share({ title: document.title || 'Caminho da Felicidade', url }); } catch (e) { /* cancelado */ }
+            return;
+        }
+        try { await navigator.clipboard.writeText(url); }
+        catch (e) {
+            const ta = document.createElement('textarea');
+            ta.value = url; ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); } catch (_) {}
+            document.body.removeChild(ta);
+        }
+        const tooltip = document.getElementById('saveTooltip');
+        if (tooltip) {
+            const st = { pt: 'Link copiado', ja: 'リンクをコピーしました' }[lang] || 'Link copiado';
+            const tEl = document.getElementById('saveTooltipTitle');
+            const sEl = document.getElementById('saveTooltipStatus');
+            if (tEl) tEl.textContent = '';
+            if (sEl) sEl.textContent = '🔗 ' + st;
+            tooltip.classList.add('show');
+            clearTimeout(window._saveTooltipTimer);
+            window._saveTooltipTimer = setTimeout(() => tooltip.classList.remove('show'), 2800);
+        }
+    };
+
     // "Marcar como lido" — espelha o toggleFavorite: localStorage primeiro
     // (UI instantânea, funciona offline), cloud em seguida sem bloquear.
     window.toggleReadMark = async function (explicitTopicIndex) {
@@ -364,12 +407,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.renderContent = () => initReader();
-
-    const shareBtn = document.getElementById('shareBtn');
-    if (shareBtn && navigator.share) shareBtn.style.display = '';
-    window.shareArticle = async function () {
-        try { await navigator.share({ title: document.title, url: window.location.href }); } catch (e) { }
-    };
 
     initReader();
     // Chrome moderno dispara popstate em clicks de hash-anchor (#topic-N),
@@ -444,6 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <circle cx="12" cy="12" r="3"/>
             </svg>
             <span>${_lang === 'ja' ? '読書を続ける' : 'Continuar leitura'}</span>
+            <span id="resume-dismiss" role="button" aria-label="${_lang === 'ja' ? '閉じる' : 'Dispensar'}" title="${_lang === 'ja' ? '閉じる' : 'Dispensar'}" style="margin-left:4px; opacity:0.75; font-size:1.15rem; line-height:1; padding:0 4px; cursor:pointer;">×</span>
         `;
         btn.style.cssText = `
             position: fixed; bottom: 24px; right: 24px; z-index: 5000;
@@ -466,7 +504,8 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         document.head.appendChild(style);
 
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (ev) => {
+            if (ev.target && ev.target.id === 'resume-dismiss') return;   // × trata no próprio handler
             // Preferimos o parágrafo exato se foi salvo. Fallback pro
             // topic se o p não existir mais (artigo editado).
             const topicEl = document.getElementById(`topic-${topicIdx}`);
@@ -475,6 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 : null;
             const el = pEl || topicEl;
             if (el) {
+                window.removeEventListener('scroll', _onScrollPastTarget);
                 btn.style.animation = 'resumeBtnOut 0.3s ease forwards';
                 setTimeout(() => btn.remove(), 300);
                 const HEADER_H = document.querySelector('.header')?.offsetHeight || 80;
@@ -488,20 +528,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.body.appendChild(btn);
 
-        // Auto-hide after 8s of no scroll interaction
-        let hideTimer;
-        function resetHideTimer() {
-            clearTimeout(hideTimer);
-            hideTimer = setTimeout(() => {
+        // × de dispensa explícito (não navega — só some).
+        const dismissEl = btn.querySelector('#resume-dismiss');
+        if (dismissEl) dismissEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.removeEventListener('scroll', _onScrollPastTarget);
+            btn.style.animation = 'resumeBtnOut 0.3s ease forwards';
+            setTimeout(() => btn.remove(), 300);
+        });
+
+        // SEM auto-hide por timer: antes o botão sumia após 8s sem interação e
+        // NÃO voltava — se o leitor idoso demorasse a notar (ou encostasse na
+        // tela e depois pausasse), perdia o único atalho pra posição salva e
+        // tinha que rolar procurando. Agora fica até: (a) tocar nele, (b) tocar
+        // no ×, ou (c) a rolagem passar do ponto salvo (sinal de que já se achou).
+        function _onScrollPastTarget() {
+            const topicEl = document.getElementById(`topic-${topicIdx}`);
+            const pEl = (Number.isInteger(paragraphIdx) && topicEl)
+                ? topicEl.querySelector(`p[data-p-idx="${paragraphIdx}"]`)
+                : null;
+            const target = pEl || topicEl;
+            if (!target) return;
+            const HEADER_H = document.querySelector('.header')?.offsetHeight || 80;
+            if (target.getBoundingClientRect().top <= HEADER_H + 24) {
+                window.removeEventListener('scroll', _onScrollPastTarget);
                 if (btn.parentElement) {
                     btn.style.animation = 'resumeBtnOut 0.3s ease forwards';
                     setTimeout(() => btn.remove(), 300);
                 }
-            }, 8000);
+            }
         }
-        resetHideTimer();
-        window.addEventListener('scroll', resetHideTimer, { passive: true });
-        window.addEventListener('touchstart', resetHideTimer, { passive: true });
+        window.addEventListener('scroll', _onScrollPastTarget, { passive: true });
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -576,10 +633,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    let _posSaveTimer;
     window.addEventListener('scroll', () => {
         _trackScroll();
         clearTimeout(_scrollFlushTimer);
         _scrollFlushTimer = setTimeout(_flushScrollPct, 2000);
+        // Salva a posição de leitura periodicamente enquanto rola (debounce 5s):
+        // se o SO matar a aba em 2º plano (comum em celulares antigos do
+        // público-alvo) antes do pagehide/beforeunload, a posição não se perde.
+        clearTimeout(_posSaveTimer);
+        _posSaveTimer = setTimeout(saveReadingPosition, 5000);
     }, { passive: true });
     // Captura também o estado inicial (caso o reader caiba inteiro na tela)
     setTimeout(_trackScroll, 1800);
@@ -614,6 +677,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     window.addEventListener('beforeunload', () => {
+        _trackScroll();
+        _flushScrollPct();
+        saveReadingPosition();
+    });
+    // pagehide: no iOS Safari beforeunload é não-confiável; os módulos irmãos
+    // (read-time-tracker, scroll-progress) já escutam pagehide — a posição de
+    // leitura, o dado mais visível pro usuário, faltava.
+    window.addEventListener('pagehide', () => {
         _trackScroll();
         _flushScrollPct();
         saveReadingPosition();

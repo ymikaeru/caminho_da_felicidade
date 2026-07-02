@@ -581,9 +581,12 @@
           _scrollToPoemCard(poemParam, params.get('hl_scroll') === '1');
         }, 200);
       }
-      setTimeout(() => {
-        window._poetryHighlights?.applyToCards('akimaro-kineishu', '#akimaroList .poetry-card');
-      }, 1200);
+      // Cloud-first: puxa da nuvem e re-aplica quando chega (antes era um chute
+      // de 1,2s esperando o pullCloudToLocal do login — falhava em aparelho
+      // novo sem relogar).
+      window._poetryHighlights?.hydrateFromCloud('akimaro-kineishu').then((changed) => {
+        if (changed) window._poetryHighlights?.applyToCards('akimaro-kineishu', '#akimaroList .poetry-card');
+      });
     } catch (err) {
       console.error('[poetry-akimaro]', err);
       const main = $('#akimaroList');

@@ -66,6 +66,14 @@
     document.getElementById('firstVisitTipsOk').addEventListener('click', function () {
       try { localStorage.setItem(FLAG, '1'); } catch (_) {}
       card.remove();
+      // Ancora a dica ao botão FÍSICO: pulsa o #hlTapModeBtn por ~3s. No header
+      // do reader há até 6 ícones monocromáticos parecidos — "ícone de marcador"
+      // sozinho não identifica nada pro leitor idoso.
+      var tapBtn = document.getElementById('hlTapModeBtn');
+      if (tapBtn) {
+        tapBtn.classList.add('hl-pulse-hint');
+        setTimeout(function () { tapBtn.classList.remove('hl-pulse-hint'); }, 3200);
+      }
     });
   }
 

@@ -15,6 +15,115 @@ const VOL_SUBTITLES = {
 };
 window.VOL_SUBTITLES = VOL_SUBTITLES;
 
+// Torna colapsáveis as seções cujo label tem data-collapsible="<key>". Envolve
+// SÓ os .mobile-nav-link imediatamente seguintes (para nos divisores/seções e
+// não engolir o wrapper de Discípulos), adiciona um chevron e persiste o estado
+// aberto/recolhido por seção em localStorage (nav_sec_<key>). Roda a cada build
+// (o innerHTML é regenerado do zero → sem risco de duplo-embrulho).
+function _setupCollapsibleSections(root) {
+  root.querySelectorAll('.mobile-nav-section-label[data-collapsible]').forEach(label => {
+    // Guarda contra re-embrulho (se por acaso rodar sobre DOM já processado).
+    if (label.nextElementSibling && label.nextElementSibling.classList.contains('mobile-nav-collapse-body')) return;
+    const key = label.getAttribute('data-collapsible');
+    const items = [];
+    let el = label.nextElementSibling;
+    while (el && el.classList.contains('mobile-nav-link')) { items.push(el); el = el.nextElementSibling; }
+    if (!items.length) return;
+
+    const body = document.createElement('div');
+    body.className = 'mobile-nav-collapse-body';
+    label.parentNode.insertBefore(body, label.nextSibling);
+    items.forEach(it => body.appendChild(it));
+
+    label.classList.add('mobile-nav-collapsible');
+    const chev = document.createElement('span');
+    chev.className = 'mobile-nav-chevron';
+    chev.setAttribute('aria-hidden', 'true');
+    chev.textContent = '▾';
+    label.appendChild(chev);
+
+    let collapsed = true;   // nascem recolhidas (corta o scan inicial)
+    try { const s = localStorage.getItem('nav_sec_' + key); if (s !== null) collapsed = s === '1'; } catch (_) {}
+    label.classList.toggle('collapsed', collapsed);
+    body.classList.toggle('collapsed', collapsed);
+    label.setAttribute('role', 'button');
+    label.setAttribute('tabindex', '0');
+    label.setAttribute('aria-expanded', String(!collapsed));
+
+    const toggle = () => {
+      const nowCollapsed = !body.classList.contains('collapsed');
+      body.classList.toggle('collapsed', nowCollapsed);
+      label.classList.toggle('collapsed', nowCollapsed);
+      label.setAttribute('aria-expanded', String(!nowCollapsed));
+      try { localStorage.setItem('nav_sec_' + key, nowCollapsed ? '1' : '0'); } catch (_) {}
+    };
+    label.addEventListener('click', toggle);
+    label.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+  });
+}
+
+// ── Instalar como aplicativo (PWA) ─────────────────────────────────────────
+// A lógica vive aqui (nav.js está em toda página que tem menu) em vez de num
+// arquivo à parte — evita esquecer o <script> em alguma página. Captura o
+// beforeinstallprompt (Android) uma vez; no iOS mostra o passo a passo manual.
+let _pwaDeferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _pwaDeferredPrompt = e;
+  const el = document.getElementById('mobileNavLinkInstall');
+  if (el) el.style.display = '';
+});
+window.addEventListener('appinstalled', () => {
+  _pwaDeferredPrompt = null;
+  const el = document.getElementById('mobileNavLinkInstall');
+  if (el) el.style.display = 'none';
+});
+
+function _pwaIsStandalone() {
+  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+      || window.navigator.standalone === true;
+}
+function _pwaIsIOS() {
+  const ua = navigator.userAgent || '';
+  return /iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1);
+}
+// Revela o item do menu quando dá pra instalar (Android com prompt, ou iOS
+// fora do standalone). Chamado a cada build do menu (o item é recriado).
+function _setupPwaInstall(root) {
+  const el = root.querySelector('#mobileNavLinkInstall');
+  if (!el) return;
+  const eligible = !_pwaIsStandalone() && (!!_pwaDeferredPrompt || _pwaIsIOS());
+  el.style.display = eligible ? '' : 'none';
+}
+window._pwaInstall = function () {
+  if (_pwaDeferredPrompt) {
+    _pwaDeferredPrompt.prompt();
+    Promise.resolve(_pwaDeferredPrompt.userChoice).finally(() => {
+      _pwaDeferredPrompt = null;
+      const el = document.getElementById('mobileNavLinkInstall');
+      if (el) el.style.display = 'none';
+    });
+    return;
+  }
+  // iOS (ou sem prompt): mini-card com o passo a passo de "Adicionar à Tela".
+  if (document.getElementById('pwaInstallCard')) return;
+  const lang = localStorage.getItem('site_lang') === 'ja' ? 'ja' : 'pt';
+  const card = document.createElement('div');
+  card.id = 'pwaInstallCard';
+  card.setAttribute('role', 'dialog');
+  card.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:9999;max-width:360px;width:calc(100% - 32px);background:var(--surface);color:var(--text-main);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-premium);padding:18px 20px;font-size:0.95rem;line-height:1.55;';
+  const steps = lang === 'ja'
+    ? 'Safari下部の<strong>共有</strong>アイコンをタップし、<strong>「ホーム画面に追加」</strong>を選ぶと、アプリのように使えます。'
+    : 'Toque no ícone de <strong>Compartilhar</strong> (embaixo, no Safari) e escolha <strong>“Adicionar à Tela de Início”</strong> para usar como aplicativo.';
+  const okL = lang === 'ja' ? 'わかりました' : 'Entendi';
+  const titleL = lang === 'ja' ? 'アプリとして使う' : 'Instalar o aplicativo';
+  card.innerHTML = '<div style="font-weight:600;color:var(--accent);margin-bottom:8px;">' + titleL + '</div>'
+    + '<div style="margin-bottom:14px;">' + steps + '</div>'
+    + '<button type="button" id="pwaInstallOk" class="btn-zen" style="min-height:44px;padding:10px 22px;cursor:pointer;display:block;margin-left:auto;">' + okL + '</button>';
+  document.body.appendChild(card);
+  document.getElementById('pwaInstallOk').addEventListener('click', () => card.remove());
+};
+
 function _initMobileNav() {
   const header = document.querySelector('.header');
   if (!header) return;
@@ -69,6 +178,12 @@ function _initMobileNav() {
 
   const currentLang = localStorage.getItem('site_lang') || 'pt';
   const t = MENU_TEXTS[currentLang] || MENU_TEXTS.pt;
+
+  // Busca no corpo do menu também (o header só tem a lupa sem rótulo — a
+  // affordance mais fraca pro público idoso, sendo o recurso mais poderoso do
+  // site). Mesmo gate do botão do header (window._searchEnabled).
+  const _searchAllowed = typeof window._searchEnabled === 'function' ? window._searchEnabled() : true;
+  const _searchLabel = t.search || (currentLang === 'ja' ? '検索' : 'Buscar');
 
   let linksHtml = navLinks.map(a => {
     // a.textContent inclui spans .lang-ja com display:none (textContent
@@ -126,14 +241,14 @@ function _initMobileNav() {
 
         <div class="mobile-nav-section-label" id="mobileNavLabelActions">${t.actions}</div>
 
+        ${_searchAllowed ? `<button class="mobile-nav-link" onclick="closeMobileNav(); openSearch();" id="mobileNavLinkSearch">
+          <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span class="link-text">${_searchLabel}</span>
+        </button>` : ''}
+
         <button class="mobile-nav-link" onclick="openHistory(); closeMobileNav();" id="mobileNavLinkHistory">
           <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span class="link-text">${t.history}</span>
-        </button>
-
-        <button class="mobile-nav-link" onclick="window.location.href=(window.location.pathname.includes('/mioshiec') ? '../' : '') + 'poemas-salvos.html';" id="mobileNavLinkSavedPoems">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          <span class="link-text">${t.savedPoems || 'Poemas Salvos'}</span>
         </button>
 
         <button class="mobile-nav-link" onclick="openFavorites(); closeMobileNav();" id="mobileNavLinkFavorites">
@@ -149,6 +264,11 @@ function _initMobileNav() {
         <button class="mobile-nav-link" onclick="window.location.href=(window.location.pathname.includes('/mioshiec') ? '../' : '') + 'lidos.html';" id="mobileNavLinkReadCentral">
           <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>
           <span class="link-text">${t.readCentral || 'Ensinamentos Lidos'}</span>
+        </button>
+
+        <button class="mobile-nav-link" onclick="window.location.href=(window.location.pathname.includes('/mioshiec') ? '../' : '') + 'poemas-salvos.html';" id="mobileNavLinkSavedPoems">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <span class="link-text">${t.savedPoems || 'Poemas Salvos'}</span>
         </button>
 
         <button class="mobile-nav-link" id="mobileNavLinkRecommendations" style="display:none; position:relative;" onclick="closeMobileNav(); window.location.href = (window.location.pathname.includes('/mioshiec') ? '../' : '') + 'recomendacoes.html';">
@@ -173,6 +293,14 @@ function _initMobileNav() {
           <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           <span class="link-text">${t.print || 'Imprimir'}</span>
         </button>` : ''}
+
+        <!-- "Instalar o aplicativo": nasce oculto; js/pwa-install.js revela e liga
+             quando instalável (Android beforeinstallprompt) ou no iOS fora do
+             modo standalone. É o modelo mental de "app" que o público idoso entende. -->
+        <button class="mobile-nav-link" id="mobileNavLinkInstall" style="display:none;" onclick="closeMobileNav(); if (typeof window._pwaInstall === 'function') window._pwaInstall();">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          <span class="link-text"><span class="lang-pt">Instalar o aplicativo</span><span class="lang-ja" style="display:none">アプリとして使う</span></span>
+        </button>
 
         <div class="mobile-nav-divider"></div>
         <div class="mobile-nav-section-label" id="mobileNavLabelFont">${t.fontSize}</div>
@@ -218,7 +346,7 @@ function _initMobileNav() {
 
         <!-- Obras poéticas agrupadas como na home (poesia.html): duas seções
              rotuladas — Poesia Lírica (詩歌) e Salmos Sagrados (御讃歌). -->
-        <div class="mobile-nav-section-label"><span class="lang-pt">Poesia Lírica</span><span class="lang-ja" style="display:none">詩歌</span></div>
+        <div class="mobile-nav-section-label" data-collapsible="poesia"><span class="lang-pt">Poesia Lírica</span><span class="lang-ja" style="display:none">詩歌</span></div>
 
         <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}akimaro-kineishu.html" id="mobileNavLinkAkimaro">
           <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.93" y1="4.93" x2="7.05" y2="7.05"/><line x1="16.95" y1="16.95" x2="19.07" y2="19.07"/><line x1="4.93" y1="19.07" x2="7.05" y2="16.95"/><line x1="16.95" y1="7.05" x2="19.07" y2="4.93"/></svg>
@@ -247,7 +375,7 @@ function _initMobileNav() {
         <!-- 2ª seção poética: Salmos Sagrados (御讃歌) — Gosanka-shū.
              Itens com título curto + ícone de livro (arcticons:book). -->
         <div class="mobile-nav-subdivider"></div>
-        <div class="mobile-nav-section-label"><span class="lang-pt">Salmos Sagrados</span><span class="lang-ja" style="display:none">御讃歌</span></div>
+        <div class="mobile-nav-section-label" data-collapsible="salmos"><span class="lang-pt">Salmos Sagrados</span><span class="lang-ja" style="display:none">御讃歌</span></div>
 
         <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}gosanka-shoban.html" id="mobileNavLinkGosankaShoban">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M7.35 2.25h-1.15c-1.1 0-2 0.9-2 2v15.5c0 1.1 0.9 2 2 2h1.15m0-19.5v19.5h10.45c1.1 0 2-0.9 2-2v-15.5c0-1.1-0.9-2-2-2z"/></svg>
@@ -279,7 +407,7 @@ function _initMobileNav() {
              O display:none inicial cobre o 1º paint quando já se entra em JA. -->
         <div id="mobileNavDisciplesSection" class="lang-pt"${currentLang === 'ja' ? ' style="display:none"' : ''}>
         <div class="mobile-nav-divider"></div>
-        <div class="mobile-nav-section-label" id="mobileNavLabelComplementary">${t.discipulos || 'Discípulos'}</div>
+        <div class="mobile-nav-section-label" id="mobileNavLabelComplementary" data-collapsible="disciples">${t.discipulos || 'Discípulos'}</div>
 
         <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}reader.html?pub=disciples&book=keigyou" id="mobileNavLinkKeigyou">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
@@ -329,6 +457,13 @@ function _initMobileNav() {
   // toggle do setLanguage (language.js), restritas ao overlay.
   mobileNavOverlay.querySelectorAll('.lang-pt').forEach(el => { el.style.display = currentLang === 'pt' ? '' : 'none'; });
   mobileNavOverlay.querySelectorAll('.lang-ja').forEach(el => { el.style.display = currentLang === 'ja' ? '' : 'none'; });
+
+  // Seções raras (Poesia Lírica, Salmos Sagrados, Discípulos) viram
+  // colapsáveis: cortam ~8 linhas do 1º scan do menu sem remover nada. Estado
+  // por seção em localStorage; nascem recolhidas. Feito em runtime (envolve só
+  // os .mobile-nav-link seguintes) pra não reestruturar o template gigante.
+  _setupCollapsibleSections(mobileNavOverlay);
+  _setupPwaInstall(mobileNavOverlay);
 
   // Mostra "Minhas playlists" + a seção de guias ocultos só pra admin.
   if (typeof isAdminUser === 'function' && isAdminUser()) {

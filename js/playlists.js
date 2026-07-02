@@ -267,14 +267,26 @@
     _pkBusy = false;
   }
 
-  // Aceita topic_idx opcional. Quando passado (ex: click no botão abaixo
-  // de um título específico do reader), sobrepõe a detecção por scroll.
-  async function _openPicker(explicitTopicIdx) {
+  // Aceita:
+  //  - número → topic_idx explícito (ex.: botão sob um título no reader),
+  //    sobrepõe a detecção por scroll;
+  //  - objeto {vol,file,topic_idx,title} → meta pronta (ex.: Central de
+  //    Destaques, que NÃO tem vol/file na URL) — mesmo padrão de
+  //    openRecommendPicker(arg);
+  //  - nada → detecta pelo contexto da página.
+  async function _openPicker(arg) {
     if (!_isAdmin()) return;
     _buildPicker();
-    _pkMeta = _currentTeachingMeta();
-    if (typeof explicitTopicIdx === 'number' && !isNaN(explicitTopicIdx)) {
-      _pkMeta.topic_idx = explicitTopicIdx;
+    if (arg && typeof arg === 'object') {
+      _pkMeta = {
+        vol: arg.vol,
+        file: arg.file,
+        topic_idx: Number.isInteger(arg.topic_idx) ? arg.topic_idx : 0,
+        title: arg.title || ''
+      };
+    } else {
+      _pkMeta = _currentTeachingMeta();
+      if (typeof arg === 'number' && !isNaN(arg)) _pkMeta.topic_idx = arg;
     }
     if (!_pkMeta.vol || !_pkMeta.file) {
       alert('Não consegui identificar o ensinamento atual. Esta página tem vol e file na URL?');

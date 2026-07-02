@@ -421,6 +421,51 @@ mark.temp-selection {
   transform: translateX(-50%) translateY(0);
 }
 
+/* Variante com ação (ex.: "Desfazer"): o toast vira flex e o botão precisa
+   receber toque (o toast tem pointer-events:none pra não bloquear a página). */
+.hl-toast:has(.hl-toast__action) {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 8px;
+}
+
+.hl-toast__msg {
+  white-space: nowrap;
+}
+
+.hl-toast__action {
+  pointer-events: auto;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--accent, #d4af37);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  min-height: 40px;
+  border-radius: 20px;
+  transition: background 0.15s ease;
+}
+
+.hl-toast__action:hover,
+.hl-toast__action:active {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Pulso de destaque no botão "modo grifar" (#hlTapModeBtn), disparado ao
+   fechar a dica de primeira visita — ancora "ícone de marcador" ao botão real. */
+@keyframes hlPulseHint {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-mid, rgba(155,114,9,0.14)); }
+  50%      { box-shadow: 0 0 0 8px var(--accent-mid, rgba(155,114,9,0.14)); }
+}
+.hl-pulse-hint {
+  border-radius: 50%;
+  animation: hlPulseHint 0.9s ease-in-out 3;
+  color: var(--accent) !important;
+}
+
 /* ============================================================
    Highlights list modal
    ============================================================ */
@@ -595,13 +640,15 @@ mark.temp-selection {
 
 .highlight-comment-popup .popup-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
 .highlight-comment-popup .popup-actions button {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: calc(50% - 3px);
   font-size: 0.78rem;
-  padding: 6px 8px;
+  padding: 8px 8px;
   border-radius: 6px;
   border: 1px solid var(--border);
   background: none;

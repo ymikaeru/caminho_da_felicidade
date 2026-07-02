@@ -13,6 +13,7 @@
   let _archived = [];
   let _currentTab = 'active';
   let _archivedFilter = 'all';   // 'all' | 'teaching' | 'poetry' | 'audio' | 'playlist'
+  let _noSession = false;        // sem sessão Supabase → estado "entre para ver" (não "vazio")
 
   // Categoria de uma recomendação, para o filtro da aba Arquivadas.
   function _catOf(r) {
@@ -248,13 +249,39 @@
       const idx = r.topic_idx != null ? r.topic_idx : 0;
       let href = `${base}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
       if (idx > 0) href += `&topic=${idx}`;
+      // Trechos recomendados (v15): &excerpt=s:e[,...] → o leitor pinta e rola
+      // até eles. Antes a Central ignorava isto e o trecho que o Reverendo
+      // grifou se perdia (só a cartinha o mostrava).
+      const exStr = _excerptStr(r);
+      if (exStr) href += `&excerpt=${exStr}`;
       if (lang === 'ja') href += '&lang=ja';
-      const titleHtml = `<h2 class="rec-card-title"><a href="${href}" class="rec-card-link" data-rec-id="${_esc(r.id)}" data-vol="${_esc(r.vol)}" data-file="${_esc(r.file)}" data-topic="${idx}" data-title-pt="${_esc(r.title_pt || '')}" data-title-ja="${_esc(r.title_ja || '')}">${_esc(title)}</a></h2>`;
+      const excerptHtml = _excerptHtml(r, lang);
+      const titleHtml = `<h2 class="rec-card-title"><a href="${href}" class="rec-card-link" data-rec-id="${_esc(r.id)}" data-vol="${_esc(r.vol)}" data-file="${_esc(r.file)}" data-topic="${idx}" data-excerpt="${_esc(exStr)}" data-title-pt="${_esc(r.title_pt || '')}" data-title-ja="${_esc(r.title_ja || '')}">${_esc(title)}</a></h2>`;
       return `
         <article class="${cardCls}">
-          ${body('teaching', titleHtml, noteHtml)}
+          ${body('teaching', titleHtml, excerptHtml + noteHtml)}
           <div class="rec-card-actions">${actionBtn}</div>
         </article>`;
+  }
+
+  // Trechos recomendados (v15): converte excerpt_ranges → "s:e,s:e" (string do
+  // param &excerpt=) e monta o bloco de citação. Compartilhado com a cartinha
+  // (mesma lógica de recommendations.js).
+  function _excerptStr(r) {
+    const ranges = (Array.isArray(r.excerpt_ranges) && r.excerpt_ranges.length) ? r.excerpt_ranges : null;
+    return ranges ? ranges.map(p => `${p[0]}:${p[1]}`).join(',') : '';
+  }
+  function _excerptHtml(r, lang) {
+    const ranges = (Array.isArray(r.excerpt_ranges) && r.excerpt_ranges.length) ? r.excerpt_ranges : null;
+    if (!ranges) return '';
+    if (r.excerpt_text) {
+      const t = r.excerpt_text.length > 260 ? r.excerpt_text.slice(0, 260) + '…' : r.excerpt_text;
+      return `<div style="font-size:0.9rem;color:var(--text-muted);font-family:'Crimson Pro',Georgia,serif;font-style:italic;line-height:1.55;border-left:2px solid var(--accent);padding-left:10px;margin-top:6px;">${_esc(t)}</div>`;
+    }
+    const nLbl = lang === 'ja'
+      ? `${ranges.length} 箇所のハイライト付き`
+      : (ranges.length === 1 ? 'com 1 trecho destacado' : `com ${ranges.length} trechos destacados`);
+    return `<div style="font-size:0.78rem;color:var(--accent);font-family:var(--font-ui);letter-spacing:.02em;margin-top:4px;">✦ ${_esc(nLbl)}</div>`;
   }
 
   // Renderiza a lista de cards, agrupando por source_collection_id quando
@@ -353,6 +380,23 @@
     return groupHtml + looseHtml;
   }
 
+  // Estado "entre para ver" — quando não há sessão (não confundir com vazio).
+  function _renderNoSession(lang) {
+    const t = lang === 'ja'
+      ? { title: 'おすすめを見るにはログインしてください', desc: 'ログインすると、あなた宛のおすすめがここに表示されます。', btn: 'ログイン' }
+      : { title: 'Entre para ver suas recomendações', desc: 'Faça login para ver as recomendações enviadas para você.', btn: 'Entrar' };
+    return `
+      <div class="rec-empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        <div class="rec-empty-title">${_esc(t.title)}</div>
+        <div class="rec-empty-desc">${_esc(t.desc)}</div>
+        <button id="rec-login-btn" type="button" style="margin-top:16px; min-height:44px; padding:10px 24px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-family:var(--font-ui); font-size:0.95rem; font-weight:600; cursor:pointer;">${_esc(t.btn)}</button>
+      </div>`;
+  }
+
   function _render() {
     document.getElementById('rec-count-active').textContent = String(_active.length);
     document.getElementById('rec-count-archived').textContent = String(_archived.length);
@@ -362,6 +406,18 @@
     const container = document.getElementById('rec-page-container');
     if (!container) return;
     const lang = localStorage.getItem('site_lang') || 'pt';
+    if (_noSession) {
+      container.innerHTML = _renderNoSession(lang);
+      const btn = document.getElementById('rec-login-btn');
+      if (btn) btn.onclick = () => {
+        if (window.supabaseAuth && typeof window.supabaseAuth.showLoginOverlay === 'function') {
+          window.supabaseAuth.showLoginOverlay();
+        } else {
+          window.location.href = `${_basePathForReader()}login.html`;
+        }
+      };
+      return;
+    }
     if (_currentTab === 'archived') {
       let list = _archived;
       if (_archivedFilter !== 'all') {
@@ -399,6 +455,16 @@
   }
 
   async function _refresh() {
+    // Sem sessão (link do push aberto deslogado / sessão expirada / outro
+    // navegador), _fetchAll devolve [] IGUAL a "não há recomendações" — o
+    // usuário que acabou de receber a notificação conclui que sumiu. Distingue.
+    const supa = _supa();
+    let hasSession = false;
+    if (supa) {
+      try { const { data } = await supa.auth.getSession(); hasSession = !!(data && data.session); } catch (_) {}
+    }
+    _noSession = !hasSession;
+    if (_noSession) { _active = []; _archived = []; _render(); return; }
     const [{ active, archived }] = await Promise.all([_fetchAll(), _loadReadSet()]);
     _active = active;
     _archived = archived;
@@ -423,24 +489,33 @@
 
   // Marca/desmarca "lido" um item de playlist. Atualiza localStorage (leitor)
   // e nuvem (_cloudSync) — o item NÃO sai da playlist.
-  async function _toggleRead(btn) {
-    const vol = btn.dataset.vol, file = btn.dataset.file;
-    const topic = parseInt(btn.dataset.topic, 10) || 0;
+  // Núcleo do read mark (localStorage do leitor + nuvem). makeRead=true marca.
+  // Compartilhado pelo botão do card e pelo botão do preview modal.
+  function _applyRead(vol, file, topic, topicTitle, makeRead) {
     const key = _readKey(vol, file, topic);
-    const wasRead = _readSet.has(key);
-    const topicTitle = (btn.closest('article')?.querySelector('.rec-card-title')?.textContent || '').trim();
-    if (wasRead) _readSet.delete(key); else _readSet.add(key);
+    if (makeRead) _readSet.add(key); else _readSet.delete(key);
     try {
       let marks = JSON.parse(localStorage.getItem('readMarks') || '[]');
-      if (wasRead) marks = marks.filter(m => !(m.vol === vol && m.file === file && (m.topic || 0) === topic));
-      else marks.unshift({ vol, file, topic, topicTitle, time: Date.now() });
+      if (!makeRead) {
+        marks = marks.filter(m => !(m.vol === vol && m.file === file && (m.topic || 0) === topic));
+      } else if (!marks.some(m => m.vol === vol && m.file === file && (m.topic || 0) === topic)) {
+        marks.unshift({ vol, file, topic, topicTitle, time: Date.now() });
+      }
       localStorage.setItem('readMarks', JSON.stringify(marks));
     } catch (_) {}
     if (window._cloudSync) {
-      const op = wasRead ? window._cloudSync.removeReadMark(vol, file, topic)
-                         : window._cloudSync.saveReadMark(vol, file, topic, topicTitle);
+      const op = makeRead ? window._cloudSync.saveReadMark(vol, file, topic, topicTitle)
+                          : window._cloudSync.removeReadMark(vol, file, topic);
       Promise.resolve(op).catch(e => console.warn('[read-marks] cloud sync falhou:', e));
     }
+  }
+
+  async function _toggleRead(btn) {
+    const vol = btn.dataset.vol, file = btn.dataset.file;
+    const topic = parseInt(btn.dataset.topic, 10) || 0;
+    const wasRead = _readSet.has(_readKey(vol, file, topic));
+    const topicTitle = (btn.closest('article')?.querySelector('.rec-card-title')?.textContent || '').trim();
+    _applyRead(vol, file, topic, topicTitle, !wasRead);
     _render();
   }
 
@@ -560,8 +635,12 @@
             <div class="search-preview-card-fade" aria-hidden="true"></div>
           </div>
         </div>
-        <div class="search-preview-footer">
-          <button class="search-preview-cta" id="recPreviewOpen" title="Abrir página completa">
+        <div class="search-preview-footer" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <button id="recPreviewRead" type="button" title="Marcar como lido" style="display:none; flex:0 0 auto; align-items:center; gap:6px; background:transparent; color:var(--accent); border:1px solid var(--accent); border-radius:8px; padding:10px 14px; font-family:var(--font-ui); font-size:0.9rem; font-weight:600; cursor:pointer; min-height:44px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>
+            <span>Marcar como lido</span>
+          </button>
+          <button class="search-preview-cta" id="recPreviewOpen" title="Abrir página completa" style="flex:1 1 auto;">
             <span>Abrir página completa do ensinamento</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
@@ -573,6 +652,7 @@
     document.getElementById('recPreviewPrev').onclick = () => _previewNav(-1);
     document.getElementById('recPreviewNext').onclick = () => _previewNav(+1);
     document.getElementById('recPreviewOpen').onclick = _previewOpenFull;
+    document.getElementById('recPreviewRead').onclick = _previewMarkRead;
     _previewModal.addEventListener('click', e => { if (e.target === _previewModal) _closePreview(); });
     document.addEventListener('keydown', e => {
       if (!_previewModal || !_previewModal.classList.contains('active')) return;
@@ -597,6 +677,18 @@
     const it = _previewItems[_previewIdx];
     if (!it || !it.href) return;
     window.location.href = it.href;
+  }
+
+  // Marca o item atual como lido SEM sair do modal e avança pro próximo —
+  // leitura em série de uma playlist recomendada direto no preview. Atualiza
+  // o card por trás (badge do grupo) ao aplicar.
+  function _previewMarkRead() {
+    const it = _previewItems[_previewIdx];
+    if (!it || !it.isPlaylist) return;
+    _applyRead(it.vol, it.file, it.topic_idx || 0, it.topicTitle || '', true);
+    _render();   // atualiza os cards/badges por trás do modal
+    if (_previewIdx < _previewItems.length - 1) _previewNav(+1);
+    else _renderPreviewItem();   // último: re-renderiza pra virar "Lido ✓"
   }
 
   async function _openPreview(items, startIdx) {
@@ -624,6 +716,24 @@
     contentEl.innerHTML = '<p style="padding:2rem;text-align:center;color:var(--text-muted);">Carregando…</p>';
     prevBtn.disabled = _previewIdx === 0;
     nextBtn.disabled = _previewIdx === _previewItems.length - 1;
+
+    // Botão "Marcar como lido" só pra itens de playlist (mesma condição do card).
+    const readBtn = document.getElementById('recPreviewRead');
+    if (readBtn) {
+      if (it.isPlaylist) {
+        const already = _readSet.has(_readKey(it.vol, it.file, it.topic_idx || 0));
+        readBtn.style.display = 'inline-flex';
+        readBtn.disabled = already;
+        readBtn.style.opacity = already ? '0.6' : '1';
+        readBtn.querySelector('span').textContent = already
+          ? (lang === 'ja' ? '読了済み' : 'Lido ✓')
+          : (_previewIdx < _previewItems.length - 1
+              ? (lang === 'ja' ? '読了にして次へ' : 'Lido — avançar')
+              : (lang === 'ja' ? '読了にする' : 'Marcar como lido'));
+      } else {
+        readBtn.style.display = 'none';
+      }
+    }
 
     const supa = _supaClient();
     if (!supa) {
@@ -709,18 +819,27 @@
       }
       const link = e.target.closest?.('.rec-card-link');
       if (link) {
+        // Poesia navega direto pro poema (?poem=…): o preview modal só sabe
+        // baixar JSON de ensinamento — abri-lo pra poema dava "(sem título)"
+        // + "Object not found". Deixa o <a> seguir.
+        if (link.dataset.vol === 'poetry') return;
         e.preventDefault();
         // Constrói lista de itens da aba atual pra navegação prev/next.
-        // Exclui áudios — o preview baixa o JSON do ensinamento e áudios
-        // não têm vol/file (prev/next pularia pra um item inválido).
-        const list = (_currentTab === 'archived' ? _archived : _active).filter(r => !r.audio_path);
+        // Exclui áudios (sem vol/file) e poesia (JSON de formato diferente).
+        const list = (_currentTab === 'archived' ? _archived : _active)
+          .filter(r => !r.audio_path && r.vol !== 'poetry');
+        const lang = localStorage.getItem('site_lang') || 'pt';
         const items = list.map(r => {
           const idx = r.topic_idx != null ? r.topic_idx : 0;
-          const lang = localStorage.getItem('site_lang') || 'pt';
+          const exStr = _excerptStr(r);
           let href = `${_basePathForReader()}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
           if (idx > 0) href += `&topic=${idx}`;
+          if (exStr) href += `&excerpt=${exStr}`;
           if (lang === 'ja') href += '&lang=ja';
-          return { vol: r.vol, file: r.file, topic_idx: idx, title_pt: r.title_pt, title_ja: r.title_ja, href };
+          return {
+            vol: r.vol, file: r.file, topic_idx: idx, title_pt: r.title_pt, title_ja: r.title_ja, href,
+            isPlaylist: !!r.source_collection_id, recId: r.id, topicTitle: r.title_pt || r.title_ja || ''
+          };
         });
         const startIdx = items.findIndex(it => it.vol === link.dataset.vol && it.file === link.dataset.file && it.topic_idx === parseInt(link.dataset.topic, 10));
         await _openPreview(items, startIdx >= 0 ? startIdx : 0);

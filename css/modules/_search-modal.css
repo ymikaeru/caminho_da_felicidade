@@ -71,6 +71,10 @@
   border: none;
   color: var(--text-main);
   padding: 8px;
+  /* Alvo de toque ≥44px (Apple HIG/WCAG) — o ícone é ~20px; sem min-size, mãos
+     idosas erravam entre os até 6 ícones vizinhos do header do reader. */
+  min-width: 44px;
+  min-height: 44px;
   cursor: pointer;
   display: flex;
   align-items: center;

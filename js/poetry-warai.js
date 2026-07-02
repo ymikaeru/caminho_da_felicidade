@@ -293,9 +293,14 @@
         </div>
         <div class="poetry-card__original">${_highlight(p.original, _query)}</div>
         ${p.reading ? `<div class="poetry-card__reading lang-pt">${_highlight(p.reading, _query)}</div>` : ''}
-        ${p.translation_pt ? `<div class="poetry-card__translation lang-pt">${_highlight(p.translation_pt, _query)}</div>` : ''}
+        ${p.translation_pt ? `<div class="poetry-card__transcol lang-pt"><div class="poetry-card__translation">${_highlight(p.translation_pt, _query)}</div>${_reportBtnHtml()}</div>` : ''}
       </article>
     `;
+  }
+
+  // Botão "Reportar erro de tradução" (some junto com o PT no modo JA imersivo).
+  function _reportBtnHtml() {
+    return `<button type="button" class="poetry-card__report" title="Reportar erro de tradução" aria-label="Reportar erro de tradução"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="lang-pt">Reportar erro de tradução</span><span class="lang-ja" style="display:none">翻訳の誤りを報告</span></button>`;
   }
 
   // Chips de filtros ativos — feedback visual claro de qual tema/filtro está
@@ -511,6 +516,27 @@
     return true;
   }
 
+  // Reportar erro de tradução: delega no #waraiList (persiste entre _render()s).
+  function _wireReportButtons() {
+    const list = $('#waraiList');
+    if (!list) return;
+    list.addEventListener('click', (e) => {
+      const btn = e.target.closest('.poetry-card__report');
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const card = btn.closest('[data-poem-topic-id]');
+      if (!card) return;
+      const p = _findPoem(card.dataset.poemTopicId);
+      if (!p || typeof window.openTranslationReport !== 'function') return;
+      const parts = [`№ ${String(p.num).padStart(4, '0')}`];
+      if (p.original) parts.push(p.original);
+      if (p.translation_pt) parts.push('— ' + p.translation_pt);
+      window.openTranslationReport(parts.join('\n'), { topicId: card.dataset.poemTopicId, vol: 'poetry', file: 'warai-no-izumi' });
+      try { btn.blur(); } catch (_) {}
+    });
+  }
+
   function _wire() {
     const search = $('#waraiSearch');
     if (search) search.addEventListener('input', e => _onSearch(e.target.value));
@@ -518,6 +544,7 @@
     if (rand) rand.addEventListener('click', _randomPoem);
     const toggle = $('#waraiSidebarToggle');
     if (toggle) toggle.addEventListener('click', _toggleSidebar);
+    _wireReportButtons();
 
     if (window._poetryHighlights) {
       const list = $('#waraiList');
@@ -571,9 +598,12 @@
           _scrollToPoemCard(poemParam, params.get('hl_scroll') === '1');
         }, 200);
       }
-      setTimeout(() => {
-        window._poetryHighlights?.applyToCards('warai-no-izumi', '#waraiList .poetry-card');
-      }, 1200);
+      // Cloud-first: puxa da nuvem e re-aplica quando chega (antes era um chute
+      // de 1,2s esperando o pullCloudToLocal do login — falhava em aparelho
+      // novo sem relogar).
+      window._poetryHighlights?.hydrateFromCloud('warai-no-izumi').then((changed) => {
+        if (changed) window._poetryHighlights?.applyToCards('warai-no-izumi', '#waraiList .poetry-card');
+      });
     } catch (err) {
       console.error('[poetry-warai]', err);
       const main = $('#waraiList');

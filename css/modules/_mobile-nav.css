@@ -6,6 +6,8 @@
   border: none;
   cursor: pointer;
   padding: 8px;
+  min-width: 44px;   /* alvo de toque ≥44px (Apple HIG/WCAG) */
+  min-height: 44px;
   color: var(--text-main);
   border-radius: 8px;
   transition: background 0.2s var(--ease);
@@ -28,6 +30,8 @@
   border: none;
   cursor: pointer;
   padding: 8px;
+  min-width: 44px;   /* alvo de toque ≥44px (Apple HIG/WCAG) */
+  min-height: 44px;
   color: var(--text-main);
   border-radius: 8px;
   transition: background 0.2s var(--ease);
@@ -231,6 +235,31 @@
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: var(--accent);
+}
+
+/* Seções colapsáveis (Poesia Lírica, Salmos Sagrados, Discípulos). O label
+   vira botão com chevron; o corpo recolhe. Estado persistido em localStorage. */
+.mobile-nav-section-label.mobile-nav-collapsible {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  min-height: 44px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.mobile-nav-chevron {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  transition: transform 0.2s var(--ease);
+}
+.mobile-nav-section-label.collapsed .mobile-nav-chevron {
+  transform: rotate(-90deg);
+}
+.mobile-nav-collapse-body.collapsed {
+  display: none;
 }
 
 .mobile-nav-link {

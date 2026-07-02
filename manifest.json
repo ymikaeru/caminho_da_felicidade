@@ -2,6 +2,7 @@
   "name": "Caminho da Felicidade — Mioshie College",
   "short_name": "C.Felicidade",
   "description": "Ensinamentos de Meishu-Sama para estudo",
+  "id": "./index.html",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

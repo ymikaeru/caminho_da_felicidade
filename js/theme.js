@@ -40,6 +40,13 @@ function openThemeModal() {
   if (customizeRow) customizeRow.style.display = isReaderPage ? '' : 'none';
   if (slidersGroup && !isReaderPage) slidersGroup.style.display = 'none';
 
+  // Tamanho da letra: reader-only (é o ajuste nº1 pra visão reduzida; a dica de
+  // primeira visita já aponta pra cá). initFontSize re-aplica + sincroniza o
+  // valor e o estado disabled dos botões A−/A+.
+  const fontSizeRow = document.getElementById('fontSizeRow');
+  if (fontSizeRow) fontSizeRow.style.display = isReaderPage ? '' : 'none';
+  if (isReaderPage && typeof initFontSize === 'function') initFontSize();
+
   if (typeof initLineHeight === 'function') initLineHeight();
   if (typeof initAdvancedOptions === 'function') initAdvancedOptions();
 
@@ -138,6 +145,15 @@ function _createThemeModal() {
           <button class="theme-mode-btn" id="modeDarkBtn" onclick="setAppMode('dark')">
             ${iconMoon} <span style="margin-left:8px; font-weight:500" class="tr-darkmode">${t.darkMode}</span>
           </button>
+        </div>
+
+        <div class="theme-slider-item" id="fontSizeRow" style="display:none; margin-bottom:6px;">
+          <span class="theme-slider-label">${localStorage.getItem('site_lang') === 'ja' ? '文字サイズ' : 'Tamanho da letra'}</span>
+          <div class="theme-slider-row" style="justify-content:space-between; gap:12px;">
+            <button type="button" id="fontDecrease" class="theme-mode-btn" style="flex:1; min-height:44px; font-size:1rem;" onclick="changeFontSize(-1)" aria-label="${localStorage.getItem('site_lang') === 'ja' ? '文字を小さく' : 'Diminuir a letra'}">A−</button>
+            <span class="theme-slider-value" id="fontSizeValue" style="min-width:52px; text-align:center;">21px</span>
+            <button type="button" id="fontIncrease" class="theme-mode-btn" style="flex:1; min-height:44px; font-size:1.35rem;" onclick="changeFontSize(1)" aria-label="${localStorage.getItem('site_lang') === 'ja' ? '文字を大きく' : 'Aumentar a letra'}">A+</button>
+          </div>
         </div>
 
         <div class="theme-grid">

@@ -235,13 +235,23 @@ function showLoginOverlay() {
   const overlay = document.createElement('div');
   overlay.id = 'login-overlay';
   overlay.style.zIndex = '5000';
+  // <form> de verdade: sem ele o gerenciador de senhas do celular (Google/
+  // iCloud) fica bem menos confiável em OFERECER salvar e autopreencher. O
+  // botão-olho evita redigitar às cegas — a maior barreira de reentrada do idoso.
   overlay.innerHTML = `
     <div class="login-card">
       <h2>Caminho da Felicidade</h2>
       <p style="color: var(--text-muted); margin-bottom: 24px;">Insira suas credenciais para acessar</p>
-      <input type="email" id="login-email" class="login-input" placeholder="Email" autocomplete="email" style="margin-bottom:12px;">
-      <input type="password" id="login-pass" class="login-input" placeholder="Senha" autocomplete="current-password">
-      <button id="login-submit" class="login-button">Entrar</button>
+      <form id="login-form" autocomplete="on">
+        <input type="email" id="login-email" class="login-input" placeholder="Email" autocomplete="email" style="margin-bottom:12px;">
+        <div style="position:relative;">
+          <input type="password" id="login-pass" class="login-input" placeholder="Senha" autocomplete="current-password" style="padding-right:48px;">
+          <button type="button" id="login-showpass" aria-label="Mostrar senha" title="Mostrar senha" style="position:absolute; right:4px; top:50%; transform:translateY(-50%); width:44px; height:44px; display:flex; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; color:var(--text-muted); padding:0;">
+            <svg id="login-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <button id="login-submit" type="submit" class="login-button">Entrar</button>
+      </form>
       <p id="login-error" style="color: #ff3b30; margin-top: 16px; font-size: 0.9rem; display: none;"></p>
       <div style="margin-top:16px; text-align:center; font-size:0.85rem;">
         <a href="reset-password.html" style="color:var(--accent); text-decoration:none;">Esqueci minha senha</a>
@@ -250,10 +260,12 @@ function showLoginOverlay() {
   `;
   document.body.appendChild(overlay);
 
+  const loginForm = document.getElementById('login-form');
   const emailInput = document.getElementById('login-email');
   const passInput = document.getElementById('login-pass');
   const submitBtn = document.getElementById('login-submit');
   const errorMsg = document.getElementById('login-error');
+  const showPassBtn = document.getElementById('login-showpass');
 
   const attempt = async () => {
     if (submitBtn.disabled) return;
@@ -331,9 +343,24 @@ function showLoginOverlay() {
     submitBtn.textContent = 'Entrar';
   };
 
-  submitBtn.onclick = attempt;
-  passInput.onkeypress = (e) => { if (e.key === 'Enter') attempt(); };
-  emailInput.onkeypress = (e) => { if (e.key === 'Enter') passInput.focus(); };
+  // Submit do form (botão Entrar OU Enter no campo de senha) → attempt().
+  loginForm.addEventListener('submit', (e) => { e.preventDefault(); attempt(); });
+  // Enter no email: pula pra senha em vez de submeter o form com senha vazia.
+  emailInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); passInput.focus(); } });
+  // Mostrar/ocultar senha.
+  if (showPassBtn) {
+    const EYE = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
+    const EYE_OFF = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-7-10-7a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 7 10 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    showPassBtn.addEventListener('click', () => {
+      const nowText = passInput.type === 'password';
+      passInput.type = nowText ? 'text' : 'password';
+      const eye = document.getElementById('login-eye');
+      if (eye) eye.innerHTML = nowText ? EYE_OFF : EYE;
+      const lbl = nowText ? 'Ocultar senha' : 'Mostrar senha';
+      showPassBtn.setAttribute('aria-label', lbl);
+      showPassBtn.title = lbl;
+    });
+  }
   emailInput.focus();
 }
 
@@ -413,6 +440,7 @@ window.supabaseAuth = {
   checkAuth,
   checkSupabaseAuth,
   logout,
+  showLoginOverlay,   // outras páginas (ex.: Recomendações sem sessão) abrem o login
   isAdmin: () => isAdminRole,
   hasVolumeAccess: (vol) => userPermissions?.[vol] !== undefined,
   hasFileAccess: (vol, file) => {

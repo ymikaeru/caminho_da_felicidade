@@ -27,6 +27,30 @@ const COLLECTIONS = {
     subtitleJa: '寒句',
     page: 'warai-no-izumi.html',
   },
+  // As 3 coletâneas de Gosanka (Salmos Sagrados). O leitor gosanka já salva
+  // poemas normalmente e suporta o deep-link ?poem=…&hl_scroll=1 — só faltava
+  // o registro aqui (sem ele o grupo saía com slug cru e "Abrir →" ia pra "#").
+  'gosanka-shoban': {
+    titlePt: 'Coletânea de Salmos — Primeira Edição',
+    titleJa: '御讃歌集（初版）',
+    subtitlePt: 'Salmos Sagrados (1948)',
+    subtitleJa: '御讃歌',
+    page: 'gosanka-shoban.html',
+  },
+  'gosanka-kaitei': {
+    titlePt: 'Coletânea de Salmos — Edição Revisada',
+    titleJa: '御讃歌集（改訂版）',
+    subtitlePt: 'Salmos Sagrados (1951)',
+    subtitleJa: '御讃歌',
+    page: 'gosanka-kaitei.html',
+  },
+  'gosanka-shikiten': {
+    titlePt: 'Salmos Sagrados para Cada Cerimônia',
+    titleJa: '各式典における御讃歌',
+    subtitlePt: 'Salmos das cerimônias',
+    subtitleJa: '御讃歌',
+    page: 'gosanka-shikiten.html',
+  },
 };
 
 function _esc(str) {
@@ -85,8 +109,8 @@ function renderPoemasSalvos() {
   });
   grouped.forEach(arr => arr.sort((a, b) => (a.topicIndex || 0) - (b.topicIndex || 0)));
 
-  // Ordena os grupos: yama primeiro, warai depois, outros no fim.
-  const order = ['yama-to-mizu', 'warai-no-izumi'];
+  // Ordena os grupos em ordem canônica da poesia; outros no fim.
+  const order = ['akimaro-kineishu', 'yama-to-mizu', 'warai-no-izumi', 'gosanka-shoban', 'gosanka-kaitei', 'gosanka-shikiten'];
   const groupKeys = Array.from(grouped.keys()).sort((a, b) => {
     const ia = order.indexOf(a); const ib = order.indexOf(b);
     return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
@@ -194,18 +218,61 @@ function _renderItem(h, lang) {
   `;
 }
 
+// Leitura CLOUD-FIRST: puxa TODOS os grifos da nuvem (loadAllHighlights, já
+// paginado), filtra poesia e reconcilia com o cache local respeitando
+// tombstones. Antes o código chamava _HighlightsApi.hydrateAllFromCloud(), mas
+// esta página NÃO carrega highlights.js — o ramo era morto e caía sempre no
+// setTimeout que só relia o mesmo localStorage; num aparelho novo sem relogar
+// a página mostrava "Nenhum poema salvo" mesmo com poemas na nuvem.
+async function _hydrateFromCloud() {
+  if (!window._cloudSync || !window._cloudSync.loadAllHighlights) return false;
+  let rows;
+  try { rows = await window._cloudSync.loadAllHighlights(); }
+  catch (_) { return false; }
+  if (!Array.isArray(rows)) return false;   // null = sem sessão → mantém o cache
+
+  const KEY = (vol, file, tid, s, e) => `${vol}:${file}:${tid}:${s}:${e}`;
+  let tomb = new Set();
+  try { tomb = new Set(JSON.parse(localStorage.getItem('highlightDeletedKeys') || '[]')); } catch (_) {}
+  let all = [];
+  try { all = JSON.parse(localStorage.getItem('userHighlights') || '[]'); } catch (_) {}
+
+  const localPoetry = all.filter(h => h.vol === 'poetry');
+  const localByKey = new Map(localPoetry.map(h => [KEY(h.vol, h.file, h.topicId, h.startChar || 0, h.endChar || 0), h]));
+  const merged = [];
+  const seen = new Set();
+  rows.filter(r => r.volume === 'poetry').forEach(r => {
+    const key = KEY(r.volume, r.file, r.topic_id, r.start_char, r.end_char);
+    if (tomb.has(key) || seen.has(key)) return;
+    seen.add(key);
+    const local = localByKey.get(key);
+    if (local) { merged.push(local); return; }
+    merged.push({
+      id: 'hl_cloud_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      vol: r.volume, file: r.file, topicId: r.topic_id, topicIndex: r.topic_index,
+      topicTitle: r.topic_title || '', color: r.color || 'yellow', comment: r.comment || '',
+      text: r.text || '', startChar: r.start_char, endChar: r.end_char,
+      createdAt: new Date(r.updated_at).getTime() || Date.now(),
+      updatedAt: new Date(r.updated_at).getTime() || Date.now(),
+    });
+  });
+  const cutoff = Date.now() - 10 * 60 * 1000;
+  localPoetry.forEach(h => {
+    const key = KEY(h.vol, h.file, h.topicId, h.startChar || 0, h.endChar || 0);
+    if (!seen.has(key) && (h.updatedAt || 0) > cutoff) merged.push(h);
+  });
+  const sig = (l) => l.map(h => KEY(h.vol, h.file, h.topicId, h.startChar || 0, h.endChar || 0)).sort().join('\n');
+  const changed = sig(merged) !== sig(localPoetry);
+  if (changed) localStorage.setItem('userHighlights', JSON.stringify(all.filter(h => h.vol !== 'poetry').concat(merged)));
+  return changed;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
-  // 1ª pintura sai do cache local; em paralelo reconcilia com a NUVEM
-  // (fonte da verdade — mesmo padrão cloud-first da Central) e
-  // re-renderiza. O antigo setTimeout de 1,2s era um chute pra esperar o
-  // pull do login; a hidratação explícita não depende de sorte.
+  // 1ª pintura sai do cache local; em paralelo reconcilia com a NUVEM (fonte
+  // da verdade — mesmo padrão cloud-first da Central) e re-renderiza.
   renderPoemasSalvos();
-  if (window._HighlightsApi && window._HighlightsApi.hydrateAllFromCloud) {
-    try {
-      await window._HighlightsApi.hydrateAllFromCloud();
-      renderPoemasSalvos();
-    } catch (e) { /* offline → fica o cache */ }
-  } else {
-    setTimeout(renderPoemasSalvos, 1200);
-  }
+  try {
+    const changed = await _hydrateFromCloud();
+    if (changed) renderPoemasSalvos();
+  } catch (e) { /* offline → fica o cache */ }
 });

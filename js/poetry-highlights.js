@@ -41,6 +41,63 @@
     } catch (e) {}
   }
 
+  const _HL_KEY = (vol, file, topicId, s, e) => `${vol}:${file}:${topicId}:${s}:${e}`;
+
+  function _getTombstones() {
+    try { return JSON.parse(localStorage.getItem('highlightDeletedKeys') || '[]'); }
+    catch (_) { return []; }
+  }
+
+  // Leitura CLOUD-FIRST dos poemas salvos: puxa os grifos de poesia DESTE
+  // arquivo da nuvem e reconcilia com o cache local (userHighlights),
+  // respeitando tombstones. Sem isto, num aparelho novo (ou sem relogar) o pill
+  // "Salvo" não aparecia — o fluxo antigo lia só o localStorage e os leitores
+  // compensavam com chutes de setTimeout esperando o pullCloudToLocal do login.
+  // Espelha _reconcileCloudRows do leitor principal. Resolve true se mudou.
+  async function hydrateFromCloud(file) {
+    if (!window._cloudSync || !window._cloudSync.loadHighlightsForPage) return false;
+    let rows;
+    try { rows = await window._cloudSync.loadHighlightsForPage('poetry', file); }
+    catch (_) { return false; }
+    if (!Array.isArray(rows)) return false;   // null = sem sessão → mantém o cache
+
+    const tomb = new Set(_getTombstones());
+    const all = _loadAll();
+    const inScope = (h) => h.vol === 'poetry' && h.file === file;
+    const localScoped = all.filter(inScope);
+    const localByKey = new Map(localScoped.map(h => [_HL_KEY(h.vol, h.file, h.topicId, h.startChar, h.endChar), h]));
+
+    const merged = [];
+    const seen = new Set();
+    rows.forEach(r => {
+      const key = _HL_KEY(r.volume, r.file, r.topic_id, r.start_char, r.end_char);
+      if (tomb.has(key) || seen.has(key)) return;
+      seen.add(key);
+      const local = localByKey.get(key);
+      if (local) { merged.push(local); return; }
+      merged.push({
+        id: 'hl_cloud_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+        vol: r.volume, file: r.file, topicId: r.topic_id,
+        topicIndex: r.topic_index, topicTitle: r.topic_title || '',
+        color: r.color || SAVED_COLOR, comment: r.comment || '', text: r.text || '',
+        startChar: r.start_char, endChar: r.end_char,
+        createdAt: new Date(r.updated_at).getTime() || Date.now(),
+        updatedAt: new Date(r.updated_at).getTime() || Date.now(),
+      });
+    });
+    // Grifos só-locais recentes (salvamento em voo) sobrevivem à reconciliação.
+    const cutoff = Date.now() - 10 * 60 * 1000;
+    localScoped.forEach(h => {
+      const key = _HL_KEY(h.vol, h.file, h.topicId, h.startChar, h.endChar);
+      if (!seen.has(key) && (h.updatedAt || 0) > cutoff) merged.push(h);
+    });
+
+    const sig = (list) => list.map(h => _HL_KEY(h.vol, h.file, h.topicId, h.startChar, h.endChar)).sort().join('\n');
+    const changed = sig(merged) !== sig(localScoped);
+    if (changed) _saveAll(all.filter(h => !inScope(h)).concat(merged));
+    return changed;
+  }
+
   function _findFor(file, topicId) {
     return _loadAll().find(h => h.vol === 'poetry' && h.file === file && h.topicId === topicId) || null;
   }
@@ -203,6 +260,7 @@
     renderCardCommentSlot: _renderCardCommentSlot,
     applyToCards: _applyToCards,
     wireCardButtons: _wireCardButtons,
+    hydrateFromCloud: hydrateFromCloud,
     findFor: _findFor,
     findAllForFile: _findAllForFile,
   };

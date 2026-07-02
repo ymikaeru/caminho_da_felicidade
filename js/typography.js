@@ -31,6 +31,9 @@ function _applyFontSize() {
   const maxIds = ['fontIncrease', 'mobileFontUp', 'discFontIncBtn'];
   minIds.forEach(id => { const el = document.getElementById(id); if (el) el.disabled = atMin; });
   maxIds.forEach(id => { const el = document.getElementById(id); if (el) el.disabled = atMax; });
+  // Valor atual no modal Aparência (linha "Tamanho da letra").
+  const valEl = document.getElementById('fontSizeValue');
+  if (valEl) valEl.textContent = size + 'px';
 }
 
 window.initLineHeight = function () {

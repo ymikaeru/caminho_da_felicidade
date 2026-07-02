@@ -147,9 +147,14 @@
         </div>
         <div class="poetry-card__original">${_highlight(p.original, _query)}</div>
         ${reading}
-        ${p.translation ? `<div class="poetry-card__translation lang-pt">${_highlight(p.translation, _query)}</div>` : ''}
+        ${p.translation ? `<div class="poetry-card__transcol lang-pt"><div class="poetry-card__translation">${_highlight(p.translation, _query)}</div>${_reportBtnHtml()}</div>` : ''}
       </article>
     `;
+  }
+
+  // Botão "Reportar erro de tradução" (some junto com o PT no modo JA imersivo).
+  function _reportBtnHtml() {
+    return `<button type="button" class="poetry-card__report" title="Reportar erro de tradução" aria-label="Reportar erro de tradução"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="lang-pt">Reportar erro de tradução</span><span class="lang-ja" style="display:none">翻訳の誤りを報告</span></button>`;
   }
 
   function _renderSection(sec) {
@@ -316,6 +321,28 @@
     return true;
   }
 
+  // Reportar erro de tradução: delega no #yamaList (persiste entre _render()s).
+  function _wireReportButtons() {
+    const list = $('#yamaList');
+    if (!list) return;
+    list.addEventListener('click', (e) => {
+      const btn = e.target.closest('.poetry-card__report');
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const card = btn.closest('[data-poem-topic-id]');
+      if (!card) return;
+      const loc = _findPoemLocation(card.dataset.poemTopicId);
+      if (!loc || typeof window.openTranslationReport !== 'function') return;
+      const p = loc.poem;
+      const parts = [`№ ${String(p.number).padStart(3, '0')}`];
+      if (p.original) parts.push(p.original);
+      if (p.translation) parts.push('— ' + p.translation);
+      window.openTranslationReport(parts.join('\n'), { topicId: card.dataset.poemTopicId, vol: 'poetry', file: 'yama-to-mizu' });
+      try { btn.blur(); } catch (_) {}
+    });
+  }
+
   function _wire() {
     const search = $('#yamaSearch');
     if (search) search.addEventListener('input', e => _onSearch(e.target.value));
@@ -323,6 +350,7 @@
     if (rand) rand.addEventListener('click', _randomPoem);
     const toggle = $('#yamaSidebarToggle');
     if (toggle) toggle.addEventListener('click', _toggleSidebar);
+    _wireReportButtons();
 
     if (window._poetryHighlights) {
       const list = $('#yamaList');
@@ -370,11 +398,12 @@
           _scrollToPoemCard(poemParam, params.get('hl_scroll') === '1');
         }, 200);
       }
-      // pullCloudToLocal() roda async no login.js — re-aplica depois de 1.2s
-      // pra cobrir destaques criados em outro device que chegaram tarde.
-      setTimeout(() => {
-        window._poetryHighlights?.applyToCards('yama-to-mizu', '#yamaList .poetry-card');
-      }, 1200);
+      // Cloud-first: puxa da nuvem e re-aplica quando chega (antes era um chute
+      // de 1,2s esperando o pullCloudToLocal do login — falhava em aparelho
+      // novo sem relogar).
+      window._poetryHighlights?.hydrateFromCloud('yama-to-mizu').then((changed) => {
+        if (changed) window._poetryHighlights?.applyToCards('yama-to-mizu', '#yamaList .poetry-card');
+      });
     } catch (err) {
       console.error('[poetry-yama]', err);
       const main = $('#yamaList');

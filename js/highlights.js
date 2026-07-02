@@ -18,11 +18,30 @@
     pink: '#6b1a3a', purple: '#4a1a6b', orange: '#6b4a00'
   };
 
+  // Lembra a última cor usada entre grifos e entre sessões (só preferência de
+  // UI, per-device — não vai pra nuvem). Antes o amarelo era re-imposto a cada
+  // grifo/reload, custando 1 clique a quem sempre grifa da "sua" cor.
+  const LAST_COLOR_KEY = 'hl_last_color';
+  function _readLastColor() {
+    try {
+      const c = localStorage.getItem(LAST_COLOR_KEY);
+      return (c && COLORS.indexOf(c) >= 0) ? c : DEFAULT_COLOR;
+    } catch (_) { return DEFAULT_COLOR; }
+  }
+  function _setColor(c) {
+    if (!c || COLORS.indexOf(c) < 0) return;
+    _selectedColor = c;
+    try { localStorage.setItem(LAST_COLOR_KEY, c); } catch (_) { /* noop */ }
+  }
+
   let _tooltipEl = null;
   let _commentPopupEl = null;
   let _mobileBarEl = null;
   let _currentSelection = null;
   let _selectedColor = DEFAULT_COLOR;
+  // Quando != null, o "modo grifar" está reajustando o trecho de um grifo já
+  // salvo (reusa as alças do tap): guarda o original pra fazer delete+insert.
+  let _adjustOriginal = null;
   let _highlights = [];
   let _highlightRegistry = null;
   let _isMobile = false;
@@ -481,14 +500,24 @@
       btn.addEventListener('click', () => {
         _tooltipEl.querySelectorAll('.highlight-color-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
-        _selectedColor = btn.dataset.color;
+        _setColor(btn.dataset.color);
+        // Clicar na cor JÁ grifa (padrão Kindle/Apple Books): 1 clique em vez
+        // de 2. O botão "Salvar" fica só pro caminho com comentário — se o
+        // usuário já digitou algo no textarea, a cor só seleciona e ele
+        // confirma no "Salvar".
+        const commentInput = document.getElementById('highlightCommentInput');
+        if (!commentInput || !commentInput.value.trim()) {
+          _saveSelection();
+        }
       });
     });
 
-    const firstColorBtn = _tooltipEl.querySelector('.highlight-color-btn');
-    if (firstColorBtn) {
-      firstColorBtn.classList.add('selected');
-      _selectedColor = firstColorBtn.dataset.color;
+    // Pré-seleciona a última cor usada (não força mais o amarelo a cada grifo).
+    const activeColorBtn = _tooltipEl.querySelector(`.highlight-color-btn.color-${_selectedColor}`)
+      || _tooltipEl.querySelector('.highlight-color-btn');
+    if (activeColorBtn) {
+      activeColorBtn.classList.add('selected');
+      _selectedColor = activeColorBtn.dataset.color;
     }
 
     document.getElementById('highlightCancelBtn').addEventListener('click', _hideTooltip);
@@ -655,19 +684,41 @@
   // depender de outro módulo; CSS em _highlights.css (.hl-toast).
   let _hlToastEl = null;
   let _hlToastTimer = null;
-  function _showHlToast(message) {
+  // action (opcional): { label, onClick } → renderiza um botão dentro do toast
+  // (ex.: "Desfazer"). O toast vive fora de #topic-N, então pode ter texto/nó
+  // à vontade sem contaminar os offsets dos grifos.
+  function _showHlToast(message, action) {
     if (_hlToastEl) _hlToastEl.remove();
     const toast = document.createElement('div');
     toast.className = 'hl-toast';
-    toast.textContent = message;
+    const hasAction = action && action.label && typeof action.onClick === 'function';
+    const dismiss = () => {
+      toast.classList.remove('hl-toast--visible');
+      setTimeout(() => { toast.remove(); if (_hlToastEl === toast) _hlToastEl = null; }, 300);
+    };
+    if (hasAction) {
+      const msg = document.createElement('span');
+      msg.className = 'hl-toast__msg';
+      msg.textContent = message;
+      toast.appendChild(msg);
+      const btn = document.createElement('button');
+      btn.className = 'hl-toast__action';
+      btn.textContent = action.label;
+      btn.addEventListener('click', () => {
+        clearTimeout(_hlToastTimer);
+        dismiss();
+        try { action.onClick(); } catch (_) { /* noop */ }
+      });
+      toast.appendChild(btn);
+    } else {
+      toast.textContent = message;
+    }
     document.body.appendChild(toast);
     _hlToastEl = toast;
     requestAnimationFrame(() => toast.classList.add('hl-toast--visible'));
     clearTimeout(_hlToastTimer);
-    _hlToastTimer = setTimeout(() => {
-      toast.classList.remove('hl-toast--visible');
-      setTimeout(() => { toast.remove(); if (_hlToastEl === toast) _hlToastEl = null; }, 300);
-    }, 2200);
+    // Com ação, dá mais tempo pro usuário reagir (5s vs 2,2s).
+    _hlToastTimer = setTimeout(dismiss, hasAction ? 5000 : 2200);
   }
 
   // ============================================================
@@ -690,6 +741,7 @@
     const editLabel = highlight.comment
       ? (lang === 'ja' ? '編集' : 'Editar')
       : (lang === 'ja' ? 'コメントする' : 'Comentar');
+    const adjustLabel = lang === 'ja' ? '範囲を調整' : 'Ajustar trecho';
     const deleteLabel = lang === 'ja' ? '削除' : 'Apagar';
     const closeLabel = lang === 'ja' ? '閉じる' : 'Fechar';
 
@@ -704,6 +756,7 @@
     }
     html += `<div class="popup-actions">` +
       `<button class="edit-highlight-btn">${editLabel}</button>` +
+      `<button class="adjust-highlight-btn">${adjustLabel}</button>` +
       `<button class="delete-highlight-btn">${deleteLabel}</button>` +
       `<button class="close-highlight-btn">${closeLabel}</button>` +
     `</div>`;
@@ -730,6 +783,10 @@
     _commentPopupEl.querySelector('.edit-highlight-btn').addEventListener('click', () => {
       _hideCommentPopup();
       _openEditDialog(highlight);
+    });
+    _commentPopupEl.querySelector('.adjust-highlight-btn').addEventListener('click', () => {
+      _hideCommentPopup();
+      _startAdjust(highlight);
     });
   }
 
@@ -860,6 +917,13 @@
       _applyHighlightsToTopic(topicEl, [highlight]);
     }
     _updateHighlightBadge();
+
+    // Feedback + desfazer com 1 clique (antes o desktop salvava em silêncio).
+    const lang = _lang();
+    _showHlToast(
+      lang === 'ja' ? 'ハイライトを追加しました' : 'Destaque adicionado',
+      { label: lang === 'ja' ? '元に戻す' : 'Desfazer', onClick: () => _removeHighlight(highlight.id) }
+    );
   }
 
   function _removeHighlight(id) {
@@ -1763,6 +1827,7 @@
     const { volId, filename } = _getParams();
     _clearPendingPreview();
 
+    const createdIds = [];
     items.forEach(p => {
       const topicEl = document.getElementById(p.topicId);
       const topicIndex = p.topicId.startsWith('topic-')
@@ -1784,6 +1849,7 @@
         createdAt: Date.now(),
         updatedAt: Date.now()
       };
+      createdIds.push(highlight.id);
       _highlights.unshift(highlight);
       window._cloudSync.saveHighlight(
         highlight.vol, highlight.file, highlight.topicId, highlight.topicIndex,
@@ -1801,19 +1867,128 @@
     _hideTapBar();
     _updateHighlightBadge();
     const lang = _lang();
-    _showHlToast(lang === 'ja'
-      ? 'ハイライトを追加しました'
-      : (n === 1 ? 'Destaque adicionado' : `${n} destaques adicionados`));
+    _showHlToast(
+      lang === 'ja'
+        ? 'ハイライトを追加しました'
+        : (n === 1 ? 'Destaque adicionado' : `${n} destaques adicionados`),
+      { label: lang === 'ja' ? '元に戻す' : 'Desfazer', onClick: () => createdIds.forEach(id => _removeHighlight(id)) }
+    );
+  }
+
+  // ── Ajustar o trecho de um grifo JÁ salvo (reusa as alças do modo tap) ──────
+  // Desembrulha os marks salvos, cria um pendente com os mesmos offsets e liga
+  // as alças. Ao confirmar, faz delete(offsets antigos)+insert(novos) — o upsert
+  // da nuvem é chaveado por start/end, então mudar o trecho exige nova linha.
+  function _startAdjust(highlight) {
+    if (!highlight) return;
+    const topicEl = document.getElementById(highlight.topicId);
+    if (!topicEl) return;
+    // Desembrulha visualmente os marks desse grifo (a 1ª marca com
+    // data-highlight-id, as demais com data-highlight-group) — sem tocar a nuvem.
+    document.querySelectorAll(
+      `mark.user-highlight[data-highlight-id="${highlight.id}"], mark.user-highlight[data-highlight-group="${highlight.id}"]`
+    ).forEach(mark => {
+      const parent = mark.parentNode;
+      if (!parent) return;
+      while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+      parent.removeChild(mark);
+      parent.normalize();
+    });
+    _adjustOriginal = highlight;
+    _selectedColor = highlight.color || _selectedColor;
+    _activeTap = { topicId: highlight.topicId, startChar: highlight.startChar, endChar: highlight.endChar, text: highlight.text };
+    _pendingTaps = [_activeTap];
+    _renderPendingPreview();
+    _showHandlesForActive();
+    _showTapBar();
+    _updateTapBarCount();
+  }
+
+  function _finishAdjustUI() {
+    _adjustOriginal = null;
+    _pendingTaps = [];
+    _activeTap = null;
+    _clearHandles();
+    _hideTapBar();
+  }
+
+  // Cancela o ajuste: re-aplica o grifo original intacto.
+  function _cancelAdjust() {
+    const orig = _adjustOriginal;
+    _clearPendingPreview();
+    _finishAdjustUI();
+    if (orig) {
+      const topicEl = document.getElementById(orig.topicId);
+      if (topicEl) _applyHighlightsToTopic(topicEl, [orig]);
+    }
+  }
+
+  function _confirmAdjust() {
+    const orig = _adjustOriginal;
+    const p = _pendingTaps[0];
+    if (!orig || !p) { _cancelAdjust(); return; }
+    if (!window._cloudSync) {
+      alert('Você precisa estar online para editar destaques.');
+      return;
+    }
+    _clearPendingPreview();
+
+    const changed = (p.startChar !== orig.startChar || p.endChar !== orig.endChar);
+    if (!changed) {
+      // Nada mudou — só re-aplica o original (evita delete+insert da MESMA
+      // chave, que se apagaria mutuamente e ainda deixaria tombstone).
+      const topicEl = document.getElementById(orig.topicId);
+      if (topicEl) _applyHighlightsToTopic(topicEl, [orig]);
+      _finishAdjustUI();
+      return;
+    }
+
+    // Remove o original (array + tombstone + nuvem) — marks já desembrulhados.
+    _highlights = _highlights.filter(x => x.id !== orig.id);
+    const oldKey = `${orig.vol}:${orig.file}:${orig.topicId}:${orig.startChar}:${orig.endChar}`;
+    _addDeletedTombstone(oldKey);
+    window._cloudSync
+      .removeHighlight(orig.vol, orig.file, orig.topicId, orig.startChar, orig.endChar)
+      .catch(err => console.warn('Falha ao remover grifo antigo (ajuste):', err));
+
+    // Cria o novo com offsets ajustados, herdando cor/comentário/criação.
+    const topicEl = document.getElementById(p.topicId);
+    const nh = {
+      id: 'hl_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      vol: orig.vol, file: orig.file, topicId: orig.topicId, topicIndex: orig.topicIndex,
+      topicTitle: orig.topicTitle, color: orig.color, comment: orig.comment,
+      text: p.text, startChar: p.startChar, endChar: p.endChar,
+      createdAt: orig.createdAt || Date.now(), updatedAt: Date.now()
+    };
+    _highlights.unshift(nh);
+    window._cloudSync.saveHighlight(
+      nh.vol, nh.file, nh.topicId, nh.topicIndex, nh.topicTitle,
+      nh.color, nh.comment, nh.text, nh.startChar, nh.endChar
+    );
+    _saveHighlights();
+    if (topicEl) _applyHighlightsToTopic(topicEl, [nh]);
+
+    _finishAdjustUI();
+    _updateHighlightBadge();
+    const lang = _lang();
+    _showHlToast(lang === 'ja' ? '範囲を調整しました' : 'Trecho ajustado');
   }
 
   function _showTapBar() {
     const lang = _lang();
     if (!_tapBarEl) {
-      const addLabel = lang === 'ja' ? '追加' : 'Adicionar';
-      const clearLabel = lang === 'ja' ? 'クリア' : 'Limpar';
-      const hint = lang === 'ja'
-        ? '文をタップ → ハンドルをドラッグして調整'
-        : 'Toque na frase e arraste as alças para ajustar';
+      // Modo "ajuste" (reajustando o trecho de um grifo salvo): rótulos e
+      // dica próprios, sem escolher cor (herda a do original) nem reportar.
+      const adjusting = !!_adjustOriginal;
+      const addLabel = adjusting
+        ? (lang === 'ja' ? '調整を保存' : 'Salvar ajuste')
+        : (lang === 'ja' ? '追加' : 'Adicionar');
+      const clearLabel = adjusting
+        ? (lang === 'ja' ? 'キャンセル' : 'Cancelar')
+        : (lang === 'ja' ? 'クリア' : 'Limpar');
+      const hint = adjusting
+        ? (lang === 'ja' ? 'ハンドルをドラッグして範囲を調整' : 'Arraste as alças para ajustar o trecho')
+        : (lang === 'ja' ? '文をタップ → ハンドルをドラッグして調整' : 'Toque na frase e arraste as alças para ajustar');
       const reportLabel = lang === 'ja' ? '翻訳エラーを報告' : 'Reportar erro de tradução';
 
       _tapBarEl = document.createElement('div');
@@ -1825,16 +2000,17 @@
       _tapBarEl.innerHTML =
         `<div class="highlight-mobile-bar-content">` +
           `<div class="highlight-taps-hint">${hint}</div>` +
-          `<div class="highlight-colors">${colorBtnsHTML}</div>` +
+          (adjusting ? '' : `<div class="highlight-colors">${colorBtnsHTML}</div>`) +
           `<div class="highlight-mobile-bar-actions">` +
             `<button class="highlight-cancel-btn" id="hlTapsClearBtn">${clearLabel}</button>` +
-            `<button class="highlight-save-btn" id="hlTapsAddBtn">${addLabel} (<span id="hlTapsCount">0</span>)</button>` +
+            `<button class="highlight-save-btn" id="hlTapsAddBtn">${addLabel}${adjusting ? '' : ' (<span id="hlTapsCount">0</span>)'}</button>` +
           `</div>` +
-          `<div class="highlight-tooltip-divider" style="margin: 2px 0"></div>` +
-          `<button class="tr-report-btn tr-report-btn--mobile" id="hlTapsReportBtn">` +
-            `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>` +
-            `${reportLabel}` +
-          `</button>` +
+          (adjusting ? '' :
+            `<div class="highlight-tooltip-divider" style="margin: 2px 0"></div>` +
+            `<button class="tr-report-btn tr-report-btn--mobile" id="hlTapsReportBtn">` +
+              `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>` +
+              `${reportLabel}` +
+            `</button>`) +
         `</div>`;
       document.body.appendChild(_tapBarEl);
 
@@ -1842,7 +2018,7 @@
         btn.addEventListener('click', () => {
           _tapBarEl.querySelectorAll('.highlight-color-btn').forEach(b => b.classList.remove('selected'));
           btn.classList.add('selected');
-          _selectedColor = btn.dataset.color;
+          _setColor(btn.dataset.color);
           _renderPendingPreview();
         });
       });
@@ -1851,13 +2027,17 @@
       if (activeC) { activeC.classList.add('selected'); _selectedColor = activeC.dataset.color; }
 
       document.getElementById('hlTapsClearBtn').addEventListener('click', () => {
+        if (_adjustOriginal) { _cancelAdjust(); return; }
         _pendingTaps = [];
         _activeTap = null;
         _clearHandles();
         _clearPendingPreview();
         _hideTapBar();
       });
-      document.getElementById('hlTapsAddBtn').addEventListener('click', _confirmPending);
+      document.getElementById('hlTapsAddBtn').addEventListener('click', () => {
+        if (_adjustOriginal) _confirmAdjust();
+        else _confirmPending();
+      });
 
       const repBtn = document.getElementById('hlTapsReportBtn');
       if (repBtn) {
@@ -1900,11 +2080,20 @@
       const lang = _lang();
       _showHlToast(lang === 'ja' ? '文をタップしてハイライト' : 'Toque nas frases para grifar');
     } else {
-      _pendingTaps = [];
-      _activeTap = null;
-      _clearHandles();
-      _clearPendingPreview();
-      _hideTapBar();
+      // Sair do modo grifar CONFIRMA o que estava pendente (antes descartava em
+      // silêncio — e o preview pintado é idêntico a um grifo salvo, então o
+      // usuário saía achando que tinha grifado). "Sair" = "terminei de grifar",
+      // como fechar a seleção no Kindle. Descarte intencional = botão "Limpar".
+      if (_adjustOriginal) {
+        _confirmAdjust();
+      } else if (_pendingTaps.length) {
+        _confirmPending();   // já limpa pendentes/alças/barra e mostra o toast
+      } else {
+        _activeTap = null;
+        _clearHandles();
+        _clearPendingPreview();
+        _hideTapBar();
+      }
     }
   }
 
@@ -2080,10 +2269,15 @@
       // (não por capítulo), então mostramos o título da seção em cada item
       // pra dar contexto de onde foi grifado.
       const showSectionContext = _isDisciplesMode();
-      // Em livro de discípulos: rodapé com atalho pra Central já filtrada.
-      const centralLink = showSectionContext && filename
+      // Rodapé com atalho pra Central sempre que houver grifos na página. Em
+      // livro de discípulos vai já filtrado por ?book=; no acervo, aponta pra
+      // Central inteira (antes o acervo — a maioria do uso — nunca via essa ponte).
+      const centralHref = showSectionContext && filename
+        ? `destaques.html?book=${encodeURIComponent(filename)}`
+        : 'destaques.html';
+      const centralLink = pageHighlights.length > 0
         ? `<li style="padding:12px 16px; text-align:center; border-top:1px solid var(--border);">
-             <a href="destaques.html?book=${encodeURIComponent(filename)}" style="color:var(--accent); text-decoration:none; font-size:0.85rem;">
+             <a href="${centralHref}" style="color:var(--accent); text-decoration:none; font-size:0.85rem;">
                ${lang === 'ja' ? 'ハイライト一覧で見る →' : 'Ver na Central de Destaques →'}
              </a>
            </li>`
@@ -2181,6 +2375,7 @@
   };
 
   window.initHighlights = function () {
+    _selectedColor = _readLastColor();
     _loadHighlights();
     // Cloud-first: reconcilia com a nuvem em paralelo (a 1ª pintura pode
     // sair do cache; quando a nuvem responde, re-aplica só se mudou).
@@ -2232,10 +2427,27 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        if (_adjustOriginal) _cancelAdjust();
         if (_tapMode) _setTapMode(false);
         _hideTooltip();
         _hideCommentPopup();
         _hideMobileBar();
+        return;
+      }
+      // Desktop: com o tooltip de seleção aberto, "G" grifa com a última cor e
+      // 1–6 escolhem a cor e grifam. Zero risco no mobile (lá grifar é só pelo
+      // modo tap, sem teclado). Ignora quando o foco está num campo de texto.
+      if (_isMobile || _tapMode || _adjustOriginal) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target && e.target.isContentEditable)) return;
+      if (!_tooltipEl || !_tooltipEl.classList.contains('visible') || !_currentSelection) return;
+      if (e.key === 'g' || e.key === 'G') {
+        e.preventDefault();
+        _saveSelection();
+      } else if (/^[1-6]$/.test(e.key)) {
+        const c = COLORS[Number(e.key) - 1];
+        if (c) { e.preventDefault(); _setColor(c); _saveSelection(); }
       }
     });
   };

@@ -3,12 +3,15 @@
 // Depends on: MENU_TEXTS (toggle.js)
 // ============================================================
 
-// Subtítulos dos volumes na seção "Meishu-Sama" do menu mobile.
-// Compartilhado entre o build inicial (este arquivo) e o rebuild
-// no setLanguage (language.js) — exportado em window pra reuso.
+// Subtítulos dos volumes na seção "Meishu-Sama" do menu mobile. MESMOS
+// nomes oficiais dos cards da home e do dropdown "Ensino aleatório" (antes
+// divergiam: este menu usava glosas informais tipo "Método de Saúde"/
+// "神性医療法" em vez do título real da seção). Compartilhado entre o
+// build inicial (este arquivo) e o rebuild no setLanguage (language.js) —
+// exportado em window pra reuso.
 const VOL_SUBTITLES = {
-  pt: { 1: 'Mundo Espiritual', 2: 'Método de Saúde', 3: 'Verdadeira Fé', 4: 'Complementar' },
-  ja: { 1: '霊界', 2: '神性医療法', 3: '真の信仰', 4: '補足の御教え' }
+  pt: { 1: 'Mundo Espiritual', 2: 'Método Divino de Saúde', 3: 'A Verdadeira Fé', 4: 'Ensinamentos Diversos' },
+  ja: { 1: '霊界編', 2: '浄霊・自然農法', 3: '信仰編', 4: '多様な御教え' }
 };
 window.VOL_SUBTITLES = VOL_SUBTITLES;
 

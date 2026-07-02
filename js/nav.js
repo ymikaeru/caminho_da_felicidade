@@ -460,22 +460,23 @@ function _initMobileNav() {
     headerActions.insertBefore(printBtn, highlightBtn);
   }
 
-  // Botão "Ensino aleatório" no header do reader — ícone de brilho (estrela,
-  // igual aos cards) que abre um dropdown com 5 opções: qualquer volume +
-  // os 4 volumes pelo TÍTULO (mesmos nomes dos cards da home; o usuário
-  // pediu título em vez de "Volume N"). Reusa as funções
-  // públicas de sorteio de search.js (window.openRandomTeaching /
-  // openRandomFromVolume), que já mostram spinner e navegam pro reader.
-  // Só no reader e visível em todos os tamanhos (o usuário relatou não
-  // achar o sorteio no mobile).
-  if (isReaderPage) {
+  // Botão "Ensino aleatório" no header — ícone de brilho (estrela, igual
+  // aos cards) que abre um dropdown com 5 opções: qualquer volume + os 4
+  // volumes pelo TÍTULO (mesmos nomes dos cards da home; o usuário pediu
+  // título em vez de "Volume N"). Reusa as funções públicas de sorteio de
+  // search.js (window.openRandomTeaching / openRandomFromVolume), que já
+  // mostram spinner e navegam pro reader. Era só no reader; promovido a
+  // TODAS as páginas em 02/07 a pedido do usuário — as 19 páginas com
+  // nav.js carregam search.min.js, então as funções existem em todas.
+  {
+    const randomLabel = currentLang === 'ja' ? 'ランダムな御教え' : 'Ensino aleatório';
     const randomWrap = document.createElement('div');
     randomWrap.className = 'reader-random-wrap';
     randomWrap.id = 'readerRandomWrap';
     randomWrap.innerHTML = `
       <button type="button" class="mobile-fav-btn" id="readerRandomBtn"
         aria-haspopup="true" aria-expanded="false"
-        aria-label="Ensino aleatório" title="Ensino aleatório">
+        aria-label="${randomLabel}" title="${randomLabel}">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/>

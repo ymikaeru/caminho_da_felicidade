@@ -57,8 +57,15 @@ function setLanguage(lang, triggerRender = true) {
     updateLabel('mobileNavLabelFont', t.fontSize);
     updateLabel('mobileNavLabelComplementary', t.discipulos || 'Discípulos');
     updateLink('mobileNavLinkHistory', t.history);
+    updateLink('mobileNavLinkSavedPoems', t.savedPoems || 'Poemas Salvos');
     updateLink('mobileNavLinkFavorites', t.saved);
+    updateLink('mobileNavLinkHighlights', t.highlights || 'Central de Destaques');
     updateLink('mobileNavLinkReadCentral', t.readCentral || 'Ensinamentos Lidos');
+    // Recomendações/Conversas têm um badge <span> IRMÃO de .link-text
+    // (não filho) — updateLink só toca .link-text, o número do badge
+    // fica intacto.
+    updateLink('mobileNavLinkRecommendations', t.recommendations || 'Central de Recomendações');
+    updateLink('mobileNavLinkConversations', t.conversations || 'Minhas conversas');
     updateLink('mobileNavLinkLang', t.lang);
     updateLink('mobileNavLinkTheme', t.theme);
     updateLink('mobileNavLinkPoetry', t.poetry || 'Obras Poéticas');

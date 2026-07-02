@@ -143,9 +143,9 @@
   gap: 8px;
 }
 
-/* Filtro de categoria (Tudo · No título · No conteúdo · Relacionados).
-   Seletor de MODO: pílulas segmentadas (Título/Conteúdo/Coleção/
-   Relacionados) logo abaixo do header. A busca acontece só no modo ativo. */
+/* Chips de FILTRO pós-busca (Tudo · Títulos · Coleções · Conteúdo ·
+   Relacionados). Antigo seletor de modo — hoje a busca é uma só e os
+   chips apenas filtram as seções já renderizadas (search.js). */
 .search-mode-selector {
   display: flex;
   flex-wrap: wrap;
@@ -181,6 +181,97 @@
   border-color: var(--accent);
   color: #fff;
   font-weight: 600;
+}
+
+/* Contagem dentro do chip ("Títulos 12"). Herda a cor do chip. Dígitos
+   tabulares: "…"→número não muda a largura a ponto de re-quebrar a barra
+   no meio de um toque. */
+.search-chip-count {
+  font-weight: 400;
+  opacity: 0.75;
+  margin-left: 4px;
+  font-size: 0.92em;
+  font-variant-numeric: tabular-nums;
+}
+
+.search-mode-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.search-mode-btn:disabled:hover {
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+/* ── Empty state do modal (input vazio): recentes + sugestões ────── */
+.search-empty-state {
+  padding: 18px 24px 26px;
+}
+
+.search-empty-head {
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 14px 0 8px;
+}
+
+.search-empty-head:first-child {
+  margin-top: 0;
+}
+
+.search-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.search-chip {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 999px;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-chip:hover,
+.search-chip:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  outline: none;
+}
+
+/* Chip de busca recente: ícone de relógio discreto via pseudo-elemento
+   (sem nó de texto extra — ver memória de chrome de UI). */
+.search-chip--recent {
+  color: var(--text-muted);
+}
+
+/* ── Estado de carregamento da seção Conteúdo (busca assíncrona) ── */
+.search-section-loading {
+  display: flex;
+  align-items: center;
+  padding: 14px 24px 18px;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 767px) {
+  .search-empty-state { padding: 16px 16px 22px; }
+  .search-section-loading { padding: 12px 16px 16px; }
 }
 
 /* Cabeçalho de seção do modo "Literal" (Título / Coleção / Conteúdo juntos) */
@@ -278,11 +369,18 @@
 @media (max-width: 767px) {
   .search-mode-selector {
     padding: 8px 16px;
-    gap: 5px;
+    gap: 6px;
   }
+  /* min-height 36px: alvo de toque decente pra mãos idosas sem inflar a
+     barra (os chips já quebram em 2 linhas no celular). */
   .search-mode-btn {
     font-size: 0.82rem;
-    padding: 5px 11px;
+    padding: 7px 13px;
+    min-height: 36px;
+  }
+  .search-chip {
+    min-height: 36px;
+    padding: 7px 14px;
   }
   .search-flat-item {
     padding: 10px 16px;

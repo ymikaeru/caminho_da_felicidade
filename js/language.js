@@ -162,6 +162,10 @@ function setLanguage(lang, triggerRender = true) {
     }
   }
 
+  // Empty state/chips do modal de busca seguem o idioma na hora, sem
+  // reabrir o modal (hook definido pelo search.js).
+  if (typeof window._searchOnLanguageChange === 'function') window._searchOnLanguageChange();
+
   if (triggerRender && typeof window.renderContent === 'function') {
     window.renderContent(lang);
   }

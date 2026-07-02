@@ -76,10 +76,10 @@ function buildSearchModal() {
     '</label>' +
     '</div>' +
     '</div>' +
-    // Seletor de MODO (Título / Conteúdo / Coleção / Relacionados): a
-    // busca acontece SÓ no campo escolhido, de forma determinística.
-    // Populado pelo search.js (_renderModeSelector) ao abrir o modal.
-    '<div id="searchModeSelector" class="search-mode-selector" role="tablist" aria-label="' + (lang === 'ja' ? '検索モード' : 'Modo de busca') + '"></div>' +
+    // Chips de FILTRO dos resultados (Tudo / Títulos / Coleções / Conteúdo /
+    // Relacionados). A busca é uma só; os chips filtram as seções já
+    // buscadas. Populado pelo search.js (_renderFilterChips) após cada busca.
+    '<div id="searchModeSelector" class="search-mode-selector" role="group" aria-label="' + (lang === 'ja' ? '結果を絞り込む' : 'Filtrar resultados') + '"></div>' +
     '<div id="searchCount" class="search-count"></div>' +
     '<ul class="search-results" id="searchResults" aria-live="polite"></ul>' +
     '</div>';

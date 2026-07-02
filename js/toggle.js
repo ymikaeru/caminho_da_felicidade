@@ -51,7 +51,10 @@ const MENU_TEXTS = {
     saved: '保存した教え',
     readCentral: '読了した教え',
     notes: 'メモ',
-    highlights: 'ハイライト',
+    // "ハイライトセンター" (não só "ハイライト"): o item abre destaques.html,
+    // cujo próprio <h1> já se chama assim — e o sufixo センター alinha com
+    // おすすめセンター, o outro item de "hub" do mesmo menu.
+    highlights: 'ハイライトセンター',
     savedPoems: '保存した詩',
     recommendations: 'おすすめセンター',
     conversations: 'ご住職との会話',

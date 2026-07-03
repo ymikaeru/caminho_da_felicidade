@@ -69,7 +69,7 @@
         /* ---- layout de duas colunas ---- */
         .salvos-layout { display: flex; gap: 28px; align-items: flex-start; }
         .salvos-rail {
-            flex: 0 0 220px;
+            flex: 0 0 248px;
             min-width: 0;
             display: flex;
             flex-direction: column;
@@ -98,8 +98,16 @@
         .folder-item:hover { background: rgba(184, 134, 11, 0.08); }
         .folder-item.active { background: rgba(184, 134, 11, 0.14); border-color: var(--accent); color: var(--accent); font-weight: 600; }
         .folder-item.drop-hover { border-color: var(--accent); border-style: dashed; background: rgba(184, 134, 11, 0.2); }
-        .folder-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .folder-count { font-size: 0.75rem; color: var(--text-muted); font-family: "Outfit", sans-serif; }
+        .folder-name {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-height: 1.3;
+        }
+        .folder-count { font-size: 0.75rem; color: var(--text-muted); font-family: "Outfit", sans-serif; flex-shrink: 0; }
         .folder-item.active .folder-count { color: var(--accent); }
         .folder-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-sizing: border-box; }
 
@@ -227,7 +235,9 @@
                 -webkit-overflow-scrolling: touch;
             }
             .folder-item { width: auto; flex: 0 0 auto; }
-            .folder-item .folder-name { max-width: 140px; }
+            /* Nos chips horizontais o nome fica em 1 linha (o clamp de 2 linhas
+               é só pra coluna vertical do desktop). */
+            .folder-item .folder-name { max-width: 150px; display: block; white-space: nowrap; text-overflow: ellipsis; }
             .folder-add { margin-top: 0; flex: 0 0 auto; white-space: nowrap; }
             /* Barra inferior: pasta/data à esquerda, ações à direita; se faltar
                espaço, as ações caem para a linha de baixo alinhadas à direita. */
@@ -236,7 +246,7 @@
     </style>
 
     <script src="js/toggle.js?v=43" defer></script>
-    <script src="js/nav.js?v=62" defer></script>
+    <script src="js/nav.js?v=63" defer></script>
     <script src="js/theme.js?v=2" defer></script>
     <script src="js/language.js?v=12" defer></script>
     <script src="js/typography.js?v=2" defer></script>

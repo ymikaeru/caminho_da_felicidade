@@ -603,10 +603,11 @@ function _initMobileNav() {
   // volumes pelo TÍTULO (mesmos nomes dos cards da home; o usuário pediu
   // título em vez de "Volume N"). Reusa as funções públicas de sorteio de
   // search.js (window.openRandomTeaching / openRandomFromVolume), que já
-  // mostram spinner e navegam pro reader. Era só no reader; promovido a
-  // TODAS as páginas em 02/07 a pedido do usuário — as 19 páginas com
-  // nav.js carregam search.min.js, então as funções existem em todas.
-  {
+  // mostram spinner e navegam pro reader. Foi promovido a TODAS as páginas em
+  // 02/07; REVERTIDO 07/2026 a pedido do usuário: só no reader e só no mobile
+  // (o reader.html esconde no desktop via @media). No reader o search.min.js
+  // está carregado, então as funções de sorteio existem.
+  if (isReaderPage) {
     const randomLabel = currentLang === 'ja' ? 'ランダムな御教え' : 'Ensino aleatório';
     const randomWrap = document.createElement('div');
     randomWrap.className = 'reader-random-wrap';

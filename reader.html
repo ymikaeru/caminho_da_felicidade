@@ -41,6 +41,11 @@
     <div class="save-tooltip-folders" id="saveTooltipFolders" style="display:none"></div>
   </div>
   <style>
+    /* "Ensino aleatório" (nav.js) fica só no reader e só no MOBILE. No
+       desktop (≥1025px) o header já tem espaço/nav próprios, então esconde. */
+    @media (min-width: 1025px) {
+      .reader-random-wrap { display: none !important; }
+    }
     /* Balão de salvar: segue o tema (era preto fixo, destoava no modo claro).
        Só existe no reader, então o override fica aqui, sem rebuild do CSS. */
     .save-tooltip {
@@ -248,7 +253,7 @@
   </script>
 
   <script src="js/toggle.js?v=43" defer></script>
-  <script src="js/nav.js?v=62" defer></script>
+  <script src="js/nav.js?v=63" defer></script>
   <script src="js/theme.js?v=2" defer></script>
   <script src="js/language.js?v=12" defer></script>
   <script src="js/typography.js?v=2" defer></script>

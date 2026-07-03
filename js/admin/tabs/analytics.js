@@ -128,16 +128,16 @@ const _TAB_MARKUP = `
                   <h2 style="margin:0;">Usuários</h2>
                   <select class="period-select" id="users-table-selector"
                     onchange="selectAnalyticsTable('users', this.value)">
-                    <option value="engagement-profiles" selected>🎯 Análise de Engajamento</option>
-                    <option value="recent-activity">Atividade Recente</option>
+                    <option value="engagement-profiles">🎯 Análise de Engajamento</option>
+                    <option value="recent-activity" selected>Atividade Recente</option>
                     <option value="top-users-ranking">👥 Ranking por Leituras (contagem)</option>
                     <option value="top-users-time">⏳ Tempo Total no Site por Usuário</option>
                   </select>
                 </div>
-                <div id="engagement-profiles">
+                <div id="engagement-profiles" style="display:none;">
                   <div class="loading">Carregando...</div>
                 </div>
-                <div id="recent-activity" style="display:none;">
+                <div id="recent-activity">
                   <div class="loading">Carregando...</div>
                 </div>
                 <div id="top-users-ranking" style="display:none;">

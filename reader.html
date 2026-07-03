@@ -46,6 +46,12 @@
     @media (min-width: 1025px) {
       .reader-random-wrap { display: none !important; }
     }
+    /* Logo do reader: escondido em ≤1024px pelo _responsive.css. No TABLET
+       (768–1024) tem espaço, então mostra igual ao desktop; no mobile (≤767)
+       segue escondido. */
+    @media (min-width: 768px) and (max-width: 1024px) {
+      .reader-body .header__logo { display: flex !important; }
+    }
     /* Balão de salvar: segue o tema (era preto fixo, destoava no modo claro).
        Só existe no reader, então o override fica aqui, sem rebuild do CSS. */
     .save-tooltip {

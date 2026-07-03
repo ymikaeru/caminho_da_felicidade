@@ -198,6 +198,22 @@
         .fav-date { font-size: 0.72rem; color: var(--text-muted); font-family: "Outfit", sans-serif; white-space: nowrap; }
         .fav-actions { display: flex; flex-direction: row; gap: 6px; flex-shrink: 0; }
 
+        /* Diálogos próprios pequenos (criar/renomear/apagar/mover): centralizados
+           com altura automática. Sem isso, no tablet/mobile herdavam o
+           "bottom-sheet" do .search-modal (feito p/ a busca) e ficavam cortados. */
+        .mini-dialog { align-items: center !important; padding: 16px !important; }
+        .mini-dialog .search-modal {
+            width: min(400px, 100%) !important;
+            height: auto !important;
+            max-height: min(85vh, 640px) !important;
+            border-radius: var(--radius) !important;
+        }
+        /* Corpo do diálogo com padding próprio (o .search-modal não tem, então
+           input/mensagem/botões colavam nas bordas e o "Criar" parecia cortado). */
+        .mini-dialog .dlg-body { padding: 18px 20px 20px; }
+        .mini-dialog .dlg-message { color: var(--text-main); font-size: 0.95rem; line-height: 1.5; }
+        .mini-dialog .dlg-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
         /* ---- menu "Mover para" (reusa .search-modal) ---- */
         .move-list { display: flex; flex-direction: column; gap: 2px; padding: 4px 0 6px; max-height: 60vh; overflow-y: auto; }
         .move-opt {
@@ -251,7 +267,7 @@
     <script src="js/language.js?v=12" defer></script>
     <script src="js/typography.js?v=2" defer></script>
     <script src="js/search.min.js?v=55" defer></script>
-    <script src="js/salvos-page.js?v=5" defer></script>
+    <script src="js/salvos-page.js?v=7" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';

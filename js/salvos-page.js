@@ -89,16 +89,17 @@
     function askText(titleText, initial, okLabel) {
         return new Promise((resolve) => {
             const ov = document.createElement('div');
-            ov.className = 'search-modal-overlay active';
+            ov.className = 'search-modal-overlay active mini-dialog';
             ov.innerHTML =
                 '<div class="search-modal" style="max-width:380px;">' +
                 '<button class="modal-close-btn" data-act="cancel">&times;</button>' +
                 '<div class="search-header"><h2 style="font-size:1.1rem;margin:0;color:var(--accent);">' + esc(titleText) + '</h2></div>' +
-                '<input type="text" class="dlg-input" maxlength="40" value="' + esc(initial || '') + '" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text-main); font-size:1rem; font-family:inherit; margin:8px 0 14px;">' +
-                '<div style="display:flex; gap:8px; justify-content:flex-end;">' +
+                '<div class="dlg-body">' +
+                '<input type="text" class="dlg-input" maxlength="40" value="' + esc(initial || '') + '" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text-main); font-size:1rem; font-family:inherit;">' +
+                '<div class="dlg-actions">' +
                 '<button type="button" class="notebook-btn" data-act="cancel">' + esc(T.cancel) + '</button>' +
                 '<button type="button" class="notebook-btn" data-act="ok" style="background:var(--accent); color:#fff; border-color:var(--accent);">' + esc(okLabel || T.save) + '</button>' +
-                '</div></div>';
+                '</div></div></div>';
             document.body.appendChild(ov);
             const input = ov.querySelector('.dlg-input');
             const done = (v) => { ov.remove(); resolve(v); };
@@ -118,14 +119,15 @@
         return new Promise((resolve) => {
             const okColor = opts.danger ? '#ff3b30' : 'var(--accent)';
             const ov = document.createElement('div');
-            ov.className = 'search-modal-overlay active';
+            ov.className = 'search-modal-overlay active mini-dialog';
             ov.innerHTML =
                 '<div class="search-modal" style="max-width:380px;">' +
-                '<div style="padding:8px 2px 16px; color:var(--text-main); font-size:0.95rem; line-height:1.5;">' + message + '</div>' +
-                '<div style="display:flex; gap:8px; justify-content:flex-end;">' +
+                '<div class="dlg-body">' +
+                '<div class="dlg-message">' + message + '</div>' +
+                '<div class="dlg-actions">' +
                 (opts.hideCancel ? '' : '<button type="button" class="notebook-btn" data-act="cancel">' + esc(T.cancel) + '</button>') +
                 '<button type="button" class="notebook-btn" data-act="ok" style="background:' + okColor + '; color:#fff; border-color:' + okColor + ';">' + esc(opts.okLabel || T.save) + '</button>' +
-                '</div></div>';
+                '</div></div></div>';
             document.body.appendChild(ov);
             const done = (v) => { ov.remove(); resolve(v); };
             ov.addEventListener('click', (e) => { if (e.target === ov) done(false); });

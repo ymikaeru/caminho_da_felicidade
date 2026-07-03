@@ -123,12 +123,16 @@ const _TAB_MARKUP = `
                   <h2 style="margin:0;">Usuários</h2>
                   <select class="period-select" id="users-table-selector"
                     onchange="selectAnalyticsTable('users', this.value)">
-                    <option value="recent-activity" selected>Atividade Recente</option>
-                    <option value="top-users-ranking">👥 Ranking de Usuários Mais Ativos</option>
+                    <option value="engagement-profiles" selected>🎯 Análise de Engajamento</option>
+                    <option value="recent-activity">Atividade Recente</option>
+                    <option value="top-users-ranking">👥 Ranking por Leituras (contagem)</option>
                     <option value="top-users-time">⏳ Tempo Total no Site por Usuário</option>
                   </select>
                 </div>
-                <div id="recent-activity">
+                <div id="engagement-profiles">
+                  <div class="loading">Carregando...</div>
+                </div>
+                <div id="recent-activity" style="display:none;">
                   <div class="loading">Carregando...</div>
                 </div>
                 <div id="top-users-ranking" style="display:none;">
@@ -298,6 +302,7 @@ async function loadAnalytics() {
   loadRoleDistribution();
   loadDailyActivityChart(days, since);
   loadSessionStats(days, since);
+  loadEngagementProfiles(days, since);
   loadTopUsersRanking(days, since);
   loadTopUsersByTime(days, since);
   loadEngagementByVolume(days, since);
@@ -1720,6 +1725,187 @@ async function loadTopUsersRanking(days, since) {
 }
 
 // ============================================================
+// Engagement Profiles — visão pastoral + score
+// ============================================================
+// Substitui a leitura de "quem leu mais" (contagem crua, que confunde
+// "leu muito uma vez e sumiu" com "engajado") por uma análise que combina
+// 5 sinais em um score 0–100 E classifica cada disciplo num estado
+// acionável para acolhimento (Assíduo / Crescendo / Esfriando / Inativo).
+//
+// Score (pesos somam 100):
+//   • recência        (30) — dias desde o último acesso (decai em 30 dias)
+//   • consistência    (25) — dias distintos ativos (hábito de estudo)
+//   • profundidade    (20) — % média de progresso nas leituras
+//   • tempo           (15) — horas totais investidas
+//   • ações           (10) — grifos + salvos + marcações (estudo deliberado)
+//
+// A recência entra no score, então quem sumiu cai sozinho — resolvendo o
+// caso "leu 99 publicações mas não vem há 27 dias".
+async function loadEngagementProfiles(days, since) {
+  const container = document.getElementById('engagement-profiles');
+  const nowMs = Date.now();
+  const DAY = 86400000;
+
+  const [
+    { data: logs },
+    { data: positions },
+    { data: hls },
+    { data: marks },
+    { data: favs }
+  ] = await Promise.all([
+    fetchAll(() => supabase.from('access_logs').select('user_id, created_at').gte('created_at', since), 'created_at'),
+    fetchAll(() => supabase.from('reading_positions').select('user_id, volume, file, progress_pct, time_spent_seconds').gte('updated_at', since), 'updated_at'),
+    fetchAll(() => supabase.from('user_highlights').select('user_id').gte('updated_at', since), 'updated_at'),
+    fetchAll(() => supabase.from('read_marks').select('user_id').gte('created_at', since), 'created_at'),
+    fetchAll(() => supabase.from('synced_favorites').select('user_id').gte('created_at', since), 'created_at')
+  ]);
+
+  // Agrega por usuário (admins fora).
+  const U = {};
+  const ensure = id => (U[id] || (U[id] = {
+    access: [], pubs: new Set(), progSum: 0, progN: 0, secs: 0, grifos: 0, favs: 0, marcados: 0
+  }));
+  (logs || []).forEach(l => { if (_adminIds.has(l.user_id)) return; ensure(l.user_id).access.push(new Date(l.created_at).getTime()); });
+  (positions || []).forEach(p => {
+    if (_adminIds.has(p.user_id)) return;
+    const u = ensure(p.user_id);
+    u.pubs.add(`${p.volume}/${p.file}`);
+    if (p.progress_pct != null) { u.progSum += p.progress_pct; u.progN++; }
+    u.secs += p.time_spent_seconds || 0;
+  });
+  (hls || []).forEach(h => { if (_adminIds.has(h.user_id)) return; ensure(h.user_id).grifos++; });
+  (marks || []).forEach(m => { if (_adminIds.has(m.user_id)) return; ensure(m.user_id).marcados++; });
+  (favs || []).forEach(f => { if (_adminIds.has(f.user_id)) return; ensure(f.user_id).favs++; });
+
+  const uids = Object.keys(U);
+  if (!uids.length) {
+    container.innerHTML = '<div class="loading">Sem atividade registrada no período.</div>';
+    return;
+  }
+
+  const clamp01 = x => Math.max(0, Math.min(1, x));
+  const dateKey = ts => new Date(ts).toLocaleDateString('pt-BR');
+  const rows = uids.map(uid => {
+    const u = U[uid];
+    const lastAccess = u.access.reduce((a, b) => b > a ? b : a, 0);
+    const daysSince = lastAccess ? Math.floor((nowMs - lastAccess) / DAY) : 999;
+    const activeDays = new Set(u.access.map(dateKey)).size;
+    const activeDaysRecent = new Set(u.access.filter(ts => ts >= nowMs - 14 * DAY).map(dateKey)).size;
+    const activeDaysPrior = new Set(u.access.filter(ts => ts < nowMs - 14 * DAY && ts >= nowMs - 28 * DAY).map(dateKey)).size;
+    const avgProgress = u.progN ? u.progSum / u.progN : 0;
+    const hours = u.secs / 3600;
+    const pubs = u.pubs.size;
+    const actions = u.grifos + u.favs + u.marcados;
+
+    const recPts = 30 * clamp01(1 - daysSince / 30);
+    const consPts = 25 * clamp01(activeDays / 30);
+    const depthPts = 20 * clamp01(avgProgress / 60);
+    const timePts = 15 * clamp01(hours / 20);
+    const actPts = 10 * clamp01(actions / 50);
+    const score = Math.round(recPts + consPts + depthPts + timePts + actPts);
+
+    // "Já foi engajado" = tem lastro real (não um visitante de 1 toque).
+    const wasEngaged = activeDays >= 3 || hours >= 1 || actions >= 5;
+    let state;
+    if (daysSince > 30) state = 'inativo';
+    else if (daysSince >= 8) state = wasEngaged ? 'esfriando' : 'inativo';
+    else if (activeDays >= 10) state = 'assiduo';
+    else if (activeDaysPrior === 0 ? activeDaysRecent >= 2 : activeDaysRecent > activeDaysPrior) state = 'crescendo';
+    else state = 'assiduo';
+
+    return { uid, daysSince, activeDays, avgProgress, hours, pubs, grifos: u.grifos, favs: u.favs, marcados: u.marcados, actions, score, state, wasEngaged, recPts, consPts, depthPts, timePts, actPts };
+  });
+
+  // Nomes.
+  const { data: profiles } = await supabase.from('user_profiles').select('id, display_name').in('id', uids);
+  const nameMap = {};
+  (profiles || []).forEach(p => nameMap[p.id] = p.display_name);
+  const nameOf = uid => nameMap[uid] || 'Desconhecido';
+
+  const STATE = {
+    assiduo:   { emoji: '🟢', label: 'Assíduo',   chip: 'background:rgba(34,197,94,.15);color:#16a34a;' },
+    crescendo: { emoji: '🌱', label: 'Crescendo', chip: 'background:rgba(20,184,166,.15);color:#0d9488;' },
+    esfriando: { emoji: '🟡', label: 'Esfriando', chip: 'background:rgba(245,158,11,.2);color:#d97706;' },
+    inativo:   { emoji: '⚪', label: 'Inativo',    chip: 'background:rgba(148,163,184,.2);color:#64748b;' }
+  };
+  const CHIP_BASE = 'display:inline-block;font-size:0.62rem;font-weight:700;padding:1px 7px;border-radius:999px;vertical-align:middle;white-space:nowrap;';
+  const chip = st => `<span style="${CHIP_BASE}${STATE[st].chip}">${STATE[st].emoji} ${STATE[st].label}</span>`;
+  const recTxt = d => d <= 0 ? 'hoje' : d === 1 ? 'ontem' : d >= 999 ? 'nunca' : `há ${d} dias`;
+
+  // Contagem por estado.
+  const counts = { assiduo: 0, crescendo: 0, esfriando: 0, inativo: 0 };
+  rows.forEach(r => counts[r.state]++);
+  const stateCards = ['assiduo', 'crescendo', 'esfriando', 'inativo'].map(s =>
+    `<div class="stat-card"><div class="stat-value">${STATE[s].emoji} ${counts[s]}</div><div class="stat-label">${STATE[s].label}</div></div>`
+  ).join('');
+
+  // Precisam de atenção: esfriando + inativos que já foram engajados
+  // (drifted). Ordena por recência (quem saiu há menos tempo = mais fácil
+  // de reacolher) primeiro.
+  const attn = rows
+    .filter(r => r.state === 'esfriando' || (r.state === 'inativo' && r.wasEngaged))
+    .sort((a, b) => a.daysSince - b.daysSince)
+    .slice(0, 12);
+  const attnTotal = rows.filter(r => r.state === 'esfriando' || (r.state === 'inativo' && r.wasEngaged)).length;
+  let attentionHtml = '';
+  if (attn.length) {
+    const items = attn.map(r => `
+      <div style="display:flex; align-items:center; gap:8px; padding:6px 0; font-size:0.82rem; border-top:1px solid var(--border);">
+        ${chip(r.state)}
+        <strong style="flex-shrink:0;">${_escHtml(nameOf(r.uid))}</strong>
+        <span style="color:var(--text-muted); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${recTxt(r.daysSince)} sem vir · ${r.pubs} publicações lidas · ${r.grifos} grifos · ${r.activeDays} dias ativos</span>
+      </div>`).join('');
+    const more = attnTotal > attn.length ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">+ ${attnTotal - attn.length} outros</div>` : '';
+    attentionHtml = `
+      <div style="border-left:3px solid #d97706; background:rgba(245,158,11,0.08); border-radius:8px; padding:12px 14px; margin-bottom:18px;">
+        <div style="font-weight:600; font-size:0.85rem; margin-bottom:4px; color:#d97706;">⚠ Precisam de atenção — estavam engajados e esfriaram</div>
+        <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:6px;">Bons candidatos a um contato do Reverendo antes de se afastarem de vez.</div>
+        ${items}${more}
+      </div>`;
+  }
+
+  // Ranking por score.
+  const ranked = rows.slice().sort((a, b) => b.score - a.score || a.daysSince - b.daysSince).slice(0, 20);
+  const maxScore = ranked[0].score || 1;
+  const rankHtml = ranked.map((r, i) => {
+    const name = nameOf(r.uid);
+    const initial = (name || 'U')[0].toUpperCase();
+    const posClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+    const barPct = Math.round(r.score / maxScore * 100);
+    return `
+      <div class="ranking-item">
+        <div class="ranking-pos ${posClass}">${i + 1}</div>
+        <div class="ranking-avatar">${initial}</div>
+        <div class="ranking-info">
+          <div class="ranking-name">${_escHtml(name)} ${chip(r.state)}</div>
+          <div style="font-size:0.66rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">recência ${Math.round(r.recPts)} · consistência ${Math.round(r.consPts)} · profundidade ${Math.round(r.depthPts)} · tempo ${Math.round(r.timePts)} · ações ${Math.round(r.actPts)} · <span title="último acesso">${recTxt(r.daysSince)}</span></div>
+        </div>
+        <div class="ranking-bar-track" style="max-width:110px;"><div class="ranking-bar-fill" style="width:${barPct}%"></div></div>
+        <div class="ranking-value">${r.score}/100</div>
+      </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <p style="font-size:0.75rem; color:var(--text-muted); margin:-8px 0 14px;">
+      Engajamento real por disciplo (${rows.length} no período) — combina recência, consistência, profundidade de leitura, tempo e ações deliberadas. Não é contagem de cliques.
+    </p>
+    <div class="stats-grid" style="margin-bottom:18px;">${stateCards}</div>
+    ${attentionHtml}
+    <h4 style="margin:0 0 10px; font-size:0.9rem;">Ranking por engajamento <span style="font-weight:400; color:var(--text-muted); font-size:0.75rem;">(score 0–100)</span></h4>
+    <div class="ranking-list">${rankHtml}</div>
+    <details style="margin-top:14px; font-size:0.78rem; color:var(--text-muted);">
+      <summary style="cursor:pointer;">Como o score e os estados são calculados</summary>
+      <div style="margin-top:8px; line-height:1.7;">
+        <strong>Score (0–100):</strong> recência (30) + consistência de dias ativos (25) + profundidade média de leitura (20) + tempo investido (15) + ações deliberadas — grifos, salvos e marcações (10).<br>
+        <strong>🟢 Assíduo:</strong> ativo nos últimos 7 dias e constante.<br>
+        <strong>🌱 Crescendo:</strong> ativo recentemente e com atividade em alta (bom momento para incentivar).<br>
+        <strong>🟡 Esfriando:</strong> já foi engajado, mas está 8–30 dias sem vir.<br>
+        <strong>⚪ Inativo:</strong> mais de 30 dias sem acessar (ou quase nunca esteve ativo).
+      </div>
+    </details>`;
+}
+
+// ============================================================
 // Top Users by Total Time
 // ============================================================
 // `reading_positions.time_spent_seconds` é cumulativo all-time (cada
@@ -2047,7 +2233,7 @@ async function loadRetentionRate(days, since) {
 // do outro dropdown.
 const _ANALYTICS_TABLE_GROUPS = {
   content: ['top-teachings', 'article-quality', 'popular-favorites'],
-  users: ['recent-activity', 'top-users-ranking', 'top-users-time']
+  users: ['engagement-profiles', 'recent-activity', 'top-users-ranking', 'top-users-time']
 };
 function selectAnalyticsTable(group, id) {
   (_ANALYTICS_TABLE_GROUPS[group] || []).forEach(x => {

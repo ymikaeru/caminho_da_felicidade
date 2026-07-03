@@ -162,8 +162,10 @@ const _TAB_MARKUP = `
               <div class="admin-section">
                 <h2>📖 Ensinamentos marcados como lido</h2>
                 <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">
-                  Marcações do botão “Marcar como lido” no período, por usuário. Cada linha da tabela é um
-                  discípulo; “lidos” conta os Ensinamentos que ele marcou.
+                  Marcações do botão “Marcar como lido” no período, por usuário. “Tópicos” conta cada
+                  marcação (um volume de referência com muitos sub-tópicos curtos infla esse número);
+                  “Publicações” deduplica por volume+arquivo e é o valor comparável ao Ranking de Usuários
+                  Mais Ativos (que mede tempo de leitura, não cliques no botão).
                 </p>
                 <div id="read-marks-stats">
                   <div class="loading">Carregando...</div>
@@ -1075,14 +1077,22 @@ async function loadReadMarksStats(days, since) {
     return;
   }
 
+  // "Tópicos" (rows.length) ≠ "Publicações" (pubs.size, distinto por vol+file):
+  // read_marks é por TÓPICO — um volume de referência como Pontos Vitais do
+  // Johrei tem dezenas de sub-tópicos curtos por arquivo, então marcar cada um
+  // infla a contagem de tópicos rápido (ex.: 113 tópicos marcados num único
+  // arquivo). "Publicações" deduplica por vol+file — é o número comparável
+  // com o Ranking de Usuários Mais Ativos (que conta arquivos únicos com
+  // ≥30s de leitura em reading_positions, outra tabela/heurística).
   const byUser = new Map();
   rows.forEach(r => {
     if (!byUser.has(r.user_id)) {
-      byUser.set(r.user_id, { count: 0, vols: new Set(), last: r.created_at, lastVol: r.volume, lastFile: r.file, lastTitle: r.topic_title });
+      byUser.set(r.user_id, { count: 0, vols: new Set(), pubs: new Set(), last: r.created_at, lastVol: r.volume, lastFile: r.file, lastTitle: r.topic_title });
     }
     const u = byUser.get(r.user_id);
     u.count++;
     if (r.volume) u.vols.add(r.volume);
+    if (r.volume && r.file) u.pubs.add(`${r.volume}/${r.file}`);
     if (r.created_at > u.last) { u.last = r.created_at; u.lastVol = r.volume; u.lastFile = r.file; u.lastTitle = r.topic_title; }
   });
 
@@ -1096,17 +1106,19 @@ async function loadReadMarksStats(days, since) {
     (profiles || []).forEach(p => { nameMap[p.id] = p.display_name; });
   }
 
+  const totalPubs = [...byUser.values()].reduce((sum, u) => sum + u.pubs.size, 0);
   const cardsHtml = `
     <div class="stats-grid" style="margin-bottom:20px;">
-      <div class="stat-card"><div class="stat-value">${rows.length}</div><div class="stat-label">Marcados como lidos</div></div>
+      <div class="stat-card"><div class="stat-value">${rows.length}</div><div class="stat-label">Tópicos marcados</div></div>
+      <div class="stat-card"><div class="stat-value">${totalPubs}</div><div class="stat-label">Publicações distintas</div></div>
       <div class="stat-card"><div class="stat-value">${byUser.size}</div><div class="stat-label">Usuários que marcaram</div></div>
-      <div class="stat-card"><div class="stat-value">${Math.round(rows.length / byUser.size)}</div><div class="stat-label">Média por usuário</div></div>
+      <div class="stat-card"><div class="stat-value">${Math.round(rows.length / byUser.size)}</div><div class="stat-label">Média de tópicos por usuário</div></div>
     </div>`;
 
   const sorted = [...byUser.entries()].sort((a, b) => b[1].count - a[1].count);
   const tableHtml = `
     <table class="data-table">
-      <thead><tr><th>Usuário</th><th>Lidos</th><th>Volumes</th><th>Última marcação</th><th>Último Ensinamento lido</th></tr></thead>
+      <thead><tr><th>Usuário</th><th>Tópicos</th><th title="Publicações distintas (deduplicado por volume+arquivo) — comparável ao Ranking de Usuários Mais Ativos">Publicações</th><th>Volumes</th><th>Última marcação</th><th>Último Ensinamento lido</th></tr></thead>
       <tbody>${sorted.map(([uid, u]) => {
         const date = new Date(u.last);
         const dateStr = date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' ' + date.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
@@ -1114,6 +1126,7 @@ async function loadReadMarksStats(days, since) {
         return `<tr>
           <td>${_escHtml(nameMap[uid] || 'Desconhecido')}</td>
           <td style="font-weight:600;">${u.count}</td>
+          <td>${u.pubs.size}</td>
           <td>${u.vols.size}</td>
           <td style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</td>
           <td style="font-size:0.82rem;" title="${_escHtml(u.lastFile || '')}">${VOL_SHORT[u.lastVol] || u.lastVol || '—'} · ${_escHtml(title)}</td>

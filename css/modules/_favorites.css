@@ -3,7 +3,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--fav-color, var(--accent));
   margin-left: 8px;
   vertical-align: middle;
   opacity: 0;
@@ -89,8 +89,13 @@
 }
 
 .topic-save-btn.active {
-  background: var(--accent);
-  color: #fff;
+  /* Fallback p/ browsers sem color-mix (iOS < 16.2): tinta suave do accent. */
+  background: var(--accent-soft, rgba(184, 134, 11, 0.12));
+  /* Tinta suave da cor da pasta (ou accent). Antes era um bloco sólido
+     dourado ("tudo preenchido") — agora é leve, com a cor no ícone/borda. */
+  background: color-mix(in srgb, var(--fav-color, var(--accent)) 16%, transparent);
+  color: var(--fav-color, var(--accent));
+  border-color: var(--fav-color, var(--accent));
 }
 
 .topic-save-btn.active svg {

@@ -332,8 +332,32 @@ async function _loadFavoriteCounts() {
   return counts;
 }
 
+// Uso de PASTAS por usuário (favorite_folders). Deixa saber, de relance, quem
+// está usando o recurso e quais os nomes das pastas. Se a migração
+// favorite_folders ainda não rodou, os mapas ficam vazios (sem quebrar a aba).
+let _folderCountByUser = null; // Map<userId, number>
+let _foldersByUser = null;     // Map<userId, [{id,name,color,pos}]>
+
+async function _loadFolderUsage() {
+  if (_folderCountByUser) return;
+  _folderCountByUser = new Map();
+  _foldersByUser = new Map();
+  try {
+    const { data, error } = await fetchAll(() => supabase.from('favorite_folders').select('id, user_id, name, color, pos'), null);
+    if (error) throw error;
+    (data || []).forEach(f => {
+      _folderCountByUser.set(f.user_id, (_folderCountByUser.get(f.user_id) || 0) + 1);
+      if (!_foldersByUser.has(f.user_id)) _foldersByUser.set(f.user_id, []);
+      _foldersByUser.get(f.user_id).push(f);
+    });
+  } catch (e) {
+    console.warn('[_loadFolderUsage] falhou (migração favorite_folders rodou?):', e.message);
+  }
+}
+
 async function initSavedTab() {
   await _loadFavoriteCounts();
+  await _loadFolderUsage();
   const q = (document.getElementById('sv-user-search')?.value || '').toLowerCase();
   const filtered = q
     ? allUsers.filter(u => (u.display_name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q))
@@ -360,9 +384,14 @@ function renderSavedUserList(users) {
   const withCounts = users.map(u => ({ u, count: counts.get(u.id) || 0 }));
   withCounts.sort((a, b) => b.count - a.count);
 
+  const folderCounts = _folderCountByUser || new Map();
   container.innerHTML = withCounts.map(({ u, count }) => {
     const active = count > 0;
     const badge = `<span title="${count} salvo${count !== 1 ? 's' : ''}" style="flex-shrink:0; display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; background:${active ? 'rgba(184,134,11,0.14)' : 'rgba(120,120,120,0.10)'}; color:${active ? 'var(--accent)' : 'var(--text-muted)'}; font-size:0.78rem; font-weight:700;">🔖 ${count}</span>`;
+    const fcount = folderCounts.get(u.id) || 0;
+    const folderBadge = fcount > 0
+      ? `<span title="${fcount} pasta${fcount !== 1 ? 's' : ''}" style="flex-shrink:0; display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; background:rgba(59,110,165,0.14); color:#3b6ea5; font-size:0.78rem; font-weight:700;">📁 ${fcount}</span>`
+      : '';
     return `
     <div class="user-row" data-uid="${_escHtml(u.id)}" data-uname="${_escHtml(u.display_name || u.email || 'Usuário')}">
       <div class="user-avatar">${(u.display_name || u.email || '?')[0].toUpperCase()}</div>
@@ -371,6 +400,7 @@ function renderSavedUserList(users) {
         <div class="user-email">${_escHtml(u.email || '')}</div>
       </div>
       <div class="user-meta" style="flex-shrink:0; font-size:0.75rem; color:var(--text-muted); margin-left:auto;">${_escHtml(u.role || 'user')}</div>
+      ${folderBadge}
       ${badge}
     </div>`;
   }).join('');
@@ -398,11 +428,20 @@ async function loadUserSaved(userId, userName) {
     try { await window.loadVolumeFiles(); } catch (e) { console.warn('loadVolumeFiles falhou:', e); }
   }
 
-  const { data, error } = await fetchAll(() => supabase
+  // Tenta com folder_id; se a migração favorite_folders não rodou, refaz sem.
+  let favResp = await fetchAll(() => supabase
     .from('synced_favorites')
-    .select('volume, file, topic_index, topic_title, snippet, created_at')
+    .select('volume, file, topic_index, topic_title, snippet, folder_id, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false }), null);
+  if (favResp.error && /folder_id/i.test(favResp.error.message || '')) {
+    favResp = await fetchAll(() => supabase
+      .from('synced_favorites')
+      .select('volume, file, topic_index, topic_title, snippet, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false }), null);
+  }
+  const { data, error } = favResp;
 
   if (error) {
     container.innerHTML = `<div class="msg err">Erro ao carregar: ${_escHtml(error.message)}</div>`;
@@ -410,11 +449,49 @@ async function loadUserSaved(userId, userName) {
   }
 
   const favorites = data || [];
-  document.getElementById('sv-total-count').textContent = `${favorites.length} salvo${favorites.length !== 1 ? 's' : ''}`;
+
+  // Pastas deste usuário (nome + cor) — para o resumo e as etiquetas.
+  await _loadFolderUsage();
+  const userFolders = ((_foldersByUser && _foldersByUser.get(userId)) || []).slice().sort((a, b) => (a.pos || 0) - (b.pos || 0));
+  const folderMap = new Map(userFolders.map(f => [f.id, f]));
+  const perFolder = new Map();
+  let unfiledCount = 0;
+  favorites.forEach(f => {
+    if (f.folder_id && folderMap.has(f.folder_id)) perFolder.set(f.folder_id, (perFolder.get(f.folder_id) || 0) + 1);
+    else unfiledCount++;
+  });
+
+  const favCountLabel = `${favorites.length} salvo${favorites.length !== 1 ? 's' : ''}`;
+  document.getElementById('sv-total-count').textContent = userFolders.length
+    ? `${favCountLabel} · ${userFolders.length} pasta${userFolders.length !== 1 ? 's' : ''}`
+    : favCountLabel;
 
   if (favorites.length === 0) {
     container.innerHTML = '<div style="color:var(--text-muted); font-size:0.9rem; padding:20px 0;">Nenhum artigo salvo por este usuário.</div>';
     return;
+  }
+
+  // Bolinha de cor da pasta + etiqueta usada nos cards e no resumo.
+  const dot = (c) => `<span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:${c ? _escHtml(c) : 'transparent'}; ${c ? '' : 'border:1px solid var(--border);'} flex-shrink:0;"></span>`;
+  const folderTag = (fid) => {
+    const fo = fid ? folderMap.get(fid) : null;
+    if (!fo) return '';
+    return `<span style="display:inline-flex; align-items:center; gap:5px; font-size:0.7rem; color:var(--text-muted); font-family:'Outfit',sans-serif; background:rgba(120,120,120,0.08); padding:2px 8px; border-radius:999px;">${dot(fo.color)} ${_escHtml(fo.name)}</span>`;
+  };
+
+  // Resumo das pastas do usuário (responde: usa o recurso? quais nomes?).
+  let folderSummary;
+  if (userFolders.length === 0) {
+    folderSummary = `<div style="margin-bottom:20px; font-size:0.82rem; color:var(--text-muted);">📁 Este usuário ainda não criou pastas.</div>`;
+  } else {
+    const chips = userFolders.map(fo =>
+      `<span style="display:inline-flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--text); background:var(--surface); border:1px solid var(--border); padding:4px 10px; border-radius:999px;">${dot(fo.color)} ${_escHtml(fo.name)} <b style="color:var(--accent);">${perFolder.get(fo.id) || 0}</b></span>`
+    ).join(' ');
+    const unfiledChip = `<span style="display:inline-flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--text-muted); background:var(--surface); border:1px dashed var(--border); padding:4px 10px; border-radius:999px;">Sem pasta <b>${unfiledCount}</b></span>`;
+    folderSummary = `<div style="margin-bottom:22px; padding:14px; background:rgba(59,110,165,0.06); border:1px solid var(--border); border-radius:10px;">
+      <div style="font-weight:600; color:var(--accent); font-size:0.82rem; margin-bottom:10px;">📁 Pastas de ${_escHtml(userName)} (${userFolders.length})</div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">${chips} ${unfiledChip}</div>
+    </div>`;
   }
 
   // Agrupar por volume + arquivo
@@ -443,7 +520,10 @@ async function loadUserSaved(userId, userName) {
               <div style="padding:10px 14px; background:var(--surface); border-radius:8px; border:1px solid var(--border);">
                 ${f.topic_title ? `<div style="font-size:0.82rem; color:var(--text); font-weight:600; margin-bottom:4px;">${_escHtml(f.topic_title)}</div>` : ''}
                 ${f.snippet ? `<div style="font-size:0.85rem; line-height:1.55; color:var(--text-muted);">${_escHtml(f.snippet)}</div>` : ''}
-                ${date ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-top:8px; font-family:'Outfit',sans-serif;">${date}</div>` : ''}
+                <div style="display:flex; align-items:center; gap:8px; margin-top:8px; flex-wrap:wrap;">
+                  ${folderTag(f.folder_id)}
+                  ${date ? `<span style="font-size:0.7rem; color:var(--text-muted); font-family:'Outfit',sans-serif;">${date}</span>` : ''}
+                </div>
               </div>
             `;
           }).join('')}
@@ -451,7 +531,7 @@ async function loadUserSaved(userId, userName) {
       </div>
     `;
   }
-  container.innerHTML = html;
+  container.innerHTML = folderSummary + html;
 }
 
 // Remove TODAS as cores/fontes inline do HTML legado dos ensinamentos

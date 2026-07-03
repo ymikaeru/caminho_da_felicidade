@@ -308,9 +308,124 @@ document.addEventListener('DOMContentLoaded', () => {
             const cleanTitle = rawTitle.replace(/^(Ensinamento|Orientação|Palestra) de (Meishu-Sama|Moisés)\s*[-:]\s*/i, '').replace(/^["'](.*?)["']$/, '$1').trim();
             document.getElementById('saveTooltipTitle').textContent = cleanTitle;
             document.getElementById('saveTooltipStatus').textContent = isSaved ? statusText.removed : statusText.saved;
+
+            // Ao salvar (não ao remover), oferece as pastas do usuário como
+            // chips opcionais. Salvar continua 1 clique — a pasta é opcional.
+            const foldersEl = document.getElementById('saveTooltipFolders');
+            let showFolders = false;
+            if (foldersEl) {
+                if (!isSaved) {
+                    window._renderSaveTooltipFolders(volId, filename, topicIndex);
+                    showFolders = true;
+                } else {
+                    foldersEl.innerHTML = '';
+                    foldersEl.style.display = 'none';
+                }
+            }
+
             tooltip.classList.add('show');
             clearTimeout(window._saveTooltipTimer);
-            window._saveTooltipTimer = setTimeout(() => tooltip.classList.remove('show'), 2800);
+            window._saveTooltipTimer = setTimeout(() => tooltip.classList.remove('show'), showFolders ? 5200 : 2800);
+        }
+    };
+
+    // (Re)desenha os chips de pasta no tooltip e liga os cliques. Extraído
+    // pra ser reusado ao cancelar/atualizar o "＋ Nova" inline.
+    window._renderSaveTooltipFolders = function (vol, file, topic, chosenId) {
+        const foldersEl = document.getElementById('saveTooltipFolders');
+        if (!foldersEl) return;
+        const lang = localStorage.getItem('site_lang') || 'pt';
+        let folders = [];
+        try { folders = JSON.parse(localStorage.getItem('favoriteFolders') || '[]'); } catch (e) { }
+        folders.sort((a, b) => (a.pos || 0) - (b.pos || 0));
+        const escF = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        const label = lang === 'ja' ? 'フォルダに入れる:' : 'Guardar em pasta:';
+        const newLbl = lang === 'ja' ? '新規' : 'Nova';
+        const chips = folders.map(fo =>
+            `<button type="button" class="save-folder-chip${chosenId === fo.id ? ' chosen' : ''}" data-fid="${escF(fo.id)}" title="${escF(fo.name)}"><span class="save-folder-dot" style="background:${escF(fo.color || '#b8860b')}"></span><span class="save-folder-cname">${escF(fo.name)}</span></button>`
+        ).join('');
+        foldersEl.innerHTML = `<span class="save-folder-label">${label}</span>${chips}<button type="button" class="save-folder-chip save-folder-new" data-fid="__new__">＋ ${newLbl}</button>`;
+        foldersEl.style.display = '';
+        foldersEl.querySelectorAll('.save-folder-chip').forEach(btn => {
+            if (btn.dataset.fid === '__new__') btn.onclick = () => window._promptNewFolderInline(vol, file, topic);
+            else btn.onclick = () => window._assignSavedToFolder(vol, file, topic, btn.dataset.fid, btn);
+        });
+    };
+
+    // "＋ Nova" no tooltip: em vez de prompt() — bloqueado em PWA/standalone e
+    // quando o navegador suprime diálogos — abre um campo de texto INLINE.
+    window._promptNewFolderInline = function (vol, file, topic) {
+        const wrap = document.getElementById('saveTooltipFolders');
+        if (!wrap) return;
+        const lang = localStorage.getItem('site_lang') || 'pt';
+        const ph = lang === 'ja' ? '新しいフォルダの名前' : 'Nome da nova pasta';
+        wrap.innerHTML =
+            '<div style="display:flex; gap:6px; width:100%; align-items:center;">' +
+            '<input type="text" class="save-folder-input" maxlength="40" placeholder="' + ph + '" style="flex:1; min-width:0; padding:5px 10px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text-main); font-size:0.8rem; font-family:inherit;">' +
+            '<button type="button" class="save-folder-chip save-folder-ok">OK</button>' +
+            '<button type="button" class="save-folder-chip save-folder-cancel" aria-label="cancelar">✕</button>' +
+            '</div>';
+        const tip = document.getElementById('saveTooltip');
+        if (tip) { tip.classList.add('show'); clearTimeout(window._saveTooltipTimer); }
+        const input = wrap.querySelector('.save-folder-input');
+        const submit = () => {
+            const name = (input.value || '').trim();
+            if (!name) { input.focus(); return; }
+            window._assignSavedToFolder(vol, file, topic, '__new__', null, name);
+        };
+        wrap.querySelector('.save-folder-ok').onclick = submit;
+        wrap.querySelector('.save-folder-cancel').onclick = () => window._renderSaveTooltipFolders(vol, file, topic);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); submit(); }
+            else if (e.key === 'Escape') { e.preventDefault(); window._renderSaveTooltipFolders(vol, file, topic); }
+        });
+        setTimeout(() => input.focus(), 30);
+    };
+
+    // Guarda o favorito recém-salvo numa pasta. fid === '__new__' cria a pasta
+    // na hora (nome vem de presetName, sem prompt). Local primeiro; nuvem em
+    // seguida sem bloquear o feedback.
+    window._assignSavedToFolder = async function (vol, file, topic, fid, btn, presetName) {
+        const lang = localStorage.getItem('site_lang') || 'pt';
+        const uuid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('f-' + Date.now() + '-' + Math.random().toString(16).slice(2));
+        let folders = [];
+        try { folders = JSON.parse(localStorage.getItem('favoriteFolders') || '[]'); } catch (e) { }
+
+        let folderId = fid;
+        if (fid === '__new__') {
+            let name = presetName;
+            if (name == null) { name = prompt(lang === 'ja' ? '新しいフォルダの名前:' : 'Nome da nova pasta:'); } // fallback
+            if (name == null || !String(name).trim()) return;
+            const colors = ['#b8860b', '#c0562f', '#2f7d5b', '#3b6ea5', '#7a5ba5', '#8a8a8a'];
+            const fo = { id: uuid(), name: String(name).trim().slice(0, 40), color: colors[folders.length % colors.length], pos: folders.length, time: Date.now() };
+            folders.push(fo);
+            try { localStorage.setItem('favoriteFolders', JSON.stringify(folders)); } catch (e) { }
+            if (window._cloudSync && window._cloudSync.upsertFolder) {
+                try { await window._cloudSync.upsertFolder({ id: fo.id, name: fo.name, color: fo.color, pos: fo.pos }); } catch (e) { console.warn('[favorites] upsertFolder failed:', e); }
+            }
+            folderId = fo.id;
+        }
+
+        let favs = [];
+        try { favs = JSON.parse(localStorage.getItem('savedFavorites') || '[]'); } catch (e) { }
+        const f = favs.find(x => x.vol === vol && x.file === file && (x.topic || 0) === topic);
+        if (f) { f.folderId = folderId; try { localStorage.setItem('savedFavorites', JSON.stringify(favs)); } catch (e) { } }
+        // Feedback instantâneo (antes de esperar a nuvem): recolore o botão de
+        // salvar/bolinha e redesenha os chips com a pasta escolhida marcada.
+        if (typeof window.updateFavIndicators === 'function') window.updateFavIndicators();
+        window._renderSaveTooltipFolders(vol, file, topic, folderId);
+
+        const fo2 = folders.find(x => x.id === folderId);
+        const statusEl = document.getElementById('saveTooltipStatus');
+        if (statusEl && fo2) {
+            const shortName = fo2.name.length > 28 ? fo2.name.slice(0, 27) + '…' : fo2.name;
+            statusEl.textContent = lang === 'ja' ? `「${shortName}」に保存しました` : `Salvo em "${shortName}"`;
+        }
+        const tip = document.getElementById('saveTooltip');
+        if (tip) { tip.classList.add('show'); clearTimeout(window._saveTooltipTimer); window._saveTooltipTimer = setTimeout(() => tip.classList.remove('show'), 3200); }
+
+        if (window._cloudSync && window._cloudSync.setFavoriteFolder) {
+            try { await window._cloudSync.setFavoriteFolder(vol, file, topic, folderId); } catch (e) { console.warn('[favorites] setFavoriteFolder failed:', e); }
         }
     };
 

@@ -122,7 +122,9 @@ function _buildPartialCitationCTA(volId, filename, topicIdx, lang) {
 
 function _buildTopicSaveBar(topicIdx, lang) {
     const l = { pt: { save: 'Salvar esta publicação', saved: 'Publicação salva' }, ja: { save: 'この教えを保存', saved: '保存済み' } }[lang] || { save: 'Salvar esta publicação', saved: 'Publicação salva' };
-    const icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+    // Bookmark (marcador): preenche bem no estado salvo. O ícone antigo de
+    // "disquete" tinha o contorno externo fechado → fill virava um bloco sólido.
+    const icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
 
     // Botão "Marcar como lido" — controle pessoal do usuário (fase 1 da
     // Central de Ensinamentos Lidos). Estado/active e a tarja com a data são
@@ -588,21 +590,36 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         try { favs = JSON.parse(localStorage.getItem('savedFavorites') || '[]'); } catch (e) { }
         const pageFavs = favs.filter(f => f.vol === volId && f.file === filename);
         const savedSet = new Set(pageFavs.map(f => f.topic || 0));
+        // Cor da pasta (se o favorito estiver em uma) por tópico — pinta o
+        // ícone salvo e a bolinha com a cor da pasta, senão cai no --accent.
+        const folderByTopic = new Map(pageFavs.map(f => [f.topic || 0, f.folderId || null]));
+        let _folders = [];
+        try { _folders = JSON.parse(localStorage.getItem('favoriteFolders') || '[]'); } catch (e) { }
+        const folderColor = new Map(_folders.map(fo => [fo.id, fo.color]));
+        const colorForTopic = (i) => {
+            const fid = folderByTopic.get(i);
+            return (fid && folderColor.get(fid)) ? folderColor.get(fid) : '';
+        };
         const totalTopics = window._currentTotalTopics || 1;
         for (let i = 0; i < totalTopics; i++) {
             const topicEl = document.getElementById(`topic-${i}`);
             if (!topicEl) continue;
+            const isSaved = savedSet.has(i);
+            const favColor = isSaved ? colorForTopic(i) : '';
             let dot = topicEl.querySelector('.saved-topic-dot');
             if (!dot) {
                 const titleEl = Array.from(topicEl.querySelectorAll('b')).find(b => b.textContent.trim().length > 2);
                 if (titleEl) { dot = document.createElement('span'); dot.className = 'saved-topic-dot'; titleEl.appendChild(dot); }
             }
-            if (dot) dot.classList.toggle('visible', savedSet.has(i));
+            if (dot) {
+                dot.classList.toggle('visible', isSaved);
+                if (favColor) dot.style.background = favColor; else dot.style.removeProperty('background');
+            }
 
             const saveBtn = topicEl.querySelector('.topic-save-btn');
             if (saveBtn) {
-                const isSaved = savedSet.has(i);
                 saveBtn.classList.toggle('active', isSaved);
+                if (favColor) saveBtn.style.setProperty('--fav-color', favColor); else saveBtn.style.removeProperty('--fav-color');
                 // Estado vai pro title/aria-label, NUNCA pro nó de texto: o
                 // rótulo (display:none, legado) fica dentro do tópico e os
                 // offsets dos destaques (_collectTextNodes) contam ele —

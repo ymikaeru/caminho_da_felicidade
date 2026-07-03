@@ -116,22 +116,48 @@ export async function getLastPosition(volume, file) {
 // Favorites
 // ============================================================
 
-export async function saveFavorite(volume, file, topicIndex, topicTitle, snippet, totalTopics) {
+export async function saveFavorite(volume, file, topicIndex, topicTitle, snippet, totalTopics, folderId) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return;
+
+  const row = {
+    user_id: session.user.id,
+    volume,
+    file,
+    topic_index: topicIndex,
+    topic_title: topicTitle,
+    snippet,
+    total_topics: totalTopics,
+    folder_id: folderId ?? null,
+    created_at: new Date().toISOString()
+  };
+
+  // Tenta com folder_id; se a coluna ainda não existe (migração não rodou),
+  // refaz o upsert sem esse campo — favoritar não pode quebrar.
+  const { error } = await supabase
+    .from('synced_favorites')
+    .upsert(row, { onConflict: 'user_id,volume,file,topic_index' });
+  if (error && /folder_id/i.test(error.message || '')) {
+    delete row.folder_id;
+    await supabase
+      .from('synced_favorites')
+      .upsert(row, { onConflict: 'user_id,volume,file,topic_index' });
+  }
+}
+
+// Move um favorito já salvo para uma pasta (folderId null = "Sem pasta").
+// UPDATE (não upsert) para tocar só o folder_id, sem mexer nos outros campos.
+export async function setFavoriteFolder(volume, file, topicIndex, folderId) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return;
 
   await supabase
     .from('synced_favorites')
-    .upsert({
-      user_id: session.user.id,
-      volume,
-      file,
-      topic_index: topicIndex,
-      topic_title: topicTitle,
-      snippet,
-      total_topics: totalTopics,
-      created_at: new Date().toISOString()
-    }, { onConflict: 'user_id,volume,file,topic_index' });
+    .update({ folder_id: folderId ?? null })
+    .eq('user_id', session.user.id)
+    .eq('volume', volume)
+    .eq('file', file)
+    .eq('topic_index', topicIndex);
 }
 
 export async function removeFavorite(volume, file, topicIndex) {
@@ -151,14 +177,72 @@ export async function loadFavorites() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return [];
 
-  const { data } = await supabase
+  // Tenta com folder_id; fallback sem a coluna se a migração não rodou.
+  let { data, error } = await supabase
     .from('synced_favorites')
-    .select('volume, file, topic_index, topic_title, snippet, total_topics, created_at')
+    .select('volume, file, topic_index, topic_title, snippet, total_topics, folder_id, created_at')
     .eq('user_id', session.user.id)
     .order('created_at', { ascending: false })
     .limit(500);
 
+  if (error && /folder_id/i.test(error.message || '')) {
+    ({ data } = await supabase
+      .from('synced_favorites')
+      .select('volume, file, topic_index, topic_title, snippet, total_topics, created_at')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false })
+      .limit(500));
+  }
+
   return data || [];
+}
+
+// ============================================================
+// Favorite Folders (pastas dos Ensinamentos Salvos)
+// ============================================================
+
+export async function loadFolders() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return [];
+
+  const { data, error } = await supabase
+    .from('favorite_folders')
+    .select('id, name, color, pos, created_at')
+    .eq('user_id', session.user.id)
+    .order('pos', { ascending: true })
+    .limit(200);
+
+  if (error) { console.warn('[sync] loadFolders:', error.message); return []; }
+  return data || [];
+}
+
+// Cria/renomeia/recolore uma pasta. `id` é gerado no cliente (uuid estável
+// entre aparelhos), então upsert por id cobre criar e atualizar.
+export async function upsertFolder(folder) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return;
+
+  await supabase
+    .from('favorite_folders')
+    .upsert({
+      id: folder.id,
+      user_id: session.user.id,
+      name: folder.name,
+      color: folder.color ?? null,
+      pos: folder.pos ?? 0
+    }, { onConflict: 'id' });
+}
+
+export async function deleteFolder(id) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return;
+
+  // ON DELETE SET NULL no banco desarquiva os favoritos que apontavam pra cá.
+  await supabase
+    .from('favorite_folders')
+    .delete()
+    .eq('user_id', session.user.id)
+    .eq('id', id);
 }
 
 export async function isFavorite(volume, file, topicIndex) {
@@ -275,6 +359,7 @@ export async function pullCloudToLocal() {
           topicTitle: cf.topic_title,
           snippet: cf.snippet,
           totalTopics: cf.total_topics,
+          folderId: cf.folder_id || null,
         });
         favAdded++;
       }
@@ -285,6 +370,30 @@ export async function pullCloudToLocal() {
     }
   } catch (e) {
     console.warn('pullCloudToLocal favorites failed:', e);
+  }
+
+  // Pastas (favorite_folders) → localStorage.favoriteFolders, pra o leitor
+  // colorir o ícone salvo e o tooltip listar as pastas em qualquer aparelho.
+  try {
+    const cloudFolders = await loadFolders();
+    if (cloudFolders && cloudFolders.length) {
+      let localFolders = [];
+      try { localFolders = JSON.parse(localStorage.getItem('favoriteFolders') || '[]'); } catch (e) {}
+      const byId = new Map(localFolders.map(f => [f.id, f]));
+      let changed = false;
+      for (const r of cloudFolders) {
+        const ex = byId.get(r.id);
+        if (!ex) {
+          localFolders.push({ id: r.id, name: r.name, color: r.color, pos: r.pos, time: new Date(r.created_at).getTime() });
+          changed = true;
+        } else if (ex.name !== r.name || ex.color !== r.color || (ex.pos || 0) !== (r.pos || 0)) {
+          ex.name = r.name; ex.color = r.color; ex.pos = r.pos; changed = true;
+        }
+      }
+      if (changed) localStorage.setItem('favoriteFolders', JSON.stringify(localFolders));
+    }
+  } catch (e) {
+    console.warn('pullCloudToLocal folders failed:', e);
   }
 
   try {

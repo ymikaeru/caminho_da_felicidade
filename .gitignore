@@ -39,3 +39,6 @@ notebooklm_export/
 
 # Cópia local de livros p/ revisar deslogado (fallback site_data) — NÃO publicar
 site_data/books/
+
+# Grafo de conhecimento do graphify (regenerável: /graphify) — ferramenta de dev, não publicar
+graphify-out/

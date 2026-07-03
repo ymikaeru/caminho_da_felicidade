@@ -1785,10 +1785,34 @@ async function loadEngagementProfiles(days, since) {
 
   const clamp01 = x => Math.max(0, Math.min(1, x));
   const dateKey = ts => new Date(ts).toLocaleDateString('pt-BR');
+  // Número do dia LOCAL (mesmo fuso do observador, coerente com dateKey acima).
+  // Streak = dias de calendário consecutivos com pelo menos um acesso.
+  const dayNum = ts => { const d = new Date(ts); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / DAY); };
+  const computeStreaks = access => {
+    if (!access.length) return { current: 0, best: 0 };
+    const days = [...new Set(access.map(dayNum))].sort((a, b) => a - b);
+    let best = 1, run = 1;
+    for (let i = 1; i < days.length; i++) {
+      if (days[i] === days[i - 1] + 1) { run++; if (run > best) best = run; }
+      else run = 1;
+    }
+    // Sequência ATUAL: só conta se o último dia ativo é hoje ou ontem (senão
+    // já quebrou). Conta pra trás enquanto os dias forem consecutivos.
+    const todayNum = dayNum(nowMs), lastDay = days[days.length - 1];
+    let current = 0;
+    if (todayNum - lastDay <= 1) {
+      current = 1;
+      for (let i = days.length - 1; i > 0; i--) {
+        if (days[i] === days[i - 1] + 1) current++; else break;
+      }
+    }
+    return { current, best };
+  };
   const rows = uids.map(uid => {
     const u = U[uid];
     const lastAccess = u.access.reduce((a, b) => b > a ? b : a, 0);
     const daysSince = lastAccess ? Math.floor((nowMs - lastAccess) / DAY) : 999;
+    const { current: streakNow, best: streakBest } = computeStreaks(u.access);
     const activeDays = new Set(u.access.map(dateKey)).size;
     const activeDaysRecent = new Set(u.access.filter(ts => ts >= nowMs - 14 * DAY).map(dateKey)).size;
     const activeDaysPrior = new Set(u.access.filter(ts => ts < nowMs - 14 * DAY && ts >= nowMs - 28 * DAY).map(dateKey)).size;
@@ -1813,7 +1837,7 @@ async function loadEngagementProfiles(days, since) {
     else if (activeDaysPrior === 0 ? activeDaysRecent >= 2 : activeDaysRecent > activeDaysPrior) state = 'crescendo';
     else state = 'assiduo';
 
-    return { uid, daysSince, activeDays, avgProgress, hours, pubs, grifos: u.grifos, favs: u.favs, marcados: u.marcados, actions, score, state, wasEngaged, recPts, consPts, depthPts, timePts, actPts };
+    return { uid, daysSince, activeDays, streakNow, streakBest, avgProgress, hours, pubs, grifos: u.grifos, favs: u.favs, marcados: u.marcados, actions, score, state, wasEngaged, recPts, consPts, depthPts, timePts, actPts };
   });
 
   // Nomes.
@@ -1831,6 +1855,10 @@ async function loadEngagementProfiles(days, since) {
   const CHIP_BASE = 'display:inline-block;font-size:0.62rem;font-weight:700;padding:1px 7px;border-radius:999px;vertical-align:middle;white-space:nowrap;';
   const chip = st => `<span style="${CHIP_BASE}${STATE[st].chip}">${STATE[st].emoji} ${STATE[st].label}</span>`;
   const recTxt = d => d <= 0 ? 'hoje' : d === 1 ? 'ontem' : d >= 999 ? 'nunca' : `há ${d} dias`;
+  // Selo de sequência atual (🔥) — só aparece a partir de 2 dias seguidos.
+  const streakBadge = n => n >= 2
+    ? `<span style="${CHIP_BASE}background:rgba(239,68,68,.14);color:#dc2626;" title="dias ativos consecutivos, sem faltar um dia">🔥 ${n} dias seguidos</span>`
+    : '';
 
   // Contagem por estado.
   const counts = { assiduo: 0, crescendo: 0, esfriando: 0, inativo: 0 };
@@ -1864,6 +1892,26 @@ async function loadEngagementProfiles(days, since) {
       </div>`;
   }
 
+  // Em sequência: quem está numa sequência ATIVA de dias consecutivos
+  // (vindo sem faltar até hoje/ontem). Ordena pela maior sequência atual.
+  const onStreak = rows.filter(r => r.streakNow >= 2).sort((a, b) => b.streakNow - a.streakNow || b.streakBest - a.streakBest);
+  let streakHtml = '';
+  if (onStreak.length) {
+    const items = onStreak.slice(0, 12).map(r => `
+      <div style="display:flex; align-items:center; gap:8px; padding:6px 0; font-size:0.82rem; border-top:1px solid var(--border);">
+        <span style="flex-shrink:0; font-weight:700; color:#dc2626; min-width:56px;">🔥 ${r.streakNow}d</span>
+        <strong style="flex-shrink:0;">${_escHtml(nameOf(r.uid))}</strong>
+        <span style="color:var(--text-muted); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">seguidos até ${recTxt(r.daysSince)} · recorde ${r.streakBest} dias · ${r.activeDays} dias ativos no período</span>
+      </div>`).join('');
+    const more = onStreak.length > 12 ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">+ ${onStreak.length - 12} outros em sequência</div>` : '';
+    streakHtml = `
+      <div style="border-left:3px solid #dc2626; background:rgba(239,68,68,0.07); border-radius:8px; padding:12px 14px; margin-bottom:18px;">
+        <div style="font-weight:600; font-size:0.85rem; margin-bottom:4px; color:#dc2626;">🔥 Em sequência — vindo dias consecutivos sem faltar</div>
+        <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:6px;">Disciplos com hábito diário de estudo agora. ${onStreak.length} em sequência ativa.</div>
+        ${items}${more}
+      </div>`;
+  }
+
   // Ranking por score.
   const ranked = rows.slice().sort((a, b) => b.score - a.score || a.daysSince - b.daysSince).slice(0, 20);
   const maxScore = ranked[0].score || 1;
@@ -1877,8 +1925,8 @@ async function loadEngagementProfiles(days, since) {
         <div class="ranking-pos ${posClass}">${i + 1}</div>
         <div class="ranking-avatar">${initial}</div>
         <div class="ranking-info">
-          <div class="ranking-name">${_escHtml(name)} ${chip(r.state)}</div>
-          <div style="font-size:0.66rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">recência ${Math.round(r.recPts)} · consistência ${Math.round(r.consPts)} · profundidade ${Math.round(r.depthPts)} · tempo ${Math.round(r.timePts)} · ações ${Math.round(r.actPts)} · <span title="último acesso">${recTxt(r.daysSince)}</span></div>
+          <div class="ranking-name">${_escHtml(name)} ${chip(r.state)} ${streakBadge(r.streakNow)}</div>
+          <div style="font-size:0.66rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">recência ${Math.round(r.recPts)} · consistência ${Math.round(r.consPts)} · profundidade ${Math.round(r.depthPts)} · tempo ${Math.round(r.timePts)} · ações ${Math.round(r.actPts)} · <span title="último acesso">${recTxt(r.daysSince)}</span> · <span title="maior sequência de dias consecutivos no período">recorde ${r.streakBest}d</span></div>
         </div>
         <div class="ranking-bar-track" style="max-width:110px;"><div class="ranking-bar-fill" style="width:${barPct}%"></div></div>
         <div class="ranking-value">${r.score}/100</div>
@@ -1890,6 +1938,7 @@ async function loadEngagementProfiles(days, since) {
       Engajamento real por disciplo (${rows.length} no período) — combina recência, consistência, profundidade de leitura, tempo e ações deliberadas. Não é contagem de cliques.
     </p>
     <div class="stats-grid" style="margin-bottom:18px;">${stateCards}</div>
+    ${streakHtml}
     ${attentionHtml}
     <h4 style="margin:0 0 10px; font-size:0.9rem;">Ranking por engajamento <span style="font-weight:400; color:var(--text-muted); font-size:0.75rem;">(score 0–100)</span></h4>
     <div class="ranking-list">${rankHtml}</div>
@@ -1897,6 +1946,7 @@ async function loadEngagementProfiles(days, since) {
       <summary style="cursor:pointer;">Como o score e os estados são calculados</summary>
       <div style="margin-top:8px; line-height:1.7;">
         <strong>Score (0–100):</strong> recência (30) + consistência de dias ativos (25) + profundidade média de leitura (20) + tempo investido (15) + ações deliberadas — grifos, salvos e marcações (10).<br>
+        <strong>🔥 Sequência (streak):</strong> dias de calendário consecutivos com pelo menos um acesso, sem faltar um dia. A "sequência atual" só conta se a pessoa veio hoje ou ontem; "recorde" é a maior sequência dentro do período selecionado.<br>
         <strong>🟢 Assíduo:</strong> ativo nos últimos 7 dias e constante.<br>
         <strong>🌱 Crescendo:</strong> ativo recentemente e com atividade em alta (bom momento para incentivar).<br>
         <strong>🟡 Esfriando:</strong> já foi engajado, mas está 8–30 dias sem vir.<br>

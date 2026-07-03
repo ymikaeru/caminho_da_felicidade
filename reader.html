@@ -36,8 +36,10 @@
 
   <!-- Save tooltip -->
   <div class="save-tooltip" id="saveTooltip">
+    <button type="button" class="save-tooltip-close" id="saveTooltipClose" aria-label="Fechar">&times;</button>
     <div class="save-tooltip-title" id="saveTooltipTitle"></div>
     <div class="save-tooltip-status" id="saveTooltipStatus"></div>
+    <a class="save-tooltip-link" id="saveTooltipLink" href="salvos.html" style="display:none"></a>
     <div class="save-tooltip-folders" id="saveTooltipFolders" style="display:none"></div>
   </div>
   <style>
@@ -60,14 +62,39 @@
       border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
       box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
     }
+    /* × de fechar e link pra Central: únicos pontos clicáveis fora da área
+       de pastas (o balão em si é pointer-events:none). */
+    .save-tooltip {
+      padding-left: 30px;
+      padding-right: 30px;
+      /* Base trava em 320px → chips empilhavam 1 por linha. Cresce com o
+         conteúdo até 460px (no celular, respeita a tela). */
+      max-width: min(460px, calc(100vw - 20px));
+      width: max-content;
+    }
+    .save-tooltip-close {
+      position: absolute; top: 2px; right: 2px;
+      width: 30px; height: 30px; border: none; background: transparent;
+      color: var(--text-muted); font-size: 18px; line-height: 1;
+      border-radius: 50%; cursor: pointer; pointer-events: auto;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .save-tooltip-close:hover { color: var(--text-main); }
+    .save-tooltip-link {
+      display: inline-block; margin-top: 5px; font-size: 0.76rem;
+      color: var(--accent); text-decoration: none; pointer-events: auto;
+      font-family: "Outfit", sans-serif;
+    }
+    .save-tooltip-link:hover { text-decoration: underline; }
     /* O .save-tooltip tem pointer-events:none (era só um aviso). A área de
        pastas precisa reativar o clique, senão os chips não recebem o toque. */
-    .save-tooltip-folders { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; pointer-events: auto; }
+    .save-tooltip-folders { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; pointer-events: auto; }
     .save-folder-label { flex-basis: 100%; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 2px; }
     .save-folder-chip {
       display: inline-flex; align-items: center; gap: 5px;
       max-width: 100%;
-      padding: 4px 9px; border-radius: 14px;
+      min-height: 36px; /* alvo de toque — público inclui idosos */
+      padding: 5px 11px; border-radius: 18px;
       border: 1px solid var(--border);
       background: rgba(128, 128, 128, 0.12); /* fallback iOS < 16.2 */
       background: color-mix(in srgb, var(--text-main) 7%, transparent);
@@ -76,8 +103,16 @@
     .save-folder-chip:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
     .save-folder-chip.chosen { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
     .save-folder-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-    .save-folder-cname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
-    .save-folder-new { border-style: dashed; color: var(--text-muted); }
+    .save-folder-cname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 320px; }
+    /* "＋ Nova" é AÇÃO, não pasta: linha própria no rodapé, largura cheia e
+       tracejada — mesmo padrão do "＋ Nova pasta" da central de salvos. */
+    .save-folder-new {
+      border-style: dashed;
+      color: var(--text-muted);
+      flex-basis: 100%;
+      justify-content: center;
+      margin-top: 2px;
+    }
   </style>
 
   <header class="header">
@@ -271,7 +306,7 @@
   <script src="js/content-protection.js?v=8" defer></script>
   <script src="js/first-visit-tips.js?v=2" defer></script>
   <script src="js/translation-report.js?v=3" defer></script>
-  <script src="js/reader.js?v=35" defer></script>
+  <script src="js/reader.js?v=36" defer></script>
   <script>
     // disciples-reader (~54 KB) só atua em ?pub=disciples — fora desse modo
     // nem baixa. O boot dele tolera injeção tardia (checa readyState e

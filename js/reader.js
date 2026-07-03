@@ -313,13 +313,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const tooltip = document.getElementById('saveTooltip');
         if (tooltip) {
             const statusText = {
-                pt: { saved: '✓ Salvo em Ensinamentos Salvos (no menu)', removed: '✕ Removido de Ensinamentos Salvos' },
-                ja: { saved: '✓「保存した教え」に追加しました（メニュー）', removed: '✕「保存した教え」から削除しました' }
-            }[lang] || { saved: '✓ Salvo em Ensinamentos Salvos (no menu)', removed: '✕ Removido de Ensinamentos Salvos' };
+                pt: { saved: '✓ Salvo em Ensinamentos Salvos', removed: '✕ Removido de Ensinamentos Salvos' },
+                ja: { saved: '✓「保存した教え」に追加しました', removed: '✕「保存した教え」から削除しました' }
+            }[lang] || { saved: '✓ Salvo em Ensinamentos Salvos', removed: '✕ Removido de Ensinamentos Salvos' };
             const rawTitle = topicTitle || title;
             const cleanTitle = rawTitle.replace(/^(Ensinamento|Orientação|Palestra) de (Meishu-Sama|Moisés)\s*[-:]\s*/i, '').replace(/^["'](.*?)["']$/, '$1').trim();
             document.getElementById('saveTooltipTitle').textContent = cleanTitle;
             document.getElementById('saveTooltipStatus').textContent = isSaved ? statusText.removed : statusText.saved;
+
+            // Link pra Central de Salvos — só quando acabou de salvar.
+            const linkEl = document.getElementById('saveTooltipLink');
+            if (linkEl) {
+                if (!isSaved) {
+                    linkEl.textContent = lang === 'ja' ? '保存した教えを見る →' : 'Ver meus Salvos →';
+                    linkEl.style.display = '';
+                } else {
+                    linkEl.style.display = 'none';
+                }
+            }
 
             // Ao salvar (não ao remover), oferece as pastas do usuário como
             // chips opcionais. Salvar continua 1 clique — a pasta é opcional.
@@ -335,9 +346,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            // Escolher pasta não pode ser corrida contra o relógio: × fecha na
+            // hora, e qualquer interação na área de pastas suspende o
+            // auto-esconder (fica um fallback longo de segurança).
+            if (!window._saveTooltipWired) {
+                window._saveTooltipWired = true;
+                const closeBtn = document.getElementById('saveTooltipClose');
+                if (closeBtn) closeBtn.addEventListener('click', () => {
+                    clearTimeout(window._saveTooltipTimer);
+                    tooltip.classList.remove('show');
+                });
+                if (foldersEl) {
+                    const hold = () => {
+                        clearTimeout(window._saveTooltipTimer);
+                        window._saveTooltipTimer = setTimeout(() => tooltip.classList.remove('show'), 15000);
+                    };
+                    foldersEl.addEventListener('pointerenter', hold);
+                    foldersEl.addEventListener('pointerdown', hold);
+                }
+            }
+
             tooltip.classList.add('show');
             clearTimeout(window._saveTooltipTimer);
-            window._saveTooltipTimer = setTimeout(() => tooltip.classList.remove('show'), showFolders ? 5200 : 2800);
+            window._saveTooltipTimer = setTimeout(() => tooltip.classList.remove('show'), showFolders ? 7000 : 2800);
         }
     };
 

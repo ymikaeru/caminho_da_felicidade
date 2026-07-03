@@ -1026,6 +1026,66 @@ async function _renderRecentActivity() {
   });
 }
 
+// Trechos copiados renderizados por último — o modal de leitura busca por
+// índice daqui (data-copy-idx + listener delegado; nada de texto de usuário
+// em onclick inline — mesma lição do XSS A2 da auditoria).
+let _copyExcerpts = [];
+
+// Modal de leitura do trecho copiado: o preview no card tem ~120px e trechos
+// chegam a milhares de chars — impraticável ler no scroll interno.
+function _openCopyExcerptModal(idx) {
+  const item = _copyExcerpts[idx];
+  if (!item) return;
+
+  let overlay = document.getElementById('cpExcerptModal');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'cpExcerptModal';
+    overlay.style.cssText = 'position:fixed; inset:0; z-index:10500; background:rgba(0,0,0,0.55); display:none; align-items:center; justify-content:center; padding:20px;';
+    overlay.innerHTML = `
+      <div style="background:var(--surface); color:var(--text); width:min(860px, 96vw); max-height:90vh; border-radius:12px; box-shadow:0 18px 60px rgba(0,0,0,0.35); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="display:flex; align-items:flex-start; gap:12px; padding:16px 20px; border-bottom:1px solid var(--border);">
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:.12em; color:var(--text-muted); font-weight:600; margin-bottom:4px;">Trecho copiado</div>
+            <div id="cpExcerptMeta" style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;"></div>
+          </div>
+          <button type="button" id="cpExcerptClose" aria-label="Fechar" style="background:none; border:none; cursor:pointer; font-size:1.5rem; line-height:1; color:var(--text-muted); padding:4px 8px;">&times;</button>
+        </div>
+        <div id="cpExcerptBody" style="flex:1; overflow-y:auto; padding:20px 24px; font-family:Georgia, 'Times New Roman', serif; font-size:1.02rem; line-height:1.7; white-space:pre-wrap; word-break:break-word;"></div>
+        <div style="display:flex; align-items:center; gap:10px; padding:12px 20px; border-top:1px solid var(--border);">
+          <span id="cpExcerptLen" style="font-size:0.75rem; color:var(--text-muted);"></span>
+          <button type="button" id="cpExcerptCopy" style="margin-left:auto; border:1px solid var(--border); background:none; color:var(--accent); border-radius:6px; padding:7px 14px; font-size:0.8rem; cursor:pointer;">📋 Copiar texto</button>
+          <button type="button" id="cpExcerptOk" style="border:none; background:var(--accent); color:#fff; border-radius:6px; padding:7px 16px; font-size:0.8rem; font-weight:600; cursor:pointer;">Fechar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    const close = () => { overlay.style.display = 'none'; };
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    overlay.querySelector('#cpExcerptClose').addEventListener('click', close);
+    overlay.querySelector('#cpExcerptOk').addEventListener('click', close);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.style.display !== 'none') close();
+    });
+    overlay.querySelector('#cpExcerptCopy').addEventListener('click', async () => {
+      const btn = overlay.querySelector('#cpExcerptCopy');
+      try { await navigator.clipboard.writeText(overlay.querySelector('#cpExcerptBody').textContent || ''); } catch (e) {}
+      btn.textContent = '✓ Copiado';
+      setTimeout(() => { btn.textContent = '📋 Copiar texto'; }, 1600);
+    });
+  }
+
+  overlay.querySelector('#cpExcerptMeta').innerHTML =
+    `<strong style="color:var(--accent);">${_escHtml(item.name)}</strong>` +
+    ` · ${_escHtml(item.volLabel)} · ${_escHtml(item.title)} · ${_escHtml(item.dateStr)}`;
+  // textContent (não innerHTML): o trecho é conteúdo do usuário.
+  overlay.querySelector('#cpExcerptBody').textContent = item.text;
+  overlay.querySelector('#cpExcerptLen').textContent = item.truncated
+    ? `⚠ Captura limitada: exibindo ${item.text.length} de ${item.length} caracteres do trecho original`
+    : `${item.length} caracteres`;
+  overlay.style.display = 'flex';
+  overlay.querySelector('#cpExcerptBody').scrollTop = 0;
+}
+
 async function loadContentProtection(days, since) {
   const container = document.getElementById('content-protection-stats');
   if (!container) return;
@@ -1104,33 +1164,44 @@ async function loadContentProtection(days, since) {
       </table>`;
   }
 
-  // Lista de trechos copiados (com texto, quando disponível)
+  // Lista de trechos copiados (com texto, quando disponível). Cada card abre
+  // o modal de leitura (_openCopyExcerptModal) — o preview de 120px é só um
+  // aperitivo; trechos reais passam de milhares de chars.
   const copyRows = copies.filter(r => r.metadata && r.metadata.text);
   let copiesListHtml = '';
   if (copyRows.length > 0) {
     const recentCopies = copyRows.slice(0, 50);
+    _copyExcerpts = recentCopies.map(r => {
+      const date = new Date(r.created_at);
+      const dateStr = date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' ' + date.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
+      const text = r.metadata.text || '';
+      const length = r.metadata.length || text.length;
+      return {
+        name: nameMap[r.user_id] || 'Desconhecido',
+        volLabel: VOL_SHORT[r.volume] || r.volume || '—',
+        title: r.file ? getFileTitle(r.volume, r.file) : '—',
+        dateStr, text, length,
+        truncated: length > text.length,
+      };
+    });
     copiesListHtml = `
       <details style="margin-top:24px;">
         <summary style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.14em; color:var(--text-muted); margin:0 0 12px; font-weight:600; cursor:pointer; user-select:none;">📋 Trechos copiados (últimos ${recentCopies.length} de ${copyRows.length})</summary>
         <div style="display:flex; flex-direction:column; gap:10px; max-height:520px; overflow-y:auto; padding-right:6px;">
-          ${recentCopies.map(r => {
-            const date = new Date(r.created_at);
-            const dateStr = date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' ' + date.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
-            const title = r.file ? getFileTitle(r.volume, r.file) : '—';
-            const text = r.metadata.text || '';
-            const length = r.metadata.length || text.length;
-            const lengthBadge = length > 2000 ? `<span style="color:#c44;">${length} chars (truncado)</span>` : `${length} chars`;
+          ${_copyExcerpts.map((it, i) => {
+            const lengthBadge = it.truncated ? `<span style="color:#c44;">${it.length} chars (truncado)</span>` : `${it.length} chars`;
             return `
-              <div style="border:1px solid var(--border); border-radius:10px; padding:12px 14px; background:var(--surface);">
+              <div data-copy-idx="${i}" title="Clique para ler o trecho completo" style="border:1px solid var(--border); border-radius:10px; padding:12px 14px; background:var(--surface); cursor:pointer;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
-                  <span style="font-size:0.78rem; font-weight:600; color:var(--accent);">${_escHtml(nameMap[r.user_id] || 'Desconhecido')}</span>
+                  <span style="font-size:0.78rem; font-weight:600; color:var(--accent);">${_escHtml(it.name)}</span>
                   <span style="font-size:0.7rem; color:var(--text-muted);">·</span>
-                  <span style="font-size:0.72rem; color:var(--text-muted);" title="${_escHtml(r.file || '')}">${VOL_SHORT[r.volume] || r.volume || '—'} · ${_escHtml(title)}</span>
+                  <span style="font-size:0.72rem; color:var(--text-muted);">${_escHtml(it.volLabel)} · ${_escHtml(it.title)}</span>
                   <span style="font-size:0.7rem; color:var(--text-muted);">·</span>
-                  <span style="font-size:0.72rem; color:var(--text-muted);">${dateStr}</span>
+                  <span style="font-size:0.72rem; color:var(--text-muted);">${it.dateStr}</span>
                   <span style="margin-left:auto; font-size:0.68rem; color:var(--text-muted); background:var(--bg); padding:2px 8px; border-radius:4px;">${lengthBadge}</span>
+                  <span style="font-size:0.68rem; color:var(--accent); border:1px solid var(--accent); padding:2px 8px; border-radius:4px;">⤢ ampliar</span>
                 </div>
-                <div style="font-size:0.85rem; line-height:1.55; padding:8px 10px; background:var(--bg); border-radius:6px; white-space:pre-wrap; word-break:break-word; max-height:120px; overflow-y:auto;">${_escHtml(text)}</div>
+                <div style="font-size:0.85rem; line-height:1.55; padding:8px 10px; background:var(--bg); border-radius:6px; white-space:pre-wrap; word-break:break-word; max-height:120px; overflow-y:auto;">${_escHtml(it.text)}</div>
               </div>
             `;
           }).join('')}
@@ -1144,6 +1215,16 @@ async function loadContentProtection(days, since) {
   }
 
   container.innerHTML = cardsHtml + tableHtml + copiesListHtml;
+  // Delegado + atribuição direta (não addEventListener): loadContentProtection
+  // re-roda a cada troca de período e listeners empilhados abririam N modais.
+  container.onclick = (e) => {
+    const card = e.target.closest('[data-copy-idx]');
+    if (!card) return;
+    // Selecionar texto no preview não deve abrir o modal.
+    const sel = window.getSelection();
+    if (sel && sel.toString()) return;
+    _openCopyExcerptModal(parseInt(card.dataset.copyIdx, 10));
+  };
 }
 
 // ============================================================

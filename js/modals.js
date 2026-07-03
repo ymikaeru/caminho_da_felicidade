@@ -31,6 +31,10 @@ function buildSearchModal() {
   const exactTitle = lang === 'ja' ? '単語全体のみを検索' : 'Busca somente palavras inteiras. Ex: \'luz\' não encontrará \'reluz\'';
   const literalLabel = lang === 'ja' ? 'リテラル検索' : 'Texto literal';
   const literalTitle = lang === 'ja' ? '部分一致のみで検索（FTS・意味検索を無効化）' : 'Busca apenas por substring exata (sem FTS nem busca semântica). Útil para termos em japonês ou trechos exatos.';
+  const readOnlyLabel = lang === 'ja' ? '既読のみ' : 'Só nos lidos';
+  const readOnlyTitle = lang === 'ja'
+    ? '「既読」にした教えの中だけを表示（既に検索したものを再検索）'
+    : 'Mostra só resultados de Ensinamentos que você já marcou como lido — útil pra reencontrar algo que sabe que já leu.';
   const advancedLabel = lang === 'ja' ? '詳細検索' : 'Avançada';
 
   const advancedOpen = localStorage.getItem('search_advanced_open') === 'true';
@@ -73,6 +77,13 @@ function buildSearchModal() {
     '<label class="filter-label filter-label--toggle" title="' + literalTitle + '">' +
     '<input type="checkbox" id="searchLiteralToggle">' +
     '<span id="searchLiteralLabel">' + literalLabel + '</span>' +
+    '</label>' +
+    // "Só nos lidos": filtra os resultados JÁ trazidos (sem refazer a busca)
+    // pra Ensinamentos que o usuário marcou como lido — reencontrar algo que
+    // sabe que já leu, mas não lembra onde. Ver search.js (_applyOnlyReadFilter).
+    '<label class="filter-label filter-label--toggle" title="' + readOnlyTitle + '">' +
+    '<input type="checkbox" id="searchReadOnlyToggle">' +
+    '<span id="searchReadOnlyLabel">' + readOnlyLabel + '</span>' +
     '</label>' +
     '</div>' +
     '</div>' +

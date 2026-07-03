@@ -142,17 +142,6 @@ function setLanguage(lang, triggerRender = true) {
   if (searchInput) {
     searchInput.placeholder = lang === 'ja' ? '御教えから探す...' : 'Buscar nos ensinamentos...';
   }
-  const filterLabels = document.querySelectorAll('.search-filters .filter-label');
-  if (filterLabels.length >= 3) {
-    const labels = lang === 'ja' ? ['すべて', 'タイトルのみ', '本文のみ'] : ['Tudo', 'Só Título', 'Só Conteúdo'];
-    Array.from(filterLabels).slice(0, 3).forEach((label, idx) => {
-      const input = label.querySelector('input');
-      label.innerHTML = '';
-      if (input) label.appendChild(input);
-      label.appendChild(document.createTextNode(' ' + labels[idx]));
-    });
-  }
-
   const searchClearText = document.getElementById('searchClearText');
   if (searchClearText) {
     searchClearText.textContent = lang === 'ja' ? '削除' : 'Apagar';
@@ -166,6 +155,17 @@ function setLanguage(lang, triggerRender = true) {
       parentLabel.title = lang === 'ja'
         ? '完全一致のみ検索。例：「光」で「光明」は除外されます'
         : "Busca somente palavras inteiras. Ex: 'luz' não encontrará 'reluz'";
+    }
+  }
+
+  const readOnlyLabel = document.getElementById('searchReadOnlyLabel');
+  if (readOnlyLabel) {
+    readOnlyLabel.textContent = lang === 'ja' ? '既読のみ' : 'Só nos lidos';
+    const parentLabel = readOnlyLabel.closest('label');
+    if (parentLabel) {
+      parentLabel.title = lang === 'ja'
+        ? '「既読」にした教えの中だけを表示（既に検索したものを再検索）'
+        : 'Mostra só resultados de Ensinamentos que você já marcou como lido — útil pra reencontrar algo que sabe que já leu.';
     }
   }
 

@@ -297,6 +297,22 @@ function _hlBadge(vol, file, activeLang) {
   return `<span class="search-badge search-badge--grifo">${activeLang === 'ja' ? 'ハイライトあり' : 'você grifou'}</span>`;
 }
 
+// "Só nos lidos": reencontrar algo que o usuário SABE que já leu, mas não
+// lembra onde. Filtra os resultados JÁ trazidos (sem refazer a busca) contra
+// o readMarks local — igual em espírito ao badge de grifo acima (_hlPubs),
+// mas aqui por TÓPICO (vol/file/topic), não só por publicação, porque o
+// read mark é por tópico (js/reader.js) e os resultados de busca também.
+let _onlyReadFilter = false;
+let _readMarks = null;
+function _readMarksSet() {
+  if (_readMarks) return _readMarks;
+  try {
+    const marks = JSON.parse(localStorage.getItem('readMarks') || '[]');
+    _readMarks = new Set(marks.map(m => `${m.vol}/${m.file}/${m.topic || 0}`));
+  } catch (e) { _readMarks = new Set(); }
+  return _readMarks;
+}
+
 function _searchLink(basePath, vol, file, topicIdx, q, activeLang) {
   let href = `${basePath}reader.html?vol=${vol}&file=${file}&search=${encodeURIComponent(q)}`;
   if (topicIdx > 0) href += `&topic=${topicIdx}`;
@@ -545,12 +561,121 @@ function _refreshResults() {
   if (_resultsPointerDown) { _pendingRefresh = true; return; }
   const resultsEl = document.getElementById('searchResults');
   if (resultsEl && _literal) resultsEl.innerHTML = _renderLiteral();
+  _applyOnlyReadFilter();
   _renderFilterChips();
   if (_literal && !_literal.preview) {
     _combinedCount(_literal.titulo.items.length, _literal.colecao.items.length,
       _literal.conteudo.groups.length, _literal.relacionados, _literal.lang);
   }
   _focusedIndex = -1;
+}
+
+// Classes de <li> que NÃO são "item de dado" clicável — cabeçalhos, notas,
+// spinners, banners e botões de paginação. Usado só pra decidir se uma
+// seção/grupo esvaziou por completo depois do filtro "só nos lidos".
+const _NON_DATA_LI_CLASSES = ['search-section-head', 'search-section-note', 'search-load-more',
+  'search-section-loading', 'search-related-prompt', 'search-or-banner', 'search-empty', 'search-empty-state'];
+function _isDataLi(li) {
+  return !_NON_DATA_LI_CLASSES.some(c => li.classList.contains(c));
+}
+
+// Reaplica (ou desfaz) o filtro "só nos lidos" sobre o HTML JÁ renderizado —
+// NÃO refaz a busca (é instantâneo, ao contrário de "Palavra exata"/"Texto
+// literal", que mudam o que o servidor devolve). Esconde hits/itens que o
+// usuário não marcou como lido; grupos e cabeçalhos de seção somem junto
+// quando ficam sem nenhum item visível. Chamado a cada _refreshResults() e
+// direto pelo próprio checkbox (mudar o toggle não deve custar um round-trip).
+function _applyOnlyReadFilter() {
+  const resultsEl = document.getElementById('searchResults');
+  if (!resultsEl) return;
+  if (!_onlyReadFilter) {
+    resultsEl.querySelectorAll('[data-read-hidden]').forEach(li => {
+      li.style.display = '';
+      li.removeAttribute('data-read-hidden');
+    });
+    const oldNote = document.getElementById('searchOnlyReadEmptyNote');
+    if (oldNote) oldNote.remove();
+    return;
+  }
+  const readSet = _readMarksSet();
+  const isRead = (a) => a && readSet.has(`${a.dataset.vol}/${a.dataset.file}/${a.dataset.topic || 0}`);
+
+  // 1) Itens-folha: hits dentro de grupos (Conteúdo/Relacionados) e itens das
+  //    listas planas (Título/Coleção). O cabeçalho de grupo (que também é um
+  //    .search-nav-item, linkando pro tópico 0 ou o 1º hit) fica de fora
+  //    aqui — sua visibilidade é decidida no passo 2, pelos hits abaixo dele.
+  resultsEl.querySelectorAll('.search-nav-item').forEach(a => {
+    const li = a.closest('li');
+    if (!li || li.querySelector('.search-group-hits')) return; // é o cabeçalho de um grupo
+    const visible = isRead(a);
+    li.style.display = visible ? '' : 'none';
+    li.toggleAttribute('data-read-hidden', !visible);
+  });
+
+  // 2) Grupos: o grupo inteiro (cabeçalho + lista) some se NENHUM hit dele
+  //    sobreviveu ao passo 1.
+  resultsEl.querySelectorAll('li.search-group').forEach(groupLi => {
+    const hitsUl = groupLi.querySelector('.search-group-hits');
+    const anyVisible = !!hitsUl && Array.from(hitsUl.children).some(li => li.style.display !== 'none');
+    groupLi.style.display = anyVisible ? '' : 'none';
+    groupLi.toggleAttribute('data-read-hidden', !anyVisible);
+  });
+
+  // 3) Cabeçalhos de seção (Títulos/Coleções/Conteúdo/Relacionados): somem
+  //    SÓ quando a seção TINHA item(ns) e o filtro escondeu todos — uma
+  //    seção que nunca teve item (prompt "Buscar no conteúdo", aviso de
+  //    login, "nenhum trecho encontrado") não é filtrável por lido/não-lido
+  //    e deve continuar visível, filtro ligado ou não. Percorre os <li> na
+  //    ordem em que _renderLiteral() os escreveu, agrupando cada cabeçalho
+  //    com tudo que vem depois dele até o próximo cabeçalho (ou o fim).
+  // sectionExtras: botões "Carregar mais N" DA PRÓPRIA seção (só existem
+  // quando a seção TEM itens) — precisam sumir junto com o cabeçalho, senão
+  // sobra um "Carregar mais" órfão sem rótulo de seção acima dele.
+  let currentHeader = null, hadAnyItem = false, sawVisibleData = false, sectionExtras = [];
+  const closeSection = () => {
+    if (!currentHeader) return;
+    const shouldHide = hadAnyItem && !sawVisibleData;
+    currentHeader.style.display = shouldHide ? 'none' : '';
+    currentHeader.toggleAttribute('data-read-hidden', shouldHide);
+    sectionExtras.forEach(li => {
+      li.style.display = shouldHide ? 'none' : '';
+      li.toggleAttribute('data-read-hidden', shouldHide);
+    });
+  };
+  Array.from(resultsEl.children).forEach(li => {
+    if (li.classList.contains('search-section-head')) {
+      closeSection();
+      currentHeader = li;
+      hadAnyItem = false;
+      sawVisibleData = false;
+      sectionExtras = [];
+      return;
+    }
+    if (li.classList.contains('search-load-more')) sectionExtras.push(li);
+    if (_isDataLi(li)) {
+      hadAnyItem = true;
+      if (li.style.display !== 'none') sawVisibleData = true;
+    }
+  });
+  closeSection();
+
+  // Nota explicativa quando o filtro escondeu TUDO — sem isso, a lista fica
+  // em branco e parece "busca sem resultado" (é o filtro, não a busca).
+  const oldNote = document.getElementById('searchOnlyReadEmptyNote');
+  if (oldNote) oldNote.remove();
+  const totalNavItems = resultsEl.querySelectorAll('.search-nav-item').length;
+  const anyVisibleOverall = Array.from(resultsEl.querySelectorAll('.search-nav-item'))
+    .some(a => { const li = a.closest('li'); return li && li.style.display !== 'none'; });
+  if (totalNavItems > 0 && !anyVisibleOverall) {
+    const lang = (_literal && _literal.lang) || (localStorage.getItem('site_lang') || 'pt');
+    const note = document.createElement('li');
+    note.id = 'searchOnlyReadEmptyNote';
+    note.className = 'search-empty';
+    note.textContent = lang === 'ja'
+      ? 'この検索結果の中に、既読の教えはありませんでした。'
+      : 'Nenhum resultado desta busca está entre os Ensinamentos que você já marcou como lido.';
+    resultsEl.prepend(note);
+  }
 }
 
 // Persiste o HTML dos resultados pro back-restore — NUNCA no meio de um
@@ -1208,6 +1333,9 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsEl.querySelectorAll('a[href^="./"], a[href^="../"]').forEach(a => {
           a.setAttribute('href', a.getAttribute('href').replace(/^\.\.?\//, cur));
         });
+        // HTML restaurado não passa por _refreshResults() — reaplica "só nos
+        // lidos" aqui pra não perder o filtro num back/forward do navegador.
+        _applyOnlyReadFilter();
       }
     }
   }
@@ -1264,6 +1392,25 @@ document.addEventListener('DOMContentLoaded', () => {
     literalToggle.addEventListener('change', () => {
       try { localStorage.setItem('search_literal', literalToggle.checked); } catch (e) { }
       if (_submittedQuery) runSearch();
+    });
+  }
+
+  // "Só nos lidos" — ao contrário de exact/literal, NÃO refaz a busca (o
+  // servidor não sabe o que está marcado como lido; o filtro é 100%
+  // client-side sobre o que já está na tela). Ver _applyOnlyReadFilter.
+  const readOnlyToggle = document.getElementById('searchReadOnlyToggle');
+  if (readOnlyToggle) {
+    readOnlyToggle.checked = localStorage.getItem('search_only_read') === 'true';
+    _onlyReadFilter = readOnlyToggle.checked;
+    readOnlyToggle.addEventListener('change', () => {
+      _onlyReadFilter = readOnlyToggle.checked;
+      try { localStorage.setItem('search_only_read', _onlyReadFilter); } catch (e) { }
+      // Relê o readMarks no próprio toque no checkbox — o cache (_readMarks)
+      // só é zerado por padrão numa busca nova; sem isto, marcar algo como
+      // lido no leitor numa aba e voltar pra uma busca já aberta noutra
+      // mostraria o estado velho até o usuário redigitar a query.
+      _readMarks = null;
+      _applyOnlyReadFilter();
     });
   }
 
@@ -1565,6 +1712,7 @@ async function _performLocalPreview(query) {
   _orFallbackActive = false;
   _activeFilter = 'all';
   _hlPubs = null;
+  _readMarks = null;
   _literal = {
     q, lang: activeLang, preview: true,
     titulo: { items: titleItems, shown: Math.min(LITERAL_PAGE, titleItems.length) },
@@ -2006,6 +2154,7 @@ async function performSearch(query) {
   _activeFilter = 'all';
   _focusedIndex = -1;
   _hlPubs = null; // re-lê os grifos do usuário (badge "você grifou")
+  _readMarks = null; // re-lê o read marks (filtro "só nos lidos")
 
   const _t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   try {

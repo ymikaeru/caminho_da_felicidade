@@ -1299,7 +1299,7 @@ async function loadContentProtection(days, since) {
                   <span style="margin-left:auto; font-size:0.68rem; color:var(--text-muted); background:var(--bg); padding:2px 8px; border-radius:4px;">${lengthBadge}</span>
                   <span style="font-size:0.68rem; color:var(--accent); border:1px solid var(--accent); padding:2px 8px; border-radius:4px;">⤢ ampliar</span>
                 </div>
-                <div style="font-size:0.85rem; line-height:1.55; padding:8px 10px; background:var(--bg); border-radius:6px; white-space:pre-wrap; word-break:break-word; max-height:120px; overflow-y:auto;">${_escHtml(it.text)}</div>
+                <div style="font-size:0.85rem; line-height:1.55; padding:8px 10px; background:var(--bg); border-radius:6px; white-space:pre-wrap; word-break:break-word; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden;">${_escHtml(it.text)}</div>
               </div>
             `;
           }).join('')}

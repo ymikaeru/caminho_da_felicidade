@@ -160,7 +160,7 @@ const _TAB_MARKUP = `
 
               <!-- Ensinamentos Lidos (botão "Marcar como lido") -->
               <div class="admin-section">
-                <h2>📖 Ensinamentos Lidos</h2>
+                <h2>📖 Ensinamentos marcados como lido</h2>
                 <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">
                   Marcações do botão “Marcar como lido” no período, por usuário. Cada linha da tabela é um
                   discípulo; “lidos” conta os Ensinamentos que ele marcou.

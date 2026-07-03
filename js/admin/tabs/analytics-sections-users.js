@@ -112,18 +112,14 @@ async function _renderRecentActivity() {
 // Top Users Ranking
 // ============================================================
 
-async function loadTopUsersRanking(days, since) {
+async function loadTopUsersRanking(days, since, shared) {
   // Conta leituras "reais" por TEMPO ATIVO (estilo YouTube): só conta quem
   // ficou ≥ 30 s na página com aba visível e atividade recente.
   // (30s = fundo do vale na distribuição de tempos: corta o "abriu, passou
   //  o olho e fechou" em 0-20s sem penalizar leitura real de textos curtos.)
   const MIN_READ_SECONDS = 30;
-  const { data: raw } = await fetchAll(() => supabase
-    .from('reading_positions')
-    .select('user_id, volume, file, time_spent_seconds')
-    .gte('updated_at', since)
-    .gte('time_spent_seconds', MIN_READ_SECONDS), 'updated_at');
-  const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
+  // Filtro por tempo aplicado em JS sobre reading_positions do período (shared).
+  const data = shared.positions.filter(d => (d.time_spent_seconds || 0) >= MIN_READ_SECONDS);
 
   if (!data.length) {
     document.getElementById('top-users-ranking').innerHTML = '<div class="loading">Sem leituras registradas no período.</div>';
@@ -189,24 +185,17 @@ async function loadTopUsersRanking(days, since) {
 //
 // A recência entra no score, então quem sumiu cai sozinho — resolvendo o
 // caso "leu 99 publicações mas não vem há 27 dias".
-async function loadEngagementProfiles(days, since) {
+async function loadEngagementProfiles(days, since, shared) {
   const container = document.getElementById('engagement-profiles');
   const nowMs = Date.now();
   const DAY = 86400000;
 
-  const [
-    { data: logs },
-    { data: positions },
-    { data: hls },
-    { data: marks },
-    { data: favs }
-  ] = await Promise.all([
-    fetchAll(() => supabase.from('access_logs').select('user_id, created_at').gte('created_at', since), 'created_at'),
-    fetchAll(() => supabase.from('reading_positions').select('user_id, volume, file, progress_pct, time_spent_seconds').gte('updated_at', since), 'updated_at'),
-    fetchAll(() => supabase.from('user_highlights').select('user_id').gte('updated_at', since), 'updated_at'),
-    fetchAll(() => supabase.from('read_marks').select('user_id').gte('created_at', since), 'created_at'),
-    fetchAll(() => supabase.from('synced_favorites').select('user_id').gte('created_at', since), 'created_at')
-  ]);
+  // Tudo do prefetch compartilhado do período (já sem admins).
+  const logs = shared.logs;
+  const positions = shared.positions;
+  const hls = shared.highlights;
+  const marks = shared.readMarks;
+  const favs = shared.favorites;
 
   // Agrega por usuário (admins fora).
   const U = {};
@@ -496,14 +485,10 @@ async function loadTopUsersByTime(days, since) {
 // Retention Rate
 // ============================================================
 
-async function loadRetentionRate(days, since) {
-  // Busca apenas o período selecionado para evitar trazer a tabela inteira
-  const { data: rawLogs } = await fetchAll(() => supabase
-    .from('access_logs')
-    .select('user_id, created_at')
-    .gte('created_at', since)
-    .order('created_at', { ascending: true }), null);
-  const allLogs = (rawLogs || []).filter(d => !_adminIds.has(d.user_id));
+async function loadRetentionRate(days, since, shared) {
+  // access_logs do período (shared); first/last por usuário sai de min/max,
+  // então a ordem do array não importa.
+  const allLogs = shared.logs;
 
   if (!allLogs.length) {
     document.getElementById('retention-rate').innerHTML = '<div class="loading">Sem dados.</div>';

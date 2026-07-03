@@ -14,20 +14,13 @@ import { _adminIds, volumeCategories } from '../shared/state.js';
 // ── Article Quality ───────────────────────────────────────────────────
 // Top 15 ensinamentos por score de qualidade. Score combina tempo médio
 // de leitura, progresso médio e engajamento (highlights + favoritos).
-async function loadArticleQuality(days, since) {
+async function loadArticleQuality(days, since, shared) {
   const container = document.getElementById('article-quality');
 
-  const [logsRes, posRes, hlRes, favRes] = await Promise.all([
-    fetchAll(() => supabase.from('access_logs').select('user_id, volume, file').gte('created_at', since)),
-    fetchAll(() => supabase.from('reading_positions').select('user_id, volume, file, time_spent_seconds, progress_pct').gte('updated_at', since), 'updated_at'),
-    fetchAll(() => supabase.from('user_highlights').select('user_id, volume, file').gte('updated_at', since), 'updated_at'),
-    fetchAll(() => supabase.from('synced_favorites').select('user_id, volume, file').gte('created_at', since)),
-  ]);
-
-  const logs = (logsRes.data || []).filter(r => !_adminIds.has(r.user_id));
-  const positions = (posRes.data || []).filter(r => !_adminIds.has(r.user_id));
-  const highlights = (hlRes.data || []).filter(r => !_adminIds.has(r.user_id));
-  const favs = (favRes.data || []).filter(r => !_adminIds.has(r.user_id));
+  const logs = shared.logs;
+  const positions = shared.positions;
+  const highlights = shared.highlights;
+  const favs = shared.favorites;
 
   if (logs.length === 0) {
     container.innerHTML = '<div class="loading">Sem dados.</div>';
@@ -127,13 +120,8 @@ async function loadArticleQuality(days, since) {
   `;
 }
 
-async function loadVolumePopularity(days, since) {
-  const { data } = await fetchAll(() => supabase
-    .from('access_logs')
-    .select('volume, user_id')
-    .gte('created_at', since));
-
-  const filtered = (data || []).filter(d => !_adminIds.has(d.user_id));
+async function loadVolumePopularity(days, since, shared) {
+  const filtered = shared.logs;
   if (filtered.length === 0) {
     document.getElementById('volume-chart').innerHTML = '<div class="loading">Sem dados.</div>';
     return;
@@ -157,12 +145,8 @@ async function loadVolumePopularity(days, since) {
   }).join('');
 }
 
-async function loadTopTeachings(days, since) {
-  const { data: raw } = await fetchAll(() => supabase
-    .from('access_logs')
-    .select('volume, file, user_id')
-    .gte('created_at', since));
-  const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
+async function loadTopTeachings(days, since, shared) {
+  const data = shared.logs;
 
   if (!data.length) {
     document.getElementById('top-teachings').innerHTML = '<div class="loading">Sem dados.</div>';
@@ -191,12 +175,8 @@ async function loadTopTeachings(days, since) {
     </table>`;
 }
 
-async function loadCompletionRates(days, since) {
-  const { data: raw } = await fetchAll(() => supabase
-    .from('reading_positions')
-    .select('volume, progress_pct, user_id')
-    .gte('updated_at', since), 'updated_at');
-  const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
+async function loadCompletionRates(days, since, shared) {
+  const data = shared.positions;
 
   if (!data.length) {
     document.getElementById('completion-chart').innerHTML = '<div class="loading">Sem dados.</div>';
@@ -231,23 +211,11 @@ async function loadCompletionRates(days, since) {
 // Lê read_marks direto — a policy "Admins leem marcas de lido" (is_admin())
 // já existe no banco. Admins ficam fora da conta (mesmo critério das demais
 // seções). Filtra pelo período via created_at (data em que MARCOU).
-async function loadReadMarksStats(days, since) {
+async function loadReadMarksStats(days, since, shared) {
   const container = document.getElementById('read-marks-stats');
   if (!container) return;
 
-  const { data: raw, error } = await fetchAll(() => {
-    let q = supabase
-      .from('read_marks')
-      .select('user_id, volume, file, topic_index, topic_title, created_at');
-    if (since) q = q.gte('created_at', since);
-    return q;
-  });
-  if (error) {
-    container.innerHTML = `<div class="msg err" style="display:block;">Falha ao carregar: ${_escHtml(error.message)}</div>`;
-    return;
-  }
-
-  const rows = (raw || []).filter(r => !_adminIds.has(r.user_id));
+  const rows = shared.readMarks;
   if (!rows.length) {
     container.innerHTML = `<div class="loading">Nenhum Ensinamento marcado como lido no período.</div>`;
     return;
@@ -518,14 +486,9 @@ async function loadContentProtection(days, since) {
 // Engagement by Volume
 // ============================================================
 
-async function loadEngagementByVolume(days, since) {
-  const [logsRes, posRes] = await Promise.all([
-    fetchAll(() => supabase.from('access_logs').select('volume, user_id').gte('created_at', since)),
-    fetchAll(() => supabase.from('reading_positions').select('volume, progress_pct, user_id').gte('updated_at', since), 'updated_at')
-  ]);
-
-  const logs = (logsRes.data || []).filter(d => !_adminIds.has(d.user_id));
-  const positions = (posRes.data || []).filter(d => !_adminIds.has(d.user_id));
+async function loadEngagementByVolume(days, since, shared) {
+  const logs = shared.logs;
+  const positions = shared.positions;
 
   if (logs.length === 0) {
     document.getElementById('engagement-by-volume').innerHTML = '<div class="loading">Sem dados.</div>';
@@ -586,17 +549,14 @@ async function loadEngagementByVolume(days, since) {
 // Popular Favorites & Highlights
 // ============================================================
 
-async function loadPopularFavorites(days, since) {
+async function loadPopularFavorites(days, since, shared) {
   // Favoritos: ranking all-time (sem filtro de período). Toggle on/off não
-  // gera novo created_at, então filtrar por período subestima popularidade.
-  // Highlights: filtrado por updated_at, refletindo atividade no período.
-  const [favRes, hlRes] = await Promise.all([
-    fetchAll(() => supabase.from('synced_favorites').select('volume, file, topic_title, user_id')),
-    fetchAll(() => supabase.from('user_highlights').select('volume, file, user_id').gte('updated_at', since), 'updated_at')
-  ]);
-
-  const favs = (favRes.data || []).filter(d => !_adminIds.has(d.user_id));
-  const highlights = (hlRes.data || []).filter(d => !_adminIds.has(d.user_id));
+  // gera novo created_at, então filtrar por período subestima popularidade —
+  // por isso este é o único fetch próprio (o shared.favorites é do período).
+  // Highlights: do período (shared.highlights), refletindo atividade recente.
+  const { data: favRaw } = await fetchAll(() => supabase.from('synced_favorites').select('volume, file, topic_title, user_id'));
+  const favs = (favRaw || []).filter(d => !_adminIds.has(d.user_id));
+  const highlights = shared.highlights;
 
   if (favs.length === 0 && highlights.length === 0) {
     document.getElementById('popular-favorites').innerHTML = '<div class="loading">Sem dados.</div>';

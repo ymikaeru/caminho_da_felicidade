@@ -14,9 +14,9 @@ import { VOL_SHORT } from '../shared/constants.js';
 import { allUsers, _adminIds, volumeCategories } from '../shared/state.js';
 
 // Seções da aba extraídas p/ módulos-irmãos (mesma aba, só organização):
-import { loadRecentActivity, loadTopUsersRanking, loadEngagementProfiles, loadTopUsersByTime, loadRetentionRate } from './analytics-sections-users.js?v=1';
-import { loadArticleQuality, loadVolumePopularity, loadTopTeachings, loadCompletionRates, loadReadMarksStats, loadContentProtection, loadEngagementByVolume, loadPopularFavorites } from './analytics-sections-content.js?v=1';
-import { loadSessionStats, loadHeatmap, loadDeviceBreakdown, loadPushSubscribers, loadSyncStats, loadRoleDistribution, loadDailyActivityChart } from './analytics-sections-platform.js?v=1';
+import { loadRecentActivity, loadTopUsersRanking, loadEngagementProfiles, loadTopUsersByTime, loadRetentionRate } from './analytics-sections-users.js?v=2';
+import { loadArticleQuality, loadVolumePopularity, loadTopTeachings, loadCompletionRates, loadReadMarksStats, loadContentProtection, loadEngagementByVolume, loadPopularFavorites } from './analytics-sections-content.js?v=2';
+import { loadSessionStats, loadHeatmap, loadDeviceBreakdown, loadPushSubscribers, loadSyncStats, loadRoleDistribution, loadDailyActivityChart } from './analytics-sections-platform.js?v=2';
 
 // ── Markup da aba (movido de admin-supabase.html p/ manter o HTML enxuto) ──
 // Injetado no import do módulo: roda antes do corpo de admin.js (imports são
@@ -283,36 +283,78 @@ function getPeriodDays() {
   return parseInt(v);
 }
 
-async function loadAnalytics() {
+// Guard de reentrada: switchTab re-chama loadAnalytics() toda vez que a aba
+// Análise reabre. Sem isso, cada reentrada re-baixava as tabelas grandes de
+// novo. Se o período não mudou e faz < 3min do último load, reaproveita o que
+// já está na tela. force=true (botão "Atualizar" via refreshActiveTab) sempre
+// recarrega; trocar o período muda a chave e também recarrega.
+let _lastAnalyticsLoad = { period: null, at: 0 };
+
+async function loadAnalytics(force = false) {
+  const periodVal = document.getElementById('analytics-period')?.value || 'all';
+  const nowMs = Date.now();
+  if (!force && _lastAnalyticsLoad.period === periodVal && (nowMs - _lastAnalyticsLoad.at) < 180000) {
+    return; // já carregado há < 3min com o mesmo período — reusa a tela atual
+  }
+  _lastAnalyticsLoad = { period: periodVal, at: nowMs };
+
   const days = getPeriodDays();
   const since = new Date(Date.now() - days * 86400000).toISOString();
 
   await _loadAdminIds();
 
+  // Prefetch ÚNICO das tabelas append-only grandes (antes cada sub-carga
+  // re-baixava a mesma tabela: access_logs 16×, reading_positions 9×...).
+  // Buscadas 1× aqui, já sem admins, e passadas às sub-cargas via `shared`.
+  const shared = await _prefetchShared(since);
+
   loadOnlineUsers();
-  loadOverviewStats(days, since);
-  loadEngagementFunnel(days, since);
-  loadUserSegmentation(days, since);
-  loadVolumePopularity(days, since);
-  loadTopTeachings(days, since);
-  loadArticleQuality(days, since);
-  loadHeatmap(days, since);
-  loadCompletionRates(days, since);
+  loadOverviewStats(days, since, shared);
+  loadEngagementFunnel(days, since, shared);
+  loadUserSegmentation(days, since, shared);
+  loadVolumePopularity(days, since, shared);
+  loadTopTeachings(days, since, shared);
+  loadArticleQuality(days, since, shared);
+  loadHeatmap(days, since, shared);
+  loadCompletionRates(days, since, shared);
   loadRecentActivity(days, since);
-  loadReadMarksStats(days, since);
+  loadReadMarksStats(days, since, shared);
   loadContentProtection(days, since);
   loadDeviceBreakdown(days, since);
   loadPushSubscribers();
   loadSyncStats();
   loadRoleDistribution();
-  loadDailyActivityChart(days, since);
-  loadSessionStats(days, since);
-  loadEngagementProfiles(days, since);
-  loadTopUsersRanking(days, since);
+  loadDailyActivityChart(days, since, shared);
+  loadSessionStats(days, since, shared);
+  loadEngagementProfiles(days, since, shared);
+  loadTopUsersRanking(days, since, shared);
   loadTopUsersByTime(days, since);
-  loadEngagementByVolume(days, since);
-  loadPopularFavorites(days, since);
-  loadRetentionRate(days, since);
+  loadEngagementByVolume(days, since, shared);
+  loadPopularFavorites(days, since, shared);
+  loadRetentionRate(days, since, shared);
+}
+
+// Uma leva única das tabelas grandes, por período e já sem admins (todas as
+// sub-cargas de período excluem admin igual). Consumidores all-time
+// (loadTopUsersByTime; favoritos em loadPopularFavorites) e os que precisam de
+// `metadata`/filtro próprio (online, proteção de conteúdo, dispositivos,
+// atividade recente paginada) seguem com fetch próprio de propósito.
+async function _prefetchShared(since) {
+  const noAdmin = arr => (arr || []).filter(r => !_adminIds.has(r.user_id));
+  const [logsR, posR, hlR, favR, marksR] = await Promise.all([
+    fetchAll(() => supabase.from('access_logs').select('user_id, created_at, volume, file').gte('created_at', since)),
+    fetchAll(() => supabase.from('reading_positions').select('user_id, volume, file, time_spent_seconds, progress_pct').gte('updated_at', since), 'updated_at'),
+    fetchAll(() => supabase.from('user_highlights').select('user_id, volume, file').gte('updated_at', since), 'updated_at'),
+    fetchAll(() => supabase.from('synced_favorites').select('user_id, volume, file').gte('created_at', since)),
+    fetchAll(() => supabase.from('read_marks').select('user_id, volume, file, topic_index, topic_title, created_at').gte('created_at', since)),
+  ]);
+  return {
+    logs: noAdmin(logsR.data),
+    positions: noAdmin(posR.data),
+    highlights: noAdmin(hlR.data),
+    favorites: noAdmin(favR.data),
+    readMarks: noAdmin(marksR.data),
+  };
 }
 
 // ── Online Users — combina heartbeat (last_seen_at) + access_logs ──────
@@ -414,7 +456,7 @@ async function loadOnlineUsers() {
 }
 
 
-async function loadOverviewStats(days, since) {
+async function loadOverviewStats(days, since, shared) {
   // Total users (exclude admins)
   const { count: totalUserCount } = await supabase
     .from('user_profiles')
@@ -422,11 +464,7 @@ async function loadOverviewStats(days, since) {
     .neq('role', 'admin');
   document.getElementById('stat-total-users').textContent = totalUserCount || 0;
 
-  const { data: activeUsers } = await fetchAll(() => supabase
-    .from('access_logs')
-    .select('user_id, volume, file')
-    .gte('created_at', since));
-  const activeFiltered = (activeUsers || []).filter(u => !_adminIds.has(u.user_id));
+  const activeFiltered = shared.logs; // access_logs do período, já sem admins
   const uniqueActive = new Set(activeFiltered.map(u => u.user_id));
   document.getElementById('stat-active-users').textContent = uniqueActive.size;
 
@@ -450,16 +488,11 @@ async function loadOverviewStats(days, since) {
 // ── Engagement Funnel ─────────────────────────────────────────────────
 // Cliques → iniciou leitura → leu ≥60s → leu ≥180s. Unidade: par único
 // (usuário × artigo) para dar proporções comparáveis entre as etapas.
-async function loadEngagementFunnel(days, since) {
+async function loadEngagementFunnel(days, since, shared) {
   const container = document.getElementById('engagement-funnel');
 
-  const [logsRes, posRes] = await Promise.all([
-    fetchAll(() => supabase.from('access_logs').select('user_id, volume, file').gte('created_at', since)),
-    fetchAll(() => supabase.from('reading_positions').select('user_id, volume, file, time_spent_seconds, progress_pct').gte('updated_at', since), 'updated_at')
-  ]);
-
-  const logs = (logsRes.data || []).filter(r => !_adminIds.has(r.user_id));
-  const positions = (posRes.data || []).filter(r => !_adminIds.has(r.user_id));
+  const logs = shared.logs;
+  const positions = shared.positions;
 
   const clickedPairs = new Set(logs.map(r => `${r.user_id}|${r.volume}|${r.file}`));
   const uniqueClicks = clickedPairs.size;
@@ -526,20 +559,13 @@ async function loadEngagementFunnel(days, since) {
 // Classifica cada usuário não-admin do período em 4 perfis mutuamente
 // exclusivos baseados em tempo médio de leitura, dias distintos de acesso
 // e presença de highlights/favoritos.
-async function loadUserSegmentation(days, since) {
+async function loadUserSegmentation(days, since, shared) {
   const container = document.getElementById('user-segmentation');
 
-  const [logsRes, posRes, hlRes, favRes] = await Promise.all([
-    fetchAll(() => supabase.from('access_logs').select('user_id, created_at').gte('created_at', since)),
-    fetchAll(() => supabase.from('reading_positions').select('user_id, time_spent_seconds').gte('updated_at', since), 'updated_at'),
-    fetchAll(() => supabase.from('user_highlights').select('user_id').gte('updated_at', since), 'updated_at'),
-    fetchAll(() => supabase.from('synced_favorites').select('user_id').gte('created_at', since)),
-  ]);
-
-  const logs = (logsRes.data || []).filter(r => !_adminIds.has(r.user_id));
-  const positions = (posRes.data || []).filter(r => !_adminIds.has(r.user_id));
-  const highlights = (hlRes.data || []).filter(r => !_adminIds.has(r.user_id));
-  const favs = (favRes.data || []).filter(r => !_adminIds.has(r.user_id));
+  const logs = shared.logs;
+  const positions = shared.positions;
+  const highlights = shared.highlights;
+  const favs = shared.favorites;
 
   // Nome por user_id para tooltip de hover por segmento. allUsers vem do
   // loadUsers() (RPC admin_get_users que junta auth.users + user_profiles),

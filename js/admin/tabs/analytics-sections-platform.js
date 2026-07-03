@@ -12,17 +12,13 @@ import { _adminIds } from '../shared/state.js';
 // ── Session Stats ─────────────────────────────────────────────────────
 // Agrupa access_logs por usuário, sessões separadas por gap > 30 min.
 // Mostra: total de sessions, duração média, artigos por session, distribuição.
-async function loadSessionStats(days, since) {
+async function loadSessionStats(days, since, shared) {
   const container = document.getElementById('session-stats');
   const GAP_MS = 30 * 60 * 1000;
 
-  const { data: raw } = await fetchAll(() => supabase
-    .from('access_logs')
-    .select('user_id, created_at, volume, file')
-    .gte('created_at', since)
-    .order('created_at', { ascending: true }), null);
-
-  const logs = (raw || []).filter(r => !_adminIds.has(r.user_id));
+  // Cópia ordenada ascendente: o agrupamento de sessões abaixo assume os
+  // eventos em ordem cronológica; o array compartilhado não garante ordem.
+  const logs = [...shared.logs].sort((a, b) => (a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0));
 
   if (logs.length === 0) {
     container.innerHTML = '<div class="loading">Sem atividade no período.</div>';
@@ -98,12 +94,8 @@ async function loadSessionStats(days, since) {
   `;
 }
 
-async function loadHeatmap(days, since) {
-  const { data: raw } = await fetchAll(() => supabase
-    .from('access_logs')
-    .select('created_at, user_id')
-    .gte('created_at', since));
-  const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
+async function loadHeatmap(days, since, shared) {
+  const data = shared.logs;
 
   if (!data.length) {
     document.getElementById('heatmap-chart').innerHTML = '<div class="loading">Sem dados.</div>';
@@ -361,13 +353,8 @@ async function loadRoleDistribution() {
 // Daily Activity Line Chart
 // ============================================================
 
-async function loadDailyActivityChart(days, since) {
-  const { data: raw } = await fetchAll(() => supabase
-    .from('access_logs')
-    .select('created_at, user_id')
-    .gte('created_at', since)
-    .order('created_at', { ascending: true }), null);
-  const data = (raw || []).filter(d => !_adminIds.has(d.user_id));
+async function loadDailyActivityChart(days, since, shared) {
+  const data = shared.logs; // agrupado por dia num map — ordem não importa
 
   const chartEl = document.getElementById('daily-activity-chart');
   if (!data.length) {

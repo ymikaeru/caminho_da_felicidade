@@ -26,7 +26,7 @@ import './admin/tabs/analytics-landing.js?v=2';
 import './admin/tabs/analytics-audio.js?v=8';
 import './admin/tabs/highlights-saved.js?v=3';
 import './admin/tabs/users-permissions.js?v=7';
-import './admin/tabs/analytics.js?v=25';
+import './admin/tabs/analytics.js?v=26';
 import './admin/tabs/translation-review.js?v=9';
 import './admin/tabs/translation-review-guia.js';
 import './admin/tabs/disciples-reports.js?v=2';
@@ -163,7 +163,7 @@ window.closeAdminDrawer = function () {
   });
 })();
 
-window.switchTab = function (tab, keepDrawerOpen) {
+window.switchTab = function (tab, keepDrawerOpen, force) {
   document.querySelectorAll('.admin-nav-item').forEach(t => { t.classList.remove('active'); t.removeAttribute('aria-current'); });
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   // Acha a aba ativa pelo data-tab (antes era um índice posicional frágil).
@@ -175,7 +175,7 @@ window.switchTab = function (tab, keepDrawerOpen) {
   // trocar de setor, que passa keepDrawerOpen=true).
   if (!keepDrawerOpen && window.closeAdminDrawer) window.closeAdminDrawer();
   if (tab === 'analytics') {
-    loadAnalytics();
+    loadAnalytics(force);
     if (_onlineRefreshInterval) clearInterval(_onlineRefreshInterval);
     _onlineRefreshInterval = setInterval(loadOnlineUsers, 60000);
   } else {
@@ -216,7 +216,7 @@ window.refreshActiveTab = function () {
     document.querySelector('.admin-nav-item.active')?.dataset.tab ||
     document.querySelector('.tab-content.active')?.id?.replace(/^tab-/, '');
   if (!active || active === 'users') { if (window.loadUsers) window.loadUsers(); return; }
-  if (window.switchTab) window.switchTab(active, true);
+  if (window.switchTab) window.switchTab(active, true, true);
   else if (window.loadUsers) window.loadUsers();
 };
 

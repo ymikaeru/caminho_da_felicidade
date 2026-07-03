@@ -12,7 +12,13 @@ let _jrChart = null;
 async function loadJohreiAnalytics() {
   const dash = document.getElementById('jr-dashboard');
   const genAt = document.getElementById('jr-gen-at');
-  const days = parseInt(document.getElementById('jr-range')?.value || '30', 10);
+  // "Todo o período" (padrão) vira um nº de dias real desde a gênese do guia —
+  // a RPC (days_back) e os .gte(since) funcionam sem caso especial.
+  const JR_GENESIS_MS = Date.UTC(2026, 3, 22); // 22/04/2026 — antes do 1º site_event (24/04)
+  const rangeVal = document.getElementById('jr-range')?.value || 'all';
+  const days = rangeVal === 'all'
+    ? Math.ceil((Date.now() - JR_GENESIS_MS) / 86400000)
+    : parseInt(rangeVal, 10);
   if (!dash) return;
   dash.innerHTML = '<div class="loading">Carregando dados…</div>';
 
@@ -202,6 +208,7 @@ async function loadJohreiAnalytics() {
   // Escuta máxima por sessão = maior total_played_seconds visto em
   // audio_pause/audio_ended. audio_play não traz total_played.
   const cmPlayedBySession = {};
+  const cmDurBySession = {};   // duração do áudio vista na sessão (p/ capar re-escutas)
   const cmPlaySessions = new Set();
   const cmPlayAnons = new Set();
   let cmCompletedCount = 0;
@@ -222,6 +229,8 @@ async function loadJohreiAnalytics() {
     const total = Number((r.props || {}).total_played_seconds) || 0;
     const prev = cmPlayedBySession[r.session_id] || 0;
     if (total > prev) cmPlayedBySession[r.session_id] = total;
+    const durSeen = Number((r.props || {}).duration_seconds) || 0;
+    if (durSeen > (cmDurBySession[r.session_id] || 0)) cmDurBySession[r.session_id] = durSeen;
     if (r.event_type === 'audio_ended') {
       const dur = Number((r.props || {}).duration_seconds) || 0;
       if (dur && total < dur * CM_COMPLETE_MIN_RATIO) return; // ouviu pouco: não é escuta completa
@@ -239,17 +248,21 @@ async function loadJohreiAnalytics() {
   const cmComp6plusPct = cmCompletedCount ? Math.round(cmComp6plusListens / cmCompletedCount * 100) : 0;
   // Média sobre as sessões que TÊM tempo medido (pause/ended) — dividir o
   // somatório delas pela contagem de sessões com play (conjuntos diferentes)
-  // inflava a média. Mediana junto: recorrentes que deixam repetindo (>100%
-  // legítimo, total_played acumula re-escutas) puxam a média pra cima.
-  const cmMeasuredTotals = Object.values(cmPlayedBySession);
+  // inflava a média. total_played acumula RE-ESCUTAS, então o tempo de cada
+  // sessão é CAPADO na duração do áudio daquela sessão ("quanto do áudio foi
+  // ouvido", teto 100%) — sem o cap a manchete marcava 112% e parecia bug.
+  // duration_seconds vem nos eventos; fallback = qualquer duração válida.
+  const cmDuration = (cmAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
+  const cmMeasuredTotals = Object.entries(cmPlayedBySession).map(([sid, total]) => {
+    const dur = cmDurBySession[sid] || cmDuration || 0;
+    return dur ? Math.min(total, dur) : total;
+  });
   const cmAvgListenedSec = cmMeasuredTotals.length
     ? cmMeasuredTotals.reduce((a, b) => a + b, 0) / cmMeasuredTotals.length
     : 0;
   const cmMedianListenedSec = cmMeasuredTotals.length
     ? [...cmMeasuredTotals].sort((a, b) => a - b)[Math.floor(cmMeasuredTotals.length / 2)]
     : 0;
-  // duration_seconds vem nos eventos; usamos o mais comum/qualquer válido
-  const cmDuration = (cmAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
   const cmAvgListenedPct = cmDuration ? Math.round((cmAvgListenedSec / cmDuration) * 100) : null;
   const cmMedianListenedPct = cmDuration ? Math.round((cmMedianListenedSec / cmDuration) * 100) : null;
 
@@ -304,6 +317,7 @@ async function loadJohreiAnalytics() {
   const dirDownloadUniques = new Set(dirDownloads.map(r => r.anon_id)).size;
 
   const dirPlayedBySession = {};
+  const dirDurBySession = {};
   const dirPlaySessions = new Set();
   let dirCompletedCount = 0;
   const dirCompletedByAnon = {};
@@ -312,6 +326,8 @@ async function loadJohreiAnalytics() {
     const total = Number((r.props || {}).total_played_seconds) || 0;
     const prev = dirPlayedBySession[r.session_id] || 0;
     if (total > prev) dirPlayedBySession[r.session_id] = total;
+    const durSeen = Number((r.props || {}).duration_seconds) || 0;
+    if (durSeen > (dirDurBySession[r.session_id] || 0)) dirDurBySession[r.session_id] = durSeen;
     if (r.event_type === 'audio_ended') {
       const dur = Number((r.props || {}).duration_seconds) || 0;
       if (dur && total < dur * CM_COMPLETE_MIN_RATIO) return; // ouviu pouco: não conta
@@ -322,14 +338,18 @@ async function loadJohreiAnalytics() {
   const dirAudioSessions = dirPlaySessions.size;
   const dirPlayCount = dirAudio.filter(r => r.event_type === 'audio_play').length; // total bruto de plays
   const dirCompletedUniques = Object.keys(dirCompletedByAnon).length;
-  const dirMeasuredTotals = Object.values(dirPlayedBySession);
+  // Tempo por sessão capado na duração (re-escutas contam como 100%).
+  const dirDuration = (dirAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
+  const dirMeasuredTotals = Object.entries(dirPlayedBySession).map(([sid, total]) => {
+    const dur = dirDurBySession[sid] || dirDuration || 0;
+    return dur ? Math.min(total, dur) : total;
+  });
   const dirAvgListenedSec = dirMeasuredTotals.length
     ? dirMeasuredTotals.reduce((a, b) => a + b, 0) / dirMeasuredTotals.length
     : 0;
   const dirMedianListenedSec = dirMeasuredTotals.length
     ? [...dirMeasuredTotals].sort((a, b) => a - b)[Math.floor(dirMeasuredTotals.length / 2)]
     : 0;
-  const dirDuration = (dirAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
   const dirAvgListenedPct = dirDuration ? Math.round((dirAvgListenedSec / dirDuration) * 100) : null;
   const dirMedianListenedPct = dirDuration ? Math.round((dirMedianListenedSec / dirDuration) * 100) : null;
 
@@ -344,6 +364,7 @@ async function loadJohreiAnalytics() {
   const espDownloadUniques = new Set(espDownloads.map(r => r.anon_id)).size;
 
   const espPlayedBySession = {};
+  const espDurBySession = {};
   const espPlaySessions = new Set();
   let espCompletedCount = 0;
   const espCompletedByAnon = {};
@@ -352,6 +373,8 @@ async function loadJohreiAnalytics() {
     const total = Number((r.props || {}).total_played_seconds) || 0;
     const prev = espPlayedBySession[r.session_id] || 0;
     if (total > prev) espPlayedBySession[r.session_id] = total;
+    const durSeen = Number((r.props || {}).duration_seconds) || 0;
+    if (durSeen > (espDurBySession[r.session_id] || 0)) espDurBySession[r.session_id] = durSeen;
     if (r.event_type === 'audio_ended') {
       const dur = Number((r.props || {}).duration_seconds) || 0;
       if (dur && total < dur * CM_COMPLETE_MIN_RATIO) return; // ouviu pouco: não conta
@@ -362,14 +385,18 @@ async function loadJohreiAnalytics() {
   const espAudioSessions = espPlaySessions.size;
   const espPlayCount = espAudio.filter(r => r.event_type === 'audio_play').length;
   const espCompletedUniques = Object.keys(espCompletedByAnon).length;
-  const espMeasuredTotals = Object.values(espPlayedBySession);
+  // Tempo por sessão capado na duração (re-escutas contam como 100%).
+  const espDuration = (espAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
+  const espMeasuredTotals = Object.entries(espPlayedBySession).map(([sid, total]) => {
+    const dur = espDurBySession[sid] || espDuration || 0;
+    return dur ? Math.min(total, dur) : total;
+  });
   const espAvgListenedSec = espMeasuredTotals.length
     ? espMeasuredTotals.reduce((a, b) => a + b, 0) / espMeasuredTotals.length
     : 0;
   const espMedianListenedSec = espMeasuredTotals.length
     ? [...espMeasuredTotals].sort((a, b) => a - b)[Math.floor(espMeasuredTotals.length / 2)]
     : 0;
-  const espDuration = (espAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
   const espAvgListenedPct = espDuration ? Math.round((espAvgListenedSec / espDuration) * 100) : null;
   const espMedianListenedPct = espDuration ? Math.round((espMedianListenedSec / espDuration) * 100) : null;
 
@@ -519,7 +546,7 @@ async function loadJohreiAnalytics() {
       ${cmCompletedUniques > 0 ? `<p style="font-size:.74rem;color:var(--text);margin:14px 0 0;">Das <strong>${cmCompletedUniques}</strong> pessoa(s) que ouviram até o fim: <strong>${cmComp1x}</strong> ouviram 1×, <strong>${cmComp2to5}</strong> voltaram (2–5×), <strong>${cmComp6plus}</strong> recorrente(s) (6+×)${cmComp6plus > 0 ? ` — que concentram <strong>${cmComp6plusListens}</strong> das <strong>${cmCompletedCount}</strong> escutas (${cmComp6plusPct}%)` : ''}.</p>` : ''}
       <p style="font-size:.72rem;color:var(--text-muted);margin:14px 0 0;">
         ${cmHasData
-          ? `Permanência captada via heartbeats (granularidade ~30s, leituras curtas podem não aparecer). Escuta média = média do total ouvido por sessão com tempo medido; re-escutas acumulam, então pode passar de 100% — a mediana é mais estável contra recorrentes. Escutas completas = áudio ouvido até o fim (conta repetições, por isso pode passar de "sessões que ouviram"). Downloads = cliques no botão "Baixar" que geraram o ZIP com PDF + MP3.`
+          ? `Permanência captada via heartbeats (granularidade ~30s, leituras curtas podem não aparecer). Escuta média = média do total ouvido por sessão com tempo medido, capado na duração do áudio (quem deixa repetindo conta como 100%, não mais). Escutas completas = áudio ouvido até o fim (conta repetições, por isso pode passar de "sessões que ouviram"). Downloads = cliques no botão "Baixar" que geraram o ZIP com PDF + MP3.`
           : 'Sem dados ainda no período selecionado. Confirme que o tracking foi deployado em <code>guia_johrei</code> e que alguém abriu o modal.'}
       </p>
     </div>`;

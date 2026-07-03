@@ -20,15 +20,33 @@
 // o que garante páginas sem sobreposição. Se a query do callback JÁ tem
 // .order(...) próprio, passe orderCol = null para não duplicar.
 // ============================================================
+// Paginação ADAPTATIVA: a 1ª página sonda sozinha (a maioria das queries cabe
+// em <1000 linhas = 1 request). Se veio cheia, as seguintes saem em ONDAS de
+// 4 requests PARALELOS — a aba do Johrei (site_events com dezenas de milhares
+// de heartbeats) caía em ~40 round-trips SERIAIS; em ondas viram ~10.
+// Risco de páginas paralelas: escrita concorrente pode deslocar linhas entre
+// páginas — o mesmo risco que já existia em série (analytics tolera).
 export async function fetchAll(buildQuery, orderCol = 'created_at') {
-  const out = [];
-  for (let from = 0; ; from += 1000) {
+  const PAGE = 1000, WAVE = 4;
+  const fetchPage = (from) => {
     let q = buildQuery();
     if (orderCol) q = q.order(orderCol);
-    const { data, error } = await q.range(from, from + 999);
-    if (error) return { data: out, error };
-    out.push(...(data || []));
-    if (!data || data.length < 1000) break;
+    return q.range(from, from + PAGE - 1);
+  };
+
+  const first = await fetchPage(0);
+  if (first.error) return { data: first.data || [], error: first.error };
+  const out = [...(first.data || [])];
+  if (out.length < PAGE) return { data: out, error: null };
+
+  for (let from = PAGE; ; from += WAVE * PAGE) {
+    const results = await Promise.all(
+      Array.from({ length: WAVE }, (_, i) => fetchPage(from + i * PAGE))
+    );
+    for (const { data, error } of results) {
+      if (error) return { data: out, error };
+      out.push(...(data || []));
+      if (!data || data.length < PAGE) return { data: out, error: null };
+    }
   }
-  return { data: out, error: null };
 }

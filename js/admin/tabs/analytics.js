@@ -20,8 +20,9 @@ const _TAB_MARKUP = `
               <div style="display:flex; align-items:center; margin-bottom:24px;">
                 <h2 style="margin:0;">Analytics</h2>
                 <select class="period-select" id="analytics-period" onchange="loadAnalytics()">
+                  <option value="all" selected>Todo o período</option>
                   <option value="7">Últimos 7 dias</option>
-                  <option value="30" selected>Últimos 30 dias</option>
+                  <option value="30">Últimos 30 dias</option>
                   <option value="90">Últimos 90 dias</option>
                   <option value="365">Último ano</option>
                 </select>
@@ -157,6 +158,18 @@ const _TAB_MARKUP = `
                 </div>
               </div>
 
+              <!-- Ensinamentos Lidos (botão "Marcar como lido") -->
+              <div class="admin-section">
+                <h2>📖 Ensinamentos Lidos</h2>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">
+                  Marcações do botão “Marcar como lido” no período, por usuário. Cada linha da tabela é um
+                  discípulo; “lidos” conta os Ensinamentos que ele marcou.
+                </p>
+                <div id="read-marks-stats">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
               <!-- Content Protection (print / copy) -->
               <div class="admin-section">
                 <h2>🛡️ Cópias e Impressões</h2>
@@ -248,8 +261,15 @@ const _TAB_MARKUP = `
   if (_tabEl && !_tabEl.firstElementChild) _tabEl.innerHTML = _TAB_MARKUP;
 }
 
+// "Todo o período" (padrão) vira um nº de dias REAL — da gênese dos dados até
+// hoje — em vez de um valor especial. Assim os 18 sub-loads continuam
+// recebendo (days numérico, since ISO) sem nenhum caso especial: o gráfico
+// diário e a retenção usam a janela verdadeira, e o .gte(since) pega tudo.
+const CDF_GENESIS_MS = Date.UTC(2026, 3, 18); // 18/04/2026 — antes do 1º access_log (20/04)
 function getPeriodDays() {
-  return parseInt(document.getElementById('analytics-period')?.value || '30');
+  const v = document.getElementById('analytics-period')?.value || 'all';
+  if (v === 'all') return Math.ceil((Date.now() - CDF_GENESIS_MS) / 86400000);
+  return parseInt(v);
 }
 
 async function loadAnalytics() {
@@ -268,6 +288,7 @@ async function loadAnalytics() {
   loadHeatmap(days, since);
   loadCompletionRates(days, since);
   loadRecentActivity(days, since);
+  loadReadMarksStats(days, since);
   loadContentProtection(days, since);
   loadDeviceBreakdown(days, since);
   loadPushSubscribers();
@@ -1024,6 +1045,83 @@ async function _renderRecentActivity() {
     btn.textContent = 'Carregando...';
     await _appendMoreRecentActivity();
   });
+}
+
+// ============================================================
+// Ensinamentos Lidos (botão "Marcar como lido") por usuário
+// ============================================================
+// Lê read_marks direto — a policy "Admins leem marcas de lido" (is_admin())
+// já existe no banco. Admins ficam fora da conta (mesmo critério das demais
+// seções). Filtra pelo período via created_at (data em que MARCOU).
+async function loadReadMarksStats(days, since) {
+  const container = document.getElementById('read-marks-stats');
+  if (!container) return;
+
+  const { data: raw, error } = await fetchAll(() => {
+    let q = supabase
+      .from('read_marks')
+      .select('user_id, volume, file, topic_index, topic_title, created_at');
+    if (since) q = q.gte('created_at', since);
+    return q;
+  });
+  if (error) {
+    container.innerHTML = `<div class="msg err" style="display:block;">Falha ao carregar: ${_escHtml(error.message)}</div>`;
+    return;
+  }
+
+  const rows = (raw || []).filter(r => !_adminIds.has(r.user_id));
+  if (!rows.length) {
+    container.innerHTML = `<div class="loading">Nenhum Ensinamento marcado como lido no período.</div>`;
+    return;
+  }
+
+  const byUser = new Map();
+  rows.forEach(r => {
+    if (!byUser.has(r.user_id)) {
+      byUser.set(r.user_id, { count: 0, vols: new Set(), last: r.created_at, lastVol: r.volume, lastFile: r.file, lastTitle: r.topic_title });
+    }
+    const u = byUser.get(r.user_id);
+    u.count++;
+    if (r.volume) u.vols.add(r.volume);
+    if (r.created_at > u.last) { u.last = r.created_at; u.lastVol = r.volume; u.lastFile = r.file; u.lastTitle = r.topic_title; }
+  });
+
+  let nameMap = {};
+  const userIds = [...byUser.keys()];
+  if (userIds.length) {
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('id, display_name')
+      .in('id', userIds);
+    (profiles || []).forEach(p => { nameMap[p.id] = p.display_name; });
+  }
+
+  const cardsHtml = `
+    <div class="stats-grid" style="margin-bottom:20px;">
+      <div class="stat-card"><div class="stat-value">${rows.length}</div><div class="stat-label">Marcados como lidos</div></div>
+      <div class="stat-card"><div class="stat-value">${byUser.size}</div><div class="stat-label">Usuários que marcaram</div></div>
+      <div class="stat-card"><div class="stat-value">${Math.round(rows.length / byUser.size)}</div><div class="stat-label">Média por usuário</div></div>
+    </div>`;
+
+  const sorted = [...byUser.entries()].sort((a, b) => b[1].count - a[1].count);
+  const tableHtml = `
+    <table class="data-table">
+      <thead><tr><th>Usuário</th><th>Lidos</th><th>Volumes</th><th>Última marcação</th><th>Último Ensinamento lido</th></tr></thead>
+      <tbody>${sorted.map(([uid, u]) => {
+        const date = new Date(u.last);
+        const dateStr = date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' ' + date.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
+        const title = u.lastTitle || (u.lastFile ? getFileTitle(u.lastVol, u.lastFile) : '—');
+        return `<tr>
+          <td>${_escHtml(nameMap[uid] || 'Desconhecido')}</td>
+          <td style="font-weight:600;">${u.count}</td>
+          <td>${u.vols.size}</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</td>
+          <td style="font-size:0.82rem;" title="${_escHtml(u.lastFile || '')}">${VOL_SHORT[u.lastVol] || u.lastVol || '—'} · ${_escHtml(title)}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+  container.innerHTML = cardsHtml + tableHtml;
 }
 
 // Trechos copiados renderizados por último — o modal de leitura busca por

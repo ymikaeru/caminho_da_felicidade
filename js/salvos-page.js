@@ -273,10 +273,52 @@
 
     function railBtn(id, label, count, color) {
         const active = selected === id ? ' active' : '';
-        const dot = color ? `<span class="folder-dot" style="background:${esc(color)}"></span>` : '';
+        // Sempre emite a bolinha pra alinhar os nomes na coluna: pasta = cor;
+        // "Sem pasta" = vazada (mesma linguagem do menu Mover); "Todos" =
+        // invisível (só reserva o espaço).
+        let dot;
+        if (color) dot = `<span class="folder-dot" style="background:${esc(color)}"></span>`;
+        else if (id === 'none') dot = `<span class="folder-dot" style="background:transparent;border:1px solid var(--border);"></span>`;
+        else dot = `<span class="folder-dot" style="background:transparent;"></span>`;
         return `<button type="button" class="folder-item${active}" data-folder="${esc(id)}" title="${esc(label)}">
             ${dot}<span class="folder-name">${esc(label)}</span><span class="folder-count">${count}</span>
         </button>`;
+    }
+
+    // Snippets antigos foram capturados com o chrome de UI do tópico (rótulo
+    // "Salvar esta publicação", título e data repetidos no começo). Limpa na
+    // exibição; a captura nova (reader.js ?v=35) já grava limpo.
+    function cleanSnippet(raw, cands) {
+        let s = String(raw || '').replace(/\s+/g, ' ').trim();
+        if (!s) return '';
+        // rótulos de UI que vazavam pro textContent (display:none conta)
+        s = s.replace(/(?:Salvar esta publicação|Publicação salva|この教えを保存|保存済み)\s*/g, '').trim();
+        // prefixo editorial "Palestra/Ensinamento/Orientação de Meishu-Sama:"
+        s = s.replace(/^(?:Ensinamento|Orientação|Palestra)\s+de\s+(?:Meishu-Sama|Moisés)\s*:?\s*/i, '').trim();
+        const cutKnown = () => {
+            for (const t of (cands || [])) {
+                const tt = String(t || '').replace(/\s+/g, ' ').trim();
+                if (tt && s.startsWith(tt)) s = s.slice(tt.length).trim();
+            }
+        };
+        cutKnown();
+        // "Título da publicação(data com ano)" no começo — o título embutido
+        // pode diferir do título do tópico salvo, então cai num padrão
+        // genérico. Só quando PARECE título (inicia com maiúscula, sem aspas):
+        // conteúdo legítimo dos Ensinamentos começa com aspas.
+        s = s.replace(/^[A-ZÀ-Ý][^()"“」]{0,90}\([^)]*?(?:18|19|20)\d{2}[^)]*\)\s*/, '').trim();
+        // data solta "(...)" restante no começo
+        s = s.replace(/^\([^)]{0,48}\)\s*/, '').trim();
+        // título conhecido de novo (a data podia escondê-lo: "Título(data) Título corpo…")
+        cutKnown();
+        // fragmento de data sem fechar — snippet de 120 chars cortado no meio
+        // de "(3 de agosto de 19…": não sobrou conteúdo nenhum, descarta.
+        if (/^\([^)]*$/.test(s)) s = '';
+        // rótulo truncado no fim ("Salvar est…") e sobras curtas demais pra
+        // informar (ex. "Per"): melhor sem snippet do que com ruído.
+        s = s.replace(/\s*Salvar(?:\s+es\S*)?(?:\s+public\S*)?\s*…?$/i, '').trim();
+        if (s.replace(/[.…\s]/g, '').length < 8) s = '';
+        return s;
     }
 
     function cardHtml(f) {
@@ -290,15 +332,19 @@
         const cleanTitle = String(f.topicTitle || f.title || f.file)
             .replace(/^(Ensinamento|Orientação|Palestra) de (Meishu-Sama|Moisés)\s*[-:]?\s*/i, '')
             .replace(/^["'](.*?)["']$/, '$1').trim();
-        const topicBadge = (f.totalTopics && f.totalTopics > 1)
-            ? `<span class="fav-topic-badge">${esc(T.topicN(topicIdx + 1, f.totalTopics))}</span>` : '';
-        const snippet = f.snippet ? `<div class="fav-snippet">${esc(f.snippet)}</div>` : '';
+        // Tópico junto do volume, em texto discreto — o selo dourado sólido
+        // pesava mais que a informação merece.
+        const volTopic = (f.totalTopics && f.totalTopics > 1)
+            ? `(Vol ${vNum} · ${T.topicN(topicIdx + 1, f.totalTopics)})`
+            : `(Vol ${vNum})`;
+        const snippetText = cleanSnippet(f.snippet, [f.topicTitle, f.title, cleanTitle]);
+        const snippet = snippetText ? `<div class="fav-snippet">${esc(snippetText)}</div>` : '';
         const fo = f.folderId ? folderById(f.folderId) : null;
         const folderTag = fo ? `<span class="fav-folder-tag" title="${esc(fo.name)}"><span class="folder-dot" style="background:${esc(fo.color || '#b8860b')}"></span><span class="fav-folder-tag-name">${esc(fo.name)}</span></span>` : '';
         const key = favKey(f);
         return `<div class="fav-card" draggable="true" data-key="${esc(key)}">
             <a class="fav-main" href="${href}">
-                <div class="fav-title">${esc(cleanTitle)} <span class="fav-vol">(Vol ${esc(vNum)})</span>${topicBadge}</div>
+                <div class="fav-title">${esc(cleanTitle)} <span class="fav-vol">${esc(volTopic)}</span></div>
                 ${snippet}
             </a>
             <div class="fav-footer">

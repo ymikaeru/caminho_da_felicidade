@@ -66,6 +66,12 @@
             line-height: 1.8;
         }
 
+        /* O .content-wrapper global é grid e ESTICA o glass-pane até o fim do
+           .main (min-height de viewport) — numa pasta vazia sobrava um painel
+           branco enorme. Alinha no topo: o painel abraça o conteúdo. O mobile
+           não muda (lá o glass-pane tem min-height:100vh próprio). */
+        .content-wrapper { align-items: start; }
+
         /* ---- layout de duas colunas ---- */
         .salvos-layout { display: flex; gap: 28px; align-items: flex-start; }
         .salvos-rail {
@@ -160,19 +166,7 @@
             line-height: 1.4;
         }
         .fav-main:hover .fav-title { color: var(--accent); }
-        .fav-vol { font-size: 0.8rem; color: var(--text-muted); }
-        .fav-topic-badge {
-            display: inline-block;
-            font-size: 0.68rem;
-            background: var(--accent);
-            color: #fff;
-            padding: 1px 7px;
-            border-radius: 10px;
-            margin-left: 6px;
-            vertical-align: middle;
-            font-family: "Outfit", sans-serif;
-            white-space: nowrap;
-        }
+        .fav-vol { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; }
         .fav-snippet {
             font-size: 0.85rem;
             color: var(--text-muted);
@@ -267,7 +261,7 @@
     <script src="js/language.js?v=12" defer></script>
     <script src="js/typography.js?v=2" defer></script>
     <script src="js/search.min.js?v=55" defer></script>
-    <script src="js/salvos-page.js?v=7" defer></script>
+    <script src="js/salvos-page.js?v=12" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';

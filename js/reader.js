@@ -263,9 +263,21 @@ document.addEventListener('DOMContentLoaded', () => {
             ).replace(/<[^>]+>/g, '').trim();
             const topicEl = document.getElementById(`topic-${topicIndex}`);
             if (topicEl) {
-                const rawText = topicEl.textContent || '';
-                const bodyStart = rawText.indexOf(topicTitle) !== -1 ? rawText.indexOf(topicTitle) + topicTitle.length : 0;
-                snippet = rawText.substring(bodyStart, bodyStart + 120).replace(/\s+/g, ' ').trim();
+                // Clona e remove o chrome de UI antes de ler o texto: o
+                // textContent inclui até rótulos display:none (ex. "Salvar
+                // esta publicação" do botão), que vazavam pro snippet. O
+                // clone não toca no DOM vivo — os offsets dos grifos contam
+                // os nós reais do tópico.
+                const clone = topicEl.cloneNode(true);
+                clone.querySelectorAll('.topic-save-bar, .topic-partial-cta, .topic-read-badge').forEach(el => el.remove());
+                const rawText = (clone.textContent || '').replace(/\s+/g, ' ').trim();
+                const normTitle = topicTitle.replace(/\s+/g, ' ').trim();
+                const at = normTitle ? rawText.indexOf(normTitle) : -1;
+                let rest = at !== -1 ? rawText.substring(at + normTitle.length) : rawText;
+                // Pula a data editorial logo após o título — "(Publicado em
+                // ...)", "(Julho de 1936)" — que só duplicaria o header no card.
+                rest = rest.replace(/^\s*\([^)]{0,48}\)\s*/, '');
+                snippet = rest.substring(0, 120).trim();
                 if (snippet.length >= 118) snippet += '…';
             }
         }

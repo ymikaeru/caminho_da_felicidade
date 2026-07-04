@@ -207,6 +207,9 @@
         lang === 'ja' ? 'ご報告ありがとうございます！' : 'Relatório enviado! Obrigado. 🙏',
         'success'
       );
+      // Envio confirmado — highlights.js escuta este evento pra descartar o
+      // grifo pendente que serviu só de seleção do trecho reportado.
+      document.dispatchEvent(new CustomEvent('translation-report:sent'));
     }
 
     btn.disabled = false;

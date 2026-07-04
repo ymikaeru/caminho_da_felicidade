@@ -530,6 +530,7 @@
         const sel = _currentSelection;
         if (sel && typeof window.openTranslationReport === 'function') {
           _hideTooltip();
+          _reportedTap = null;   // reporte via seleção nativa — nenhum tap pendente envolvido
           window.openTranslationReport(sel.text, {
             topicId: sel.topicId,
             vol: _getParams().volId,
@@ -638,6 +639,7 @@
         const sel = _currentSelection;
         if (sel && typeof window.openTranslationReport === 'function') {
           _hideMobileBar();
+          _reportedTap = null;   // reporte via seleção nativa — nenhum tap pendente envolvido
           window.openTranslationReport(sel.text, {
             topicId: sel.topicId,
             vol: _getParams().volId,
@@ -1324,6 +1326,7 @@
   let _tapMode = false;
   let _pendingTaps = [];        // [{ topicId, startChar, endChar, text }]
   let _tapBarEl = null;
+  let _reportedTap = null;      // tap que originou o reporte de tradução aberto — descartado quando o envio confirma
   // Alças de seleção (estilo iOS) — refinam o trecho ATIVO (último tocado).
   let _activeTap = null;        // objeto de _pendingTaps que está com alças
   let _handlesEl = null;        // container das 2 alças (start/end)
@@ -2044,6 +2047,7 @@
         repBtn.addEventListener('click', () => {
           const sel = _activeTap || _pendingTaps[0];
           if (sel && sel.text && typeof window.openTranslationReport === 'function') {
+            _reportedTap = sel;   // se o envio confirmar, este pendente é descartado
             window.openTranslationReport(sel.text, {
               topicId: sel.topicId,
               vol: _getParams().volId,
@@ -2409,6 +2413,29 @@
     // <mark> e do _handleClick) pra grifar a frase e barrar o clique normal.
     // Inerte enquanto _tapMode estiver desligado.
     document.addEventListener('click', _handleTapModeClick, true);
+
+    // Reporte de tradução ENVIADO (evento do translation-report.js): muita
+    // gente grifa a frase só pra selecionar o trecho do reporte — então o
+    // pendente reportado é descartado em vez de ficar na barra esperando
+    // cor+"Adicionar" (sair do modo grifar iria SALVÁ-LO como destaque).
+    // Outros pendentes da mesma sessão de grifo permanecem intactos.
+    document.addEventListener('translation-report:sent', () => {
+      const sel = window.getSelection();
+      if (sel) sel.removeAllRanges();
+      if (!_reportedTap) return;
+      _pendingTaps = _pendingTaps.filter(p => p !== _reportedTap);
+      _reportedTap = null;
+      _activeTap = null;
+      _clearHandles();
+      if (_pendingTaps.length) {
+        _renderPendingPreview();
+        _updateTapBarCount();
+      } else {
+        _clearPendingPreview();
+        _hideTapBar();
+        if (_tapMode) _setTapMode(false);   // fluxo concluído — volta à leitura
+      }
+    });
 
     // Botão "modo grifar" no header. O header é montado pelo nav.js também no
     // DOMContentLoaded, então pode ainda não existir — observa e injeta quando aparecer.

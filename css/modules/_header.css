@@ -34,6 +34,19 @@
   margin-left: auto;
 }
 
+/* No mobile o header é estreito: aperta um pouco os ícones (gap menor +
+   caixa mais estreita), mantendo a ALTURA de 44px pro alvo de toque. */
+@media (max-width: 1024px) {
+  .header__actions { gap: 2px; }
+  .header__actions .mobile-fav-btn,
+  .header__actions .mobile-search-btn,
+  .header__actions .mobile-menu-btn {
+    min-width: 40px;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+}
+
 .header__logo {
   display: flex;
   align-items: center;

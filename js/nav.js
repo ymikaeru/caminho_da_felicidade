@@ -564,6 +564,8 @@ function _initMobileNav() {
   highlightBtn.id = 'mobileHighlightBtn';
   highlightBtn.setAttribute('aria-label', 'Destaques');
   const isReaderPage = window.location.pathname.includes('reader.html');
+  // Páginas de índice dos volumes ficam em /mioshiecN/index.html.
+  const isIndexPage = window.location.pathname.includes('/mioshiec');
   const isComparisonMode = localStorage.getItem('reader_comparison') === 'true';
   highlightBtn.style.display = (isReaderPage && !isComparisonMode) ? 'flex' : 'none';
   highlightBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -604,10 +606,11 @@ function _initMobileNav() {
   // título em vez de "Volume N"). Reusa as funções públicas de sorteio de
   // search.js (window.openRandomTeaching / openRandomFromVolume), que já
   // mostram spinner e navegam pro reader. Foi promovido a TODAS as páginas em
-  // 02/07; REVERTIDO 07/2026 a pedido do usuário: só no reader e só no mobile
-  // (o reader.html esconde no desktop via @media). No reader o search.min.js
-  // está carregado, então as funções de sorteio existem.
-  if (isReaderPage) {
+  // 02/07; escopo ajustado 07/2026: só no ÍNDICE dos volumes e no READER
+  // (fora da home e das outras centrais). Mobile: só no reader — o
+  // _header.css esconde no índice via @media + body:not(.reader-body).
+  // search.min.js está carregado nessas páginas, então as funções existem.
+  if (isReaderPage || isIndexPage) {
     const randomLabel = currentLang === 'ja' ? 'ランダムな御教え' : 'Ensino aleatório';
     const randomWrap = document.createElement('div');
     randomWrap.className = 'reader-random-wrap';

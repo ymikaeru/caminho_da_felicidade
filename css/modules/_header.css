@@ -111,12 +111,26 @@
 
 /* ── Reader random dropdown ───────────────────────── */
 /* O gatilho reusa .mobile-fav-btn (botão de ícone do header, injetado
-   por nav.js só no reader). O wrap dá o contexto de posicionamento pro
-   popover das 5 opções (qualquer volume + Vol 1-4). */
+   por nav.js no reader e no índice dos volumes). O wrap dá o contexto de
+   posicionamento pro popover das 5 opções (qualquer volume + Vol 1-4). */
 .reader-random-wrap {
   position: relative;
   display: flex;
   align-items: center;
+}
+
+/* No mobile (≤1024px) o "Ensino aleatório" fica só no reader; nas páginas
+   de índice dos volumes (sem body.reader-body) some pra não lotar o header
+   estreito — no desktop aparece nos dois. */
+@media (max-width: 1024px) {
+  body:not(.reader-body) .reader-random-wrap { display: none; }
+}
+
+/* No mobile o envelope de Recomendações fica SÓ na home (body.home-page).
+   O JS (_reveal em recommendations.js) liga display:flex inline quando há
+   recs, então precisa de !important pra vencer. No desktop não muda. */
+@media (max-width: 1024px) {
+  body:not(.home-page) #headerRecommendationsBtn { display: none !important; }
 }
 
 .reader-random-wrap .mobile-fav-btn[aria-expanded="true"] {

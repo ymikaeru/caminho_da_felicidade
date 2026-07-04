@@ -330,19 +330,33 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     // anterior ANTES de renderizar, pro normalizador tratar como UM fluxo só
     // (reconstrói o texto original, com a palavra enfatizada inline). O array
     // topicsFound mantém tamanho/ordem → topic_idx intacto (favoritos,
-    // posições, grifos e recomendações não mudam). Os seams são limpos (sem
-    // <br>/<hr> entre o fim do raiz e o início do fragmento — verificado).
+    // posições, grifos e recomendações não mudam). O corte da extração cai
+    // exatamente na borda de palavra e geralmente NÃO deixa espaço de
+    // nenhum dos lados (ex.: raiz termina "quase" + fragmento começa
+    // "chegando" → "quasechegando" colado) — _seamPt insere 1 espaço só
+    // quando NENHUM lado já tem um. JA (content, sem _seamPt) fica com
+    // concatenação pura: japonês não usa espaço entre palavras.
+    //
+    // GUARD `!_t._mergedAway`: renderReader() pode rodar 2x sobre o MESMO
+    // `json` (re-render quando manual_citation_links chega depois do 1º
+    // paint, linha ~214) — topicsFound é reconstruído a cada chamada, mas os
+    // objetos-tópico são as MESMAS referências dentro de `json`, então sem
+    // este guard o 2º passe fundia o fragmento (já mesclado) DE NOVO no
+    // conteúdo já mesclado do 1º passe → parágrafo inteiro duplicado.
     {
+        const _seamPt = (a, b) => (a && b && !/\s$/.test(a) && !/^\s/.test(b)) ? a + ' ' + b : a + b;
         let rootIdx = -1;
         for (let _i = 0; _i < topicsFound.length; _i++) {
             const _t = topicsFound[_i];
             if (_t.continues_previous && rootIdx >= 0) {
                 const _root = topicsFound[rootIdx];
-                const _fragPt = _t.content_ptbr || _t.content_pt || _t.content || '';
-                const _rootPt = _root.content_ptbr || _root.content_pt || _root.content || '';
-                _root.content_ptbr = _rootPt + _fragPt;
-                _root.content = (_root.content || '') + (_t.content || '');
-                _t._mergedAway = true;
+                if (!_t._mergedAway) {
+                    const _fragPt = _t.content_ptbr || _t.content_pt || _t.content || '';
+                    const _rootPt = _root.content_ptbr || _root.content_pt || _root.content || '';
+                    _root.content_ptbr = _seamPt(_rootPt, _fragPt);
+                    _root.content = (_root.content || '') + (_t.content || '');
+                    _t._mergedAway = true;
+                }
             } else {
                 rootIdx = _i;
             }

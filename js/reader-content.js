@@ -27,6 +27,15 @@ function _normalizeContent(rawContent) {
         .replace(/((?:<\/(?:b|strong|font)>\s*)+)<br\s*\/?>\s*(?=<b)/gi, '$1' + DBLBR)
         // 3) <br> between closing tags and opening <font color=...> → paragraph break
         .replace(/((?:<\/(?:b|strong|font)>\s*)+)<br\s*\/?>\s*(?=<font\s+color)/gi, '$1' + DBLBR)
+        // 3b) <br> logo ANTES de um trecho colorido/negrito em destaque (não
+        //     precedido por tag de fechamento, senão cairia na regra 2/3) →
+        //     vira espaço, não parágrafo. Alguns textos (ex.: ensaios com
+        //     frases-chave coloridas inline) usam <br> só pra colocar a frase
+        //     de ênfase em linha própria no editor de origem — não é uma
+        //     quebra real, e sem isto a extração corta o texto NO MEIO DA
+        //     FRASE (ex.: "...quase<br><font color>chegando..." virava
+        //     "quase" / "chegando..." como parágrafos separados).
+        .replace(/<br\s*\/?>\s*(?=<b>\s*<font\s+color|<font\s+color)/gi, ' ')
         // 4) All remaining <br> → paragraph break (double)
         .replace(/<br\s*\/?>/gi, DBLBR)
         // 5) Date in parentheses followed by text → paragraph break

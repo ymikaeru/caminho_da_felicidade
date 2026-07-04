@@ -15,6 +15,12 @@ function _formatQuotedTitle(rawTitle) {
     if (!quoteMatch) {
         return t.replace(/\s+-\s+/, ': ').replace(/\s+:/, ':');
     }
+    // Só reformata "Prefixo «Título»" → "Prefixo: Título" quando as aspas
+    // fecham no FIM do título. Se sobra texto relevante depois da aspa de
+    // fechamento (ex.: «...» pelo Diretor-Geral Kihara (3)), o título é uma
+    // frase inteira — devolve INTACTO, senão o sufixo era descartado.
+    const afterQuote = t.slice(t.indexOf(quoteMatch[0]) + quoteMatch[0].length).trim();
+    if (afterQuote) return t;
     // Acha o primeiro separador (:, -, ou abertura das aspas) e usa
     // tudo antes dele como prefix.
     const quotePos = t.indexOf(quoteMatch[0]);

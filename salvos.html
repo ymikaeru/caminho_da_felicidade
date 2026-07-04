@@ -245,6 +245,10 @@
                 -webkit-overflow-scrolling: touch;
             }
             .folder-item { width: auto; flex: 0 0 auto; }
+            /* "Todos" tem uma bolinha INVISÍVEL (espaçador que alinha a coluna
+               do desktop). Na faixa horizontal do mobile ela vira só um vão
+               estranho dentro da caixa ativa — esconde. */
+            .folder-item[data-folder="all"] .folder-dot { display: none; }
             /* Nos chips horizontais o nome fica em 1 linha (o clamp de 2 linhas
                é só pra coluna vertical do desktop). */
             .folder-item .folder-name { max-width: 150px; display: block; white-space: nowrap; text-overflow: ellipsis; }

@@ -39,7 +39,7 @@ select
   left(coalesce(h.text, ''), 200),
   0,
   null,
-  coalesce(h.created_at, now())
+  coalesce(h.updated_at, now())
 from public.user_highlights h
 where h.volume = 'poetry'
   and coalesce(h.start_char, 0) = 0

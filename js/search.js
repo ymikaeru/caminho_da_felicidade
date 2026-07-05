@@ -1019,6 +1019,37 @@ window.clearSearch = function () {
   _renderEmptyState();
 }
 
+// Trava o scroll da página atrás do modal. No mobile (iOS Safari)
+// `body { overflow:hidden }` sozinho não segura o toque — fixamos o
+// body e guardamos/restauramos a posição de scroll. Mesmo padrão do
+// modal de Recomendações (js/recommendations.js).
+let _searchSavedScrollY = 0;
+function _lockPageScroll() {
+  if (document.body.style.position === 'fixed') return; // já travado
+  _searchSavedScrollY = window.scrollY || window.pageYOffset || 0;
+  document.body.style.top = `-${_searchSavedScrollY}px`;
+  document.body.style.position = 'fixed';
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+  document.body.style.overflow = 'hidden';
+}
+function _unlockPageScroll() {
+  if (document.body.style.position !== 'fixed') return; // não estava travado
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  document.body.style.overflow = '';
+  // Restaura sem animação (html usa scroll-behavior: smooth).
+  const html = document.documentElement;
+  const prev = html.style.scrollBehavior;
+  html.style.scrollBehavior = 'auto';
+  window.scrollTo(0, _searchSavedScrollY);
+  html.style.scrollBehavior = prev;
+}
+
 window.openSearch = function () {
   // Single chokepoint pra todos os entrypoints (botão + Ctrl+K + "/").
   // Se a busca está provisoriamente gated, no-op silencioso.
@@ -1027,6 +1058,7 @@ window.openSearch = function () {
   const input = document.getElementById('searchInput');
   if (modal) {
     modal.classList.add('active');
+    _lockPageScroll();
     _trapFocus(modal);
     if (input) {
       input.focus();
@@ -1060,6 +1092,7 @@ window.closeSearch = function (preserveQuery = true) {
   const modal = document.getElementById('searchModal');
   if (!modal) return;
   modal.classList.remove('active');
+  _unlockPageScroll();
   _releaseFocus(modal);
   if (!preserveQuery) {
     sessionStorage.removeItem('searchQuery');

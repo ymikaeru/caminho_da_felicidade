@@ -106,18 +106,18 @@ const _TAB_MARKUP = `
                   <h2 style="margin:0;">Conteúdo</h2>
                   <select class="period-select" id="content-table-selector"
                     onchange="selectAnalyticsTable('content', this.value)">
-                    <option value="top-teachings" selected>Ensinamentos Mais Lidos</option>
+                    <option value="top-teachings">Ensinamentos Mais Lidos</option>
                     <option value="article-quality">💎 Qualidade por Ensinamento</option>
-                    <option value="popular-favorites">⭐ Salvos &amp; Destaques Populares</option>
+                    <option value="popular-favorites" selected>⭐ Salvos &amp; Destaques Populares</option>
                   </select>
                 </div>
-                <div id="top-teachings">
+                <div id="top-teachings" style="display:none;">
                   <div class="loading">Carregando...</div>
                 </div>
                 <div id="article-quality" style="display:none;">
                   <div class="loading">Carregando...</div>
                 </div>
-                <div id="popular-favorites" style="display:none;">
+                <div id="popular-favorites">
                   <div class="loading">Carregando...</div>
                 </div>
               </div>

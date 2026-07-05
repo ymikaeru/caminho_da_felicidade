@@ -166,7 +166,7 @@
     .al-name { flex: 0 0 210px; max-width: 210px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .al-bar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
     .al-arch { flex: 0 0 90px; text-align: right; font-size: .76rem; }
-    .al-status { flex: 0 0 92px; text-align: right; font-variant-numeric: tabular-nums; }
+    .al-status { flex: 0 0 120px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
     @media (max-width: 700px) {
       /* Cabe num celular: esconde as barras (o % e o status já dizem tudo),
          nome ocupa o espaço livre e trunca, selos com largura automática. */

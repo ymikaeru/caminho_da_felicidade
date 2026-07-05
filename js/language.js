@@ -50,9 +50,9 @@ function setLanguage(lang, triggerRender = true) {
     };
 
     updateLabel('mobileMenuTitle', t.title);
-    // mobileNavLabelNav agora abriga toda a obra de Meishu-Sama
-    // (volumes + poesia). mobileNavLabelComplementary virou "Discípulos".
-    updateLabel('mobileNavLabelNav', t.meishuSama || 'Meishu-Sama');
+    // mobileNavLabelNav = "Navegação" (abriga volumes + poesia de Meishu-Sama).
+    // mobileNavLabelComplementary virou "Discípulos".
+    updateLabel('mobileNavLabelNav', t.navigation || 'Navegação');
     updateLabel('mobileNavLabelReading', t.myReading || 'Minha Leitura');
     updateLabel('mobileNavLabelKeepsakes', t.myKeepsakes || 'Meus Guardados');
     updateLabel('mobileNavLabelFont', t.fontSize);

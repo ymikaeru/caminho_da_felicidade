@@ -253,6 +253,18 @@ function _initMobileNav() {
           <span class="rec-badge" style="display:none; margin-left:auto; min-width:18px; height:18px; padding:0 5px; background:var(--accent); color:#fff; border-radius:9px; font-size:0.7rem; font-weight:700; align-items:center; justify-content:center; line-height:1;">0</span>
         </button>
 
+        <!-- Painel de Coletâneas (admin-only): movido pra logo abaixo de
+             Central de Recomendações a pedido. A divisória fica DENTRO do bloco
+             gated pra não sobrar linha órfã pro membro. Revelado no isAdminUser()
+             abaixo, junto da seção "Guias (admin)". -->
+        <div id="mobileNavCollectionsAdmin" style="display:none;">
+          <div class="mobile-nav-divider"></div>
+          <button class="mobile-nav-link" id="mobileNavLinkPlaylists" onclick="closeMobileNav(); if (typeof openPlaylistManager === 'function') openPlaylistManager();">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <span class="link-text">Painel de Coletâneas</span>
+          </button>
+        </div>
+
         <button class="mobile-nav-link" id="mobileNavLinkConversations" style="display:none; position:relative;" onclick="closeMobileNav(); if (typeof openMyConversations === 'function') openMyConversations();">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
           <span class="link-text">${t.conversations || 'Minhas conversas'}</span>
@@ -317,7 +329,7 @@ function _initMobileNav() {
         </div>
 
         <div class="mobile-nav-divider"></div>
-        <div class="mobile-nav-section-label" id="mobileNavLabelNav">${t.meishuSama || 'Meishu-Sama'}</div>
+        <div class="mobile-nav-section-label" id="mobileNavLabelNav">${t.navigation || 'Navegação'}</div>
         <div id="mobileNavLinks">
           ${linksHtml}
         </div>
@@ -404,17 +416,13 @@ function _initMobileNav() {
         </a>
         </div>
 
-        <!-- Seção SÓ-ADMIN: Central de Coletâneas + guias ocultos (fora do
-             menu público e do sitemap, noindex). O container nasce display:none
-             e é revelado inteiro no isAdminUser() abaixo. -->
+        <!-- Seção SÓ-ADMIN: guias ocultos (fora do menu público e do sitemap,
+             noindex). O container nasce display:none e é revelado inteiro no
+             isAdminUser() abaixo. (Painel de Coletâneas foi movido pra junto de
+             Central de Recomendações — bloco mobileNavCollectionsAdmin.) -->
         <div id="mobileNavAdminSection" style="display:none;">
           <div class="mobile-nav-divider"></div>
           <div class="mobile-nav-section-label"><span class="lang-pt">Guias (admin)</span><span class="lang-ja" style="display:none">ガイド（管理者）</span></div>
-
-          <button class="mobile-nav-link" id="mobileNavLinkPlaylists" onclick="closeMobileNav(); if (typeof openPlaylistManager === 'function') openPlaylistManager();">
-            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-            <span class="link-text">Central de Coletâneas</span>
-          </button>
 
           <a class="mobile-nav-link" id="mobileNavLinkShinDendo" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}shin-dendo.html">
             <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
@@ -454,11 +462,13 @@ function _initMobileNav() {
   _setupCollapsibleSections(mobileNavOverlay);
   _setupPwaInstall(mobileNavOverlay);
 
-  // Revela a seção "Guias (admin)" — inclui a Central de Coletâneas e os
-  // guias ocultos (fora do menu público e do sitemap) — só pra admin.
+  // Revela os itens SÓ-ADMIN — o Painel de Coletâneas (junto de Central de
+  // Recomendações) e a seção "Guias (admin)" com os guias ocultos.
   if (typeof isAdminUser === 'function' && isAdminUser()) {
     const adminSection = document.getElementById('mobileNavAdminSection');
     if (adminSection) adminSection.style.display = '';
+    const collectionsAdmin = document.getElementById('mobileNavCollectionsAdmin');
+    if (collectionsAdmin) collectionsAdmin.style.display = '';
   }
 
   hamburgerBtn.addEventListener('click', () => {

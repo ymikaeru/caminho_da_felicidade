@@ -17,16 +17,49 @@ function _cleanSoftBreakArtifacts(html) {
         .replace(/(<br[^>]*data-soft[^>]*>\s*<br[^>]*data-soft[^>]*>)(?:\s*<br[^>]*data-soft[^>]*>)+/gi, '$1');
 }
 
+// <br> entre fechamento e reabertura de <b>/<font color> — usado por
+// _normalizeContent pra distinguir RÓTULO isolado (信者の質問/Pergunta do
+// Fiel/明主様御垂示/Fala do Sr. Hioki — vira quebra de parágrafo) de ênfase
+// colorida continuando a mesma frase (nossa religião<br>odeia ao máximo... —
+// vira espaço). Ver comentário na regra 2+3 dentro de _normalizeContent.
+const _LABEL_BREAK_RE = /((?:<\/(?:b|strong|font)>\s*)+)<br\s*\/?>\s*((?:<(?:b|font)[^>]*>\s*){1,2}([^<]{1,80}?)(?:(<br\s*\/?>)\s*)?(?:<\/(?:b|font)>\s*){1,2}(<br\s*\/?>)?)/gi;
+
+function _labelBreakReplacer(DBLBR) {
+    return function (m, closers, span, label, innerBr, trailingBr) {
+        const isLabel = (innerBr || trailingBr) && !/,\s*$/.test(label) && !/^[a-zà-ú]/.test(label.trim());
+        return closers + (isLabel ? DBLBR : ' ') + span;
+    };
+}
+
 function _normalizeContent(rawContent) {
     const DBLBR = '\x01DBLBR\x01';
     const SGLBR = '\x03SGLBR\x03';
     let norm = _cleanSoftBreakArtifacts(rawContent)
+        // 2+3) <br> entre fechamento e abertura de <b>/<font color>: SÓ é
+        //     quebra de parágrafo de verdade quando o trecho reaberto é um
+        //     RÓTULO isolado — curto (≤80 chars), sem vírgula final, sem
+        //     iniciar com minúscula latina, e com outro <br> colado (antes OU
+        //     depois do fechamento) marcando linha própria no editor de
+        //     origem (ex.: "信者の質問"/"Pergunta do Fiel"/"明主様御垂示"/
+        //     "Fala do Sr. Hioki"). Sem essas 3 condições juntas é ênfase
+        //     colorida continuando a MESMA frase (ex.: "nossa religião" <br>
+        //     "odeia ao máximo..." → viraria parágrafo fantasma bem no meio
+        //     da frase) ou um fragmento de oração que só por acaso também
+        //     tem <br> dos dois lados (ex.: "...já estão destinadas à
+        //     extinção,<br>por mais que..." — vírgula final entrega que
+        //     continua). Aplicada 2× (mesma regra, 2 chamadas seguidas):
+        //     quando um rótulo-citação (ex.: a pergunta em JA/PT) "rouba" o
+        //     <br> que precederia o RÓTULO seguinte (ex.: 信者の質問 ...
+        //     resposta_citada <br> 明主様御垂示), sobra um <br> literal que só
+        //     fica visível pro regex na 2ª passada. PRECISA rodar ANTES da
+        //     regra 1 (abaixo): a regra 1 consome qualquer <br> seguido de
+        //     texto puro (inclusive 「 de abertura de citação JA) — se rodasse
+        //     primeiro, comeria o <br> logo depois de um rótulo (o sinal que
+        //     esta regra usa pra reconhecê-lo) antes desta regra ver o rótulo.
+        .replace(_LABEL_BREAK_RE, _labelBreakReplacer(DBLBR))
+        .replace(_LABEL_BREAK_RE, _labelBreakReplacer(DBLBR))
         // 1) After closing </b>/<font> tags (any combo), <br> followed by non-tag text → single break
         .replace(/((?:<\/(?:b|strong|font)>\s*)+)<br\s*\/?>\s*(?=[^<])/gi, '$1' + SGLBR)
-        // 2) <br> between closing tags and opening <b> or <font> → paragraph break (new section)
-        .replace(/((?:<\/(?:b|strong|font)>\s*)+)<br\s*\/?>\s*(?=<b)/gi, '$1' + DBLBR)
-        // 3) <br> between closing tags and opening <font color=...> → paragraph break
-        .replace(/((?:<\/(?:b|strong|font)>\s*)+)<br\s*\/?>\s*(?=<font\s+color)/gi, '$1' + DBLBR)
         // 3b) <br> logo ANTES de um trecho colorido/negrito em destaque (não
         //     precedido por tag de fechamento, senão cairia na regra 2/3) →
         //     vira espaço, não parágrafo. Alguns textos (ex.: ensaios com

@@ -209,6 +209,53 @@
             vertical-align: 0.14em;
             white-space: nowrap;
         }
+        /* Badge "Ensinamento" — neutro, contrasta com o dourado do "Poema". */
+        .fav-teach-badge {
+            display: inline-block;
+            font-family: "Outfit", sans-serif;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background: rgba(128, 128, 128, 0.14);
+            border-radius: 4px;
+            padding: 1px 6px;
+            vertical-align: 0.14em;
+            white-space: nowrap;
+        }
+        /* Filtro por tipo (Todos / Ensinamentos / Poemas). */
+        .type-filter { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 14px; }
+        .type-chip {
+            font-family: "Outfit", sans-serif;
+            font-size: 0.82rem;
+            padding: 5px 13px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: background 0.12s, border-color 0.12s, color 0.12s;
+        }
+        .type-chip:hover { border-color: var(--accent); color: var(--accent); }
+        .type-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .type-chip .type-chip-count { opacity: 0.7; margin-left: 3px; font-size: 0.76rem; }
+        .type-chip.active .type-chip-count { opacity: 0.9; }
+
+        /* Card de POEMA: visual distinto — barra de acento à esquerda e o VERSO
+           como protagonista (só uma legenda pequena no lugar do título). */
+        .fav-card--poem { border-left: 3px solid rgba(184, 134, 11, 0.5); padding-left: 13px; }
+        .fav-poem-caption {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-family: "Outfit", sans-serif;
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .fav-poem-caption-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+        .fav-card--poem .fav-poem { margin-top: 0; font-size: 1.05rem; }
         .fav-footer {
             display: flex;
             align-items: center;
@@ -296,7 +343,7 @@
     <script src="js/language.js?v=12" defer></script>
     <script src="js/typography.js?v=2" defer></script>
     <script src="js/search.min.js?v=56" defer></script>
-    <script src="js/salvos-page.js?v=15" defer></script>
+    <script src="js/salvos-page.js?v=16" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';
@@ -343,6 +390,7 @@
                             <span id="salvos-current"></span>
                             <span id="salvos-tools"></span>
                         </div>
+                        <div id="salvos-typefilter" class="type-filter"></div>
                         <div id="salvos-list">
                             <div class="notebook-empty">Carregando...</div>
                         </div>

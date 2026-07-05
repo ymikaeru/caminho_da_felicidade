@@ -19,6 +19,7 @@
         allFolders: 'Todos',
         noFolder: 'Sem pasta',
         newFolder: 'Nova pasta',
+        typeAll: 'Todos', typeTeach: 'Ensinamentos', typePoem: 'Poemas',
         empty: 'Nada salvo ainda.<br>No leitor toque em <b>Salvar</b>, ou nas coletâneas de poesia toque em <b>Guardar</b>.',
         emptyFolder: 'Nada nesta pasta ainda.<br>Arraste um item na lista para cá ou use <b>Mover</b>.',
         savedOn: (d) => d ? `salvo em ${d}` : '',
@@ -42,6 +43,7 @@
         allFolders: 'すべて',
         noFolder: 'フォルダなし',
         newFolder: '新しいフォルダ',
+        typeAll: 'すべて', typeTeach: '教え', typePoem: '詩',
         empty: 'まだ保存された教えはありません。<br>リーダーでタイトル下の<b>保存</b>をタップしてください。',
         emptyFolder: 'このフォルダには教えがありません。<br>一覧の教えをドラッグするか<b>移動</b>を使ってください。',
         savedOn: (d) => d ? `${d} に保存` : '',
@@ -81,6 +83,8 @@
     };
 
     let selected = 'all'; // 'all' | 'none' | <folderId>
+    let typeFilter = 'all'; // 'all' | 'teaching' | 'poetry' — filtro por tipo de item
+    const favType = (f) => f.vol === 'poetry' ? 'poetry' : 'teaching';
     // Chaves alteradas nesta sessão — o merge da nuvem não sobrescreve o que o
     // usuário acabou de mexer (evita reverter antes do cloud refletir).
     const touchedFavs = new Set();
@@ -387,19 +391,28 @@
                 : `(Vol ${vNum})`;
             snippetText = cleanSnippet(f.snippet, [f.topicTitle, f.title, cleanTitle]);
         }
-        const snippet = snippetText
-            ? (isPoem
-                ? `<div class="fav-poem">${esc(snippetText)}</div>`
-                : `<div class="fav-snippet">${esc(snippetText)}</div>`)
-            : '';
         const fo = f.folderId ? folderById(f.folderId) : null;
         const folderTag = fo ? `<span class="fav-folder-tag" title="${esc(fo.name)}"><span class="folder-dot" style="background:${esc(fo.color || '#b8860b')}"></span><span class="fav-folder-tag-name">${esc(fo.name)}</span></span>` : '';
         const key = favKey(f);
-        return `<div class="fav-card" draggable="true" data-key="${esc(key)}">
-            <a class="fav-main" href="${href}">
-                <div class="fav-title">${isPoem ? `<span class="fav-poem-badge">${isPt ? 'Poema' : '詩'}</span> ` : ''}${esc(normNums(cleanTitle))} <span class="fav-vol">${esc(volTopic)}</span></div>
-                ${snippet}
-            </a>
+
+        let mainInner;
+        if (isPoem) {
+            // POEMA: sem título pesado — só uma legenda pequena (Poema ·
+            // coletânea · №) e o VERSO como protagonista, em fonte de poema.
+            const numLabel = (String(f.topicTitle || '').match(/№\s*[\d０-９]+/) || [`№ ${f.topic || 0}`])[0];
+            const collName = volTopic.replace(/^\(|\)$/g, '');
+            mainInner =
+                `<div class="fav-poem-caption"><span class="fav-poem-badge">${isPt ? 'Poema' : '詩'}</span>` +
+                `<span class="fav-poem-caption-name">${esc(collName)} · ${esc(normNums(numLabel))}</span></div>` +
+                (snippetText ? `<div class="fav-poem">${esc(snippetText)}</div>` : '');
+        } else {
+            mainInner =
+                `<div class="fav-title"><span class="fav-teach-badge">${isPt ? 'Ensinamento' : '教え'}</span> ${esc(normNums(cleanTitle))} <span class="fav-vol">${esc(volTopic)}</span></div>` +
+                (snippetText ? `<div class="fav-snippet">${esc(snippetText)}</div>` : '');
+        }
+
+        return `<div class="fav-card${isPoem ? ' fav-card--poem' : ''}" draggable="true" data-key="${esc(key)}">
+            <a class="fav-main" href="${href}">${mainInner}</a>
             <div class="fav-footer">
                 <div class="fav-meta">${folderTag}${date ? `<span class="fav-date">${esc(T.savedOn(date))}</span>` : ''}</div>
                 <div class="fav-actions">
@@ -444,6 +457,22 @@
         else if (selected !== 'all') items = items.filter(f => f.folderId === selected);
         items.sort((a, b) => (b.time || 0) - (a.time || 0));
 
+        // Filtro por tipo (Ensinamentos / Poemas) — contado no escopo da pasta
+        // atual. Só aparece quando há OS DOIS tipos (senão é ruído). Se some,
+        // reseta pra "Todos" pra não deixar a lista filtrada num tipo ausente.
+        const nPoem = items.filter(f => favType(f) === 'poetry').length;
+        const nTeach = items.length - nPoem;
+        const showTypeFilter = nPoem > 0 && nTeach > 0;
+        if (!showTypeFilter) typeFilter = 'all';
+        const tfEl = document.getElementById('salvos-typefilter');
+        if (tfEl) {
+            const chip = (id, label, count) => `<button type="button" class="type-chip${typeFilter === id ? ' active' : ''}" data-type="${id}">${esc(label)}<span class="type-chip-count">${count}</span></button>`;
+            tfEl.innerHTML = showTypeFilter
+                ? chip('all', T.typeAll, items.length) + chip('teaching', T.typeTeach, nTeach) + chip('poetry', T.typePoem, nPoem)
+                : '';
+        }
+        if (typeFilter !== 'all') items = items.filter(f => favType(f) === typeFilter);
+
         const curName = selected === 'all' ? T.allFolders : (selected === 'none' ? T.noFolder : (folderById(selected) ? folderById(selected).name : ''));
         const headEl = document.getElementById('salvos-current');
         if (headEl) { headEl.textContent = curName; headEl.title = curName; }
@@ -487,6 +516,10 @@
         if (delBtn) delBtn.addEventListener('click', () => deleteFolder(selected));
         document.querySelectorAll('#salvos-tools .color-swatch').forEach(sw =>
             sw.addEventListener('click', () => recolorFolder(selected, sw.dataset.color)));
+
+        // filtro por tipo (Ensinamentos / Poemas)
+        document.querySelectorAll('#salvos-typefilter .type-chip').forEach(btn =>
+            btn.addEventListener('click', () => { typeFilter = btn.dataset.type; render(); }));
 
         // cards
         document.querySelectorAll('#salvos-list .fav-move').forEach(btn =>

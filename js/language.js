@@ -53,7 +53,8 @@ function setLanguage(lang, triggerRender = true) {
     // mobileNavLabelNav agora abriga toda a obra de Meishu-Sama
     // (volumes + poesia). mobileNavLabelComplementary virou "Discípulos".
     updateLabel('mobileNavLabelNav', t.meishuSama || 'Meishu-Sama');
-    updateLabel('mobileNavLabelActions', t.actions);
+    updateLabel('mobileNavLabelReading', t.myReading || 'Minha Leitura');
+    updateLabel('mobileNavLabelKeepsakes', t.myKeepsakes || 'Meus Guardados');
     updateLabel('mobileNavLabelFont', t.fontSize);
     updateLabel('mobileNavLabelComplementary', t.discipulos || 'Discípulos');
     updateLink('mobileNavLinkHistory', t.history);

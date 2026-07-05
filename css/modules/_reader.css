@@ -129,11 +129,30 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
 }
 
 .breadcrumbs span {
   color: var(--border);
+}
+
+/* Título longo NÃO deve espremer os crumbs anteriores até quebrarem no meio
+   da palavra (ex.: "INÍCI/O"). Home, volume, seção e barras ficam intactos
+   (nowrap + sem encolher); quem quebra — por palavra — é só o título, e o
+   conjunto passa pra próxima linha via flex-wrap. */
+.breadcrumbs .bc-home,
+.breadcrumbs .bc-volume,
+.breadcrumbs .bc-section,
+.breadcrumbs .bc-sep {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.breadcrumbs .bc-current {
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .breadcrumbs a {

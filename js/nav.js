@@ -229,16 +229,12 @@ function _initMobileNav() {
     <div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
     <div class="mobile-nav-panel">
       <div class="mobile-nav-header">
+        <span id="mobileMenuIndexNum" class="mobile-nav-index-num" style="display:none;" aria-hidden="true"></span>
         <span id="mobileMenuTitle">${t.title}</span>
       </div>
       <div class="mobile-nav-body">
 
-        <div class="mobile-nav-section-label" id="mobileNavLabelActions">${t.actions}</div>
-
-        <button class="mobile-nav-link" onclick="openHistory(); closeMobileNav();" id="mobileNavLinkHistory">
-          <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span class="link-text">${t.history}</span>
-        </button>
+        <div class="mobile-nav-section-label" id="mobileNavLabelKeepsakes">${t.myKeepsakes || 'Meus Guardados'}</div>
 
         <button class="mobile-nav-link" onclick="window.location.href=(window.location.pathname.includes('/mioshiec') ? '../' : '') + 'salvos.html';" id="mobileNavLinkFavorites">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
@@ -248,11 +244,6 @@ function _initMobileNav() {
         <button class="mobile-nav-link" onclick="window.location.href=(window.location.pathname.includes('/mioshiec') ? '../' : '') + 'destaques.html';" id="mobileNavLinkHighlights">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
           <span class="link-text">${t.highlights || 'Central de Destaques'}</span>
-        </button>
-
-        <button class="mobile-nav-link" onclick="window.location.href=(window.location.pathname.includes('/mioshiec') ? '../' : '') + 'lidos.html';" id="mobileNavLinkReadCentral">
-          <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>
-          <span class="link-text">${t.readCentral || 'Ensinamentos Lidos'}</span>
         </button>
 
 
@@ -280,6 +271,19 @@ function _initMobileNav() {
         <button class="mobile-nav-link" id="mobileNavLinkInstall" style="display:none;" onclick="closeMobileNav(); if (typeof window._pwaInstall === 'function') window._pwaInstall();">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
           <span class="link-text"><span class="lang-pt">Instalar o aplicativo</span><span class="lang-ja" style="display:none">アプリとして使う</span></span>
+        </button>
+
+        <div class="mobile-nav-divider"></div>
+        <div class="mobile-nav-section-label" id="mobileNavLabelReading">${t.myReading || 'Minha Leitura'}</div>
+
+        <button class="mobile-nav-link" onclick="openHistory(); closeMobileNav();" id="mobileNavLinkHistory">
+          <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span class="link-text">${t.history}</span>
+        </button>
+
+        <button class="mobile-nav-link" onclick="window.location.href=(window.location.pathname.includes('/mioshiec') ? '../' : '') + 'lidos.html';" id="mobileNavLinkReadCentral">
+          <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>
+          <span class="link-text">${t.readCentral || 'Ensinamentos Lidos'}</span>
         </button>
 
         <div class="mobile-nav-divider"></div>
@@ -326,7 +330,7 @@ function _initMobileNav() {
 
         <!-- Obras poéticas agrupadas como na home (poesia.html): duas seções
              rotuladas — Poesia Lírica (詩歌) e Salmos Sagrados (御讃歌). -->
-        <div class="mobile-nav-section-label" data-collapsible="poesia"><span class="lang-pt">Poesia Lírica</span><span class="lang-ja" style="display:none">詩歌</span></div>
+        <div class="mobile-nav-section-label mobile-nav-section-label--sub" data-collapsible="poesia"><span class="lang-pt">Poesia Lírica</span><span class="lang-ja" style="display:none">詩歌</span></div>
 
         <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}akimaro-kineishu.html" id="mobileNavLinkAkimaro">
           <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.93" y1="4.93" x2="7.05" y2="7.05"/><line x1="16.95" y1="16.95" x2="19.07" y2="19.07"/><line x1="4.93" y1="19.07" x2="7.05" y2="16.95"/><line x1="16.95" y1="7.05" x2="19.07" y2="4.93"/></svg>
@@ -355,7 +359,7 @@ function _initMobileNav() {
         <!-- 2ª seção poética: Salmos Sagrados (御讃歌) — Gosanka-shū.
              Itens com título curto + ícone de livro (arcticons:book). -->
         <div class="mobile-nav-subdivider"></div>
-        <div class="mobile-nav-section-label" data-collapsible="salmos"><span class="lang-pt">Salmos Sagrados</span><span class="lang-ja" style="display:none">御讃歌</span></div>
+        <div class="mobile-nav-section-label mobile-nav-section-label--sub" data-collapsible="salmos"><span class="lang-pt">Salmos Sagrados</span><span class="lang-ja" style="display:none">御讃歌</span></div>
 
         <a class="mobile-nav-link" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}gosanka-shoban.html" id="mobileNavLinkGosankaShoban">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M7.35 2.25h-1.15c-1.1 0-2 0.9-2 2v15.5c0 1.1 0.9 2 2 2h1.15m0-19.5v19.5h10.45c1.1 0 2-0.9 2-2v-15.5c0-1.1-0.9-2-2-2z"/></svg>
@@ -465,6 +469,32 @@ function _initMobileNav() {
       const docTitle = document.title;
       const match = docTitle.match(/^Meishu-Sama:\s*(.+?)\s*-\s*Caminho da Felicidade$/);
       titleEl.textContent = match ? match[1] : fallback;
+    }
+    // Número no índice (só no reader de volume): mesma fonte que o breadcrumb
+    // — SECTION_MAP[vol][arquivo].n, o número do topic-card__icon do índice.
+    // Discreto, à direita do título; some quando não há match (poesia,
+    // discípulos, páginas fora do reader).
+    const numEl = document.getElementById('mobileMenuIndexNum');
+    if (numEl) {
+      let n = '';
+      try {
+        if (/reader\.html$/.test(window.location.pathname)) {
+          const p = new URLSearchParams(window.location.search);
+          let volId = p.get('vol') || p.get('v');
+          let filename = p.get('file') || p.get('f');
+          if (!volId || !filename) {
+            const hm = window.location.hash.replace(/^#/, '').match(/^v(\d+)\/(.+)$/i);
+            if (hm) { volId = 'mioshiec' + hm[1]; filename = hm[2]; }
+          }
+          if (volId && !volId.startsWith('mioshiec')) volId = 'mioshiec' + volId;
+          if (filename && !filename.endsWith('.html')) filename += '.html';
+          const volMap = (window.SECTION_MAP || {})[volId] || {};
+          const obj = (filename && volMap[filename]) || (filename && volMap[filename.split('/').pop()]);
+          if (obj && obj.n) n = String(obj.n);
+        }
+      } catch (e) {}
+      numEl.textContent = n ? '#' + n : '';
+      numEl.style.display = n ? '' : 'none';
     }
     openMobileNav();
   });

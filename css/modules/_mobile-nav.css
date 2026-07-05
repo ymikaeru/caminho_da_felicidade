@@ -197,8 +197,9 @@
   padding: 20px 24px;
   border-bottom: 1px solid var(--border);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
   flex-shrink: 0;
 }
 
@@ -206,6 +207,18 @@
   font-family: var(--font-serif);
   font-size: 1.1rem;
   color: var(--text-main);
+}
+
+/* Número no índice (só no reader): "eyebrow" discreto ACIMA do título —
+   cinza pequeno, mesma linguagem da numeração de página do índice. */
+.mobile-nav-header .mobile-nav-index-num {
+  margin-bottom: 3px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  opacity: 0.6;
 }
 
 .mobile-nav-close {
@@ -260,6 +273,16 @@
 }
 .mobile-nav-collapse-body.collapsed {
   display: none;
+}
+
+/* Sub-rótulo: Poesia Lírica e Salmos Sagrados são subcategorias de
+   Meishu-Sama (não autores à parte). Recuadas e menores que os rótulos
+   de topo (Meishu-Sama, Discípulos), leem como filhas, não como irmãs.
+   Dois seletores de classe (0,2,0) pra vencer .mobile-nav-collapsible. */
+.mobile-nav-section-label.mobile-nav-section-label--sub {
+  padding-left: 40px;
+  font-size: 10px;
+  letter-spacing: 1px;
 }
 
 .mobile-nav-link {

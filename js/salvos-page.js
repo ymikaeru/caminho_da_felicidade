@@ -95,6 +95,12 @@
     const filt = (arr) => (typeof _filterAccessible === 'function') ? _filterAccessible(arr) : arr;
 
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    // Normaliza numeração de parte herdada do japonês: dígitos fullwidth
+    // (０-９ / U+FF10-19) → normais, e o espaço fullwidth 　 antes do número →
+    // espaço comum. Ex.: "Causa Fundamental da Doença　２" → "... Doença 2".
+    const normNums = (s) => String(s == null ? '' : s)
+        .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+        .replace(/　+(?=\d)/g, ' ');
     const favKey = (f) => `${f.vol}:${f.file}:${f.topic || 0}`;
     const folderById = (id) => loadFolders().find(x => x.id === id) || null;
 
@@ -391,7 +397,7 @@
         const key = favKey(f);
         return `<div class="fav-card" draggable="true" data-key="${esc(key)}">
             <a class="fav-main" href="${href}">
-                <div class="fav-title">${isPoem ? `<span class="fav-poem-badge">${isPt ? 'Poema' : '詩'}</span> ` : ''}${esc(cleanTitle)} <span class="fav-vol">${esc(volTopic)}</span></div>
+                <div class="fav-title">${isPoem ? `<span class="fav-poem-badge">${isPt ? 'Poema' : '詩'}</span> ` : ''}${esc(normNums(cleanTitle))} <span class="fav-vol">${esc(volTopic)}</span></div>
                 ${snippet}
             </a>
             <div class="fav-footer">

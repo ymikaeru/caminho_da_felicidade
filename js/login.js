@@ -418,7 +418,12 @@ function injectLogoutButton() {
     const _lang = localStorage.getItem('site_lang') || 'pt';
     btn.innerHTML = `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span class="link-text"><span class="lang-pt"${_lang === 'ja' ? ' style="display:none"' : ''}>Sair</span><span class="lang-ja"${_lang === 'ja' ? '' : ' style="display:none"'}>ログアウト</span></span>`;
     btn.onclick = logout;
+    // "Instalar o aplicativo" (nav.js o cria lá em cima, na seção de ações)
+    // fica melhor agrupado com o "Sair" no rodapé — reposiciona pra logo acima
+    // do logout. appendChild MOVE o nó se ele já existe no DOM.
+    const installBtn = panel.querySelector('#mobileNavLinkInstall');
     panel.appendChild(divider);
+    if (installBtn) panel.appendChild(installBtn);
     panel.appendChild(btn);
   };
 

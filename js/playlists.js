@@ -313,7 +313,7 @@
   }
 
   // ============================================================
-  // MANAGER MODAL — "Minhas Coletâneas"
+  // MANAGER MODAL — "Central de Coletâneas"
   // ============================================================
   let _mgrModal = null;
   let _mgrCurrentColl = null;   // { id, name } quando em detalhe; null = list view
@@ -333,7 +333,7 @@
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
           </svg>
           <div style="flex:1;">
-            <div id="mgrTitle" style="font-size:1.05rem; font-weight:600;">Minhas Coletâneas</div>
+            <div id="mgrTitle" style="font-size:1.05rem; font-weight:600;">Central de Coletâneas</div>
             <div id="mgrSubtitle" style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;"></div>
           </div>
           <button id="mgrClose" aria-label="Fechar" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-muted); line-height:1; padding:0 4px;">&times;</button>
@@ -370,7 +370,7 @@
     _mgrCurrentColl = null;
     _mgrCurrentItems = [];
     document.getElementById('mgrBack').style.display = 'none';
-    document.getElementById('mgrTitle').textContent = 'Minhas Coletâneas';
+    document.getElementById('mgrTitle').textContent = 'Central de Coletâneas';
     document.getElementById('mgrSubtitle').textContent = '';
     document.getElementById('mgrMsg').textContent = '';
     const body = document.getElementById('mgrBody');

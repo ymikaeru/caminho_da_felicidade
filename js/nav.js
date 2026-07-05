@@ -283,11 +283,6 @@ function _initMobileNav() {
           <span class="conv-badge" style="display:none; margin-left:auto; min-width:18px; height:18px; padding:0 5px; background:var(--accent); color:#fff; border-radius:9px; font-size:0.7rem; font-weight:700; align-items:center; justify-content:center; line-height:1;">0</span>
         </button>
 
-        <button class="mobile-nav-link" id="mobileNavLinkPlaylists" style="display:none;" onclick="closeMobileNav(); if (typeof openPlaylistManager === 'function') openPlaylistManager();">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-          <span class="link-text">Minhas Coletâneas</span>
-        </button>
-
         ${window.location.pathname.includes('reader.html') ? `
         <button class="mobile-nav-link" onclick="closeMobileNav(); printCurrentTeaching();" id="mobileNavLinkPrint">
           <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -420,12 +415,17 @@ function _initMobileNav() {
         </a>
         </div>
 
-        <!-- Seção SÓ-ADMIN: guias ocultos (fora do menu público e do sitemap,
-             noindex). O container nasce display:none e é revelado no
-             isAdminUser() abaixo — mesmo padrão de "Minhas Coletâneas". -->
+        <!-- Seção SÓ-ADMIN: Central de Coletâneas + guias ocultos (fora do
+             menu público e do sitemap, noindex). O container nasce display:none
+             e é revelado inteiro no isAdminUser() abaixo. -->
         <div id="mobileNavAdminSection" style="display:none;">
           <div class="mobile-nav-divider"></div>
           <div class="mobile-nav-section-label"><span class="lang-pt">Guias (admin)</span><span class="lang-ja" style="display:none">ガイド（管理者）</span></div>
+
+          <button class="mobile-nav-link" id="mobileNavLinkPlaylists" onclick="closeMobileNav(); if (typeof openPlaylistManager === 'function') openPlaylistManager();">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <span class="link-text">Central de Coletâneas</span>
+          </button>
 
           <a class="mobile-nav-link" id="mobileNavLinkShinDendo" href="${window.location.pathname.includes('/mioshiec') ? '../' : ''}shin-dendo.html">
             <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
@@ -465,10 +465,9 @@ function _initMobileNav() {
   _setupCollapsibleSections(mobileNavOverlay);
   _setupPwaInstall(mobileNavOverlay);
 
-  // Mostra "Minhas Coletâneas" + a seção de guias ocultos só pra admin.
+  // Revela a seção "Guias (admin)" — inclui a Central de Coletâneas e os
+  // guias ocultos (fora do menu público e do sitemap) — só pra admin.
   if (typeof isAdminUser === 'function' && isAdminUser()) {
-    const plLink = document.getElementById('mobileNavLinkPlaylists');
-    if (plLink) plLink.style.display = '';
     const adminSection = document.getElementById('mobileNavAdminSection');
     if (adminSection) adminSection.style.display = '';
   }

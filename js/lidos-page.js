@@ -49,11 +49,17 @@
         return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
+    // Normaliza numeração de parte herdada do JP (espaço fullwidth 　 + dígitos
+    // ０-９) → normal, na exibição dos títulos. Ex.: "Germes　２" → "Germes 2".
+    const normNums = (s) => String(s == null ? '' : s)
+        .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+        .replace(/　+(?=\d)/g, ' ');
+
     function itemTitle(mark, idxEntry) {
-        if (mark.topicTitle) return mark.topicTitle;
+        if (mark.topicTitle) return normNums(mark.topicTitle);
         if (idxEntry) {
             const base = isPt ? (idxEntry.pt || idxEntry.ja) : (idxEntry.ja || idxEntry.pt);
-            return (mark.topic || 0) > 0 ? `${base} · ${T.topicN((mark.topic || 0) + 1)}` : base;
+            return normNums((mark.topic || 0) > 0 ? `${base} · ${T.topicN((mark.topic || 0) + 1)}` : base);
         }
         return mark.file;
     }

@@ -6,6 +6,15 @@
 // afogava os destaques de conteúdo).
 // ============================================================
 
+// Normaliza numeração de parte herdada do JP (espaço fullwidth 　 + dígitos
+// ０-９) → normal na exibição. window.* idempotente pra não colidir com o
+// mesmo helper de reader-render/search (todos escopo global) no mesmo HTML.
+window.normNums = window.normNums || function (s) {
+    return String(s == null ? '' : s)
+        .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+        .replace(/　+(?=\d)/g, ' ');
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(async () => {
         _initToolbar();
@@ -440,7 +449,7 @@ function _renderCard(h, lang) {
     const orphanBadge = h.orphaned
         ? `<span class="notebook-tag-title notebook-tag-orphan" title="${lang === 'ja' ? '本文が変更され、位置を特定できません' : 'O texto deste trecho mudou no Ensinamento — o grifo não aparece mais no leitor'}">${lang === 'ja' ? '本文が変わりました' : 'texto mudou'}</span>`
         : '';
-    const shortTitle = _esc(_truncate(h.topicTitle || (lang === 'ja' ? 'その他' : 'Outros'), 40));
+    const shortTitle = _esc(_truncate(window.normNums(h.topicTitle || (lang === 'ja' ? 'その他' : 'Outros')), 40));
     const shortText = _esc(_truncate(h.text, 120));
     const commentPreview = h.comment ? `<div class="notebook-comment-preview">📝 ${_esc(_truncate(h.comment, 60))}</div>` : '';
     // Admin: recomendar o trecho deste destaque aos usuários (abre o picker

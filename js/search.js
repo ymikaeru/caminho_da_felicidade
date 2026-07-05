@@ -387,6 +387,15 @@ function _bodyWindow(body, q, activeLang) {
 // é tópico de contêiner) calculado uma vez em _renderGroup e passado aqui.
 // contentFocused = renderiza com o TRECHO do corpo em destaque (seção Conteúdo
 // do modo Literal); sem ele, mostra título + snippet (Relacionados).
+// Normaliza numeração de parte herdada do JP (espaço fullwidth 　 + dígitos
+// ０-９) → normal na exibição. window.* idempotente (escopo global, coexiste
+// com reader-render/destaques-page).
+window.normNums = window.normNums || function (s) {
+  return String(s == null ? '' : s)
+    .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+    .replace(/　+(?=\d)/g, ' ');
+};
+
 function _renderHit(hit, g, basePath, highlightRegex, q, activeLang, contentFocused) {
   const href = _searchLink(basePath, g.vol, g.file, hit.topicIdx, q, activeLang);
   const ex = hit._extracted; // { title, body } | null
@@ -410,7 +419,7 @@ function _renderHit(hit, g, basePath, highlightRegex, q, activeLang, contentFocu
   } else if (ex) {
     // Título real embutido: vira a manchete do trecho (com grifo), e o
     // corpo (sem o cabeçalho "Ensinamento de Meishu-Sama:") vira o snippet.
-    titleHtml = `<div class="search-hit-title">${_styleSnippetSmart(ex.title, activeLang, highlightRegex)}</div>`;
+    titleHtml = `<div class="search-hit-title">${_styleSnippetSmart(window.normNums(ex.title), activeLang, highlightRegex)}</div>`;
     snippetSrc = ex.body || hit.snippet;
   } else {
     // Sem extração (publicação normal): mostra o título doutrinário só se
@@ -420,7 +429,7 @@ function _renderHit(hit, g, basePath, highlightRegex, q, activeLang, contentFocu
     const dupInSnippet = tNorm.length >= 12 && sNorm.includes(tNorm.slice(0, 25));
     const sameAsPub = tNorm && tNorm === _norm(g.pubLabel);
     if (tNorm && !sameAsPub && !dupInSnippet) {
-      titleHtml = `<div class="search-hit-title">${escHtml(hit.title)}</div>`;
+      titleHtml = `<div class="search-hit-title">${escHtml(window.normNums(hit.title))}</div>`;
     }
   }
 

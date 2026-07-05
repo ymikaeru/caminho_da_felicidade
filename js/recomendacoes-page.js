@@ -9,6 +9,11 @@
 // ============================================================
 
 (function () {
+  // Normaliza numeração de parte herdada do JP (espaço fullwidth 　 + dígitos
+  // ０-９) → normal, na exibição dos títulos. Ex.: "Germes　２" → "Germes 2".
+  const normNums = (s) => String(s == null ? '' : s)
+    .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+    .replace(/　+(?=\d)/g, ' ');
   let _active = [];
   let _archived = [];
   let _currentTab = 'active';
@@ -245,7 +250,7 @@
       }
 
       // ── ENSINAMENTO ───────────────────────────────────────────────────
-      const title = (lang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '(sem título)');
+      const title = normNums((lang === 'ja' && r.title_ja) ? r.title_ja : (r.title_pt || '(sem título)'));
       const idx = r.topic_idx != null ? r.topic_idx : 0;
       let href = `${base}reader.html?vol=${encodeURIComponent(r.vol)}&file=${encodeURIComponent(r.file)}`;
       if (idx > 0) href += `&topic=${idx}`;

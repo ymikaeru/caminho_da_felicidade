@@ -9,7 +9,21 @@
 // antes a lógica usava /^([^:]+)/ pra capturar o prefix, que quando o
 // título não tinha ':' capturava a string inteira (inclusive as aspas)
 // e o template final ': title' duplicava o título.
+// Normaliza numeração de parte herdada do JP (espaço fullwidth 　 + dígitos
+// ０-９) → normal, na exibição dos títulos. Ex.: "Germes　２" → "Germes 2".
+// window.* idempotente: reader-render, search e destaques-page (todos escopo
+// GLOBAL, sem IIFE) coexistem no mesmo HTML — um `const` global colidiria.
+window.normNums = window.normNums || function (s) {
+    return String(s == null ? '' : s)
+        .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+        .replace(/　+(?=\d)/g, ' ');
+};
+
+// Wrapper: normaliza o resultado; a lógica de aspas fica no _Base.
 function _formatQuotedTitle(rawTitle) {
+    return window.normNums(_formatQuotedTitleBase(rawTitle));
+}
+function _formatQuotedTitleBase(rawTitle) {
     let t = rawTitle;
     const quoteMatch = t.match(/[""]([^""]+)[""]/);
     if (!quoteMatch) {
@@ -290,7 +304,7 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
     window._currentTopics = topicsFound;
     window._currentTotalTopics = topicsFound.length;
 
-    const cleanTitle = mainTitleToDisplay.replace(/<br\s*\/?>/gi, ' ');
+    const cleanTitle = window.normNums(mainTitleToDisplay.replace(/<br\s*\/?>/gi, ' '));
     document.title = `Meishu-Sama: ${cleanTitle} - Caminho da Felicidade`;
     try {
         const history = JSON.parse(localStorage.getItem('readHistory') || '[]');

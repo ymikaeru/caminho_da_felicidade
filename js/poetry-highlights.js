@@ -85,7 +85,15 @@
       alert(_lang() === 'ja' ? 'オンラインの必要があります。' : 'Você precisa estar online para salvar.');
       return null;
     }
-    const snippet = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 200);
+    // Preserva as QUEBRAS DE LINHA (o salvos.html separa original/tradução por
+    // linha) e os espaços fullwidth 　 do original; só normaliza runs de espaço
+    // comum e linhas em branco. Cap folgado pra caber poema + tradução inteiros.
+    const snippet = String(text || '')
+      .replace(/\r\n?/g, '\n')
+      .replace(/[ \t]{2,}/g, ' ')
+      .replace(/\n{2,}/g, '\n')
+      .trim()
+      .slice(0, 600);
     const now = Date.now();
     const fav = {
       title: topicTitle || '', vol: 'poetry', file, time: now,

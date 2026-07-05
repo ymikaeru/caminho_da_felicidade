@@ -178,6 +178,37 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
         }
+        /* Verso do poema: fonte de poema, quebras de linha preservadas, só a
+           língua ativa (o salvos-page.js já filtra original/tradução). */
+        .fav-poem {
+            font-family: 'Crimson Pro', 'Noto Serif JP', serif;
+            font-size: 1rem;
+            color: var(--text-main);
+            opacity: 0.92;
+            margin-top: 7px;
+            line-height: 1.65;
+            white-space: pre-line;
+            display: -webkit-box;
+            -webkit-line-clamp: 8;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        [data-mode="dark"] .fav-poem { opacity: 0.85; }
+        /* Selo "Poema" — pílula discreta na cor de acento. */
+        .fav-poem-badge {
+            display: inline-block;
+            font-family: "Outfit", sans-serif;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: rgba(184, 134, 11, 0.14);
+            border-radius: 4px;
+            padding: 1px 6px;
+            vertical-align: 0.14em;
+            white-space: nowrap;
+        }
         .fav-footer {
             display: flex;
             align-items: center;
@@ -265,7 +296,7 @@
     <script src="js/language.js?v=12" defer></script>
     <script src="js/typography.js?v=2" defer></script>
     <script src="js/search.min.js?v=55" defer></script>
-    <script src="js/salvos-page.js?v=13" defer></script>
+    <script src="js/salvos-page.js?v=14" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';

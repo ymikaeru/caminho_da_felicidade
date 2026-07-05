@@ -335,18 +335,35 @@
         return s;
     }
 
+    // Poema: o verso salvo é original(JA) + tradução(PT) unidos por \n (e ambos
+    // podem ter \n internos, ex. warai). Separa por SCRIPT — linha com
+    // kana/kanji = original; linha latina = tradução — e devolve SÓ a língua
+    // ativa (PT no modo pt, JA no ja), preservando as quebras. Fallback: se a
+    // língua pedida não tiver linhas (poema sem tradução), mostra a outra.
+    // Robusto tanto p/ dados migrados (concatenados) quanto p/ saves novos.
+    const _HAS_CJK = /[぀-ヿ㐀-鿿豈-﫿ｦ-ﾟ]/;
+    function poemVerse(snippet, ptMode) {
+        const lines = String(snippet || '').split('\n').map(s => s.trim()).filter(Boolean);
+        if (!lines.length) return '';
+        const ja = lines.filter(l => _HAS_CJK.test(l));
+        const pt = lines.filter(l => !_HAS_CJK.test(l));
+        const chosen = ptMode ? (pt.length ? pt : ja) : (ja.length ? ja : pt);
+        return chosen.join('\n');
+    }
+
     function cardHtml(f) {
         const date = f.time ? new Date(f.time).toLocaleDateString(isPt ? 'pt-BR' : 'ja-JP') : '';
+        const isPoem = f.vol === 'poetry';
         let href, cleanTitle, volTopic, snippetText;
-        if (f.vol === 'poetry') {
-            // Poema: link pra página da coletânea (?poem=…&hl_scroll=1), nome
-            // da coletânea no lugar do "Vol N", verso como snippet (já limpo).
+        if (isPoem) {
+            // Poema: link pra página da coletânea; nome da coletânea no lugar do
+            // "Vol N"; e o VERSO na língua ativa (poemVerse), em fonte de poema.
             const n = f.topic || 0;
             const coll = POEM_COLLECTIONS[f.file] || { page: `${f.file}.html`, pt: f.file, ja: f.file, id: (x) => String(x) };
             href = `${coll.page}?poem=${encodeURIComponent(coll.id(n))}&hl_scroll=1${isPt ? '' : '&lang=ja'}`;
             cleanTitle = String(f.topicTitle || f.title || '').trim() || (isPt ? coll.pt : coll.ja);
             volTopic = `(${isPt ? coll.pt : coll.ja})`;
-            snippetText = String(f.snippet || '').replace(/\s+/g, ' ').trim();
+            snippetText = poemVerse(f.snippet, isPt);
         } else {
             const vNum = String(f.vol).replace('mioshiec', '');
             const topicIdx = f.topic || 0;
@@ -364,13 +381,17 @@
                 : `(Vol ${vNum})`;
             snippetText = cleanSnippet(f.snippet, [f.topicTitle, f.title, cleanTitle]);
         }
-        const snippet = snippetText ? `<div class="fav-snippet">${esc(snippetText)}</div>` : '';
+        const snippet = snippetText
+            ? (isPoem
+                ? `<div class="fav-poem">${esc(snippetText)}</div>`
+                : `<div class="fav-snippet">${esc(snippetText)}</div>`)
+            : '';
         const fo = f.folderId ? folderById(f.folderId) : null;
         const folderTag = fo ? `<span class="fav-folder-tag" title="${esc(fo.name)}"><span class="folder-dot" style="background:${esc(fo.color || '#b8860b')}"></span><span class="fav-folder-tag-name">${esc(fo.name)}</span></span>` : '';
         const key = favKey(f);
         return `<div class="fav-card" draggable="true" data-key="${esc(key)}">
             <a class="fav-main" href="${href}">
-                <div class="fav-title">${esc(cleanTitle)} <span class="fav-vol">${esc(volTopic)}</span></div>
+                <div class="fav-title">${isPoem ? `<span class="fav-poem-badge">${isPt ? 'Poema' : '詩'}</span> ` : ''}${esc(cleanTitle)} <span class="fav-vol">${esc(volTopic)}</span></div>
                 ${snippet}
             </a>
             <div class="fav-footer">

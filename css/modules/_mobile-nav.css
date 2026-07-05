@@ -193,6 +193,16 @@
   transform: translateX(0);
 }
 
+/* No TABLET (768–1024px, onde o menu sanduíche ainda é usado) há bastante
+   espaço na tela; o painel de 280px deixa o título do ensinamento atual no
+   cabeçalho espremido. Alarga um pouco pra o título respirar. No celular
+   (≤767px) segue 280px, respeitando o max-width: 85vw. */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .mobile-nav-panel {
+    width: 360px;
+  }
+}
+
 .mobile-nav-header {
   padding: 20px 24px;
   border-bottom: 1px solid var(--border);

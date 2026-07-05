@@ -96,7 +96,19 @@ async function _renderRecentActivity() {
         const date = new Date(d.created_at);
         const dateStr = date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' ' + date.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
         const title = d.file ? getFileTitle(d.volume, d.file) : '—';
-        return `<tr><td>${_escHtml(nameMap[d.user_id] || 'Desconhecido')}</td><td>${_escHtml(d.action || '')}</td><td>${VOL_SHORT[d.volume] || d.volume}</td><td style="font-size:0.82rem;" title="${_escHtml(d.file || '')}">${_escHtml(title)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</td></tr>`;
+        // Ensinamento clicável: abre o leitor numa nova aba pra o admin
+        // conferir qual conteúdo foi lido. Só vira link quando há arquivo.
+        // Publicações dos discípulos usam ?pub=disciples&book=; poesia não
+        // vai pra reader.html, então nesse caso fica sem link (só o título).
+        let readerHref = null;
+        if (d.file) {
+          if (d.volume === 'disciples') readerHref = `reader.html?pub=disciples&book=${encodeURIComponent(d.file)}`;
+          else if (d.volume !== 'poetry') readerHref = `reader.html?vol=${encodeURIComponent(d.volume)}&file=${encodeURIComponent(d.file)}`;
+        }
+        const ensinamentoCell = readerHref
+          ? `<a href="${readerHref}" target="_blank" rel="noopener" style="color:var(--accent); text-decoration:none;" title="Abrir o ensinamento numa nova aba — ${_escHtml(d.file)}">${_escHtml(title)} ↗</a>`
+          : _escHtml(title);
+        return `<tr><td>${_escHtml(nameMap[d.user_id] || 'Desconhecido')}</td><td>${_escHtml(d.action || '')}</td><td>${VOL_SHORT[d.volume] || d.volume}</td><td style="font-size:0.82rem;">${ensinamentoCell}</td><td style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</td></tr>`;
       }).join('')}</tbody>
     </table>${loadMoreBtn}`;
 

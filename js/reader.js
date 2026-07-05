@@ -313,9 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const tooltip = document.getElementById('saveTooltip');
         if (tooltip) {
             const statusText = {
-                pt: { saved: '✓ Salvo em Ensinamentos Salvos', removed: '✕ Removido de Ensinamentos Salvos' },
-                ja: { saved: '✓「保存した教え」に追加しました', removed: '✕「保存した教え」から削除しました' }
-            }[lang] || { saved: '✓ Salvo em Ensinamentos Salvos', removed: '✕ Removido de Ensinamentos Salvos' };
+                pt: { saved: '✓ Salvo', removed: '✕ Removido dos Salvos' },
+                ja: { saved: '✓「保存したもの」に追加しました', removed: '✕「保存したもの」から削除しました' }
+            }[lang] || { saved: '✓ Salvo', removed: '✕ Removido dos Salvos' };
             const rawTitle = topicTitle || title;
             const cleanTitle = rawTitle.replace(/^(Ensinamento|Orientação|Palestra) de (Meishu-Sama|Moisés)\s*[-:]\s*/i, '').replace(/^["'](.*?)["']$/, '$1').trim();
             document.getElementById('saveTooltipTitle').textContent = cleanTitle;

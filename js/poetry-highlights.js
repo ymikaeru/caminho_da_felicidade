@@ -1,177 +1,137 @@
 /**
- * poetry-highlights.js — bookmark de poemas (Yama to Mizu / Warai no Izumi).
+ * poetry-highlights.js — SALVAR poema (favorito).
  *
- * UX: 1 click pra salvar, 1 click pra remover. Sem cores, sem comentário —
- * pra essas duas coletâneas faz mais sentido tratar o poema como uma
- * unidade que se guarda ou não, em vez de aplicar grifo a uma frase.
+ * UX: 1 clique pra guardar, 1 clique pra remover. O poema é tratado como uma
+ * UNIDADE que se guarda ou não (sem cor, sem comentário, sem grifar frase).
  *
- * Armazenamento: reaproveita o mesmo schema/tabela user_highlights pra não
- * duplicar infra. Campos:
- *   vol='poetry', file='yama-to-mizu' | 'warai-no-izumi',
- *   topic_id=ID estável do poema, start_char=0, end_char=0, color='yellow'.
- * Como start/end=0 e topic_id é único por poema, o upsert deduplica.
+ * ARMAZENAMENTO (mudou 07/2026): passou a usar o MESMO sistema dos
+ * Ensinamentos Salvos — favoritos com pastas (savedFavorites / synced_favorites)
+ * — em vez da tabela de grifos (user_highlights). Assim um poema e um
+ * ensinamento podem ficar na MESMA pasta e tudo aparece junto na Central de
+ * Salvos (salvos.html). Antes o "salvar poema" era um grifo disfarçado
+ * (start=end=0) e tinha página própria (poemas-salvos.html, aposentada).
  *
- * A Central de Destaques (destaques.html) filtra esses fora; a lista
- * dedicada aparece em poemas-salvos.html.
+ * Registro do favorito:
+ *   vol='poetry', file=<coletânea>, topic=<número do poema> (= topic_index),
+ *   topicTitle='Seção · № N', snippet=<verso>, folderId=<pasta|null>.
+ * A chave (vol,file,topic) é única — o número do poema é único por coletânea.
+ * O deep-link de volta (?poem=<id-string>) é remontado em salvos.html a partir
+ * de (file, número) — ver o mapa POEM_ID lá.
  */
 (function () {
   'use strict';
-
-  const SAVED_COLOR = 'yellow'; // valor obrigatório no schema; não é mostrado
 
   function _lang() {
     return localStorage.getItem('site_lang') || 'pt';
   }
 
-  function _loadAll() {
-    try { return JSON.parse(localStorage.getItem('userHighlights') || '[]'); }
+  function _loadFavs() {
+    try { return JSON.parse(localStorage.getItem('savedFavorites') || '[]'); }
     catch (e) { return []; }
   }
 
-  function _saveAll(list) {
-    try { localStorage.setItem('userHighlights', JSON.stringify(list)); } catch (e) {}
+  function _saveFavs(list) {
+    try { localStorage.setItem('savedFavorites', JSON.stringify(list)); } catch (e) {}
   }
 
-  function _addTombstone(key) {
-    try {
-      const t = JSON.parse(localStorage.getItem('highlightDeletedKeys') || '[]');
-      t.push(key);
-      if (t.length > 2000) t.splice(0, t.length - 2000);
-      localStorage.setItem('highlightDeletedKeys', JSON.stringify(t));
-    } catch (e) {}
+  const _isPoemFav = (f, file) => f.vol === 'poetry' && f.file === file;
+
+  // Favoritos de poema DESTE arquivo.
+  function _findAllForFile(file) {
+    return _loadFavs().filter(f => _isPoemFav(f, file));
   }
 
-  const _HL_KEY = (vol, file, topicId, s, e) => `${vol}:${file}:${topicId}:${s}:${e}`;
-
-  function _getTombstones() {
-    try { return JSON.parse(localStorage.getItem('highlightDeletedKeys') || '[]'); }
-    catch (_) { return []; }
+  // Favorito de um poema específico, pela chave inteira (número = topic_index).
+  function _findForIndex(file, topicIndex) {
+    return _loadFavs().find(f => _isPoemFav(f, file) && (f.topic || 0) === topicIndex) || null;
   }
 
-  // Leitura CLOUD-FIRST dos poemas salvos: puxa os grifos de poesia DESTE
-  // arquivo da nuvem e reconcilia com o cache local (userHighlights),
-  // respeitando tombstones. Sem isto, num aparelho novo (ou sem relogar) o pill
-  // "Salvo" não aparecia — o fluxo antigo lia só o localStorage e os leitores
-  // compensavam com chutes de setTimeout esperando o pullCloudToLocal do login.
-  // Espelha _reconcileCloudRows do leitor principal. Resolve true se mudou.
+  // Leitura CLOUD-FIRST: puxa os favoritos da nuvem e garante que os DESTE
+  // arquivo estejam no cache local (savedFavorites), pro pill "Salvo" aparecer
+  // num aparelho novo sem precisar relogar (o pull do login também reconcilia,
+  // mas isto adianta). Só adiciona o que falta — o remove da nuvem é
+  // autoritativo (modelo de favoritos, sem tombstones). Resolve true se mudou.
   async function hydrateFromCloud(file) {
-    if (!window._cloudSync || !window._cloudSync.loadHighlightsForPage) return false;
-    let rows;
-    try { rows = await window._cloudSync.loadHighlightsForPage('poetry', file); }
+    const cs = window._cloudSync;
+    if (!cs || !cs.loadFavorites) return false;
+    let cloud;
+    try { cloud = await cs.loadFavorites(); }
     catch (_) { return false; }
-    if (!Array.isArray(rows)) return false;   // null = sem sessão → mantém o cache
+    if (!Array.isArray(cloud)) return false;
 
-    const tomb = new Set(_getTombstones());
-    const all = _loadAll();
-    const inScope = (h) => h.vol === 'poetry' && h.file === file;
-    const localScoped = all.filter(inScope);
-    const localByKey = new Map(localScoped.map(h => [_HL_KEY(h.vol, h.file, h.topicId, h.startChar, h.endChar), h]));
-
-    const merged = [];
-    const seen = new Set();
-    rows.forEach(r => {
-      const key = _HL_KEY(r.volume, r.file, r.topic_id, r.start_char, r.end_char);
-      if (tomb.has(key) || seen.has(key)) return;
-      seen.add(key);
-      const local = localByKey.get(key);
-      if (local) { merged.push(local); return; }
-      merged.push({
-        id: 'hl_cloud_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-        vol: r.volume, file: r.file, topicId: r.topic_id,
-        topicIndex: r.topic_index, topicTitle: r.topic_title || '',
-        color: r.color || SAVED_COLOR, comment: r.comment || '', text: r.text || '',
-        startChar: r.start_char, endChar: r.end_char,
-        createdAt: new Date(r.updated_at).getTime() || Date.now(),
-        updatedAt: new Date(r.updated_at).getTime() || Date.now(),
+    const favs = _loadFavs();
+    const keyOf = (v, f, t) => `${v}:${f}:${t || 0}`;
+    const have = new Set(favs.map(f => keyOf(f.vol, f.file, f.topic)));
+    let changed = false;
+    for (const r of cloud) {
+      if (r.volume !== 'poetry' || r.file !== file) continue;
+      if (have.has(keyOf('poetry', file, r.topic_index))) continue;
+      favs.push({
+        title: r.topic_title || '', vol: 'poetry', file: r.file,
+        time: new Date(r.created_at).getTime() || Date.now(),
+        topic: r.topic_index, topicTitle: r.topic_title,
+        snippet: r.snippet, totalTopics: r.total_topics,
+        folderId: r.folder_id || null,
       });
-    });
-    // Grifos só-locais recentes (salvamento em voo) sobrevivem à reconciliação.
-    const cutoff = Date.now() - 10 * 60 * 1000;
-    localScoped.forEach(h => {
-      const key = _HL_KEY(h.vol, h.file, h.topicId, h.startChar, h.endChar);
-      if (!seen.has(key) && (h.updatedAt || 0) > cutoff) merged.push(h);
-    });
-
-    const sig = (list) => list.map(h => _HL_KEY(h.vol, h.file, h.topicId, h.startChar, h.endChar)).sort().join('\n');
-    const changed = sig(merged) !== sig(localScoped);
-    if (changed) _saveAll(all.filter(h => !inScope(h)).concat(merged));
+      changed = true;
+    }
+    if (changed) _saveFavs(favs);
     return changed;
   }
 
-  function _findFor(file, topicId) {
-    return _loadAll().find(h => h.vol === 'poetry' && h.file === file && h.topicId === topicId) || null;
-  }
-
-  function _findAllForFile(file) {
-    return _loadAll().filter(h => h.vol === 'poetry' && h.file === file);
-  }
-
-  async function _save({ file, topicId, topicIndex, topicTitle, text }) {
-    if (!window._cloudSync) {
+  async function _save({ file, topicIndex, topicTitle, text }) {
+    const cs = window._cloudSync;
+    if (!cs) {
       alert(_lang() === 'ja' ? 'オンラインの必要があります。' : 'Você precisa estar online para salvar.');
       return null;
     }
-    const all = _loadAll();
+    const snippet = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 200);
     const now = Date.now();
-    const record = {
-      id: 'hl_' + now + '_' + Math.random().toString(36).substr(2, 6),
-      vol: 'poetry',
-      file,
-      topicId,
-      topicIndex,
-      topicTitle,
-      color: SAVED_COLOR,
-      comment: '',
-      text,
-      startChar: 0,
-      endChar: 0,
-      createdAt: now,
-      updatedAt: now
+    const fav = {
+      title: topicTitle || '', vol: 'poetry', file, time: now,
+      topic: topicIndex, topicTitle: topicTitle || '', snippet,
+      totalTopics: 0, folderId: null,
     };
-    all.unshift(record);
-    _saveAll(all);
-
+    const favs = _loadFavs();
+    if (!favs.some(f => _isPoemFav(f, file) && (f.topic || 0) === topicIndex)) {
+      favs.unshift(fav);
+      _saveFavs(favs);
+    }
     try {
-      await window._cloudSync.saveHighlight(
-        'poetry', file, topicId, topicIndex, topicTitle,
-        SAVED_COLOR, '', text, 0, 0
-      );
+      await cs.saveFavorite('poetry', file, topicIndex, topicTitle || '', snippet, 0, null);
     } catch (e) {
       console.warn('[poetry-highlights] cloud save failed:', e);
     }
-    return record;
+    return fav;
   }
 
-  async function _remove({ file, topicId }) {
-    if (!window._cloudSync) {
+  async function _remove({ file, topicIndex }) {
+    const cs = window._cloudSync;
+    if (!cs) {
       alert(_lang() === 'ja' ? 'オンラインの必要があります。' : 'Você precisa estar online para remover.');
       return;
     }
-    const all = _loadAll();
-    if (!all.some(h => h.vol === 'poetry' && h.file === file && h.topicId === topicId)) return;
-
-    _saveAll(all.filter(h => !(h.vol === 'poetry' && h.file === file && h.topicId === topicId)));
-    _addTombstone(`poetry:${file}:${topicId}:0:0`);
-
+    const favs = _loadFavs();
+    if (!favs.some(f => _isPoemFav(f, file) && (f.topic || 0) === topicIndex)) return;
+    _saveFavs(favs.filter(f => !(_isPoemFav(f, file) && (f.topic || 0) === topicIndex)));
     try {
-      await window._cloudSync.removeHighlight('poetry', file, topicId, 0, 0);
+      await cs.removeFavorite('poetry', file, topicIndex);
     } catch (e) {
       console.warn('[poetry-highlights] cloud remove failed:', e);
     }
   }
 
+  // Pinta o estado "Salvo / Guardar" nos cards. Casa por NÚMERO do poema
+  // (data-poem-index) contra o topic (= número) do favorito — assim funciona
+  // até pros favoritos vindos da nuvem, que não carregam o id-string do card.
   function _applyToCards(file, cardSelector) {
-    const saved = new Set(_findAllForFile(file).map(h => h.topicId));
+    const saved = new Set(_findAllForFile(file).map(f => String(f.topic)));
     const lang = _lang();
-    const savedLabelPt = 'Salvo';
-    const unsavedLabelPt = 'Guardar';
-    const savedLabelJa = '保存済';
-    const unsavedLabelJa = '保存';
 
     document.querySelectorAll(cardSelector).forEach(card => {
-      const topicId = card.dataset.poemTopicId;
+      const idx = card.dataset.poemIndex;
       const btn = card.querySelector('.poetry-card__bookmark');
-      const isSaved = topicId && saved.has(topicId);
+      const isSaved = idx != null && saved.has(String(idx));
       const labelPtEl = btn?.querySelector('.poetry-card__bookmark-label.lang-pt');
       const labelJaEl = btn?.querySelector('.poetry-card__bookmark-label.lang-ja');
       if (isSaved) {
@@ -180,8 +140,8 @@
           btn.classList.add('is-saved');
           btn.setAttribute('aria-pressed', 'true');
           btn.title = lang === 'ja' ? '保存済み — クリックで削除' : 'Salvo — clique pra remover';
-          if (labelPtEl) labelPtEl.textContent = savedLabelPt;
-          if (labelJaEl) labelJaEl.textContent = savedLabelJa;
+          if (labelPtEl) labelPtEl.textContent = 'Salvo';
+          if (labelJaEl) labelJaEl.textContent = '保存済';
         }
       } else {
         delete card.dataset.poemSaved;
@@ -189,8 +149,8 @@
           btn.classList.remove('is-saved');
           btn.setAttribute('aria-pressed', 'false');
           btn.title = lang === 'ja' ? '保存' : 'Salvar este poema';
-          if (labelPtEl) labelPtEl.textContent = unsavedLabelPt;
-          if (labelJaEl) labelJaEl.textContent = unsavedLabelJa;
+          if (labelPtEl) labelPtEl.textContent = 'Guardar';
+          if (labelJaEl) labelJaEl.textContent = '保存';
         }
       }
     });
@@ -212,8 +172,8 @@
     );
   }
 
-  // Para compatibilidade com a primeira versão (yama/warai usam isso no template
-  // do card). Devolve string vazia agora que não há mais comentário.
+  // Compatibilidade com a 1ª versão (yama/warai usam isso no template do card).
+  // Devolve string vazia agora que não há mais comentário.
   function _renderCardCommentSlot() {
     return '';
   }
@@ -229,21 +189,15 @@
 
       const card = btn.closest('[data-poem-topic-id]');
       if (!card) { delete btn.dataset.busy; return; }
-      const topicId = card.dataset.poemTopicId;
-      const existing = _findFor(file, topicId);
+      const topicId = card.dataset.poemTopicId;           // string p/ o getMeta
+      const topicIndex = Number(card.dataset.poemIndex);  // chave inteira do favorito
       try {
-        if (existing) {
-          await _remove({ file, topicId });
+        if (_findForIndex(file, topicIndex)) {
+          await _remove({ file, topicIndex });
         } else {
           const meta = getMeta(topicId, card);
           if (!meta) return;
-          await _save({
-            file,
-            topicId,
-            topicIndex: meta.topicIndex,
-            topicTitle: meta.topicTitle,
-            text: meta.text
-          });
+          await _save({ file, topicIndex: meta.topicIndex, topicTitle: meta.topicTitle, text: meta.text });
         }
         if (typeof onChange === 'function') onChange();
       } finally {
@@ -261,7 +215,12 @@
     applyToCards: _applyToCards,
     wireCardButtons: _wireCardButtons,
     hydrateFromCloud: hydrateFromCloud,
-    findFor: _findFor,
+    // Compat: aceita o id-string do card ('yama_n123'/'waraino_0001') e casa
+    // pelo número final contra o topic do favorito.
+    findFor: (file, topicId) => {
+      const m = String(topicId || '').match(/(\d+)\s*$/);
+      return m ? _findForIndex(file, Number(m[1])) : null;
+    },
     findAllForFile: _findAllForFile,
   };
 

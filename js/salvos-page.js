@@ -19,18 +19,18 @@
         allFolders: 'Todos',
         noFolder: 'Sem pasta',
         newFolder: 'Nova pasta',
-        empty: 'Nenhum Ensinamento salvo ainda.<br>No leitor, toque em <b>Salvar</b> abaixo do título.',
-        emptyFolder: 'Nenhum Ensinamento nesta pasta ainda.<br>Arraste um Ensinamento na lista para cá ou use <b>Mover</b>.',
+        empty: 'Nada salvo ainda.<br>No leitor toque em <b>Salvar</b>, ou nas coletâneas de poesia toque em <b>Guardar</b>.',
+        emptyFolder: 'Nada nesta pasta ainda.<br>Arraste um item na lista para cá ou use <b>Mover</b>.',
         savedOn: (d) => d ? `salvo em ${d}` : '',
         move: 'Mover',
         remove: 'Remover',
-        removeConfirm: 'Remover este Ensinamento dos salvos?',
+        removeConfirm: 'Remover este item dos salvos?',
         rename: 'Renomear',
         color: 'Cor',
         del: 'Apagar pasta',
         renamePrompt: 'Novo nome da pasta:',
         newFolderPrompt: 'Nome da nova pasta:',
-        deleteConfirm: 'Apagar esta pasta? Os Ensinamentos voltam para "Sem pasta" — não são excluídos.',
+        deleteConfirm: 'Apagar esta pasta? Os itens voltam para "Sem pasta" — não são excluídos.',
         maxFolders: 'Limite de pastas atingido.',
         moveTitle: 'Mover para a pasta',
         cancel: 'Cancelar',
@@ -65,6 +65,20 @@
 
     const FOLDER_COLORS = ['#b8860b', '#c0562f', '#2f7d5b', '#3b6ea5', '#7a5ba5', '#8a8a8a'];
     const MAX_FOLDERS = 50;
+
+    // Poesia: um favorito de poema (vol='poetry') aponta pra página da
+    // coletânea, não pro leitor. Este mapa dá o nome da coletânea e remonta o
+    // deep-link ?poem=<id-string> a partir de (file, número) — `id(n)` espelha
+    // como cada poetry-*.js monta o topicId do card. ⚠ Nova coletânea de
+    // poesia = adicionar uma entrada aqui.
+    const POEM_COLLECTIONS = {
+        'yama-to-mizu':     { page: 'yama-to-mizu.html',     pt: 'Yama to Mizu',                          ja: '山と水',            id: (n) => `yama_n${n}` },
+        'warai-no-izumi':   { page: 'warai-no-izumi.html',   pt: 'Warai no Izumi',                        ja: '笑の泉',            id: (n) => `waraino_${String(n).padStart(4, '0')}` },
+        'akimaro-kineishu': { page: 'akimaro-kineishu.html', pt: "Akemaro Kin'eishū",                     ja: '明麿近詠集',        id: (n) => `akimaro_n${n}` },
+        'gosanka-shoban':   { page: 'gosanka-shoban.html',   pt: 'Coletânea de Salmos — Primeira Edição', ja: '御讃歌集（初版）',   id: (n) => `shoban_n${n}` },
+        'gosanka-kaitei':   { page: 'gosanka-kaitei.html',   pt: 'Coletânea de Salmos — Edição Revisada', ja: '御讃歌集（改訂版）', id: (n) => `kaitei_n${n}` },
+        'gosanka-shikiten': { page: 'gosanka-shikiten.html', pt: 'Salmos Sagrados para Cada Cerimônia',   ja: '各式典における御讃歌', id: (n) => `shikiten_n${n}` },
+    };
 
     let selected = 'all'; // 'all' | 'none' | <folderId>
     // Chaves alteradas nesta sessão — o merge da nuvem não sobrescreve o que o
@@ -322,22 +336,34 @@
     }
 
     function cardHtml(f) {
-        const vNum = String(f.vol).replace('mioshiec', '');
-        const topicIdx = f.topic || 0;
-        const fBase = String(f.file).replace('.html', '');
-        const href = topicIdx > 0
-            ? `reader.html?vol=${encodeURIComponent(f.vol)}&file=${encodeURIComponent(f.file)}&topic=${topicIdx}`
-            : `reader.html#v${vNum}/${fBase}`;
         const date = f.time ? new Date(f.time).toLocaleDateString(isPt ? 'pt-BR' : 'ja-JP') : '';
-        const cleanTitle = String(f.topicTitle || f.title || f.file)
-            .replace(/^(Ensinamento|Orientação|Palestra) de (Meishu-Sama|Moisés)\s*[-:]?\s*/i, '')
-            .replace(/^["'](.*?)["']$/, '$1').trim();
-        // Tópico junto do volume, em texto discreto — o selo dourado sólido
-        // pesava mais que a informação merece.
-        const volTopic = (f.totalTopics && f.totalTopics > 1)
-            ? `(Vol ${vNum} · ${T.topicN(topicIdx + 1, f.totalTopics)})`
-            : `(Vol ${vNum})`;
-        const snippetText = cleanSnippet(f.snippet, [f.topicTitle, f.title, cleanTitle]);
+        let href, cleanTitle, volTopic, snippetText;
+        if (f.vol === 'poetry') {
+            // Poema: link pra página da coletânea (?poem=…&hl_scroll=1), nome
+            // da coletânea no lugar do "Vol N", verso como snippet (já limpo).
+            const n = f.topic || 0;
+            const coll = POEM_COLLECTIONS[f.file] || { page: `${f.file}.html`, pt: f.file, ja: f.file, id: (x) => String(x) };
+            href = `${coll.page}?poem=${encodeURIComponent(coll.id(n))}&hl_scroll=1${isPt ? '' : '&lang=ja'}`;
+            cleanTitle = String(f.topicTitle || f.title || '').trim() || (isPt ? coll.pt : coll.ja);
+            volTopic = `(${isPt ? coll.pt : coll.ja})`;
+            snippetText = String(f.snippet || '').replace(/\s+/g, ' ').trim();
+        } else {
+            const vNum = String(f.vol).replace('mioshiec', '');
+            const topicIdx = f.topic || 0;
+            const fBase = String(f.file).replace('.html', '');
+            href = topicIdx > 0
+                ? `reader.html?vol=${encodeURIComponent(f.vol)}&file=${encodeURIComponent(f.file)}&topic=${topicIdx}`
+                : `reader.html#v${vNum}/${fBase}`;
+            cleanTitle = String(f.topicTitle || f.title || f.file)
+                .replace(/^(Ensinamento|Orientação|Palestra) de (Meishu-Sama|Moisés)\s*[-:]?\s*/i, '')
+                .replace(/^["'](.*?)["']$/, '$1').trim();
+            // Tópico junto do volume, em texto discreto — o selo dourado sólido
+            // pesava mais que a informação merece.
+            volTopic = (f.totalTopics && f.totalTopics > 1)
+                ? `(Vol ${vNum} · ${T.topicN(topicIdx + 1, f.totalTopics)})`
+                : `(Vol ${vNum})`;
+            snippetText = cleanSnippet(f.snippet, [f.topicTitle, f.title, cleanTitle]);
+        }
         const snippet = snippetText ? `<div class="fav-snippet">${esc(snippetText)}</div>` : '';
         const fo = f.folderId ? folderById(f.folderId) : null;
         const folderTag = fo ? `<span class="fav-folder-tag" title="${esc(fo.name)}"><span class="folder-dot" style="background:${esc(fo.color || '#b8860b')}"></span><span class="fav-folder-tag-name">${esc(fo.name)}</span></span>` : '';

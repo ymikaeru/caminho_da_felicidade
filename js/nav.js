@@ -266,10 +266,6 @@ function _initMobileNav() {
           <span class="link-text">${t.readCentral || 'Ensinamentos Lidos'}</span>
         </button>
 
-        <button class="mobile-nav-link" onclick="window.location.href=(window.location.pathname.includes('/mioshiec') ? '../' : '') + 'poemas-salvos.html';" id="mobileNavLinkSavedPoems">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          <span class="link-text">${t.savedPoems || 'Poemas Salvos'}</span>
-        </button>
 
         <button class="mobile-nav-link" id="mobileNavLinkRecommendations" style="display:none; position:relative;" onclick="closeMobileNav(); window.location.href = (window.location.pathname.includes('/mioshiec') ? '../' : '') + 'recomendacoes.html';">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>

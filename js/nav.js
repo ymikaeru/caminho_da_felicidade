@@ -179,12 +179,6 @@ function _initMobileNav() {
   const currentLang = localStorage.getItem('site_lang') || 'pt';
   const t = MENU_TEXTS[currentLang] || MENU_TEXTS.pt;
 
-  // Busca no corpo do menu também (o header só tem a lupa sem rótulo — a
-  // affordance mais fraca pro público idoso, sendo o recurso mais poderoso do
-  // site). Mesmo gate do botão do header (window._searchEnabled).
-  const _searchAllowed = typeof window._searchEnabled === 'function' ? window._searchEnabled() : true;
-  const _searchLabel = t.search || (currentLang === 'ja' ? '検索' : 'Buscar');
-
   let linksHtml = navLinks.map(a => {
     // a.textContent inclui spans .lang-ja com display:none (textContent
     // ignora CSS). Em PT, isso vazaria kanji junto do romaji. Extrai
@@ -240,11 +234,6 @@ function _initMobileNav() {
       <div class="mobile-nav-body">
 
         <div class="mobile-nav-section-label" id="mobileNavLabelActions">${t.actions}</div>
-
-        ${_searchAllowed ? `<button class="mobile-nav-link" onclick="closeMobileNav(); openSearch();" id="mobileNavLinkSearch">
-          <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <span class="link-text">${_searchLabel}</span>
-        </button>` : ''}
 
         <button class="mobile-nav-link" onclick="openHistory(); closeMobileNav();" id="mobileNavLinkHistory">
           <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>

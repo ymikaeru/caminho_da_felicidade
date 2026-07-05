@@ -328,7 +328,7 @@ async function recLoadList() {
   recs.forEach(r => {
     const cid = r.source_collection_id;
     if (cid) {
-      if (!groups.has(cid)) groups.set(cid, { name: r.source_collection_name || 'Playlist', items: [] });
+      if (!groups.has(cid)) groups.set(cid, { name: r.source_collection_name || 'Coletânea', items: [] });
       groups.get(cid).items.push(r);
     } else loose.push(r);
   });
@@ -344,10 +344,10 @@ async function recLoadList() {
     // Arquivar/desarquivar a playlist inteira (reversível). preventDefault
     // impede o clique de alternar o <details>.
     const allArchived = g.items.every(it => it.archived_at);
-    const archGroupLbl = allArchived ? '↩ Desarquivar playlist' : '🗄 Arquivar playlist';
-    const archGroupBtn = `<button onclick="event.preventDefault();event.stopPropagation();recSetGroupArchived('${_escHtml(cid)}', ${allArchived ? 'false' : 'true'})" title="${allArchived ? 'Desarquivar todos os itens da playlist' : 'Arquivar todos os itens da playlist (move pra Arquivadas do usuário)'}" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 9px; font-size:0.68rem; border-radius:3px; cursor:pointer; white-space:nowrap; flex-shrink:0;">${archGroupLbl}</button>`;
-    // Apagar a playlist inteira (permanente). preventDefault impede o <details> de alternar.
-    const delGroupBtn = `<button onclick="event.preventDefault();event.stopPropagation();recDeleteGroup('${_escHtml(cid)}')" title="Apagar a playlist inteira deste usuário (permanente)" style="background:none; border:1px solid var(--border); color:#c0392b; padding:4px 9px; font-size:0.68rem; border-radius:3px; cursor:pointer; white-space:nowrap; flex-shrink:0;">🗑 Apagar playlist</button>`;
+    const archGroupLbl = allArchived ? '↩ Desarquivar coletânea' : '🗄 Arquivar coletânea';
+    const archGroupBtn = `<button onclick="event.preventDefault();event.stopPropagation();recSetGroupArchived('${_escHtml(cid)}', ${allArchived ? 'false' : 'true'})" title="${allArchived ? 'Desarquivar todos os itens da coletânea' : 'Arquivar todos os itens da coletânea (move pra Arquivadas do usuário)'}" style="background:none; border:1px solid var(--border); color:var(--text-muted); padding:4px 9px; font-size:0.68rem; border-radius:3px; cursor:pointer; white-space:nowrap; flex-shrink:0;">${archGroupLbl}</button>`;
+    // Apagar a coletânea inteira (permanente). preventDefault impede o <details> de alternar.
+    const delGroupBtn = `<button onclick="event.preventDefault();event.stopPropagation();recDeleteGroup('${_escHtml(cid)}')" title="Apagar a coletânea inteira deste usuário (permanente)" style="background:none; border:1px solid var(--border); color:#c0392b; padding:4px 9px; font-size:0.68rem; border-radius:3px; cursor:pointer; white-space:nowrap; flex-shrink:0;">🗑 Apagar coletânea</button>`;
     html += `
       <details class="rec-admin-pl"${open} style="border:1px solid var(--border); border-radius:6px; overflow:hidden;">
         <summary style="display:flex; align-items:center; gap:8px; padding:11px 12px; cursor:pointer; background:var(--surface, var(--bg));">
@@ -509,9 +509,9 @@ async function recDelete(recId) {
 async function recDeleteGroup(cid) {
   const items = (_recCurrentRecs || []).filter(r => String(r.source_collection_id) === String(cid));
   if (!items.length) return;
-  const name = items[0].source_collection_name || 'esta playlist';
+  const name = items[0].source_collection_name || 'esta coletânea';
   const n = items.length;
-  if (!confirm(`Apagar a playlist inteira "${name}" (${n} ${n === 1 ? 'recomendação' : 'recomendações'}) deste usuário?\n\nPermanente — não dá pra desfazer.`)) return;
+  if (!confirm(`Apagar a coletânea inteira "${name}" (${n} ${n === 1 ? 'recomendação' : 'recomendações'}) deste usuário?\n\nPermanente — não dá pra desfazer.`)) return;
   const res = await Promise.all(items.map(r => supabase.rpc('admin_delete_recommendation', { p_id: r.id })));
   const bad = res.find(x => x && x.error);
   if (bad) alert('Erro: ' + bad.error.message);

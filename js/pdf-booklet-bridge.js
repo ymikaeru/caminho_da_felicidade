@@ -9,6 +9,6 @@
 //   reader.html + mioshiec[1-4]/index.html.
 // ============================================================
 
-import { generateFromPlaylistItems } from './pdf-booklet.js';
+import { generateFromPlaylistItems } from './pdf-booklet.js?v=3';
 
 window.generatePlaylistApostila = generateFromPlaylistItems;

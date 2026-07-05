@@ -694,7 +694,7 @@
     otherList.forEach(r => {
       const cid = r.source_collection_id;
       if (cid) {
-        if (!groups.has(cid)) groups.set(cid, { name: r.source_collection_name || (lang === 'ja' ? 'プレイリスト' : 'Playlist'), items: [] });
+        if (!groups.has(cid)) groups.set(cid, { name: r.source_collection_name || (lang === 'ja' ? 'プレイリスト' : 'Coletânea'), items: [] });
         groups.get(cid).items.push(r);
       } else loose.push(r);
     });
@@ -705,7 +705,7 @@
     // inteira). Itens SEM arquivar individual — são uma unidade.
     for (const [cid, g] of groups) {
       const cntLbl = lang === 'ja' ? '件' : (g.items.length === 1 ? 'ensinamento' : 'ensinamentos');
-      const archLabel = lang === 'ja' ? 'プレイリストをアーカイブ' : 'Arquivar playlist';
+      const archLabel = lang === 'ja' ? 'プレイリストをアーカイブ' : 'Arquivar coletânea';
       // Recolhível: playlists pequenas (≤3) já abrem; grandes vêm recolhidas
       // pra não flodar a cartinha (principalmente no mobile). Toca p/ expandir.
       const openAttr = g.items.length <= 3 ? ' open' : '';

@@ -147,12 +147,12 @@ function _buildTopicSaveBar(topicIdx, lang) {
     // tópico inteiro, e texto condicional deslocaria grifos existentes.
     const readBadge = `<span class="topic-read-badge" data-topic-idx="${topicIdx}" aria-hidden="true"></span>`;
 
-    // Botões admin: "Adicionar à playlist" + "Recomendar este ensinamento".
+    // Botões admin: "Adicionar à coletânea" + "Recomendar este ensinamento".
     // Ambos passam topic_idx explícito pros pickers — desambigua qual
     // ensinamento está sendo agido em páginas com múltiplos tópicos.
     let adminBtns = '';
     if (typeof isAdminUser === 'function' && isAdminUser()) {
-        const plLabel = lang === 'ja' ? 'プレイリストに追加' : 'Adicionar à playlist';
+        const plLabel = lang === 'ja' ? 'プレイリストに追加' : 'Adicionar à coletânea';
         const plIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
         const recLabel = lang === 'ja' ? 'この教えを推薦' : 'Recomendar este Ensinamento';
         const recIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';

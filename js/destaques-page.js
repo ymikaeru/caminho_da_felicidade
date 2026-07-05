@@ -453,7 +453,7 @@ function _renderCard(h, lang) {
     // playlists são admin-only e resolvem títulos via índice do acervo).
     const plBtn = (h.vol !== 'disciples'
         && typeof isAdminUser === 'function' && isAdminUser() && typeof window.openPlaylistAddPicker === 'function')
-        ? `<button class="notebook-btn" onclick="event.stopPropagation(); addHighlightToPlaylist('${h.id}')">${lang === 'ja' ? 'プレイリスト' : 'Playlist'}</button>`
+        ? `<button class="notebook-btn" onclick="event.stopPropagation(); addHighlightToPlaylist('${h.id}')">${lang === 'ja' ? 'プレイリスト' : 'Coletânea'}</button>`
         : '';
 
     return `
@@ -547,7 +547,7 @@ function openHighlightDetail(id) {
                 <div class="highlight-detail-date" id="detailDate"></div>
                 <div class="highlight-detail-actions">
                     <a href="#" class="notebook-btn" id="detailOpenBtn" target="_blank">${lang === 'ja' ? '記事を開く' : 'Abrir Artigo'}</a>
-                    <button class="notebook-btn" id="detailPlaylistBtn" style="display:none">${lang === 'ja' ? 'プレイリスト' : 'Playlist'}</button>
+                    <button class="notebook-btn" id="detailPlaylistBtn" style="display:none">${lang === 'ja' ? 'プレイリスト' : 'Coletânea'}</button>
                     <button class="notebook-btn" id="detailEditBtn">${lang === 'ja' ? '編集' : 'Editar'}</button>
                     <button class="notebook-btn delete" id="detailDeleteBtn">${lang === 'ja' ? '削除' : 'Apagar'}</button>
                 </div>

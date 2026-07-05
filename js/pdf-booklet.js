@@ -178,7 +178,7 @@ export async function generateFromSelection(volume, files, title) {
 // vol+file pra evitar refetch quando 2 itens vêm do mesmo arquivo.
 export async function generateFromPlaylistItems(items, title) {
   if (!items || items.length === 0) {
-    alert('Playlist vazia.');
+    alert('Coletânea vazia.');
     return;
   }
 

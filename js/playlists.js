@@ -133,7 +133,7 @@
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
           </svg>
           <div style="flex:1; min-width:0;">
-            <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; font-weight:600;">Adicionar a uma playlist</div>
+            <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; font-weight:600;">Adicionar a uma coletânea</div>
             <div id="pkTeachingTitle" style="font-size:1.05rem; font-weight:600; margin-top:3px; line-height:1.3; color:var(--text-main); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;"></div>
             <div id="pkTeaching" style="font-size:0.72rem; color:var(--text-muted); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
           </div>
@@ -141,7 +141,7 @@
         </div>
         <div id="pkList" style="flex:1; min-height:80px; overflow-y:auto; border:1px solid var(--border); border-radius:6px;"></div>
         <div style="display:flex; gap:6px; align-items:stretch;">
-          <input id="pkNewName" type="text" placeholder="Nome da nova playlist…" style="flex:1; padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:6px; background:var(--bg, #fff); color:inherit; box-sizing:border-box;">
+          <input id="pkNewName" type="text" placeholder="Nome da nova coletânea…" style="flex:1; padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:6px; background:var(--bg, #fff); color:inherit; box-sizing:border-box;">
           <button id="pkCreate" style="padding:7px 14px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">+ Criar</button>
         </div>
         <div id="pkMsg" style="font-size:0.8rem; min-height:1.1em; color:var(--text-muted);"></div>
@@ -164,7 +164,7 @@
     const list = document.getElementById('pkList');
     if (!list) return;
     if (!_myCollections || _myCollections.length === 0) {
-      list.innerHTML = '<div style="padding:14px; color:var(--text-muted); font-size:0.85rem; text-align:center;">Você ainda não tem playlists. Crie a primeira abaixo.</div>';
+      list.innerHTML = '<div style="padding:14px; color:var(--text-muted); font-size:0.85rem; text-align:center;">Você ainda não tem coletâneas. Crie a primeira abaixo.</div>';
       return;
     }
     list.innerHTML = _myCollections.map(c => {
@@ -261,7 +261,7 @@
     const msg = document.getElementById('pkMsg');
     if (msg) {
       msg.style.color = '#0a7';
-      msg.textContent = '✓ Playlist criada e ensinamento adicionado';
+      msg.textContent = '✓ Coletânea criada e ensinamento adicionado';
       setTimeout(() => { if (msg) msg.textContent = ''; }, 1800);
     }
     _pkBusy = false;
@@ -313,7 +313,7 @@
   }
 
   // ============================================================
-  // MANAGER MODAL — "Minhas playlists"
+  // MANAGER MODAL — "Minhas Coletâneas"
   // ============================================================
   let _mgrModal = null;
   let _mgrCurrentColl = null;   // { id, name } quando em detalhe; null = list view
@@ -333,7 +333,7 @@
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
           </svg>
           <div style="flex:1;">
-            <div id="mgrTitle" style="font-size:1.05rem; font-weight:600;">Minhas playlists</div>
+            <div id="mgrTitle" style="font-size:1.05rem; font-weight:600;">Minhas Coletâneas</div>
             <div id="mgrSubtitle" style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;"></div>
           </div>
           <button id="mgrClose" aria-label="Fechar" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-muted); line-height:1; padding:0 4px;">&times;</button>
@@ -370,16 +370,16 @@
     _mgrCurrentColl = null;
     _mgrCurrentItems = [];
     document.getElementById('mgrBack').style.display = 'none';
-    document.getElementById('mgrTitle').textContent = 'Minhas playlists';
+    document.getElementById('mgrTitle').textContent = 'Minhas Coletâneas';
     document.getElementById('mgrSubtitle').textContent = '';
     document.getElementById('mgrMsg').textContent = '';
     const body = document.getElementById('mgrBody');
     body.innerHTML = '<div style="padding:18px; color:var(--text-muted); font-size:0.88rem; text-align:center;">Carregando...</div>';
     const footer = document.getElementById('mgrFooter');
     footer.innerHTML = `
-      <input id="mgrNewName" type="text" placeholder="Nome da nova playlist…" style="flex:1; min-width:180px; padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:6px; background:var(--bg, #fff); color:inherit; box-sizing:border-box;">
-      <button id="mgrCreate" style="padding:7px 14px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">+ Criar playlist</button>
-      <button id="mgrImport" title="Colar códigos do NotebookLM e gerar uma playlist" style="flex-basis:100%; padding:8px 14px; font-size:0.85rem; background:none; color:inherit; border:1px dashed var(--border); border-radius:6px; cursor:pointer; font-weight:600;">⇩ Importar do NotebookLM</button>
+      <input id="mgrNewName" type="text" placeholder="Nome da nova coletânea…" style="flex:1; min-width:180px; padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:6px; background:var(--bg, #fff); color:inherit; box-sizing:border-box;">
+      <button id="mgrCreate" style="padding:7px 14px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">+ Criar coletânea</button>
+      <button id="mgrImport" title="Colar códigos do NotebookLM e gerar uma coletânea" style="flex-basis:100%; padding:8px 14px; font-size:0.85rem; background:none; color:inherit; border:1px dashed var(--border); border-radius:6px; cursor:pointer; font-weight:600;">⇩ Importar do NotebookLM</button>
     `;
     document.getElementById('mgrCreate').onclick = _mgrCreate;
     document.getElementById('mgrImport').onclick = _mgrShowImport;
@@ -388,7 +388,7 @@
     });
     const cols = await _loadCollections(true);
     if (cols.length === 0) {
-      body.innerHTML = '<div style="padding:30px 18px; color:var(--text-muted); font-size:0.92rem; text-align:center;">Você ainda não tem playlists.<br><span style="font-size:0.82rem;">Crie a primeira no campo abaixo ou adicione ensinamentos pela tela de leitura.</span></div>';
+      body.innerHTML = '<div style="padding:30px 18px; color:var(--text-muted); font-size:0.92rem; text-align:center;">Você ainda não tem coletâneas.<br><span style="font-size:0.82rem;">Crie a primeira no campo abaixo ou adicione ensinamentos pela tela de leitura.</span></div>';
       return;
     }
     body.innerHTML = cols.map(c => `
@@ -418,7 +418,7 @@
     if (error) { _mgrMsg('Erro: ' + error.message, true); return; }
     input.value = '';
     await _mgrShowList();
-    _mgrMsg('✓ Playlist criada');
+    _mgrMsg('✓ Coletânea criada');
   }
 
   // ── Importar do NotebookLM ──────────────────────────────────
@@ -560,9 +560,9 @@
     `;
     const footer = document.getElementById('mgrFooter');
     footer.innerHTML = `
-      <input id="mgrImportName" type="text" placeholder="Nome da playlist…" value="Pesquisa NotebookLM" style="flex:1; min-width:140px; padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:6px; background:var(--bg,#fff); color:inherit; box-sizing:border-box;">
+      <input id="mgrImportName" type="text" placeholder="Nome da coletânea…" value="Pesquisa NotebookLM" style="flex:1; min-width:140px; padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:6px; background:var(--bg,#fff); color:inherit; box-sizing:border-box;">
       <button id="mgrImportAnalyze" style="padding:7px 14px; font-size:0.85rem; background:none; color:inherit; border:1px solid var(--border); border-radius:6px; cursor:pointer; font-weight:600;">Analisar</button>
-      <button id="mgrImportCreate" disabled style="padding:7px 16px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; opacity:0.5;">Criar playlist (0)</button>
+      <button id="mgrImportCreate" disabled style="padding:7px 16px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; opacity:0.5;">Criar coletânea (0)</button>
     `;
     let resolved = [];
     const previewEl = () => document.getElementById('mgrImportPreview');
@@ -571,7 +571,7 @@
       const text = document.getElementById('mgrImportText').value;
       const entries = _parseCdfEntries(text);
       const pv = previewEl(), btn = createBtn();
-      btn.disabled = true; btn.style.opacity = '0.5'; btn.textContent = 'Criar playlist (0)';
+      btn.disabled = true; btn.style.opacity = '0.5'; btn.textContent = 'Criar coletânea (0)';
       if (!entries.length) {
         pv.innerHTML = text.trim()
           ? '<div style="padding:8px 2px; font-size:0.82rem; color:#c00;">Nenhum código reconhecido. Cole os códigos [[CdF:…]] ou os links reader.html.</div>'
@@ -613,7 +613,7 @@
         }).join('') +
         '</div>';
       btn.disabled = addable === 0; btn.style.opacity = addable ? '1' : '0.5';
-      btn.textContent = `Criar playlist (${addable})`;
+      btn.textContent = `Criar coletânea (${addable})`;
     }
     document.getElementById('mgrImportAnalyze').onclick = analyze;
     createBtn().onclick = () => _mgrRunImport(resolved, document.getElementById('mgrImportName').value);
@@ -636,7 +636,7 @@
     _mgrBusy = true;
     const btn = document.getElementById('mgrImportCreate');
     if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
-    _mgrMsg('Criando playlist…');
+    _mgrMsg('Criando coletânea…');
     const { data: newId, error } = await supa.rpc('create_collection', { p_name: name });
     if (error || !newId) { _mgrBusy = false; _mgrMsg('Erro ao criar: ' + (error ? error.message : 'sem id'), true); return; }
     let ok = 0, fail = 0;
@@ -664,7 +664,7 @@
     body.innerHTML = '<div style="padding:18px; color:var(--text-muted); font-size:0.88rem; text-align:center;">Carregando...</div>';
     const footer = document.getElementById('mgrFooter');
     footer.innerHTML = `
-      <button id="mgrRecommend" style="padding:8px 14px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📤 Recomendar esta playlist</button>
+      <button id="mgrRecommend" style="padding:8px 14px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📤 Recomendar esta coletânea</button>
       <button id="mgrPrint" style="padding:8px 14px; font-size:0.85rem; background:none; color:inherit; border:1px solid var(--border); border-radius:6px; cursor:pointer;">🖨️ Imprimir apostila</button>
       <button id="mgrWord" style="padding:8px 14px; font-size:0.85rem; background:none; color:inherit; border:1px solid var(--border); border-radius:6px; cursor:pointer;">📄 Exportar Word</button>
       <button id="mgrRename" style="padding:8px 14px; font-size:0.85rem; background:none; color:inherit; border:1px solid var(--border); border-radius:6px; cursor:pointer;">Renomear</button>
@@ -688,7 +688,7 @@
   function _mgrRenderItems() {
     const body = document.getElementById('mgrBody');
     if (!_mgrCurrentItems || _mgrCurrentItems.length === 0) {
-      body.innerHTML = '<div style="padding:30px 18px; color:var(--text-muted); font-size:0.9rem; text-align:center;">Playlist vazia.<br><span style="font-size:0.8rem;">Abra um ensinamento e use "+ Adicionar à playlist" no header.</span></div>';
+      body.innerHTML = '<div style="padding:30px 18px; color:var(--text-muted); font-size:0.9rem; text-align:center;">Coletânea vazia.<br><span style="font-size:0.8rem;">Abra um ensinamento e use "+ Adicionar à coletânea" no header.</span></div>';
       return;
     }
     body.innerHTML = _mgrCurrentItems.map((it, i) => {
@@ -705,7 +705,7 @@
             <div style="font-size:0.92rem; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--accent);">${_esc(title)}</div>
             <div style="font-size:0.72rem; color:var(--text-muted);">${_esc(volShort)} · ${_esc(it.file)}${it.topic_idx ? '#' + it.topic_idx : ''}</div>
           </div>
-          <button data-idx="${i}" class="mgr-remove" title="Remover da playlist" style="background:none; border:none; color:#c00; cursor:pointer; padding:4px 8px; font-size:1rem;">×</button>
+          <button data-idx="${i}" class="mgr-remove" title="Remover da coletânea" style="background:none; border:none; color:#c00; cursor:pointer; padding:4px 8px; font-size:1rem;">×</button>
         </div>
       `;
     }).join('');
@@ -789,13 +789,13 @@
       </style>
       <div class="search-preview-panel" id="plPreviewPanel">
         <div class="search-preview-header">
-          <button class="search-preview-back" id="plPreviewPrev" title="Anterior" aria-label="Anterior na playlist">
+          <button class="search-preview-back" id="plPreviewPrev" title="Anterior" aria-label="Anterior na coletânea">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             <span id="plPreviewPrevLabel">Anterior</span>
           </button>
-          <span class="search-preview-badge" id="plPreviewBadge">Prévia da playlist</span>
+          <span class="search-preview-badge" id="plPreviewBadge">Prévia da coletânea</span>
           <div style="justify-self:end; display:flex; align-items:center; gap:4px;">
-            <button class="search-preview-back search-preview-fwd" id="plPreviewNext" type="button" title="Próximo" aria-label="Próximo na playlist">
+            <button class="search-preview-back search-preview-fwd" id="plPreviewNext" type="button" title="Próximo" aria-label="Próximo na coletânea">
               <span id="plPreviewNextLabel">Próximo</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
@@ -976,7 +976,7 @@
     if (_mgrBusy) return;
     const it = _mgrCurrentItems[idx];
     if (!it) return;
-    if (!confirm(`Remover "${it.title_pt || it.file}" desta playlist?`)) return;
+    if (!confirm(`Remover "${it.title_pt || it.file}" desta coletânea?`)) return;
     _mgrBusy = true;
     const supa = _supa();
     if (!supa) { _mgrBusy = false; return; }
@@ -1054,7 +1054,7 @@
   // permite "salvar como PDF" se o usuário quiser).
   async function _mgrPrintApostila() {
     if (!_mgrCurrentColl || !_mgrCurrentItems || _mgrCurrentItems.length === 0) {
-      _mgrMsg('Playlist vazia — adicione ensinamentos antes de imprimir.', true);
+      _mgrMsg('Coletânea vazia — adicione ensinamentos antes de imprimir.', true);
       return;
     }
     const btn = document.getElementById('mgrPrint');
@@ -1168,7 +1168,7 @@ ${entries.map(e => `<section class="teaching">${e.content}</section>`).join('\n'
   // já formatado — capa + um ensinamento por página. Sem bibliotecas.
   async function _mgrExportWord() {
     if (!_mgrCurrentColl || !_mgrCurrentItems || _mgrCurrentItems.length === 0) {
-      _mgrMsg('Playlist vazia — adicione ensinamentos antes de exportar.', true);
+      _mgrMsg('Coletânea vazia — adicione ensinamentos antes de exportar.', true);
       return;
     }
     const btn = document.getElementById('mgrWord');
@@ -1221,14 +1221,14 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
 
   async function _mgrDelete() {
     if (!_mgrCurrentColl) return;
-    if (!confirm(`Apagar a playlist "${_mgrCurrentColl.name}"?\n\nOs ensinamentos em si não são apagados — só esta organização.\nRecomendações já enviadas continuam intactas (com o nome preservado).`)) return;
+    if (!confirm(`Apagar a coletânea "${_mgrCurrentColl.name}"?\n\nOs ensinamentos em si não são apagados — só esta organização.\nRecomendações já enviadas continuam intactas (com o nome preservado).`)) return;
     const supa = _supa();
     if (!supa) return;
     const { error } = await supa.rpc('delete_collection', { p_id: _mgrCurrentColl.id });
     if (error) { _mgrMsg('Erro: ' + error.message, true); return; }
     _myCollections = null;
     await _mgrShowList();
-    _mgrMsg('✓ Playlist apagada');
+    _mgrMsg('✓ Coletânea apagada');
   }
 
   function _mgrMsg(text, isErr) {
@@ -1240,7 +1240,7 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
   }
 
   // ============================================================
-  // RECOMMEND SUB-MODAL — "Recomendar esta playlist"
+  // RECOMMEND SUB-MODAL — "Recomendar esta coletânea"
   // ============================================================
   // Reusa estilo do reader-recommend.js. Diferença: lista de itens da
   // playlist com checkboxes (cherry-pick) + chama
@@ -1266,7 +1266,7 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
             <polygon points="22 2 15 22 11 13 2 9 22 2"/>
           </svg>
           <div style="flex:1;">
-            <div style="font-size:1.05rem; font-weight:600;">Recomendar playlist</div>
+            <div style="font-size:1.05rem; font-weight:600;">Recomendar coletânea</div>
             <div id="recPlName" style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;"></div>
           </div>
           <button id="recPlClose" aria-label="Fechar" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-muted); line-height:1; padding:0 4px;">&times;</button>
@@ -1331,7 +1331,7 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
 
   async function _openRecommend() {
     if (!_mgrCurrentColl || _mgrCurrentItems.length === 0) {
-      _mgrMsg('Playlist vazia — adicione ensinamentos antes de recomendar.', true);
+      _mgrMsg('Coletânea vazia — adicione ensinamentos antes de recomendar.', true);
       return;
     }
     _buildRecommend();
@@ -1529,7 +1529,7 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
   // ============================================================
   // Botão "📂 Selecionar" injetado na barra de Avançada do search modal.
   // Quando ativo, click num resultado vira toggle de seleção (em vez de
-  // navegar). Barra fixa no rodapé mostra contagem + "Adicionar à playlist".
+  // navegar). Barra fixa no rodapé mostra contagem + "Adicionar à coletânea".
   let _msSelected = new Map();   // key "vol|file|topic" → {vol, file, topic_idx, title}
   let _msActive = false;
   let _msFooter = null;
@@ -1665,7 +1665,7 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
       _msFooter.innerHTML = `
         <span id="msFooterCount" style="font-size:0.88rem; margin-right:auto;">Nenhum selecionado</span>
         <button id="msFooterClear" type="button" style="padding:6px 12px; font-size:0.82rem; background:none; border:1px solid var(--border); color:inherit; border-radius:6px; cursor:pointer;" hidden>Limpar</button>
-        <button id="msFooterAdd" type="button" style="padding:7px 16px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;" disabled>📂 Adicionar à playlist</button>
+        <button id="msFooterAdd" type="button" style="padding:7px 16px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;" disabled>📂 Adicionar à coletânea</button>
       `;
       document.body.appendChild(_msFooter);
       document.getElementById('msFooterClear').onclick = () => {
@@ -1707,14 +1707,14 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
             <line x1="9" y1="14" x2="15" y2="14"/>
           </svg>
           <div style="flex:1;">
-            <div style="font-size:1.05rem; font-weight:600;">Adicionar a uma playlist</div>
+            <div style="font-size:1.05rem; font-weight:600;">Adicionar a uma coletânea</div>
             <div id="msAddCount" style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;"></div>
           </div>
           <button id="msAddClose" aria-label="Fechar" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-muted); line-height:1; padding:0 4px;">&times;</button>
         </div>
         <div id="msAddList" style="flex:1; min-height:120px; max-height:50vh; overflow-y:auto; border:1px solid var(--border); border-radius:6px;"></div>
         <div style="display:flex; gap:6px; align-items:stretch;">
-          <input id="msAddNewName" type="text" placeholder="Nome da nova playlist…" style="flex:1; padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:6px; background:var(--bg, #fff); color:inherit; box-sizing:border-box;">
+          <input id="msAddNewName" type="text" placeholder="Nome da nova coletânea…" style="flex:1; padding:8px 12px; font-size:0.88rem; border:1px solid var(--border); border-radius:6px; background:var(--bg, #fff); color:inherit; box-sizing:border-box;">
           <button id="msAddCreate" style="padding:7px 14px; font-size:0.85rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">+ Criar e adicionar</button>
         </div>
         <div id="msAddMsg" style="font-size:0.8rem; min-height:1.1em; color:var(--text-muted);"></div>
@@ -1750,7 +1750,7 @@ ${entries.map(e => pageBreak + '\n<div>' + _wordifyContent(e.content) + '</div>'
   function _msAddRenderList(cols) {
     const list = document.getElementById('msAddList');
     if (!cols || cols.length === 0) {
-      list.innerHTML = '<div style="padding:14px; color:var(--text-muted); font-size:0.85rem; text-align:center;">Nenhuma playlist ainda. Crie uma abaixo.</div>';
+      list.innerHTML = '<div style="padding:14px; color:var(--text-muted); font-size:0.85rem; text-align:center;">Nenhuma coletânea ainda. Crie uma abaixo.</div>';
       return;
     }
     list.innerHTML = cols.map(c => `

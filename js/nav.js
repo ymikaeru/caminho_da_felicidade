@@ -285,7 +285,7 @@ function _initMobileNav() {
 
         <button class="mobile-nav-link" id="mobileNavLinkPlaylists" style="display:none;" onclick="closeMobileNav(); if (typeof openPlaylistManager === 'function') openPlaylistManager();">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-          <span class="link-text">Minhas playlists</span>
+          <span class="link-text">Minhas Coletâneas</span>
         </button>
 
         ${window.location.pathname.includes('reader.html') ? `
@@ -422,7 +422,7 @@ function _initMobileNav() {
 
         <!-- Seção SÓ-ADMIN: guias ocultos (fora do menu público e do sitemap,
              noindex). O container nasce display:none e é revelado no
-             isAdminUser() abaixo — mesmo padrão de "Minhas playlists". -->
+             isAdminUser() abaixo — mesmo padrão de "Minhas Coletâneas". -->
         <div id="mobileNavAdminSection" style="display:none;">
           <div class="mobile-nav-divider"></div>
           <div class="mobile-nav-section-label"><span class="lang-pt">Guias (admin)</span><span class="lang-ja" style="display:none">ガイド（管理者）</span></div>
@@ -465,7 +465,7 @@ function _initMobileNav() {
   _setupCollapsibleSections(mobileNavOverlay);
   _setupPwaInstall(mobileNavOverlay);
 
-  // Mostra "Minhas playlists" + a seção de guias ocultos só pra admin.
+  // Mostra "Minhas Coletâneas" + a seção de guias ocultos só pra admin.
   if (typeof isAdminUser === 'function' && isAdminUser()) {
     const plLink = document.getElementById('mobileNavLinkPlaylists');
     if (plLink) plLink.style.display = '';

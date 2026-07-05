@@ -436,7 +436,7 @@
   function _renderArchivedFilterBar(lang) {
     const L = lang === 'ja'
       ? { all: 'すべて', teaching: '御教え', poetry: '詩歌', audio: '音声', playlist: 'プレイリスト' }
-      : { all: 'Tudo', teaching: 'Ensinamentos', poetry: 'Poemas', audio: 'Áudios', playlist: 'Playlists' };
+      : { all: 'Tudo', teaching: 'Ensinamentos', poetry: 'Poemas', audio: 'Áudios', playlist: 'Coletâneas' };
     const counts = { teaching: 0, poetry: 0, audio: 0, playlist: 0 };
     _archived.forEach(r => { counts[_catOf(r)]++; });
     const cats = ['teaching', 'poetry', 'audio', 'playlist'].filter(c => counts[c] > 0);

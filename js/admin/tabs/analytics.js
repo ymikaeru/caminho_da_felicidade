@@ -100,28 +100,6 @@ const _TAB_MARKUP = `
                 </div>
               </div>
 
-              <!-- Tabelas de Conteúdo (dropdown) -->
-              <div class="admin-section">
-                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
-                  <h2 style="margin:0;">Conteúdo</h2>
-                  <select class="period-select" id="content-table-selector"
-                    onchange="selectAnalyticsTable('content', this.value)">
-                    <option value="top-teachings">Ensinamentos Mais Lidos</option>
-                    <option value="article-quality">💎 Qualidade por Ensinamento</option>
-                    <option value="popular-favorites" selected>⭐ Salvos &amp; Destaques Populares</option>
-                  </select>
-                </div>
-                <div id="top-teachings" style="display:none;">
-                  <div class="loading">Carregando...</div>
-                </div>
-                <div id="article-quality" style="display:none;">
-                  <div class="loading">Carregando...</div>
-                </div>
-                <div id="popular-favorites">
-                  <div class="loading">Carregando...</div>
-                </div>
-              </div>
-
               <!-- Tabelas de Usuários (dropdown) -->
               <div class="admin-section">
                 <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
@@ -144,6 +122,28 @@ const _TAB_MARKUP = `
                   <div class="loading">Carregando...</div>
                 </div>
                 <div id="top-users-time" style="display:none;">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <!-- Tabelas de Conteúdo (dropdown) -->
+              <div class="admin-section">
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+                  <h2 style="margin:0;">Conteúdo</h2>
+                  <select class="period-select" id="content-table-selector"
+                    onchange="selectAnalyticsTable('content', this.value)">
+                    <option value="top-teachings">Ensinamentos Mais Lidos</option>
+                    <option value="article-quality">💎 Qualidade por Ensinamento</option>
+                    <option value="popular-favorites" selected>⭐ Salvos &amp; Destaques Populares</option>
+                  </select>
+                </div>
+                <div id="top-teachings" style="display:none;">
+                  <div class="loading">Carregando...</div>
+                </div>
+                <div id="article-quality" style="display:none;">
+                  <div class="loading">Carregando...</div>
+                </div>
+                <div id="popular-favorites">
                   <div class="loading">Carregando...</div>
                 </div>
               </div>

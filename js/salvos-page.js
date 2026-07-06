@@ -497,13 +497,12 @@
     function _poemBlock(e) {
         const cap = [e.collection, e.number != null ? '№ ' + e.number : ''].filter(Boolean).join(' · ');
         let h = '';
-        if (cap) h += `<p style="text-align:center; color:#888888; font-size:10pt; margin:0 0 4pt;">${esc(cap)}</p>`;
-        if (e.title) h += `<h2 style="text-align:center; font-size:15pt; font-weight:bold; margin:0 0 16pt;">${esc(e.title)}</h2>`;
-        if (e.original) h += `<p style="text-align:center; font-family:'Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif; font-size:15pt; line-height:1.9; margin:0 0 8pt;">${_brify(e.original)}</p>`;
-        if (e.reading) h += `<p style="text-align:center; font-style:italic; color:#555555; font-size:12pt; line-height:1.7; margin:0 0 12pt;">${_brify(e.reading)}</p>`;
+        if (cap) h += `<p style="text-align:center; color:#999999; font-size:9.5pt; letter-spacing:.04em; margin:0 0 3pt;">${esc(cap)}</p>`;
+        if (e.title) h += `<p style="text-align:center; font-size:12.5pt; font-weight:bold; margin:0 0 8pt;">${esc(e.title)}</p>`;
+        if (e.original) h += `<p style="text-align:center; font-family:'Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif; font-size:14pt; line-height:1.7; margin:0 0 5pt;">${_brify(e.original)}</p>`;
+        if (e.reading) h += `<p style="text-align:center; font-style:italic; color:#666666; font-size:11pt; line-height:1.5; margin:0 0 7pt;">${_brify(e.reading)}</p>`;
         if (e.translation) {
-            h += '<hr style="width:38%; border:none; border-top:1px solid #cccccc; margin:12pt auto;">';
-            h += `<p style="text-align:center; font-size:12.5pt; line-height:1.85; margin:0;">${_brify(e.translation)}</p>`;
+            h += `<p style="text-align:center; font-size:12pt; line-height:1.55; margin:0;">${_brify(e.translation)}</p>`;
         }
         return h;
     }
@@ -570,11 +569,23 @@
             // Marcador clássico de quebra de página do Word-HTML (mais confiável
             // entre versões que CSS page-break puro).
             const pageBreak = '<br clear="all" style="mso-special-character:line-break; page-break-before:always;">';
-            const body = entries.map(e => {
-                const inner = e.type === 'poem'
-                    ? _poemBlock(e)
-                    : (`<h2 style="font-size:16pt; line-height:1.3; margin:0 0 10pt; font-weight:bold;">${esc(e.title)}</h2>` + _wordify(e.content));
-                return pageBreak + '\n<div>' + inner + '</div>';
+            // Diagramação tipo livro/antologia:
+            //  • ENSINAMENTO (texto longo) começa em página nova.
+            //  • POEMA flui — vários por página, separados por um ornamento
+            //    discreto; page-break-inside:avoid mantém cada waka inteiro.
+            //  • Um "corrido" de poemas só quebra página quando COMEÇA (após um
+            //    ensinamento ou no início), pra não espremer no rodapé de uma
+            //    página densa de ensinamento.
+            const ornament = '<div style="text-align:center; color:#c0a050; font-size:11pt; letter-spacing:8px; margin:22pt 0 20pt;">❋</div>';
+            const body = entries.map((e, i) => {
+                if (e.type === 'poem') {
+                    const prev = entries[i - 1];
+                    const startsRun = !prev || prev.type === 'teaching';
+                    const lead = startsRun ? pageBreak : ornament;
+                    return lead + '\n<div style="page-break-inside:avoid;">' + _poemBlock(e) + '</div>';
+                }
+                const h2 = `<h2 style="font-size:16pt; line-height:1.3; margin:0 0 10pt; font-weight:bold;">${esc(e.title)}</h2>`;
+                return pageBreak + '\n<div>' + h2 + _wordify(e.content) + '</div>';
             }).join('\n');
             const countLabel = isPt
                 ? `${entries.length} ${entries.length === 1 ? 'item' : 'itens'} · gerado em ${date}`

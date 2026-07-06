@@ -45,7 +45,14 @@
         exportEmpty: 'Nada para exportar nesta seleção.',
         exportNoStorage: 'Entre na sua conta para gerar a apostila.',
         exportFail: 'Não foi possível gerar a apostila. Tente novamente.',
-        exportAllName: 'Meus Salvos'
+        exportAllName: 'Meus Salvos',
+        sortLabel: 'Ordenar:',
+        sortRecent: 'Recentes',
+        sortOld: 'Mais antigos',
+        sortType: 'Tipo (poemas juntos)',
+        sortTitle: 'Título (A–Z)',
+        sortManual: 'Personalizada',
+        sortHint: '≡ arraste os cards'
     } : {
         allFolders: 'すべて',
         noFolder: 'フォルダなし',
@@ -76,7 +83,14 @@
         exportEmpty: 'この選択に書き出す項目がありません。',
         exportNoStorage: 'ログインすると教材を作成できます。',
         exportFail: '教材を作成できませんでした。もう一度お試しください。',
-        exportAllName: '保存した項目'
+        exportAllName: '保存した項目',
+        sortLabel: '並び替え:',
+        sortRecent: '新しい順',
+        sortOld: '古い順',
+        sortType: '種類（詩をまとめる）',
+        sortTitle: 'タイトル順',
+        sortManual: 'カスタム',
+        sortHint: '≡ カードをドラッグ'
     };
 
     const FOLDER_COLORS = ['#b8860b', '#c0562f', '#2f7d5b', '#3b6ea5', '#7a5ba5', '#8a8a8a'];
@@ -98,6 +112,9 @@
 
     let selected = 'all'; // 'all' | 'none' | <folderId>
     let typeFilter = 'all'; // 'all' | 'teaching' | 'poetry' — filtro por tipo de item
+    // Ordenação da lista. 'manual' = ordem que o usuário arrasta (só local, por
+    // enquanto). A ordem manual vira a ordem do .doc exportado — útil p/ apostila.
+    let sortMode = localStorage.getItem('salvosSortMode') || 'recent'; // recent|old|type|title|manual
     const favType = (f) => f.vol === 'poetry' ? 'poetry' : 'teaching';
     // Chaves alteradas nesta sessão — o merge da nuvem não sobrescreve o que o
     // usuário acabou de mexer (evita reverter antes do cloud refletir).
@@ -121,6 +138,9 @@
         .replace(/　+(?=\d)/g, ' ');
     const favKey = (f) => `${f.vol}:${f.file}:${f.topic || 0}`;
     const folderById = (id) => loadFolders().find(x => x.id === id) || null;
+    // Ordem manual (lista de favKeys) — só localStorage por enquanto.
+    const loadOrder = () => { try { return JSON.parse(localStorage.getItem('savedFavoritesOrder') || '[]'); } catch (e) { return []; } };
+    const saveOrder = (a) => { try { localStorage.setItem('savedFavoritesOrder', JSON.stringify(a)); } catch (e) { } };
 
     // ---------- diálogos próprios (sem prompt/confirm/alert nativos, que são
     // bloqueados em PWA/standalone). Reusam os estilos .search-modal do tema. ----------
@@ -623,6 +643,65 @@ ${body}
         }
     }
 
+    // ---------- ordenação ----------
+    const POEM_ORDER = Object.keys(POEM_COLLECTIONS);
+    const _collIdx = (file) => { const i = POEM_ORDER.indexOf(file); return i < 0 ? 99 : i; };
+    // Chave p/ ordenação alfabética (poema = coleção + №; ensinamento = título
+    // do tópico com números normalizados).
+    const _sortTitle = (f) => favType(f) === 'poetry'
+        ? (((POEM_COLLECTIONS[f.file] && POEM_COLLECTIONS[f.file].pt) || f.file) + ' ' + String(f.topic || 0).padStart(5, '0'))
+        : normNums(f.topicTitle || f.title || f.file || '');
+    // 'Tipo': agrupa ensinamentos e poemas; dentro de cada grupo, ordem natural
+    // de leitura (ensino: volume+tópico; poema: coleção+número).
+    function _cmpType(a, b) {
+        const ta = favType(a) === 'poetry' ? 1 : 0;
+        const tb = favType(b) === 'poetry' ? 1 : 0;
+        if (ta !== tb) return ta - tb; // ensinamentos primeiro, poemas depois
+        if (ta === 0) {
+            if (a.vol !== b.vol) return String(a.vol).localeCompare(String(b.vol));
+            return (Number(a.topic) || 0) - (Number(b.topic) || 0);
+        }
+        const ca = _collIdx(a.file), cb = _collIdx(b.file);
+        if (ca !== cb) return ca - cb;
+        return (Number(a.topic) || 0) - (Number(b.topic) || 0);
+    }
+    function applySort(items) {
+        const arr = items.slice();
+        if (sortMode === 'old') return arr.sort((a, b) => (a.time || 0) - (b.time || 0));
+        if (sortMode === 'title') return arr.sort((a, b) => _sortTitle(a).localeCompare(_sortTitle(b), isPt ? 'pt' : 'ja'));
+        if (sortMode === 'type') return arr.sort(_cmpType);
+        if (sortMode === 'manual') {
+            const order = loadOrder();
+            const known = arr.filter(f => order.includes(favKey(f)))
+                .sort((a, b) => order.indexOf(favKey(a)) - order.indexOf(favKey(b)));
+            const unknown = arr.filter(f => !order.includes(favKey(f)))
+                .sort((a, b) => (b.time || 0) - (a.time || 0));
+            return known.concat(unknown);
+        }
+        return arr.sort((a, b) => (b.time || 0) - (a.time || 0)); // recent
+    }
+    function sortBarHtml() {
+        const opts = [
+            ['recent', T.sortRecent], ['old', T.sortOld], ['type', T.sortType],
+            ['title', T.sortTitle], ['manual', T.sortManual]
+        ];
+        const sel = `<select id="salvos-sortsel" aria-label="${esc(T.sortLabel)}">${opts.map(([v, l]) => `<option value="${v}"${sortMode === v ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
+        const hint = sortMode === 'manual' ? `<span class="salvos-sort-hint">${esc(T.sortHint)}</span>` : '';
+        return `<span>${esc(T.sortLabel)}</span>${sel}${hint}`;
+    }
+    // Move srcKey p/ antes de dstKey na ordem global e persiste (modo manual).
+    function reorderManual(srcKey, dstKey) {
+        if (!srcKey || srcKey === dstKey) return;
+        // Semente = ordem exibida atual (lista completa) antes de mover.
+        let keys = applySort(filt(loadFavs())).map(favKey).filter(k => k !== srcKey);
+        const di = keys.indexOf(dstKey);
+        if (di < 0) keys.push(srcKey); else keys.splice(di, 0, srcKey);
+        saveOrder(keys);
+        sortMode = 'manual';
+        localStorage.setItem('salvosSortMode', 'manual');
+        render();
+    }
+
     function render() {
         const railEl = document.getElementById('salvos-folders');
         const listEl = document.getElementById('salvos-list');
@@ -643,7 +722,7 @@ ${body}
         let items = favs.slice();
         if (selected === 'none') items = items.filter(f => !f.folderId);
         else if (selected !== 'all') items = items.filter(f => f.folderId === selected);
-        items.sort((a, b) => (b.time || 0) - (a.time || 0));
+        items = applySort(items);
 
         // Filtro por tipo (Ensinamentos / Poemas) — contado no escopo da pasta
         // atual. Só aparece quando há OS DOIS tipos (senão é ruído). Se some,
@@ -660,6 +739,10 @@ ${body}
                 : '';
         }
         if (typeFilter !== 'all') items = items.filter(f => favType(f) === typeFilter);
+
+        // Barra de ordenação (só quando há itens pra ordenar).
+        const sortEl = document.getElementById('salvos-sort');
+        if (sortEl) sortEl.innerHTML = items.length ? sortBarHtml() : '';
 
         const curName = selected === 'all' ? T.allFolders : (selected === 'none' ? T.noFolder : (folderById(selected) ? folderById(selected).name : ''));
         const headEl = document.getElementById('salvos-current');
@@ -719,11 +802,20 @@ ${body}
         document.querySelectorAll('#salvos-typefilter .type-chip').forEach(btn =>
             btn.addEventListener('click', () => { typeFilter = btn.dataset.type; render(); }));
 
+        // ordenação
+        const sortSel = document.getElementById('salvos-sortsel');
+        if (sortSel) sortSel.addEventListener('change', () => {
+            sortMode = sortSel.value;
+            localStorage.setItem('salvosSortMode', sortMode);
+            render();
+        });
+
         // cards
         document.querySelectorAll('#salvos-list .fav-move').forEach(btn =>
             btn.addEventListener('click', () => openMoveMenu(btn.dataset.key)));
         document.querySelectorAll('#salvos-list .fav-remove').forEach(btn =>
             btn.addEventListener('click', () => removeFav(btn.dataset.key)));
+        const manualMode = sortMode === 'manual';
         document.querySelectorAll('#salvos-list .fav-card').forEach(card => {
             card.addEventListener('dragstart', (e) => {
                 e.dataTransfer.setData('text/plain', card.dataset.key);
@@ -731,6 +823,21 @@ ${body}
                 card.classList.add('dragging');
             });
             card.addEventListener('dragend', () => card.classList.remove('dragging'));
+            // Reordenar por arrasto — só no modo "Personalizada". Soltar o card
+            // SOBRE outro card reordena (soltar numa PASTA continua movendo, pois
+            // o drop da pasta é separado). Fora do modo manual, o card segue
+            // arrastável só p/ mover de pasta.
+            if (manualMode) {
+                card.addEventListener('dragover', (e) => { e.preventDefault(); card.classList.add('drop-reorder'); });
+                card.addEventListener('dragleave', () => card.classList.remove('drop-reorder'));
+                card.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    card.classList.remove('drop-reorder');
+                    const src = e.dataTransfer.getData('text/plain');
+                    reorderManual(src, card.dataset.key);
+                });
+            }
         });
     }
 

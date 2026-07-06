@@ -38,7 +38,14 @@
         create: 'Criar',
         save: 'Salvar',
         delOk: 'Apagar',
-        topicN: (n, tot) => `Tópico ${n}/${tot}`
+        topicN: (n, tot) => `Tópico ${n}/${tot}`,
+        exportBtn: '📄 Exportar apostila',
+        exportHint: 'Gera um documento Word (.doc) com os itens desta seleção — ensinamentos completos e poemas com japonês, romaji e tradução.',
+        exportPreparing: 'Preparando…',
+        exportEmpty: 'Nada para exportar nesta seleção.',
+        exportNoStorage: 'Entre na sua conta para gerar a apostila.',
+        exportFail: 'Não foi possível gerar a apostila. Tente novamente.',
+        exportAllName: 'Meus Salvos'
     } : {
         allFolders: 'すべて',
         noFolder: 'フォルダなし',
@@ -62,7 +69,14 @@
         create: '作成',
         save: '保存',
         delOk: '削除',
-        topicN: (n, tot) => `トピック ${n}/${tot}`
+        topicN: (n, tot) => `トピック ${n}/${tot}`,
+        exportBtn: '📄 教材を書き出す',
+        exportHint: 'この選択の項目を Word 文書（.doc）に書き出します（教えは全文、詩は日本語・ローマ字・訳）。',
+        exportPreparing: '準備中…',
+        exportEmpty: 'この選択に書き出す項目がありません。',
+        exportNoStorage: 'ログインすると教材を作成できます。',
+        exportFail: '教材を作成できませんでした。もう一度お試しください。',
+        exportAllName: '保存した項目'
     };
 
     const FOLDER_COLORS = ['#b8860b', '#c0562f', '#2f7d5b', '#3b6ea5', '#7a5ba5', '#8a8a8a'];
@@ -435,6 +449,169 @@
             <button type="button" class="notebook-btn delete" id="folderDelete">${esc(T.del)}</button>`;
     }
 
+    // ============================================================
+    // Exportar apostila (.doc Word) — a partir da seleção atual (pasta +
+    // filtro de tipo). Reaproveita a lógica do Painel de Coletâneas (admin),
+    // mas roda pro MEMBRO e, o mais importante, DIAGRAMA o poema com japonês +
+    // romaji + tradução PT (montar apostila de estudo com ensinamento e poema
+    // na mesma pasta). Conteúdo baixado on-demand via window.supabaseStorageFetch
+    // (js/storage.js; cache 30 min + fallback público embutidos).
+    // ============================================================
+    let _shown = [];        // favoritos exatamente como exibidos (pasta + tipo)
+    let _shownName = '';     // nome da seleção (título/arquivo da apostila)
+
+    function _flattenTopics(json) {
+        const out = [];
+        if (json && Array.isArray(json.themes)) {
+            for (const th of json.themes) if (th && Array.isArray(th.topics)) for (const t of th.topics) out.push(t);
+        } else if (json && Array.isArray(json.topics)) {
+            for (const t of json.topics) out.push(t);
+        }
+        return out;
+    }
+
+    function _flattenPoems(json) {
+        const out = [];
+        for (const s of ((json && json.sections) || [])) for (const p of (s.poems || [])) out.push(p);
+        return out;
+    }
+
+    // O Word ignora seletores CSS de atributo (font[size]) e :has() — então o
+    // HTML legado dos ensinamentos vira tags com estilo inline. Espelha o
+    // _wordifyContent do playlists.js (cores legadas caem = documento preto).
+    function _wordify(html) {
+        let s = String(html || '');
+        s = s.replace(/<b>\s*<font[^>]*size="\+2"[^>]*>([\s\S]*?)<\/font>\s*<\/b>/gi,
+            '<h2 style="font-size:16pt; line-height:1.3; margin:18pt 0 10pt; font-weight:bold;">$1</h2>');
+        s = s.replace(/<font[^>]*size="\+2"[^>]*>([\s\S]*?)<\/font>/gi,
+            '<h2 style="font-size:16pt; line-height:1.3; margin:18pt 0 10pt; font-weight:bold;">$1</h2>');
+        s = s.replace(/<font[^>]*size="\+1"[^>]*>([\s\S]*?)<\/font>/gi, '<b><i>$1</i></b>');
+        s = s.replace(/<font[^>]*>/gi, '<span>').replace(/<\/font>/gi, '</span>');
+        return s;
+    }
+
+    const _brify = (s) => esc(s).replace(/\n/g, '<br>');
+
+    // Bloco de POEMA diagramado: legenda (coletânea · №), título, japonês
+    // (original), romaji (reading) e tradução PT — os três que o usuário pediu.
+    function _poemBlock(e) {
+        const cap = [e.collection, e.number != null ? '№ ' + e.number : ''].filter(Boolean).join(' · ');
+        let h = '';
+        if (cap) h += `<p style="text-align:center; color:#888888; font-size:10pt; margin:0 0 4pt;">${esc(cap)}</p>`;
+        if (e.title) h += `<h2 style="text-align:center; font-size:15pt; font-weight:bold; margin:0 0 16pt;">${esc(e.title)}</h2>`;
+        if (e.original) h += `<p style="text-align:center; font-family:'Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif; font-size:15pt; line-height:1.9; margin:0 0 8pt;">${_brify(e.original)}</p>`;
+        if (e.reading) h += `<p style="text-align:center; font-style:italic; color:#555555; font-size:12pt; line-height:1.7; margin:0 0 12pt;">${_brify(e.reading)}</p>`;
+        if (e.translation) {
+            h += '<hr style="width:38%; border:none; border-top:1px solid #cccccc; margin:12pt auto;">';
+            h += `<p style="text-align:center; font-size:12.5pt; line-height:1.85; margin:0;">${_brify(e.translation)}</p>`;
+        }
+        return h;
+    }
+
+    async function _collectEntries(items) {
+        const fetchJson = window.supabaseStorageFetch;
+        if (typeof fetchJson !== 'function') return null;
+        const cache = new Map();
+        const get = async (path) => {
+            if (cache.has(path)) return cache.get(path);
+            let data = null;
+            try { data = await fetchJson(path); } catch (e) { console.warn('[salvos export] skip', path, e); }
+            cache.set(path, data);
+            return data;
+        };
+        const out = [];
+        for (const f of items) {
+            if (favType(f) === 'poetry') {
+                const coll = POEM_COLLECTIONS[f.file];
+                const json = await get('poetry/' + f.file + '.json');
+                if (!json) continue;
+                const num = Number(f.topic);
+                const poem = _flattenPoems(json).find(p => Number(p.number != null ? p.number : p.num) === num);
+                if (!poem) continue;
+                out.push({
+                    type: 'poem',
+                    collection: coll ? coll.pt : f.file,
+                    number: poem.number != null ? poem.number : poem.num,
+                    title: poem.title || '',
+                    original: poem.original || '',
+                    reading: poem.reading || '',
+                    translation: poem.translation || poem.translation_pt || ''
+                });
+            } else {
+                const file = f.file.endsWith('.json') ? f.file : f.file + '.json';
+                const json = await get(f.vol + '/' + file);
+                if (!json) continue;
+                const topics = _flattenTopics(json);
+                const topic = topics[f.topic || 0];
+                if (!topic) continue;
+                const content = topic.content_ptbr || topic.content_pt || topic.content || topic.content_ja || '';
+                if (!content) continue;
+                const title = f.topicTitle || f.title || topic.title_ptbr || topic.title || f.file;
+                out.push({ type: 'teaching', title: normNums(title), content: content });
+            }
+        }
+        return out;
+    }
+
+    async function exportApostila(items, name) {
+        items = (items || []).slice();
+        if (!items.length) { notice(T.exportEmpty); return; }
+        const btn = document.getElementById('folderExport');
+        const orig = btn ? btn.textContent : '';
+        if (btn) { btn.disabled = true; btn.textContent = T.exportPreparing; }
+        try {
+            const entries = await _collectEntries(items);
+            if (!entries) { notice(T.exportNoStorage); return; }
+            if (!entries.length) { notice(T.exportEmpty); return; }
+
+            const fallback = isPt ? 'Salvos' : '保存';
+            const safeTitle = (String(name || fallback).replace(/[<>&"']/g, '').trim()) || fallback;
+            const date = new Date().toLocaleDateString(isPt ? 'pt-BR' : 'ja-JP');
+            // Marcador clássico de quebra de página do Word-HTML (mais confiável
+            // entre versões que CSS page-break puro).
+            const pageBreak = '<br clear="all" style="mso-special-character:line-break; page-break-before:always;">';
+            const body = entries.map(e => {
+                const inner = e.type === 'poem'
+                    ? _poemBlock(e)
+                    : (`<h2 style="font-size:16pt; line-height:1.3; margin:0 0 10pt; font-weight:bold;">${esc(e.title)}</h2>` + _wordify(e.content));
+                return pageBreak + '\n<div>' + inner + '</div>';
+            }).join('\n');
+            const countLabel = isPt
+                ? `${entries.length} ${entries.length === 1 ? 'item' : 'itens'} · gerado em ${date}`
+                : `${entries.length}件 · ${date}`;
+            const docHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>${esc(safeTitle)}</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+<style>
+  body { font-family: Georgia, "Times New Roman", serif; font-size: 12pt; line-height: 1.6; color: #000; }
+  p { margin: 0 0 8pt; }
+  hr { border: none; border-top: 1px solid #999; margin: 14pt 0; }
+  b { font-weight: bold; } i { font-style: italic; }
+</style></head><body>
+<div style="text-align:center; margin-top:140pt;">
+  <h1 style="font-size:26pt; line-height:1.2; margin:0 0 18pt;">${esc(safeTitle)}</h1>
+  <p style="color:#555555; font-size:11pt;">${esc(countLabel)}</p>
+</div>
+${body}
+</body></html>`;
+            // BOM na frente: sem ele o Word abre os acentos quebrados.
+            const blob = new Blob(['﻿', docHtml], { type: 'application/msword;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = safeTitle.replace(/[\\/:*?"<>|]/g, '_') + '.doc';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error('[salvos export]', e);
+            notice(T.exportFail);
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = orig || T.exportBtn; }
+        }
+    }
+
     function render() {
         const railEl = document.getElementById('salvos-folders');
         const listEl = document.getElementById('salvos-list');
@@ -476,8 +653,16 @@
         const curName = selected === 'all' ? T.allFolders : (selected === 'none' ? T.noFolder : (folderById(selected) ? folderById(selected).name : ''));
         const headEl = document.getElementById('salvos-current');
         if (headEl) { headEl.textContent = curName; headEl.title = curName; }
+        // Guarda a seleção EXATA exibida (pasta + filtro de tipo) pro export.
+        _shown = items.slice();
+        _shownName = selected === 'all' ? T.exportAllName : curName;
         const toolsEl = document.getElementById('salvos-tools');
-        if (toolsEl) toolsEl.innerHTML = toolsHtml();
+        if (toolsEl) {
+            const expBtn = items.length
+                ? `<button type="button" class="notebook-btn" id="folderExport" title="${esc(T.exportHint)}">${esc(T.exportBtn)}</button>`
+                : '';
+            toolsEl.innerHTML = expBtn + toolsHtml();
+        }
 
         listEl.innerHTML = items.length
             ? items.map(cardHtml).join('')
@@ -516,6 +701,8 @@
         if (delBtn) delBtn.addEventListener('click', () => deleteFolder(selected));
         document.querySelectorAll('#salvos-tools .color-swatch').forEach(sw =>
             sw.addEventListener('click', () => recolorFolder(selected, sw.dataset.color)));
+        const exportBtn = document.getElementById('folderExport');
+        if (exportBtn) exportBtn.addEventListener('click', () => exportApostila(_shown, _shownName));
 
         // filtro por tipo (Ensinamentos / Poemas)
         document.querySelectorAll('#salvos-typefilter .type-chip').forEach(btn =>

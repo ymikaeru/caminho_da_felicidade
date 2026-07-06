@@ -500,10 +500,13 @@ function _initMobileNav() {
           if (filename && !filename.endsWith('.html')) filename += '.html';
           const volMap = (window.SECTION_MAP || {})[volId] || {};
           const obj = (filename && volMap[filename]) || (filename && volMap[filename.split('/').pop()]);
-          if (obj && obj.n) n = String(obj.n);
+          if (obj && obj.n) {
+            const vm = (volId || '').match(/mioshiec(\d+)/);
+            n = (vm ? 'Vol ' + vm[1] + ' · ' : '') + '#' + obj.n;
+          }
         }
       } catch (e) {}
-      numEl.textContent = n ? '#' + n : '';
+      numEl.textContent = n;
       numEl.style.display = n ? '' : 'none';
     }
     openMobileNav();

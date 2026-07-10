@@ -15,12 +15,26 @@ import { fileURLToPath } from 'node:url';
 export const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 // ---------- contexto vm com o pipeline real ----------
-const ctx = vm.createContext({ console, window: undefined });
-ctx.window = ctx; // marked UMD usa this/window
-ctx.globalThis = ctx;
-vm.runInContext(fs.readFileSync(path.join(ROOT, 'js', 'marked.min.js'), 'utf8'), ctx, { filename: 'marked.min.js' });
-vm.runInContext(fs.readFileSync(path.join(ROOT, 'js', 'reader-content.js'), 'utf8'), ctx, { filename: 'reader-content.js' });
-const _normalizeContent = (s) => vm.runInContext('_normalizeContent', ctx)(s);
+// makeEngine: constrói um motor isolado a partir de um FONTE de
+// reader-content.js (string) — usado pelo harness de regressão para comparar
+// duas versões do motor (git ref × worktree). withMarked=false simula o
+// caminho _fallbackFormat (marked ausente).
+export function makeEngine(readerContentSrc, { withMarked = true } = {}) {
+    const ectx = vm.createContext({ console, window: undefined });
+    ectx.window = ectx; // marked UMD usa this/window
+    ectx.globalThis = ectx;
+    if (withMarked) {
+        vm.runInContext(fs.readFileSync(path.join(ROOT, 'js', 'marked.min.js'), 'utf8'), ectx, { filename: 'marked.min.js' });
+    }
+    vm.runInContext(readerContentSrc, ectx, { filename: 'reader-content.js' });
+    return {
+        normalize: (s) => vm.runInContext('_normalizeContent', ectx)(s),
+        stripHeader: (s) => vm.runInContext('_stripHeader', ectx)(s),
+    };
+}
+
+const _defaultEngine = makeEngine(fs.readFileSync(path.join(ROOT, 'js', 'reader-content.js'), 'utf8'));
+const _normalizeContent = _defaultEngine.normalize;
 
 // ---------- cópias verbatim de reader-render.js (l.12-53) e reader.js (l.65) ----------
 function _formatQuotedTitle(rawTitle) {
@@ -91,7 +105,8 @@ export function mergeContinuations(topics) {
 }
 
 // ---------- transform por tópico (porte verbatim de reader-render.js l.378-471) ----------
-export function topicInnerHtml(topicData, lang) {
+// `normalize` opcional: injeta outro motor (harness A/B); default = worktree.
+export function topicInnerHtml(topicData, lang, normalize = _normalizeContent) {
     const isPt = lang !== 'ja';
     if (topicData._mergedAway) return ''; // âncora vazia (l.372)
     let rawContent = isPt ? (topicData.content_ptbr || topicData.content_pt || topicData.content || '') : (topicData.content || '');
@@ -166,7 +181,7 @@ export function topicInnerHtml(topicData, lang) {
     }
     } // /if (!continues_previous)
 
-    let formatted = _normalizeContent(rawContent);
+    let formatted = normalize(rawContent);
     // (anotação data-p-idx omitida — só atributos, zero nós de texto)
 
     const isCont = !!topicData.continues_previous;
@@ -181,8 +196,8 @@ export function topicInnerHtml(topicData, lang) {
 }
 
 // Texto renderizado (textContent) do #topic-{index}.
-export function simulateTopicText(topics, index, lang) {
-    return htmlToText(topicInnerHtml(topics[index], lang));
+export function simulateTopicText(topics, index, lang, normalize = _normalizeContent) {
+    return htmlToText(topicInnerHtml(topics[index], lang, normalize));
 }
 
 // ---------- detecção/correção do cabeçalho colado ----------

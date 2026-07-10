@@ -9,6 +9,8 @@
     "build:js": "esbuild js/playlists.js js/highlights.js js/disciples-reader.js js/reader-render.js js/search.js --minify --charset=utf8 --outdir=js --out-extension:.js=.min.js",
     "watch:css": "postcss css/styles.css --config postcss.config.cjs -o css/styles.min.css --watch",
     "build": "npm run build:css && npm run build:admin-css && npm run build:js",
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "test:render": "node scripts/render_regress.mjs",
     "versions": "node scripts/bump-versions.mjs",
     "build:titles": "node scripts/build_titles_index.mjs",
     "split:index": "node scripts/split_search_index.js",

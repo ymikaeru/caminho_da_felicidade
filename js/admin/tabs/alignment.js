@@ -30,7 +30,7 @@ async function _getFile(vol, file) {
 async function _ensureNormalize() {
   if (typeof window._normalizeContent === 'function') return;
   try { (0, eval)(await (await fetch('/js/marked.min.js')).text()); } catch (_) {}
-  const src = await (await fetch('/js/reader-content.js?v=4')).text();
+  const src = await (await fetch('/js/reader-content.js?v=8')).text();
   (0, eval)(src
     .replace(/\bfunction _normalizeContent/, 'window._normalizeContent = function')
     .replace(/\bfunction _fallbackFormat/, 'window._fallbackFormat = function')

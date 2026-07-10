@@ -31,6 +31,56 @@ function _labelBreakReplacer(DBLBR) {
     };
 }
 
+// ============================================================
+// LÉXICO ÚNICO de rótulos de fala — fonte da verdade para as 3 regras que
+// reconhecem rótulos neste arquivo (R8 auto-dois-pontos, R9 quebra-antes,
+// guarda da regra 3b). Adicionar um rótulo novo = mexer SÓ aqui.
+// CÓPIAS EXTERNAS vigiadas por tests/sync.test.mjs (conferidas, não confiadas):
+//   - js/align-engine.js SPEAKER_LABELS (cópia verbatim da lista FULL)
+//   - supabase/functions/_shared/topic_normalize.mjs (5ª cópia da normalização)
+// ============================================================
+
+// Formas COMPLETAS (fragmentos de regex) — usadas por R8 (ganham ':') e por
+// R9 (quebra de parágrafo antes). Ordem preservada da R8 histórica.
+const _PT_SPEAKER_FULL = [
+    'Pergunta do? (?:um )?fiel',
+    'Explicação do fiel',
+    'Orientação de Meishu-Sama',
+    'Comentário do [Ff]iel',
+    'Resposta de Meishu-Sama',
+    'Ensinamento de Meishu-Sama',
+    'Palavras de Meishu-Sama',
+    'Fala do Dr\\. Braden',
+    'Fala de Meishu-Sama',
+];
+const _PT_SPEAKER_ALT = _PT_SPEAKER_FULL.join('|');
+// Regexes hoisted (o replace com /g reseta lastIndex — seguro como const).
+const _R8_LABEL_COLON_RE = new RegExp('(' + _PT_SPEAKER_ALT + ')(?!\\s*[:：])', 'gi');
+const _R9_LABEL_BREAK_RE = new RegExp('([（(]?)(\\*{0,2})(' + _PT_SPEAKER_ALT + ')', 'gi');
+
+// PREFIXOS (deliberadamente MAIS AMPLOS que _PT_SPEAKER_FULL: cobrem também
+// Relato/Declaração/Pronunciamento/Artigo etc., que aparecem coloridos no
+// corpus mas não ganham ':' nem quebra automática da R9). O invariante
+// "todo rótulo FULL é coberto por algum prefixo" é garantido por teste.
+const _PT_SPEAKER_PREFIXES =
+    'Pergunta d|Resposta |Ensinamento d|Orientaç[ãõ]|Palavras d|Fala d|Relato d|' +
+    'Coment[áa]rio d|Explicaç[ãa]o d|Declaraç[ãa]o d|Pronunciamento d|Artigo de';
+const _JA_SPEAKER_PREFIXES =
+    '明主様|信者[のはがを]|記者の発言|新聞記事|お詫び|' +
+    '[一-龯ぁ-ヶーA-Za-z]{1,6}氏(?=\\s*(?:の発言)?\\s*<)|[一-龯ぁ-ヶーA-Za-z]{1,4}博士(?=\\s*(?:の発言)?\\s*<)';
+
+// Rótulos de FALA (turnos de diálogo) que, mesmo colados por um <br> SIMPLES a
+// uma citação anterior (「…」 / "…"), são quebra de parágrafo — não espaço.
+// Sem esta guarda, a regra 3b (adiante) funde "明主様御垂示" / "Resposta de
+// Meishu-Sama" no fim da fala anterior (bug: rótulo de resposta grudado). Casa
+// tanto o rótulo puro quanto seus prefixos de variante: 明主様御垂示/御発言/
+// 御講話/御言葉…, 信者の質問/発言/説明, nome+氏(の発言), 記者の発言, 新聞記事.
+// O「氏/博士」exige um「<」logo após (rótulo curto) pra não casar frase longa
+// que só cite um nome.
+const _SPEAKER_LABEL_AHEAD =
+    "(?:<(?:b|i|font[^>]*)>\\s*){0,3}(?:<i>\\s*)?" +
+    '(?:' + _JA_SPEAKER_PREFIXES + '|' + _PT_SPEAKER_PREFIXES + ')';
+
 function _normalizeContent(rawContent) {
     const DBLBR = '\x01DBLBR\x01';
     const SGLBR = '\x03SGLBR\x03';
@@ -68,7 +118,7 @@ function _normalizeContent(rawContent) {
         //     quebra real, e sem isto a extração corta o texto NO MEIO DA
         //     FRASE (ex.: "...quase<br><font color>chegando..." virava
         //     "quase" / "chegando..." como parágrafos separados).
-        .replace(/<br\s*\/?>\s*(?=<b>\s*<font\s+color|<font\s+color)/gi, ' ')
+        .replace(new RegExp("<br\\s*\\/?>\\s*(?=<b>\\s*<font\\s+color|<font\\s+color)(?!" + _SPEAKER_LABEL_AHEAD + ")", "gi"), ' ')
         // 4) All remaining <br> → paragraph break (double)
         .replace(/<br\s*\/?>/gi, DBLBR)
         // 5) Date in parentheses followed by text → paragraph break
@@ -78,7 +128,7 @@ function _normalizeContent(rawContent) {
         // 7) After closing bold/font tag, regular text → paragraph break (at start only)
         .replace(/^(\s*(?:<\/b>|<\/strong>|\*\*|<\/font>))(?:\s|&nbsp;)+([^（(\s<])/i, '$1' + DBLBR + '$2')
         // 8) Auto-colon on speaker labels
-        .replace(/(Pergunta do? (?:um )?fiel|Explicação do fiel|Orientação de Meishu-Sama|Comentário do [Ff]iel|Resposta de Meishu-Sama|Ensinamento de Meishu-Sama|Palavras de Meishu-Sama|Fala do Dr\. Braden|Fala de Meishu-Sama)(?!\s*[:：])/gi, '$1:')
+        .replace(_R8_LABEL_COLON_RE, '$1:')
         // 9) Speaker labels → paragraph break before them. EXCETO quando o
         //    rótulo está dentro de uma nota editorial entre parênteses (ex.:
         //    "(Palavras de Meishu-Sama: após advertir sobre um incidente…)"):
@@ -87,7 +137,7 @@ function _normalizeContent(rawContent) {
         //    o dado — a quebra era reinserida a cada render). Captura um "("
         //    (ASCII ou fullwidth) opcional imediatamente antes; se houver,
         //    devolve o trecho intacto, sem DBLBR.
-        .replace(/([（(]?)(\*{0,2})(Pergunta do? (?:um )?fiel|Explicação do fiel|Orientação de Meishu-Sama|Ensinamento de Meishu-Sama|Resposta de Meishu-Sama|Comentário do [Ff]iel|Palavras de Meishu-Sama|Fala do Dr\. Braden|Fala de Meishu-Sama)/gi, (m, paren, stars, label) => paren ? m : DBLBR + stars + label)
+        .replace(_R9_LABEL_BREAK_RE, (m, paren, stars, label) => paren ? m : DBLBR + stars + label)
         // 10) Clean up: collapse newlines, normalize spaces
         .replace(/\n/g, ' ')
         .replace(/,\s+/g, ', ')
@@ -136,6 +186,24 @@ function _normalizeContent(rawContent) {
         if (s.startsWith('http') || s.startsWith('data:') || s.startsWith('assets/')) return m;
         return `src="assets/images/${s}"`;
     });
+
+    // Quando a quebra de parágrafo cai ENTRE as tags de abertura (<b><font>) e
+    // o texto do rótulo (efeito da regra 9 + guarda de rótulo na 3b), as tags de
+    // abertura ficam sozinhas num <p> e o fechamento órfão no <p> seguinte
+    // (<p><b><font></p><p>Pergunta do fiel:</font></b>). Reúne as tags de abertura
+    // no parágrafo do rótulo — assim o rótulo continua em negrito e sem <p> vazio.
+    formatted = formatted.replace(/<p>\s*((?:<(?:b|strong|font|i)[^>]*>\s*)+)<\/p>\s*<p>/gi, '<p>$1');
+
+    // Limpa cascas inline vazias (<b><font></font></b>, <font><b></b></font>,
+    // qualquer ordem/aninhamento de b/strong/font/i em volta de só espaço) que
+    // sobram quando um rótulo de fala é separado das suas tags de abertura, e
+    // os <p> que ficam vazios por causa disso — senão viram linha em branco.
+    let _prev;
+    do {
+        _prev = formatted;
+        formatted = formatted.replace(/<(b|strong|font|i)>\s*<\/\1>/gi, '');
+    } while (formatted !== _prev);
+    formatted = formatted.replace(/<p>\s*<\/p>/gi, '');
 
     return formatted;
 }

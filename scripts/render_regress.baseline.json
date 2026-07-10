@@ -1,0 +1,60 @@
+{
+  "corpusHash": "301c8762ec9448ce23085904695c77d9ef4f7f3ae12c05078a93915a96cd8751",
+  "corpusFiles": 1528,
+  "engines": {
+    "old": "HEAD",
+    "new": "worktree"
+  },
+  "lanes": {
+    "topic": {
+      "units": 35420,
+      "tiers": {
+        "1": 13537,
+        "2": 1,
+        "3": 21882,
+        "4": 0
+      }
+    },
+    "nomarked": {
+      "units": 23673,
+      "tiers": {
+        "1": 8003,
+        "2": 0,
+        "3": 15670,
+        "4": 0
+      }
+    },
+    "cells": {
+      "units": 17710,
+      "tiers": {
+        "1": 6066,
+        "2": 0,
+        "3": 11644,
+        "4": 0
+      }
+    }
+  },
+  "metrics": {
+    "hist": {
+      "old": {
+        "glued": 790,
+        "orphans": 5206
+      },
+      "new": {
+        "glued": 0,
+        "orphans": 51
+      }
+    },
+    "abi": {
+      "old": {
+        "glued": 1439,
+        "orphans": 13838
+      },
+      "new": {
+        "glued": 15,
+        "orphans": 113
+      }
+    }
+  },
+  "generatedAt": "2026-07-10T17:25:40.338Z"
+}

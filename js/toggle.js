@@ -152,6 +152,7 @@ window.openHistory = function () {
   const modal = document.getElementById('historyModal');
   const resultsEl = document.getElementById('historyResults');
   if (modal && resultsEl) {
+    if (!modal.classList.contains('active') && window.__lockBodyScroll) window.__lockBodyScroll();
     modal.classList.add('active');
     renderHistory();
     _trapFocus(modal);
@@ -163,7 +164,12 @@ window.openHistory = function () {
 
 window.closeHistory = function () {
   const modal = document.getElementById('historyModal');
-  if (modal) { modal.classList.remove('active'); _releaseFocus(modal); }
+  if (modal) {
+    const wasOpen = modal.classList.contains('active');
+    modal.classList.remove('active');
+    _releaseFocus(modal);
+    if (wasOpen && window.__unlockBodyScroll) window.__unlockBodyScroll();
+  }
 };
 
 function _filterAccessible(items) {
@@ -304,6 +310,7 @@ window.openFavorites = function () {
   const modal = document.getElementById('favoritesModal');
   const resultsEl = document.getElementById('favoritesResults');
   if (modal && resultsEl) {
+    if (!modal.classList.contains('active') && window.__lockBodyScroll) window.__lockBodyScroll();
     modal.classList.add('active');
     renderFavorites();
     _trapFocus(modal);
@@ -312,7 +319,12 @@ window.openFavorites = function () {
 
 window.closeFavorites = function () {
   const modal = document.getElementById('favoritesModal');
-  if (modal) { modal.classList.remove('active'); _releaseFocus(modal); }
+  if (modal) {
+    const wasOpen = modal.classList.contains('active');
+    modal.classList.remove('active');
+    _releaseFocus(modal);
+    if (wasOpen && window.__unlockBodyScroll) window.__unlockBodyScroll();
+  }
 };
 
 function renderFavorites() {

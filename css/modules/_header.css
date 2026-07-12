@@ -170,6 +170,51 @@
   display: flex;
 }
 
+/* Backdrop do dropdown-estrela: escurece + desfoca o fundo como os modais.
+   z-index abaixo do header (2000) pra o botão e o dropdown (dentro do
+   header) ficarem nítidos por cima; só o conteúdo da página desfoca. */
+.reader-random-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.2s var(--ease);
+  z-index: 1999;
+  /* Fechado (opacity:0) ele continua no DOM cobrindo a tela — sem isto,
+     interceptaria TODOS os cliques da página depois de abrir a estrela. */
+  pointer-events: none;
+}
+
+.reader-random-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Menu da seta ← (Índice do volume / Página inicial). Vive no body como
+   fixed (posicionado por JS sob a seta) e reusa o estilo das opções do
+   dropdown-estrela (.reader-random-option). z-index acima do header (2000)
+   pra flutuar sobre ele; o backdrop (.reader-random-backdrop, z 1999) dima
+   só a página. */
+.reader-back-dropdown {
+  display: none;
+  position: fixed;
+  min-width: 200px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  padding: 6px;
+  z-index: 3000;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reader-back-dropdown.open {
+  display: flex;
+}
+
 .reader-random-option {
   display: flex;
   align-items: center;

@@ -50,13 +50,19 @@ function openThemeModal() {
   if (typeof initLineHeight === 'function') initLineHeight();
   if (typeof initAdvancedOptions === 'function') initAdvancedOptions();
 
+  if (!modal.classList.contains('active') && window.__lockBodyScroll) window.__lockBodyScroll();
   modal.classList.add('active');
   _trapFocus(modal);
 }
 
 function closeThemeModal() {
   const modal = document.getElementById('themeModal');
-  if (modal) { modal.classList.remove('active'); _releaseFocus(modal); }
+  if (modal) {
+    const wasOpen = modal.classList.contains('active');
+    modal.classList.remove('active');
+    _releaseFocus(modal);
+    if (wasOpen && window.__unlockBodyScroll) window.__unlockBodyScroll();
+  }
 }
 
 window.setAppTheme = function (theme) {

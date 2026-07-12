@@ -414,6 +414,13 @@ mark.temp-selection {
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease, transform 0.3s ease;
+  /* Sem largura explícita, `left:50%` limita o shrink-to-fit a ~50% da
+     viewport (~187px) → a dica em JA ("文をタップしてハイライト") quebra em 2
+     linhas. `max-content` deixa o toast crescer até o tamanho natural (1
+     linha); `max-width` segura em telas estreitas (aí sim reflui). Cobre os
+     dois tipos de toast (com e sem botão de ação). */
+  width: max-content;
+  max-width: calc(100vw - 32px);
 }
 
 .hl-toast--visible {
@@ -421,8 +428,20 @@ mark.temp-selection {
   transform: translateX(-50%) translateY(0);
 }
 
-/* Variante com ação (ex.: "Desfazer"): o toast vira flex e o botão precisa
-   receber toque (o toast tem pointer-events:none pra não bloquear a página). */
+/* O toast do grifar vive no rodapé (bottom-center) e COLIDE com o botão
+   flutuante "Continuar leitura" (#resume-reading-btn, bottom-right no mobile) —
+   o pill laranja fica meio escondido atrás do toast, layout quebrado (pior em
+   JA, que é mais largo). Enquanto houver um toast no DOM, esconde o resume: o
+   usuário já está grifando aqui, o "continuar" perdeu a função no momento.
+   Só no mobile — no desktop (right:24px, tela larga) não há sobreposição. */
+@media (max-width: 600px) {
+  body:has(.hl-toast) #resume-reading-btn { display: none !important; }
+}
+
+/* Variante com ação (ex.: "Desfazer"): o toast vira flex e o botão recebe
+   toque (o toast tem pointer-events:none pra não bloquear a página). A
+   largura já vem da regra base — sem o max-content, o botão "元に戻す"
+   espremido quebrava em vertical no JA. */
 .hl-toast:has(.hl-toast__action) {
   display: inline-flex;
   align-items: center;
@@ -447,6 +466,10 @@ mark.temp-selection {
   min-height: 40px;
   border-radius: 20px;
   transition: background 0.15s ease;
+  /* Nunca deixa o rótulo (ex.: "元に戻す") quebrar em vertical nem o botão
+     encolher abaixo do conteúdo. */
+  white-space: nowrap;
+  flex: none;
 }
 
 .hl-toast__action:hover,

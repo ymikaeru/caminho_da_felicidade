@@ -610,6 +610,78 @@ function _initMobileNav() {
   // está sendo recomendado em páginas com múltiplos tópicos.
 
   if (isReaderPage) {
+    // Seta ← do header: em vez de ir DIRETO ao índice do volume, abre um
+    // menuzinho ancorado com dois destinos — "Índice do volume" e "Página
+    // inicial (Home)". Mesmo padrão do dropdown-estrela (backdrop blur/dim +
+    // trava de scroll). No modo discípulos a seta tem navegação própria
+    // (Obras/Início, disciples-reader.js), então NÃO interceptamos lá.
+    const backBtn = document.getElementById('backToIndexBtn');
+    if (backBtn) {
+      const backDrop = document.createElement('div');
+      backDrop.className = 'reader-back-dropdown';
+      backDrop.id = 'readerBackDropdown';
+      backDrop.setAttribute('role', 'menu');
+      backDrop.innerHTML =
+        `<button type="button" class="reader-random-option reader-back-option" data-dest="home" role="menuitem">` +
+          `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` +
+          `<span class="lang-pt">Página inicial</span><span class="lang-ja" style="display:none">ホーム</span>` +
+        `</button>` +
+        `<button type="button" class="reader-random-option reader-back-option" data-dest="index" role="menuitem">` +
+          `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>` +
+          `<span class="lang-pt">Índice do volume</span><span class="lang-ja" style="display:none">目次に戻る</span>` +
+        `</button>`;
+      document.body.appendChild(backDrop);
+      // setLanguage() já rodou; aplica o idioma atual nos spans recém-criados.
+      backDrop.querySelectorAll('.lang-pt').forEach(el => { el.style.display = (currentLang === 'ja' ? 'none' : ''); });
+      backDrop.querySelectorAll('.lang-ja').forEach(el => { el.style.display = (currentLang === 'ja' ? '' : 'none'); });
+
+      let backBackdrop = null;
+      const closeBack = () => {
+        if (!backDrop.classList.contains('open')) return;
+        backDrop.classList.remove('open');
+        backBtn.setAttribute('aria-expanded', 'false');
+        if (backBackdrop) backBackdrop.classList.remove('open');
+        window.__unlockBodyScroll();
+      };
+      const openBack = () => {
+        if (backDrop.classList.contains('open')) return;
+        if (!backBackdrop) {
+          backBackdrop = document.createElement('div');
+          backBackdrop.className = 'reader-random-backdrop'; // mesmo dim/blur
+          backBackdrop.addEventListener('click', closeBack);
+          document.body.appendChild(backBackdrop);
+        }
+        // Ancorado sob a seta (fixed, alinhado à esquerda dela).
+        const r = backBtn.getBoundingClientRect();
+        backDrop.style.top = (r.bottom + 6) + 'px';
+        backDrop.style.left = r.left + 'px';
+        backDrop.classList.add('open');
+        backBtn.setAttribute('aria-expanded', 'true');
+        window.__lockBodyScroll();
+        requestAnimationFrame(() => { if (backBackdrop) backBackdrop.classList.add('open'); });
+      };
+      backBtn.setAttribute('aria-haspopup', 'true');
+      backBtn.setAttribute('aria-expanded', 'false');
+      backBtn.addEventListener('click', (e) => {
+        if (document.body.classList.contains('disciples-active')) return; // navegação própria
+        e.preventDefault();
+        e.stopPropagation();
+        if (backDrop.classList.contains('open')) closeBack(); else openBack();
+      });
+      backDrop.querySelectorAll('.reader-back-option').forEach(opt => {
+        opt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const dest = opt.getAttribute('data-dest');
+          // Índice usa o href já resolvido pelo reader-render (mioshiecN/index.html).
+          window.location.href = dest === 'home'
+            ? 'index.html'
+            : (backBtn.getAttribute('href') || 'index.html');
+        });
+      });
+      document.addEventListener('click', closeBack);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeBack(); });
+    }
+
     const printBtn = document.createElement('button');
     printBtn.className = 'mobile-fav-btn header-only-desktop';
     printBtn.id = 'headerPrintBtn';
@@ -673,17 +745,37 @@ function _initMobileNav() {
 
     const randomBtn = randomWrap.querySelector('#readerRandomBtn');
     const randomDrop = randomWrap.querySelector('#readerRandomDropdown');
+    // Backdrop full-screen (blur + dim), como nos modais. Fica no body com
+    // z-index abaixo do header (2000) → botão e dropdown ficam nítidos por
+    // cima, o resto da página escurece e o scroll do fundo trava.
+    let randomBackdrop = null;
     const closeRandom = () => {
+      if (!randomDrop.classList.contains('open')) return;
       randomDrop.classList.remove('open');
       randomBtn.setAttribute('aria-expanded', 'false');
+      if (randomBackdrop) randomBackdrop.classList.remove('open');
+      window.__unlockBodyScroll();
+    };
+    const openRandom = () => {
+      if (randomDrop.classList.contains('open')) return;
+      if (!randomBackdrop) {
+        randomBackdrop = document.createElement('div');
+        randomBackdrop.className = 'reader-random-backdrop';
+        randomBackdrop.addEventListener('click', closeRandom);
+        document.body.appendChild(randomBackdrop);
+      }
+      randomDrop.classList.add('open');
+      randomBtn.setAttribute('aria-expanded', 'true');
+      window.__lockBodyScroll();
+      // rAF pra o opacity transicionar a partir de 0 (elemento recém-inserido).
+      requestAnimationFrame(() => { if (randomBackdrop) randomBackdrop.classList.add('open'); });
     };
     randomBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (randomDrop.classList.contains('open')) {
         closeRandom();
       } else {
-        randomDrop.classList.add('open');
-        randomBtn.setAttribute('aria-expanded', 'true');
+        openRandom();
       }
     });
     document.addEventListener('click', closeRandom);
@@ -794,19 +886,62 @@ function _injectVolumeToc(header, sectionLabel, opts) {
   document.documentElement.classList.add('toc-ready');
 }
 
+// ── Trava robusta de scroll do fundo (COMPARTILHADA) ──────────────────
+// `body { overflow:hidden }` sozinho NÃO segura o toque no iOS Safari — o
+// fundo continua rolando atrás do menu/modal. Fixamos o body na posição
+// atual e restauramos ao destravar. Reference-counted pra empilhar (ex.:
+// Tema aberto por cima do menu sanduíche) sem soltar cedo demais.
+// Usada pelo menu, pelo dropdown-estrela e pelos modais que antes não
+// travavam (Histórico/Favoritos/Tema).
+let _bodyLockCount = 0;
+let _bodyLockY = 0;
+window.__lockBodyScroll = function () {
+  if (_bodyLockCount === 0) {
+    _bodyLockY = window.scrollY || window.pageYOffset || 0;
+    const b = document.body.style;
+    b.position = 'fixed';
+    b.top = `-${_bodyLockY}px`;
+    b.left = '0';
+    b.right = '0';
+    b.width = '100%';
+    b.overflow = 'hidden';
+  }
+  _bodyLockCount++;
+};
+window.__unlockBodyScroll = function () {
+  if (_bodyLockCount === 0) return;
+  _bodyLockCount--;
+  if (_bodyLockCount > 0) return; // ainda há algo aberto por cima
+  const b = document.body.style;
+  b.position = '';
+  b.top = '';
+  b.left = '';
+  b.right = '';
+  b.width = '';
+  b.overflow = '';
+  // Restaura o scroll sem animação (html usa scroll-behavior: smooth).
+  const html = document.documentElement;
+  const prev = html.style.scrollBehavior;
+  html.style.scrollBehavior = 'auto';
+  window.scrollTo(0, _bodyLockY);
+  html.style.scrollBehavior = prev;
+};
+
 window.openMobileNav = function () {
   const overlay = document.getElementById('mobileNavOverlay');
-  if (overlay) overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
+  if (!overlay) return;
+  const wasOpen = overlay.classList.contains('open');
+  overlay.classList.add('open');
+  if (!wasOpen) window.__lockBodyScroll();
 };
 
 window.closeMobileNav = function () {
   const overlay = document.getElementById('mobileNavOverlay');
-  if (overlay) {
-    overlay.classList.remove('open');
-    overlay.classList.remove('peeking');
-  }
-  document.body.style.overflow = '';
+  if (!overlay) return;
+  const wasOpen = overlay.classList.contains('open');
+  overlay.classList.remove('open');
+  overlay.classList.remove('peeking');
+  if (wasOpen) window.__unlockBodyScroll();
 };
 
 // "Peek" — esconde o backdrop (blur + dim) mantendo só o painel lateral

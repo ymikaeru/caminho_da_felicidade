@@ -58,9 +58,8 @@
 }
 
 .btn-random-hero:hover {
-  background: var(--accent-soft);
-  color: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
 }
 
 .btn-random-hero:active {
@@ -70,8 +69,8 @@
 .btn-random-hero:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--accent);
+  color: #fff;
 }
 
 .btn-random-hero:focus-visible svg {

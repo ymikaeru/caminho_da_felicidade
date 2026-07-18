@@ -30,6 +30,9 @@ let _pools = { verao: [], outono: [], inverno: [], primavera: [] };
 let _activeSeason = 'verao';
 let _yama = null;         // seções do yama_to_mizu.json (lazy)
 let _poolsDirty = false;
+let _monthOverrides = {}; // { "AAAA-MM": {poema...} } — poema fixado por mês
+let _monthPick = null;    // poema em edição no bloco "Poema deste mês" (ainda não salvo)
+let _shuffleIdx = -1;     // posição atual do 🔀 entre os candidatos da estação
 
 // ── Markup da aba (injetado no import do módulo; padrão das demais abas) ──
 const _TAB_MARKUP = `
@@ -38,8 +41,15 @@ const _TAB_MARKUP = `
                 <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">O poema em destaque acima do calendário na landing pública (cmu.org.br).</p>
               </div>
 
+              <!-- ── BLOCO 0: poema deste mês (one-shot, reverte sozinho) ── -->
+              <div class="admin-section" style="border:1px solid var(--accent); border-radius:12px; padding:18px 20px;">
+                <h3 style="margin:0 0 6px; font-size:.92rem; font-weight:600; color:var(--accent);">🗓️ Poema deste mês</h3>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin:0 0 14px;">Troca a poesia <strong>só no mês atual</strong>, respeitando a estação. No mês que vem volta sozinho à rotação — você não precisa desligar nada.</p>
+                <div id="month-pin-body"></div>
+              </div>
+
               <!-- ── BLOCO 1: pools por estação ── -->
-              <div class="admin-section">
+              <div class="admin-section" style="margin-top:26px;">
                 <h3 style="margin:0 0 6px; font-size:.92rem; font-weight:600; color:var(--text);">Poemas por estação (rotação automática)</h3>
                 <p style="font-size:0.82rem; color:var(--text-muted); margin:0 0 16px;">Cure um conjunto de poemas do <strong>Yama to Mizu</strong> para cada estação brasileira. A landing mostra 1 por mês, rodando dentro do pool da estação atual — <strong>sem repetir de um mês para o outro</strong> e avançando a cada ano. Recomendado: <strong>≥3 poemas por estação</strong>.</p>
 
@@ -259,7 +269,152 @@ function _onPoolsClick(ev) {
     renderPools();
   } else if (action === 'pin') {
     _pinToOverride(pool[idx]);
+  } else if (action === 'mshuffle') {
+    _shuffleMonthPick();
+  } else if (action === 'msave') {
+    saveMonthPin();
+  } else if (action === 'mclear') {
+    clearMonthPin();
   }
+}
+
+// ── Poema deste mês (one-shot, reverte sozinho no mês seguinte) ──
+function _currentMonthKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+function _currentSeason() {
+  const m = new Date().getMonth() + 1;
+  return SEASONS.find(s => s.meses.includes(m)) || SEASONS[0];
+}
+
+// Candidatos do 🔀: poemas do pool da estação atual EXCETO os que a rotação já
+// usa nos (outros) meses da estação — assim nunca repete o que aparece no ano.
+function _monthCandidates() {
+  const season = _currentSeason();
+  const pool = _pools[season.key] || [];
+  const ano = new Date().getFullYear();
+  const usados = new Set(
+    season.meses.map(m => {
+      const p = _escolherDoPool(pool, season, m, ano);
+      return p ? p.original : null;
+    }).filter(Boolean)
+  );
+  return pool.filter(p => !usados.has(p.original));
+}
+
+function _shuffleMonthPick() {
+  const cands = _monthCandidates();
+  if (!cands.length) {
+    // Pool pequeno demais: cai pra qualquer poema da estação menos o atual.
+    const season = _currentSeason();
+    const all = (_pools[season.key] || []).filter(p => !_monthPick || p.original !== _monthPick.original);
+    if (!all.length) return;
+    _shuffleIdx = (_shuffleIdx + 1) % all.length;
+    _monthPick = all[_shuffleIdx];
+  } else {
+    _shuffleIdx = (_shuffleIdx + 1) % cands.length;
+    _monthPick = cands[_shuffleIdx];
+  }
+  renderMonthPin();
+}
+
+function _poemaCardHTML(p) {
+  if (!p) return '<div style="color:var(--text-muted); font-size:.85rem;">—</div>';
+  return `<div style="border:1px solid var(--border); border-radius:8px; padding:12px 14px; background:rgba(0,0,0,.02);">
+    <div style="font-weight:600; font-size:.86rem; margin-bottom:3px;">${_escapeCmu(p.title || '(sem título)')}</div>
+    <div style="font-family:'Noto Serif JP',serif; font-size:.9rem; line-height:1.7; color:var(--text);">${_escapeCmu(p.original || '')}</div>
+    <div style="font-size:.8rem; color:var(--text-muted); font-style:italic; margin-top:6px;">${_escapeCmu(p.translation || '')}</div>
+  </div>`;
+}
+
+function renderMonthPin() {
+  const box = document.getElementById('month-pin-body');
+  if (!box) return;
+  const key = _currentMonthKey();
+  const season = _currentSeason();
+  const [ano, mes] = key.split('-');
+  const mesLabel = `${MESES_PT[parseInt(mes, 10)]} de ${ano}`;
+  const pool = _pools[season.key] || [];
+  const salvo = _monthOverrides[key] || null;
+
+  // Poema que a landing mostra AGORA (sem contar o rascunho _monthPick).
+  const atual = salvo || _escolherDoPool(pool, season, parseInt(mes, 10), parseInt(ano, 10));
+  const nCand = _monthCandidates().length;
+
+  const statusLinha = salvo
+    ? `<span style="color:var(--accent); font-weight:600;">fixado manualmente</span>`
+    : `<span style="color:var(--text-muted);">rotação automática</span>`;
+
+  const draftBlock = _monthPick
+    ? `<div style="margin-top:14px;">
+         <div style="font-size:.78rem; color:var(--accent); font-weight:600; margin-bottom:6px;">Nova escolha (ainda não salva):</div>
+         ${_poemaCardHTML(_monthPick)}
+       </div>`
+    : '';
+
+  box.innerHTML = `
+    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:12px;">
+      <div style="font-size:.85rem; color:var(--text);"><strong>${mesLabel}</strong> — ${season.emoji} ${season.label} · ${statusLinha}</div>
+    </div>
+    <div style="font-size:.76rem; color:var(--text-muted); margin-bottom:6px;">No ar neste mês:</div>
+    ${_poemaCardHTML(atual)}
+    ${draftBlock}
+    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:16px;">
+      <button data-action="mshuffle" ${pool.length < 1 ? 'disabled' : ''}
+        style="padding:9px 18px; border:1px solid var(--accent); background:var(--accent); color:#fff; border-radius:8px; cursor:pointer; font-family:inherit; font-size:.86rem; font-weight:600;">🔀 Trocar por outra</button>
+      <button data-action="msave" ${_monthPick ? '' : 'disabled'}
+        style="padding:9px 18px; border:1px solid var(--accent); background:${_monthPick ? 'var(--accent)' : 'transparent'}; color:${_monthPick ? '#fff' : 'var(--text-muted)'}; border-radius:8px; cursor:${_monthPick ? 'pointer' : 'default'}; font-family:inherit; font-size:.86rem; font-weight:600;">Salvar poema deste mês</button>
+      <button data-action="mclear" ${salvo ? '' : 'disabled'}
+        style="padding:9px 18px; border:1px solid var(--border); background:transparent; color:${salvo ? 'var(--text)' : 'var(--text-muted)'}; border-radius:8px; cursor:${salvo ? 'pointer' : 'default'}; font-family:inherit; font-size:.86rem;">Voltar à sequência</button>
+      <span id="month-pin-msg" class="msg" style="margin:0;"></span>
+    </div>
+    <div style="font-size:.72rem; color:var(--text-muted); margin-top:8px;">${nCand} poema(s) da estação disponíveis pra trocar (fora os já usados nos outros meses). ${pool.length === 0 ? '⚠️ Cure o pool da estação abaixo primeiro.' : ''}</div>
+  `;
+}
+
+async function saveMonthPin() {
+  if (!_monthPick) return;
+  const msg = document.getElementById('month-pin-msg');
+  const key = _currentMonthKey();
+  _monthOverrides[key] = _monthPick;
+  if (msg) { msg.className = 'msg'; msg.textContent = 'Salvando…'; }
+  const { error } = await supabase.from('landing_config')
+    .upsert({ id: 1, month_overrides: _monthOverrides, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+  if (!msg) return;
+  if (error) {
+    delete _monthOverrides[key];
+    msg.className = 'msg err';
+    msg.textContent = /month_overrides|column|exist|relation/i.test(error.message || '')
+      ? 'Rode a migração landing_month_overrides.sql no Supabase.'
+      : 'Erro: ' + error.message;
+  } else {
+    _monthPick = null;
+    _shuffleIdx = -1;
+    renderMonthPin();
+    const m2 = document.getElementById('month-pin-msg');
+    if (m2) { m2.className = 'msg ok'; m2.textContent = '✓ Poema deste mês publicado.'; }
+  }
+}
+
+async function clearMonthPin() {
+  const msg = document.getElementById('month-pin-msg');
+  const key = _currentMonthKey();
+  const backup = _monthOverrides[key];
+  delete _monthOverrides[key];
+  if (msg) { msg.className = 'msg'; msg.textContent = 'Removendo…'; }
+  const { error } = await supabase.from('landing_config')
+    .upsert({ id: 1, month_overrides: _monthOverrides, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+  if (error) {
+    _monthOverrides[key] = backup;
+    if (msg) { msg.className = 'msg err'; msg.textContent = 'Erro: ' + error.message; }
+    return;
+  }
+  _monthPick = null;
+  _shuffleIdx = -1;
+  renderMonthPin();
+  const m2 = document.getElementById('month-pin-msg');
+  if (m2) { m2.className = 'msg ok'; m2.textContent = '✓ Voltou à rotação por estação.'; }
 }
 
 // Copia um poema do pool para o bloco de override e ativa — o admin "escolhe
@@ -488,8 +643,23 @@ async function loadPoemaConfig() {
       }
     }
   } catch (e) { /* mantém o que estiver no form */ }
+  // Query própria e resiliente: se month_overrides ainda não existir, só o bloco
+  // "Poema deste mês" fica sem dados — os pools acima seguem funcionando.
+  try {
+    const { data, error } = await supabase
+      .from('landing_config')
+      .select('month_overrides')
+      .eq('id', 1)
+      .maybeSingle();
+    if (!error && data && data.month_overrides && typeof data.month_overrides === 'object') {
+      _monthOverrides = data.month_overrides;
+    }
+  } catch (e) { /* bloco do mês fica vazio */ }
   _activeSeason = _currentSeasonKey();
+  _monthPick = null;
+  _shuffleIdx = -1;
   renderPools();
+  renderMonthPin();
   renderPoemaPreview();
 }
 

@@ -97,6 +97,48 @@
                             <span class="lang-ja" style="display:none">御縁の御教え</span>
                         </button>
                     </div>
+
+                    <!-- Poema do Momento — poesia aleatória a cada visita (js/poema-aleatorio.js) -->
+                    <style>
+                        .poema-momento{border:1px solid var(--border);border-radius:16px;padding:22px 26px;margin-bottom:24px;background:linear-gradient(180deg,var(--accent-soft),transparent);}
+                        .poema-momento__head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+                        .poema-momento__kicker{font-family:var(--font-ui,'Outfit',sans-serif);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;}
+                        .poema-momento__shuffle{margin-left:auto;background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 9px;cursor:pointer;font-size:14px;line-height:1;color:var(--text-muted);transition:all .15s;}
+                        .poema-momento__shuffle:hover{border-color:var(--accent);color:var(--accent);}
+                        .poema-momento__body{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+                        .poema-momento__jp{font-family:'Noto Serif JP',serif;font-size:1.15rem;font-weight:600;line-height:1.95;letter-spacing:.04em;color:var(--text-main);}
+                        .poema-momento__rj{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--text-muted);font-size:.82rem;line-height:1.6;margin:10px 0 0;}
+                        .poema-momento__pt{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:1.2rem;line-height:1.65;margin:0;color:var(--text-main);border-left:2px solid color-mix(in srgb,var(--accent) 40%,transparent);padding-left:18px;}
+                        .poema-momento__meta{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
+                        .poema-momento__col{font-family:var(--font-ui,'Outfit',sans-serif);font-size:12px;color:var(--text-muted);letter-spacing:.02em;}
+                        .poema-momento__link{margin-left:auto;font-family:var(--font-ui,'Outfit',sans-serif);font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;}
+                        .poema-momento__link:hover{text-decoration:underline;}
+                        @media (max-width:640px){.poema-momento__body{grid-template-columns:1fr;gap:14px;}.poema-momento__pt{border-left:none;border-top:2px solid color-mix(in srgb,var(--accent) 40%,transparent);padding-left:0;padding-top:14px;}}
+                    </style>
+                    <section id="poemaMomento" class="poema-momento" hidden aria-labelledby="poema-momento-title">
+                        <div class="poema-momento__head">
+                            <span class="poema-momento__kicker" id="poema-momento-title">
+                                <span class="lang-pt">Poema do Momento</span>
+                                <span class="lang-ja" style="display:none">御歌</span>
+                            </span>
+                            <button type="button" id="poemaMomentoShuffle" class="poema-momento__shuffle" title="Outra poesia" aria-label="Mostrar outra poesia">🔀</button>
+                        </div>
+                        <div class="poema-momento__body">
+                            <div>
+                                <div class="poema-momento__jp" id="pmJp"></div>
+                                <p class="poema-momento__rj" id="pmRj"></p>
+                            </div>
+                            <p class="poema-momento__pt" id="pmPt"></p>
+                        </div>
+                        <div class="poema-momento__meta">
+                            <span class="poema-momento__col" id="pmCol"></span>
+                            <a class="poema-momento__link" id="pmLink" href="poesia.html">
+                                <span class="lang-pt">Ler no leitor →</span>
+                                <span class="lang-ja" style="display:none">読む →</span>
+                            </a>
+                        </div>
+                    </section>
+
                     <a href="reader.html?vol=mioshiec1&file=zyobun.html" class="topic-card"
                         style="flex-direction:column; align-items:flex-start; padding:28px 32px; margin-bottom:24px; background:var(--accent-soft); border-color:var(--accent);">
                         <div
@@ -394,6 +436,7 @@
     <script src="js/recommendations.js?v=61" defer></script>
     <script src="js/study-messages.js?v=3" defer></script>
     <script src="js/playlists-loader.js?v=9" defer></script>
+    <script src="js/poema-aleatorio.js?v=1" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => { buildSearchModal(); buildHistoryModal(); buildFavoritesModal(); buildHighlightsModal(); buildRecommendationsModal(); initSmartHome(); if (typeof revealPage === 'function') revealPage(); if (typeof initRecommendations === 'function') initRecommendations(); if (typeof initStudyMessages === 'function') initStudyMessages(); });
     </script>

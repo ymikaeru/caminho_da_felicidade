@@ -100,20 +100,21 @@
 
                     <!-- Poema do Momento — poesia aleatória a cada visita (js/poema-aleatorio.js) -->
                     <style>
-                        .poema-momento{border:1px solid var(--border);border-radius:16px;padding:22px 26px;margin-bottom:24px;background:linear-gradient(180deg,var(--accent-soft),transparent);}
-                        .poema-momento__head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-                        .poema-momento__kicker{font-family:var(--font-ui,'Outfit',sans-serif);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;}
-                        .poema-momento__shuffle{margin-left:auto;background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 9px;cursor:pointer;font-size:14px;line-height:1;color:var(--text-muted);transition:all .15s;}
+                        .poema-momento{background:var(--card-bg,var(--surface));border:1px solid var(--border);border-radius:var(--radius);padding:24px 26px;margin-bottom:24px;transition:border-color .3s ease;}
+                        .poema-momento:hover{border-color:var(--accent);}
+                        .poema-momento__head{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+                        .poema-momento__kicker{font-family:var(--font-ui);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;}
+                        .poema-momento__shuffle{margin-left:auto;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 9px;cursor:pointer;font-size:13px;line-height:1;color:var(--text-muted);transition:all .2s ease;}
                         .poema-momento__shuffle:hover{border-color:var(--accent);color:var(--accent);}
-                        .poema-momento__body{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
-                        .poema-momento__jp{font-family:'Noto Serif JP',serif;font-size:1.15rem;font-weight:600;line-height:1.95;letter-spacing:.04em;color:var(--text-main);}
-                        .poema-momento__rj{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--text-muted);font-size:.82rem;line-height:1.6;margin:10px 0 0;}
-                        .poema-momento__pt{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:1.2rem;line-height:1.65;margin:0;color:var(--text-main);border-left:2px solid color-mix(in srgb,var(--accent) 40%,transparent);padding-left:18px;}
-                        .poema-momento__meta{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
-                        .poema-momento__col{font-family:var(--font-ui,'Outfit',sans-serif);font-size:12px;color:var(--text-muted);letter-spacing:.02em;}
-                        .poema-momento__link{margin-left:auto;font-family:var(--font-ui,'Outfit',sans-serif);font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;}
+                        .poema-momento__body{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;}
+                        .poema-momento__jp{font-family:'Noto Serif JP',serif;font-size:18px;font-weight:600;line-height:1.9;letter-spacing:.06em;color:var(--text-main);}
+                        .poema-momento__rj{font-family:var(--font-serif);font-size:14px;font-style:italic;color:var(--text-muted);line-height:1.6;letter-spacing:.02em;margin:10px 0 0;}
+                        .poema-momento__pt{font-family:var(--font-serif);font-size:18px;line-height:1.7;margin:0;color:var(--text-main);padding-left:26px;border-left:1px solid var(--border);}
+                        .poema-momento__meta{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+                        .poema-momento__col{font-family:var(--font-ui);font-size:12px;color:var(--text-muted);letter-spacing:.02em;opacity:.8;}
+                        .poema-momento__link{margin-left:auto;font-family:var(--font-ui);font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;}
                         .poema-momento__link:hover{text-decoration:underline;}
-                        @media (max-width:640px){.poema-momento__body{grid-template-columns:1fr;gap:14px;}.poema-momento__pt{border-left:none;border-top:2px solid color-mix(in srgb,var(--accent) 40%,transparent);padding-left:0;padding-top:14px;}}
+                        @media (max-width:640px){.poema-momento__body{grid-template-columns:1fr;gap:16px;}.poema-momento__pt{border-left:none;border-top:1px solid var(--border);padding-left:0;padding-top:16px;}}
                     </style>
                     <section id="poemaMomento" class="poema-momento" hidden aria-labelledby="poema-momento-title">
                         <div class="poema-momento__head">

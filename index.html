@@ -109,7 +109,7 @@
                         .home-quote{max-width:none;margin:4px 0 56px;padding:26px 0 0;border:0;border-top:1px solid var(--border);text-align:left;}
                         /* Rótulo discreto, não dourado: aqui ele organiza, não chama.
                            O ouro fica reservado às AÇÕES da página (o botão logo abaixo). */
-                        .home-quote__kicker{display:block;font-family:var(--font-ui);font-size:10px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--text-muted);margin:0 0 20px;}
+                        .home-quote__kicker{display:block;margin:0 0 20px;}
                         /* Sem itálico: em cinco linhas ele vira ornamento e cansa. Romano
                            com entrelinha larga lê como voz calma — que é o registro certo. */
                         .home-quote__text{max-width:780px;font-family:var(--font-serif);font-size:19px;line-height:1.8;font-style:normal;color:var(--text-main);margin:0 0 22px;text-wrap:pretty;}
@@ -166,21 +166,30 @@
                            entrada e o acervo, não um card competindo com os volumes. Com
                            borda + fundo ele quebrava a linguagem do topo (filete e ar) e
                            virava o terceiro tratamento de moldura em sequência. */
-                        .poema-momento{background:transparent;border:0;border-top:1px solid var(--border);border-radius:0;padding:26px 0 0;margin-bottom:48px;}
+                        .poema-momento{background:transparent;border:0;border-top:1px solid var(--border);border-radius:0;padding:26px 0 0;margin-bottom:64px;}
                         .poema-momento__head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
-                        .poema-momento__kicker{font-family:var(--font-ui);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--text-muted);font-weight:500;}
+                        .poema-momento__kicker{/* tipo vem da regra de rótulo único */}
                         .poema-momento__shuffle{margin-left:auto;display:flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-muted);cursor:pointer;transition:color .2s,border-color .2s,background .2s;}
                         .poema-momento__shuffle:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
                         .poema-momento__shuffle svg{width:17px;height:17px;}
-                        .poema-momento__body{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;}
+                        /* Vão maior no lugar do divisor: a linha vertical era filete DENTRO do
+                           bloco — o mesmo que tiramos do rodapé — e ainda ficava pendurada,
+                           porque a tradução é curta e o original + romaji são altos. */
+                        .poema-momento__body{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:start;}
                         .poema-momento__jp{font-family:'Noto Serif JP',serif;font-size:18px;font-weight:600;line-height:1.9;letter-spacing:.06em;color:var(--text-main);}
                         .poema-momento__rj{font-family:var(--font-serif);font-size:14px;font-style:italic;color:var(--text-muted);line-height:1.6;letter-spacing:.02em;margin:10px 0 0;}
-                        .poema-momento__pt{font-family:var(--font-serif);font-size:18px;line-height:1.7;margin:0;color:var(--text-main);padding-left:26px;border-left:1px solid var(--border);}
-                        .poema-momento__meta{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+                        .poema-momento__pt{font-family:var(--font-serif);font-size:18px;line-height:1.7;margin:0;color:var(--text-main);}
+                        /* Sem filete interno: ele existia pra separar conteúdo de rodapé DENTRO da
+                           caixa. Sem a caixa, virou o terceiro filete horizontal do bloco —
+                           o espaço já faz essa separação. */
+                        /* Amarra por PROXIMIDADE, não por filete: colada no poema (14px) e longe do
+                           limite de baixo (64px no bloco). Com 26/48 ela ficava quase
+                           equidistante dos dois e lia como linha solta. */
+                        .poema-momento__meta{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:14px;padding-top:0;border-top:0;}
                         .poema-momento__col{font-family:var(--font-ui);font-size:12px;color:var(--text-muted);letter-spacing:.02em;opacity:.8;}
                         .poema-momento__link{margin-left:auto;font-family:var(--font-ui);font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;}
                         .poema-momento__link:hover{text-decoration:underline;}
-                        @media (max-width:640px){.poema-momento__body{grid-template-columns:1fr;gap:16px;}.poema-momento__pt{border-left:none;border-top:1px solid var(--border);padding-left:0;padding-top:16px;}}
+                        @media (max-width:640px){.poema-momento__body{grid-template-columns:1fr;gap:22px;}}
                     </style>
                     <section id="poemaMomento" class="poema-momento" hidden aria-labelledby="poema-momento-title">
                         <div class="poema-momento__head">
@@ -214,7 +223,33 @@
                          pares, sem hierarquia. Mesmo cinza discreto da epígrafe e do Poema;
                          o dourado segue reservado às ações. -->
                     <style>
-                        .home-section-label{display:block;font-family:var(--font-ui);font-size:10px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--text-muted);margin:0 0 18px;padding-top:26px;border-top:1px solid var(--border);}
+                        /* Dois níveis, ambos LEVES:
+                             título de seção  → 12px/600  (O acervo, Obras Poéticas, …)
+                             rótulo de bloco  → 10px/500  (A base deste acervo, Poema do…)
+                           Os títulos de seção do site eram 15px/600. Igualar "O acervo" a
+                           eles pesava demais: "Obras Poéticas" fica lá embaixo, depois dos
+                           cards, onde aguenta; este nasce colado na epígrafe e no Poema,
+                           que são delicados. Então os três descem pro registro do topo —
+                           escopo .home-page, pra não mexer no .stats-title de outras
+                           páginas. */
+                        /* UM ESTILO DE RÓTULO para toda a home. Antes eram seis rótulos
+                           em quatro combinações e DUAS famílias — .stats-title nunca
+                           declarou font-family e herdava a serifada do corpo.
+                           Regra: uma família por função. Serifada = voz e conteúdo
+                           (título, citação, poema, títulos de card). Sans em caixa alta
+                           espaçada = etiqueta e ação. Sem exceção.
+                           A hierarquia vem do FILETE e do ESPAÇO, não do tipo:
+                             seção → filete + 56px acima
+                             bloco → filete + 26px acima */
+                        .home-label,
+                        .home-section-label,
+                        .home-page .stats-title,
+                        .home-quote__kicker,
+                        .poema-momento__kicker{
+                            font-family:var(--font-ui);font-size:11px;font-weight:500;
+                            letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);
+                        }
+                        .home-section-label{display:block;margin:0 0 18px;padding-top:56px;border-top:1px solid var(--border);}
                     </style>
                     <span class="home-section-label">
                         <span class="lang-pt">O acervo</span>

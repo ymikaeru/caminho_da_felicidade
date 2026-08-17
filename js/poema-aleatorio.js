@@ -1,8 +1,12 @@
 /* =============================================================
-   poema-aleatorio.js — card "Poema do Momento" na home (index.html)
-   Sorteia uma poesia ALEATÓRIA a cada visita (dados: poetry_pool.json,
-   Akemaro Kin'eishū, com deep-link ?poem=<id> válido no leitor do
-   Caminho). Botão 🔀 troca por outra sem recarregar.
+   poema-aleatorio.js — card "Poema do Momento"
+   Sorteia uma poesia ALEATÓRIA a cada visita, com deep-link ?poem=<id>
+   válido no leitor de cada coletânea. Botão 🔀 troca por outra sem
+   recarregar.
+
+   Serve as DUAS homes, mudando só o pool (data-pool na <section>):
+     index.html → poetry_pool.json      (só o Akemaro Kin'eishū)
+     poesia.html → poetry_pool_all.json (as seis coletâneas da seção)
 
    BILÍNGUE: no modo japonês some tudo que é apoio pra quem não lê
    japonês — romaji, tradução e título em português —, e o nome da
@@ -80,7 +84,7 @@
 
   async function init() {
     try {
-      const res = await fetch('data/poetry/poetry_pool.json?v=2');
+      const res = await fetch(sec.dataset.pool || 'data/poetry/poetry_pool.json?v=2');
       poems = (await res.json()).poems || [];
     } catch (e) {
       return; // sem dados, o card simplesmente não aparece

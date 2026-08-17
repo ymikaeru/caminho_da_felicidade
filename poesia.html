@@ -42,6 +42,134 @@
             line-height: 1.6;
             margin: 0 0 22px;
         }
+
+        /* ── Poema do Momento ──────────────────────────────────────
+           Mesmo card da home do site (index.html), mas sorteando entre as
+           SEIS coletâneas desta seção — ver data-pool na <section>. O estilo
+           é repetido aqui, e não movido pro CSS compartilhado, porque o da
+           home depende de regras escopadas em .home-page (rótulo de bloco) e
+           mexer nelas mudaria a home.
+           Aqui ele vem ANTES do catálogo: quem chega já lê um poema em vez
+           de ter que escolher uma coletânea primeiro. */
+        .poema-momento {
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 26px 0;
+            margin: 0 0 56px;
+        }
+
+        .poema-momento__head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .poema-momento__kicker {
+            font-family: var(--font-ui);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--accent);
+        }
+
+        .poema-momento__shuffle {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color .2s, border-color .2s, background .2s;
+        }
+
+        .poema-momento__shuffle:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .poema-momento__shuffle svg { width: 17px; height: 17px; }
+
+        .poema-momento__body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 52px;
+            align-items: start;
+        }
+
+        /* pre-line: os kanku do Warai no Izumi (e alguns tanka) trazem a
+           quebra de verso no próprio texto — sem isto virariam uma linha só. */
+        .poema-momento__jp {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.9;
+            letter-spacing: .06em;
+            color: var(--text-main);
+            white-space: pre-line;
+        }
+
+        .poema-momento__rj {
+            font-family: var(--font-serif);
+            font-size: 14px;
+            font-style: italic;
+            color: var(--text-muted);
+            line-height: 1.6;
+            letter-spacing: .02em;
+            margin: 10px 0 0;
+            white-space: pre-line;
+        }
+
+        .poema-momento__pt {
+            font-family: var(--font-serif);
+            font-size: 18px;
+            line-height: 1.7;
+            margin: 0;
+            color: var(--text-main);
+            white-space: pre-line;
+        }
+
+        .poema-momento__meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .poema-momento__col {
+            font-family: var(--font-ui);
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: .02em;
+            opacity: .8;
+        }
+
+        .poema-momento__link {
+            margin-left: auto;
+            font-family: var(--font-ui);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .poema-momento__link:hover { text-decoration: underline; }
+
+        /* Sem a tradução ao lado, a grade de 2 colunas deixaria metade vazia. */
+        html[lang="ja"] .poema-momento__body { grid-template-columns: 1fr; }
+
+        @media (max-width: 640px) {
+            .poema-momento__body { grid-template-columns: 1fr; gap: 22px; }
+        }
     </style>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="manifest.json">
@@ -54,6 +182,7 @@
     <script src="js/language.js?v=14" defer></script>
     <script src="js/typography.js?v=2" defer></script>
     <script src="js/search.min.js?v=57" defer></script>
+    <script src="js/poema-aleatorio.js?v=5" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';
@@ -115,6 +244,46 @@
                     <span class="lang-ja" style="display:none">明主様御自身による六つの詩歌集 —
                         古典的な短歌、近詠の短歌、世俗を笑う庶民的な詩集、そして御讃歌集三巻。</span>
                 </p>
+
+                <!-- Sorteia entre as SEIS coletâneas desta seção (data-pool),
+                     ao contrário do card da home do site, que fica só no
+                     Akemaro Kin'eishū. Nasce hidden: aparece quando o pool
+                     chega (js/poema-aleatorio.js). -->
+                <section id="poemaMomento" class="poema-momento" hidden
+                    data-pool="data/poetry/poetry_pool_all.json?v=1" aria-labelledby="poema-momento-title">
+                    <div class="poema-momento__head">
+                        <span class="poema-momento__kicker" id="poema-momento-title">
+                            <span class="lang-pt">Poema do Momento</span>
+                            <span class="lang-ja" style="display:none">御歌</span>
+                        </span>
+                        <button type="button" id="poemaMomentoShuffle" class="poema-momento__shuffle"
+                            title="Outra poesia" aria-label="Mostrar outra poesia">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="poema-momento__body">
+                        <div>
+                            <div class="poema-momento__jp" id="pmJp"></div>
+                            <!-- romaji e tradução são apoios pra quem NÃO lê japonês;
+                                 .lang-pt faz o setLanguage escondê-los no modo JA -->
+                            <p class="poema-momento__rj lang-pt" id="pmRj"></p>
+                        </div>
+                        <p class="poema-momento__pt lang-pt" id="pmPt"></p>
+                    </div>
+                    <div class="poema-momento__meta">
+                        <span class="poema-momento__col">
+                            <span class="lang-pt" id="pmTitle"></span><span class="lang-pt" id="pmColPt"></span><span
+                                class="lang-ja" style="display:none" id="pmColJa"></span>
+                        </span>
+                        <a class="poema-momento__link" id="pmLink" href="poesia.html">
+                            <span class="lang-pt">Ler na coletânea →</span>
+                            <span class="lang-ja" style="display:none">歌集で読む →</span>
+                        </a>
+                    </div>
+                </section>
 
                 <section class="poetry-hub__section">
                     <div class="poetry-hub__section-label"><span class="lang-pt">Poesia Lírica</span><span

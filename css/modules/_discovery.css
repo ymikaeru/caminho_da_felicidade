@@ -39,27 +39,34 @@
 
 .disc-filters__label {
   font-family: var(--font-ui);
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-right: 2px;
+  font-size: 13px;
+  color: var(--text-main);
+  margin-right: 4px;
 }
 
+/* MESMA pílula dos chips da busca (.search-mode-btn): raio total, tamanho e
+   estados iguais. Antes eram retângulos de 9px em fonte menor, e liam como
+   ETIQUETA em vez de botão — quem já usou a busca reconhece este controle de
+   imediato, e familiaridade vale mais que invenção. */
 .disc-chip {
-  min-height: 34px; /* alvo de toque — o público inclui idosos */
-  padding: 5px 12px;
+  min-height: 36px; /* alvo de toque — o público inclui idosos */
+  padding: 6px 14px;
   border: 1px solid var(--border);
-  border-radius: 9px;
+  border-radius: 999px;
   background: transparent;
   color: var(--text-muted);
   font-family: var(--font-ui);
-  font-size: 12px;
+  font-size: 0.86rem;
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 
-.disc-chip:hover {
-  color: var(--text-main);
-  border-color: var(--text-muted);
+.disc-chip:hover,
+.disc-chip:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  outline: none;
 }
 
 .disc-chip.is-on {

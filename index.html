@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&display=swap">
-    <link rel="stylesheet" href="css/styles.min.css?v=230">
+    <link rel="stylesheet" href="css/styles.min.css?v=232">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -90,24 +90,42 @@
                          A citação NÃO é clicável; só a atribuição leva ao Ensinamento, para
                          não sequestrar o clique de quem quer começar a ler agora. -->
                     <style>
-                        /* Medida mais estreita que o corpo do site: são 3 frases
-                           centralizadas, e linha longa + centralizado cansa a leitura. */
-                        .home-quote{max-width:600px;margin:0 auto 32px;padding:0;border:0;text-align:center;}
-                        .home-quote__text{font-family:var(--font-serif);font-size:16px;line-height:1.8;font-style:italic;color:var(--text-main);margin:0 0 12px;text-wrap:pretty;}
-                        .home-quote__cite{display:block;font-family:var(--font-ui);font-size:12px;font-style:normal;color:var(--text-muted);letter-spacing:.02em;}
-                        .home-quote__cite a{color:inherit;text-decoration:none;border-bottom:1px solid transparent;transition:color .2s,border-color .2s;}
-                        .home-quote__cite a:hover{color:var(--accent);border-bottom-color:var(--accent);}
-                        @media (max-width:640px){.home-quote__text{font-size:15px;line-height:1.75;}}
+                        /* Epígrafe, não módulo. O Poema do Momento é um card com borda;
+                           repetir a mesma caixa aqui daria dois boxes empilhados e tiraria
+                           o ar do topo. Então a citação ganha a MESMA gramática (rótulo →
+                           corpo → fonte) com tratamento diferente: filete de acento no
+                           lugar da borda, e texto alinhado à esquerda — cinco linhas
+                           centralizadas obrigam o olho a procurar onde cada uma começa. */
+                        .home-quote{max-width:620px;margin:4px auto 56px;padding:26px 0 0;border:0;border-top:1px solid var(--border);text-align:left;}
+                        /* Rótulo discreto, não dourado: aqui ele organiza, não chama.
+                           O ouro fica reservado às AÇÕES da página (o botão logo abaixo). */
+                        .home-quote__kicker{display:block;font-family:var(--font-ui);font-size:10px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--text-muted);margin-bottom:20px;}
+                        /* Sem itálico: em cinco linhas ele vira ornamento e cansa. Romano
+                           com entrelinha larga lê como voz calma — que é o registro certo. */
+                        .home-quote__text{font-family:var(--font-serif);font-size:18px;line-height:1.85;font-style:normal;color:var(--text-main);margin:0 0 22px;text-wrap:pretty;}
+                        .home-quote__cite{display:block;font-family:var(--font-ui);font-size:11px;font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
+                        .home-quote__cite a{color:inherit;text-decoration:none;transition:color .2s;}
+                        .home-quote__cite a:hover{color:var(--accent);}
+                        @media (max-width:640px){
+                            .home-quote{margin-bottom:40px;padding-top:22px;}
+                            .home-quote__text{font-size:16.5px;line-height:1.8;}
+                            .home-quote__cite{letter-spacing:.06em;}
+                        }
                     </style>
                     <blockquote class="home-quote">
+                        <span class="home-quote__kicker">
+                            <span class="lang-pt">A base deste acervo</span>
+                            <span class="lang-ja" style="display:none">この文庫の礎</span>
+                        </span>
                         <p class="home-quote__text">
-                            <span class="lang-pt">“Lendo os Escritos Divinos o máximo possível, quanto mais se lê, mais
-                                profunda se torna a fé e mais a alma é aprimorada. Aqueles que negligenciam a leitura dos
-                                Escritos Divinos perdem gradualmente a sua força. Quanto mais a fé se aprofunda, mais se
-                                deseja ler avidamente e é bom ler repetidas vezes até que seja assimilado no
-                                íntimo.”</span>
+                            <span class="lang-pt">“Leiam as Escrituras Sagradas o quanto puderem, pois, quanto mais se
+                                lê, mais profunda se torna a fé e mais se pole a alma. Aquele que descuida da leitura
+                                reverente das Escrituras Sagradas vê sua força espiritual diminuir pouco a pouco. Quanto
+                                mais integral se torna a fé, mais se sente vontade de ler com avidez; e convém ler
+                                repetidas e repetidas vezes, até que o Ensinamento penetre no íntimo. Evidentemente,
+                                quanto mais se lê, mais claramente se compreende a Vontade Divina.”</span>
                             <span class="lang-ja"
-                                style="display:none">「読めば読む程信仰が深くなり、魂が磨けるのである。御神書の拝読を疎かにする者は、力がだんだん減るものである。信仰が徹底すればするほど、貪るように読みたくなるもので、繰り返し繰り返し肚にはいるまで読むのがよいのである」</span>
+                                style="display:none">「読めば読む程信仰が深くなり、魂が磨けるのである。御神書の拝読を疎かにする者は、力がだんだん減るものである。信仰が徹底すればするほど、貪るように読みたくなるもので、繰り返し繰り返し肚にはいるまで読むのがよいのである。勿論読めば読むほどご神意がはっきり分るものである」</span>
                         </p>
                         <cite class="home-quote__cite">
                             <a href="reader.html?vol=mioshiec3&amp;file=haidoku1.html">
@@ -469,7 +487,7 @@
     </script>
     <script type="module" src="js/login.js?v=16"></script>
     <script src="js/access.js?v=6"></script>
-    <script src="js/modals.js?v=33"></script>
+    <script src="js/modals.js?v=39"></script>
     <script src="js/highlights.min.js?v=36" defer></script>
     <script src="js/recommendations.js?v=62" defer></script>
     <script src="js/study-messages.js?v=3" defer></script>

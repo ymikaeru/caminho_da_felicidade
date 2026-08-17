@@ -584,8 +584,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 first: '✓ Leitura registrada',
                 nth: (n) => `✓ ${n}ª leitura registrada`,
                 undo: 'Desfazer',
-                hint: '<strong>Reler é parte do caminho</strong> — “é bom ler repetidas vezes até que ' +
-                      'seja assimilado no íntimo”. Você reencontra este Ensinamento em ' +
+                hint: '<strong>Reler é parte do caminho</strong> — “convém ler repetidas e repetidas ' +
+                      'vezes, até que o Ensinamento penetre no íntimo”. Você reencontra este Ensinamento em ' +
                       '<a href="lidos.html">Lidos</a>, e pode filtrar sua busca só pelo que já leu.'
             },
             ja: {

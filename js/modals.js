@@ -348,8 +348,8 @@ window.buildMyConversationsModal = buildMyConversationsModal;
     pt: {
       title: 'Descobrir um Ensinamento', prev: '← Anterior', next: 'Próximo →',
       open: 'Abrir o Ensinamento', save: 'Guardar pra depois', saved: '✓ Guardado',
-      reread: 'você já leu — vale reler', from: 'de:', all: 'Todo o acervo',
-      loading: 'Sorteando...', poetry: 'Poesia',
+      reread: 'você já leu — vale reler', from: 'Descobrir em:', all: 'Todo o acervo',
+      loading: 'Um momento…', poetry: 'Poesia',
       openPoem: 'Ler no leitor',
       savedIn: (p) => '✓ Guardado em Salvos › ' + p,
       savedNoFolder: '✓ Guardado em Salvos', folderName: 'Para ler depois',
@@ -363,7 +363,7 @@ window.buildMyConversationsModal = buildMyConversationsModal;
       title: '御縁の御教え', prev: '← 前へ', next: '次へ →',
       open: '御教えを開く', save: 'あとで読む', saved: '✓ 保存しました',
       reread: '拝読済み — 繰り返し拝読を', from: '範囲:', all: '全巻',
-      loading: '選んでいます...', poetry: '御歌',
+      loading: 'お待ちください…', poetry: '御歌',
       openPoem: '読む',
       savedIn: (p) => '✓ 保存したもの › ' + p,
       savedNoFolder: '✓ 保存しました', folderName: 'あとで読む',
@@ -375,6 +375,10 @@ window.buildMyConversationsModal = buildMyConversationsModal;
     }
   };
   const _dT = () => D[_dLang()] || D.pt;
+
+  // Só o Vol. 4 encurta: "Ensinamentos Diversos" quebrava a barra de filtros
+  // pra uma segunda linha sozinho. Os demais já cabem.
+  const CHIP_CURTO = { pt: { 4: 'Diversos' }, ja: { 4: 'その他' } };
 
   // Corta no último espaço pra não partir palavra ao meio.
   function _dTrim(s, max) {
@@ -432,12 +436,20 @@ window.buildMyConversationsModal = buildMyConversationsModal;
             '" data-vol="">' + _escModal(t.all) + '</button>';
     for (let n = 1; n <= 4; n++) {
       const v = 'mioshiec' + n;
-      const nm = (ja ? subs.ja : subs.pt)[n] || v;
+      // Nome curto só no chip, pra a barra caber numa linha. O nome completo
+      // continua na linha de origem do cartão, logo acima do título — e o
+      // title= dá o inteiro a quem passar o mouse.
+      const nmCheio = (ja ? subs.ja : subs.pt)[n] || v;
+      const nm = CHIP_CURTO[ja ? 'ja' : 'pt'][n] || nmCheio;
       html += '<button type="button" class="disc-chip' + (_dVol === v ? ' is-on' : '') +
-              '" data-vol="' + v + '">' + _escModal(nm) + '</button>';
+              '" data-vol="' + v + '" title="' + _escModal(nmCheio) + '">' +
+              _escModal(nm) + '</button>';
     }
-    html += '<button type="button" class="disc-chip' + (_dVol === 'poetry' ? ' is-on' : '') +
-            '" data-vol="poetry">' + _escModal(t.poetry) + '</button>';
+    // Chip de Poesia retirado por ora. O caminho continua INTEIRO e testado
+    // (pool, sorteio, render do waka, identidade do favorito) — openDiscovery('poetry')
+    // funciona; falta só o botão. Pra reativar, devolva esta linha:
+    //   html += '<button type="button" class="disc-chip' + (_dVol === 'poetry' ? ' is-on' : '') +
+    //           '" data-vol="poetry">' + _escModal(t.poetry) + '</button>';
     box.innerHTML = html;
     box.querySelectorAll('[data-vol]').forEach(b => b.addEventListener('click', () => {
       _dVol = b.dataset.vol || null;
@@ -832,8 +844,8 @@ window.buildMyConversationsModal = buildMyConversationsModal;
          'As Obras Poéticas também entram no sorteio.'],
         ['Registrar leitura',
          '“Marcar como lido” deu lugar a “Registrar leitura”, e agora cada leitura é ' +
-         'contada. A releitura é parte do caminho: “é bom ler repetidas vezes até que ' +
-         'seja assimilado no íntimo”.']
+         'contada. A releitura é parte do caminho: “convém ler repetidas e repetidas vezes, ' +
+         'até que o Ensinamento penetre no íntimo”.']
       ],
       ok: 'Entendi'
     },

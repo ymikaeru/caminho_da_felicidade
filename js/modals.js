@@ -380,6 +380,17 @@ window.buildMyConversationsModal = buildMyConversationsModal;
   // pra uma segunda linha sozinho. Os demais já cabem.
   const CHIP_CURTO = { pt: { 4: 'Diversos' }, ja: { 4: 'その他' } };
 
+  // Subtítulos dos cards de volume da home (.topic-card__tagline). No título
+  // do chip eles dizem o QUE se vai encontrar ali — "Mundo Espiritual" nomeia,
+  // "Revelações Sagradas" descreve. Vale sobretudo pro Vol. 4, cujo chip
+  // aparece encurtado.
+  const VOL_TAGLINE = {
+    pt: { 1: 'Revelações Sagradas', 2: 'Em Serviço ao Próximo',
+          3: 'Polimento da Alma',   4: 'Estudo Complementar' },
+    ja: { 1: '神聖な啓示', 2: '隣人への奉仕',
+          3: '魂の研磨', 4: '補足の学び' }
+  };
+
   // Corta no último espaço pra não partir palavra ao meio.
   function _dTrim(s, max) {
     s = String(s || '').trim();
@@ -441,8 +452,15 @@ window.buildMyConversationsModal = buildMyConversationsModal;
       // title= dá o inteiro a quem passar o mouse.
       const nmCheio = (ja ? subs.ja : subs.pt)[n] || v;
       const nm = CHIP_CURTO[ja ? 'ja' : 'pt'][n] || nmCheio;
+      // Só o subtítulo: o nome do volume já está escrito no próprio chip,
+      // repeti-lo na dica seria eco. A exceção é o Vol. 4, que aparece
+      // encurtado — por isso a dica dele traz o nome inteiro também.
+      const tag = VOL_TAGLINE[ja ? 'ja' : 'pt'][n];
+      const encurtado = !!CHIP_CURTO[ja ? 'ja' : 'pt'][n];
+      const dica = !tag ? nmCheio
+                 : (encurtado ? nmCheio + (ja ? '―' : ' — ') + tag : tag);
       html += '<button type="button" class="disc-chip' + (_dVol === v ? ' is-on' : '') +
-              '" data-vol="' + v + '" title="' + _escModal(nmCheio) + '">' +
+              '" data-vol="' + v + '" title="' + _escModal(dica) + '">' +
               _escModal(nm) + '</button>';
     }
     // Chip de Poesia retirado por ora. O caminho continua INTEIRO e testado

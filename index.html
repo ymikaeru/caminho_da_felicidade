@@ -189,6 +189,9 @@
                         .poema-momento__col{font-family:var(--font-ui);font-size:12px;color:var(--text-muted);letter-spacing:.02em;opacity:.8;}
                         .poema-momento__link{margin-left:auto;font-family:var(--font-ui);font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;}
                         .poema-momento__link:hover{text-decoration:underline;}
+                        /* Sem a tradução ao lado, a grade de 2 colunas deixaria metade
+                           vazia. */
+                        html[lang="ja"] .poema-momento__body{grid-template-columns:1fr;}
                         @media (max-width:640px){.poema-momento__body{grid-template-columns:1fr;gap:22px;}}
                     </style>
                     <section id="poemaMomento" class="poema-momento" hidden aria-labelledby="poema-momento-title">
@@ -206,12 +209,18 @@
                         <div class="poema-momento__body">
                             <div>
                                 <div class="poema-momento__jp" id="pmJp"></div>
-                                <p class="poema-momento__rj" id="pmRj"></p>
+                                <!-- romaji e tradução são apoios pra quem NÃO lê japonês;
+                                     .lang-pt faz o setLanguage escondê-los no modo JA -->
+                                <p class="poema-momento__rj lang-pt" id="pmRj"></p>
                             </div>
-                            <p class="poema-momento__pt" id="pmPt"></p>
+                            <p class="poema-momento__pt lang-pt" id="pmPt"></p>
                         </div>
                         <div class="poema-momento__meta">
-                            <span class="poema-momento__col" id="pmCol"></span>
+                            <span class="poema-momento__col">
+                                <span class="lang-pt" id="pmTitle"></span><span class="lang-pt"
+                                    id="pmColPt"></span><span class="lang-ja" style="display:none"
+                                    id="pmColJa"></span>
+                            </span>
                             <a class="poema-momento__link" id="pmLink" href="poesia.html">
                                 <span class="lang-pt">Ler no leitor →</span>
                                 <span class="lang-ja" style="display:none">読む →</span>
@@ -557,7 +566,7 @@
     <script src="js/recommendations.js?v=62" defer></script>
     <script src="js/study-messages.js?v=3" defer></script>
     <script src="js/playlists-loader.js?v=9" defer></script>
-    <script src="js/poema-aleatorio.js?v=2" defer></script>
+    <script src="js/poema-aleatorio.js?v=4" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => { buildSearchModal(); buildHistoryModal(); buildFavoritesModal(); buildHighlightsModal(); buildRecommendationsModal(); initSmartHome(); if (typeof revealPage === 'function') revealPage(); if (typeof initRecommendations === 'function') initRecommendations(); if (typeof initStudyMessages === 'function') initStudyMessages(); });
     </script>

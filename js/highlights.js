@@ -1463,13 +1463,22 @@
     return { startChar: start, endChar: end, text: fullText.slice(start, end) };
   }
 
+  // Fronteira entre cabeçalho e corpo do tópico. Era a .topic-save-bar, que
+  // ficava logo abaixo do título; desde que os botões foram para o FIM do
+  // Ensinamento, quem marca esse ponto é o .topic-read-anchor (a tarja de
+  // leitura, que herdou o lugar). O fallback cobre markup antigo em cache.
+  function _headerBoundary(topicEl) {
+    if (!topicEl) return null;
+    return topicEl.querySelector('.topic-read-anchor') || topicEl.querySelector('.topic-save-bar');
+  }
+
   // Range do TÍTULO do tópico — só o <b> do cabeçalho, SEM a linha de data
   // "(Publicado em ...)" (pedido de usuário). Usado pelo modo grifar quando o
   // toque cai no cabeçalho: um toque seleciona o título completo, como
-  // _tapRange faz com frases. Reserva: sem <b> antes da save-bar, cai no
-  // cabeçalho inteiro (tudo antes da .topic-save-bar).
+  // _tapRange faz com frases. Reserva: sem <b> antes da fronteira, cai no
+  // cabeçalho inteiro (tudo antes dela).
   function _titleRange(topicEl) {
-    const saveBar = topicEl.querySelector('.topic-save-bar');
+    const saveBar = _headerBoundary(topicEl);
     if (!saveBar) return null;
     const textNodes = _collectTextNodes(topicEl);
     if (!textNodes.length) return null;
@@ -1496,12 +1505,12 @@
   }
 
   // Primeiro caractere do CORPO do tópico: depois do cabeçalho (título/data),
-  // da .topic-save-bar e do CTA de citação parcial. Necessário porque muitos
+  // do .topic-read-anchor e do CTA de citação parcial. Necessário porque muitos
   // corpos são formatados só com <br> (sem <p> — _normalizeContent converte
   // parágrafos em <br>): aí não existe fronteira de bloco e a "frase" da 1ª
   // linha recuaria até o char 0, selecionando o título junto.
   function _bodyStartChar(topicEl, textNodes) {
-    const saveBar = topicEl.querySelector('.topic-save-bar');
+    const saveBar = _headerBoundary(topicEl);
     if (!saveBar) return 0;
     let start = 0;
     for (const tn of textNodes) {
@@ -2106,7 +2115,7 @@
     // Toques na própria barra/botão e em elementos interativos (Salvar, links,
     // CTAs) seguem o fluxo normal — não os engolimos como "grifar".
     if (e.target.closest('.highlight-taps-bar') || e.target.closest('#hlTapModeBtn')) return;
-    if (e.target.closest('button, a, .topic-save-bar')) return;
+    if (e.target.closest('button, a, .topic-save-bar, .topic-read-anchor')) return;
 
     const topicId = _getTopicIdFromNode(e.target);
     if (!topicId) return;                 // tocou fora do conteúdo
@@ -2202,9 +2211,9 @@
     const topicId = _getTopicIdFromNode(node);
     if (!topicId || !/^topic-\d+$/.test(topicId)) return null;
     const topicEl = document.getElementById(topicId);
-    const saveBar = topicEl && topicEl.querySelector('.topic-save-bar');
+    const saveBar = _headerBoundary(topicEl);
     if (!saveBar) return null;
-    // node ANTES da save-bar (em ordem de documento) = está no cabeçalho/título
+    // node ANTES da fronteira (em ordem de documento) = está no cabeçalho/título
     const pos = saveBar.compareDocumentPosition(node);
     if (pos & Node.DOCUMENT_POSITION_PRECEDING) {
       return { topicId, topicIdx: parseInt(topicId.replace('topic-', ''), 10) };

@@ -1,10 +1,10 @@
 {
   "_comment": "Gerado por tests/update_sync_registry.mjs — NÃO editar à mão. Ver tests/sync.test.mjs.",
-  "blessedAt": "2026-08-17T02:21:47.858Z",
+  "blessedAt": "2026-08-17T16:12:21.667Z",
   "files": {
     "js/reader-content.js": "449dbefa08c0ba928893738f1fa56b1a342261999405c4a5bd689d8de2122a67",
     "js/align-engine.js": "47071dae00ca779059ba733aaa1fdb3a6871002350e585a1774f96c579d69e81",
-    "js/reader-render.js": "0b56bd9724126742e7b9354bb49818b0f6313cc9a547ea4588104039511f2a55",
+    "js/reader-render.js": "df3dd89d770d69de8ba10e6e28045b9ce585a8365376f4b8f2b32a7950cbd4c2",
     "scripts/_glued_fix_lib.mjs": "84f0765b11db441684c3dc93b93b7f4147caab959c15b1de49fcdf250684bb11",
     "supabase/functions/_shared/topic_normalize.mjs": "20eb302e9abc80efe6216437a729ea660b8e74808b89f55216ea676d6ab8d679"
   }

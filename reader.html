@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@300;400;500&display=swap">
-  <link href="css/styles.min.css?v=232" rel="stylesheet" />
+  <link href="css/styles.min.css?v=236" rel="stylesheet" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -40,7 +40,10 @@
     <div class="save-tooltip-title" id="saveTooltipTitle"></div>
     <div class="save-tooltip-status" id="saveTooltipStatus"></div>
     <div class="save-tooltip-hint" id="saveTooltipHint" style="display:none"></div>
-    <button type="button" class="save-tooltip-undo" id="saveTooltipUndo" style="display:none"></button>
+    <div class="save-tooltip-actions" id="saveTooltipActions" style="display:none">
+      <button type="button" class="save-tooltip-minus" id="saveTooltipMinus"></button>
+      <button type="button" class="save-tooltip-done" id="saveTooltipDone"></button>
+    </div>
     <a class="save-tooltip-link" id="saveTooltipLink" href="salvos.html" style="display:none"></a>
     <div class="save-tooltip-folders" id="saveTooltipFolders" style="display:none"></div>
   </div>
@@ -77,24 +80,50 @@
       display: flex; align-items: center; justify-content: center;
     }
     .save-tooltip-close:hover { color: var(--text-main); }
+    /* Segunda linha do status: a contagem atual, quando a primeira linha não
+       carrega o número (ex.: "Uma leitura removida" → "1 leitura registrada"). */
+    .save-tooltip-sub { display: inline-block; margin-top: 3px; opacity: 0.75; }
     .save-tooltip-link {
       display: inline-block; margin-top: 5px; font-size: 0.76rem;
       color: var(--accent); text-decoration: none; pointer-events: auto;
       font-family: "Outfit", sans-serif;
     }
     .save-tooltip-link:hover { text-decoration: underline; }
-    /* Desfazer o registro de leitura (engano de toque). Como o .save-tooltip
-       tem pointer-events:none, precisa reativar o clique aqui. */
-    .save-tooltip-undo {
-      display: inline-block; margin-top: 7px; padding: 6px 14px;
-      min-height: 34px; font-size: 0.76rem;
-      font-family: "Outfit", sans-serif;
-      background: transparent; color: var(--text-muted);
-      border: 1px solid var(--border); border-radius: 6px;
-      cursor: pointer; pointer-events: auto;
-      transition: color .2s ease, border-color .2s ease;
+    /* Ações do aviso de leitura. Como o .save-tooltip tem pointer-events:none,
+       a linha precisa reativar o clique.
+       Isto NÃO é um liga/desliga: tocar o botão do Ensinamento de novo não
+       cancela nada (é um contador). Por isso o cancelar é explícito e escrito
+       — "− Tirar uma leitura" —, e "Fechar" é o botão sólido, pra quem só
+       quer dispensar o aviso não acabar mexendo no registro. */
+    .save-tooltip-actions {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      align-items: center; justify-content: center;
+      margin-top: 12px; pointer-events: auto;
     }
-    .save-tooltip-undo:hover { color: var(--text-main); border-color: var(--text-muted); }
+    .save-tooltip-minus {
+      order: 1;
+      font-family: "Outfit", sans-serif; font-size: 0.76rem;
+      min-height: 36px; /* alvo de toque — público inclui idosos */
+      padding: 6px 14px; border-radius: 6px; white-space: nowrap;
+      cursor: pointer; pointer-events: auto;
+      background: transparent; color: var(--text-muted);
+      border: 1px solid var(--border);
+      transition: color .2s ease, border-color .2s ease, opacity .2s ease;
+    }
+    .save-tooltip-minus:hover { color: var(--text-main); border-color: var(--text-muted); }
+    .save-tooltip-minus:disabled { opacity: 0.35; cursor: default; }
+    .save-tooltip-minus:disabled:hover { color: var(--text-muted); border-color: var(--border); }
+    .save-tooltip-done {
+      order: 2;
+      font-family: "Outfit", sans-serif; font-size: 0.76rem; font-weight: 600;
+      min-height: 36px; padding: 6px 18px; border-radius: 6px;
+      white-space: nowrap; cursor: pointer; pointer-events: auto;
+      background: rgba(128, 128, 128, 0.12); /* fallback iOS < 16.2 */
+      background: color-mix(in srgb, var(--text-main) 12%, transparent);
+      color: var(--text-main); border: 1px solid var(--border);
+      transition: border-color .2s ease;
+    }
+    .save-tooltip-done:hover { border-color: var(--text-muted); }
     /* Explicação mostrada UMA vez, na primeira leitura registrada: é o momento
        em que a pergunta "o que isso faz?" está viva. Depois some pra sempre. */
     .save-tooltip-hint {
@@ -103,6 +132,14 @@
       color: var(--text-muted); pointer-events: auto;
     }
     .save-tooltip-hint a { color: var(--accent); }
+    /* A citação é o motivo de existir um contador em vez de um "lido" — ela
+       tem mais peso que os controles, não menos. */
+    .save-tooltip-hint--quote {
+      text-align: center; font-style: italic;
+      font-size: 0.9rem; line-height: 1.6;
+      color: var(--text-main); opacity: 0.9;
+      margin-top: 12px; padding: 11px 4px 0;
+    }
     /* O .save-tooltip tem pointer-events:none (era só um aviso). A área de
        pastas precisa reativar o clique, senão os chips não recebem o toque. */
     .save-tooltip-folders { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; pointer-events: auto; }
@@ -318,12 +355,12 @@
   <script src="js/search.min.js?v=57" defer></script>
   <script src="js/marked.min.js" defer></script>
   <script src="js/reader-content.js?v=8" defer></script>
-  <script src="js/reader-render.min.js?v=51" defer></script>
-  <script src="js/highlights.min.js?v=36" defer></script>
+  <script src="js/reader-render.min.js?v=57" defer></script>
+  <script src="js/highlights.min.js?v=37" defer></script>
   <script src="js/content-protection.js?v=8" defer></script>
   <script src="js/first-visit-tips.js?v=2" defer></script>
   <script src="js/translation-report.js?v=4" defer></script>
-  <script src="js/reader.js?v=40" defer></script>
+  <script src="js/reader.js?v=41" defer></script>
   <script>
     // disciples-reader (~54 KB) só atua em ?pub=disciples — fora desse modo
     // nem baixa. O boot dele tolera injeção tardia (checa readyState e

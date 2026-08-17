@@ -65,6 +65,19 @@
   flex-wrap: wrap;
 }
 
+/* Barra no FIM do Ensinamento: é onde a pessoa está quando termina de ler.
+   Precisa de ar dos dois lados — encostada na divisória, parecia pertencer
+   ao Ensinamento seguinte. */
+.topic-save-bar--end {
+  margin: 34px 0 34px;
+}
+
+/* Âncora invisível abaixo do título (rótulo legado display:none). Não pode
+   ocupar espaço nenhum: sem margem, sem padding, altura zero. */
+.topic-read-anchor {
+  display: flex;
+}
+
 .topic-save-btn {
   display: inline-flex;
   align-items: center;
@@ -103,8 +116,10 @@
 }
 
 /* Label antiga foi escondida — botões agora são icon-only com title=tooltip.
-   data-save / data-saved no span continuam pra retrocompat. de JS antigo. */
-.topic-save-btn .topic-save-label {
+   data-save / data-saved no span continuam sendo lidos por updateFavIndicators.
+   Seletor SEM escopo de propósito: o span mora no .topic-read-anchor (âncora
+   de offsets dos grifos), não mais dentro do botão. */
+.topic-save-label {
   display: none;
 }
 

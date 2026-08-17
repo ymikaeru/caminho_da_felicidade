@@ -140,8 +140,34 @@ function _buildPartialCitationCTA(volId, filename, topicIdx, lang) {
     } catch (_) { return ''; }
 }
 
+function _saveBarLabels(lang) {
+    return { pt: { save: 'Salvar esta publicação', saved: 'Publicação salva' }, ja: { save: 'この教えを保存', saved: '保存済み' } }[lang]
+        || { save: 'Salvar esta publicação', saved: 'Publicação salva' };
+}
+
+// Fica logo abaixo do título, no lugar onde a barra de botões ficava, e é
+// INVISÍVEL: tudo que se vê (botões e tarja de leitura) foi para o FIM do
+// Ensinamento (_buildTopicSaveBar) — é lá que a pessoa está quando termina
+// de ler. Este bloco existe por dois motivos: guardar a âncora de offsets
+// abaixo e marcar a fronteira cabeçalho/corpo para o modo grifar
+// (_headerBoundary em highlights.js).
+//
+// ⚠ ÂNCORA DE OFFSETS — não mover, não remover, não trocar o texto:
+// o <span class="topic-save-label"> é display:none, mas É um nó de texto
+// dentro do #topic-N e os destaques salvos contam os caracteres dele
+// (_collectTextNodes em highlights.js). Ele ficou aqui, na posição de
+// sempre e com o mesmo texto, exatamente para que levar os botões pro fim
+// não deslocasse nenhum grifo já salvo. O estado de salvo vai pro
+// title/aria-label do botão (ver updateFavIndicators), nunca pro texto.
+function _buildTopicReadAnchor(topicIdx, lang) {
+    const l = _saveBarLabels(lang);
+    return `<div class="topic-read-anchor" data-topic-idx="${topicIdx}">` +
+        `<span class="topic-save-label" data-save="${l.save}" data-saved="${l.saved}">${l.save}</span>` +
+    `</div>`;
+}
+
 function _buildTopicSaveBar(topicIdx, lang) {
-    const l = { pt: { save: 'Salvar esta publicação', saved: 'Publicação salva' }, ja: { save: 'この教えを保存', saved: '保存済み' } }[lang] || { save: 'Salvar esta publicação', saved: 'Publicação salva' };
+    const l = _saveBarLabels(lang);
     // Bookmark (marcador): preenche bem no estado salvo. O ícone antigo de
     // "disquete" tinha o contorno externo fechado → fill virava um bloco sólido.
     const icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
@@ -160,12 +186,6 @@ function _buildTopicSaveBar(topicIdx, lang) {
         `<button type="button" class="topic-save-btn topic-read-btn" data-topic-idx="${topicIdx}" title="${lr.read}" aria-label="${lr.read}" onclick="if (typeof window.toggleReadMark === 'function') window.toggleReadMark(${topicIdx});">` +
             readIcon +
         `</button>`;
-    // Tarja "Você leu este Ensinamento em ..." — span VAZIO, texto via CSS
-    // content:attr(data-label). NÃO pode virar nó de texto: os offsets de
-    // caractere dos destaques (_collectTextNodes em highlights.js) varrem o
-    // tópico inteiro, e texto condicional deslocaria grifos existentes.
-    const readBadge = `<span class="topic-read-badge" data-topic-idx="${topicIdx}" aria-hidden="true"></span>`;
-
     // Botões admin: "Adicionar à coletânea" + "Recomendar este ensinamento".
     // Ambos passam topic_idx explícito pros pickers — desambigua qual
     // ensinamento está sendo agido em páginas com múltiplos tópicos.
@@ -198,16 +218,50 @@ function _buildTopicSaveBar(topicIdx, lang) {
             `</button>`;
     }
 
-    return `<div class="topic-save-bar" data-topic-idx="${topicIdx}">` +
+    // Tarja "N leituras · última em ..." — span VAZIO, texto via CSS
+    // content:attr(data-label). NÃO pode virar nó de texto: os offsets dos
+    // destaques (_collectTextNodes em highlights.js) varrem o tópico inteiro,
+    // e texto condicional deslocaria grifos existentes.
+    //
+    // Fica AQUI, ao lado do botão que a alimenta: no topo ela oscilava entre
+    // antes e depois da linha da data (há Ensinamento com a data no cabeçalho
+    // e Ensinamento com a data no corpo), e quem registrava a leitura no fim
+    // do texto nunca via a contagem mudar.
+    const readBadge = `<span class="topic-read-badge" data-topic-idx="${topicIdx}" aria-hidden="true"></span>`;
+
+    // Sem NENHUM nó de texto: a barra fica no fim do #topic-N e os offsets
+    // dos destaques varrem o tópico inteiro. Rótulos só em title/aria-label.
+    // (O rótulo legado, que É texto, mora no _buildTopicReadAnchor.)
+    return `<div class="topic-save-bar topic-save-bar--end" data-topic-idx="${topicIdx}">` +
         `<button type="button" class="topic-save-btn" data-topic-idx="${topicIdx}" title="${l.save}" aria-label="${l.save}" onclick="window.toggleFavorite(${topicIdx})">` +
             icon +
-            `<span class="topic-save-label" data-save="${l.save}" data-saved="${l.saved}">${l.save}</span>` +
         `</button>` +
         readBtn +
         shareBtn +
         adminBtns +
         readBadge +
     `</div>`;
+}
+
+// Sobe a barra de ações para ANTES do rabo do Ensinamento — a divisória
+// <hr/> da retradução e os <p> vazios que costumam vir com ela. Sem isso os
+// botões caem do outro lado da linha e parecem pertencer ao Ensinamento
+// seguinte. Feito no DOM, e não por regex no HTML cru, porque a forma desse
+// rabo varia por volume (com/sem barra, <p> aberto, espaços).
+//
+// Seguro para os grifos: a barra não tem NENHUM nó de texto, então mudar de
+// lugar não mexe em offset nenhum (_collectTextNodes em highlights.js).
+function _placeEndBars(root) {
+    root.querySelectorAll('.topic-save-bar--end').forEach((bar) => {
+        let target = null;
+        for (let el = bar.previousElementSibling; el; el = el.previousElementSibling) {
+            const isTail = el.tagName === 'HR'
+                || (el.tagName === 'P' && !el.textContent.trim() && !el.querySelector('img'));
+            if (!isTail) break;
+            target = el;
+        }
+        if (target) target.parentNode.insertBefore(bar, target);
+    });
 }
 
 function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicTitle, hlScroll) {
@@ -505,7 +559,11 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         // topic_idx) — só some visualmente; favoritos/posições/grifos não mudam.
         const isCont = !!topicData.continues_previous;
         const topMargin = isCont ? '0' : (index > 0 ? '40px' : '0');
-        const topHeader = isCont ? '' : `${headerHTML}\n${_buildTopicSaveBar(index, lang)}\n${_buildPartialCitationCTA(volId, filename, index, lang)}`;
+        const topHeader = isCont ? '' : `${headerHTML}\n${_buildTopicReadAnchor(index, lang)}\n${_buildPartialCitationCTA(volId, filename, index, lang)}`;
+        // Barra de ações no FIM do Ensinamento (ver _buildTopicReadAnchor).
+        // O fragmento de continuação não tem barra própria — ele pertence ao
+        // Ensinamento anterior, que já tem a sua.
+        const endBar = isCont ? '' : `\n${_buildTopicSaveBar(index, lang)}`;
         const contClass = isCont ? ' topic-continuation' : '';
 
         const comparisonMode = localStorage.getItem('reader_comparison') === 'true';
@@ -557,10 +615,13 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
                 ${topHeader}
                 <div class="comparison-labels"><span>日本語</span><span>Português</span></div>
                 <div class="comparison-grid">${gridHtml}</div>
-                <div class="comparison-interleaved">${interleavedHtml}</div>
+                <div class="comparison-interleaved">${interleavedHtml}</div>${endBar}
             </div>`;
         } else {
-            contentHtml += `<div id="${topicId}" class="topic-content${contClass}" style="margin-top: ${topMargin};">\n${topHeader}\n${formatted}\n</div>`;
+            // A barra entra no fim do tópico; o ajuste fino de posição (antes
+            // da divisória que fecha o Ensinamento) é feito no DOM depois do
+            // render — ver _placeEndBars.
+            contentHtml += `<div id="${topicId}" class="topic-content${contClass}" style="margin-top: ${topMargin};">\n${topHeader}\n${formatted}${endBar}\n</div>`;
         }
     });
 
@@ -616,6 +677,7 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
             ${contentHtml}
             ${navFooter}
         </div>`;
+    _placeEndBars(container);
     requestAnimationFrame(() => requestAnimationFrame(() => {
         container.style.transition = 'opacity 0.3s ease';
         container.style.opacity = '1';
@@ -664,7 +726,9 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
                 // offsets dos destaques (_collectTextNodes) contam ele —
                 // "Salvar esta publicação"(22)↔"Publicação salva"(16) deslocava
                 // TODOS os grifos do Ensinamento em 6 chars ao (des)favoritar.
-                const labelEl = saveBtn.querySelector('.topic-save-label');
+                // O rótulo mora no .topic-read-anchor (topo), não mais dentro
+                // do botão — a busca é no tópico, não no botão.
+                const labelEl = topicEl.querySelector('.topic-save-label');
                 if (labelEl) {
                     const stateTxt = isSaved ? labelEl.dataset.saved : labelEl.dataset.save;
                     saveBtn.title = stateTxt;

@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // clone não toca no DOM vivo — os offsets dos grifos contam
                 // os nós reais do tópico.
                 const clone = topicEl.cloneNode(true);
-                clone.querySelectorAll('.topic-save-bar, .topic-partial-cta, .topic-read-badge').forEach(el => el.remove());
+                clone.querySelectorAll('.topic-save-bar, .topic-read-anchor, .topic-partial-cta, .topic-read-badge').forEach(el => el.remove());
                 const rawText = (clone.textContent || '').replace(/\s+/g, ' ').trim();
                 const normTitle = topicTitle.replace(/\s+/g, ' ').trim();
                 const at = normTitle ? rawText.indexOf(normTitle) : -1;
@@ -323,8 +323,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // O mesmo tooltip serve ao registro de leitura — limpar o que é
             // de lá, senão sobra na tela ao salvar logo depois.
-            const undoEl = document.getElementById('saveTooltipUndo');
-            if (undoEl) { undoEl.style.display = 'none'; undoEl.onclick = null; }
+            const actionsRow = document.getElementById('saveTooltipActions');
+            if (actionsRow) actionsRow.style.display = 'none';
             const readHintEl = document.getElementById('saveTooltipHint');
             if (readHintEl) { readHintEl.innerHTML = ''; readHintEl.style.display = 'none'; }
 
@@ -504,28 +504,170 @@ document.addEventListener('DOMContentLoaded', () => {
         return marks.findIndex(m => m.vol === volId && m.file === filename && (m.topic || 0) === topicIndex);
     }
 
-    // Desfazer o registro (engano de toque). Volta a contagem em 1; se era a
-    // primeira leitura, some a marca.
-    function _undoRegisteredReading(volId, filename, topicIndex, key) {
+    // Textos do balão. Num lugar só porque ele é reescrito a cada ação
+    // (registrou, já estava registrado, somou no +, tirou no −).
+    function _readTexts(lang) {
+        const T = {
+            pt: {
+                first: '✓ Leitura registrada',
+                nth: (n) => `✓ ${n}ª leitura registrada`,
+                already: '✓ Esta leitura já estava registrada',
+                removed: (n) => n <= 0 ? '↩ Registro removido' : '↩ Uma leitura removida',
+                count: (n) => n <= 0
+                    ? 'Nenhuma leitura registrada'
+                    : (n === 1 ? '1 leitura registrada' : `${n} leituras registradas`),
+                minus: '− Tirar uma leitura',
+                done: 'Fechar',
+                encourage: '“Convém ler repetidas e repetidas vezes, até que o Ensinamento penetre no íntimo.”',
+                hint: '<strong>Reler é parte do caminho</strong> — “convém ler repetidas e repetidas ' +
+                      'vezes, até que o Ensinamento penetre no íntimo”. Cada leitura sua fica registrada aqui, ' +
+                      'e você reencontra este Ensinamento em <a href="lidos.html">Lidos</a>.'
+            },
+            ja: {
+                first: '✓ 拝読を記録しました',
+                nth: (n) => `✓ ${n}回目の拝読を記録しました`,
+                already: '✓ この拝読はすでに記録されています',
+                removed: (n) => n <= 0 ? '↩ 記録を削除しました' : '↩ 拝読を1回減らしました',
+                count: (n) => n <= 0 ? '拝読の記録はありません' : `拝読記録 ${n}回`,
+                minus: '− 拝読を1回減らす',
+                done: '閉じる',
+                encourage: '「繰り返し繰り返し肚にはいるまで読むのがよい」',
+                hint: '<strong>繰り返し拝読することが道の一部です</strong> —「繰り返し繰り返し肚にはいるまで読むのがよい」。' +
+                      '拝読の回数はここに記録され、<a href="lidos.html">拝読した御教え</a>で再び見つけられます。'
+            }
+        };
+        return T[lang] || T.pt;
+    }
+
+    function _hideSaveTooltip() {
+        const tooltip = document.getElementById('saveTooltip');
+        clearTimeout(window._saveTooltipTimer);
+        if (tooltip) tooltip.classList.remove('show');
+    }
+
+    function _readCountOf(volId, filename, topicIndex) {
         const marks = _readMarksLoad();
         const at = _readMarkIndex(marks, volId, filename, topicIndex);
-        if (at >= 0) {
-            const left = (marks[at].count || 1) - 1;
-            if (left <= 0) marks.splice(at, 1);
-            else marks[at].count = left;
+        return at >= 0 ? Math.max(1, marks[at].count || 1) : 0;
+    }
+
+    // +1 / −1 no contador daquele Ensinamento. Devolve a contagem resultante.
+    // localStorage primeiro (UI instantânea, funciona offline), nuvem em
+    // seguida sem bloquear — o incremento lá é por RPC, porque somar pelo
+    // cliente abriria corrida entre abas/aparelhos.
+    function _applyReadDelta(ctx, delta) {
+        const marks = _readMarksLoad();
+        const at = _readMarkIndex(marks, ctx.volId, ctx.filename, ctx.topicIndex);
+        let count = at >= 0 ? Math.max(1, marks[at].count || 1) : 0;
+
+        if (delta > 0) {
+            const entry = at >= 0 ? marks.splice(at, 1)[0]
+                : { vol: ctx.volId, file: ctx.filename, topic: ctx.topicIndex, topicTitle: ctx.topicTitle };
+            count += 1;
+            entry.count = count;
+            entry.time = Date.now();
+            if (ctx.topicTitle) entry.topicTitle = ctx.topicTitle;
+            marks.unshift(entry);
             _readMarksSave(marks);
+            _readGuard.add(ctx.key);
+        } else {
+            if (at < 0) return 0; // não há o que tirar
+            count -= 1;
+            if (count <= 0) { marks.splice(at, 1); count = 0; }
+            else marks[at].count = count;
+            _readMarksSave(marks);
+            // Tirou a leitura: o botão do Ensinamento volta a poder registrar.
+            _readGuard.delete(ctx.key);
         }
-        _readGuard.delete(key);
+
         if (typeof window.updateReadIndicators === 'function') window.updateReadIndicators();
-        if (window._cloudSync && window._cloudSync.undoReading) {
-            Promise.resolve(window._cloudSync.undoReading(volId, filename, topicIndex))
-                .catch(e => console.warn('[read-marks] undo cloud sync failed:', e));
+
+        const cs = window._cloudSync;
+        if (cs) {
+            const p = delta > 0
+                ? (cs.registerReading && cs.registerReading(ctx.volId, ctx.filename, ctx.topicIndex, ctx.topicTitle))
+                : (cs.undoReading && cs.undoReading(ctx.volId, ctx.filename, ctx.topicIndex));
+            if (p) Promise.resolve(p).catch(e => console.warn('[read-marks] cloud sync falhou, salvo apenas local:', e));
         }
+        return count;
+    }
+
+    // Desenha o balão. `mode` é o que acabou de acontecer; a contagem atual
+    // aparece embaixo quando a primeira linha não a carrega. Somar é papel do
+    // botão do Ensinamento; aqui só existe o caminho de correção ("− Tirar
+    // uma leitura"), escrito por extenso — tocar o botão de novo NÃO cancela,
+    // porque isto é um contador e não um liga/desliga.
+    function _showReadTooltip(ctx, mode, count) {
         const tooltip = document.getElementById('saveTooltip');
-        if (tooltip) {
-            clearTimeout(window._saveTooltipTimer);
-            tooltip.classList.remove('show');
+        if (!tooltip) return;
+        const L = _readTexts(ctx.lang);
+
+        document.getElementById('saveTooltipTitle').textContent = ctx.cleanTitle;
+        const statusEl = document.getElementById('saveTooltipStatus');
+        if (statusEl) {
+            // "2ª leitura registrada" já diz o número; "Uma leitura removida"
+            // e "já estava registrada" não — aí entra a segunda linha.
+            const main = mode === 'already' ? L.already
+                : mode === 'removed' ? L.removed(count)
+                : (count > 1 ? L.nth(count) : L.first);
+            statusEl.textContent = main;
+            if (mode === 'already' || mode === 'removed') {
+                const sub = document.createElement('span');
+                sub.className = 'save-tooltip-sub';
+                sub.textContent = L.count(count);
+                statusEl.appendChild(document.createElement('br'));
+                statusEl.appendChild(sub);
+            }
         }
+
+        // Restos do fluxo de "Salvar" (link da Central e chips de pasta) não
+        // podem sobrar aqui — é o mesmo elemento reaproveitado.
+        const linkEl = document.getElementById('saveTooltipLink');
+        if (linkEl) linkEl.style.display = 'none';
+        const foldersEl = document.getElementById('saveTooltipFolders');
+        if (foldersEl) { foldersEl.innerHTML = ''; foldersEl.style.display = 'none'; }
+
+        // Primeira leitura registrada de todas: a explicação inteira, no
+        // instante em que a pergunta está viva. Depois, só a citação — que é o
+        // porquê de existir um contador em vez de um "lido".
+        let firstTime = false;
+        try { firstTime = !localStorage.getItem(FLAG_READ_HINT); } catch (e) { }
+        const hintEl = document.getElementById('saveTooltipHint');
+        if (hintEl) {
+            if (firstTime && L.hint) {
+                hintEl.innerHTML = L.hint;
+                hintEl.className = 'save-tooltip-hint';
+                hintEl.style.display = '';
+                try { localStorage.setItem(FLAG_READ_HINT, '1'); } catch (e) { }
+            } else {
+                hintEl.textContent = L.encourage;
+                hintEl.className = 'save-tooltip-hint save-tooltip-hint--quote';
+                hintEl.style.display = '';
+            }
+        }
+
+        const actionsEl = document.getElementById('saveTooltipActions');
+        if (actionsEl) actionsEl.style.display = '';
+        const minusBtn = document.getElementById('saveTooltipMinus');
+        if (minusBtn) {
+            minusBtn.textContent = L.minus;
+            minusBtn.disabled = count <= 0;
+            minusBtn.onclick = () => _showReadTooltip(ctx, 'removed', _applyReadDelta(ctx, -1));
+        }
+        const doneBtn = document.getElementById('saveTooltipDone');
+        if (doneBtn) {
+            doneBtn.textContent = L.done;
+            doneBtn.onclick = _hideSaveTooltip;
+        }
+
+        tooltip.classList.add('show');
+        clearTimeout(window._saveTooltipTimer);
+        // Cada interação com o contador reinicia a contagem regressiva: o
+        // balão não pode fechar na cara de quem está ajustando.
+        window._saveTooltipTimer = setTimeout(() => {
+            tooltip.classList.remove('show');
+            if (actionsEl) actionsEl.style.display = 'none';
+        }, firstTime ? 20000 : 10000);
     }
 
     window.toggleReadMark = async function (explicitTopicIndex) {
@@ -543,108 +685,24 @@ document.addEventListener('DOMContentLoaded', () => {
             ).replace(/<[^>]+>/g, '').trim();
         }
 
-        const marks = _readMarksLoad();
-        const at = _readMarkIndex(marks, volId, filename, topicIndex);
-        const prevCount = at >= 0 ? (marks[at].count || 1) : 0;
-
-        // Já registrou neste carregamento de página: não soma de novo (ninguém
-        // lê o mesmo Ensinamento duas vezes em dois minutos). Reexibe o aviso
-        // com o desfazer à mão, para o toque repetido não virar contagem falsa.
-        const repeat = _readGuard.has(key);
-        // max(1, …): se a guarda diz que já registrou mas o cache local sumiu
-        // (logout limpa readMarks), prevCount seria 0 e o aviso mostraria
-        // "0ª leitura".
-        const count = repeat ? Math.max(1, prevCount) : prevCount + 1;
-
-        if (!repeat) {
-            const entry = at >= 0 ? marks.splice(at, 1)[0]
-                : { vol: volId, file: filename, topic: topicIndex, topicTitle };
-            entry.count = count;
-            entry.time = Date.now();
-            if (topicTitle) entry.topicTitle = topicTitle;
-            marks.unshift(entry);
-            _readMarksSave(marks);
-            _readGuard.add(key);
-
-            // UI primeiro (instantânea); nuvem em seguida SEM await — falha de
-            // rede/RLS não pode atrasar nem bloquear o feedback.
-            if (typeof window.updateReadIndicators === 'function') window.updateReadIndicators();
-
-            if (window._cloudSync && window._cloudSync.registerReading) {
-                Promise.resolve(window._cloudSync.registerReading(volId, filename, topicIndex, topicTitle))
-                    .catch(e => console.warn('[read-marks] cloud sync failed, salvo apenas local:', e));
-            }
-        }
-
-        const tooltip = document.getElementById('saveTooltip');
-        if (!tooltip) return;
-
-        const T = {
-            pt: {
-                first: '✓ Leitura registrada',
-                nth: (n) => `✓ ${n}ª leitura registrada`,
-                undo: 'Desfazer',
-                hint: '<strong>Reler é parte do caminho</strong> — “convém ler repetidas e repetidas ' +
-                      'vezes, até que o Ensinamento penetre no íntimo”. Você reencontra este Ensinamento em ' +
-                      '<a href="lidos.html">Lidos</a>, e pode filtrar sua busca só pelo que já leu.'
-            },
-            ja: {
-                first: '✓ 拝読を記録しました',
-                nth: (n) => `✓ ${n}回目の拝読を記録しました`,
-                undo: '元に戻す',
-                hint: '<strong>繰り返し拝読することが道の一部です</strong> —「繰り返し繰り返し肚にはいるまで読むのがよい」。' +
-                      'この御教えは<a href="lidos.html">拝読した御教え</a>で再び見つけられ、検索を拝読済みに絞ることもできます。'
-            }
-        }[lang] || null;
-        const L = T || {
-            first: '✓ Leitura registrada', nth: (n) => `✓ ${n}ª leitura registrada`,
-            undo: 'Desfazer', hint: ''
-        };
-
         const pageTitle = document.title.replace('Meishu-Sama: ', '').replace(' - Caminho da Felicidade', '');
         const cleanTitle = (topicTitle || pageTitle)
             .replace(/^(Ensinamento|Orientação|Palestra) de (Meishu-Sama|Moisés)\s*[-:]\s*/i, '')
             .replace(/^["'](.*?)["']$/, '$1').trim();
-        document.getElementById('saveTooltipTitle').textContent = cleanTitle;
-        document.getElementById('saveTooltipStatus').textContent = count > 1 ? L.nth(count) : L.first;
 
-        // Restos do fluxo de "Salvar" (link da Central e chips de pasta) não
-        // podem sobrar aqui — é o mesmo elemento reaproveitado.
-        const linkEl = document.getElementById('saveTooltipLink');
-        if (linkEl) linkEl.style.display = 'none';
-        const foldersEl = document.getElementById('saveTooltipFolders');
-        if (foldersEl) { foldersEl.innerHTML = ''; foldersEl.style.display = 'none'; }
+        const ctx = { volId, filename, topicIndex, key, lang, topicTitle, cleanTitle };
 
-        const undoBtn = document.getElementById('saveTooltipUndo');
-        if (undoBtn) {
-            undoBtn.textContent = L.undo;
-            undoBtn.style.display = '';
-            undoBtn.onclick = () => _undoRegisteredReading(volId, filename, topicIndex, key);
+        // Já registrou neste carregamento de página: não soma de novo (ninguém
+        // lê o mesmo Ensinamento duas vezes em dois minutos). O toque repetido
+        // reabre o balão mostrando a contagem — e é lá, no + e no −, que a
+        // pessoa decide somar ou tirar.
+        if (_readGuard.has(key)) {
+            // max(1, …): se a guarda diz que já registrou mas o cache local
+            // sumiu (logout limpa readMarks), a contagem viria 0.
+            _showReadTooltip(ctx, 'already', Math.max(1, _readCountOf(volId, filename, topicIndex)));
+            return;
         }
-
-        // Primeira leitura registrada de todas: explica pra que serve, no
-        // instante em que a pergunta está viva. Some pra sempre depois.
-        let firstTime = false;
-        try { firstTime = !localStorage.getItem(FLAG_READ_HINT); } catch (e) { }
-        const hintEl = document.getElementById('saveTooltipHint');
-        if (hintEl) {
-            if (firstTime && L.hint) {
-                hintEl.innerHTML = L.hint;
-                hintEl.style.display = '';
-                try { localStorage.setItem(FLAG_READ_HINT, '1'); } catch (e) { }
-            } else {
-                hintEl.innerHTML = '';
-                hintEl.style.display = 'none';
-            }
-        }
-
-        tooltip.classList.add('show');
-        clearTimeout(window._saveTooltipTimer);
-        // Com a explicação na tela, o aviso não pode correr contra o relógio.
-        window._saveTooltipTimer = setTimeout(() => {
-            tooltip.classList.remove('show');
-            if (undoBtn) undoBtn.style.display = 'none';
-        }, firstTime ? 20000 : 6000);
+        _showReadTooltip(ctx, 'registered', _applyReadDelta(ctx, +1));
     };
 
     window.renderContent = () => initReader();

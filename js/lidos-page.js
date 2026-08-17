@@ -13,21 +13,28 @@
     const lang = localStorage.getItem('site_lang') || 'pt';
     const isPt = lang !== 'ja';
     const T = isPt ? {
-        empty: 'Nenhum Ensinamento marcado como lido ainda.<br>No leitor, toque no botão <b>✓ Registrar leitura</b> abaixo do título.',
-        readOn: (d) => `lido em ${d}`,
+        empty: 'Nenhuma leitura registrada ainda.<br>No leitor, toque no botão <b>✓ Registrar leitura</b> no fim do Ensinamento.',
+        readOn: (d) => `última em ${d}`,
+        times: (n) => n === 1 ? '1 leitura' : `${n} leituras`,
         reread: 'Reler',
-        unmark: 'Desmarcar',
-        unmarkConfirm: 'Remover a marca de lido deste Ensinamento?',
+        unmark: 'Tirar uma leitura',
+        // Só pergunta quando é a última: aí o Ensinamento sai da lista.
+        unmarkConfirm: 'Esta é a única leitura registrada. Tirar este Ensinamento do registro?',
         count: (n) => n === 1 ? '1 Ensinamento lido' : `${n} Ensinamentos lidos`,
-        topicN: (n) => `tópico ${n}`
+        topicN: (n) => `tópico ${n}`,
+        mostRead: 'Os que você mais releu',
+        mostReadSub: '“Convém ler repetidas e repetidas vezes, até que o Ensinamento penetre no íntimo.”'
     } : {
-        empty: 'まだ読了の記録はありません。<br>リーダーでタイトル下の<b>✓ 拝読を記録</b>をタップしてください。',
-        readOn: (d) => `${d} に読了`,
+        empty: 'まだ拝読の記録はありません。<br>リーダーで御教えの最後にある<b>✓ 拝読を記録</b>をタップしてください。',
+        readOn: (d) => `最終 ${d}`,
+        times: (n) => `${n}回拝読`,
         reread: 'もう一度読む',
-        unmark: '解除',
-        unmarkConfirm: 'この教えの読了記録を解除しますか？',
+        unmark: '拝読を1回減らす',
+        unmarkConfirm: '記録は1回だけです。この御教えを記録から外しますか？',
         count: (n) => `読了 ${n} 件`,
-        topicN: (n) => `トピック ${n}`
+        topicN: (n) => `トピック ${n}`,
+        mostRead: '繰り返し拝読した御教え',
+        mostReadSub: '「繰り返し繰り返し肚にはいるまで読むのがよい」'
     };
 
     function loadLocal() {
@@ -64,6 +71,39 @@
         return mark.file;
     }
 
+    // "Os que você mais releu" — só aparece quando existe algo relido (2+).
+    // NÃO é placar: sem posições, sem medalha, sem total somado. É a lista
+    // dos Ensinamentos aos quais a pessoa voltou, que é o que o próprio
+    // ensinamento pede ("convém ler repetidas e repetidas vezes…").
+    function renderMostRead(marks, idx) {
+        const top = marks
+            .map(m => ({ m, n: Math.max(1, m.count || 1) }))
+            .filter(x => x.n >= 2)
+            .sort((a, b) => (b.n - a.n) || ((b.m.time || 0) - (a.m.time || 0)))
+            .slice(0, 8);
+        if (!top.length) return '';
+
+        const rows = top.map(({ m, n }) => {
+            const entry = idx[`${m.vol}/${m.file}`];
+            const href = `reader.html?vol=${encodeURIComponent(m.vol)}&file=${encodeURIComponent(m.file)}&topic=${m.topic || 0}`;
+            return `
+            <div class="read-item">
+                <span class="read-most-count">${esc(T.times(n))}</span>
+                <a class="read-item-title" href="${href}">${esc(itemTitle(m, entry))}</a>
+                <span class="read-item-meta"><span class="read-item-date">${esc(volLabel(m.vol))}</span></span>
+            </div>`;
+        }).join('');
+
+        return `
+        <div class="notebook-group read-most-group">
+            <div class="notebook-group-header">
+                <span>${esc(T.mostRead)}</span>
+            </div>
+            <div class="read-most-quote">${esc(T.mostReadSub)}</div>
+            ${rows}
+        </div>`;
+    }
+
     function render() {
         const container = document.getElementById('read-central-container');
         if (!container) return;
@@ -78,7 +118,7 @@
         marks.forEach(m => { (byVol[m.vol] = byVol[m.vol] || []).push(m); });
 
         const volOrder = Object.keys(byVol).sort();
-        let html = '';
+        let html = renderMostRead(marks, idx);
         for (const vol of volOrder) {
             const items = byVol[vol];
             // Ordem do índice da obra (seção + nº da publicação + tópico);
@@ -108,14 +148,18 @@
                 }
                 const dateStr = m.time ? new Date(m.time).toLocaleDateString(isPt ? 'pt-BR' : 'ja-JP') : '';
                 const href = `reader.html?vol=${encodeURIComponent(m.vol)}&file=${encodeURIComponent(m.file)}&topic=${m.topic || 0}`;
+                // Entradas antigas não têm `count` — valem 1 (foram lidas uma
+                // vez); nenhuma migração de localStorage é necessária.
+                const times = Math.max(1, m.count || 1);
                 rows += `
                 <div class="read-item">
                     <svg class="read-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>
                     <a class="read-item-title" href="${href}">${esc(itemTitle(m, entry))}</a>
                     <span class="read-item-meta">
+                        ${times > 1 ? `<span class="read-item-times">${T.times(times)}</span>` : ''}
                         ${dateStr ? `<span class="read-item-date">${T.readOn(dateStr)}</span>` : ''}
                         <a class="notebook-btn" href="${href}">${T.reread}</a>
-                        <button type="button" class="notebook-btn delete" data-vol="${esc(m.vol)}" data-file="${esc(m.file)}" data-topic="${m.topic || 0}">${T.unmark}</button>
+                        <button type="button" class="notebook-btn minus" title="${esc(T.unmark)}" aria-label="${esc(T.unmark)}" data-vol="${esc(m.vol)}" data-file="${esc(m.file)}" data-topic="${m.topic || 0}">−</button>
                     </span>
                 </div>`;
             }
@@ -131,17 +175,33 @@
         }
         container.innerHTML = html;
 
-        container.querySelectorAll('.notebook-btn.delete').forEach(btn => {
+        // "−" tira UMA leitura, não o Ensinamento inteiro: agora que a
+        // contagem existe, apagar tudo de uma vez seria perder o registro de
+        // quem releu várias vezes por causa de um toque errado. Só some da
+        // lista quando cai a zero — e aí pergunta antes.
+        container.querySelectorAll('.notebook-btn.minus').forEach(btn => {
             btn.addEventListener('click', () => {
-                if (!confirm(T.unmarkConfirm)) return;
                 const { vol, file } = btn.dataset;
                 const topic = parseInt(btn.dataset.topic, 10) || 0;
-                let marks2 = loadLocal();
-                marks2 = marks2.filter(m => !(m.vol === vol && m.file === file && (m.topic || 0) === topic));
+                const marks2 = loadLocal();
+                const at = marks2.findIndex(m => m.vol === vol && m.file === file && (m.topic || 0) === topic);
+                if (at < 0) return;
+
+                const left = Math.max(1, marks2[at].count || 1) - 1;
+                if (left <= 0) {
+                    if (!confirm(T.unmarkConfirm)) return;
+                    marks2.splice(at, 1);
+                } else {
+                    marks2[at].count = left;
+                }
                 try { localStorage.setItem('readMarks', JSON.stringify(marks2)); } catch (e) { }
-                if (window._cloudSync && window._cloudSync.removeReadMark) {
-                    Promise.resolve(window._cloudSync.removeReadMark(vol, file, topic))
-                        .catch(e => console.warn('[lidos] cloud remove failed:', e));
+
+                // undoReading (RPC) decrementa e apaga a linha sozinho ao
+                // chegar em zero — mesmo caminho do "− Tirar uma leitura" do
+                // leitor, então os dois lugares nunca divergem.
+                if (window._cloudSync && window._cloudSync.undoReading) {
+                    Promise.resolve(window._cloudSync.undoReading(vol, file, topic))
+                        .catch(e => console.warn('[lidos] cloud undo failed:', e));
                 }
                 render();
             });
@@ -155,12 +215,26 @@
             const cloud = await window._cloudSync.loadReadMarks();
             if (!cloud.length) return;
             const local = loadLocal();
-            const keys = new Set(local.map(m => `${m.vol}:${m.file}:${m.topic || 0}`));
+            const byKey = new Map(local.map(m => [`${m.vol}:${m.file}:${m.topic || 0}`, m]));
             let added = 0;
             for (const c of cloud) {
                 const key = `${c.volume}:${c.file}:${c.topic_index}`;
-                if (!keys.has(key)) {
-                    local.push({ vol: c.volume, file: c.file, topic: c.topic_index, topicTitle: c.topic_title || '', time: new Date(c.created_at).getTime() });
+                const cloudCount = Math.max(1, c.times_read || 1);
+                const cloudTime = new Date(c.last_read_at || c.created_at).getTime();
+                const existing = byKey.get(key);
+                if (!existing) {
+                    local.push({
+                        vol: c.volume, file: c.file, topic: c.topic_index,
+                        topicTitle: c.topic_title || '',
+                        count: cloudCount,
+                        time: cloudTime
+                    });
+                    added++;
+                } else if (cloudCount > Math.max(1, existing.count || 1)) {
+                    // A nuvem é a soma de todos os aparelhos: quando ela está
+                    // à frente, o cache local estava desatualizado.
+                    existing.count = cloudCount;
+                    if (cloudTime > (existing.time || 0)) existing.time = cloudTime;
                     added++;
                 }
             }

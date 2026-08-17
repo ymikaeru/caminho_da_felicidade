@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&display=swap">
-    <link rel="stylesheet" href="css/styles.min.css?v=232">
+    <link rel="stylesheet" href="css/styles.min.css?v=236">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -126,6 +126,43 @@
             white-space: nowrap;
         }
 
+        /* Contagem de leituras do item — só aparece a partir da 2ª, quando
+           acrescenta algo ("1 leitura" seria ruído: já está na lista). */
+        .read-item-times {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--accent);
+            font-family: "Outfit", sans-serif;
+            white-space: nowrap;
+            background: rgba(184, 134, 11, 0.1);
+            background: color-mix(in srgb, var(--accent) 12%, transparent);
+            border-radius: 999px;
+            padding: 2px 9px;
+        }
+
+        /* "Os que você mais releu": lista de retorno, não placar — sem
+           posições nem medalhas, e a citação explica por que ela existe. */
+        .read-most-group { border-color: var(--accent); }
+
+        .read-most-quote {
+            font-family: 'Crimson Pro', serif;
+            font-style: italic;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin: 2px 4px 12px;
+        }
+
+        .read-most-count {
+            flex-shrink: 0;
+            min-width: 72px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            font-family: "Outfit", sans-serif;
+            color: var(--accent);
+            white-space: nowrap;
+        }
+
         .notebook-btn {
             background: none;
             border: 1px solid var(--border);
@@ -143,6 +180,18 @@
         .notebook-btn:hover { background: rgba(184, 134, 11, 0.1); border-color: var(--accent); }
         .notebook-btn.delete { color: #ff3b30; }
         .notebook-btn.delete:hover { background: rgba(255, 59, 48, 0.1); border-color: #ff3b30; }
+
+        /* "−": tira uma leitura da contagem. Não é vermelho porque na maioria
+           das vezes não apaga nada — só desconta. */
+        .notebook-btn.minus {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1;
+            min-width: 30px;
+            min-height: 26px;
+            padding: 2px 8px;
+        }
+        .notebook-btn.minus:hover { color: var(--accent); border-color: var(--accent); }
 
         .notebook-empty {
             text-align: center;
@@ -166,7 +215,7 @@
     <script src="js/typography.js?v=2" defer></script>
     <script src="js/search.min.js?v=57" defer></script>
     <script src="site_data/global_index_titles.js?v=3" defer></script>
-    <script src="js/lidos-page.js?v=3" defer></script>
+    <script src="js/lidos-page.js?v=5" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('site_lang') || 'pt';

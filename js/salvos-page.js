@@ -110,7 +110,15 @@
         'gosanka-shikiten': { page: 'gosanka-shikiten.html', pt: 'Salmos Sagrados para Cada Cerimônia',   ja: '各式典における御讃歌', id: (n) => `shikiten_n${n}` },
     };
 
+    // ?pasta=<id> abre já dentro de uma pasta. Usado pelo modal de descoberta,
+    // que guarda em "Para ler depois" e precisa levar a pessoa ao lugar certo —
+    // cair em "Todos" faria ela procurar o que acabou de guardar.
+    // Se a pasta não existir (link velho), o guard mais abaixo devolve pra 'all'.
     let selected = 'all'; // 'all' | 'none' | <folderId>
+    try {
+        const _p = new URLSearchParams(location.search).get('pasta');
+        if (_p) selected = _p;
+    } catch (e) { }
     let typeFilter = 'all'; // 'all' | 'teaching' | 'poetry' — filtro por tipo de item
     // Ordenação da lista. 'manual' = ordem que o usuário arrasta (só local, por
     // enquanto). A ordem manual vira a ordem do .doc exportado — útil p/ apostila.

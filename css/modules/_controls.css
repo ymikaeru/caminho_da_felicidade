@@ -42,6 +42,11 @@
 .btn-random-hero {
   display: inline-flex;
   align-items: center;
+  /* Durante o carregamento, _setRandomLoading (js/search.js) trava a largura
+     original em minWidth pra não haver salto de leiaute — e "Carregando..." é
+     mais curto que o rótulo. Sem justify-content, o conteúdo encostava à
+     esquerda do botão. */
+  justify-content: center;
   gap: 10px;
   padding: 12px 28px;
   border: 1px solid var(--accent);

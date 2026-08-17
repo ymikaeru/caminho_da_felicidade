@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap">
-    <link rel="stylesheet" href="../css/styles.min.css?v=215">
+    <link rel="stylesheet" href="../css/styles.min.css?v=230">
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="../manifest.json">
     <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
@@ -28,7 +28,7 @@
     <script type="importmap">
     {"imports":{"@supabase/supabase-js":"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"}}</script>
     <script type="module" src="../js/pdf-booklet-bridge.js?v=3"></script>
-    <script src="../js/nav.js?v=81" defer></script>
+    <script src="../js/nav.js?v=83" defer></script>
     <script src="../js/theme.js?v=3" defer></script>
     <script src="../js/language.js?v=14" defer></script>
     <script src="../js/typography.js?v=2" defer></script>
@@ -3043,13 +3043,13 @@
         window.supabaseStorageList = storageList;
     </script>
     <script type="module">
-        import * as cloudSync from '../js/sync.js?v=11';
+        import * as cloudSync from '../js/sync.js?v=13';
         window._cloudSync = cloudSync;
     </script>
     <script type="module" src="../js/login.js?v=16"></script>
     <script src="../js/access.js?v=6"></script>
-    <script src="../js/modals.js?v=18"></script>
-    <script src="../js/recommendations.js?v=61" defer></script>
+    <script src="../js/modals.js?v=33"></script>
+    <script src="../js/recommendations.js?v=62" defer></script>
     <script src="../js/study-messages.js?v=3" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => { buildSearchModal(); initVolumeFilter('mioshiec3'); buildRecommendationsModal(); if (typeof revealPage === 'function') revealPage(); if (typeof initRecommendations === 'function') initRecommendations(); if (typeof initStudyMessages === 'function') initStudyMessages(); });

@@ -146,30 +146,6 @@
   body:not(.home-page) #headerRecommendationsBtn { display: none !important; }
 }
 
-.reader-random-wrap .mobile-fav-btn[aria-expanded="true"] {
-  color: var(--accent);
-}
-
-.reader-random-dropdown {
-  display: none;
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  min-width: 180px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  padding: 6px;
-  z-index: 3000;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.reader-random-dropdown.open {
-  display: flex;
-}
-
 /* Backdrop do dropdown-estrela: escurece + desfoca o fundo como os modais.
    z-index abaixo do header (2000) pra o botão e o dropdown (dentro do
    header) ficarem nítidos por cima; só o conteúdo da página desfoca. */

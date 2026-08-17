@@ -1,0 +1,393 @@
+/* ============================================================
+   Modal de Descoberta — "Descobrir um Ensinamento"
+   ============================================================
+   Reaproveita .search-modal-overlay / .search-modal (mesmo backdrop, mesma
+   animação de entrada, mesmo botão de fechar). Só o conteúdo é próprio.
+
+   A hierarquia visual é deliberada: "Abrir o Ensinamento" é a ação
+   principal, e "Próximo" fica discreto. Se o sortear de novo for grande e
+   convidativo, a pessoa rola até vir um assunto que ela já queria — e morre
+   o "independente do assunto", que é o ponto do recurso.
+   ============================================================ */
+
+.disc-modal {
+  max-width: 880px;
+}
+
+.disc-kicker {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ---- filtros (volume + releitura) ---- */
+.disc-filters {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  /* .search-modal tem padding 0 — o espaçamento horizontal vive no
+     .search-header (24px à esquerda). Sem esta margem, os blocos abaixo
+     encostam na borda do modal. */
+  margin: 14px 24px 18px;
+}
+
+.disc-filters__label {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-right: 2px;
+}
+
+.disc-chip {
+  min-height: 34px; /* alvo de toque — o público inclui idosos */
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.disc-chip:hover {
+  color: var(--text-main);
+  border-color: var(--text-muted);
+}
+
+.disc-chip.is-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ---- a carta ---- */
+.disc-card {
+  /* O .search-modal e' flex-column com overflow:hidden e max-height 90vh
+     (85vh no celular). Sem estas duas linhas o cartao estourava a caixa e as
+     acoes subiam POR CIMA do texto no mobile — os outros modais nao sofrem
+     porque a lista de resultados ja e' a regiao rolavel deles. */
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 250px;
+  margin: 0 24px;
+  padding: 26px 30px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.disc-origin {
+  margin: 0 0 8px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.disc-title {
+  margin: 0 0 10px;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-main);
+  text-wrap: pretty;
+}
+
+/* Convite, não aviso: quem já leu é justamente quem deve reler
+   ("é bom ler repetidas vezes até que seja assimilado no íntimo"). */
+.disc-reread {
+  margin: 0 0 10px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--accent);
+}
+
+.disc-excerpt {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--text-main);
+  opacity: 0.92;
+}
+
+.disc-msg {
+  margin: 0;
+  padding: 24px 0;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ---- ações ---- */
+.disc-actions {
+  flex: 0 0 auto;   /* rodape fixo: nunca some nem e' empurrado */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 16px 24px 22px;
+}
+
+.disc-actions__main,
+.disc-actions__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.disc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.disc-btn--primary {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  /* texto escuro sobre --accent falha em vários temas; branco é o padrão
+     do site pros botões cheios */
+  color: #fff;
+}
+
+.disc-btn--primary:hover {
+  opacity: 0.92;
+}
+
+.disc-btn--ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.disc-btn--ghost:hover {
+  color: var(--text-main);
+  border-color: var(--text-muted);
+}
+
+.disc-btn--ghost:disabled {
+  cursor: default;
+  color: var(--accent);
+  border-color: var(--accent);
+  opacity: 0.8;
+}
+
+/* Discreto de propósito — ver o comentário no topo. */
+.disc-nav {
+  min-height: 40px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.disc-nav:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.disc-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media (max-width: 600px) {
+  .disc-filters { margin-left: 16px; margin-right: 16px; }
+  .disc-card { margin: 0 16px; padding: 16px; min-height: 140px; }
+  .disc-title { font-size: 18px; }
+  .disc-excerpt { font-size: 14px; }
+  .disc-actions { margin: 14px 16px 18px; justify-content: center; }
+  /* Empilhados e de largura cheia: lado a lado, "Abrir o Ensinamento" e
+     "Guardar pra depois" quebravam em duas linhas cada, apertados e
+     desalinhados. Assim cada rotulo cabe numa linha so e o alvo de toque
+     fica maior — o publico inclui idosos. */
+  .disc-actions__main {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .disc-btn { width: 100%; }
+  .disc-actions__nav { width: 100%; justify-content: space-between; }
+}
+
+/* Confirmação de "guardado": diz ONDE foi parar e leva até lá. Sem isto,
+   um "✓ Guardado" mudo deixa a pessoa sem saber onde procurar depois — e
+   quem nunca abriu a Central não conhece o nome da pasta. Por isso o texto
+   mostra o caminho inteiro ("Salvos › Para ler depois"), ancorando no item
+   que ela vê no menu. */
+.disc-saved {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 0 0;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.disc-saved a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.disc-saved a:hover {
+  text-decoration: underline;
+}
+
+/* Estado "guardado" do botão: continua CLICÁVEL (segundo toque remove), então
+   não usa :disabled — só muda a cor pra mostrar que já está lá. */
+.disc-btn--ghost.is-saved {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* "toque para ver onde fica" — abre o menu e pulsa o item Salvos. */
+.disc-saved__where {
+  padding: 4px 10px;
+  min-height: 30px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 7px;
+  color: var(--accent);
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.disc-saved__where:hover {
+  border-style: solid;
+  border-color: var(--accent);
+}
+
+/* Pulso no item do menu, mesmo recurso que o first-visit-tips usa pra ancorar
+   a dica ao botão FÍSICO em vez de descrevê-lo por escrito. */
+@keyframes navPulseHint {
+  0%, 100% { background: transparent; }
+  50%      { background: var(--accent-soft, rgba(184, 134, 11, 0.18)); }
+}
+
+.nav-pulse-hint {
+  animation: navPulseHint 0.9s ease-in-out 3;
+  color: var(--accent) !important;
+  font-weight: 600;
+}
+
+/* ============================================================
+   Aviso de novidades (uma vez só)
+   ============================================================ */
+.nov-modal {
+  max-width: 560px;
+}
+
+.nov-kicker {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.nov-body {
+  margin: 4px 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.nov-item__title {
+  margin: 0 0 5px;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.nov-item__text {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.nov-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 22px 24px;
+}
+
+@media (max-width: 600px) {
+  .nov-body { margin-left: 16px; margin-right: 16px; }
+  .nov-actions { margin: 18px 16px; }
+  .nov-actions .disc-btn { width: 100%; }
+  .nov-item__text { font-size: 14px; }
+}
+
+/* ---- poema no cartão de descoberta ----
+   Waka é forma fixa: mostra-se inteiro. Mesmo tratamento tipográfico do
+   "Poema do Momento" da home, para o leitor reconhecer o gênero de imediato. */
+.disc-poem-jp {
+  margin: 0;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.9;
+  letter-spacing: .06em;
+  color: var(--text-main);
+}
+
+.disc-poem-rj {
+  margin: 10px 0 0;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.6;
+  letter-spacing: .02em;
+  color: var(--text-muted);
+}
+
+.disc-poem-pt {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--text-main);
+}
+
+@media (max-width: 600px) {
+  .disc-poem-jp { font-size: 16px; }
+  .disc-poem-pt { font-size: 15px; }
+}

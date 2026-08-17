@@ -36,7 +36,7 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="css/styles.min.css?v=215">
+  <link rel="stylesheet" href="css/styles.min.css?v=230">
   <link rel="stylesheet" href="css/admin.min.css?v=30">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
@@ -124,6 +124,8 @@
                       class="admin-nav-ico">📜</span><span class="admin-nav-txt">Poesia</span></div>
                   <div class="admin-nav-item" data-tab="analytics-search" onclick="switchTab('analytics-search')"><span
                       class="admin-nav-ico">🔎</span><span class="admin-nav-txt">Buscas</span></div>
+                  <div class="admin-nav-item" data-tab="analytics-discovery" onclick="switchTab('analytics-discovery')"><span
+                      class="admin-nav-ico">✨</span><span class="admin-nav-txt">Descoberta</span></div>
                   <div class="admin-nav-item" data-tab="audio" onclick="switchTab('audio')"><span
                       class="admin-nav-ico">🎧</span><span class="admin-nav-txt">Áudio</span></div>
                   <div class="admin-nav-item" data-tab="destaques" onclick="switchTab('destaques')"><span
@@ -737,6 +739,80 @@
               </div>
             </div>
 
+            <!-- Discovery Analytics Tab -->
+            <div class="tab-content" id="tab-analytics-discovery">
+              <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                <div>
+                  <h2
+                    style="margin:0 0 4px; font-size:1rem; font-weight:600; color:var(--accent); letter-spacing:1px; text-transform:uppercase;">
+                    Analytics — Descoberta</h2>
+                  <p id="da-gen-at" style="font-size:0.85rem; color:var(--text-muted); margin:0;">Carregando…</p>
+                </div>
+                <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                  <label
+                    style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.12em;">Período</label>
+                  <select id="da-range" onchange="loadDiscoveryAnalytics()"
+                    style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">
+                    <option value="7">7 dias</option>
+                    <option value="30" selected>30 dias</option>
+                    <option value="90">90 dias</option>
+                    <option value="365">1 ano</option>
+                  </select>
+                  <button onclick="loadDiscoveryAnalytics()"
+                    style="background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; font-size:.85rem; cursor:pointer;">↻
+                    Atualizar</button>
+                </div>
+              </div>
+
+              <div class="stats-grid" style="margin-bottom:24px;">
+                <div class="stat-card">
+                  <div class="stat-value" id="da-stat-open">—</div>
+                  <div class="stat-label">Aberturas do modal</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="da-stat-draw">—</div>
+                  <div class="stat-label">Ensinamentos sorteados</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="da-stat-read">—</div>
+                  <div class="stat-label">Abertos para leitura</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="da-stat-conv">—</div>
+                  <div class="stat-label">Conversão em leitura</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="da-stat-save">—</div>
+                  <div class="stat-label">Guardados pra depois</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="da-stat-users">—</div>
+                  <div class="stat-label">Pessoas que usaram</div>
+                </div>
+              </div>
+
+              <div class="admin-card" style="margin-bottom:24px;">
+                <h2>📅 Uso dia a dia</h2>
+                <div id="da-days">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <div class="admin-card" style="margin-bottom:24px;">
+                <h2>👤 Quem está usando</h2>
+                <div id="da-users" style="max-height:min(60vh, 620px); overflow-y:auto;">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+
+              <div class="admin-card">
+                <h2>📖 O que a descoberta levou a ler</h2>
+                <div id="da-most-read" style="max-height:min(60vh, 620px); overflow-y:auto;">
+                  <div class="loading">Carregando...</div>
+                </div>
+              </div>
+            </div>
+
             <!-- Calendar Tab -->
             <div class="tab-content" id="tab-calendar"><!-- markup injetado no import por js/admin/tabs/calendar.js --></div>
 
@@ -1095,7 +1171,7 @@
     }
   }
   </script>
-  <script type="module" src="js/admin.js?v=156"></script>
+  <script type="module" src="js/admin.js?v=157"></script>
 </body>
 
 </html>

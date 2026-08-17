@@ -271,3 +271,673 @@ window.buildHighlightsModal = buildHighlightsModal;
 window.buildRecommendationsModal = buildRecommendationsModal;
 window.buildShareModal = buildShareModal;
 window.buildMyConversationsModal = buildMyConversationsModal;
+
+// ============================================================
+// Modal de Descoberta — "Descobrir um Ensinamento"
+// ============================================================
+// Antes, o botão de descoberta NAVEGAVA: saía da página, carregava o leitor
+// inteiro e largava a pessoa num Ensinamento. Se não era o que ela queria,
+// pagou uma navegação completa pra descobrir — e ninguém repete isso três
+// vezes. Aqui ela espia e fecha; o custo de tentar cai a quase zero, que é o
+// que permite virar hábito.
+//
+// Base: "é bom ler repetidas vezes até que seja assimilado no íntimo"
+// (大いに神書を読むべし, 29/11/1950). Daí o filtro "só os que já li" e o
+// convite a reler em vez de aviso pra pular.
+//
+// Próximo/Anterior percorrem os SORTEIOS, não os vizinhos do livro — o leitor
+// já navega a publicação no rodapé. Sobre os sorteios não havia nada: um
+// Ensinamento interessante que passava sumia pra sempre.
+(function () {
+  let _dHist = [];   // cartas já sorteadas nesta abertura
+  let _dPos = -1;    // posição atual dentro de _dHist
+  let _dVol = null;  // filtro de volume (null = acervo inteiro)
+  // Geração do sorteio em vez de um "ocupado" que descarta cliques: trocar de
+  // filtro no meio de uma consulta ANTES não fazia nada (a guarda engolia o
+  // pedido e a pessoa continuava vendo o resultado velho, achando que quebrou).
+  // Agora o pedido novo sempre vale, e a resposta atrasada do anterior é
+  // descartada por não ser mais a geração corrente.
+  let _dGen = 0;
+
+  const _dLang = () => localStorage.getItem('site_lang') || 'pt';
+  const _dSupa = () => (window.supabaseAuth && window.supabaseAuth.supabase)
+      || window._supabaseClient || null;
+  const _dBase = () => (window.location.pathname.includes('/mioshiec') ? '../' : './');
+
+  // Telemetria do recurso. Sem isto não há como saber se ele mudou algum
+  // comportamento: o clique vira um pageview de leitor indistinguível de quem
+  // veio pela busca. Fire-and-forget — falhar aqui NUNCA pode atrapalhar quem
+  // está lendo.
+  let _dAuth = null; // { url, key, token, userId } — resolvido ao abrir o modal
+
+  async function _dPrimeAuth() {
+    try {
+      const supa = _dSupa();
+      if (!supa) { _dAuth = null; return; }
+      const { data } = await supa.auth.getSession();
+      if (!data || !data.session) { _dAuth = null; return; }
+      _dAuth = {
+        url: supa.supabaseUrl, key: supa.supabaseKey,
+        token: data.session.access_token, userId: data.session.user.id
+      };
+    } catch (_) { _dAuth = null; }
+  }
+
+  function _dLog(action, c) {
+    if (!_dAuth || !_dAuth.url) return;
+    const row = { user_id: _dAuth.userId, action, only_vol: _dVol };
+    if (c) { row.vol = _dVolOf(c); row.file = _dFileOf(c); row.topic_index = _dTopicOf(c); }
+    try {
+      // keepalive: o 'read' dispara junto com a navegação pro leitor; sem isto
+      // o navegador aborta a requisição no unload e o evento se perde —
+      // justamente o que mede se a descoberta virou leitura.
+      fetch(_dAuth.url + '/rest/v1/discovery_events', {
+        method: 'POST', keepalive: true,
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: _dAuth.key,
+          Authorization: 'Bearer ' + _dAuth.token,
+          Prefer: 'return=minimal'
+        },
+        body: JSON.stringify(row)
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
+  const D = {
+    pt: {
+      title: 'Descobrir um Ensinamento', prev: '← Anterior', next: 'Próximo →',
+      open: 'Abrir o Ensinamento', save: 'Guardar pra depois', saved: '✓ Guardado',
+      reread: 'você já leu — vale reler', from: 'de:', all: 'Todo o acervo',
+      loading: 'Sorteando...', poetry: 'Poesia',
+      openPoem: 'Ler no leitor',
+      savedIn: (p) => '✓ Guardado em Salvos › ' + p,
+      savedNoFolder: '✓ Guardado em Salvos', folderName: 'Para ler depois',
+      savedHint: 'Guardado — toque para remover',
+      showPath: 'toque para ver onde fica',
+      empty: 'Nenhum Ensinamento encontrado com esse filtro.',
+      noSession: 'Sua sessão expirou. Entre novamente para descobrir um Ensinamento.',
+      failed: 'Não foi possível sortear agora. Tente de novo.'
+    },
+    ja: {
+      title: '御縁の御教え', prev: '← 前へ', next: '次へ →',
+      open: '御教えを開く', save: 'あとで読む', saved: '✓ 保存しました',
+      reread: '拝読済み — 繰り返し拝読を', from: '範囲:', all: '全巻',
+      loading: '選んでいます...', poetry: '御歌',
+      openPoem: '読む',
+      savedIn: (p) => '✓ 保存したもの › ' + p,
+      savedNoFolder: '✓ 保存しました', folderName: 'あとで読む',
+      savedHint: '保存済み — タップで削除',
+      showPath: 'タップで場所を確認',
+      empty: 'この条件では御教えが見つかりませんでした。',
+      noSession: 'セッションが切れました。もう一度ログインしてください。',
+      failed: '選べませんでした。もう一度お試しください。'
+    }
+  };
+  const _dT = () => D[_dLang()] || D.pt;
+
+  // Corta no último espaço pra não partir palavra ao meio.
+  function _dTrim(s, max) {
+    s = String(s || '').trim();
+    if (s.length <= max) return s;
+    const cut = s.slice(0, max);
+    const sp = cut.lastIndexOf(' ');
+    return (sp > max * 0.6 ? cut.slice(0, sp) : cut).replace(/[\s,;:.]+$/, '') + '…';
+  }
+
+  // Volume sempre; seção só onde GLOBAL_INDEX_TITLES está carregado (reader).
+  function _dOrigin(card) {
+    const ja = _dLang() === 'ja';
+    if (_dIsPoem(card)) return card.col || (ja ? '御歌' : 'Poesia');
+    const n = parseInt(String(card.vol).replace('mioshiec', ''), 10);
+    const subs = window.VOL_SUBTITLES || { pt: {}, ja: {} };
+    const volName = (ja ? subs.ja : subs.pt)[n] || card.vol;
+    const parts = [ja ? ('第' + n + '巻') : ('Vol. ' + n), volName];
+    const gi = window.GLOBAL_INDEX_TITLES && window.GLOBAL_INDEX_TITLES[card.vol + '/' + card.file];
+    const sec = gi && (ja ? gi.sectionJa : gi.section);
+    if (sec) parts.push(sec);
+    return parts.join(' · ');
+  }
+
+  function buildDiscoveryModal() {
+    if (_modalExists('discoveryModal')) return;
+    const t = _dT();
+    const el = document.createElement('div');
+    el.className = 'search-modal-overlay';
+    el.id = 'discoveryModal';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-labelledby', 'discoveryModalTitle');
+    el.innerHTML =
+      '<div class="search-modal disc-modal">' +
+      '<button class="modal-close-btn" onclick="closeDiscovery()" aria-label="Fechar">&times;</button>' +
+      '<div class="search-header">' +
+      '<h2 id="discoveryModalTitle" class="disc-kicker">' + _escModal(t.title) + '</h2>' +
+      '</div>' +
+      '<div class="disc-filters" id="discFilters"></div>' +
+      '<div class="disc-card" id="discCard" aria-live="polite"></div>' +
+      '<div class="disc-actions" id="discActions"></div>' +
+      '</div>';
+    document.body.appendChild(el);
+    el.addEventListener('click', (e) => { if (e.target === el) window.closeDiscovery(); });
+  }
+
+  function _dRenderFilters() {
+    const box = document.getElementById('discFilters');
+    if (!box) return;
+    const t = _dT(), ja = _dLang() === 'ja';
+    const subs = window.VOL_SUBTITLES || { pt: {}, ja: {} };
+    let html = '<span class="disc-filters__label">' + _escModal(t.from) + '</span>';
+    html += '<button type="button" class="disc-chip' + (_dVol === null ? ' is-on' : '') +
+            '" data-vol="">' + _escModal(t.all) + '</button>';
+    for (let n = 1; n <= 4; n++) {
+      const v = 'mioshiec' + n;
+      const nm = (ja ? subs.ja : subs.pt)[n] || v;
+      html += '<button type="button" class="disc-chip' + (_dVol === v ? ' is-on' : '') +
+              '" data-vol="' + v + '">' + _escModal(nm) + '</button>';
+    }
+    html += '<button type="button" class="disc-chip' + (_dVol === 'poetry' ? ' is-on' : '') +
+            '" data-vol="poetry">' + _escModal(t.poetry) + '</button>';
+    box.innerHTML = html;
+    box.querySelectorAll('[data-vol]').forEach(b => b.addEventListener('click', () => {
+      _dVol = b.dataset.vol || null;
+      _dRenderFilters();
+      _dDraw(true);
+    }));
+  }
+
+  let _dPoolPromise = null;
+  let _dLastPoem = -1;
+
+  function _dPoems() {
+    if (!_dPoolPromise) {
+      // Mesmo arquivo que o "Poema do Momento" da home já usa — nada novo pra
+      // manter, e o navegador provavelmente já tem em cache.
+      _dPoolPromise = fetch(_dBase() + 'data/poetry/poetry_pool.json?v=2')
+        .then(r => r.json())
+        .then(j => (j && j.poems) || [])
+        .catch(() => []);
+    }
+    return _dPoolPromise;
+  }
+
+  async function _dPickPoem() {
+    const poems = await _dPoems();
+    if (!poems.length) return null;
+    let i;
+    do { i = Math.floor(Math.random() * poems.length); }
+    while (poems.length > 1 && i === _dLastPoem);
+    _dLastPoem = i;
+    return Object.assign({ kind: 'poetry' }, poems[i]);
+  }
+
+  function _dMessage(msg) {
+    const card = document.getElementById('discCard');
+    const acts = document.getElementById('discActions');
+    if (card) card.innerHTML = '<p class="disc-msg">' + _escModal(msg) + '</p>';
+    if (acts) acts.innerHTML = '';
+  }
+
+  function _dRender() {
+    const card = document.getElementById('discCard');
+    const acts = document.getElementById('discActions');
+    if (!card || !acts) return;
+    const t = _dT(), ja = _dLang() === 'ja';
+    const c = _dHist[_dPos];
+    if (!c) return;
+
+    let href;
+    if (_dIsPoem(c)) {
+      // O poema é curto: cabe INTEIRO. Cortá-lo em "trecho" seria mutilar a
+      // forma — waka não tem primeiras linhas, tem cinco versos.
+      card.innerHTML =
+        '<p class="disc-origin">' + _escModal(_dOrigin(c)) + '</p>' +
+        (c.t ? '<h3 class="disc-title">' + _escModal(c.t) + '</h3>' : '') +
+        '<p class="disc-poem-jp">' + _escModal(c.jp || '') + '</p>' +
+        (c.rj ? '<p class="disc-poem-rj">' + _escModal(c.rj) + '</p>' : '') +
+        '<p class="disc-poem-pt">' + _escModal(c.pt || '') + '</p>';
+      href = _dBase() + String(c.u || 'poesia.html') + '?poem=' + encodeURIComponent(c.id || '');
+    } else {
+      const title = _escModal((ja ? (c.title_ja || c.title_pt) : (c.title_pt || c.title_ja)) || '');
+      const raw = ja ? (c.excerpt_ja || c.excerpt_pt) : (c.excerpt_pt || c.excerpt_ja);
+      // A RPC devolve até 900 (PT) / 400 (JA); cortamos abaixo disso pra sobrar
+      // margem pro "…". O cartão tem piso de altura pra não pular de tamanho a
+      // cada "Próximo" — com o trecho neste tamanho, o piso quase nunca manda.
+      const excerpt = _escModal(_dTrim(raw, ja ? 340 : 780));
+
+      card.innerHTML =
+        '<p class="disc-origin">' + _escModal(_dOrigin(c)) + '</p>' +
+        '<h3 class="disc-title">' + title + '</h3>' +
+        (c.already_read ? '<p class="disc-reread">' + _escModal(t.reread) + '</p>' : '') +
+        '<p class="disc-excerpt">' + excerpt + '</p>';
+
+      const topic = c.topic_idx != null ? c.topic_idx : 0;
+      href = _dBase() + 'reader.html?vol=' + encodeURIComponent(c.vol) +
+             '&file=' + encodeURIComponent(c.file);
+      if (topic > 0) href += '&topic=' + topic;
+      if (ja) href += '&lang=ja';
+    }
+
+    acts.innerHTML =
+      '<div class="disc-actions__main">' +
+      '<a class="disc-btn disc-btn--primary" href="' + _escModal(href) + '">' +
+        _escModal(_dIsPoem(c) ? t.openPoem : t.open) + '</a>' +
+      '<button type="button" class="disc-btn disc-btn--ghost" id="discSave">' + _escModal(t.save) + '</button>' +
+      '</div>' +
+      '<div class="disc-actions__nav">' +
+      '<button type="button" class="disc-nav" id="discPrev"' + (_dPos <= 0 ? ' disabled' : '') + '>' +
+        _escModal(t.prev) + '</button>' +
+      '<button type="button" class="disc-nav" id="discNext">' + _escModal(t.next) + '</button>' +
+      '</div>';
+
+    document.getElementById('discPrev').addEventListener('click', () => {
+      if (_dPos > 0) { _dPos--; _dRender(); }
+    });
+    document.getElementById('discNext').addEventListener('click', () => {
+      // Na ponta sorteia; no meio do histórico apenas avança.
+      if (_dPos < _dHist.length - 1) { _dPos++; _dRender(); } else { _dDraw(false); }
+    });
+    const openLink = acts.querySelector('.disc-btn--primary');
+    if (openLink) openLink.addEventListener('click', () => _dLog('read', c));
+
+    const saveBtn = document.getElementById('discSave');
+    _dPaintSaveBtn(saveBtn, _dIsSaved(c));
+    saveBtn.addEventListener('click', (e) => _dSave(e.currentTarget, c));
+    // (a confirmação de "guardado" morre junto com o innerHTML de #discActions
+    //  a cada re-render, então não precisa de limpeza explícita)
+  }
+
+  // Pasta "Para ler depois": o que sai da descoberta é material que a pessoa
+  // AINDA NÃO leu — misturar com os salvos temáticos (que ela escolheu por
+  // importância) apagaria essa diferença. Criada sob demanda, uma vez só.
+  const DISC_FOLDER = { pt: 'Para ler depois', ja: 'あとで読む' };
+  const DISC_FOLDER_COLOR = '#3a6ea5';
+
+  async function _dFolderId() {
+    const cs = window._cloudSync;
+    if (!cs || !cs.loadFolders || !cs.upsertFolder) return null;
+    try {
+      const folders = await cs.loadFolders();
+      // Procura pelos DOIS nomes: quem alterna PT/JA não pode acabar com duas
+      // pastas de mesma função.
+      const alvos = [DISC_FOLDER.pt, DISC_FOLDER.ja].map(n => n.toLowerCase());
+      const achada = (folders || []).find(
+        f => alvos.includes(String(f.name || '').trim().toLowerCase()));
+      if (achada) return achada.id;
+
+      const nova = {
+        id: (crypto.randomUUID ? crypto.randomUUID()
+             : 'f-' + Date.now() + '-' + Math.random().toString(16).slice(2)),
+        name: DISC_FOLDER[_dLang()] || DISC_FOLDER.pt,
+        color: DISC_FOLDER_COLOR,
+        pos: (folders || []).length
+      };
+      await cs.upsertFolder(nova);
+      // Espelha no cache local, senão a pasta só apareceria na Central depois
+      // do próximo pull da nuvem.
+      try {
+        const locais = JSON.parse(localStorage.getItem('favoriteFolders') || '[]');
+        if (!locais.some(f => f.id === nova.id)) {
+          locais.push({ ...nova, time: Date.now() });
+          localStorage.setItem('favoriteFolders', JSON.stringify(locais));
+        }
+      } catch (_) {}
+      return nova.id;
+    } catch (e) {
+      console.warn('[descobrir] pasta "Para ler depois":', e);
+      return null; // guardar não pode falhar por causa da pasta
+    }
+  }
+
+  // Poesia entra no mesmo baralho, mas tem identidade própria: os favoritos
+  // de poema usam vol='poetry', file=SLUG da coletânea e topic=número do poema
+  // (é assim que salvos.html remonta o deep-link ?poem=). Sem respeitar isso,
+  // o poema guardado aqui não apareceria direito na Central.
+  const _dIsPoem = (c) => !!(c && c.kind === 'poetry');
+  const _dPoemNum = (c) => { const m = /(\d+)\s*$/.exec(String(c.id || '')); return m ? parseInt(m[1], 10) : 0; };
+  const _dVolOf  = (c) => (_dIsPoem(c) ? 'poetry' : c.vol);
+  const _dFileOf = (c) => (_dIsPoem(c) ? String(c.u || '').replace(/\.html$/, '') : c.file);
+  const _dTopicOf = (c) => (_dIsPoem(c) ? _dPoemNum(c) : (c.topic_idx != null ? c.topic_idx : 0));
+
+  function _dIsSaved(c) {
+    try {
+      const topic = _dTopicOf(c);
+      const vol = _dVolOf(c), file = _dFileOf(c);
+      return JSON.parse(localStorage.getItem('savedFavorites') || '[]')
+        .some(f => f.vol === vol && f.file === file && (f.topic || 0) === topic);
+    } catch (_) { return false; }
+  }
+
+  // Reflete o estado real do botão. Chamado no render também, senão voltar pelo
+  // "Anterior" a um Ensinamento já guardado mostraria "Guardar pra depois" —
+  // e um segundo toque criaria a impressão de que não tinha salvado.
+  function _dPaintSaveBtn(btn, saved) {
+    const t = _dT();
+    btn.textContent = saved ? t.saved : t.save;
+    btn.title = saved ? t.savedHint : '';
+    btn.classList.toggle('is-saved', saved);
+  }
+
+  function _dClearSavedMsg() {
+    const msg = document.querySelector('#discActions .disc-saved');
+    if (msg) msg.remove();
+  }
+
+  // Desfazer: tira dos Salvos o que acabou de entrar (toque errado, ou mudou
+  // de ideia). Mesmo botão, sem esconder nada — quem guardou sem querer não
+  // precisa ir até a Central pra corrigir.
+  function _dUnsave(btn, c) {
+    const topic = _dTopicOf(c);
+    try {
+      const favs = JSON.parse(localStorage.getItem('savedFavorites') || '[]')
+        .filter(f => !(f.vol === c.vol && f.file === c.file && (f.topic || 0) === topic));
+      localStorage.setItem('savedFavorites', JSON.stringify(favs));
+    } catch (_) {}
+    if (window._cloudSync && window._cloudSync.removeFavorite) {
+      Promise.resolve(window._cloudSync.removeFavorite(c.vol, c.file, topic))
+        .catch(err => console.warn('[descobrir] remover falhou:', err));
+    }
+    _dClearSavedMsg();
+    _dPaintSaveBtn(btn, false);
+    _dLog('unsave', c);
+  }
+
+  // Mostrar o CAMINHO, não levar até lá: para quem tem dificuldade de navegar,
+  // aprender que "Salvos" fica no menu vale mais do que ser transportado uma
+  // vez. Fecha o modal antes por necessidade real — ele é a camada mais alta
+  // da página (z-index 99999 contra 9000 do menu), então o menu abriria ATRÁS
+  // e ninguém veria nada.
+  function _dShowWhere() {
+    window.closeDiscovery();
+    if (typeof window.openMobileNav !== 'function') return;
+    window.openMobileNav();
+    setTimeout(() => {
+      const alvo = document.getElementById('mobileNavLinkFavorites');
+      if (!alvo) return;
+      alvo.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      alvo.classList.add('nav-pulse-hint');
+      setTimeout(() => alvo.classList.remove('nav-pulse-hint'), 3200);
+    }, 260); // espera a animação de abertura do menu assentar
+  }
+
+  async function _dSave(btn, c) {
+    const t = _dT();
+    if (_dIsSaved(c)) { _dUnsave(btn, c); return; }
+    _dPaintSaveBtn(btn, true);
+    const title = (_dLang() === 'ja' ? (c.title_ja || c.title_pt) : (c.title_pt || c.title_ja)) || '';
+    const topic = _dTopicOf(c);
+    const snippet = _dTrim(c.excerpt_pt || c.excerpt_ja || '', 120);
+    // MESMO formato que o botão de salvar do leitor grava (js/reader.js), senão
+    // o card sai diferente na Central de Salvos e no modal de Favoritos.
+    // `title` lá é o título da PUBLICAÇÃO; aqui só temos o do Ensinamento, que
+    // é a melhor aproximação disponível. `totalTopics` a RPC não devolve.
+    const folderId = await _dFolderId();
+    try {
+      const favs = JSON.parse(localStorage.getItem('savedFavorites') || '[]');
+      if (!favs.some(f => f.vol === c.vol && f.file === c.file && (f.topic || 0) === topic)) {
+        favs.unshift({
+          title, vol: c.vol, file: c.file, time: Date.now(),
+          topic, topicTitle: title, snippet, totalTopics: null, folderId
+        });
+        localStorage.setItem('savedFavorites', JSON.stringify(favs));
+      }
+    } catch (_) {}
+    if (window._cloudSync && window._cloudSync.saveFavorite) {
+      // Assinatura: (volume, file, topicIndex, topicTitle, snippet, totalTopics, folderId)
+      Promise.resolve(window._cloudSync.saveFavorite(
+          c.vol, c.file, topic, title, snippet, null, folderId))
+        .catch(err => console.warn('[descobrir] guardar falhou:', err));
+    }
+
+    // Dizer ONDE foi guardado, com caminho até lá. Sem isto, "✓ Guardado" deixa
+    // a pessoa sem saber onde procurar depois — e o link vai direto pra pasta,
+    // não pra lista geral.
+    const acts = document.getElementById('discActions');
+    if (acts && !acts.querySelector('.disc-saved')) {
+      const p = document.createElement('p');
+      p.className = 'disc-saved';
+      p.setAttribute('role', 'status');
+      // Sem link: seguir um levaria a pessoa PRA FORA do modal, que é
+      // exatamente o que ele existe pra evitar. A mensagem só ensina o
+      // caminho; ela vai lá quando quiser, pelo menu.
+      p.innerHTML = '<span>' + _escModal(folderId ? t.savedIn(t.folderName) : t.savedNoFolder) + '</span>' +
+                    '<button type="button" class="disc-saved__where">' + _escModal(t.showPath) + '</button>';
+      p.querySelector('.disc-saved__where').addEventListener('click', _dShowWhere);
+      acts.appendChild(p);
+    }
+    _dLog('save', c);
+  }
+
+  // reset=true recomeça o histórico (mudou o filtro); false empilha.
+  async function _dDraw(reset) {
+    const gen = ++_dGen;
+    const t = _dT();
+    if (reset) { _dHist = []; _dPos = -1; }
+    _dMessage(t.loading);
+
+    // Poesia não passa pelo banco: o pool é um JSON estático que a home já
+    // carrega. Sem RPC e sem sessão — mais rápido e sem custo no Supabase.
+    if (_dVol === 'poetry') {
+      try {
+        const poema = await _dPickPoem();
+        if (gen !== _dGen) return;                    // filtro mudou no meio
+        if (!poema) { _dMessage(t.empty); return; }
+        _dHist.push(poema);
+        _dPos = _dHist.length - 1;
+        _dLog('draw', poema);
+        _dRender();
+      } catch (err) {
+        if (gen !== _dGen) return;
+        console.warn('[descobrir] poesia:', err);
+        _dMessage(t.failed);
+      }
+      return;
+    }
+
+    try {
+      const supabase = _dSupa();
+      if (!supabase) { _dMessage(t.noSession); return; }
+
+      // Sessão ANTES da RPC: o grant é só pra authenticated, e sem sessão ela
+      // devolve [] SEM erro. getSession() ainda renova access token vencido.
+      let hasSession = false;
+      try {
+        const { data: s } = await supabase.auth.getSession();
+        hasSession = !!(s && s.session);
+      } catch (_) {}
+      if (!hasSession) {
+        _dMessage(t.noSession);
+        if (!document.getElementById('login-overlay')
+            && window.supabaseAuth && typeof window.supabaseAuth.showLoginOverlay === 'function') {
+          window.supabaseAuth.showLoginOverlay();
+        }
+        return;
+      }
+
+      // only_read continua existindo na RPC (preferência pelo não lido +
+      // modo releitura), só não tem controle na tela.
+      const { data, error } = await supabase.rpc('random_teaching_card', {
+        only_vol: _dVol, only_read: false
+      });
+      if (gen !== _dGen) return;                      // filtro mudou no meio
+      if (error) { console.warn('random_teaching_card:', error); _dMessage(t.failed); return; }
+      if (!data || !data.length) { _dMessage(t.empty); return; }
+
+      _dHist.push(data[0]);
+      _dPos = _dHist.length - 1;
+      _dLog('draw', data[0]);
+      _dRender();
+    } catch (err) {
+      if (gen !== _dGen) return;
+      console.warn('[descobrir] falhou:', err);
+      _dMessage(_dT().failed);
+    }
+  }
+
+  window.openDiscovery = function (vol) {
+    buildDiscoveryModal();
+    const modal = document.getElementById('discoveryModal');
+    if (!modal) return;
+    _dVol = vol || null;
+    // O título é escrito na CONSTRUÇÃO, que acontece uma vez só: sem isto ele
+    // congela no idioma daquele momento e não acompanha o toggle PT/JA (o
+    // resto re-renderiza a cada sorteio, por isso só ele ficava para trás).
+    const titleEl = document.getElementById('discoveryModalTitle');
+    if (titleEl) titleEl.textContent = _dT().title;
+    if (!modal.classList.contains('active') && window.__lockBodyScroll) window.__lockBodyScroll();
+    modal.classList.add('active');
+    _dRenderFilters();
+    _dPrimeAuth().then(() => _dLog('open', null));
+    _dDraw(true);
+  };
+
+  window.closeDiscovery = function () {
+    const modal = document.getElementById('discoveryModal');
+    if (!modal) return;
+    const wasOpen = modal.classList.contains('active');
+    modal.classList.remove('active');
+    if (wasOpen && window.__unlockBodyScroll) window.__unlockBodyScroll();
+  };
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const modal = document.getElementById('discoveryModal');
+    if (modal && modal.classList.contains('active')) window.closeDiscovery();
+  });
+
+  window.buildDiscoveryModal = buildDiscoveryModal;
+})();
+
+// ============================================================
+// Novidades — aviso único sobre as mudanças recentes
+// ============================================================
+// Aparece UMA vez, na home, e some pra sempre. Existe porque duas coisas que
+// as pessoas já usavam mudaram de comportamento: o botão de descoberta deixou
+// de navegar e passou a abrir um cartão, e "marcar como lido" virou contador
+// de leituras. Mudança silenciosa em gesto conhecido confunde mais do que
+// recurso novo.
+//
+// A flag tem VERSÃO no nome: a próxima leva de novidades usa outra chave e
+// aparece de novo, sem precisar limpar nada de ninguém.
+(function () {
+  const FLAG = 'cdf_novidades_v1';
+
+  const N = {
+    pt: {
+      kicker: 'Duas mudanças recentes',
+      itens: [
+        ['Descobrir um Ensinamento',
+         'O botão do topo passou a apresentar o Ensinamento aqui mesmo — título e ' +
+         'primeiras linhas — de modo que se possa conhecê-lo antes de abri-lo. ' +
+         'As Obras Poéticas também entram no sorteio.'],
+        ['Registrar leitura',
+         '“Marcar como lido” deu lugar a “Registrar leitura”, e agora cada leitura é ' +
+         'contada. A releitura é parte do caminho: “é bom ler repetidas vezes até que ' +
+         'seja assimilado no íntimo”.']
+      ],
+      ok: 'Entendi'
+    },
+    ja: {
+      kicker: '変わったこと',
+      itens: [
+        ['御縁の御教え',
+         '上部のボタンは、ページを離れずにその場で御教えのカードを開くようになりました。' +
+         '目を通してから、読みたいときだけ開けます。'],
+        ['拝読を記録',
+         '「読了として記録」に代わるものです。各御教えを何回拝読したかを数えます。' +
+         '「繰り返し繰り返し肚にはいるまで読むのがよい」からです。']
+      ],
+      ok: 'わかりました'
+    }
+  };
+
+  function jaVisto() {
+    try { return !!localStorage.getItem(FLAG); } catch (_) { return true; }
+  }
+  function marcarVisto() {
+    try { localStorage.setItem(FLAG, '1'); } catch (_) {}
+  }
+
+  // forcar=true ignora a flag: e' o caminho de quem quer VER o aviso de novo
+  // (conferir o texto, mostrar pra alguem). O disparo automatico continua
+  // respeitando a flag.
+  function mostrar(forcar) {
+    if (!forcar && jaVisto()) return;
+    if (_modalExists('novidadesModal')) return;
+    // Só pra quem já entrou: o #page-gate cobre a tela dos deslogados, e o
+    // aviso apareceria atrás dele, gasto sem ninguém ver.
+    try { if (!localStorage.getItem('mioshie_auth')) return; } catch (_) { return; }
+
+    const lang = localStorage.getItem('site_lang') || 'pt';
+    const t = N[lang] || N.pt;
+
+    const el = document.createElement('div');
+    el.className = 'search-modal-overlay';
+    el.id = 'novidadesModal';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-labelledby', 'novidadesTitle');
+    el.innerHTML =
+      '<div class="search-modal nov-modal">' +
+      '<button class="modal-close-btn" onclick="closeNovidades()" aria-label="Fechar">&times;</button>' +
+      '<div class="search-header">' +
+      '<h2 id="novidadesTitle" class="nov-kicker">' + _escModal(t.kicker) + '</h2>' +
+      '</div>' +
+      '<div class="nov-body">' +
+      t.itens.map(function (it) {
+        return '<div class="nov-item">' +
+               '<h3 class="nov-item__title">' + _escModal(it[0]) + '</h3>' +
+               '<p class="nov-item__text">' + _escModal(it[1]) + '</p>' +
+               '</div>';
+      }).join('') +
+      '</div>' +
+      '<div class="nov-actions">' +
+      '<button type="button" class="disc-btn disc-btn--primary" onclick="closeNovidades()">' +
+        _escModal(t.ok) + '</button>' +
+      '</div>' +
+      '</div>';
+    document.body.appendChild(el);
+    el.addEventListener('click', function (e) { if (e.target === el) window.closeNovidades(); });
+
+    if (window.__lockBodyScroll) window.__lockBodyScroll();
+    el.classList.add('active');
+    // Marca como visto na EXIBIÇÃO, não no fechamento: se a pessoa recarregar
+    // a página no meio, o aviso não volta a perseguí-la.
+    marcarVisto();
+  }
+
+  window.closeNovidades = function () {
+    const el = document.getElementById('novidadesModal');
+    if (!el) return;
+    const estavaAberto = el.classList.contains('active');
+    el.classList.remove('active');
+    if (estavaAberto && window.__unlockBodyScroll) window.__unlockBodyScroll();
+    setTimeout(function () { el.remove(); }, 300);
+  };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    const el = document.getElementById('novidadesModal');
+    if (el && el.classList.contains('active')) window.closeNovidades();
+  });
+
+  // Só na home, e depois do conteúdo assentar — competir com o carregamento
+  // faria o aviso aparecer sobre uma página ainda em branco.
+  function agendar() {
+    if (!document.body.classList.contains('home-page')) return;
+    setTimeout(mostrar, 1200);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', agendar);
+  } else {
+    agendar();
+  }
+
+  // No console: showNovidades() mostra na hora, sem mexer na flag.
+  //              showNovidades(true) tambem "esquece" que voce ja viu, pra
+  //              testar o disparo automatico no proximo carregamento.
+  window.showNovidades = function (esquecer) {
+    if (esquecer) { try { localStorage.removeItem(FLAG); } catch (_) {} }
+    mostrar(true);
+  };
+})();

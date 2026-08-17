@@ -4,7 +4,7 @@
 // ============================================================
 
 // Subtítulos dos volumes na seção "Meishu-Sama" do menu mobile. MESMOS
-// nomes oficiais dos cards da home e do dropdown "Ensino aleatório" (antes
+// nomes oficiais dos cards da home e do dropdown de descoberta (antes
 // divergiam: este menu usava glosas informais tipo "Método de Saúde"/
 // "神性医療法" em vez do título real da seção). Compartilhado entre o
 // build inicial (este arquivo) e o rebuild no setLanguage (language.js) —
@@ -699,7 +699,7 @@ function _initMobileNav() {
     headerActions.insertBefore(printBtn, highlightBtn);
   }
 
-  // Botão "Ensino aleatório" no header — ícone de brilho (estrela, igual
+  // Botão "Descobrir um Ensinamento" no header — ícone de brilho (estrela, igual
   // aos cards) que abre um dropdown com 5 opções: qualquer volume + os 4
   // volumes pelo TÍTULO (mesmos nomes dos cards da home; o usuário pediu
   // título em vez de "Volume N"). Reusa as funções públicas de sorteio de
@@ -710,30 +710,23 @@ function _initMobileNav() {
   // _header.css esconde no índice via @media + body:not(.reader-body).
   // search.min.js está carregado nessas páginas, então as funções existem.
   if (isReaderPage || isIndexPage) {
-    const randomLabel = currentLang === 'ja' ? 'ランダムな御教え' : 'Ensino aleatório';
+    // Mesmo rótulo do botão da home: o gesto é o mesmo, o nome tem que ser o
+    // mesmo. "Ensino aleatório" descrevia o mecanismo (sorteio) em vez do que
+    // a pessoa ganha com ele.
+    const randomLabel = currentLang === 'ja' ? '御縁の御教え' : 'Descobrir um Ensinamento';
     const randomWrap = document.createElement('div');
     randomWrap.className = 'reader-random-wrap';
     randomWrap.id = 'readerRandomWrap';
     randomWrap.innerHTML = `
       <button type="button" class="mobile-fav-btn" id="readerRandomBtn"
-        aria-haspopup="true" aria-expanded="false"
+        aria-haspopup="dialog"
         aria-label="${randomLabel}" title="${randomLabel}">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/>
         </svg>
       </button>
-      <div class="reader-random-dropdown" id="readerRandomDropdown" role="menu">
-        <button type="button" class="reader-random-option" data-vol="" role="menuitem">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          <span class="lang-pt">Qualquer volume</span><span class="lang-ja" style="display:none">全巻</span>
-        </button>
-        <div class="reader-random-divider"></div>
-        <button type="button" class="reader-random-option" data-vol="mioshiec1" role="menuitem"><span class="lang-pt">Mundo Espiritual</span><span class="lang-ja" style="display:none">霊界編</span></button>
-        <button type="button" class="reader-random-option" data-vol="mioshiec2" role="menuitem"><span class="lang-pt">Método Divino de Saúde</span><span class="lang-ja" style="display:none">浄霊・自然農法</span></button>
-        <button type="button" class="reader-random-option" data-vol="mioshiec3" role="menuitem"><span class="lang-pt">A Verdadeira Fé</span><span class="lang-ja" style="display:none">信仰編</span></button>
-        <button type="button" class="reader-random-option" data-vol="mioshiec4" role="menuitem"><span class="lang-pt">Ensinamentos Diversos</span><span class="lang-ja" style="display:none">多様な御教え</span></button>
-      </div>`;
+    `;
     headerActions.insertBefore(randomWrap, hamburgerBtn);
 
     // setLanguage() (language.js) já rodou antes deste nav.js deferred, então
@@ -744,58 +737,18 @@ function _initMobileNav() {
     randomWrap.querySelectorAll('.lang-ja').forEach(el => { el.style.display = (currentLang === 'ja' ? '' : 'none'); });
 
     const randomBtn = randomWrap.querySelector('#readerRandomBtn');
-    const randomDrop = randomWrap.querySelector('#readerRandomDropdown');
-    // Backdrop full-screen (blur + dim), como nos modais. Fica no body com
-    // z-index abaixo do header (2000) → botão e dropdown ficam nítidos por
-    // cima, o resto da página escurece e o scroll do fundo trava.
-    let randomBackdrop = null;
-    const closeRandom = () => {
-      if (!randomDrop.classList.contains('open')) return;
-      randomDrop.classList.remove('open');
-      randomBtn.setAttribute('aria-expanded', 'false');
-      if (randomBackdrop) randomBackdrop.classList.remove('open');
-      window.__unlockBodyScroll();
-    };
-    const openRandom = () => {
-      if (randomDrop.classList.contains('open')) return;
-      if (!randomBackdrop) {
-        randomBackdrop = document.createElement('div');
-        randomBackdrop.className = 'reader-random-backdrop';
-        randomBackdrop.addEventListener('click', closeRandom);
-        document.body.appendChild(randomBackdrop);
-      }
-      randomDrop.classList.add('open');
-      randomBtn.setAttribute('aria-expanded', 'true');
-      window.__lockBodyScroll();
-      // rAF pra o opacity transicionar a partir de 0 (elemento recém-inserido).
-      requestAnimationFrame(() => { if (randomBackdrop) randomBackdrop.classList.add('open'); });
-    };
+    // Antes isto abria um dropdown com 5 opções (qualquer volume + os 4) e
+    // NAVEGAVA. Agora abre o modal de descoberta: a pessoa espia sem sair da
+    // página, e o filtro de volume mora lá dentro — um modelo mental só, em
+    // vez de um menu aqui e outro lá.
     randomBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (randomDrop.classList.contains('open')) {
-        closeRandom();
-      } else {
-        openRandom();
+      if (typeof window.openDiscovery === 'function') {
+        window.openDiscovery();
+      } else if (typeof window.openRandomTeaching === 'function') {
+        // modals.js ausente nesta página: mantém o comportamento antigo
+        window.openRandomTeaching({ currentTarget: randomBtn });
       }
-    });
-    document.addEventListener('click', closeRandom);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeRandom(); });
-
-    randomWrap.querySelectorAll('.reader-random-option').forEach((opt) => {
-      opt.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const vol = opt.getAttribute('data-vol') || null;
-        // Não fecha o dropdown: mantém a opção visível com o spinner
-        // enquanto o RPC resolve (a navegação troca a página em seguida).
-        // Passa a própria opção como currentTarget — _setRandomLoading
-        // mostra o spinner nela; openRandom* faz o resto (RPC + navegação).
-        const evt = { currentTarget: opt };
-        if (vol) {
-          if (typeof window.openRandomFromVolume === 'function') window.openRandomFromVolume(vol, evt);
-        } else if (typeof window.openRandomTeaching === 'function') {
-          window.openRandomTeaching(evt);
-        }
-      });
     });
   }
 

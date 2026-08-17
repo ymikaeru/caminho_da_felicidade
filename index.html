@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@400;700&display=swap">
-    <link rel="stylesheet" href="css/styles.min.css?v=215">
+    <link rel="stylesheet" href="css/styles.min.css?v=230">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -24,7 +24,7 @@
     <meta property="og:image" content="assets/icons/icon-512.png">
     <meta name="twitter:card" content="summary">
     <script src="js/toggle.js?v=46" defer></script>
-    <script src="js/nav.js?v=81" defer></script>
+    <script src="js/nav.js?v=83" defer></script>
     <script src="js/theme.js?v=3" defer></script>
     <script src="js/language.js?v=14" defer></script>
     <script src="js/typography.js?v=2" defer></script>
@@ -81,19 +81,51 @@
                         <span class="lang-pt">Ensinamentos <br class="mobile-br"> de Meishu-Sama</span>
                         <span class="lang-ja" style="display:none">明主様御教え</span>
                     </h1>
-                    <p
-                        style="text-align:center; color:var(--text-muted); margin-bottom:32px; max-width:600px; margin-inline:auto;">
-                        <span class="lang-pt">Tradução em português das obras de Meishu-Sama, organizadas em volumes
-                            temáticos para estudo e reflexão.</span>
-                        <span class="lang-ja" style="display:none">明主様の御教えをテーマ別にまとめた、日本語とポルトガル語のサイトです。</span>
-                    </p>
+                    <!-- Citação que enquadra o site. O subtítulo anterior ("organizadas em
+                         volumes temáticos para estudo e reflexão") descrevia um acervo de
+                         CONSULTA — o comportamento que se quer mudar, escrito na porta de
+                         entrada. A base é o ensinamento. Fonte: "Deve-se Ler Bastante os
+                         Escritos Divinos" (大いに神書を読むべし), 29/11/1950 —
+                         mioshiec3/haidoku1.html, tópico 0.
+                         A citação NÃO é clicável; só a atribuição leva ao Ensinamento, para
+                         não sequestrar o clique de quem quer começar a ler agora. -->
+                    <style>
+                        /* Medida mais estreita que o corpo do site: são 3 frases
+                           centralizadas, e linha longa + centralizado cansa a leitura. */
+                        .home-quote{max-width:600px;margin:0 auto 32px;padding:0;border:0;text-align:center;}
+                        .home-quote__text{font-family:var(--font-serif);font-size:16px;line-height:1.8;font-style:italic;color:var(--text-main);margin:0 0 12px;text-wrap:pretty;}
+                        .home-quote__cite{display:block;font-family:var(--font-ui);font-size:12px;font-style:normal;color:var(--text-muted);letter-spacing:.02em;}
+                        .home-quote__cite a{color:inherit;text-decoration:none;border-bottom:1px solid transparent;transition:color .2s,border-color .2s;}
+                        .home-quote__cite a:hover{color:var(--accent);border-bottom-color:var(--accent);}
+                        @media (max-width:640px){.home-quote__text{font-size:15px;line-height:1.75;}}
+                    </style>
+                    <blockquote class="home-quote">
+                        <p class="home-quote__text">
+                            <span class="lang-pt">“Lendo os Escritos Divinos o máximo possível, quanto mais se lê, mais
+                                profunda se torna a fé e mais a alma é aprimorada. Aqueles que negligenciam a leitura dos
+                                Escritos Divinos perdem gradualmente a sua força. Quanto mais a fé se aprofunda, mais se
+                                deseja ler avidamente e é bom ler repetidas vezes até que seja assimilado no
+                                íntimo.”</span>
+                            <span class="lang-ja"
+                                style="display:none">「読めば読む程信仰が深くなり、魂が磨けるのである。御神書の拝読を疎かにする者は、力がだんだん減るものである。信仰が徹底すればするほど、貪るように読みたくなるもので、繰り返し繰り返し肚にはいるまで読むのがよいのである」</span>
+                        </p>
+                        <cite class="home-quote__cite">
+                            <a href="reader.html?vol=mioshiec3&amp;file=haidoku1.html">
+                                <span class="lang-pt">Meishu-Sama · “Deve-se Ler Bastante os Escritos Divinos” · 29 de
+                                    novembro de 1950</span>
+                                <span class="lang-ja" style="display:none">明主様「大いに神書を読むべし」昭和25年11月29日</span>
+                            </a>
+                        </cite>
+                    </blockquote>
                     <div style="text-align:center; margin-bottom:48px;">
-                        <button class="btn-random-hero" onclick="openRandomTeaching(event)">
+                        <button class="btn-random-hero" onclick="openDiscovery()">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
                             </svg>
-                            <span class="lang-pt">Luz do Momento</span>
+                            <!-- "Luz do Momento" era bonito e não dizia o que acontece ao clicar.
+                                 O JA continua 御縁の御教え — lá o rótulo já é claro. -->
+                            <span class="lang-pt">Descobrir um Ensinamento</span>
                             <span class="lang-ja" style="display:none">御縁の御教え</span>
                         </button>
                     </div>
@@ -186,8 +218,8 @@
                                 <span class="lang-ja" style="display:none">400テーマ · 4,689刊行物</span>
                             </div>
                             <button class="vol-random-btn"
-                                onclick="event.preventDefault(); event.stopPropagation(); openRandomFromVolume('mioshiec1', event)"
-                                title="Ensino aleatório do Volume 1">
+                                onclick="event.preventDefault(); event.stopPropagation(); openDiscovery('mioshiec1')"
+                                title="Descobrir um Ensinamento do Volume 1">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path
@@ -216,8 +248,8 @@
                                 <span class="lang-ja" style="display:none">484テーマ · 6,032刊行物</span>
                             </div>
                             <button class="vol-random-btn"
-                                onclick="event.preventDefault(); event.stopPropagation(); openRandomFromVolume('mioshiec2', event)"
-                                title="Ensino aleatório do Volume 2">
+                                onclick="event.preventDefault(); event.stopPropagation(); openDiscovery('mioshiec2')"
+                                title="Descobrir um Ensinamento do Volume 2">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path
@@ -245,8 +277,8 @@
                                 <span class="lang-ja" style="display:none">390テーマ · 4,148刊行物</span>
                             </div>
                             <button class="vol-random-btn"
-                                onclick="event.preventDefault(); event.stopPropagation(); openRandomFromVolume('mioshiec3', event)"
-                                title="Ensino aleatório do Volume 3">
+                                onclick="event.preventDefault(); event.stopPropagation(); openDiscovery('mioshiec3')"
+                                title="Descobrir um Ensinamento do Volume 3">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path
@@ -276,8 +308,8 @@
                                 <span class="lang-ja" style="display:none">233テーマ · 2,582刊行物</span>
                             </div>
                             <button class="vol-random-btn"
-                                onclick="event.preventDefault(); event.stopPropagation(); openRandomFromVolume('mioshiec4', event)"
-                                title="Ensino aleatório do Volume 4">
+                                onclick="event.preventDefault(); event.stopPropagation(); openDiscovery('mioshiec4')"
+                                title="Descobrir um Ensinamento do Volume 4">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path
@@ -432,14 +464,14 @@
         window.supabaseStorageList = storageList;
     </script>
     <script type="module">
-        import * as cloudSync from './js/sync.js?v=11';
+        import * as cloudSync from './js/sync.js?v=13';
         window._cloudSync = cloudSync;
     </script>
     <script type="module" src="js/login.js?v=16"></script>
     <script src="js/access.js?v=6"></script>
-    <script src="js/modals.js?v=18"></script>
+    <script src="js/modals.js?v=33"></script>
     <script src="js/highlights.min.js?v=36" defer></script>
-    <script src="js/recommendations.js?v=61" defer></script>
+    <script src="js/recommendations.js?v=62" defer></script>
     <script src="js/study-messages.js?v=3" defer></script>
     <script src="js/playlists-loader.js?v=9" defer></script>
     <script src="js/poema-aleatorio.js?v=2" defer></script>

@@ -13,7 +13,7 @@
     const lang = localStorage.getItem('site_lang') || 'pt';
     const isPt = lang !== 'ja';
     const T = isPt ? {
-        empty: 'Nenhum Ensinamento marcado como lido ainda.<br>No leitor, toque no botão <b>✓ Marcar como lido</b> abaixo do título.',
+        empty: 'Nenhum Ensinamento marcado como lido ainda.<br>No leitor, toque no botão <b>✓ Registrar leitura</b> abaixo do título.',
         readOn: (d) => `lido em ${d}`,
         reread: 'Reler',
         unmark: 'Desmarcar',
@@ -21,7 +21,7 @@
         count: (n) => n === 1 ? '1 Ensinamento lido' : `${n} Ensinamentos lidos`,
         topicN: (n) => `tópico ${n}`
     } : {
-        empty: 'まだ読了の記録はありません。<br>リーダーでタイトル下の<b>✓ 読了として記録</b>をタップしてください。',
+        empty: 'まだ読了の記録はありません。<br>リーダーでタイトル下の<b>✓ 拝読を記録</b>をタップしてください。',
         readOn: (d) => `${d} に読了`,
         reread: 'もう一度読む',
         unmark: '解除',

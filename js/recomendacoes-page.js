@@ -162,7 +162,7 @@
       const isRead = isPlaylistItem && _readSet.has(_readKey(r.vol, r.file, _ridx));
       let actionBtn;
       if (isPlaylistItem) {
-        const readLbl = isRead ? (lang === 'ja' ? '読了' : 'Lido') : (lang === 'ja' ? '読了にする' : 'Marcar como lido');
+        const readLbl = isRead ? (lang === 'ja' ? '拝読を記録済み' : 'Leitura registrada') : (lang === 'ja' ? '拝読を記録' : 'Registrar leitura');
         const readSvg = isRead
           ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>`
           : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>`;
@@ -641,9 +641,9 @@
           </div>
         </div>
         <div class="search-preview-footer" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <button id="recPreviewRead" type="button" title="Marcar como lido" style="display:none; flex:0 0 auto; align-items:center; gap:6px; background:transparent; color:var(--accent); border:1px solid var(--accent); border-radius:8px; padding:10px 14px; font-family:var(--font-ui); font-size:0.9rem; font-weight:600; cursor:pointer; min-height:44px;">
+          <button id="recPreviewRead" type="button" title="Registrar leitura" style="display:none; flex:0 0 auto; align-items:center; gap:6px; background:transparent; color:var(--accent); border:1px solid var(--accent); border-radius:8px; padding:10px 14px; font-family:var(--font-ui); font-size:0.9rem; font-weight:600; cursor:pointer; min-height:44px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>
-            <span>Marcar como lido</span>
+            <span>Registrar leitura</span>
           </button>
           <button class="search-preview-cta" id="recPreviewOpen" title="Abrir página completa" style="flex:1 1 auto;">
             <span>Abrir página completa do ensinamento</span>
@@ -734,7 +734,7 @@
           ? (lang === 'ja' ? '読了済み' : 'Lido ✓')
           : (_previewIdx < _previewItems.length - 1
               ? (lang === 'ja' ? '読了にして次へ' : 'Lido — avançar')
-              : (lang === 'ja' ? '読了にする' : 'Marcar como lido'));
+              : (lang === 'ja' ? '拝読を記録' : 'Registrar leitura'));
       } else {
         readBtn.style.display = 'none';
       }

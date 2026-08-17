@@ -322,11 +322,62 @@ export async function loadReadMarks() {
 
   // A Central (fase 2) precisa do conjunto inteiro — paginado por causa
   // do clamp de 1000 do PostgREST (o antigo .limit(5000) não funcionava).
+  // Fallback se times_read/last_read_at ainda não existirem (migração
+  // read_marks_times_read.sql não aplicada): sem isto o PostgREST devolve 400
+  // e as marcas param de hidratar da nuvem por inteiro. Mesmo padrão do
+  // saveFavorite com folder_id.
+  const rows = await _fetchAllRows(() => supabase
+    .from('read_marks')
+    .select('volume, file, topic_index, topic_title, created_at, times_read, last_read_at')
+    .eq('user_id', session.user.id)
+    .order('created_at', { ascending: false }));
+  if (rows.length) return rows;
+
   return _fetchAllRows(() => supabase
     .from('read_marks')
     .select('volume, file, topic_index, topic_title, created_at')
     .eq('user_id', session.user.id)
     .order('created_at', { ascending: false }));
+}
+
+// ============================================================
+// Contagem de leituras (times_read)
+// ============================================================
+// A marcação NÃO significa "concluí, não preciso voltar" — é o registro de
+// quantas vezes a pessoa leu aquele Ensinamento, seguindo "é bom ler repetidas
+// vezes até que seja assimilado no íntimo" (大いに神書を読むべし, 29/11/1950).
+//
+// O incremento acontece no banco (RPC), não aqui: saveReadMark faz upsert
+// SOBRESCREVENDO, e somar pelo cliente (ler → +1 → gravar) abriria corrida
+// entre abas e aparelhos. Devolve a contagem resultante.
+
+export async function registerReading(volume, file, topicIndex, topicTitle) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return null;
+
+  const { data, error } = await supabase.rpc('register_reading', {
+    p_volume: volume,
+    p_file: file,
+    p_topic_index: topicIndex,
+    p_topic_title: topicTitle || null
+  });
+  if (error) throw error;
+  return data; // times_read resultante
+}
+
+// Desfazer imediato (engano de toque). Devolve a contagem resultante;
+// 0 = a linha foi removida.
+export async function undoReading(volume, file, topicIndex) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return null;
+
+  const { data, error } = await supabase.rpc('undo_reading', {
+    p_volume: volume,
+    p_file: file,
+    p_topic_index: topicIndex
+  });
+  if (error) throw error;
+  return data;
 }
 
 // ============================================================
@@ -447,21 +498,31 @@ export async function pullCloudToLocal() {
     let localMarks = [];
     try { localMarks = JSON.parse(localStorage.getItem('readMarks') || '[]'); } catch (e) {}
 
-    const localKeys = new Set(localMarks.map(m => `${m.vol}:${m.file}:${m.topic || 0}`));
+    const localByKey = new Map(localMarks.map(m => [`${m.vol}:${m.file}:${m.topic || 0}`, m]));
+    let countsMerged = 0;
     for (const cm of cloudMarks) {
       const key = `${cm.volume}:${cm.file}:${cm.topic_index}`;
-      if (!localKeys.has(key)) {
+      const cloudCount = Math.max(1, cm.times_read || 1);
+      const existing = localByKey.get(key);
+      if (!existing) {
         localMarks.push({
           vol: cm.volume,
           file: cm.file,
           topic: cm.topic_index,
           topicTitle: cm.topic_title || '',
-          time: new Date(cm.created_at).getTime(),
+          time: new Date(cm.last_read_at || cm.created_at).getTime(),
+          count: cloudCount,
         });
         readMarksAdded++;
+      } else if (cloudCount > (existing.count || 1)) {
+        // Contador é monotônico: outro aparelho pode ter registrado leituras
+        // que este ainda não viu. Vence o maior, nunca o mais recente.
+        existing.count = cloudCount;
+        if (cm.last_read_at) existing.time = new Date(cm.last_read_at).getTime();
+        countsMerged++;
       }
     }
-    if (readMarksAdded > 0) {
+    if (readMarksAdded > 0 || countsMerged > 0) {
       localMarks.sort((a, b) => (b.time || 0) - (a.time || 0));
       localStorage.setItem('readMarks', JSON.stringify(localMarks));
     }

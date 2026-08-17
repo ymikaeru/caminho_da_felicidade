@@ -87,41 +87,54 @@
     const title = btn.dataset.title || '';
     const key = _readKey(vol, file, topic);
     const wasRead = _readSet.has(key);
-    if (wasRead) _readSet.delete(key); else _readSet.add(key);
+    // A marca virou CONTADOR de leituras (times_read). Marcar SOMA uma leitura;
+    // desmarcar DECREMENTA — nunca apaga a linha direto, senão quem leu 5 vezes
+    // e tocasse sem querer perderia as 5 de uma vez.
+    //
+    // Por isso o botão NÃO alterna cegamente: quem tinha 3 leituras e desmarca
+    // fica com 2 e continua lido — o estado sai da contagem que sobrou, não de
+    // um "inverte o que estava".
+    let remaining = 0;
     try {
       let marks = JSON.parse(localStorage.getItem('readMarks') || '[]');
-      if (wasRead) marks = marks.filter(m => !(m.vol === vol && m.file === file && (m.topic || 0) === topic));
-      else marks.unshift({ vol, file, topic, topicTitle: title, time: Date.now() });
+      const at = marks.findIndex(m => m.vol === vol && m.file === file && (m.topic || 0) === topic);
+      if (wasRead) {
+        if (at >= 0) {
+          remaining = (marks[at].count || 1) - 1;
+          if (remaining <= 0) { marks.splice(at, 1); remaining = 0; }
+          else marks[at].count = remaining;
+        }
+      } else {
+        const entry = at >= 0 ? marks.splice(at, 1)[0] : { vol, file, topic, topicTitle: title };
+        entry.count = remaining = (entry.count || 0) + 1;
+        entry.time = Date.now();
+        marks.unshift(entry);
+      }
       localStorage.setItem('readMarks', JSON.stringify(marks));
-    } catch (_) {}
-    if (window._cloudSync && window._cloudSync.saveReadMark) {
-      const op = wasRead ? window._cloudSync.removeReadMark(vol, file, topic)
-                         : window._cloudSync.saveReadMark(vol, file, topic, title);
+    } catch (_) { remaining = wasRead ? 0 : 1; }
+    if (remaining > 0) _readSet.add(key); else _readSet.delete(key);
+    if (window._cloudSync && window._cloudSync.registerReading) {
+      const op = wasRead ? window._cloudSync.undoReading(vol, file, topic)
+                         : window._cloudSync.registerReading(vol, file, topic, title);
       Promise.resolve(op).catch(() => {});
     } else {
       const supa = _supa();
       if (supa) (async () => {
         const { data: { session } } = await supa.auth.getSession();
         if (!session) return;
-        if (wasRead) {
-          await supa.from('read_marks').delete()
-            .eq('user_id', session.user.id).eq('volume', vol).eq('file', file).eq('topic_index', topic);
-        } else {
-          await supa.from('read_marks').upsert({
-            user_id: session.user.id, volume: vol, file, topic_index: topic,
-            topic_title: title, created_at: new Date().toISOString(),
-          }, { onConflict: 'user_id,volume,file,topic_index' });
-        }
+        await supa.rpc(wasRead ? 'undo_reading' : 'register_reading', wasRead
+          ? { p_volume: vol, p_file: file, p_topic_index: topic }
+          : { p_volume: vol, p_file: file, p_topic_index: topic, p_topic_title: title });
       })().catch(() => {});
     }
     // Atualiza o botão no lugar — NÃO re-renderiza, pra não recolher um
     // <details> que o usuário acabou de expandir.
     const lang = localStorage.getItem('site_lang') || 'pt';
-    const nowRead = !wasRead;
+    const nowRead = remaining > 0;
     btn.setAttribute('aria-pressed', String(nowRead));
     btn.style.color = nowRead ? '#0a7' : 'var(--text-muted)';
     btn.style.opacity = nowRead ? '0.95' : '0.55';
-    const lbl = nowRead ? (lang === 'ja' ? '読了' : 'Lido') : (lang === 'ja' ? '読了にする' : 'Marcar como lido');
+    const lbl = nowRead ? (lang === 'ja' ? '拝読を記録済み' : 'Leitura registrada') : (lang === 'ja' ? '拝読を記録' : 'Registrar leitura');
     btn.title = lbl; btn.setAttribute('aria-label', lbl);
     btn.innerHTML = nowRead
       ? `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>`
@@ -610,7 +623,7 @@
       if (read) {
         // Toggle "lido" (itens de playlist). Verde quando lido.
         const isRead = read.isRead;
-        const readLbl = isRead ? (lang === 'ja' ? '読了' : 'Lido') : (lang === 'ja' ? '読了にする' : 'Marcar como lido');
+        const readLbl = isRead ? (lang === 'ja' ? '拝読を記録済み' : 'Leitura registrada') : (lang === 'ja' ? '拝読を記録' : 'Registrar leitura');
         const readSvg = isRead
           ? `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>`
           : `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>`;

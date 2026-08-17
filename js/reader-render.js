@@ -149,10 +149,15 @@ function _buildTopicSaveBar(topicIdx, lang) {
     // Botão "Marcar como lido" — controle pessoal do usuário (fase 1 da
     // Central de Ensinamentos Lidos). Estado/active e a tarja com a data são
     // aplicados por window.updateReadIndicators (render → updateReadIndicators).
-    const lr = { pt: { read: 'Marcar como lido' }, ja: { read: '読了として記録' } }[lang] || { read: 'Marcar como lido' };
+    // "Registrar leitura", não "Marcar como lido": o rótulo antigo ensinava
+    // "concluí, não preciso voltar" — o oposto de "é bom ler repetidas vezes
+    // até que seja assimilado no íntimo" (大いに神書を読むべし, 29/11/1950).
+    const lr = { pt: { read: 'Registrar leitura' }, ja: { read: '拝読を記録' } }[lang] || { read: 'Registrar leitura' };
     const readIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>';
     const readBtn =
-        `<button type="button" class="topic-save-btn topic-read-btn" data-topic-idx="${topicIdx}" title="${lr.read}" aria-label="${lr.read}" aria-pressed="false" onclick="if (typeof window.toggleReadMark === 'function') window.toggleReadMark(${topicIdx});">` +
+        // Sem aria-pressed: não é mais alternância (ligado/desligado) e sim um
+        // contador — o estado vai no aria-label, com a contagem.
+        `<button type="button" class="topic-save-btn topic-read-btn" data-topic-idx="${topicIdx}" title="${lr.read}" aria-label="${lr.read}" onclick="if (typeof window.toggleReadMark === 'function') window.toggleReadMark(${topicIdx});">` +
             readIcon +
         `</button>`;
     // Tarja "Você leu este Ensinamento em ..." — span VAZIO, texto via CSS
@@ -676,26 +681,42 @@ function renderReader(volId, filename, json, allFiles, searchQuery, searchTopicT
         let marks = [];
         try { marks = JSON.parse(localStorage.getItem('readMarks') || '[]'); } catch (e) { }
         const markMap = new Map(marks.filter(m => m.vol === volId && m.file === filename).map(m => [m.topic || 0, m]));
+        // Contagem de leituras, não "lido/não lido". O número é sempre de UM
+        // Ensinamento — nunca um total somado, que viraria placar.
         const lr = isPt
-            ? { read: 'Marcar como lido', readDone: 'Lido — toque para desmarcar', badge: (d) => `Você leu este Ensinamento em ${d}` }
-            : { read: '読了として記録', readDone: '読了済み — タップで解除', badge: (d) => `${d} に読了` };
+            ? {
+                read: 'Registrar leitura',
+                readAgain: (n) => `Registrar mais uma leitura (${n} até agora)`,
+                badge: (n, d) => `${n === 1 ? '1 leitura' : n + ' leituras'} · última em ${d}`
+            }
+            : {
+                read: '拝読を記録',
+                readAgain: (n) => `もう一度拝読を記録（現在${n}回）`,
+                badge: (n, d) => `${n}回拝読 · 最終 ${d}`
+            };
         const totalTopics = window._currentTotalTopics || 1;
         for (let i = 0; i < totalTopics; i++) {
             const topicEl = document.getElementById(`topic-${i}`);
             if (!topicEl) continue;
             const mark = markMap.get(i);
+            // Entradas antigas do cache não têm `count` — valem 1 (foram lidas
+            // uma vez), então nenhuma migração de localStorage é necessária.
+            const count = mark ? Math.max(1, mark.count || 1) : 0;
             const dateStr = mark ? new Date(mark.time || Date.now()).toLocaleDateString(isPt ? 'pt-BR' : 'ja-JP') : '';
             const btn = topicEl.querySelector('.topic-read-btn');
             if (btn) {
                 btn.classList.toggle('active', !!mark);
-                btn.setAttribute('title', mark ? lr.readDone : lr.read);
-                btn.setAttribute('aria-label', mark ? lr.readDone : lr.read);
-                btn.setAttribute('aria-pressed', mark ? 'true' : 'false');
+                const label = mark ? lr.readAgain(count) : lr.read;
+                btn.setAttribute('title', label);
+                btn.setAttribute('aria-label', label);
+                btn.removeAttribute('aria-pressed'); // não é mais alternância
             }
             const badge = topicEl.querySelector('.topic-read-badge');
             if (badge) {
                 if (mark) {
-                    badge.dataset.label = lr.badge(dateStr);
+                    // data-label + content:attr no CSS — a tarja NUNCA pode
+                    // virar nó de texto (deslocaria os grifos já salvos).
+                    badge.dataset.label = lr.badge(count, dateStr);
                     badge.classList.add('visible');
                 } else {
                     badge.classList.remove('visible');

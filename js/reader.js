@@ -321,6 +321,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('saveTooltipTitle').textContent = cleanTitle;
             document.getElementById('saveTooltipStatus').textContent = isSaved ? statusText.removed : statusText.saved;
 
+            // O mesmo tooltip serve ao registro de leitura — limpar o que é
+            // de lá, senão sobra na tela ao salvar logo depois.
+            const undoEl = document.getElementById('saveTooltipUndo');
+            if (undoEl) { undoEl.style.display = 'none'; undoEl.onclick = null; }
+            const readHintEl = document.getElementById('saveTooltipHint');
+            if (readHintEl) { readHintEl.innerHTML = ''; readHintEl.style.display = 'none'; }
+
             // Link pra Central de Salvos — só quando acabou de salvar.
             const linkEl = document.getElementById('saveTooltipLink');
             if (linkEl) {
@@ -472,59 +479,172 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // "Marcar como lido" — espelha o toggleFavorite: localStorage primeiro
-    // (UI instantânea, funciona offline), cloud em seguida sem bloquear.
+    // "Registrar leitura" — era liga/desliga ("marcar como lido"), o que
+    // ensinava "concluí, não preciso voltar": o oposto do ensinamento que
+    // fundamenta o acervo ("é bom ler repetidas vezes até que seja assimilado
+    // no íntimo", 大いに神書を読むべし, 29/11/1950). Agora é um CONTADOR de
+    // leituras daquele Ensinamento.
+    //
+    // O nome da função continua `toggleReadMark`: há 3 chamadores
+    // (reader-render.js, recommendations.js, recomendacoes-page.js).
+    //
+    // localStorage primeiro (UI instantânea, funciona offline), nuvem em
+    // seguida sem bloquear. O incremento na nuvem é feito por RPC — somar pelo
+    // cliente abriria corrida entre abas/aparelhos.
+    const FLAG_READ_HINT = 'cdf_readcount_hint_v1';
+    const _readGuard = new Set(); // 1 registro por Ensinamento por carregamento
+
+    function _readMarksLoad() {
+        try { return JSON.parse(localStorage.getItem('readMarks') || '[]'); } catch (e) { return []; }
+    }
+    function _readMarksSave(marks) {
+        try { localStorage.setItem('readMarks', JSON.stringify(marks)); } catch (e) { }
+    }
+    function _readMarkIndex(marks, volId, filename, topicIndex) {
+        return marks.findIndex(m => m.vol === volId && m.file === filename && (m.topic || 0) === topicIndex);
+    }
+
+    // Desfazer o registro (engano de toque). Volta a contagem em 1; se era a
+    // primeira leitura, some a marca.
+    function _undoRegisteredReading(volId, filename, topicIndex, key) {
+        const marks = _readMarksLoad();
+        const at = _readMarkIndex(marks, volId, filename, topicIndex);
+        if (at >= 0) {
+            const left = (marks[at].count || 1) - 1;
+            if (left <= 0) marks.splice(at, 1);
+            else marks[at].count = left;
+            _readMarksSave(marks);
+        }
+        _readGuard.delete(key);
+        if (typeof window.updateReadIndicators === 'function') window.updateReadIndicators();
+        if (window._cloudSync && window._cloudSync.undoReading) {
+            Promise.resolve(window._cloudSync.undoReading(volId, filename, topicIndex))
+                .catch(e => console.warn('[read-marks] undo cloud sync failed:', e));
+        }
+        const tooltip = document.getElementById('saveTooltip');
+        if (tooltip) {
+            clearTimeout(window._saveTooltipTimer);
+            tooltip.classList.remove('show');
+        }
+    }
+
     window.toggleReadMark = async function (explicitTopicIndex) {
         const { volId, filename } = getParams();
-        let marks = [];
-        try { marks = JSON.parse(localStorage.getItem('readMarks') || '[]'); } catch (e) { }
         const topicIndex = Number.isInteger(explicitTopicIndex) ? explicitTopicIndex : getVisibleTopicIndex();
+        const key = `${volId}:${filename}:${topicIndex}`;
+        const lang = localStorage.getItem('site_lang') || 'pt';
 
         let topicTitle = '';
         const topics = window._currentTopics || [];
         if (topics[topicIndex]) {
-            const lang0 = localStorage.getItem('site_lang') || 'pt';
-            topicTitle = (lang0 === 'pt'
+            topicTitle = (lang === 'pt'
                 ? (topics[topicIndex].title_ptbr || topics[topicIndex].title_pt || topics[topicIndex].title || '')
                 : (topics[topicIndex].title_ja || topics[topicIndex].title || '')
             ).replace(/<[^>]+>/g, '').trim();
         }
 
-        const wasRead = marks.some(m => m.vol === volId && m.file === filename && (m.topic || 0) === topicIndex);
-        if (wasRead) {
-            marks = marks.filter(m => !(m.vol === volId && m.file === filename && (m.topic || 0) === topicIndex));
-        } else {
-            marks.unshift({ vol: volId, file: filename, topic: topicIndex, topicTitle, time: Date.now() });
-        }
-        try { localStorage.setItem('readMarks', JSON.stringify(marks)); } catch (e) { }
+        const marks = _readMarksLoad();
+        const at = _readMarkIndex(marks, volId, filename, topicIndex);
+        const prevCount = at >= 0 ? (marks[at].count || 1) : 0;
 
-        // UI primeiro (instantânea); nuvem em seguida SEM await — falha de
-        // rede/RLS não pode atrasar nem bloquear o feedback.
-        const lang = localStorage.getItem('site_lang') || 'pt';
-        if (typeof window.updateReadIndicators === 'function') window.updateReadIndicators();
+        // Já registrou neste carregamento de página: não soma de novo (ninguém
+        // lê o mesmo Ensinamento duas vezes em dois minutos). Reexibe o aviso
+        // com o desfazer à mão, para o toque repetido não virar contagem falsa.
+        const repeat = _readGuard.has(key);
+        // max(1, …): se a guarda diz que já registrou mas o cache local sumiu
+        // (logout limpa readMarks), prevCount seria 0 e o aviso mostraria
+        // "0ª leitura".
+        const count = repeat ? Math.max(1, prevCount) : prevCount + 1;
 
-        if (window._cloudSync) {
-            const op = wasRead
-                ? window._cloudSync.removeReadMark(volId, filename, topicIndex)
-                : window._cloudSync.saveReadMark(volId, filename, topicIndex, topicTitle);
-            Promise.resolve(op).catch(e => console.warn('[read-marks] cloud sync failed, salvo apenas local:', e));
+        if (!repeat) {
+            const entry = at >= 0 ? marks.splice(at, 1)[0]
+                : { vol: volId, file: filename, topic: topicIndex, topicTitle };
+            entry.count = count;
+            entry.time = Date.now();
+            if (topicTitle) entry.topicTitle = topicTitle;
+            marks.unshift(entry);
+            _readMarksSave(marks);
+            _readGuard.add(key);
+
+            // UI primeiro (instantânea); nuvem em seguida SEM await — falha de
+            // rede/RLS não pode atrasar nem bloquear o feedback.
+            if (typeof window.updateReadIndicators === 'function') window.updateReadIndicators();
+
+            if (window._cloudSync && window._cloudSync.registerReading) {
+                Promise.resolve(window._cloudSync.registerReading(volId, filename, topicIndex, topicTitle))
+                    .catch(e => console.warn('[read-marks] cloud sync failed, salvo apenas local:', e));
+            }
         }
 
         const tooltip = document.getElementById('saveTooltip');
-        if (tooltip) {
-            const statusText = {
-                pt: { marked: '✓ Marcado como lido', unmarked: '✕ Marca de lido removida' },
-                ja: { marked: '✓ 読了として記録しました', unmarked: '✕ 読了の記録を解除しました' }
-            }[lang] || { marked: '✓ Marcado como lido', unmarked: '✕ Marca de lido removida' };
-            const title = document.title.replace('Meishu-Sama: ', '').replace(' - Caminho da Felicidade', '');
-            const rawTitle = topicTitle || title;
-            const cleanTitle = rawTitle.replace(/^(Ensinamento|Orientação|Palestra) de (Meishu-Sama|Moisés)\s*[-:]\s*/i, '').replace(/^["'](.*?)["']$/, '$1').trim();
-            document.getElementById('saveTooltipTitle').textContent = cleanTitle;
-            document.getElementById('saveTooltipStatus').textContent = wasRead ? statusText.unmarked : statusText.marked;
-            tooltip.classList.add('show');
-            clearTimeout(window._saveTooltipTimer);
-            window._saveTooltipTimer = setTimeout(() => tooltip.classList.remove('show'), 2800);
+        if (!tooltip) return;
+
+        const T = {
+            pt: {
+                first: '✓ Leitura registrada',
+                nth: (n) => `✓ ${n}ª leitura registrada`,
+                undo: 'Desfazer',
+                hint: '<strong>Reler é parte do caminho</strong> — “é bom ler repetidas vezes até que ' +
+                      'seja assimilado no íntimo”. Você reencontra este Ensinamento em ' +
+                      '<a href="lidos.html">Lidos</a>, e pode filtrar sua busca só pelo que já leu.'
+            },
+            ja: {
+                first: '✓ 拝読を記録しました',
+                nth: (n) => `✓ ${n}回目の拝読を記録しました`,
+                undo: '元に戻す',
+                hint: '<strong>繰り返し拝読することが道の一部です</strong> —「繰り返し繰り返し肚にはいるまで読むのがよい」。' +
+                      'この御教えは<a href="lidos.html">拝読した御教え</a>で再び見つけられ、検索を拝読済みに絞ることもできます。'
+            }
+        }[lang] || null;
+        const L = T || {
+            first: '✓ Leitura registrada', nth: (n) => `✓ ${n}ª leitura registrada`,
+            undo: 'Desfazer', hint: ''
+        };
+
+        const pageTitle = document.title.replace('Meishu-Sama: ', '').replace(' - Caminho da Felicidade', '');
+        const cleanTitle = (topicTitle || pageTitle)
+            .replace(/^(Ensinamento|Orientação|Palestra) de (Meishu-Sama|Moisés)\s*[-:]\s*/i, '')
+            .replace(/^["'](.*?)["']$/, '$1').trim();
+        document.getElementById('saveTooltipTitle').textContent = cleanTitle;
+        document.getElementById('saveTooltipStatus').textContent = count > 1 ? L.nth(count) : L.first;
+
+        // Restos do fluxo de "Salvar" (link da Central e chips de pasta) não
+        // podem sobrar aqui — é o mesmo elemento reaproveitado.
+        const linkEl = document.getElementById('saveTooltipLink');
+        if (linkEl) linkEl.style.display = 'none';
+        const foldersEl = document.getElementById('saveTooltipFolders');
+        if (foldersEl) { foldersEl.innerHTML = ''; foldersEl.style.display = 'none'; }
+
+        const undoBtn = document.getElementById('saveTooltipUndo');
+        if (undoBtn) {
+            undoBtn.textContent = L.undo;
+            undoBtn.style.display = '';
+            undoBtn.onclick = () => _undoRegisteredReading(volId, filename, topicIndex, key);
         }
+
+        // Primeira leitura registrada de todas: explica pra que serve, no
+        // instante em que a pergunta está viva. Some pra sempre depois.
+        let firstTime = false;
+        try { firstTime = !localStorage.getItem(FLAG_READ_HINT); } catch (e) { }
+        const hintEl = document.getElementById('saveTooltipHint');
+        if (hintEl) {
+            if (firstTime && L.hint) {
+                hintEl.innerHTML = L.hint;
+                hintEl.style.display = '';
+                try { localStorage.setItem(FLAG_READ_HINT, '1'); } catch (e) { }
+            } else {
+                hintEl.innerHTML = '';
+                hintEl.style.display = 'none';
+            }
+        }
+
+        tooltip.classList.add('show');
+        clearTimeout(window._saveTooltipTimer);
+        // Com a explicação na tela, o aviso não pode correr contra o relógio.
+        window._saveTooltipTimer = setTimeout(() => {
+            tooltip.classList.remove('show');
+            if (undoBtn) undoBtn.style.display = 'none';
+        }, firstTime ? 20000 : 6000);
     };
 
     window.renderContent = () => initReader();

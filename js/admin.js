@@ -20,7 +20,7 @@ import './admin/tabs/access-info.js?v=2';
 import './admin/tabs/find-replace.js';
 import './admin/tabs/duplicates.js';
 import './admin/tabs/analytics-search.js?v=2';
-import './admin/tabs/analytics-discovery.js?v=1';
+import './admin/tabs/analytics-discovery.js?v=2';
 import './admin/tabs/analytics-disciples.js?v=2';
 import './admin/tabs/analytics-poetry.js?v=2';
 import './admin/tabs/analytics-johrei.js?v=12';

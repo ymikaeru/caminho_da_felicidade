@@ -50,7 +50,15 @@ async function loadDiscoveryAnalytics() {
     }
 
     if (genAt) {
-      genAt.textContent = `Período: últimos ${days} dia(s) — desde ${_data(data.since)}`;
+      // O RPC tira os admins da conta (discovery_analytics_exclude_admins.sql):
+      // quem constrói o recurso é quem mais o abre, e com poucos usuários isso
+      // inverteria a leitura da conversão. Dizer isso aqui evita a conclusão
+      // errada de que o registro parou de funcionar ao testar o modal.
+      const fora = data.admins_excluidos || 0;
+      const nota = fora
+        ? ` — ${fora} admin${fora > 1 ? 's' : ''} fora da conta`
+        : '';
+      genAt.textContent = `Período: últimos ${days} dia(s) — desde ${_data(data.since)}${nota}`;
     }
 
     const t = data.totais || {};

@@ -5,9 +5,16 @@
    animação de entrada, mesmo botão de fechar). Só o conteúdo é próprio.
 
    A hierarquia visual é deliberada: "Abrir o Ensinamento" é a ação
-   principal, e "Próximo" fica discreto. Se o sortear de novo for grande e
-   convidativo, a pessoa rola até vir um assunto que ela já queria — e morre
-   o "independente do assunto", que é o ponto do recurso.
+   principal, e "Sortear outro" fica um degrau abaixo. Se o sortear de novo
+   for grande e convidativo, a pessoa rola até vir um assunto que ela já
+   queria — e morre o "independente do assunto", que é o ponto do recurso.
+
+   Mas discreto não é invisível: como texto cinza sem borda, "Próximo" e
+   "Anterior" liam como legenda do rodapé e ninguém achava o controle que
+   move o recurso. A hierarquia agora se faz por PREENCHIMENTO — só a ação
+   principal é cheia e dourada; as setas são pílulas vazadas, do mesmo
+   feitio dos chips de filtro. Continuam em segundo plano e continuam
+   visivelmente clicáveis.
    ============================================================ */
 
 .disc-modal {
@@ -201,26 +208,41 @@
   opacity: 0.8;
 }
 
-/* Discreto de propósito — ver o comentário no topo. */
+/* Um degrau abaixo da ação principal, não invisível — ver o comentário no
+   topo. Mesma pílula dos chips de filtro: quem reconhece um reconhece o outro. */
 .disc-nav {
-  min-height: 40px;
-  padding: 8px 12px;
+  min-height: 44px; /* alvo de toque — o público inclui idosos */
+  padding: 10px 18px;
   background: transparent;
-  border: none;
-  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-main);
   font-family: var(--font-ui);
-  font-size: 0.82rem;
+  font-size: 0.86rem;
+  font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .disc-nav:hover:not(:disabled) {
   color: var(--accent);
+  border-color: var(--accent);
 }
 
 .disc-nav:disabled {
-  opacity: 0.35;
+  color: var(--text-muted);
+  opacity: 0.45;
   cursor: default;
+}
+
+/* Foco visível: sem isto, quem navega por teclado (ou pelo controle do
+   leitor de tela) percorre o rodapé às cegas — o botão tem estado de hover,
+   mas hover não existe pra quem usa Tab. */
+.disc-btn:focus-visible,
+.disc-nav:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 @media (max-width: 600px) {
@@ -239,7 +261,11 @@
     gap: 10px;
   }
   .disc-btn { width: 100%; }
-  .disc-actions__nav { width: 100%; justify-content: space-between; }
+  /* As setas dividem a linha em dois alvos largos. Encostadas nas pontas e
+     em texto miúdo, ficavam do tamanho de uma legenda bem na borda inferior
+     da tela, onde o polegar já disputa espaço com o gesto do sistema. */
+  .disc-actions__nav { width: 100%; gap: 10px; }
+  .disc-nav { flex: 1 1 0; padding: 10px 8px; }
 }
 
 /* Confirmação de "guardado": diz ONDE foi parar e leva até lá. Sem isto,

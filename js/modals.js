@@ -351,6 +351,11 @@ window.buildMyConversationsModal = buildMyConversationsModal;
       reread: 'você já leu — vale reler', from: 'Descobrir em:', all: 'Todo o acervo',
       loading: 'Um momento…', poetry: 'Poesia',
       openPoem: 'Ler no leitor',
+      // Na ponta do histórico o botão SORTEIA; só no meio ele avança pelo que
+      // já passou. "Próximo" nos dois casos escondia a ação principal do
+      // recurso atrás de um rótulo de paginação.
+      drawNext: 'Sortear outro',
+      hintPrev: 'Atalho: seta ←', hintNext: 'Atalho: seta →',
       savedIn: (p) => '✓ Guardado em Salvos › ' + p,
       savedNoFolder: '✓ Guardado em Salvos', folderName: 'Para ler depois',
       savedHint: 'Guardado — toque para remover',
@@ -365,6 +370,8 @@ window.buildMyConversationsModal = buildMyConversationsModal;
       reread: '拝読済み — 繰り返し拝読を', from: '範囲:', all: '全巻',
       loading: 'お待ちください…', poetry: '御歌',
       openPoem: '読む',
+      drawNext: 'もう一つ引く',
+      hintPrev: 'ショートカット: ←キー', hintNext: 'ショートカット: →キー',
       savedIn: (p) => '✓ 保存したもの › ' + p,
       savedNoFolder: '✓ 保存しました', folderName: 'あとで読む',
       savedHint: '保存済み — タップで削除',
@@ -501,6 +508,19 @@ window.buildMyConversationsModal = buildMyConversationsModal;
     return Object.assign({ kind: 'poetry' }, poems[i]);
   }
 
+  // Navegar pelos sorteios. Mesmas funções pro clique e pras setas do teclado —
+  // duplicar a regra do "na ponta sorteia" nos dois lugares é como ela sai de
+  // sincronia.
+  const _dNaPonta = () => _dPos >= _dHist.length - 1;
+
+  function _dGoPrev() {
+    if (_dPos > 0) { _dPos--; _dRender(); }
+  }
+
+  function _dGoNext() {
+    if (!_dNaPonta()) { _dPos++; _dRender(); } else { _dDraw(false); }
+  }
+
   function _dMessage(msg) {
     const card = document.getElementById('discCard');
     const acts = document.getElementById('discActions');
@@ -555,18 +575,16 @@ window.buildMyConversationsModal = buildMyConversationsModal;
       '<button type="button" class="disc-btn disc-btn--ghost" id="discSave">' + _escModal(t.save) + '</button>' +
       '</div>' +
       '<div class="disc-actions__nav">' +
-      '<button type="button" class="disc-nav" id="discPrev"' + (_dPos <= 0 ? ' disabled' : '') + '>' +
-        _escModal(t.prev) + '</button>' +
-      '<button type="button" class="disc-nav" id="discNext">' + _escModal(t.next) + '</button>' +
+      '<button type="button" class="disc-nav" id="discPrev" title="' + _escModal(t.hintPrev) + '"' +
+        (_dPos <= 0 ? ' disabled' : '') + '>' + _escModal(t.prev) + '</button>' +
+      // O rótulo diz o que o botão FAZ agora: na ponta ele sorteia, no meio do
+      // histórico só avança pelo que já passou.
+      '<button type="button" class="disc-nav" id="discNext" title="' + _escModal(t.hintNext) + '">' +
+        _escModal(_dNaPonta() ? t.drawNext + ' →' : t.next) + '</button>' +
       '</div>';
 
-    document.getElementById('discPrev').addEventListener('click', () => {
-      if (_dPos > 0) { _dPos--; _dRender(); }
-    });
-    document.getElementById('discNext').addEventListener('click', () => {
-      // Na ponta sorteia; no meio do histórico apenas avança.
-      if (_dPos < _dHist.length - 1) { _dPos++; _dRender(); } else { _dDraw(false); }
-    });
+    document.getElementById('discPrev').addEventListener('click', _dGoPrev);
+    document.getElementById('discNext').addEventListener('click', _dGoNext);
     const openLink = acts.querySelector('.disc-btn--primary');
     if (openLink) openLink.addEventListener('click', () => _dLog('read', c));
 
@@ -829,10 +847,21 @@ window.buildMyConversationsModal = buildMyConversationsModal;
     if (wasOpen && window.__unlockBodyScroll) window.__unlockBodyScroll();
   };
 
+  // Teclado: Esc fecha; ←/→ percorrem os sorteios. No desktop a mão já está no
+  // teclado e passar de um Ensinamento a outro é o gesto que mais se repete —
+  // obrigar a mirar num botão a cada carta é o que faz o recurso cansar antes
+  // de virar hábito.
   document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
     const modal = document.getElementById('discoveryModal');
-    if (modal && modal.classList.contains('active')) window.closeDiscovery();
+    if (!modal || !modal.classList.contains('active')) return;
+    if (e.key === 'Escape') { window.closeDiscovery(); return; }
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    // Não sequestra as setas de quem está digitando (o modal não tem campo,
+    // mas o handler é global e outra caixa pode estar por cima).
+    const alvo = e.target;
+    if (alvo && (/^(INPUT|TEXTAREA|SELECT)$/.test(alvo.tagName) || alvo.isContentEditable)) return;
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); _dGoPrev(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); _dGoNext(); }
   });
 
   window.buildDiscoveryModal = buildDiscoveryModal;

@@ -895,7 +895,7 @@ window.buildMyConversationsModal = buildMyConversationsModal;
         ['Descobrir um Ensinamento',
          'O botão do topo passou a apresentar o Ensinamento aqui mesmo — título e ' +
          'primeiras linhas — de modo que se possa conhecê-lo antes de abri-lo. ' +
-         'As Obras Poéticas também entram no sorteio.'],
+         'As Obras Poéticas também podem vir na descoberta.'],
         ['Registrar leitura',
          '“Marcar como lido” deu lugar a “Registrar leitura”, e agora cada leitura é ' +
          'contada. A releitura é parte do caminho: “convém ler repetidas e repetidas vezes, ' +

@@ -906,7 +906,7 @@ function _setRandomLoading(btn) {
   };
 }
 
-// Toast efêmero do sorteio — reusa o visual .hl-toast (CSS global em
+// Toast efêmero da descoberta — reusa o visual .hl-toast (CSS global em
 // _highlights.css, carregado em todas as páginas; z-index 9900 fica acima
 // do overlay de login). Antes as falhas eram CALADAS: o botão girava e
 // voltava sem explicação (sessão expirada no navegador = RPC como anon =
@@ -946,7 +946,7 @@ async function _pickRandomViaRpc(onlyVol, loader) {
     loader.restore();
     _randomToast(lang === 'ja'
       ? 'セッションが切れました。もう一度ログインしてください。'
-      : 'Sua sessão expirou. Entre novamente para sortear um Ensinamento.');
+      : 'Sua sessão expirou. Entre novamente para descobrir um Ensinamento.');
     if (!document.getElementById('login-overlay')
         && window.supabaseAuth && typeof window.supabaseAuth.showLoginOverlay === 'function') {
       window.supabaseAuth.showLoginOverlay();
@@ -958,16 +958,18 @@ async function _pickRandomViaRpc(onlyVol, loader) {
   if (error) {
     console.warn('random_teaching RPC error:', error);
     loader.restore();
+    // 抽選 é o vocabulário de loteria, como o "sortear" que saiu do PT: o que
+    // está do outro lado do toque é um Ensinamento, não um prêmio.
     _randomToast(lang === 'ja'
-      ? '抽選に失敗しました。もう一度お試しください。'
-      : `Não foi possível sortear agora (${error.message || 'erro'}). Tente de novo.`);
+      ? '読み込めませんでした。もう一度お試しください。'
+      : `Não foi possível carregar agora (${error.message || 'erro'}). Tente de novo.`);
     return;
   }
   if (!data || data.length === 0) {
     loader.restore();
     _randomToast(lang === 'ja'
       ? '御教えが見つかりませんでした。もう一度ログインしてみてください。'
-      : 'Nenhum Ensinamento disponível para sortear. Tente entrar novamente.');
+      : 'Nenhum Ensinamento disponível agora. Tente entrar novamente.');
     return;
   }
 

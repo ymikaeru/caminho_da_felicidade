@@ -11,7 +11,8 @@
 // js/admin/fetch-all.js existir.
 // ============================================================
 import { supabase } from '../../supabase-config.js';
-import { _escHtml } from '../shared/helpers.js';
+import { _escHtml, getFileTitle } from '../shared/helpers.js';
+import { volumeCategories } from '../shared/state.js';
 
 const VOL_NOMES = {
   mioshiec1: 'Mundo Espiritual',
@@ -24,6 +25,46 @@ const _num = (n) => (n ?? 0).toLocaleString('pt-BR');
 const _data = (iso) => iso
   ? new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
   : '—';
+
+// ── Título do Ensinamento (não o nome do arquivo) ─────────────────────
+// discovery_events guarda só vol/file/topic_index — o título nunca chega do
+// banco. A lista aparecia como "Jsounen.html #11", que não diz NADA sobre o
+// que a descoberta levou a pessoa a ler, justamente a pergunta desta seção.
+//
+// Duas fontes, porque o título mora em dois níveis:
+//   • titles_index_{vol}.json — título REAL do tópico (o ensinamento em si).
+//     Nas publicações-contêiner ("Coletânea de fragmentos…") só existe aqui;
+//     é o mesmo índice que alimenta o modo "Título" da busca.
+//   • getFileTitle(vol, file) — título da PUBLICAÇÃO (via section_map), que
+//     vira a linha de contexto embaixo.
+// Só se busca o índice dos volumes que aparecem na lista, e uma vez por
+// sessão: cada volume é um arquivo grande (~300–800 KB), estático e cacheável.
+const _titulosPorVol = {};   // vol -> Map('file|topic' -> título)  |  null se falhou
+
+async function _carregarTitulos(vols) {
+  await Promise.all([...new Set(vols)].map(async vol => {
+    if (Object.prototype.hasOwnProperty.call(_titulosPorVol, vol)) return;
+    try {
+      const r = await fetch(`site_data/titles_index_${vol}.json?v=1`);
+      if (!r.ok) { _titulosPorVol[vol] = null; return; }
+      const rows = await r.json();
+      const m = new Map();
+      for (const e of rows) m.set(`${e.f}|${e.i}`, e.t || '');
+      _titulosPorVol[vol] = m;
+    } catch (_) {
+      // Sem índice a lista continua de pé — só cai pro título da publicação.
+      _titulosPorVol[vol] = null;
+    }
+  }));
+}
+
+const _semExt = (file) => String(file || '').replace(/\.html(\.json)?$/i, '');
+
+function _tituloTopico(vol, file, topicIndex) {
+  const m = _titulosPorVol[vol];
+  if (!m) return '';
+  return m.get(`${_semExt(file)}|${topicIndex ?? 0}`) || '';
+}
 
 async function loadDiscoveryAnalytics() {
   const days = parseInt(document.getElementById('da-range')?.value || '30', 10);
@@ -138,6 +179,16 @@ async function loadDiscoveryAnalytics() {
     if (readEl) {
       const lidos = data.mais_lidos || [];
       const porVolume = data.por_volume || {};
+
+      // Títulos: índice de tópicos dos volumes que aparecem + mapa de
+      // publicações (section_map) que o getFileTitle consulta.
+      if (lidos.length) {
+        await _carregarTitulos(lidos.map(m => m.vol).filter(Boolean));
+        if (!volumeCategories || Object.keys(volumeCategories).length === 0) {
+          try { await window.loadVolumeFiles(); } catch (e) { console.warn('loadVolumeFiles falhou:', e); }
+        }
+      }
+
       const volLinhas = Object.entries(porVolume)
         .sort((a, b) => b[1] - a[1])
         .map(([v, n]) => `<span class="search-tag">${_escHtml(VOL_NOMES[v] || v)} (${n})</span>`)
@@ -156,11 +207,25 @@ async function loadDiscoveryAnalytics() {
                ${lidos.map(m => {
                  const href = `reader.html?vol=${encodeURIComponent(m.vol)}&file=${encodeURIComponent(m.file)}` +
                               (m.topic_index ? `&topic=${m.topic_index}` : '');
-                 const rot = `${VOL_NOMES[m.vol] || m.vol} · ${m.file}${m.topic_index ? ' #' + m.topic_index : ''}`;
+                 const publicacao = getFileTitle(m.vol, m.file);
+                 // Título do ensinamento; sem índice, a publicação faz as vezes.
+                 const titulo = _tituloTopico(m.vol, m.file, m.topic_index) || publicacao;
+                 // Contexto embaixo: volume e, quando o título já é o do
+                 // tópico, também a publicação de onde ele vem.
+                 const ctx = [VOL_NOMES[m.vol] || m.vol]
+                   .concat(titulo === publicacao ? [] : [publicacao])
+                   .join(' · ');
+                 // O caminho real (arquivo#tópico) fica no title= — é o que
+                 // serve pra conferir no bucket quando algum título destoa.
+                 const caminho = `${m.vol}/${m.file}${m.topic_index ? ' #' + m.topic_index : ''}`;
                  return `<tr>
-                   <td style="${_td()} overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                     <a href="${_escHtml(href)}" target="_blank" rel="noopener" style="color:var(--text);">${_escHtml(rot)}</a></td>
-                   <td style="${_td()} text-align:right; color:var(--accent); font-weight:600;">${_num(m.n)}</td>
+                   <td style="${_td()}">
+                     <a href="${_escHtml(href)}" target="_blank" rel="noopener"
+                        title="${_escHtml(caminho)}" style="color:var(--text); display:block; line-height:1.35; text-decoration:none;">
+                       <span style="display:block; text-decoration:underline;">${_escHtml(titulo)}</span>
+                       <span style="display:block; font-size:0.72rem; color:var(--text-muted);">${_escHtml(ctx)}</span>
+                     </a></td>
+                   <td style="${_td()} text-align:right; color:var(--accent); font-weight:600; white-space:nowrap;">${_num(m.n)}</td>
                  </tr>`;
                }).join('')}
              </tbody>

@@ -351,10 +351,14 @@ window.buildMyConversationsModal = buildMyConversationsModal;
       reread: 'você já leu — vale reler', from: 'Descobrir em:', all: 'Todo o acervo',
       loading: 'Um momento…', poetry: 'Poesia',
       openPoem: 'Ler no leitor',
-      // Na ponta do histórico o botão SORTEIA; só no meio ele avança pelo que
-      // já passou. "Próximo" nos dois casos escondia a ação principal do
-      // recurso atrás de um rótulo de paginação.
-      drawNext: 'Sortear outro',
+      // Na ponta do histórico o botão traz um Ensinamento novo; só no meio ele
+      // avança pelo que já passou. "Próximo" nos dois casos escondia a ação
+      // principal do recurso atrás de um rótulo de paginação.
+      //
+      // "Descobrir outro", e não "Sortear outro": o verbo é o mesmo do nome do
+      // recurso e do título do modal, e o que está do outro lado do toque é um
+      // Ensinamento de Meishu-Sama — sorteio é palavra de rifa.
+      drawNext: 'Descobrir outro',
       hintPrev: 'Atalho: seta ←', hintNext: 'Atalho: seta →',
       savedIn: (p) => '✓ Guardado em Salvos › ' + p,
       savedNoFolder: '✓ Guardado em Salvos', folderName: 'Para ler depois',
@@ -362,7 +366,8 @@ window.buildMyConversationsModal = buildMyConversationsModal;
       showPath: 'toque para ver onde fica',
       empty: 'Nenhum Ensinamento encontrado com esse filtro.',
       noSession: 'Sua sessão expirou. Entre novamente para descobrir um Ensinamento.',
-      failed: 'Não foi possível sortear agora. Tente de novo.'
+      // Mesma razão do rótulo do botão: quem falhou aqui não estava sorteando.
+      failed: 'Não foi possível carregar agora. Tente de novo.'
     },
     ja: {
       title: '御縁の御教え', prev: '← 前へ', next: '次へ →',
@@ -370,7 +375,9 @@ window.buildMyConversationsModal = buildMyConversationsModal;
       reread: '拝読済み — 繰り返し拝読を', from: '範囲:', all: '全巻',
       loading: 'お待ちください…', poetry: '御歌',
       openPoem: '読む',
-      drawNext: 'もう一つ引く',
+      // 引く é o verbo de tirar omikuji — mesmo problema do "sortear". 御縁
+      // ecoa o título do modal (御縁の御教え).
+      drawNext: 'もう一つの御縁',
       hintPrev: 'ショートカット: ←キー', hintNext: 'ショートカット: →キー',
       savedIn: (p) => '✓ 保存したもの › ' + p,
       savedNoFolder: '✓ 保存しました', folderName: 'あとで読む',

@@ -91,3 +91,16 @@
   flex-shrink: 0;
   opacity: 0.85;
 }
+
+/* No celular, largura da coluna. Com a largura vindo do rótulo, o botão
+   parava uns 20px antes da margem direita num iPhone comum — perto demais
+   do fim pra ler como escolha e longe demais pra fechar com o filete, a
+   citação e a atribuição, que vão de ponta a ponta. Ficava torto sem que
+   se soubesse por quê. Cheio, ele fecha a coluna como o resto do bloco e
+   ainda vira um alvo de toque do tamanho da tela.
+   (o justify-content: center acima é que mantém o rótulo no meio) */
+@media (max-width: 640px) {
+  .btn-random-hero {
+    width: 100%;
+  }
+}

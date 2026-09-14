@@ -157,7 +157,7 @@ async function resetPassword(email) {
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
-    redirectTo: window.location.origin + '/mioshie_college_app/reset-password.html'
+    redirectTo: new URL('reset-password.html', window.location.href).href
   });
 
   if (error) {

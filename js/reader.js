@@ -542,7 +542,40 @@ document.addEventListener('DOMContentLoaded', () => {
     function _hideSaveTooltip() {
         const tooltip = document.getElementById('saveTooltip');
         clearTimeout(window._saveTooltipTimer);
+        _tipScrollFrom = null;
         if (tooltip) tooltip.classList.remove('show');
+        const actionsEl = document.getElementById('saveTooltipActions');
+        if (actionsEl) actionsEl.style.display = 'none';
+    }
+
+    // Voltar a rolar a página é o jeito mais claro de dizer "já vi, pode
+    // sair" — e chega muito antes dos 10s/20s do balão de leitura. A folga
+    // e o limiar existem pra que o balão não feche sozinho: o toque no
+    // botão pode arrastar alguns pixels, e no celular a barra de endereço
+    // recolhendo também conta como rolagem.
+    const TIP_SCROLL_PX = 40;
+    const TIP_SCROLL_GRACE_MS = 400;
+    let _tipScrollFrom = null;   // null = ninguém está esperando rolagem
+    let _tipScrollAfter = 0;
+
+    function _scrollY() { return window.scrollY || window.pageYOffset || 0; }
+
+    function _armTooltipScrollDismiss() {
+        _tipScrollFrom = _scrollY();
+        _tipScrollAfter = Date.now() + TIP_SCROLL_GRACE_MS;
+        if (window._saveTooltipScrollWired) return;
+        window._saveTooltipScrollWired = true;
+        window.addEventListener('scroll', () => {
+            if (_tipScrollFrom === null) return;
+            const tooltip = document.getElementById('saveTooltip');
+            if (!tooltip || !tooltip.classList.contains('show')) { _tipScrollFrom = null; return; }
+            const y = _scrollY();
+            // Dentro da folga, o ponto de partida acompanha a página: o que
+            // rolou aqui foi o toque, não a pessoa querendo seguir lendo.
+            if (Date.now() < _tipScrollAfter) { _tipScrollFrom = y; return; }
+            if (Math.abs(y - _tipScrollFrom) < TIP_SCROLL_PX) return;
+            _hideSaveTooltip();
+        }, { passive: true });
     }
 
     function _readCountOf(volId, filename, topicIndex) {
@@ -663,11 +696,10 @@ document.addEventListener('DOMContentLoaded', () => {
         tooltip.classList.add('show');
         clearTimeout(window._saveTooltipTimer);
         // Cada interação com o contador reinicia a contagem regressiva: o
-        // balão não pode fechar na cara de quem está ajustando.
-        window._saveTooltipTimer = setTimeout(() => {
-            tooltip.classList.remove('show');
-            if (actionsEl) actionsEl.style.display = 'none';
-        }, firstTime ? 20000 : 10000);
+        // balão não pode fechar na cara de quem está ajustando. O relógio é
+        // só a rede de segurança — na prática quem fecha é a rolagem.
+        _armTooltipScrollDismiss();
+        window._saveTooltipTimer = setTimeout(() => _hideSaveTooltip(), firstTime ? 20000 : 10000);
     }
 
     window.toggleReadMark = async function (explicitTopicIndex) {

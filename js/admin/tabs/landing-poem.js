@@ -178,8 +178,9 @@ function _seasonTabsHTML() {
 }
 
 function _poemRowHTML(p, idx, total) {
-  const ja = _escapeCmu((p.original || '').slice(0, 40));
-  const tr = _escapeCmu((p.translation || '').slice(0, 90));
+  const ja = _escapeCmu(p.original || '');
+  const rj = _escapeCmu(p.romaji || '');
+  const tr = _escapeCmu(p.translation || '');
   const ttl = _escapeCmu(p.title || '(sem título)');
   return `<div style="display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--border); border-radius:8px; margin-bottom:8px; background:rgba(0,0,0,.015);">
     <div style="flex:0 0 auto; display:flex; flex-direction:column; gap:2px; padding-top:2px;">
@@ -190,8 +191,9 @@ function _poemRowHTML(p, idx, total) {
     </div>
     <div style="flex:1 1 auto; min-width:0;">
       <div style="font-weight:600; font-size:.86rem; color:var(--text); margin-bottom:2px;">${ttl}</div>
-      <div style="font-family:'Noto Serif JP',serif; font-size:.82rem; color:var(--text); opacity:.85;">${ja}${(p.original || '').length > 40 ? '…' : ''}</div>
-      <div style="font-size:.78rem; color:var(--text-muted); font-style:italic; margin-top:2px;">${tr}${(p.translation || '').length > 90 ? '…' : ''}</div>
+      <div style="font-family:'Noto Serif JP',serif; font-size:.82rem; color:var(--text); opacity:.85;">${ja}</div>
+      ${rj ? `<div style="font-size:.74rem; color:var(--text-muted); margin-top:3px;">${rj}</div>` : ''}
+      <div style="font-size:.78rem; color:var(--text-muted); font-style:italic; margin-top:4px; white-space:pre-line;">${tr}</div>
     </div>
     <div style="flex:0 0 auto; display:flex; flex-direction:column; gap:6px;">
       <button data-action="pin" data-idx="${idx}" title="Fixar este como override manual"
@@ -324,7 +326,7 @@ function _poemaCardHTML(p) {
   return `<div style="border:1px solid var(--border); border-radius:8px; padding:12px 14px; background:rgba(0,0,0,.02);">
     <div style="font-weight:600; font-size:.86rem; margin-bottom:3px;">${_escapeCmu(p.title || '(sem título)')}</div>
     <div style="font-family:'Noto Serif JP',serif; font-size:.9rem; line-height:1.7; color:var(--text);">${_escapeCmu(p.original || '')}</div>
-    <div style="font-size:.8rem; color:var(--text-muted); font-style:italic; margin-top:6px;">${_escapeCmu(p.translation || '')}</div>
+    <div style="font-size:.8rem; color:var(--text-muted); font-style:italic; margin-top:6px; white-space:pre-line;">${_escapeCmu(p.translation || '')}</div>
   </div>`;
 }
 
@@ -526,13 +528,13 @@ function renderPickerList() {
       count++;
       const inPool = already.has(p.original);
       const ttl = _escapeCmu(p.title || sec.title_pt || '');
-      const ja = _escapeCmu((p.original || '').slice(0, 46));
-      const tr = _escapeCmu((p.translation || '').slice(0, 110));
+      const ja = _escapeCmu(p.original || '');
+      const tr = _escapeCmu(p.translation || '');
       rows.push(`<div style="display:flex; gap:10px; align-items:flex-start; padding:9px 8px; border-bottom:1px solid var(--border);">
         <div style="flex:1 1 auto; min-width:0;">
           <div style="font-weight:600; font-size:.82rem;">${ttl}</div>
-          <div style="font-family:'Noto Serif JP',serif; font-size:.8rem; opacity:.85;">${ja}${(p.original || '').length > 46 ? '…' : ''}</div>
-          <div style="font-size:.76rem; color:var(--text-muted); font-style:italic;">${tr}${(p.translation || '').length > 110 ? '…' : ''}</div>
+          <div style="font-family:'Noto Serif JP',serif; font-size:.8rem; opacity:.85;">${ja}</div>
+          <div style="font-size:.76rem; color:var(--text-muted); font-style:italic; white-space:pre-line;">${tr}</div>
         </div>
         <button data-picker-add="${si}:${pi}" ${inPool ? 'disabled' : ''}
           style="flex:0 0 auto; border:1px solid ${inPool ? 'var(--border)' : 'var(--accent)'}; background:${inPool ? 'transparent' : 'var(--accent)'}; color:${inPool ? 'var(--text-muted)' : '#fff'}; border-radius:6px; padding:5px 10px; cursor:${inPool ? 'default' : 'pointer'}; font-size:.78rem; font-weight:600;">${inPool ? '✓ no pool' : 'Adicionar'}</button>

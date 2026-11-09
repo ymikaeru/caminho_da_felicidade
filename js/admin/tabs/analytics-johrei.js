@@ -412,6 +412,21 @@ async function loadJohreiAnalytics() {
   const fin = oneOffCultoStats('culto_finados_open', FIN_AUDIO_KEY);
 
   // ── Helpers ─────────────────────────────────────────────────
+  // Rótulo do período dos cards de gravação (lidos de site_events bruto). O início
+  // real é o MAIS TARDE entre: o início do filtro; o limite de retenção (a
+  // site_events_retention apaga eventos > 90 dias e guarda só totais diários por
+  // tipo, sem props — então não dá pra separar por gravação); e quando a gravação
+  // entrou no ar. Se esse início cai dentro do filtro, mostra "desde dd/mm/aaaa";
+  // senão, o nº de dias do filtro. (Margem de 1h: o filtro de 90 dias e a
+  // retenção caem praticamente no mesmo instante.)
+  const RAW_RETENTION_MS = 90 * 86400000;
+  const periodStartMs = new Date(since).getTime();
+  const periodLabel = liveSinceMs => {
+    const startMs = Math.max(periodStartMs, Date.now() - RAW_RETENTION_MS, liveSinceMs ?? -Infinity);
+    return startMs > periodStartMs + 3600000
+      ? `desde ${new Date(startMs).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`
+      : `${data.days_back}d`;
+  };
   const esc = s => String(s ?? '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
   const card = (v, label, uniques) => `<div class="jr-card">
     <div class="v">${(v ?? 0).toLocaleString('pt-BR')}</div>
@@ -523,7 +538,7 @@ async function loadJohreiAnalytics() {
   const cmHasData = cmOpenCount > 0 || cmAudioSessions > 0 || cmSessionsRead > 0 || cmDownloadCount > 0;
   const cmBlock = `
     <div class="jr-chart-wrap" style="margin-bottom:24px;">
-      <h3>📖 Orientação do Culto Mensal${cmCutoffMs != null ? ' · gravação atual' : ''} (${data.days_back}d)</h3>
+      <h3>📖 Orientação do Culto Mensal${cmCutoffMs != null ? ' · gravação atual' : ''} (${periodLabel(cmCutoffMs)})</h3>
       <div class="jr-cards" style="margin-bottom:0;">
         ${card(cmOpenCount, 'Aberturas', cmOpenUniques)}
         ${engCard(cmAvgDwell > 0 ? fmtTime(cmAvgDwell) : '—', 'Permanência média')}
@@ -566,7 +581,7 @@ async function loadJohreiAnalytics() {
   const dirHasData = dirOpenCount > 0 || dirAudioSessions > 0 || dirDownloadCount > 0;
   const dirBlock = `
     <div class="jr-chart-wrap" style="margin-bottom:24px;">
-      <h3>🎧 Orientação do Dirigente Espiritual · 14/04/1983 (${data.days_back}d)</h3>
+      <h3>🎧 Orientação do Dirigente Espiritual · 14/04/1983 (${periodLabel(null)})</h3>
       <div class="jr-cards" style="margin-bottom:0;">
         ${card(dirOpenCount, 'Aberturas', dirOpenUniques)}
         ${engCard(dirPlayCount, 'Plays')}
@@ -586,11 +601,13 @@ async function loadJohreiAnalytics() {
     </div>`;
 
   // Blocos dos cultos avulsos com transcrição: sempre renderizam.
-  function oneOffCultoBlock(s, heading, emptyNote) {
+  // liveSinceMs = quando o culto entrou no ar (meio-dia UTC, pra data não virar
+  // a véspera no fuso de Brasília).
+  function oneOffCultoBlock(s, heading, liveSinceMs, emptyNote) {
     const hasData = s.openCount > 0 || s.audioSessions > 0 || s.downloadCount > 0;
     return `
     <div class="jr-chart-wrap" style="margin-bottom:24px;">
-      <h3>${heading} (${data.days_back}d)</h3>
+      <h3>${heading} (${periodLabel(liveSinceMs)})</h3>
       <div class="jr-cards" style="margin-bottom:0;">
         ${card(s.openCount, 'Aberturas', s.openUniques)}
         ${engCard(s.playCount, 'Plays')}
@@ -609,9 +626,9 @@ async function loadJohreiAnalytics() {
       </p>
     </div>`;
   }
-  const finBlock = oneOffCultoBlock(fin, '🕯️ Culto de Finados · 02/11/2026',
+  const finBlock = oneOffCultoBlock(fin, '🕯️ Culto de Finados · 02/11/2026', Date.UTC(2026, 10, 9, 12),
     'Sem dados ainda no período. A gravação entrou no ar em 09/11/2026, pelo menu "Orientações" do Guia.');
-  const espBlock = oneOffCultoBlock(esp, '✨ Culto Paraíso Terrestre',
+  const espBlock = oneOffCultoBlock(esp, '✨ Culto Paraíso Terrestre', Date.UTC(2026, 5, 16, 12),
     'Sem dados no período. Desde nov/2026 este culto não aparece mais no menu "Orientações", então novas aberturas não são esperadas.');
 
   // ── Essência (modal de boas-vindas) aggregates ──────────────

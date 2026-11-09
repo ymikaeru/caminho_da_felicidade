@@ -168,11 +168,13 @@ async function loadJohreiAnalytics() {
   // Discriminador entre os áudios do Guia, via props.audio (string definida nos
   // players: orientacao-dirigente.js e culto-mensal.js variante especial). Eventos
   // antigos do Culto Mensal não têm props.audio → caem no Mensal (filtro !==), sem
-  // regressão. O Mensal exclui Dirigente E Especial pra não inflar com eles.
+  // regressão. O Mensal exclui Dirigente, Especial E Finados pra não inflar com eles.
+  // Finados ainda não tem card próprio: só não pode cair no Mensal.
   const DIR_AUDIO_KEY = 'orientacao_dirigente_1983';
   const ESP_AUDIO_KEY = 'culto_especial';
+  const FIN_AUDIO_KEY = 'culto_finados';
   const cmAudioAll = cmAudioRes.data || [];
-  const cmAudioMensal = cmAudioAll.filter(r => { const a = (r.props || {}).audio; return a !== DIR_AUDIO_KEY && a !== ESP_AUDIO_KEY; });
+  const cmAudioMensal = cmAudioAll.filter(r => { const a = (r.props || {}).audio; return a !== DIR_AUDIO_KEY && a !== ESP_AUDIO_KEY && a !== FIN_AUDIO_KEY; });
   const cmAudio  = cmAudioMensal.filter(cmInCurrent);
   const dirAudio = cmAudioAll.filter(r => (r.props || {}).audio === DIR_AUDIO_KEY);
   const espAudio = cmAudioAll.filter(r => (r.props || {}).audio === ESP_AUDIO_KEY);
@@ -267,8 +269,8 @@ async function loadJohreiAnalytics() {
   const cmMedianListenedPct = cmDuration ? Math.round((cmMedianListenedSec / cmDuration) * 100) : null;
 
   // Downloads do ZIP (PDF + MP3) — 1 evento por clique no botão "Baixar".
-  // Exclui os do Especial (mesmo event_type download_zip, separados por props.audio).
-  const cmDownloadsMensal = (cmDownloadsRes.data || []).filter(r => (r.props || {}).audio !== ESP_AUDIO_KEY);
+  // Exclui os do Especial e de Finados (mesmo event_type download_zip, separados por props.audio).
+  const cmDownloadsMensal = (cmDownloadsRes.data || []).filter(r => { const a = (r.props || {}).audio; return a !== ESP_AUDIO_KEY && a !== FIN_AUDIO_KEY; });
   const cmDownloads = cmDownloadsMensal.filter(cmInCurrent);
   const cmDownloadCount = cmDownloads.length;
   const cmDownloadUniques = new Set(cmDownloads.map(r => r.anon_id)).size;

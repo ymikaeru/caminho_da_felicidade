@@ -177,7 +177,6 @@ async function loadJohreiAnalytics() {
   const cmAudioMensal = cmAudioAll.filter(r => { const a = (r.props || {}).audio; return a !== DIR_AUDIO_KEY && a !== ESP_AUDIO_KEY && a !== FIN_AUDIO_KEY; });
   const cmAudio  = cmAudioMensal.filter(cmInCurrent);
   const dirAudio = cmAudioAll.filter(r => (r.props || {}).audio === DIR_AUDIO_KEY);
-  const espAudio = cmAudioAll.filter(r => (r.props || {}).audio === ESP_AUDIO_KEY);
 
   console.log('[jr-culto-mensal]', {
     opens: cmOpens.length,
@@ -355,52 +354,62 @@ async function loadJohreiAnalytics() {
   const dirAvgListenedPct = dirDuration ? Math.round((dirAvgListenedSec / dirDuration) * 100) : null;
   const dirMedianListenedPct = dirDuration ? Math.round((dirMedianListenedSec / dirDuration) * 100) : null;
 
-  // ── Culto Paraíso Terrestre (karaokê, props.audio === 'culto_especial') ────
-  // Mesmo modelo do Mensal/Dirigente. Abrir = cta label 'culto_especial_open';
-  // download = download_zip com props.audio === ESP_AUDIO_KEY (PDF + MP3).
-  const espOpens = (cmOpensRes.data || []).filter(r => (r.props || {}).label === 'culto_especial_open');
-  const espOpenCount = espOpens.length;
-  const espOpenUniques = new Set(espOpens.map(r => r.anon_id)).size;
-  const espDownloads = (cmDownloadsRes.data || []).filter(r => (r.props || {}).audio === ESP_AUDIO_KEY);
-  const espDownloadCount = espDownloads.length;
-  const espDownloadUniques = new Set(espDownloads.map(r => r.anon_id)).size;
+  // ── Cultos avulsos com transcrição (karaokê): Paraíso Terrestre e Finados ──
+  // Mesmo modelo do Mensal/Dirigente. Abrir = cta com o label do item do menu;
+  // escuta = audio_play/pause/ended com props.audio === audioKey; download =
+  // download_zip com o mesmo props.audio (PDF + MP3). Para um novo culto avulso,
+  // basta mais uma chamada aqui e um oneOffCultoBlock() no render.
+  function oneOffCultoStats(openLabel, audioKey) {
+    const opens = (cmOpensRes.data || []).filter(r => (r.props || {}).label === openLabel);
+    const downloads = (cmDownloadsRes.data || []).filter(r => (r.props || {}).audio === audioKey);
+    const audio = cmAudioAll.filter(r => (r.props || {}).audio === audioKey);
 
-  const espPlayedBySession = {};
-  const espDurBySession = {};
-  const espPlaySessions = new Set();
-  let espCompletedCount = 0;
-  const espCompletedByAnon = {};
-  espAudio.forEach(r => {
-    if (r.event_type === 'audio_play') { espPlaySessions.add(r.session_id); return; }
-    const total = Number((r.props || {}).total_played_seconds) || 0;
-    const prev = espPlayedBySession[r.session_id] || 0;
-    if (total > prev) espPlayedBySession[r.session_id] = total;
-    const durSeen = Number((r.props || {}).duration_seconds) || 0;
-    if (durSeen > (espDurBySession[r.session_id] || 0)) espDurBySession[r.session_id] = durSeen;
-    if (r.event_type === 'audio_ended') {
-      const dur = Number((r.props || {}).duration_seconds) || 0;
-      if (dur && total < dur * CM_COMPLETE_MIN_RATIO) return; // ouviu pouco: não conta
-      espCompletedCount++;
-      espCompletedByAnon[r.anon_id] = (espCompletedByAnon[r.anon_id] || 0) + 1;
-    }
-  });
-  const espAudioSessions = espPlaySessions.size;
-  const espPlayCount = espAudio.filter(r => r.event_type === 'audio_play').length;
-  const espCompletedUniques = Object.keys(espCompletedByAnon).length;
-  // Tempo por sessão capado na duração (re-escutas contam como 100%).
-  const espDuration = (espAudio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
-  const espMeasuredTotals = Object.entries(espPlayedBySession).map(([sid, total]) => {
-    const dur = espDurBySession[sid] || espDuration || 0;
-    return dur ? Math.min(total, dur) : total;
-  });
-  const espAvgListenedSec = espMeasuredTotals.length
-    ? espMeasuredTotals.reduce((a, b) => a + b, 0) / espMeasuredTotals.length
-    : 0;
-  const espMedianListenedSec = espMeasuredTotals.length
-    ? [...espMeasuredTotals].sort((a, b) => a - b)[Math.floor(espMeasuredTotals.length / 2)]
-    : 0;
-  const espAvgListenedPct = espDuration ? Math.round((espAvgListenedSec / espDuration) * 100) : null;
-  const espMedianListenedPct = espDuration ? Math.round((espMedianListenedSec / espDuration) * 100) : null;
+    const playedBySession = {};
+    const durBySession = {};
+    const playSessions = new Set();
+    let completedCount = 0;
+    const completedByAnon = {};
+    audio.forEach(r => {
+      if (r.event_type === 'audio_play') { playSessions.add(r.session_id); return; }
+      const total = Number((r.props || {}).total_played_seconds) || 0;
+      const prev = playedBySession[r.session_id] || 0;
+      if (total > prev) playedBySession[r.session_id] = total;
+      const durSeen = Number((r.props || {}).duration_seconds) || 0;
+      if (durSeen > (durBySession[r.session_id] || 0)) durBySession[r.session_id] = durSeen;
+      if (r.event_type === 'audio_ended') {
+        const dur = Number((r.props || {}).duration_seconds) || 0;
+        if (dur && total < dur * CM_COMPLETE_MIN_RATIO) return; // ouviu pouco: não conta
+        completedCount++;
+        completedByAnon[r.anon_id] = (completedByAnon[r.anon_id] || 0) + 1;
+      }
+    });
+    // Tempo por sessão capado na duração (re-escutas contam como 100%).
+    const duration = (audio.find(r => (r.props || {}).duration_seconds)?.props?.duration_seconds) || 0;
+    const measured = Object.entries(playedBySession).map(([sid, total]) => {
+      const dur = durBySession[sid] || duration || 0;
+      return dur ? Math.min(total, dur) : total;
+    });
+    const avgListenedSec = measured.length ? measured.reduce((a, b) => a + b, 0) / measured.length : 0;
+    const medianListenedSec = measured.length
+      ? [...measured].sort((a, b) => a - b)[Math.floor(measured.length / 2)]
+      : 0;
+    return {
+      openCount: opens.length,
+      openUniques: new Set(opens.map(r => r.anon_id)).size,
+      downloadCount: downloads.length,
+      downloadUniques: new Set(downloads.map(r => r.anon_id)).size,
+      playCount: audio.filter(r => r.event_type === 'audio_play').length,
+      audioSessions: playSessions.size,
+      completedCount,
+      completedUniques: Object.keys(completedByAnon).length,
+      avgListenedSec,
+      medianListenedSec,
+      avgListenedPct: duration ? Math.round((avgListenedSec / duration) * 100) : null,
+      medianListenedPct: duration ? Math.round((medianListenedSec / duration) * 100) : null,
+    };
+  }
+  const esp = oneOffCultoStats('culto_especial_open', ESP_AUDIO_KEY);
+  const fin = oneOffCultoStats('culto_finados_open', FIN_AUDIO_KEY);
 
   // ── Helpers ─────────────────────────────────────────────────
   const esc = s => String(s ?? '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
@@ -576,28 +585,34 @@ async function loadJohreiAnalytics() {
       </p>
     </div>`;
 
-  // Bloco do Culto Paraíso Terrestre (especial com transcrição): sempre renderiza.
-  const espHasData = espOpenCount > 0 || espAudioSessions > 0 || espDownloadCount > 0;
-  const espBlock = `
+  // Blocos dos cultos avulsos com transcrição: sempre renderizam.
+  function oneOffCultoBlock(s, heading, emptyNote) {
+    const hasData = s.openCount > 0 || s.audioSessions > 0 || s.downloadCount > 0;
+    return `
     <div class="jr-chart-wrap" style="margin-bottom:24px;">
-      <h3>✨ Culto Paraíso Terrestre (${data.days_back}d)</h3>
+      <h3>${heading} (${data.days_back}d)</h3>
       <div class="jr-cards" style="margin-bottom:0;">
-        ${card(espOpenCount, 'Aberturas', espOpenUniques)}
-        ${engCard(espPlayCount, 'Plays')}
-        ${engCard(espAudioSessions, 'Sessões que ouviram')}
-        ${engCard(espAvgListenedSec > 0 ? fmtTime(espAvgListenedSec) : '—',
-          'Escuta média' + (espAvgListenedPct != null && espAvgListenedPct > 0 ? ` (${espAvgListenedPct}%)` : ''),
+        ${card(s.openCount, 'Aberturas', s.openUniques)}
+        ${engCard(s.playCount, 'Plays')}
+        ${engCard(s.audioSessions, 'Sessões que ouviram')}
+        ${engCard(s.avgListenedSec > 0 ? fmtTime(s.avgListenedSec) : '—',
+          'Escuta média' + (s.avgListenedPct != null && s.avgListenedPct > 0 ? ` (${s.avgListenedPct}%)` : ''),
           null,
-          espMedianListenedSec > 0 ? `mediana ${fmtTime(espMedianListenedSec)}${espMedianListenedPct != null ? ` (${espMedianListenedPct}%)` : ''}` : null)}
-        ${card(espCompletedCount, 'Escutas completas', espCompletedUniques)}
-        ${card(espDownloadCount, 'Downloads (ZIP)', espDownloadUniques)}
+          s.medianListenedSec > 0 ? `mediana ${fmtTime(s.medianListenedSec)}${s.medianListenedPct != null ? ` (${s.medianListenedPct}%)` : ''}` : null)}
+        ${card(s.completedCount, 'Escutas completas', s.completedUniques)}
+        ${card(s.downloadCount, 'Downloads (ZIP)', s.downloadUniques)}
       </div>
       <p style="font-size:.72rem;color:var(--text-muted);margin:14px 0 0;">
-        ${espHasData
-          ? 'Culto especial com transcrição (karaokê). Aberturas = cliques no item do menu. Sessões que ouviram = apertaram play. Escuta média = total ouvido por sessão. Escutas completas = ouviu ≥80% até o fim. Downloads = "Baixar" (ZIP com PDF + MP3).'
-          : 'Sem dados ainda no período. Confirme que o tracking (guia_johrei) e este painel (caminho) foram deployados e que alguém abriu o Culto Paraíso Terrestre pelo menu "Orientações".'}
+        ${hasData
+          ? 'Culto avulso com transcrição (karaokê). Aberturas = cliques no item do menu. Sessões que ouviram = apertaram play. Escuta média = total ouvido por sessão. Escutas completas = ouviu ≥80% até o fim. Downloads = "Baixar" (ZIP com PDF + MP3).'
+          : emptyNote}
       </p>
     </div>`;
+  }
+  const finBlock = oneOffCultoBlock(fin, '🕯️ Culto de Finados · 02/11/2026',
+    'Sem dados ainda no período. A gravação entrou no ar em 09/11/2026, pelo menu "Orientações" do Guia.');
+  const espBlock = oneOffCultoBlock(esp, '✨ Culto Paraíso Terrestre',
+    'Sem dados no período. Desde nov/2026 este culto não aparece mais no menu "Orientações", então novas aberturas não são esperadas.');
 
   // ── Essência (modal de boas-vindas) aggregates ──────────────
   const essShown = essShownRes.data || [];
@@ -731,6 +746,7 @@ async function loadJohreiAnalytics() {
     ${tabsBlock}
     ${focalBlock}
     ${cmBlock}
+    ${finBlock}
     ${espBlock}
     ${dirBlock}
     ${essBlock}

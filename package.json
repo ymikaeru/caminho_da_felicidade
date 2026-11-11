@@ -17,7 +17,8 @@
     "storage:pull": "node scripts/storage-pull.mjs",
     "storage:status": "node scripts/storage-status.mjs",
     "storage:push": "node scripts/storage-push.mjs",
-    "offline:build": "node scripts/build_offline.mjs"
+    "offline:build": "node scripts/build_offline.mjs",
+    "offline:atualizar": "node scripts/build_offline.mjs --contas --pull"
   },
   "keywords": [
     "meishu-sama",
@@ -28,6 +29,7 @@
   "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
+    "bcryptjs": "^2.4.3",
     "cssnano": "^7.1.4",
     "esbuild": "^0.28.0",
     "postcss": "^8.5.8",

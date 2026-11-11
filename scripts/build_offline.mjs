@@ -19,9 +19,16 @@
 //   node scripts/build_offline.mjs --pull            # antes, atualiza o espelho do Storage
 //   node scripts/build_offline.mjs --out=E:/caminho  # outra pasta de saída
 //   node scripts/build_offline.mjs --no-fonts        # não baixa fontes (usa as do sistema)
+//   node scripts/build_offline.mjs --contas --pull   # login por CONTA de cada membro (ver abaixo)
 //
 // A senha também pode vir de OFFLINE_PASSWORD (env ou .env.local).
 // No pacote só vai o hash (SHA-256 com sal), nunca a senha.
+//
+// MODO CONTAS (--contas): cada membro entra com o email e a senha do site e
+// encontra os grifos, salvos e lidos que tinha até o último --pull. O que
+// fizer offline fica só na máquina servidora (_dados/local/) e não sobe.
+// Exige o servidor.py (o `python -m http.server` puro não faz login) e leva
+// para o pacote os hashes de senha dos membros — ver offline_export_contas.mjs.
 // ============================================================
 
 import fs from 'node:fs/promises';
@@ -30,6 +37,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { exportContas, CONTAS_DIR } from './offline_export_contas.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 process.chdir(ROOT);
@@ -43,6 +51,9 @@ const OUT = path.resolve(args.out || 'dist-offline');
 const MIRROR = path.join(ROOT, '.local-edits', 'teachings');
 const FONT_CACHE = path.join(ROOT, '.local-edits', '.offline-font-cache');
 const MARKER = '.pacote-offline';
+// --contas: login com email e senha de cada membro + dados pessoais deles.
+// Sem a flag: login genérico (uma senha para todos, dados no navegador).
+const CONTAS = !!args.contas;
 const VOLS = ['mioshiec1', 'mioshiec2', 'mioshiec3', 'mioshiec4'];
 const STORAGE_REL = '_offline/storage/v1/object/authenticated/teachings';
 
@@ -88,6 +99,7 @@ async function readEnvLocal(key) {
 }
 
 async function resolveAuthConfig() {
+  if (CONTAS) return { salt: '', passwordHash: '', reused: false };
   const senha = (typeof args.senha === 'string' && args.senha) || process.env.OFFLINE_PASSWORD || await readEnvLocal('OFFLINE_PASSWORD');
   if (senha) {
     const salt = crypto.randomBytes(12).toString('hex');
@@ -219,7 +231,7 @@ async function installOfflineClient(auth) {
   await copyFile('offline/supabase-config.offline.js', path.join(OUT, 'js', 'supabase-config.js'));
   await fs.writeFile(path.join(OUT, 'js', 'offline-config.js'),
     `// Gerado por scripts/build_offline.mjs — não editar à mão.\n` +
-    `export default {\n  salt: '${auth.salt}',\n  passwordHash: '${auth.passwordHash}',\n  builtAt: '${new Date().toISOString()}',\n};\n`);
+    `export default {\n  mode: '${CONTAS ? 'contas' : 'generica'}',\n  salt: '${auth.salt}',\n  passwordHash: '${auth.passwordHash}',\n  builtAt: '${new Date().toISOString()}',\n};\n`);
 }
 
 // Troca pontual de texto que FALHA ALTO se o trecho sumir do fonte — assim
@@ -230,6 +242,7 @@ function mustReplace(src, from, to, what) {
 }
 
 async function patchLogin() {
+  if (CONTAS) return;   // modo contas usa a tela de login original (email + senha)
   const p = path.join(OUT, 'js', 'login.js');
   let s = await fs.readFile(p, 'utf8');
   s = mustReplace(s, 'if (!email || !password) return;', 'if (!password) return;', 'js/login.js');
@@ -316,88 +329,6 @@ async function rewriteHtml() {
 // ------------------------------------------------------------
 // 7. Lançadores + LEIA-ME
 // ------------------------------------------------------------
-const SERVIDOR_PY = `#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""Servidor local do Caminho da Felicidade (modo offline).
-
-So usa a biblioteca padrao do Python 3 - nao precisa instalar nada.
-Uso:  python servidor.py [porta]      (padrao: 8000)
-
-Equivale a "python -m http.server", com dois cuidados a mais:
-  - forca o tipo correto de .js/.json/.woff2 (em alguns Windows o registro
-    devolve text/plain para .js e o navegador recusa os modulos);
-  - manda o navegador revalidar os arquivos, para que uma atualizacao do
-    pacote apareca sem precisar limpar o cache.
-"""
-import http.server
-import os
-import socket
-import sys
-
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
-
-class Handler(http.server.SimpleHTTPRequestHandler):
-    extensions_map = dict(http.server.SimpleHTTPRequestHandler.extensions_map)
-    extensions_map.update({
-        '.js': 'text/javascript; charset=utf-8',
-        '.mjs': 'text/javascript; charset=utf-8',
-        '.json': 'application/json; charset=utf-8',
-        '.css': 'text/css; charset=utf-8',
-        '.html': 'text/html; charset=utf-8',
-        '.svg': 'image/svg+xml',
-        '.woff2': 'font/woff2',
-        '.webmanifest': 'application/manifest+json',
-    })
-
-    def end_headers(self):
-        self.send_header('Cache-Control', 'no-cache')
-        super().end_headers()
-
-    def do_POST(self):
-        # O site tenta registrar estatisticas; offline nao ha para onde mandar.
-        length = int(self.headers.get('Content-Length') or 0)
-        if length:
-            self.rfile.read(length)
-        self.send_response(204)
-        self.end_headers()
-
-    def log_message(self, fmt, *args):
-        pass  # silencioso: a janela mostra so o endereco
-
-
-def lan_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        s.connect(('10.255.255.255', 1))   # nao envia nada; so descobre a interface
-        return s.getsockname()[0]
-    except OSError:
-        return None
-    finally:
-        s.close()
-
-
-if __name__ == '__main__':
-    server = http.server.ThreadingHTTPServer(('0.0.0.0', PORT), Handler)
-    ip = lan_ip()
-    print('=' * 60)
-    print('  CAMINHO DA FELICIDADE - modo offline')
-    print('=' * 60)
-    print()
-    print('  Neste computador:      http://localhost:%d' % PORT)
-    if ip and not ip.startswith('127.'):
-        print('  Outros aparelhos')
-        print('  na mesma rede/Wi-Fi:   http://%s:%d' % (ip, PORT))
-    print()
-    print('  Para encerrar, feche esta janela (ou Ctrl+C).')
-    print()
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        pass
-`;
-
 const INICIAR_BAT = `@echo off
 chcp 65001 > nul
 title Caminho da Felicidade - modo offline
@@ -456,7 +387,8 @@ COMO USAR
 1. Copie esta pasta inteira para o computador (pendrive, HD externo…).
 2. Windows: dê dois cliques em INICIAR.bat
    Mac/Linux: INICIAR.command  (ou: python3 servidor.py)
-3. O navegador abre em http://localhost:8000 e pede a senha.
+3. O navegador abre em http://localhost:8000 e pede ${CONTAS ? `o email e a senha
+   (os mesmos do site online)` : 'a senha'}.
 4. Para outras pessoas na MESMA rede/Wi-Fi: a janela preta mostra um
    endereço do tipo http://192.168.x.x:8000 — é só digitar no celular
    ou em outro computador.
@@ -466,29 +398,45 @@ COMO USAR
 ATUALIZAÇÃO: se a pasta veio de "git clone", o INICIAR busca sozinho a
 versão mais nova quando há internet. Sem internet, abre a que já está aqui.
 
-Também funciona com o servidor padrão do Python:
+${CONTAS ? `IMPORTANTE: use sempre o INICIAR (servidor.py). O "python -m http.server"
+puro mostra as páginas, mas não faz o login das contas.
+` : `Também funciona com o servidor padrão do Python:
     python -m http.server 8000
 (o servidor.py só acrescenta alguns cuidados e mostra o endereço da rede).
-
+`}
 O QUE FUNCIONA
 --------------
 • Leitura de todos os Ensinamentos (português e japonês), poesia e livros
 • Navegação, índices e busca por título e por texto
-• Grifos, favoritos, "lido" e posição de leitura — ficam guardados NO
+${CONTAS ? `• Cada membro entra com a própria conta e encontra os grifos, salvos,
+  pastas e lidos que tinha no site online até a data do pacote
+• O que for grifado ou salvo aqui fica guardado NESTA máquina (pasta
+  _dados/local) e aparece em qualquer aparelho da rede; NÃO sobe para a
+  conta online quando a internet voltar
+• Imprimir: pelo navegador (Ctrl+P) na página do Ensinamento
+` : `• Grifos, favoritos, "lido" e posição de leitura — ficam guardados NO
   NAVEGADOR de cada aparelho (não vão para a conta online e não passam
   de um aparelho para outro)
-
+`}
 O QUE NÃO FUNCIONA OFFLINE
 --------------------------
-• Contas individuais (o login é uma senha única para todos)
-• Recomendações, mensagens ao Reverendo, coletâneas, painel admin
+${CONTAS ? `• Criar conta ou redefinir senha (vale a senha que o membro tinha no
+  site na data do pacote)
+` : `• Contas individuais (o login é uma senha única para todos)
+`}• Recomendações, mensagens ao Reverendo, coletâneas, painel admin
 • Busca semântica ("relacionados"), notificações, instalar como aplicativo
 
-SOBRE A SENHA
+${CONTAS ? `CUIDADO COM ESTA PASTA
+----------------------
+A pasta _dados/ contém as contas dos membros (emails, senhas em forma
+cifrada e grifos pessoais). O servidor nunca entrega esses arquivos pela
+rede, mas quem copiar a PASTA leva tudo. Guarde-a como material reservado
+e faça cópia de segurança de _dados/local de tempos em tempos.
+` : `SOBRE A SENHA
 -------------
 A senha é uma porta de entrada, não um cofre: quem tiver acesso à pasta
 consegue abrir os arquivos direto. Não deixe o pacote em local público.
-
+`}
 Conteúdo dos Ensinamentos atualizado em: ${mirrorDate || 'data desconhecida'}
 Pacote gerado em: ${new Date().toISOString().slice(0, 10)}
 `;
@@ -512,6 +460,12 @@ if (await exists(OUT)) {
   // as outras máquinas atualizarem com "git pull". Todo o resto é recriado.
   for (const e of entries) {
     if (e === '.git') continue;
+    if (e === '_dados') {     // _dados/local = o que os membros fizeram NESTA máquina: nunca apagar
+      for (const d of await fs.readdir(path.join(OUT, e))) {
+        if (d !== 'local') await fs.rm(path.join(OUT, e, d), { recursive: true, force: true });
+      }
+      continue;
+    }
     await fs.rm(path.join(OUT, e), { recursive: true, force: true });
   }
 }
@@ -531,14 +485,32 @@ for (const line of await buildSearchIndexes()) log('     ' + line);
 log('4/6  Instalando cliente offline e login genérico…');
 await installOfflineClient(auth);
 await patchLogin();
-log(`     senha ${auth.reused ? 'reaproveitada do pacote anterior' : 'definida agora'}`);
+log(CONTAS ? '     login por conta de cada membro' : `     senha ${auth.reused ? 'reaproveitada do pacote anterior' : 'definida agora'}`);
+
+if (CONTAS) {
+  log('     Contas dos membros…');
+  if (args.pull || !await exists(path.join(CONTAS_DIR, 'contas.json'))) {
+    try { await exportContas({ log }); }
+    catch (e) {
+      if (!await exists(path.join(CONTAS_DIR, 'contas.json'))) die('Não consegui exportar as contas: ' + e.message.split('\n')[0]);
+      log('     ⚠ exportação falhou (sem internet?) — uso a última cópia das contas.');
+    }
+  }
+  for (const rel of await walk(CONTAS_DIR)) {
+    if (rel === 'info.json') continue;
+    await copyFile(path.join(CONTAS_DIR, rel), path.join(OUT, '_dados', rel));
+  }
+  await copyFile('node_modules/bcryptjs/dist/bcrypt.min.js', path.join(OUT, 'js', 'vendor', 'bcrypt.min.js'));
+  // O que os membros fizerem offline fica na máquina servidora, fora do git.
+  await fs.writeFile(path.join(OUT, '.gitignore'), '_dados/local/\n__pycache__/\n');
+}
 
 log('5/6  Ajustando páginas e baixando fontes…');
 const hr = await rewriteHtml();
 log(`     ${hr.pages} páginas; ${hr.fontFiles} arquivos de fonte${hr.fontsFailed ? ' (algumas falharam: usará fontes do sistema)' : ''}`);
 
 log('6/6  Lançadores…');
-await fs.writeFile(path.join(OUT, 'servidor.py'), SERVIDOR_PY);
+await copyFile('offline/servidor.py', path.join(OUT, 'servidor.py'));
 await fs.writeFile(path.join(OUT, 'INICIAR.bat'), INICIAR_BAT.replace(/\r?\n/g, '\r\n'));
 await fs.writeFile(path.join(OUT, 'INICIAR.command'), INICIAR_COMMAND, { mode: 0o755 });
 await fs.writeFile(path.join(OUT, 'LEIA-ME.txt'), leiaMe(mirrorDate?.slice(0, 10)));

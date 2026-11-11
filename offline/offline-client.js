@@ -22,9 +22,55 @@ export const OFFLINE_BASE = new URL('../_offline', import.meta.url).href.replace
 const STORAGE_BASE = `${OFFLINE_BASE}/storage/v1/object/authenticated`;
 const VOLS = ['mioshiec1', 'mioshiec2', 'mioshiec3', 'mioshiec4'];
 
-const USER_ID = '00000000-0000-4000-8000-0000000ff11e';
+// Dois modos, escolhidos no build (offline-config.js):
+//   'generica' → uma senha única para todos; dados no navegador.
+//   'contas'   → email + senha de cada membro, conferidos pelo servidor.py;
+//                grifos/salvos/lidos ficam guardados na máquina servidora.
+const CONTAS = OFFLINE_CONFIG.mode === 'contas';
+const GENERIC_USER_ID = '00000000-0000-4000-8000-0000000ff11e';
 const SESSION_KEY = 'offline_session';
-const DB_PREFIX = 'offline_db:';
+const REMOTE_TABLES = new Set(['user_highlights', 'synced_favorites', 'favorite_folders', 'read_marks', 'reading_positions']);
+const REMOTE_RPCS = new Set(['register_reading', 'undo_reading']);
+
+function _stored() {
+  try { const v = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); return v && v.token && v.user ? v : null; }
+  catch (_) { return null; }
+}
+const uid = () => (CONTAS ? (_stored()?.user?.id || 'anon') : GENERIC_USER_ID);
+// No modo contas cada pessoa tem seu próprio "banco" local (perfil, logs).
+const dbKey = (table) => 'offline_db:' + (CONTAS ? uid() + ':' : '') + table;
+
+async function _api(path, body) {
+  let res;
+  try {
+    res = await fetch(`${location.origin}/api/${path}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    });
+  } catch (e) {
+    return { data: null, error: { message: 'Servidor offline inacessível', code: 'NET' } };
+  }
+  if (res.status === 401) {          // sessão expirou ou o servidor foi trocado
+    try { localStorage.removeItem(SESSION_KEY); localStorage.removeItem('mioshie_auth'); } catch (_) {}
+    setTimeout(() => location.reload(), 60);
+  }
+  try { return await res.json(); }
+  catch (_) { return { data: null, error: { message: `Este recurso precisa do servidor.py (INICIAR) — resposta ${res.status}`, code: 'NOSERVER' } }; }
+}
+
+let _bcryptPromise = null;
+function _loadBcrypt() {
+  if (!_bcryptPromise) {
+    _bcryptPromise = new Promise((resolve, reject) => {
+      if (globalThis.dcodeIO && globalThis.dcodeIO.bcrypt) return resolve(globalThis.dcodeIO.bcrypt);
+      const sc = document.createElement('script');
+      sc.src = new URL('./vendor/bcrypt.min.js', import.meta.url).href;
+      sc.onload = () => (globalThis.dcodeIO && globalThis.dcodeIO.bcrypt ? resolve(globalThis.dcodeIO.bcrypt) : reject(new Error('bcrypt não carregou')));
+      sc.onerror = () => reject(new Error('bcrypt não carregou'));
+      document.head.appendChild(sc);
+    });
+  }
+  return _bcryptPromise;
+}
 
 const OFFLINE_ERR = (what) => ({ message: `Indisponível no modo offline${what ? ` (${what})` : ''}`, code: 'OFFLINE' });
 
@@ -89,12 +135,39 @@ function uuid() {
 // auth — login genérico
 // ------------------------------------------------------------
 function _makeSession() {
-  const user = { id: USER_ID, email: 'offline@local', role: 'authenticated', app_metadata: {}, user_metadata: {} };
-  return { access_token: 'offline', refresh_token: 'offline', token_type: 'bearer', expires_in: 3600, user };
+  const st = CONTAS ? _stored() : null;
+  const user = {
+    id: uid(), email: st ? st.user.email : 'offline@local',
+    role: 'authenticated', app_metadata: {}, user_metadata: {},
+  };
+  return { access_token: st ? st.token : 'offline', refresh_token: 'offline', token_type: 'bearer', expires_in: 3600, user };
 }
 
 function _hasSession() {
+  if (CONTAS) return !!_stored();
   try { return localStorage.getItem(SESSION_KEY) === OFFLINE_CONFIG.passwordHash; } catch (_) { return false; }
+}
+
+async function _signInConta(email, password) {
+  const bad = (message) => ({ data: { session: null, user: null }, error: { message } });
+  const e = String(email || '').trim().toLowerCase();
+  if (!e || !password) return bad('Invalid login credentials');
+  const s = await _api('salt', { email: e });
+  if (!s || !s.salt) return bad((s && s.error && s.error.message) || 'Servidor offline inacessível');
+  let proof;
+  try { proof = (await _loadBcrypt()).hashSync(String(password), s.salt); }
+  catch (_) { return bad('Invalid login credentials'); }
+  const r = await _api('login', { email: e, proof });
+  if (!r || !r.token) return bad((r && r.error && r.error.message) || 'Invalid login credentials');
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify({ token: r.token, user: r.user, perms: r.perms || [] })); } catch (_) {}
+  // perfil e permissões vêm do servidor a cada login (fonte da verdade)
+  try {
+    localStorage.removeItem(dbKey('user_profiles'));
+    localStorage.removeItem(dbKey('user_permissions'));
+  } catch (_) {}
+  if (typeof location !== 'undefined') setTimeout(() => location.reload(), 60);
+  const session = _makeSession();
+  return { data: { session, user: session.user }, error: null };
 }
 
 // O login.js mantém um flag legado (mioshie_auth) que, sozinho, libera a
@@ -115,7 +188,8 @@ const auth = {
   async getUser() {
     return { data: { user: _hasSession() ? _makeSession().user : null }, error: null };
   },
-  async signInWithPassword({ password } = {}) {
+  async signInWithPassword({ email, password } = {}) {
+    if (CONTAS) return _signInConta(email, password);
     const ok = sha256Hex(OFFLINE_CONFIG.salt + String(password || '')) === OFFLINE_CONFIG.passwordHash;
     if (!ok) return { data: { session: null, user: null }, error: { message: 'Invalid login credentials' } };
     try { localStorage.setItem(SESSION_KEY, OFFLINE_CONFIG.passwordHash); } catch (_) {}
@@ -142,19 +216,25 @@ const auth = {
 // from() — mini banco em localStorage
 // ------------------------------------------------------------
 const _SEED = {
-  user_profiles: () => [{ id: USER_ID, role: 'member', name: 'Offline', email: 'offline@local', preferred_lang: null }],
+  user_profiles: () => {
+    const u = CONTAS ? _stored()?.user : null;
+    return u
+      ? [{ id: u.id, role: u.role || 'member', name: u.name || '', email: u.email, preferred_lang: u.preferred_lang || null }]
+      : [{ id: uid(), role: 'member', name: 'Offline', email: 'offline@local', preferred_lang: null }];
+  },
+  user_permissions: () => (CONTAS ? (_stored()?.perms || []).map(p => ({ user_id: uid(), volume: p.volume, files: p.files })) : []),
 };
 
 function _load(table) {
   try {
-    const raw = localStorage.getItem(DB_PREFIX + table);
+    const raw = localStorage.getItem(dbKey(table));
     if (raw) return JSON.parse(raw);
   } catch (_) {}
   return _SEED[table] ? _SEED[table]() : [];
 }
 
 function _save(table, rows) {
-  try { localStorage.setItem(DB_PREFIX + table, JSON.stringify(rows)); return null; }
+  try { localStorage.setItem(dbKey(table), JSON.stringify(rows)); return null; }
   catch (e) { return { message: 'Armazenamento do navegador cheio — não foi possível salvar.', code: 'QUOTA' }; }
 }
 
@@ -294,6 +374,12 @@ class Query {
   }
 
   then(resolve, reject) {
+    if (CONTAS && REMOTE_TABLES.has(this.table)) {
+      const q = { table: this.table, op: this.op, filters: this.filters, orders: this.orders,
+        from: this.from, to: this.to, lim: this.lim, mode: this.mode,
+        payload: this.payload, opts: this.opts, returning: this.returning };
+      return _api('db', { token: _stored()?.token, q }).then(resolve, reject);
+    }
     let out;
     try { out = this._run(); } catch (e) { out = { data: null, error: { message: String(e && e.message || e) } }; }
     return Promise.resolve(out).then(resolve, reject);
@@ -482,7 +568,7 @@ async function _randomTopic(onlyVol) {
 // ------------------------------------------------------------
 function _readMark(args) {
   const rows = _load('read_marks');
-  const row = rows.find(r => r.user_id === USER_ID && r.volume === args.p_volume
+  const row = rows.find(r => r.user_id === uid() && r.volume === args.p_volume
     && r.file === args.p_file && Number(r.topic_index) === Number(args.p_topic_index));
   return { rows, row };
 }
@@ -502,7 +588,7 @@ const _RPC = {
     if (row) { n = row.times_read = (Number(row.times_read) || 1) + 1; row.last_read_at = now; }
     else {
       n = 1;
-      rows.push({ id: uuid(), user_id: USER_ID, volume: a.p_volume, file: a.p_file,
+      rows.push({ id: uuid(), user_id: uid(), volume: a.p_volume, file: a.p_file,
         topic_index: a.p_topic_index, topic_title: a.p_topic_title || null,
         created_at: now, times_read: 1, last_read_at: now });
     }
@@ -534,6 +620,7 @@ const _RPC = {
 };
 
 async function rpc(name, args) {
+  if (CONTAS && REMOTE_RPCS.has(name)) return _api('rpc', { token: _stored()?.token, name, args: args || {} });
   const fn = _RPC[name];
   if (!fn) return { data: null, error: OFFLINE_ERR(name) };
   try { return { data: await fn(args || {}), error: null }; }
@@ -551,8 +638,7 @@ function _injectOfflineUi() {
   const st = document.createElement('style');
   st.id = 'offline-mode-style';
   st.textContent = `
-    /* login genérico: só a senha */
-    #login-overlay #login-email,
+    ${CONTAS ? '' : '#login-overlay #login-email { display: none !important; }'}
     #login-overlay a[href*="reset-password"] { display: none !important; }
     /* recursos que dependem do servidor */
     #headerRecommendationsBtn, #mobileNavLinkInstall,

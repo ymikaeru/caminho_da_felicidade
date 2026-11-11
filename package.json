@@ -16,7 +16,8 @@
     "split:index": "node scripts/split_search_index.js",
     "storage:pull": "node scripts/storage-pull.mjs",
     "storage:status": "node scripts/storage-status.mjs",
-    "storage:push": "node scripts/storage-push.mjs"
+    "storage:push": "node scripts/storage-push.mjs",
+    "offline:build": "node scripts/build_offline.mjs"
   },
   "keywords": [
     "meishu-sama",

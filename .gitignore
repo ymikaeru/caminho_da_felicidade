@@ -42,3 +42,6 @@ site_data/books/
 
 # Grafo de conhecimento do graphify (regenerável: /graphify) — ferramenta de dev, não publicar
 graphify-out/
+
+# ── Pacote offline (gerado por scripts/build_offline.mjs) ──
+dist-offline/

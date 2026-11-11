@@ -414,6 +414,18 @@ if errorlevel 1 (
     exit /b 1
 )
 
+REM Busca atualizacoes do pacote, se esta pasta veio de "git clone".
+REM Sem git, sem internet ou sem novidades: segue com a versao que ja esta aqui.
+where git >nul 2>nul
+if not errorlevel 1 if exist ".git" (
+    echo Verificando atualizacoes...
+    git pull --ff-only
+    if errorlevel 1 (
+        echo [AVISO] Nao foi possivel atualizar - sem internet? Usando a versao atual.
+    )
+    echo.
+)
+
 REM Abre o navegador 2 segundos depois, para dar tempo do servidor subir
 start "" cmd /c "timeout /t 2 /nobreak > nul && start http://localhost:8000/"
 
@@ -423,6 +435,10 @@ pause
 
 const INICIAR_COMMAND = `#!/bin/bash
 cd "$(dirname "$0")"
+if command -v git >/dev/null 2>&1 && [ -d .git ]; then
+  echo "Verificando atualizacoes..."
+  git pull --ff-only || echo "[AVISO] Nao foi possivel atualizar - sem internet? Usando a versao atual."
+fi
 ( sleep 2; (open http://localhost:8000/ 2>/dev/null || xdg-open http://localhost:8000/ 2>/dev/null) ) &
 python3 servidor.py 8000
 `;
@@ -446,6 +462,9 @@ COMO USAR
    ou em outro computador.
    Na primeira vez o Windows pergunta se o Python pode usar a rede:
    responda "Permitir".
+
+ATUALIZAÇÃO: se a pasta veio de "git clone", o INICIAR busca sozinho a
+versão mais nova quando há internet. Sem internet, abre a que já está aqui.
 
 Também funciona com o servidor padrão do Python:
     python -m http.server 8000

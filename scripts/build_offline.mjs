@@ -514,6 +514,15 @@ await copyFile('offline/servidor.py', path.join(OUT, 'servidor.py'));
 await fs.writeFile(path.join(OUT, 'INICIAR.bat'), INICIAR_BAT.replace(/\r?\n/g, '\r\n'));
 await fs.writeFile(path.join(OUT, 'INICIAR.command'), INICIAR_COMMAND, { mode: 0o755 });
 await fs.writeFile(path.join(OUT, 'LEIA-ME.txt'), leiaMe(mirrorDate?.slice(0, 10)));
+// O Windows não guarda o "bit de execução": sem isto o git registra o
+// INICIAR.command como arquivo comum e o Mac recusa o duplo clique
+// ("não tem privilégios"). Marca direto no índice do git do pacote.
+if (await exists(path.join(OUT, '.git'))) {
+  try {
+    execFileSync('git', ['-C', OUT, 'add', 'INICIAR.command'], { stdio: 'ignore' });
+    execFileSync('git', ['-C', OUT, 'update-index', '--chmod=+x', 'INICIAR.command'], { stdio: 'ignore' });
+  } catch { log('     ⚠ não consegui marcar INICIAR.command como executável no git'); }
+}
 
 // Sobrou alguma referência externa que quebraria offline?
 const leftovers = [];
